@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- @import "www-head.kit" -->
+  <title>Cryptee</title>
+  <script id="fsc-api" src="../js/lib/fastspring-builder-0.7.4.min.js" type="text/javascript" data-storefront="svartlab.test.onfastspring.com/popup-cryptee"></script>
+  <meta id="user-currency" data-fsc-order-currency></meta>
+
+  <style media="screen">
+
+  section { margin: 3rem 0 3rem 0; }
+  .hero-margin { margin-top: 7.5rem; } .hero-margin-double { margin-top: 15rem; }
+  .hero-pad-left { padding-left: 7rem; }
+  .hero-head { font-weight: 200 !important; }
+
+  #hero-three {
+    height: 70vh;
+    background: url("../heroes/browsers.jpg");
+    background-position: top !important;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  #hero-four {
+    background-image: url("../backs/emma-r2.jpg");
+    background-position: bottom;
+  }
+
+  #hero-four .container, #hero-five .container {
+    margin-top: 8%;
+  }
+
+  #hero-five {
+    background: url("../backs/docbook.jpg");
+    background-position: top right !important;
+  }
+
+  @media (max-width:768px) {
+    .title {
+      font-size: 2rem !important;
+    }
+    .hero-margin { margin-top: 2.5rem; } .hero-margin-double { margin-top: 5rem; }
+    #hero-three {
+      height: 60vh;
+    }
+    .price-col {
+      margin-left: 1rem;
+      margin-right: 1rem;
+    }
+  }
+  </style>
+</head>
+
+<body class="index-body">
+
+<!-- @import "www-nav.kit" -->
+
+<section class="is-large" id="hero-one">
+
+    <div class="container">
+      <div class="columns">
+        <div class="column hero-margin">
+          <h1 class="title is-1 hero-head is-spaced">Secure Documents, <br class="is-hidden-desktop">Notes, Photos, Files and Contacts</h1>
+          <br>
+          <p>Your data is safe in our encrypted, zero-knowledge cloud.</p>
+          <p>We provide anonymity, security and ultimate deniability.</p>
+          <br>
+          <a href="signup" class="button hero-button">Create A Free Account</a>
+          &nbsp;
+          <br class="is-hidden-desktop">
+          <a href="signin" style="vertical-align: middle; vertical-align: -webkit-baseline-middle;">or &nbsp;<b>sign in</b></a>
+        </div>
+        <div class="column">
+          <img src="../heroes/macwin.jpg" alt="Cryptee on Mac and Win" style="width:100%; margin:auto;">
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="hero" id="hero-two">
+
+  <div class="container">
+    <div class="columns">
+      <div class="column">
+        <img src="../heroes/mobile.jpg" alt="Cryptee on Mac and Win" style="width:100%; margin:auto;">
+      </div>
+      <div class="column hero-margin hero-pad-left">
+        <h2 class="title is-2 is-spaced hero-head">Works on <br class="is-hidden-desktop">every phone</h2>
+        <b>No installation, no evidence.</b>
+        <p>Runs like a native app,</p>
+        <p>Just add a shortcut to your home screen.</p>
+        <br>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section class="hero" id="hero-three">
+
+  <div class="container hero-margin-double has-text-centered">
+    <h2 class="title is-2 is-spaced hero-head">Operating <br class="is-hidden-desktop">System <br class="is-hidden-desktop">Agnostic</h2>
+    <b>We don't discriminate.</b>
+    <p>Privacy is everyone's right.</p>
+    <br>
+    <a href="signup" class="button hero-button">Get Started</a>
+  </div>
+
+</section>
+
+<section class="hero index-hero" id="features">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <h2 class="title is-2 is-spaced hero-head">Features</h2>
+      <br><br>
+    </div>
+    <div class="container">
+
+      <div class="columns">
+        <div class="column is-one-third">
+          <!-- <figure class="image"><img src="../backs/thomas-kvistholt-191153.jpg" alt="Photo, by Thomas Kvistholt"></figure><br> -->
+          <h2 class="subtitle">Bulletproof Security</h2>
+          <p>Your documents, notes, photos, files and contacts are all encrypted using AES-128 before leaving your devices. This means, even with a supercomputer it would take nearly 1 billion years to brute-force crack open your data.</p>
+        </div>
+        <div class="column is-one-third">
+          <!-- <figure class="image"><img src="../backs/andrew-worley-299600.jpg" alt="Photo, by Andrew Worley"></figure><br> -->
+          <h2 class="subtitle">Anonymous Registry</h2>
+          <p>We do not require you to provide an email or anything personally identifiable to create your account with us. Only a username. You can choose to use an email if you wish.</p>
+        </div>
+        <div class="column is-one-third">
+          <!-- <figure class="image"><img src="../backs/thom-527.jpg" alt="Photo, by Thom"></figure><br> -->
+          <h2 class="subtitle">Privacy First</h2>
+          <p>Your documents, notes, photos, files and contacts are all encrypted before leaving your device. So even we can't see the contents of your data.</p>
+        </div>
+      </div>
+      <br>
+      <div class="columns">
+        <div class="column is-one-third">
+          <!-- <figure class="image"><img src="../backs/alex-robert-133576.jpg" alt="Photo, by Alex Robert"></figure><br> -->
+          <h2 class="subtitle">Ultimate Deniability</h2>
+          <p>We have a unique feature called Ghost Folders to temporarily hide your data, even if someone asks you to login to your account in front of them. This provides ultimate deniability under stresful conditions. Additionally, we don't have any apps, therefore nobody can accuse you of using our service by looking at your app downloads history.</p>
+        </div>
+        <div class="column is-one-third">
+          <!-- <figure class="level-item has-text-centered is-128x128"><img src="../backs/marjan-grabowski-279470.jpg" alt="Photo, by Marjan Grabowski"></figure><br> -->
+          <h2 class="subtitle">Easy to Use</h2>
+          <p>We believe that hard security shouldn't be hard to use. Cryptee can be used on any device, without any software install, straight from the web browser, and it can be added to your phone's home screen to work like a native application.</p>
+        </div>
+        <div class="column is-one-third">
+          <!-- <figure class="image"><img src="../backs/ilya-orehov-57808.jpg" alt="Photo, by Ilya Orehov"></figure><br> -->
+          <h2 class="subtitle">Locational Privacy</h2>
+          <p>We are based in Estonia, named "the most advanced digital society in the world" by Wired. Estonia being outside of the 14-eyes countries, our location provides us great protection against mass surveillance and corporate espionage.</p>
+        </div>
+      </div>
+
+    </div>
+    <!-- <br><br>
+    <div class="container has-text-centered">
+      <a class="button" href="features" target="_blank">Learn more about our features</a>
+    </div> -->
+  </div>
+</section>
+
+
+
+<section class="hero-with-image hero is-large is-hidden-mobile is-light" id="hero-four">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns">
+        <div class="column has-text-centered">
+          <h2 class="title is-2 is-spaced hero-head">Your private photos</h2>
+          <b>Safer than ever</b>
+          <br><br>
+          <a href="signup" class="button is-dark" style="background-color: #181818;">Create A Free Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero index-hero" id="pricing">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <h2 class="title is-2 is-spaced hero-head">Simple <br class="is-hidden-desktop">&amp; <br class="is-hidden-desktop">Flexible Pricing</h2>
+      <br><br>
+    </div>
+    <div class="container">
+      <div class="columns">
+        <div class="column is-half price-col">
+          <div class="free-plan-box">
+            <h2 class="subtitle">Basic Plan</h2>
+            <div class="cost"><p class="price">FREE</p></div>
+            <b>100 MB Storage</b> for your Documents &amp; Photos
+            <br><br>
+            <ul>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Sync across unlimited devices</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Unlimited Ghost Folders</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Unlimited Contacts</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Anonymous Sign Up</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Tagging for Documents &amp; Photos</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Code highlighting for 20+ languages</li>
+            </ul>
+            <br><br>
+            <a href="signup" class="button is-dark">Create an Account</a>
+          </div>
+        </div>
+        <div class="column is-half price-col">
+          <div class="paid-plan-box">
+            <h2 class="subtitle">Paid Plan</h2>
+
+            <div class="cost">
+              <p class="price">
+                <span style="width:100px; display:inline-block"><span class="cur">€ </span><span class="price" id="priceToPay">3</span><span class="per-period"> / mo</span></span>
+                <span class="period-selection"><span class="button period-button is-small" period="mo" amount="3" additional="1">Monthly</span> &nbsp; <span class="button period-button is-small is-white" period="yr" amount="30" additional="10">Yearly</span></span>
+              </p>
+            </div>
+            <b>10 GB Storage</b> for your Documents &amp; Photos
+            <br><br>
+            <ul>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Sync across unlimited devices</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Unlimited Ghost Folders</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Unlimited Contacts</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Anonymous Sign Up</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Tagging for Documents &amp; Photos</li>
+              <li><span class="icon"><i class="fa fa-check"></i></span> Code highlighting for 20+ languages</li>
+            </ul>
+            <br><br>
+            <b>Need More Storage?</b>
+            <p><span class="additional-cur">€</span><span class="additional-price">1.5</span><span class="per-period"> / mo</span> per additional 10 GB*</p>
+            <br>
+            <p class="deets">* = Price is prorated automatically based on usage.<br>So you will only pay for what you use.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero-with-image hero is-dark is-large is-hidden-mobile" id="hero-five">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-two-thirds">
+          <h1 class="title is-1 is-spaced">Lawyer?</h1>
+          <br><br>
+          <b>Your documents, notes, files and contacts</b>
+          <p>as private as your clients.</p>
+          <br><br>
+          <a href="signup" class="button hero-button">Create A Free Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<br><br>
+<section class="hero index-hero" id="security">
+  <div class="hero-body">
+
+    <div class="container has-text-centered">
+      <h2 class="title is-2 is-spaced hero-head">Security</h2>
+      <br><br>
+    </div>
+
+    <div class="container">
+
+      <div class="columns">
+        <div class="column">
+          <!-- <figure class="image">
+            <a href="security" target="_blank"><img src="../backs/david-werbrouck-304966.jpg" alt="Photo, by David Werbrouck"></a>
+          </figure> -->
+          <br>
+          <p>Cryptee is incorporated, engineered and designed to provide you the ultimate security, privacy and deniability.<br><br><b>Even we can't see the contents of your documents, notes, photos, files or contacts.</b><br><br>We know that security is a tricky topic, with lots of intricate details. If you wish to read more about how our security works, we have a dedicated page, detailing all the security measures we employ, how and where we store your data, and how we can provide you the affordable and flexible secure productivity suite we offer.</p>
+          <br><br>
+        </div>
+
+        <div class="column">
+          <!-- <figure class="image">
+            <a href="threat-model" target="_blank"><img src="../backs/trevor-paterson-368825.jpg" alt="Photo, by Trevor Paterson"></a>
+          </figure> -->
+          <br>
+          <p>Truth is, no company or service can secure and protect your data from all possible outcomes. We can't make this claim either. There are many things Cryptee can protect you from, however if you're planning on being the next Snowden, we wouldn't suggest you to use our service. If you are a high-profile celebrity, businessman or a lawyer who wants to keep their data or contacts private and safe, or just someone who wants their documents, notes, photos, files or contacts secure and away from prying eyes, Cryptee is for you. <br><br>Learn more about our threat model, read what threats Cryptee can protect your data from, and what it can't.</p>
+          <br><br>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="columns">
+        <div class="column">
+          <a class="button" href="security" target="_blank">Learn more about our security</a>
+        </div>
+        <div class="column">
+          <a class="button" href="threat-model" target="_blank">Read our threat model</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- @import "www-footer.kit" -->
+
+<script type="text/javascript">
+$('.period-button').on('click', function(event) {
+  $("#priceToPay").html($(this).attr("amount"));
+  $(".additional-price").html($(this).attr("additional"));
+  $(".per-period").html(" / " + $(this).attr("period"));
+  $(".period-button").addClass('is-white');
+  $(this).removeClass("is-white");
+});
+
+var slideCounter = 0;
+var totalSlides = 3;
+window.setInterval(function(){
+  slideCounter++;
+  if (slideCounter > totalSlides) {
+    slideCounter = 0;
+    $("#hero").removeClass('hero'+(totalSlides)).addClass('hero'+slideCounter);
+  } else {
+    $("#hero").removeClass('hero'+(slideCounter-1)).addClass('hero'+slideCounter);
+  }
+}, 4250);
+
+</script>
+</body></html>

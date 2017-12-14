@@ -1,0 +1,20 @@
+<div class="modal" id="key-modal">
+  <div class="modal-background key-modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-dark">
+      <p class="title"><span id="key-status">Please enter your encryption key</span></p>
+    </div>
+    <div class="notification">
+      <div class="field">
+        <p class="control">
+          <input id="key-input"  class="modal-input input" type="password" placeholder="Encryption Key" autocomplete="off">
+        </p>
+      </div>
+    </div>
+    <a class="button is-success" onclick="keyModalApproved ();">decrypt</a>
+    <a class="button is-danger" onclick="signOut();">not &nbsp; <span class="username"></span>?</a>
+  </div>
+  <div class="modal-img-credit">
+    <p class="has-text-centered"><a id="photo-credit" target="_blank">Photo Credit</a></p>
+  </div>
+</div>

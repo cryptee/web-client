@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <!-- @import "www-head.kit" -->
+
+  <script src="../js/lib/openpgp.min.js" ></script>
+
+  <title>Cryptee | Sign In</title>
+  <style media="screen">
+    html,
+    body {
+      height: 100% !important;
+      padding: 0;
+      margin: 0;
+    }
+
+    .login {
+      padding-top: 20px;
+    }
+
+    .hero-body .container {
+      margin-top: -100px;
+    }
+
+    .login-wrapper {
+      margin-bottom: 0 !important;
+      margin: -0.75rem;
+      overflow-y: hidden;
+    }
+
+    .login-wrapper .column {
+      padding-bottom: 0 !important;
+    }
+
+    .hero.is-dark .section {
+      background-color: transparent;
+    }
+
+    .hero-banner .hero {
+
+      background-position: center;
+      background-size: cover;
+      background-blend-mode: screen;
+    }
+
+    .hero-banner .title {
+      display: inline-block;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 7.5px;
+    }
+
+    .control {
+      margin-bottom: 5px;
+    }
+
+    .hero-banner {
+      padding: 0!important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-wrapper columns">
+    <div class="column is-8 is-hidden-mobile hero-banner">
+      <section class="hero is-fullheight is-dark">
+        <div class="hero-body">
+          <div class="container section">
+            <div class="has-text-right">
+              <h1 class="title is-1">Welcome back</h1><br>
+              <p class="title is-3">You're safe here.</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-footer">
+          <p class="has-text-centered"><a id="photo-credit" target="_blank">Photo Credit</a></p>
+        </div>
+      </section>
+    </div>
+    <div class="column is-4">
+      <section class="hero is-fullheight">
+        <div class="hero-heading">
+          <div class="section has-text-centered">
+            <a class="title" href="/"><img src="../assets/cryptee-logotype-b.svg" alt="Cryptee logo" class="small-logo"></a>
+          </div>
+        </div>
+        <div class="hero-body">
+          <div class="container">
+            <div class="columns">
+              <div class="column is-8 is-offset-2">
+
+                <div class="notification is-warning hidden" id="wrong-password">
+                  <div class="title is-5">Wrong credentials</div>
+                  <p>If you have an e-mail on file, please use that instead of your username, otherwise please try again</p>
+                </div>
+
+                <div class="notification is-warning hidden" id="user-disabled">
+                  <div class="title is-5">User Deactivated</div>
+                  <p>Seems like this username is deactivated.</p>
+                </div>
+
+                <div class="notification is-warning hidden" id="other-error">
+                  <div class="title is-5">Sorry.</div>
+                  <p>There seems to be an error signing you in. Please try again shortly.</p>
+                </div>
+
+                <div class="login-form">
+                  <!-- <p>sign in with username or email</p>
+                  <br> -->
+                  <p class="control has-icon has-icon-right">
+                    <input id="signin-user" class="input email-input" type="text" placeholder="username or email">
+                    <span class="icon user">
+                      <i class="fa fa-user"></i>
+                    </span>
+                  </p>
+                  <p class="control has-icon has-icon-right">
+                    <input id="signin-pass" class="input password-input" type="password" placeholder="password">
+                    <span class="icon user">
+                      <i class="fa fa-lock"></i>
+                    </span>
+                  </p>
+
+                  <p class="control login control-group">
+                    <button id="signin-button" class="button is-dark is-fullwidth">Sign in</button>
+                  </p>
+
+                  <!-- <hr>
+
+                  <p>or sign in using</p>
+                  <div class="columns">
+                    <div class="column">
+                      <button id="google-button" class="button is-fullwidth"><span class="icon"><i class="fa fa-google"></i></span><span>Google</button>
+                    </div>
+                    <div class="column">
+                      <button id="google-button" class="button is-fullwidth"><span class="icon"><i class="fa fa-github"></i></span><span>GitHub</button>
+                    </div>
+                  </div> -->
+                </div>
+
+
+
+                <div class="section forgot-password">
+                  <p class="has-text-centered">
+                    <a href="forgot" class="tag">Forgot password</a>
+                    <a href="signup" class="tag">Sign Up</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal login-key-modal" id="key-modal">
+    <div class="modal-background key-modal-background"></div>
+    <div class="modal-content">
+      <div class="notification is-dark">
+        <p class="title"><span id="key-status">Please enter your encryption key</span></p>
+      </div>
+      <div class="notification">
+        <div class="field">
+          <p class="control">
+            <input id="key-input" class="modal-input input" type="password" placeholder="Encryption Key">
+          </p>
+        </div>
+      </div>
+      <a class="button is-success" onclick="keyModalApproved ();">decrypt</a>
+      <a class="button is-danger" onclick="signOut();">not &nbsp; <span class="username"></span>?</a>
+    </div>
+  </div>
+
+  <!-- @import "footer-js.kit" -->
+  <script src="../js/signin.js?v=1.0.0"></script>
+</body>
+
+</html>

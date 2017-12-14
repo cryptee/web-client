@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "public",
+    "cleanUrls": true,
+    "rewrites": [
+      { "source": "/auth", "function": "auth" },
+      { "source": "/ordercomplete", "function": "ordercomplete" } 
+    ]
+  }
+}

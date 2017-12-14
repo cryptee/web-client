@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html class="is-loading">
+<head>
+
+  <!-- @import "app-head.kit" -->
+  <title>Crypt.ee | Account Settings</title>
+  <script src="../js/lib/zxcvbn.min.js"></script>
+
+</head>
+<body class="account-body is-loading">
+
+
+
+  <div class="home-header"></div>
+  <div class="columns is-mobile is-vcentered">
+    <div class="account-column column is-10 is-offset-1" style="height:100%; padding:0;">
+
+      <nav class="level" style="padding-top: 12px;">
+        <div class="level-left">
+          <div class="level-item level-left" style="margin-left:10px;">
+            <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
+              <ul>
+                <li title="Dashboard"> <a class="top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
+                <li title="Documents"> <a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-briefcase"></i></a></li>
+                <li title="Contacts"> <a class="top-left-icon" href="contacts"><i class="top-menu-icons fa fa-fw fa-address-book"></i></a></li>
+                <li title="Photos"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-camera"></i></a></li>
+                <li title="Account Settings" class="is-active"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
+                <li title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+                <li title="Upgrade" class="clickable" style="margin-left:10px;"> <a href="account#upgrade" id="upgrade-button" class="tag is-info" style="border-radius: 10px; color: #fff !important;">Upgrade</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="settings-top-right level-right">
+          <div class="level-item has-text-centered">
+            <p><span class="icon"><i class="fa fa-fw fa-user"></i></span>&nbsp;<span id="account-username"></span></p>
+          </div>
+          <div class="level-item has-text-centered">
+            <p><span class="icon"><i class="fa fa-fw fa-envelope"></i></span>&nbsp;<span id="account-email"></span></p>
+          </div>
+          <div class="level-item has-text-centered">
+            <p><span class="icon"><i class="fa fa-fw fa-tachometer"></i></span>&nbsp;<span id="settings-storage-used"></span> / <span class="settings-storage-total"></span></p>
+          </div>
+        </div>
+      </nav>
+
+      <div class="columns">
+
+        <div class="column is-one-quarter settings-left-column">
+          <p class="button settings-tab is-fullwidth is-light"  tab="planpayment" id="plan-setting">Plan &amp; Payment Settings</p>
+          <!-- <p class="button settings-tab is-fullwidth is-light"  tab="loginsettings">Login Settings</p> -->
+          <p class="button settings-tab is-fullwidth is-light"  tab="changepass">Change Password</p>
+          <p class="button settings-tab is-fullwidth is-light"  tab="recovery">Recovery Email</p>
+          <p class="button settings-tab is-fullwidth is-light"  tab="delete">Delete Account</p>
+          <p class="is-hidden-touch"><a href="/" class="footer-logo"><img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo"></a> &nbsp; v1.0 - <a href="/support" target="_blank">support</a> - <a href="https://goo.gl/forms/8Jvy2wJrD8GsFUq43" target="_blank">feedback</a></p>
+        </div>
+
+
+
+
+        <div class="column">
+
+
+
+          <div class="notification is-danger"  id="noemail" style="display:none;">
+            <p class="title">Verify Your Email</p>
+            <p class="subtitle"><br>Your email is not verified. Please check your inbox to verify your email.<br>If you didn't get the verification email, you can try resending it.</p>
+            <p class="button is-white" onclick="verifyEmail()" id="verify-email-button">Resend Email</p>
+          </div>
+
+
+
+
+
+          <div class="settings-tab-contents notification active" id="account-tab-contents">
+            <p class="title">Account</p>
+            <p>Welcome to your account settings. If you need help, please take a look at our support page.</p>
+          </div>
+
+
+
+          <div class="settings-tab-contents notification" id="planpayment-tab-contents">
+            <p class="title">Plan &amp; Payment Settings</p>
+            <p>Thank you for supporing us and our mission to defend privacy.<br>Here you can find your plan and payment details.</p>
+            <br><p class="title is-4">Plan Details</p>
+
+
+            <div class="columns">
+              <div class="column">
+                <b>Current Plan</b>
+              </div>
+              <div class="column">
+                <span class="settings-plan"></span> (<span class="settings-storage-total"></span>)
+              </div>
+              <div class="column">
+                <button class="button is-dark is-small change-plan-button" onclick="toggleChangePlanView()">Change Plan</button>
+              </div>
+            </div>
+
+            <div id="changePlanView"><hr>
+
+              <div class="columns">
+                <div class="column">
+                  <b>Free Plan</b>
+                </div>
+                <div class="column">
+                  <p><span class="additional-cur">€</span>0 (50MB Storage)</p>
+                  <p><br></p>
+                </div>
+                <div class="column">
+                  <button class="button is-dark is-small free-plan-change-button" onclick="showCancelSubsButton();">Cancel Subscription</button>
+
+                </div>
+              </div>
+
+              <div class="columns" id="cancelSubscriptionNotification" style="display:none;">
+                <div class="column">
+                  <div class="notification is-warning">
+                    <p>Your active subscription will be cancelled at the end of your current billing period, and until then you can keep using your paid account benefits.<br><br> If you're already using more storage than what the free plan provides, upon cancellation of your subscription your account will become read-only until you clear enough space.</p>
+                    <br>
+                    <button class="button is-dark is-small" onclick="cancelSubscription();">Cancel Subscription</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="columns" id="subscriptionCanceled" style="display:none;">
+                <div class="column">
+                  <div class="notification is-success">
+                    <p>Done. Your subscription is scheduled for cancellation at the end of your current billing period. This is to provide our users time to backup their data, calculate storage space usage better, and to prevent tricksters from de-activating &amp; re-activating quickly to game the payment system and reduce returns. You can read more about this in our FAQ Page &amp; Terms of Service.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="columns">
+                <div class="column">
+                  <b>Monthly Plan</b>
+                </div>
+                <div class="column">
+                  <p><span class="additional-cur">€</span>3/mo (1GB + premium support)</p>
+                  <p><span class="additional-cur">€</span>1/mo (Each additional 1GB)</p>
+                </div>
+                <div class="column">
+                  <button class="button is-dark is-small monthly-plan-change-button" onclick="showProrateToMonthly();">Subscribe Monthly</button>
+                </div>
+              </div>
+
+              <div class="columns" id="prorateToMonthlyNotification" style="display:none;">
+                <div class="column">
+                  <div class="notification is-info">
+                    <p>Your active subscription will be prorated, and you will only pay the amount due until today and your new subscription will start today.</p>
+                    <br>
+                    <button class="button is-light is-small" onclick="prorateToMonthly();">Switch to Monthly Payments</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="columns">
+                <div class="column">
+                  <b>Yearly Plan</b>
+                  <p>(2 months/year free)</p>
+                </div>
+                <div class="column">
+                  <p><span class="additional-cur">€</span>30/yr (1GB + premium support)</p>
+                  <p><span class="additional-cur">€</span>10/yr (Each additional 1GB)</p>
+                </div>
+                <div class="column">
+                  <button class="button is-dark is-small yearly-plan-change-button" onclick="showProrateToYearly();">Subscribe Yearly</button>
+                </div>
+              </div>
+
+              <div class="columns" id="prorateToYearlyNotification" style="display:none;">
+                <div class="column">
+                  <div class="notification is-info">
+                    <p>Your active subscription will be prorated, and you will only pay the amount due until today and your new subscription will start today.</p>
+                    <br>
+                    <button class="button is-light is-small" onclick="prorateToYearly();">Switch to Yearly Payments</button>
+                  </div>
+                </div>
+              </div>
+
+            <hr></div>
+            <br><p class="title is-4">Payment Details</p>
+
+            <div class="columns" id="payment-method">
+              <div class="column">
+                <b>Payment Method</b> (Last Used)
+              </div>
+              <div class="column">
+                <span class="settings-payment-method"></span>
+              </div>
+              <div class="column">
+                <button class="button is-dark is-small is-loading change-payment-method-button" disabled>Change Payment Method</button>
+              </div>
+
+            </div>
+
+            <div class="columns">
+              <div class="column">
+                <b>Payment History &amp; Invoices</b>
+              </div>
+              <div class="column">
+
+              </div>
+              <div class="column">
+                <button class="button is-dark is-small show-history-button" onclick="toggleHistoryView();">Show History &amp; Invoices</button>
+              </div>
+
+            </div>
+
+            <div id="historyView" style="display:none;"><hr>
+
+              <div class="columns">
+                <div class="column"><b>Charged Date</b></div>
+                <div class="column"><b>Charged Amount</b></div>
+                <div class="column"></div>
+              </div>
+              <span id="invoices"></span>
+              <div class="columns">
+                <div class="column"><b>Returned Date</b></div>
+                <div class="column"><b>Returned Amount</b></div>
+                <div class="column"><b>Reference</b></div>
+              </div>
+              <span id="returns"></span>
+
+            <hr></div>
+
+          </div>
+
+
+
+          <div class="settings-tab-contents notification" id="loginsettings-tab-contents">
+            <p class="title">Login Settings</p>
+            <b>2-Factor Authentication</b>
+            <br><br>
+            <p>We strongly recommend using 2-Factor Authentication, as it adds a layer of protection against simple keylogger attacks. <br>Currently we support time-based 2-factor authentication methods (like Google Authenticator), however support for U2F Keys (like Yubico) and Estonian ID-cards are also on the way.</p>
+            <br>
+            <b>Set up Time-based 2FA (like Google Authenticator)</b>
+            <p></p>
+          </div>
+
+
+
+          <div class="settings-tab-contents notification" id="changepass-tab-contents">
+            <p class="title">Change Password</p>
+
+            <div class="field">
+              <p class="control has-icons-left">
+                <input class="input" id="currentpass" type="password" placeholder="Current Password">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </p>
+            </div>
+
+            <div class="field">
+              <p class="control has-icons-left">
+                <input class="input" id="newpass" type="password" placeholder="New Password">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </p>
+              <progress id="pass-score" class="progress is-small" value="15" max="100">15%</progress>
+            </div>
+
+            <div class="field">
+              <p class="control has-icons-left">
+                <input class="input" id="newpassver" type="password" placeholder="Verify">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </p>
+              <p class="help is-danger">Doesn't match</p>
+            </div>
+            <p class="deets">If you forget this password, and if you have a recovery email on file, you can easily recover it.</p>
+            <br>
+            <p class="button is-white" id="change-pass-button">Change Login Password</p>
+          </div>
+
+
+
+
+
+          <div class="settings-tab-contents notification" id="recovery-tab-contents">
+            <p class="title">Recovery Email</p>
+
+            <div class="field">
+              <p class="control has-icons-left">
+                <input class="input" id="currentpass-email" type="password" placeholder="Current Password">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </p>
+            </div>
+
+            <div class="field">
+              <p class="control is-expanded has-icons-left">
+                <input class="input" id="recoveryemail" type="text" placeholder="Recovery Email">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-envelope"></i>
+                </span>
+              </p>
+            </div>
+            <p class="deets">If you have a recovery email set, you can only login using your email, and not your username.</p>
+            <p class="deets">While leaving this blank provides an added layer of anonymity, if you lose your account password you won't be able to receive a password recovery email.</p>
+            <br>
+            <p class="button is-white" id="change-email-button">Update Recovery Email</p>
+          </div>
+
+
+
+
+
+          <div class="settings-tab-contents notification is-danger" id="delete-tab-contents">
+            <p class="title">Delete Account</p>
+            <p>This will delete everything in your account immediately. There is no grace period. If you have a subscription it will be cancelled, all your files and everything we have in our servers about you will be destroyed immediately.</p>
+            <br>
+            <div class="field">
+              <p class="control has-icons-left">
+                <input class="input" id="currentpass-delete" type="password" placeholder="Current Password">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </p>
+            </div>
+            <br>
+            <p class="button is-white" id="delete-account-button">Delete Account</p>
+            <p class="button is-warning" id="delete-account-confirm-button" style="display:none;">Are you sure?</p>
+            <p id="cant-delete" style="display:none;"></p>
+          </div>
+
+
+
+
+          <div class="notification is-info" id="upgrade">
+            <p class="title">Upgrade</p>
+            <div class="columns is-desktop">
+              <div class="column" style="padding-left:0">
+                <p class="subtitle"><b>Paid Plan Includes</b></p>
+                <p>1GB Storage<br>Unlimited Documents<br>Premium Support</p>
+                <br>
+                <p class="subtitle"><b>Need more storage?</b></p>
+                <p>Each additional 1GB is <span class="additional-cur">€</span>1/mo or <span class="additional-cur">€</span>10/yr</p>
+                <br>
+                <p class="subtitle"><b>Your privacy matters.</b></p>
+                <p>Crypt.ee does not sell your information to third parties. We don't rely on advertising, or any other form of revenue. Only your support.
+                  <br>
+                  Help us defend privacy online &amp; offline.
+                </p>
+              </div>
+              <div class="column price-col" style="padding-right:0">
+
+                <nav class="level">
+                  <div class="level-item has-text-centered">
+                    <p><b>No commitment</b></p>
+                  </div>
+                </nav>
+
+                <nav class="level">
+                  <div class="level-item has-text-centered">
+                    <p class="heading"><span class="cur">€</span></p>
+                    <p class="title">3&nbsp;</p>
+                    <p> / month</p>
+                  </div>
+                </nav>
+
+                <nav class="level">
+                  <div class="level-item has-text-centered">
+                    <p class="button is-white subscribe-monthly-button" >Subscribe Monthly</p>
+                  </div>
+                </nav>
+
+                <br>
+
+                <nav class="level">
+                  <div class="level-item has-text-centered">
+                    <p><b>Pay less</b><br>(2 months free)</p>
+                  </div>
+                </nav>
+
+                <nav class="level">
+                  <div class="level-item has-text-centered">
+                    <p class="heading"><span class="cur">€</span></p>
+                    <p class="title">30&nbsp;</p>
+                    <p> / year</p>
+                  </div>
+                </nav>
+
+                <nav class="level">
+                  <div class="level-item has-text-centered">
+                    <p class="button is-white subscribe-yearly-button" >Subscribe Yearly</p>
+                  </div>
+                </nav>
+              </div>
+            </div>
+          </div>
+
+          <div class="notification is-danger" id="reauth-error" style="display:none;">
+
+          </div>
+
+
+
+
+
+
+          <p class="is-hidden-desktop">Cryptee v1.0 - <a href="/support" target="_blank">support</a> - <a href="https://goo.gl/forms/8Jvy2wJrD8GsFUq43" target="_blank">feedback</a></p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <div id="upgrade-thanks">
+    <div class="notification is-success">
+      <button class="delete"></button>
+      <p class="title">Thank you!</p>
+      <p>We have successfully upgraded your account.</p>
+      <p>You can always view your invoices, update your payment methods, payments settings and subscription plan from your account settings.</p>
+      <br>
+      <p>Once again, thank you for choosing to support us, and helping us defend privacy all over the world.</p>
+    </div>
+  </div>
+
+  <div id="bumpup-window">
+    <div class="notification is-info">
+      <button class="delete"></button>
+      <p class="title"></p>
+      <p id="bumpup-message"></p>
+      <br>
+      <button class="button is-success" onclick="bumpUpThePlan();">Upgrade Plan</button>
+    </div>
+  </div>
+
+  <div id="bumpdown-window">
+    <div class="notification is-success">
+      <button class="delete"></button>
+      <p class="title">Payment Update</p>
+      <p>You were using significantly less storage than the additional 1GB you were paying for. So we automatically took off <span class="additional-cur">€</span>1/mo (if you're on a monthly plan), or <span class="additional-cur">€</span>10/yr (if you're on a yearly plan) from your payments, and lowered your plan to save you money.</p>
+    </div>
+  </div>
+
+
+
+  <!-- @import "footer-js.kit" -->
+  <script src="../js/account.js?v=1.0.0"></script>
+  <script src="../js/upgrade.js?v=1.0.0"></script>
+</body></html>

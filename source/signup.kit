@@ -1,0 +1,175 @@
+<!DOCTYPE html><html>
+
+<head>
+
+  <!-- @import "www-head.kit" -->
+
+  <title>Cryptee | Sign up</title>
+  <script src="../js/lib/zxcvbn.min.js"></script>
+</head>
+
+<body class="signup-body">
+  <section class="hero is-fullheight is-dark is-bold">
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns is-vcentered">
+
+          <div class="column is-8 is-offset-2">
+            <p class="title"><a class="title" href="/"><img src="../assets/cryptee-logo-w.svg" alt="Cryptee logo" class="small-logo" style="vertical-align: bottom;"></a> &nbsp;<strong>sign up</strong></p>
+            <div class="box">
+
+              <div class="columns">
+
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Username *</label>
+                    <p class="control has-icons-left">
+                      <input id="signup-username" class="input" type="text" placeholder="jsmith" value="">
+                      <span class="icon is-small is-left">
+                        <i class="fa fa-user"></i>
+                      </span>
+                    </p>
+                    <p id="username-help" class="help is-danger">This username is taken</p>
+                  </div>
+                  <div class="field">
+                    <label class="label">Email</label>
+                    <p class="control has-icons-left">
+                      <input id="signup-email"  class="input" type="text" placeholder="jsmith@example.com" value="">
+                      <span class="icon is-small is-left">
+                        <i class="fa fa-envelope"></i>
+                      </span>
+                    </p>
+                    <p id="email-help" class="help is-danger">This email is invalid</p>
+                  </div>
+                </div>
+
+                <div class="column">
+                  <div class="notification" style="height: 100%;">
+                    <p class="deets">You only need a username to sign up for Cryptee.<br>
+                      <br>You can enter an email address if you wish. In that case, this email address will be your Cryptee username.
+                    </p>
+                  </div>
+                </div>
+
+              </div> <!--USERNAME / EMAIL COLUMNS -->
+
+
+              <hr>
+
+              <div class="columns">
+
+
+
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Password *</label>
+                    <p class="control has-icons-left has-icons-right">
+                      <input id="signup-pass" class="input" type="password" placeholder="●●●●●●●">
+                      <span class="icon is-small is-left">
+                        <i class="fa fa-lock"></i>
+                      </span>
+                    </p>
+                    <progress id="pass-score" class="progress is-small" value="15" max="100">15%</progress>
+                  </div>
+                  <div class="field">
+                    <label class="label">Verify Password *</label>
+                    <p class="control has-icons-left has-icons-right">
+                      <input id="signup-pass-ver" class="input" type="password" placeholder="●●●●●●●">
+                      <span class="icon is-small is-left">
+                        <i class="fa fa-lock"></i>
+                      </span>
+                    </p>
+                    <p class="help is-danger">Doesn't match</p>
+                  </div>
+                </div>
+
+                <div class="column">
+                  <div class="notification" style="height: 100%;">
+                    <p class="deets">Cryptee uses two passwords to keep your data secure. An <b>account password</b> and an <b>encryption key</b>.<br>
+                      <br>First, enter your account password here.<br>
+                      <br>If you ever wish to recover this password, Cryptee will need your email address. You can add a recovery email later.</p>
+                  </div>
+                </div>
+
+              </div>  <!-- PASSWORD COLUMNS -->
+
+
+
+              <hr>
+
+
+
+
+              <div class="columns">
+
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Encryption Key *</label>
+                    <p class="control has-icons-left has-icons-right">
+                      <input id="signup-key" class="input" type="password" placeholder="●●●●●●●">
+                      <span class="icon is-small is-left">
+                        <i class="fa fa-key"></i>
+                      </span>
+                    </p>
+                    <progress id="key-score" class="progress is-small" value="15" max="100">15%</progress>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Verify Encryption Key *</label>
+                    <p class="control has-icons-left has-icons-right">
+                      <input id="signup-key-ver" class="input" type="password" placeholder="●●●●●●●">
+                      <span class="icon is-small is-left">
+                        <i class="fa fa-key"></i>
+                      </span>
+                    </p>
+                    <p class="help is-danger">Doesn't match</p>
+                  </div>
+                </div>
+
+                <div class="column">
+                  <div class="notification" style="height: 100%;">
+                    <p class="deets">Second enter your <b>encryption key</b> here.<br>
+                      <br>Your encryption key never leaves your device nor sent to our servers. It is used to encrypt and decrypt your data on your device.<br>
+                      <br>If you ever forget or lose your Encryption Key, your notes will be forever inaccessible and unrecoverable.</p>
+                  </div>
+                </div>
+
+              </div> <!-- KEY COLUMNS -->
+
+
+
+              <hr>
+
+
+
+
+              <p class="control">
+                <nav class="level">
+                  <div class="level-left">
+                    <button id="signup-button" class="button is-primary">Sign Up</button>
+                  </div>
+                  <div class="level-right">
+                    <span class="deets signupterms">By clicking Sign Up, you agree to our <a href="/terms"><b>terms and conditions</b></a><br> and that you have read our <a href="/privacy"><b>privacy policy</b></a></span>
+                  </div>
+                </nav>
+              </p>
+
+            </div> <!-- BOX -->
+
+            <div id="signup-message" class="notification is-warning">
+              <button class="delete"></button>
+              <span>Seems like something's missing.</span>
+            </div>
+
+            <p class="has-text-centered">
+              <a href="signin">Sign In</a> | <a href="#">Need help or more info?</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <!-- @import "footer-js.kit" -->
+  <script src="../js/signup.js?v=1.0.0"></script>
+</body></html>

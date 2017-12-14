@@ -1,0 +1,10 @@
+/functions/node_modules
+.DS_Store
+/examples
+/functions
+/functions-cron
+/marketing
+/public
+database.rules.json
+.tern-project
+.tags

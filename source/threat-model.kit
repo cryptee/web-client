@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- @import "www-head.kit" -->
+
+  <title>Cryptee | Threat Model</title>
+</head>
+
+<body class="index-body">
+
+<!-- @import "www-nav.kit" -->
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container">
+        <div class="content">
+          <br><br>
+          <h1 class="title is-1 is-spaced">Threat Model</h1>
+          <p>In this section we will try to describe both the threats Cryptee is designed to guard against, and also the threats Crypee is <b>not</b> designed to counter.</p>
+          <br><br>
+          <h2>Overview</h2>
+          <p>We believe that unencrypted syncronized storage services or productivity tools have three major weaknesses in terms of security, and these are the core three issues we tried to address with Cryptee.</p>
+          <b>#1 - Trust</b>
+          <p>Unencrypted syncronized storage services authenticate you with your email &amp; password, and your files aren't encrypted in any way. There's multiple negative consequences of this approach.</p>
+          <p>- First is that the service you're using can see the contents of your files</p>
+          <p>- Second is that the company can run bulk-analysis on your files, and sell your data for advertising if they wish.</p>
+          <p>- Finally, governments can use mass-surveillance techniques to see the contents of your files.</p>
+          <p>How is Cryptee different?</p>
+          <p>Imagine having printed private photos, handing over these photos to your friend and say "Please keep these photos safe for me, and don't let anyone else see them". Your friend assures you that nobody else will see the photos. The problem with this approach is that your friend can still see these photos. Or make copies of them, or take a look at them whenever they please. Even worse, they can sell copies of them. This exactly is how unencrypted file storage and productivity services work. Based on trust. With Cryptee, imagine putting your private photos in a metal impenetrable box and putting a lock onto that box, that takes millions of years to crack. Now if you hand this box to your friend, your friend can still keep the box safe from others, but more importantly, your friend can't see what's inside either. This is the main reason why Cryptee is inherently safer, not because of trust, but individually-verifiable encryption. Your contacts or files never leave your devices unencrypted.</p>
+          <p>Finally, most of the storage services</p>
+          <p><a href="https://xkcd.com/1150/" target="_blank">Here's a relevant XKCD comic</a></p>
+          <br>
+          <b>#2 - Forceful access to account</b>
+          <p>In the field of cryptography, there's a concept called "<a href="https://en.wikipedia.org/wiki/Rubber-hose_cryptanalysis" target="_blank">Rubber-hose cryptanalysis</a>". A euphemism for the extraction of cryptographic secrets by means of using from a person by coercion or torture. Such as beating that person with a rubber hose, hence the name—in contrast to a mathematical or technical cryptanalytic attack..</p>
+          <p>Say you're in an abusive relationship, and your abusive partner is asking you to unlock your phone, or else they might beat you, or blackmail you etc. Situations like these arise from power asymmetry, a situation in which you are either forced to choose between losing privacy, "or else...". More and more we are entrusting pieces of our lives to our devices. Our phones, computers, and online accounts, absorb bits and pieces of our identities, leaving not so much privacy behind. Situations like these started happening at multiple different levels, not just in relationships, but in our daily lives. More and more companies are asking for access to their employees' social media accounts, emails; partners forcing one another to see financial or other information etc.</p>
+          <p>Cryptee is designed with humans and in-person deniability in mind. Our Ghost Folders feature allow you to hide (ghost) any folder temporarily, and it is only possible to bring back (summon) ghost folders if you know their names. This provides the user ultimate deniability under duress, if a third party gains access to your account by means of coercion or torture, they can't prove that you have a ghost folder, unless you choose to reveal the name of this folder.</p>
+          <p>We also designed Cryptee to make sure it works in mobile browsers like a native app when you pin it to your phone's homescreen. This is in consideration that having a native app download show up in your app downloads history could potentially put you in trouble, and make deniability harder. Being able to use Cryptee like a pinned web-app means that if you erase your browsing history, and unpin the app, you will have an easier time denying having used Cryptee should you ever need to.</p>
+
+          <p><a href="https://xkcd.com/538/" target="_blank">Here's a relevant XKCD comic</a></p>
+
+          <br>
+
+          <b>#3 - Ease of use</b>
+          <p>There are more and more services providing very complex means of securing your private data and communications. We think that data security and privacy is everyone's right, and it should be easily accessible by everyone, and not just experts or security researchers. So we designed Cryptee with everyone in mind. We strongly believe that even our non-techical grandparents should be able to use Cryptee to keep their old photos or documents safe. So if your grandparents find it hard to use, reach out to us with a proposed solution / feedback ;)</p>
+
+          <br>
+          <br>
+
+          <h2>Scenarios</h2>
+          <p>At Cryptee, our goal is to guard our users against mass surveillance, corporate espionage, forceful access to user accounts, and provide a safe, private and personal space for our users. The only way to do this is to give encryption to everybody and make it easy to use. This is why Cryptee works out of any modern web browser, and why we made our cryptography invisible to the user. Unfortunately, our approaches have certain shortcomings.</p>
+
+          <b>1 - Compromised User</b>
+          <p>This is the most common type of compromise. Even if you use the world's most secure storage service or productivity tool, advanced encryption is not going to help you, if there's a keylogger on your computer or phone recording all of your keystrokes, or a virus that can access your files / screen etc. Cryptee does not and can not guard against a compromised user's device.</p>
+          <p>Why do others don't do this too?</p>
+
+          <b>2 - Man-in-the-Middle (MITM) Attacks</b>
+          <p>This is a rare attack where an adversary will sit between the user and Cryptee servers and tamper with the data being relayed between the user and the server. However, because all your data is encrypted in your device, and never transmitted unencrypted, the attacker wouldn't be able to see the contents of your data by simply listening in on the communications. The only way the attacker can get the encrypted contents of your files or contacts' information is if they send a modified version of the Cryptee website, which may secretly pass your encryption key back to the attacker. This is a much more sophisticated and difficult attack that can typically only be executed by a very strong adversary (like a government) and is generally a targeted attack. It can't be easily used on a large scale to perform mass surveillance. To clarify, all unencrypted storage/productivity services are even more vulnerable to much more basic and simpler versions of this attack, due to the lack of need to decrypt the data, the attacker can simply listen and get the contents.</p>
+          <p>Fortunately, there are several ways to protect against a MITM attack. Cryptee employs SSL to ensure our encryption codes are properly delivered to your devices and not tampered with en-route. Generally, a successful MITM attack requires breaking SSL, typocally by using forged SSL certificates. There are browser plugins in existence today which can be used to detect forged certificates and greatly reduce the risk of a MITM attack. We recommend <a href="https://addons.mozilla.org/en-US/firefox/addon/certificate-patrol/" target="_blank">Certificate Patrol</a>.</p>
+
+          <b>3 - Unauthorized backdoor</b>
+          <p>Another attack vector would be if an attacker somehow gained access to Cryptee's servers without us noticing. Such an attacker could conceivably change Cryptee's code to send malicious pieces of code to the user's browser, which would somehow either allow the attacker to get users' unencrypted data directly or have the users' encryption keys sent for future use in a MITM attack.</p>
+          <p>Cryptee has implemented multiple safeguards against this threat on the server level. We have independent monitoring services that constantly scan for code changes and will detect &amp; notify us if there were any changes in Cryptee's code. The attacker could still hypothetically gain control of our servers, somehow gain control of other independent monitoring companies' tools and change their behavior, and change our own monitoring tools' behaviors, and then modify the software all without anybody at Cryptee noticing. This odds of this being successfully executed is of course very very low, as it involves having multiple companies' multiple servers and tools being compromised in harmony.</p>
+
+          <br>
+          <br>
+
+          <h2>Recommendations &amp; Use Cases</h2>
+          <p>With an overall risk analysis, Cryptee offers good (but certainly not perfect) protection for the vast majority of users. There are of course some risks for users facing a strong adversary such as a government focusing all its resources on a very specific target. Below is a breakdown of our recommended and not-recommended use-cases for Cryptee.</p>
+          <b>Not Recommended</b>
+          <p>Edward Snowden - If you are Snowden, or planning on being the next Snowden, and planning on taking on an intelligence agency or a government head to head, or have a life &amp; death situation that requires privacy, we wouldn't recommend using Cryptee.</p>
+
+          <b>Recommended</b>
+
+          <p>Sensitive Personal Documents, Files, Photos &amp; Contacts - You have sensitive business information that you want to make sure is protected from competitors and other malicious parties. For example, you fear a competitor may want to sue you under false pretenses to get access to sensitive data. In this case, Cryptee offers the best protection. We will not release ANY data unless provided with an enforcable court order. To get such an order the case must first work its way through Estonian courts. Even if an adversary went through the expensive and time consuming procedure of obtaining such an order, we would only be able to hand over the encrypted data, since we do not have your decryption keys, and have no way of cracking it open.</p>
+          <p>So if you're a lawyer who needs to keep their clients' names / contact information secure, a doctor who would like to keep their patient's files safe, or just a self-employed person hoping to keep your work safe, Cryptee is just what you need.</p>
+
+          <p>Private Citizen with Privacy Concerns - Cryptee is also perfect for individuals or corporations that does NOT want the government to have acecss to all of their emails at any time, and does not like Google, Microsoft, Apple, Facebook, Dropbox, Evernote or Amazon constantly scanning and archiving all of their personal data. With Cryptee the barrier of entry for mass surveillance is high enough that mass surveillance is simply not practical. This is an example where "good privacy" can act as a meaningful sustitute to "perfect privacy".</p>
+
+          <p>Private Citizen in a Power Asymmetry - Cryptee is designed for users who are in a lose-lose, power-asymmetry situation in mind. Our unique Ghost Folders feature allows users to have ultimate deniability in situations where our users are required to grant access to their accounts and comply, and refusal to comply might end up putting them in harms way.</p>
+          <p>So if you are in an abusive relationship, where your partner is forcing you to login to your account in front of them;<br>Or if your employer/boss wants you to login to your account in front of them or give them access;<br>Or if you're at an opressive security checkpoint, where you are either asked to login to your account in front of a security professional, or told to hand over your passwords;<br>Or if you regularly have to access your files in front of others, and you simply would not want them to see all your files and folders;</p>
+          <p>Cryptee can protect you in these moments.</p>
+
+          <br>
+          <br>
+
+          <h2>Conclusions</h2>
+          <p>We would like to conclude with a few thoughts about privacy and surveillance in general. We often hear that if you are NOT a criminal, or have nothing to hide, there is no need for privacy. To those critics, we quote what the wise people at <a href="https://protonmail.com/" target="_blank">ProtonMail</a> said: "Does that mean that only criminals have curtains over their windows?".</p>
+
+          <p>Over the few months of building Cryptee, we have heard from numerous critics that by building Cryptee, we are providing a powerful tool for criminals. To those critics we say, "You can go to a kitchen store and buy a knife. You both can cook &amp; feed your family with that knife, or hurt someone with it. Does that mean IKEA or kitchen stores shouldn't sell knives? Also does this mean a law abiding parent who wants to feed their kids with that knife should feel guilty for using this tool for good?"</p>
+          <p>There is no denying that Cryptee is a powerful <b>tool</b> that provides a high level of security and privacy for everyone. Including criminals. All tools and services can be used for good, or for bad by criminals. But one has to remember that the world does not consist of just criminals. There are also dissidents, and democracy activists living under authoritarian regimes where freedom of speech is not respected. Then there are the rest of us, law abiting private citizens, who simply want control over our online data. We can either choose to live in a world where everybody is under surveillance, or a world where everybody (criminals included) has privacy. We feel that the right to privacy is a fundamental human right, and we are willing to fight and work towards protecting that right.</p>
+
+          <br>
+          <br>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+<!-- @import "www-footer.kit" -->
+</body>
+
+</html>

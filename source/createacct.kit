@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- @import "www-head.kit" -->
+
+    <script src="../js/lib/openpgp.min.js" ></script>
+
+    <title>Cryptee | Creating Account</title>
+
+  </head>
+<body>
+
+<div class=".loader" style="width:100%; text-align:center; margin-top:20%;">
+  <i class="fa fa-circle-o-notch fa-spin fa-5x fa-fw"></i>
+</div>
+
+  <!-- @import "footer-js.kit" -->
+<script>
+
+var theUser;
+var theUserID;
+var theUsername;
+var dataRef;
+var theKey = JSON.parse(sessionStorage.getItem('key'));
+var retokening = false;
+var signinURL = "https://crypt.ee/auth";
+
+function getToken() {
+  if (!retokening) {
+    retokening = true;
+    firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
+
+      /////////////////
+      ///   add token to payload here.
+      ////////
+
+      $.ajax({ url: tokenURL, type: 'POST',
+          headers: {
+            "Authorization": "Bearer " + idToken
+          },
+          contentType:"application/json; charset=utf-8",
+          success: function(data){
+            gotToken(data);
+          },
+          error:function (xhr, ajaxOptions, thrownError){
+              console.log(thrownError);
+              retokening = false;
+          }
+      });
+    }).catch(function(error) {
+      // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-FETCHING ERRORS
+      console.log("error getting token");
+      retokening = false;
+    });
+  }
+}
+
+function gotToken(tokenData) {
+  var token = tokenData;
+  firebase.auth().signInWithCustomToken(token).then(function(){
+    checkUser();
+  }).catch(function(error) {
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    console.log(error);
+    // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
+    setTimeout(function () {
+      retokening = false;
+    }, 2500);
+    console.log("error signing in with token");
+  });
+}
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    //got user
+    theUser = user;
+    theUserID = theUser.uid;
+    theUsername = theUser.displayName;
+    getToken();
+  } else {
+    window.location = "index";
+  }
+});
+
+function userExists() {
+    console.log("USER EXISTS");
+    window.location = "home";
+}
+
+function newUser (){
+     createUserInDB();
+     console.log("NEW USER");
+}
+
+function checkUser() {
+    dataRef = db.ref().child('/users/' + theUserID + "/data/");
+    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+      var checkString = snapshot.val();
+      if (checkString){
+        userExists();
+      } else {
+        newUser();
+      }
+    });
+}
+
+var createUserCounter = 0;
+function createUserInDB() {
+  var theEpoch = (new Date()).getTime();
+  var theCheckEpoch = JSON.stringify((new Date()).getTime() + Math.floor(Math.random() * (10000000 - 1000 + 1)) + 1000);
+
+  openpgp.encrypt({ data: theCheckEpoch, passwords: [theKey], armor: true }).then(function(ciphertext) {
+      theCheck = JSON.stringify(ciphertext);
+      var newUserData = {
+        username: theUsername,
+        keycheck : theCheck,
+        created : theEpoch,
+        lastOpenDocID : "home",
+        foldersCount : 0
+      };
+      dataRef.set(newUserData, function(error){
+        if (error) {
+          if (createUserCounter < 3) {
+            createUserCounter++;
+            setTimeout(function () { createUserInDB(); }, 2000);
+          } else {
+            $(".loader").html("There seems to be a problem creating your account. <br />We're very sorry for the inconvenience. <br /> Please try again later");
+          }
+        } else {
+          createHomeDoc();
+        }
+      });
+  });
+}
+
+function createHomeDoc() {
+  var homeDelta = {"ops":[{"attributes":{"size":"large","bold":true},"insert":"Welcome Home!"},{"insert":"\n\nThis is your home document. It's your central dashboard, a document which you can access quickly to leave reminders / memoirs to yourself. \n"},{"attributes":{"strike":true},"insert":"It's like a super-resilient post-it document you can't delete"},{"insert":".\n\nSay you want a quick todo list ?\n\nYou can do that."},{"attributes":{"list":"bullet"},"insert":"\n"},{"insert":"You can list all the things you'd like to buy. "},{"attributes":{"list":"bullet"},"insert":"\n"},{"insert":"Or just add bullets."},{"attributes":{"list":"bullet"},"insert":"\n"},{"insert":"\nOr you can insert code. Your code will be automatically highlighted. We support 22 languages for now, and more to come.\nfunction helloWorld ( ) "},{"attributes":{"code-block":true},"insert":"\n"},{"insert":"{"},{"attributes":{"code-block":true},"insert":"\n"},{"insert":"\tconsole.log(\"Helloooo\");"},{"attributes":{"code-block":true},"insert":"\n"},{"insert":"}"},{"attributes":{"code-block":true},"insert":"\n"},{"insert":"\nYou can also upload images.\n"},{"attributes":{"italic":true},"insert":"Important : Your images will be encrypted with your document as well. Which means their size will increase exponentially upon upload. So try to use small images, since they'll impact your save & load time and overall experience in general. "},{"insert":"\n\nAnd let us know if you run into issues : \n"},{"attributes":{"link":"https://github.com/johnozbay/Crypt-Alpha/issues/"},"insert":"https://github.com/johnozbay/Crypt-Alpha/issues/"},{"insert":"\n"}]};
+  rootRef = store.ref().child('/users/' + theUserID);
+  var homeRef = rootRef.child("home.crypteedoc");
+  var homeDelta = JSON.stringify(homeDelta);
+
+  openpgp.encrypt({ data: homeDelta, passwords: [theKey], armor: true }).then(function(ciphertext) {
+      encryptedDocDelta = JSON.stringify(ciphertext);
+
+      var homeUpload = homeRef.putString(encryptedDocDelta);
+      homeUpload.on('state_changed', function(snapshot){
+        switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            break;
+        }
+      }, function(error) {
+        console.log("CREATE HOME FAILED. RETRYING IN 2 SECOND. Error: ", error);
+        setTimeout(function(){ createHomeDoc(); }, 2000);
+      }, function() {
+        setTimeout(function(){ signupComplete(); }, 2000);
+      });
+
+  });
+
+}
+
+function signupComplete(){
+  window.location = "home";
+}
+
+</script>
+</body>
+</html>

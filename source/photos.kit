@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- @import "app-head.kit" -->
+  <title>Crypt.ee | Photos</title>
+
+  <script src="../js/lib/masonry.pkgd.min.js"></script>
+</head>
+<body class="photos-body">
+  <div class="home-header"></div>
+  <div class="loading-message hero is-large is-bold is-dark">
+    <br> <span><i class="fa fa-circle-o-notch fa-spin fa-fw fa-3x"></i> <span id="status">Decrypting file</span></span> <br>
+  </div>
+  <div class="photos-column column is-10 is-offset-1" style="padding:0;">
+    <nav class="level" style="padding-top: 12px; margin-bottom: 12px;">
+      <div class="level-left">
+        <div class="level-item level-left" style="margin-left:10px;">
+          <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
+            <ul>
+              <li title="Dashboard"> <a class="top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
+              <li title="Documents"> <a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-briefcase"></i></a></li>
+              <li title="Contacts"> <a class="top-left-icon" href="contacts"><i class="top-menu-icons fa fa-fw fa-address-book"></i></a></li>
+              <li title="Photos"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-camera"></i></a></li>
+              <li title="Account Settings"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
+              <li title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+              <li title="Upgrade" class="clickable" style="margin-left:10px;"> <a href="account#upgrade" id="upgrade-button" class="tag is-info" style="border-radius: 10px; color: #fff !important;">Upgrade</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div id="search-bar" class="photos-search notification">
+      <div class="field is-grouped">
+        <p class="control is-expanded">
+          <input id="search-input" class="input" type="text" placeholder="Search for albums, photos, tags, locations">
+        </p>
+        <p class="control">
+          <a class="button is-dark">
+            <i class="top-menu-icons fa fa-search" style="font-size:1em;"></i>
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <nav class="level is-mobile">
+      <div class="level-left">
+        <div class="level-item level-left is-hidden-mobile">
+          <nav class="breadcrumb is-small photos-breadcrumb" aria-label="breadcrumbs">
+            <ul>
+              <li><a href="#"><span class="icon is-small"><i class="fa fa-home"></i></span></a></li>
+              <li><a href="#"><span class="icon is-small"><i class="fa fa-book"></i></span><span id="currentAlbumTitle">Album</span></a></li>
+              <li class="is-active"><a href="#"><span class="icon is-small"><i class="fa fa-photo" aria-hidden="true"></i></span><span id="currentPhotoTitle">Photo</span></a></li>
+            </ul>
+          </nav>
+        </div>
+        <div class="level-item level-left is-hidden-tablet">
+          <nav class="breadcrumb is-small photos-breadcrumb" aria-label="breadcrumbs">
+            <ul>
+              <li><a href="#"><span class="icon is-small"><i class="fa fa-arrow-left"></i></span></a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <div class="level-right">
+          <div class="level-item has-text-centered">
+            <button class="button is-small is-white"><span class="icon"><i class="fa fa-fw fa-book" style="margin-top: 1px;"></i></span><span>New Album</span></button>
+          </div>
+          <div class="level-item has-text-centered">
+            <button class="button is-small is-white"><span class="icon"><i class="fa fa-fw fa-cloud-upload" style="margin-top: 1px;"></i></span><span>Upload</span></button>
+          </div>
+        </div>
+    </nav>
+
+    <div class="photos-empty" style="padding:10rem;">
+      <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo" style="height:150px; padding:1rem 3rem;">
+      <h2 class="title">Let's get started.</h2>
+      <h3 class="subtitle">Drag photos or videos anywhere to upload.</h3>
+    </div>
+  </div>
+
+  <div id="photos-contents">
+      <div class="gridSizer"></div>
+      <div class="image"><img src="../backs/thom-527.jpg" alt="Photo, by Thom"></div>
+      <div class="image"><img src="../backs/thomas-kvistholt-191153.jpg" alt="Photo, by Thomas Kvistholt"></div>
+      <div class="image"><img src="../backs/warren-wong-238678.jpg" alt="Photo, by Warren Wong"></div>
+      <div class="image selected"><img src="../backs/alex-robert-133576.jpg" alt="Photo by Jay Wennington"></div>
+      <div class="image"><img src="../backs/ilya-orehov-57808.jpg" alt="Tallinn, by Ilya Orehov"></div>
+      <div class="image"><img src="../backs/marjan-grabowski-279470.jpg" alt="Photo, by Marjan Grabowski"></div>
+
+      <div class="image"><img src="../backs/thom-527.jpg" alt="Photo, by Thom"></div>
+      <div class="image"><img src="../backs/thomas-kvistholt-191153.jpg" alt="Photo, by Thomas Kvistholt"></div>
+      <div class="image"><img src="../backs/warren-wong-238678.jpg" alt="Photo, by Warren Wong"></div>
+      <div class="image"><img src="../backs/alex-robert-133576.jpg" alt="Photo by Jay Wennington"></div>
+      <div class="image"><img src="../backs/ilya-orehov-57808.jpg" alt="Tallinn, by Ilya Orehov"></div>
+      <div class="image"><img src="../backs/marjan-grabowski-279470.jpg" alt="Photo, by Marjan Grabowski"></div>
+
+      <div class="image"><img src="../backs/thom-527.jpg" alt="Photo, by Thom"></div>
+      <div class="image"><img src="../backs/thomas-kvistholt-191153.jpg" alt="Photo, by Thomas Kvistholt"></div>
+      <div class="image"><img src="../backs/warren-wong-238678.jpg" alt="Photo, by Warren Wong"></div>
+      <div class="image"><img src="../backs/alex-robert-133576.jpg" alt="Photo by Jay Wennington"></div>
+      <div class="image"><img src="../backs/ilya-orehov-57808.jpg" alt="Tallinn, by Ilya Orehov"></div>
+      <div class="image"><img src="../backs/marjan-grabowski-279470.jpg" alt="Photo, by Marjan Grabowski"></div>
+
+      <div class="image"><img src="../backs/thom-527.jpg" alt="Photo, by Thom"></div>
+      <div class="image"><img src="../backs/thomas-kvistholt-191153.jpg" alt="Photo, by Thomas Kvistholt"></div>
+      <div class="image"><img src="../backs/warren-wong-238678.jpg" alt="Photo, by Warren Wong"></div>
+      <div class="image"><img src="../backs/alex-robert-133576.jpg" alt="Photo by Jay Wennington"></div>
+      <div class="image"><img src="../backs/ilya-orehov-57808.jpg" alt="Tallinn, by Ilya Orehov"></div>
+      <div class="image"><img src="../backs/marjan-grabowski-279470.jpg" alt="Photo, by Marjan Grabowski"></div>
+
+      <div class="image"><img src="../backs/thom-527.jpg" alt="Photo, by Thom"></div>
+      <div class="image"><img src="../backs/thomas-kvistholt-191153.jpg" alt="Photo, by Thomas Kvistholt"></div>
+      <div class="image"><img src="../backs/warren-wong-238678.jpg" alt="Photo, by Warren Wong"></div>
+      <div class="image"><img src="../backs/alex-robert-133576.jpg" alt="Photo by Jay Wennington"></div>
+      <div class="image"><img src="../backs/ilya-orehov-57808.jpg" alt="Tallinn, by Ilya Orehov"></div>
+      <div class="image"><img src="../backs/marjan-grabowski-279470.jpg" alt="Photo, by Marjan Grabowski"></div>
+
+      <div class="image"><img src="../backs/thom-527.jpg" alt="Photo, by Thom"></div>
+      <div class="image"><img src="../backs/thomas-kvistholt-191153.jpg" alt="Photo, by Thomas Kvistholt"></div>
+      <div class="image"><img src="../backs/warren-wong-238678.jpg" alt="Photo, by Warren Wong"></div>
+      <div class="image"><img src="../backs/alex-robert-133576.jpg" alt="Photo by Jay Wennington"></div>
+      <div class="image"><img src="../backs/ilya-orehov-57808.jpg" alt="Tallinn, by Ilya Orehov"></div>
+      <div class="image"><img src="../backs/marjan-grabowski-279470.jpg" alt="Photo, by Marjan Grabowski"></div>
+  </div>
+
+  <!-- @import "modal-key.kit" -->
+
+  <!-- @import "footer-js.kit" -->
+  <script src="../js/photos.js"></script>
+  <script src="../js/upgrade.js"></script>
+</body></html>

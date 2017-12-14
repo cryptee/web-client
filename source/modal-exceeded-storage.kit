@@ -1,0 +1,41 @@
+<div class="modal" id="exceeded-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-light">
+      <p class="title">Exceeded Storage Space</p>
+      <p><b>Unfortunately you have used all the storage space you can get for free.</b></p><br>
+      <p>You can upgrade to our paid plan and remove all storage space limitations.</p><br><p>Paid plan will get you 10GB storage and premium support.<br>Should you need more storage, each additional 10GB is <span class="additional-cur">€</span>1.5/mo or <span class="additional-cur">€</span>15/yr</p>
+    </div>
+    <div class="notification is-light">
+      <p class="deets">If you don't wish to upgrade, you can of course open your documents &amp; files, but you won't be able to add new things or save your documents until you clean up some space.</p>
+    </div>
+
+    <div class="notification is-info" style="padding: 1.25rem;">
+
+      <nav class="level" style="margin-bottom: 1rem;">
+        <div class="level-item has-text-centered" style="padding-left: 10px;">
+          <p class="heading"><span class="cur">€</span></p>
+          <p class="title">3&nbsp;</p>
+          <p> / month</p>
+        </div>
+
+        <div class="level-item has-text-centered" style="padding-left: 10px;">
+          <p class="heading"><span class="cur">€</span></p>
+          <p class="title">30&nbsp;</p>
+          <p> / year</p>
+        </div>
+      </nav>
+
+      <nav class="level">
+        <div class="level-item has-text-centered">
+          <p class="button is-white subscribe-monthly-button">Subscribe Monthly</p>
+        </div>
+        <div class="level-item has-text-centered">
+          <p class="button is-white subscribe-yearly-button">Subscribe Yearly</p>
+        </div>
+      </nav>
+    </div>
+    <a class="button is-danger" onclick="closeExceededStorageModal()">Clean up&nbsp;<span class="exceeded-storage"></span></a>
+  </div>
+  <button class="modal-close"></button>
+</div>

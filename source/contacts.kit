@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- @import "app-head.kit" -->
+  <title>Crypt.ee | Contacts</title>
+
+</head>
+<body class="contacts-body">
+<div class="home-header"></div>
+
+<div class="columns is-vcentered">
+  <div class="column is-10 is-offset-1" style="height: 100%; padding:0;">
+
+    <nav class="level" style="padding-top: 12px; margin-bottom: 12px;">
+      <div class="level-left">
+        <div class="level-item level-left" style="margin-left:10px;">
+          <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
+            <ul>
+              <li title="Dashboard"> <a class="top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
+              <li title="Documents"> <a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-briefcase"></i></a></li>
+              <li title="Contacts" class="is-active"> <a class="top-left-icon" href="contacts"><i class="top-menu-icons fa fa-fw fa-address-book"></i></a></li>
+              <li title="Photos"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-camera"></i></a></li>
+              <li title="Account Settings"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
+              <li title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+              <li title="Upgrade" class="clickable" style="margin-left:10px;"> <a id="upgrade-button" class="tag is-info" style="border-radius: 10px; color: #fff !important;">Upgrade</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div id="search-bar" class="contacts-search notification" style="display:none;">
+      <div class="field is-grouped">
+        <p class="control is-expanded">
+          <input id="search-input" class="input" type="text" placeholder="Search for names, emails, addresses, phone numbers etc.">
+        </p>
+        <p class="control">
+          <a class="button is-dark">
+            <i class="top-menu-icons fa fa-search" style="font-size:1em;"></i>
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <article class="message is-dark" id="contacts-list">
+      <progress id="save-progress" class="progress is-dark" value="100" max="100"></progress>
+      <div class="message-header"style="padding-bottom: 1rem;">
+        <p id="contacts-status">Populating list...</p>
+
+        <span class="contacts-action-buttons">
+          <!-- buttons here -->
+
+          <span>
+            <label class="button is-dark" id="upload-contacts-button" for="contacts-import-input-two">
+              <span class="icon">
+                <i class="fa fa-cloud-upload"></i>
+              </span>
+            </label>
+            <input type="file" id="contacts-import-input-two" name="files[]" multiple />
+          </span>
+
+          <div class="button is-dark" id="export-contacts-button" onclick="exportContacts()">
+            <span class="icon">
+              <i class="fa fa-cloud-download"></i>
+            </span>
+          </div>
+
+          <div class="button is-dark" id="add-contact-button">
+            <span class="icon">
+              <i class="fa fa-plus"></i>
+            </span>
+          </div>
+
+
+        </span>
+      </div>
+      <div class="message-body" id="contacts-wrap">
+        <div class="columns" id="contact-columns">
+          <div class="column" id="contacts">
+            <span id="search-results" style="padding:0!important;"></span>
+            <span id="thecontactslist"></span>
+          </div>
+          <div class="column" id="contact-details">
+
+            <p class="notification is-dark" id="display-info">Select a contact to display their detailed information here.</p>
+            <p class="notification is-dark" id="contact-display"></p>
+            <div id="delete-contact" class="button is-danger" cid="">Delete Contact</div>
+            <div id="confirm-delete-contact" class="button is-success" cid="">Yes, Delete</div>
+            <div id="add-contact-box" class="notification is-dark">
+
+              <p class="title">Add Contact</p>
+              <div class="field">
+                <label class="label">Name</label>
+                <p class="control">
+                  <input type="text" name="" id="new-contact-name" class="input detail-input">
+                </p>
+              </div>
+              <div class="field">
+                <label class="label">Email</label>
+                <p class="control">
+                  <input type="text" name="" id="new-contact-email" class="input detail-input">
+                </p>
+              </div>
+              <div class="field">
+                <label class="label">Phone</label>
+                <p class="control">
+                  <input type="text" name="" id="new-contact-phone" class="input detail-input">
+                </p>
+              </div>
+              <div class="field">
+                <label class="label">Organization</label>
+                <p class="control">
+                  <input type="text" name="" id="new-contact-organization" class="input detail-input">
+                </p>
+              </div>
+              <div class="field">
+                <label class="label">Address</label>
+                <p class="control">
+                  <input type="text" name="" id="new-contact-address" class="input detail-input">
+                </p>
+              </div>
+              <div class="field">
+                <label class="label">Website</label>
+                <p class="control">
+                  <input type="text" name="" id="new-contact-website" class="input detail-input">
+                </p>
+              </div>
+              <div class="field">
+                <label class="label">Notes</label>
+                <p class="control">
+                  <textarea type="text" name="" id="new-contact-notes" class="textarea detail-area"></textarea>
+                </p>
+              </div>
+              <div class="button is-success" cid="" onclick="addContact()">Add Contact</div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     <div class="notification is-dark" id="contacts-welcome">
+        <p class="title is-1">Welcome</p>
+        <p class="title is-4">to the safest place for your contacts</p>
+        <p>Crypt.ee allows you to store your contacts in an encrypted way, and access them quickly.</p>
+        <p>Once you press "Import Contacts", your contacts are encrypted on your device with your encryption key, and only the encrypted address book is uploaded to our servers. So even we can't see the contents of your contacts.</p>
+        <br><p>Click "Import Contacts" below to start.</p>
+        <p>You can of course skip this step for now and import your contacts later if you wish.</p>
+        <br>
+        <p class="title is-4">Supported Formats</p>
+        <p>Currently we support Google CSV and Outlook CSV files. VCard support is on the way.</p>
+        <br>
+        <div id="inputs" style="display:inline-block">
+          <label class="button is-success" for="contacts-import-input">Import Contacts</label>
+          <input type="file" id="contacts-import-input" name="files[]" multiple />
+        </div>
+        <p class="button is-warning" onclick="skipImport()">Skip</p>
+     </div>
+
+     <div class="notification is-info" id="import-status">
+       <p class="title">Unpacking your contacts, please wait.</p>
+     </div>
+
+     <div class="notification is-dark" id="download-status">
+       <p class="title">Loading your contacts, please wait.</p>
+     </div>
+     <progress id="upload-progress" class="progress" value="0" max="100"></progress>
+
+     <div class="notification is-dark" id="decrypting-status">
+       <p class="title">Decrypting</p>
+     </div>
+
+     <div class="notification is-danger" id="api-unsupported">
+       <p class="title">Unsupported Browser Detected</p>
+       <p>Unfortunately it seems like your browser doesn't support processing files.</p>
+       <p>In order for our service to be zero-knowledge, we process and encrypt your files on your device/browser.</p>
+       <p>This is only required for the initial import. After your contacts' CSV files are processed and uploaded,  you can start using contacts without any problems.</p>
+       <br>
+       <p>You can either use another/newer browser to upload your contacts or add them by hand one by one.</p>
+       <br>
+       <a class="button is-dark">Add by hand</a>
+     </div>
+
+  </div>
+</div>
+
+<div class="modal" id="key-modal">
+  <div class="modal-background key-modal-background contacts-key-modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-dark">
+      <p class="title"><span id="key-status">Please enter your encryption key</span></p>
+    </div>
+    <div class="notification">
+      <div class="field">
+        <p class="control">
+          <input id="key-input"  class="modal-input input" type="password" placeholder="Encryption Key">
+        </p>
+      </div>
+    </div>
+    <a class="button is-success" onclick="keyModalApproved ();">decrypt</a>
+    <a class="button is-danger" onclick="signOut();">not &nbsp; <span class="username"></span>?</a>
+  </div>
+</div>
+
+<div class="modal" id="contact-details-modal">
+  <div class="modal-background"></div>
+
+  <div class="modal-content">
+    <div>
+      <p id="modal-status"></p>
+    </div>
+    <span id="contact-details-modal-contents">
+
+    </span>
+  </div>
+  <button id="contact-modal-close" class="modal-close"></button>
+</div>
+
+<div class="modal" id="exceeded-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-light">
+      <p class="title">Exceeded Storage Space</p>
+      <p><b>Unfortunately you have used all the storage space you can get for free.</b></p><br>
+      <p>You can upgrade to our paid plan and remove all storage space limitations.</p><br><p>Paid plan will get you 1GB storage and premium support.<br>Should you need more storage, each additional 1GB is <span class="additional-cur">€</span>1/mo or <span class="additional-cur">€</span>10/yr</p>
+    </div>
+    <div class="notification is-light">
+      <p class="deets">If you don't wish to upgrade, you can of course open your documents &amp; files, but you won't be able to add new things or save your documents until you clean up some space.</p>
+    </div>
+
+    <div class="notification is-info" style="padding: 1.25rem;">
+
+      <nav class="level" style="margin-bottom: 1rem;">
+        <div class="level-item has-text-centered" style="padding-left: 10px;">
+          <p class="heading"><span class="cur">€</span></p>
+          <p class="title">5&nbsp;</p>
+          <p> / month</p>
+        </div>
+
+        <div class="level-item has-text-centered" style="padding-left: 10px;">
+          <p class="heading"><span class="cur">€</span></p>
+          <p class="title">50&nbsp;</p>
+          <p> / year</p>
+        </div>
+      </nav>
+
+      <nav class="level">
+        <div class="level-item has-text-centered">
+          <p class="button is-white subscribe-monthly-button">Subscribe Monthly</p>
+        </div>
+        <div class="level-item has-text-centered">
+          <p class="button is-white subscribe-yearly-button">Subscribe Yearly</p>
+        </div>
+      </nav>
+    </div>
+    <a class="button is-danger" onclick="closeExceededStorageModal()">Clean up&nbsp;<span class="exceeded-storage"></span></a>
+  </div>
+  <button class="modal-close"></button>
+</div>
+
+<div id="low-storage-warning">
+  <div class="notification is-info">
+    <button class="delete"></button>
+
+    <span class="hideWithUpgradeButton">
+      <p class="title">You're about to run out of storage space.</p>
+      <p>You have used <b class="used-storage"></b> of your <b>50 MB</b> free storage space.</p>
+      <p>You can upgrade to our paid plan and remove all storage space limitations.</p><br>
+    </span>
+    <span class="showWithUpgradeButton">
+      <p class="title">Upgrade</p>
+      <b>Thank you so much for choosing to ugprade.</b>
+    </span>
+
+    <p>Paid plan will get you 1GB storage and premium support.<br>Should you need more storage, each additional 1GB is <span class="additional-cur">€</span>1/mo or <span class="additional-cur">€</span>10/yr</p>
+
+    <br>
+
+    <nav class="level" style="margin-bottom: 1rem;">
+      <div class="level-item has-text-centered" style="padding-left: 10px;">
+        <p class="heading"><span class="cur">€</span></p>
+        <p class="title">5&nbsp;</p>
+        <p> / month</p>
+      </div>
+
+      <div class="level-item has-text-centered" style="padding-left: 10px;">
+        <p class="heading"><span class="cur">€</span></p>
+        <p class="title">50&nbsp;</p>
+        <p> / year</p>
+      </div>
+    </nav>
+
+    <nav class="level">
+      <div class="level-item has-text-centered">
+        <p class="button is-white subscribe-monthly-button">Subscribe Monthly</p>
+      </div>
+      <div class="level-item has-text-centered">
+        <p class="button is-white subscribe-yearly-button">Subscribe Yearly</p>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<div id="upgrade-thanks">
+  <div class="notification is-success">
+    <button class="delete"></button>
+    <p class="title">Thank you!</p>
+    <p>We have successfully upgraded your account.</p>
+    <p>You can always view your invoices, update your payment methods, payments settings and subscription plan from your account settings.</p>
+    <br>
+    <p>Once again, thank you for choosing to support us, and helping us defend privacy all over the world.</p>
+  </div>
+</div>
+
+<div id="bumpup-window">
+  <div class="notification is-info">
+    <button class="delete"></button>
+    <p class="title"></p>
+    <p id="bumpup-message"></p>
+    <br>
+    <button class="button is-success" onclick="bumpUpThePlan();">Upgrade Plan</button>
+  </div>
+</div>
+
+<div id="bumpdown-window">
+  <div class="notification is-success">
+    <button class="delete"></button>
+    <p class="title">Payment Update</p>
+    <p>You were using significantly less storage than the additional 1GB you were paying for. So we automatically took off <span class="additional-cur">€</span>1/mo (if you're on a monthly plan), or <span class="additional-cur">€</span>10/yr (if you're on a yearly plan) from your payments, and lowered your plan to save you money.</p>
+  </div>
+</div>
+
+  <a id="download-anchor-elem" style="display:none"></a>
+
+  <!-- @import "footer-js.kit" -->
+  <script src="../js/contacts.js?v=1.0.0"></script>
+</body></html>
