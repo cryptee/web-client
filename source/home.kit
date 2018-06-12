@@ -1,30 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html class="is-loading" data-loading="Authenticating">
 
 <head>
   <!-- @import "app-head.kit" -->
   <title>Cryptee | Home</title>
 </head>
 
-<body class="home-body">
-
-
+<body class="home-body is-loading">
 
   <section class="hero is-fullheight">
 
     <div class="hero-head">
-      <div class="home-header">
-
-      </div>
       <div class="container">
         <nav class="level is-mobile">
 
           <div class="level-item level-left home-level-left">
             <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
               <ul>
-                <a class="nav-item" href="/"><img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo"></a>
+                <li title="Dashboard" class="is-active"> <a class="top-left-icon" href="#"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
+                <li title="Documents" class="hiddenForFinger"><a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
+                <li title="Photos" class="hiddenForFinger"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li>
                 <li title="Account Settings"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
-                <li title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+                <li class="is-hidden-webapp" title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="level-item level-right home-level-right">
+            <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
+              <ul>
+                <!-- <li title="Getting Started"><a class="top-left-icon" href="/start"><i class="top-menu-icons fa fa-fw fa-info-circle"></i></a></li> -->
+                <li title="Support"><a class="openInSafari" href="https://cryptee.kayako.com" target="_blank"><i class="top-menu-icons fa fa-fw fa-question-circle"></i><span class="is-hidden-touch">&nbsp; FAQ &amp; Support</span></a></li>
+                <li title="Support"><a class="clickable" onclick="showModal('donate-modal');">Donate</a></li>
               </ul>
             </div>
           </div>
@@ -34,32 +41,32 @@
 
     </div>
     <div class="hero-body">
-      <div class="container">
+      <div class="container" style="max-width: 100%;">
         <nav class="level home-title">
           <div class="level-item has-text-centered">
-            <p class="subtitle">Welcome home, <span class="username" style="font-weight:600"></span>.<br> Looks like you are using <span id="settings-storage-used" style="font-weight:600"></span> of your <span style="font-weight:600" class="settings-storage-total"></span> storage.</p>
+            <p class="subtitle">Welcome home, <span class="username" style="font-weight:600"></span>.<br> Looks like you are using <span id="settings-storage-used" style="font-weight:600">0 KB</span> of your <span style="font-weight:600" class="settings-storage-total"> 100 MB</span> storage.</p>
           </div>
         </nav>
         <br>
         <nav class="level">
           <div class="level-item has-text-centered">
             <a href="docs" class="home-item">
-              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-briefcase"></i></span></p>
+              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-file"></i></span></p>
               <p class="subtitle">Documents</p>
             </a>
-            <a href="contacts" class="home-item">
-              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-address-book"></i></span></p>
-              <p class="subtitle">Contacts</p>
-            </a>
             <a href="photos" class="home-item">
-              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-camera"></i></span></p>
+              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></span></p>
               <p class="subtitle">Photos</p>
+            </a>
+            <a href="account?action=upgrade" class="home-item" style="background-color:#1f9bcf; color:#FFF" id="home-upgrade-button">
+              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-certificate"></i></span></p>
+              <p class="subtitle" style="color:#FFF">Upgrade</p>
             </a>
           </div>
         </nav>
       </div>
     </div>
-    <div class="hero-foot">
+    <div class="hero-foot is-hidden-webapp">
       <nav class="level home-title">
         <div class="level-item has-text-centered">
           <p class="tag title is-6 is-light">not &nbsp;<span class="username"></span>?</p>
@@ -69,10 +76,13 @@
     </div>
   </section>
 
-  <!-- @import "www-footer.kit" -->
+  <!-- @import "modal-donate.html" -->
+  <!-- @import "modal-webapp.kit" -->
+  <!-- @import "footer-js.kit" -->
 
   <script type="text/javascript">
   var theUser, theUsername, theEmail, metaRef, theUserID;
+  loadUserDetailsFromLS();
 
   function formatBytes(bytes,decimals) {
      if (bytes === 0) { return '0 Bytes'; }
@@ -85,7 +95,7 @@
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (!user) {
-      window.location = "signin?redirect=home";
+      webAppURLController("signin?redirect=home");
     } else {
       //got user
       theUser = user;
@@ -93,35 +103,59 @@
       theEmail = theUser.email;
       theUserID = theUser.uid;
       metaRef = db.ref().child('/users/' + theUserID + "/meta/");
-      gotUser();
+      checkForExistingUser(function(){
+        gotUser();
+        webAppURLController();
+      });
+    }
+  }, function(error){
+    if (error.code !== "auth/network-request-failed") {
+      handleError(error);
     }
   });
+
+  function checkForExistingUser (callback){
+    callback = callback || noop;
+    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+      if (snapshot.val() === null) {
+        window.location = "signup.html?status=newuser";
+      } else {
+        callback();
+      }
+    });
+  }
 
   function gotUser() {
     $('.username').html(theUsername);
     metaRef.on('value', function(snapshot) {  gotUserMeta(snapshot.val());  });
   }
 
+  function gotUserMeta (meta) {
+    var usedStorage = 0;
+    allowedStorage = freeUserQuotaInBytes;
 
+    if (meta) {
+      if (meta.usedStorage) {
+        usedStorage = meta.usedStorage - 100000;
+        if (usedStorage <= 0) { usedStorage = 0; } else { usedStorage = meta.usedStorage; }
+      }
+      if (meta.allowedStorage) {
+        allowedStorage = meta.allowedStorage;
+      }
+    }
 
-  function gotUserMeta (meta){
-
-    usedStorage = meta.usedStorage || 0;
     $('#settings-storage-used').html(formatBytes(usedStorage, 0));
-
-    allowedStorage = meta.allowedStorage || freeUserQuotaInBytes;
     $('.settings-storage-total').html(formatBytes(allowedStorage, 0));
 
-    userPlan = meta.plan;
+    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
+
+    if (allowedStorage > freeUserQuotaInBytes) {
+      $("#home-upgrade-button").hide();
+    }
   }
 
-  function signOut(){
-    sessionStorage.removeItem('key');
-    firebase.auth().signOut().then(function() {
-      console.log('Signed Out');
-    }, function(error) {
-      console.error('Sign Out Error', error);
-    });
-  }
+  $(".home-item").on('click', function(event) {
+    $(this).addClass('is-loading');
+  });
   </script>
 </body></html>

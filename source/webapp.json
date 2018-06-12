@@ -1,7 +1,20 @@
 {
   "short_name": "Cryptee",
   "name": "Cryptee",
+  "icons": [
+    {
+      "src": "../assets/cryptee-icon-b.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "../assets/cryptee-icon-b.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
   "start_url": "/home.html",
   "display": "standalone",
-  "orientation": "portrait"
+  "background_color": "rgb(50,50,50)",
+  "theme_color" : "rgb(50,50,50)"
 }

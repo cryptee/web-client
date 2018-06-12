@@ -1,0 +1,54 @@
+<p class="title">Plan &amp; Payment Settings</p>
+<p>Thank you for supporing us and our mission to defend privacy.<br>Here you can find your plan and payment details.</p>
+
+<br><br><p class="title is-4">Current Plan</p>
+
+<div class="columns">
+  <div class="column">
+    <p><span class="settings-plan"></span> (<span class="settings-storage-total"></span>)</p><br>
+  </div>
+  <div class="column">
+    <button class="button is-dark is-small change-plan-button" onclick="showProrateView()">Change</button>
+    <br><br>
+    <button class="button is-dark is-small change-payment-button">Update Payment Method</button>
+  </div>
+</div>
+
+<hr>
+<div class="columns">
+  <div class="column">
+    <p>Unhappy?</p>
+  </div>
+  <div class="column">
+    <button class="button is-warning is-small cancel-sub-button" onclick="showCancelSubsButton()">Cancel Subscription</button>
+  </div>
+</div>
+
+<div class="columns" id="cancelSubscriptionNotification" style="display:none;">
+  <div class="column" style="padding-left: 0;">
+    <div class="notification is-warning">
+      <button class="delete closeCancelSubs"></button>
+      <p>Your active subscription will be cancelled immediately, and you will not be refunded for the days left on your subscription.<br><br> If you're already using more storage than what the free plan provides, upon cancellation of your subscription your account will become read-only until you clear enough space.</p>
+      <br>
+      <button class="button is-dark is-small" onclick="cancelSubscription();">Cancel Subscription</button>
+    </div>
+  </div>
+</div>
+
+<div class="columns" id="subscriptionCanceled" style="display:none;">
+  <div class="column">
+    <div class="notification is-success">
+      <p>Done. Your subscription will be cancelled in a minute.</p>
+    </div>
+  </div>
+</div>
+
+<div class="columns" id="prorateView" style="display:none;">
+  <div class="column">
+    <div class="notification is-info">
+      <p>Your active subscription will be prorated, and you will only pay the amount due until today and your new subscription will start today.</p>
+      <br>
+      <button class="button is-light is-small" onclick="prorateParallel();">Switch Payment Cycles</button>
+    </div>
+  </div>
+</div>

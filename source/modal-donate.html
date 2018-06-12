@@ -1,0 +1,67 @@
+<div class="modal" id="donate-modal">
+  <div class="modal-background" style="background-color:rgba(255,255,255,0.95)"></div>
+  <div class="modal-content" style="box-shadow:0 1rem 2rem rgba(0,0,0,0.1); border-radius:0.5rem;">
+
+    <div class="notification is-white">
+      <button class="delete" onclick="hideModal('donate-modal'); $('#btc-contents, #bch-contents, #donate-code-column').removeClass('open');"></button>
+
+      <p class="title">Donate to Cryptee</p>
+      <p>Your donations are truly appreciated!<br> Thank you for choosing to help us defend your privacy online!</p><br>
+      <p>Currently we only support donations via Bitcoin and Bitcoin Cash, but we will be adding more channels soon.</p><br>
+
+      <div class="columns">
+        <div class="column is-one-third" id="donate-column">
+          <div style="text-align:center; border-radius:1rem;">
+
+            <div class="donate-card-button" id="btc-donate-button">
+              <img src="../assets/btc-logo.svg" alt="Donate BTC to Cryptee : 31xdUTBe1Z12B9q8wqt5KvggYXwU1asgjX" id="btc-logo" style="width:50px;">
+              <p class="subtitle">Bitcoin (BTC)</p>
+            </div>
+
+            <div class="donate-card-button" id="bch-donate-button">
+              <img src="../assets/bch-logo.svg" alt="Donate BCH to Cryptee : 1P3ez4BMEpm1d2jwgJdv83Gi6wmVXaQtvs" id="bch-logo" style="width:50px;">
+              <p class="subtitle">Bitcoin Cash (BCH)</p>
+            </div>
+
+          </div>
+        </div>
+        <div class="column" id="donate-code-column">
+          <div style="text-align:center; border-radius:1rem;">
+
+            <div class="donate-card-contents" id="btc-contents">
+              <img src="../assets/btc-donation.png" alt="Donate BTC to Cryptee : 31xdUTBe1Z12B9q8wqt5KvggYXwU1asgjX" id="btc-donate-img">
+              <br><br>
+              <p id="btc-address" style="font-size:0.8rem">31xdUTBe1Z12B9q8wqt5KvggYXwU1asgjX</p>
+            </div>
+
+            <div class="donate-card-contents" id="bch-contents">
+              <img src="../assets/bch-donation.png" alt="Donate BCH to Cryptee : 1P3ez4BMEpm1d2jwgJdv83Gi6wmVXaQtvs" id="bch-donate-img">
+              <br><br>
+              <p id="bch-address" style="font-size:0.8rem">1P3ez4BMEpm1d2jwgJdv83Gi6wmVXaQtvs</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+  $("#btc-donate-button").on('click', function(event) {
+    $("#bch-contents").removeClass('open');
+    $("#btc-contents, #donate-code-column").addClass('open');
+    $("#donate-modal .modal-content").animate({ scrollTop: "300px" });
+  });
+
+  $("#bch-donate-button").on('click', function(event) {
+    $("#btc-contents").removeClass('open');
+    $("#bch-contents, #donate-code-column").addClass('open');
+    $("#donate-modal .modal-content").animate({ scrollTop: "300px" });
+  });
+
+</script>

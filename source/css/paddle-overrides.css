@@ -1,0 +1,69 @@
+.checkout .wrapper {
+  border-radius : 0;
+  box-shadow : none;
+}
+
+.purchase {
+  display: none;
+}
+
+.quantity {
+  display: none;
+}
+
+.viewTitle {
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+#countries {
+  margin-bottom: 1rem;
+}
+
+.icon.product-icon {
+  display: none;
+}
+​
+.title {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.checkout.mobile .title {
+  padding: 1rem;
+}
+
+.button {
+  text-shadow: none;
+  border-radius: 0;
+  background-color: #4BBF73;
+}
+
+.button:hover {
+  background-color: #42bb6c;
+}
+
+.field {
+  border-radius: 0;
+}
+
+#mpMethodToggle {
+  border: none;
+}
+
+.radio-payment {
+  border-radius: 0 !important;
+  border: none;
+}
+
+.radio-box {
+  border: none;
+}
+
+.checkout.mobile .button.paypal {
+  width:100%;
+}
+
+.button.paypal {
+  border-radius: 0;
+}

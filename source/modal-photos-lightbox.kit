@@ -1,0 +1,65 @@
+<div id="lightbox-modal">
+
+
+
+  <div id="lightbox-top-controls">
+
+    <!-- LEFT -->
+
+    <div class="button is-light is-medium" onclick="toggleExif();" id="lightbox-exif">
+      <span class="icon">
+        <i class="fa fa-info-circle fa-fw"></i>
+      </span>
+    </div>
+
+    <div class="button is-light is-medium" onclick="downloadActiveLightboxPhotoToDisk();" id="lightbox-download">
+      <span class="icon">
+        <i class="fa fa-download fa-fw"></i>
+      </span>
+    </div>
+
+    <div class="button is-light is-medium unclickable" onclick="toggleExif();" id="lightbox-exif">
+      <p id="lightboxPhotoDetails"></p>
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="button is-light is-medium" id="lightbox-close">
+      <span class="icon">
+        <i class="fa fa-close fa-fw"></i>
+      </span>
+    </div>
+
+    <div class="button is-light is-medium is-hidden-touch" onclick="toggleFullScreen();" id="lightbox-fullscreen">
+      <span class="icon">
+        <i class="fa fa-window-maximize fa-fw"></i>
+      </span>
+    </div>
+  </div>
+
+  <img id="lightbox-photo" draggable="false">
+  <div id="lightbox-spinner"></div>
+
+  <div id="lightbox-bottom-controls">
+    <div class="button is-light is-medium" onclick="showPrevPhoto();" id="lightbox-previous-photo-button">
+      <span class="icon">
+        <i class="fa fa-chevron-left fa-fw"></i>
+      </span>
+    </div>
+
+    <div class="button is-light is-medium" onclick="showNextPhoto();" id="lightbox-next-photo-button">
+      <span class="icon">
+        <i class="fa fa-chevron-right fa-fw"></i>
+      </span>
+    </div>
+  </div>
+
+  <div class="lightboxExif lightboxStuff behind">
+    <p class="title is-5 lightboxPhotoTitle" style="font-weight: bold;"></p>
+    <span id="exif-clock" class="icon"><i class="fa fa-fw fa-clock-o"></i></span> <span class="exif-date"></span><br>
+    <span id="exif-globe" class="icon"><i class="fa fa-fw fa-globe"></i></span> <span class="exif-coords"></span><br>
+    <span id="exif-cogs" class="icon"><i class="fa fa-fw fa-cogs"></i></span> <span class="exif-lens"></span><br>
+    <span id="exif-camera" class="icon"><i class="fa fa-fw fa-camera"></i></span> <span class="exif-cam"></span>
+  </div>
+
+</div>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <!-- @import "www-head.kit" -->
+  <title>Cryptee | Goodbye</title>
+  <style media="screen">
+    html,
+    body {
+      height: 100% !important;
+      padding: 0;
+      margin: 0;
+    }
+
+    .login {
+      padding-top: 20px;
+    }
+
+    .hero-body .container {
+      margin-top: -100px;
+    }
+
+    .login-wrapper {
+      margin-bottom: 0 !important;
+      margin: -0.75rem;
+      overflow-y: hidden;
+    }
+
+    .login-wrapper .column {
+      padding-bottom: 0 !important;
+    }
+
+    .hero.is-dark .section {
+      background-color: transparent;
+    }
+
+    .hero-banner .hero {
+
+      background-position: center;
+      background-size: cover;
+      background-blend-mode: screen;
+    }
+
+    .hero-banner .title {
+      display: inline-block;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 7.5px;
+    }
+
+    .control {
+      margin-bottom: 5px;
+    }
+
+    .hero-banner {
+      padding: 0!important;
+    }
+
+    li.is-active i { color: #000 !important; }
+    li.is-active path { fill: #000 !important; }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="login-wrapper columns">
+    <div class="column hero-banner">
+      <section class="hero is-fullheight is-dark">
+        <div class="hero-body">
+          <div class="container section">
+            <div class="has-text-right">
+              <h1 class="title is-1">We're sorry to see you leave.</h1><br>
+              <p class="title is-3">Stay hungry,<br class="is-hidden-tablet"> stay foolish.</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-footer">
+          <p class="has-text-centered"><a id="photo-credit" target="_blank">Photo Credit</a></p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- @import "footer-js.kit" -->
+  <script type="text/javascript">
+  var photoJSON = "https://static.crypt.ee/signin-photo.json?cachebust=" + latest;
+  var photoURL = "https://static.crypt.ee/signin-photo.jpg?cachebust=" + latest;
+
+  $(window).on("load", function(event) {
+    if (!isMobile) {
+
+      $.ajax({url: photoJSON}).done(function(data) {
+        var usObj = JSON.parse(data);
+
+        $('<img/>').attr('src', photoURL).on('load', function() {
+          $(this).remove();
+          $(".hero-banner .hero").css("background-image", "url("+photoURL+")");
+          $('#photo-credit').html("&copy; &nbsp;" + usObj.author + " via Unsplash");
+          $('#photo-credit').attr("href", usObj.author_url);
+        });
+      });
+
+    }
+  });
+
+  </script>
+</body>
+
+</html>

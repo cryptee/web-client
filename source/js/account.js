@@ -2,6 +2,8 @@ var theUser;
 var theUserID;
 var theUsername;
 var theEmail;
+var thePhone;
+var thePersonalCode;
 var theOrders, theReturns;
 var emailVerified;
 var connectedRef;
@@ -12,18 +14,64 @@ var foldersRef;
 var rootRef;
 var db = firebase.database();
 var store = firebase.storage();
+var firestore = firebase.firestore();
+var firestoreSettings = {timestampsInSnapshots: true}; firestore.settings(firestoreSettings);
+
 var reauthenticated = false;
 var willLoseAuthForDeletion = false;
 var connected;
 var userToken;
 var passVerified = false;
 var passIsGood = false;
+var keyVerified = false;
+var keyIsGood = false;
 var userPlan;
 var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-var acctURL = "";
+var loginMethod = "";
+var deletionMarkForData;
+var deletionMarkForMeta;
+var updateURL, cancelURL;
+var pendingProration = false;
 
-var invoiceURLBase = "https://svartlab.test.onfastspring.com/account/order/";
-var invoiceURLEnd = "/invoice";
+var productForPaddle = 523200;
+var emailForPaddle;
+var countryForPaddle;
+var zipForPaddle;
+var couponForPaddle;
+
+try {
+  sessionStorage.removeItem('key');
+} finally { }
+
+function paddleInit() {
+  // This is to how paddle detects mobile layout, so we use the same to make sure ours match
+  if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    $("#upgrade-form").addClass("paddleWillBeMobile");
+  }
+
+  paddleAffiliateAnalyticsClient = {};
+  paddleAnalyticsClient = {};
+  paddleAnalytics = {};
+
+  Paddle.Analytics = noop;
+  Paddle.Analytics.track = noop;
+  Paddle.Analytics.trackPageview = noop;
+  Paddle.Affiliate = noop;
+  Paddle.Affiliate.Event = noop;
+  Paddle.Affiliate.isAffiliate = noop;
+
+  Paddle.Options({
+    enableTracking: false,
+    poweredByBadge: false,
+    checkoutVariant: 'multipage-compact-payment'
+  });
+  Paddle.Setup({
+		vendor: 28922,
+    eventCallback: function(eventData) {
+      updatePrices(eventData);
+    }
+	});
+}
 
 //////////////////////////////////////////////////////
 //////////////////// HELPERS ////////////////////////
@@ -32,18 +80,43 @@ var invoiceURLEnd = "/invoice";
 
 $(".settings-tab").on('click', function(event) {
   whichTab = $(this).attr("tab");
+  loadTab(whichTab);
+});
+
+function loadTab(whichTab) {
+
+  if (whichTab === "upgrade") {
+    theKey = null;
+    loadJS('https://cdn.paddle.com/paddle/paddle.js', function(){
+      paddleInit();
+    }, document.body);
+  }
+
   $("#upgrade").hide();
   $("#upgrade-button").fadeIn(250);
   $(".settings-tab-contents").hide();
   $("#" + whichTab + "-tab-contents").show();
   $(".settings-tab.is-dark").removeClass('is-dark');
-  $(this).addClass('is-dark');
-});
+  $(".settings-tab[tab="+whichTab+"]").addClass('is-dark');
+}
 
 $("#upgrade-button").on('click', function(event) {
   $('#upgrade').fadeIn(250);
 });
 
+$('.period-button').on('click', function(event) {
+  $("#priceToPay").html($(this).attr("amount"));
+  $(".additional-price").html($(this).attr("additional"));
+  $(".per-period").html(" / " + $(this).attr("period"));
+  $(".period-button").addClass('is-white').css({"background-color" : "transparent"});
+  $(this).removeClass("is-white").css({"background-color" : "white"});
+});
+
+$(window).on('load', function(event) {
+  if (isInWebAppiOS || isInWebAppChrome) {
+    $("#acct-signout").hide();
+  }
+});
 
 //////////////////////////////////////////////////////////
 //////////////////// AUTHENTICATION  /////////////////////
@@ -53,9 +126,13 @@ $("#upgrade-button").on('click', function(event) {
 firebase.auth().onAuthStateChanged(function(user) {
   if (!user) {
     if (willLoseAuthForDeletion) {
-      window.location = "goodbye.html";
+      try { sessionStorage.removeItem('key'); } finally {
+        window.location = "goodbye.html";
+      }
     } else {
-      window.location = "signin.html?redirect=account";
+      try { sessionStorage.removeItem('key'); } finally {
+        webAppURLController("signin.html?redirect=account");
+      }
     }
   } else {
     //got user
@@ -71,10 +148,29 @@ firebase.auth().onAuthStateChanged(function(user) {
       ordersRef = db.ref().child('/users/' + theUserID + "/orders/");
       returnsRef = db.ref().child('/users/' + theUserID + "/returns/");
       foldersRef = db.ref().child('/users/' + theUserID + "/data/folders/");
+      photosRef = firestore.collection("users").doc(theUserID).collection("photos");
       rootRef = store.ref().child('/users/' + theUserID);
+      Raven.setUserContext({ id: theUserID });
+
       gotUser();
       reauthenticated = false;
+
+      var providerId;
+      if (theUser.toJSON().providerData[0]) {
+        providerId = theUser.toJSON().providerData[0].providerId;
+        if (providerId !== "" && providerId !== " ") {
+          loginMethod = providerId; //password //google.com //phone
+        }
+      } else {
+        loginMethod = "eid"; // if none, smartid.
+      }
+      arrangeSettings();
+      webAppURLController();
     }
+  }
+}, function(error){
+  if (error.code !== "auth/network-request-failed") {
+    handleError(error);
   }
 });
 
@@ -82,21 +178,38 @@ function gotUser() {
   $('#account-username').html(theUsername);
   if (theEmail.indexOf("@users.crypt.ee") !== -1) {
     // if anonymous email
-    $('#account-email').html("<span class='tag'>No Email</span>");
+
+    if (theEmail.startsWith("mid-")) {
+      thePersonalCode = theEmail.replace("mid-", "").replace("@users.crypt.ee", "");
+      thePhone = theUser.phoneNumber;
+      $("#account-phone").html(thePhone);
+      $("#account-personal-code").html(thePersonalCode);
+      $("#navbar-phone, #navbar-card").show();
+    }
+    if (theEmail.startsWith("sid-")) {
+      thePersonalCode = theEmail.replace("sid-", "").replace("@users.crypt.ee", "");
+      $("#account-personal-code").html(thePersonalCode);
+      $("#navbar-card").show();
+    }
+
+    $("#upgrade-email").show();
+
   } else {
     // if not anonymous email
     $('#account-email').html(theEmail);
+    $('#navbar-email').show();
     $("#recoveryemail").val(theEmail);
+    $("#upgrade-email-input").val(theEmail);
     if (!emailVerified) {
       console.log("not verified");
       $("#noemail").show();
     }
   }
 
-  dataRef.on('value', function(snapshot) {  gotUserData(snapshot.val());  });
-  metaRef.on('value', function(snapshot) {  gotUserMeta(snapshot.val());  });
-  ordersRef.on('value', function(snapshot) { theOrders = snapshot.val(); gotUserOrders(); });
-  returnsRef.on('value', function(snapshot) { theReturns = snapshot.val(); gotUserReturns(); });
+  dataRef.on('value', function(snapshot) {  gotUserData(snapshot.val()); fillDataExporter(snapshot, null, null); });
+  metaRef.on('value', function(snapshot) {  gotUserMeta(snapshot.val()); fillDataExporter(null, snapshot, null); });
+  ordersRef.on('value', function(snapshot) {  gotUserOrders(snapshot.val()); fillDataExporter(null, null, snapshot); });
+
   firebase.auth().currentUser.getIdToken(true).then(function(token) { userToken = token; });
 
   connectedRef.on("value", function(snap) {
@@ -107,198 +220,378 @@ function gotUser() {
     }
   });
 
-  dataRef.child("orderComplete").on('value', function(snapshot) {
-    orderCompleteBool = snapshot.val();
-    if (orderCompleteBool) {
-      orderComplete();
-      dataRef.update({"orderComplete" : ""});
-    }
-  });
+  checkForAction();
+}
 
+function checkForAction() {
+  var action = getUrlParameter("action") || "";
+  if (action !== "") {
+    loadTab(action);
+  }
 }
 
 
+function arrangeSettings() {
+
+  if (loginMethod === "password") {
+
+  } else if (loginMethod === "google.com") {
+    $("#changepassbutton, #recoveryemailbutton, #currentpass-delete-field").hide();
+    $('#google-reauth-message').show();
+  } else {
+    $("#changepassbutton, #recoveryemailbutton, #currentpass-delete-field").hide();
+    $('#eid-reauth-message').show();
+  }
+
+}
 
 $("#signout-button").on('click', function(event) {
   event.preventDefault();
   signOut();
 });
 
-function signOut (){
-  sessionStorage.removeItem('key');
-  firebase.auth().signOut().then(function() {
-    console.log('Signed Out');
-  }, function(error) {
-    Raven.captureException(JSON.stringify(error));
-    console.error('Sign Out Error', error);
-  });
+function checkDeletionMarks() {
+  if (deletionMarkForData && deletionMarkForMeta && willLoseAuthForDeletion) {
+    try { localStorage.removeItem('crypteeuser'); sessionStorage.clear(); sessionStorage.removeItem('key'); } finally {
+      window.location = "goodbye.html";
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+var gotDeletionEIDCode = false;
 
 function gotUserData (data) {
-  foldersCount = data.foldersCount;
-  $('#settings-folders-count').html(foldersCount);
+  if (data !== null) {
+    foldersCount = data.foldersCount;
+    $('#settings-folders-count').html(foldersCount);
 
-  if (data.accturl !== "geturl") {
-    if (data.accturl && acctURL === "") {
-      $(".change-payment-method-button").removeClass('is-loading').prop('disabled', false);
-      acctURL = data.accturl + "#/account";
-      $(".change-payment-method-button").prop('onclick',null).off('click').click(function(event) {
-        var win = window.open(acctURL, '_blank');
-        if (win) { win.focus(); }
-      });
+    if (data.cancelsub === "done"){
+      $('#cancelSubscriptionNotification').hide();
+      $('#subscriptionCanceled').show();
+      dataRef.update({"cancelsub" : null});
+      $("#cancelSubscriptionNotification").find("button").removeClass("is-loading").prop("disabled", false);
     }
-  } else {
-    dataRef.update({"accturl" : ""});
-    $(".change-payment-method-button").addClass('is-loading').prop('disabled', true);
-  }
 
-  if (data.cancelsub === "done"){
-    $('#cancelSubscriptionNotification').hide();
-    $('#subscriptionCanceled').show();
-    dataRef.update({"cancelsub" : null});
+    if (data.orderComplete) {
+      if (data.orderComplete === "yes" && !pendingProration) {
+        orderComplete();
+        dataRef.update({"orderComplete" : null});
+      }
+    }
+
+    if (data.prorate) {
+      if (data.prorate === "complete" && pendingProration) {
+        prorateComplete();
+        pendingProration = false;
+        dataRef.update({"prorate" : null});
+      }
+    }
+
+    var deleteCanceledError = false;
+    if (data.deletemecode) {
+      if (data.deletemecode !== "") {
+        gotEIDResponse(data.deletemecode);
+        gotDeletionEIDCode = true;
+      } else {
+        if (willLoseAuthForDeletion) {
+          deleteCanceledError = true;
+        }
+      }
+    } else {
+      if (willLoseAuthForDeletion) {
+        deleteCanceledError = true;
+      }
+    }
+
+    if (deleteCanceledError && gotDeletionEIDCode) {
+      $("#delete-account-button").removeClass('is-loading').prop('disabled', false);
+      $("#delete-account-confirm-button").removeClass('is-loading').prop('disabled', false);
+      showReauthPopup("is-warning", "Something went wrong. It seems that either you've cancelled the Smart-ID/Mobile-ID request, or our Smart-ID/Mobile-ID login system is experiencing some trouble. Please try again shortly.");
+    }
+
+  } else {
+    deletionMarkForData = true; checkDeletionMarks();
   }
 }
+
+
+
+
+
+
 
 function gotUserMeta (meta){
-  if (meta.hasOwnProperty("plan") && meta.plan !== "") {
-    db.ref().child('/users/' + theUserID + "/data/accturl").remove(function(){
-      dataRef.update({"accturl" : "geturl"});
-      acctURL = "";
-    });
+  if (meta !== null) {
 
-    $("#upgrade-button").parents("li").hide();
-    $("#upgrade").hide();
-    $("#payment-method").show();
-    $(".change-plan-button").html("Change Plan").removeClass('is-info');
-    populatePlanDetails(meta);
-  } else {
-    $('.settings-plan').html("Free Plan");
-    $(".free-plan-change-button").html("Current Plan").prop("disabled", true);
-    $(".yearly-plan-change-button").html("Subscribe Yearly").prop("disabled", false);
-    $(".monthly-plan-change-button").html("Subscribe Monthly").prop("disabled", false);
-    $("#payment-method").hide();
-    $(".change-plan-button").html("Upgrade").addClass('is-info');
-  }
+    usedStorage = meta.usedStorage - 100000;
+    if (usedStorage <= 0) { usedStorage = 0; } else { usedStorage = meta.usedStorage; }
+    $('#settings-storage-used').html(formatBytes(usedStorage));
 
-  usedStorage = meta.usedStorage;
-  $('#settings-storage-used').html(formatBytes(usedStorage));
+    allowedStorage = meta.allowedStorage || freeUserQuotaInBytes;
+    $('.settings-storage-total').html(formatBytes(allowedStorage));
 
-  allowedStorage = meta.allowedStorage || freeUserQuotaInBytes;
-  $('.settings-storage-total').html(formatBytes(allowedStorage));
+    if (meta.hasOwnProperty("plan") && meta.plan !== "") {
+      userPlan = meta.plan;
 
-  userPlan = meta.plan;
+      $("#upgrade-button").parents("li").hide();
+      $("#upgrade").hide();
+      $("#upgrade-setting").hide();
 
-  if (meta.deactivationDateDisplay) {
-    var deactivationColumn = '<div class="columns"><div class="column"><b>Subscription Cancellation Date</b></div><div class="column"><span id="cancellation-date"></span></div><div class="column"></div></div>';
-    if (meta.deactivationDateDisplay !== "soon") {
-      $("#changePlanView").before(deactivationColumn);
-      $("#cancellation-date").html(meta.deactivationDateDisplay);
-      $(".free-plan-change-button").html("Scheduled : " + meta.deactivationDateDisplay).prop("disabled", true);
+      $(".paid-plan-only").show();
+      $("#payment-method").show();
+      populatePlanDetails(meta);
+    } else {
+      $(".paid-plan-only").hide();
+      $("#upgrade-setting").show();
+
+      if (allowedStorage > freeUserQuotaInBytes) {
+        $("#upgrade-button").parents("li").hide();
+        $("#upgrade").hide();
+        $("#upgrade-setting").hide();
+      }
     }
-  }
 
-  $("body, html").removeClass('is-loading');
+    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
+
+    $("body, html").removeClass('is-loading');
+  } else {
+    deletionMarkForMeta = true; checkDeletionMarks();
+  }
 }
 
+function gotUserOrders(orders) {
+  if (orders !== null) {
+    $("#paymenthistorybutton").show();
+  } else {
+    $("#paymenthistorybutton").hide();
+  }
+}
 
+$("#close-upgrade-button").on("click", function(){
+  loadTab("account");
+});
+
+$("#upgrade-email-input, #upgrade-zip-input").on("keydown keypress paste copy cut change click", function(e) {
+  setTimeout(function(){
+    var einput = $("#upgrade-email-input").val().trim();
+    var zipinput = $("#upgrade-zip-input").val().trim();
+
+    if (einput !== "" && einput.indexOf("@") > 0) {
+      $("#upgrade-email-input").removeClass("is-danger").addClass("is-success");
+    } else {
+      $("#upgrade-email-input").removeClass("is-success").addClass("is-danger");
+    }
+
+    if (zipinput === "") {
+      $("#upgrade-zip-input").removeClass("is-success").addClass("is-danger");
+    } else {
+      $("#upgrade-zip-input").removeClass("is-danger").addClass("is-success");
+    }
+
+    var submit = false;
+    if (e.keyCode == 13) {
+      submit = true;
+    }
+
+    checkUpgradeForm(submit);
+  },50);
+});
+
+$("#upgrade-countries").on("change", function(){
+  if ($("#upgrade-countries").val() !== "") {
+    $(".upgrade-countries-select").removeClass("is-danger").addClass("is-success");
+  } else {
+    $(".upgrade-countries-select").removeClass("is-success").addClass("is-danger");
+  }
+});
+
+function checkUpgradeForm (submit) {
+  if ($("#upgrade-email-input").hasClass("is-success") && $("#upgrade-zip-input").hasClass("is-success") && $(".upgrade-countries-select").hasClass("is-success")) {
+    $(".paymentButton").prop("disabled", false);
+    if (submit) {
+      $(".paymentButton").click();
+    }
+  } else {
+    $(".paymentButton").prop("disabled", true);
+  }
+}
+
+$(".paymentButton").on("click",function(){
+  var plan = $(".per-period").html().replace(" / ", "");
+
+  if (plan === "mo") {
+    productForPaddle = 523200;
+  } else {
+    productForPaddle = 523300;
+  }
+
+  emailForPaddle = $("#upgrade-email-input").val().trim();
+  countryForPaddle = $("#upgrade-countries").val();
+  zipForPaddle = $("#upgrade-zip-input").val().trim();
+  couponForPaddle = $("#upgrade-coupon-input").val().trim() || "";
+
+  $("#upgrade-form").addClass("is-loading");
+  $("#upgrade-form, .upgrade-container").addClass("is-white");
+  $("#upgrade-reason").addClass("is-small");
+  openPaddle();
+});
+
+function openPaddle () {
+  Paddle.Checkout.open({
+    method: 'inline',
+    frameTarget: 'checkout-container', //classname of checkout container
+    frameInitialHeight: 360,
+    frameStyle: 'width:320px; border: none; background: transparent;',
+    product: productForPaddle,
+    disableLogout : true,
+    successCallback : 'paymentSuccessful',
+    closeCallback : 'paymentTerminated',
+    email : emailForPaddle,
+    guest_country : countryForPaddle,
+    guest_postcode : zipForPaddle,
+    coupon : couponForPaddle,
+    passthrough : theUserID
+  });
+
+  $(PaddleFrame).on('load', function(){
+    $("#upgrade-form").removeClass("is-loading");
+    $(".checkout-container").addClass("is-visible");
+  });
+
+  $("#upgrade-container-deets").fadeOut();
+}
+
+// unnecessary but keeping anyway.
+function paymentSuccessful(data) {}
+function paymentTerminated(data) {}
 
 function populatePlanDetails (meta) {
   plan = meta.plan;
-  if (plan.includes('monthly')) {
+
+  if (plan < 523300) {
     $('.settings-plan').html("Monthly Plan");
-    $(".free-plan-change-button").html("Cancel Subscription").prop("disabled", false);
-    $(".yearly-plan-change-button").html("Subscribe Yearly").prop("disabled", false);
-    $(".monthly-plan-change-button").html("Current Plan").prop("disabled", true);
-  } else if (plan.includes('yearly')){
-    $('.settings-plan').html("Yearly Plan");
-    $(".free-plan-change-button").html("Cancel Subscription").prop("disabled", false);
-    $(".monthly-plan-change-button").html("Subscribe Monthly").prop("disabled", false);
-    $(".yearly-plan-change-button").html("Current Plan").prop("disabled", true);
+    $(".change-plan-button").html("Switch to Yearly Plan").prop("disabled", false);
   } else {
-    $('.settings-plan').html("Unlimited Plan");
-    $(".change-plan-button").prop("disabled", true);
-    $(".change-payment-method-button").prop("disabled", true);
-    $(".show-history-button").prop("disabled", true);
+    $('.settings-plan').html("Yearly Plan");
+    $(".change-plan-button").html("Switch to Monthly Plan").prop("disabled", false);
   }
+
+  $(".change-payment-button").click(function(){
+    popupLoadURL(meta.updateurl, "Cryptee : Update Payment Method", 400, 600);
+  });
 }
 
-function gotUserOrders() {
-  if (theOrders !== null) {
-    var latestOrder = Object.keys(theOrders).reduce(function(a, b){ return theOrders[a] > theOrders[b] ? a : b; });
-    var paymentMethod = theOrders[latestOrder].payment.type;
+function updatePrices(data) {
+  // var hasApplePay = data.checkoutData.apple_pay_enabled;
+  var currencyLabels = document.querySelectorAll(".currency");
+  var subtotal = data.eventData.checkout.prices.customer.total - data.eventData.checkout.prices.customer.total_tax;
 
-    if (paymentMethod === "PayPal" || paymentMethod === "paypal") {
-      $(".settings-payment-method").html(paymentMethod);
-    } else {
-      var paymentEnding = theOrders[latestOrder].payment.cardEnding || "";
-      $(".settings-payment-method").html(paymentMethod + "<br>" + paymentEnding);
+  for(var i = 0; i < currencyLabels.length; i++) {
+    currencyLabels[i].innerHTML = data.eventData.checkout.prices.customer.currency + " ";
+  }
+
+  document.getElementById("checkout-subtotal").innerHTML = subtotal.toFixed(2);
+  document.getElementById("checkout-tax").innerHTML = data.eventData.checkout.prices.customer.total_tax;
+  // document.getElementById("checkout-total").innerHTML = data.eventData.checkout.prices.customer.total;
+
+  if (data.eventData.checkout.recurring_prices) {
+    var recurringCurrency = data.eventData.checkout.recurring_prices.customer.currency;
+    var recurringTotal = data.eventData.checkout.recurring_prices.customer.total;
+    var intervalType = data.eventData.checkout.recurring_prices.interval.type.replace("month", "mo").replace("year", "yr");
+    var intervalCount = data.eventData.checkout.recurring_prices.interval.length;
+
+    if(intervalCount > 1) {
+      var recurringString = '<span class="is-line-value">'+recurringCurrency+" "+recurringTotal+"/"+intervalCount+" "+intervalType+"s</span>";
+    }
+    else {
+      var recurringString = '<span class="is-line-value">'+recurringCurrency+" "+recurringTotal+"/"+intervalType+"</span>";
     }
 
-    $.each(theOrders, function(index, order) {
-      var date = new Date(order.time);
-      var orderDate = monthNames[date.getMonth()] + " " + date.getDate() + " " + date.getFullYear();
-      var orderCard = '<div class="columns" id="'+order.time+'">' +
-                        '<div class="column">'+ orderDate +'</div>' +
-                        '<div class="column">'+ order.charge +'</div>' +
-                        '<div class="column">' +
-                          '<a href="'+invoiceURLBase + order.referenceid + invoiceURLEnd+'" target="_blank" class="button is-dark is-small">View Invoice</a>' +
-                        '</div>' +
-                      '</div>';
-      if ($("#"+order.time).length <= 0) {
-        $("#invoices").append(orderCard);
-      }
-    });
-
-    $("#invoices .columns").sort(function(a, b) {
-      return parseInt(b.id) - parseInt(a.id);
-    }).each(function() {
-      var elem = $(this);
-      elem.remove();
-      $(elem).appendTo("#invoices");
-    });
+    // document.getElementById("checkout-recurringPrice").innerHTML = recurringString;
+    document.getElementById("checkout-total").innerHTML = recurringString;
   }
+
+  $(".the-methods").fadeOut(500, function(){
+    $(".the-totals").fadeIn(500);
+  });
 }
 
-
-function gotUserReturns() {
-  if (theReturns !== null) {
-    var latestReturn = Object.keys(theReturns).reduce(function(a, b){ return theReturns[a] > theReturns[b] ? a : b; });
-
-    $.each(theReturns, function(index, areturn) {
-      var date = new Date(areturn.time);
-      var returnDate = monthNames[date.getMonth()] + " " + date.getDate() + " " + date.getFullYear();
-      var returnCard = '<div class="columns" id="'+areturn.time+'">' +
-                        '<div class="column">'+ returnDate +'</div>' +
-                        '<div class="column">'+ areturn.amount +'</div>' +
-                        '<div class="column">'+ areturn.returnreference+'</div>' +
-                       '</div>';
-      if ($("#"+areturn.time).length <= 0) {
-        $("#returns").append(returnCard);
-      }
-    });
-
-    $("#returns .columns").sort(function(a, b) {
-      return parseInt(b.id) - parseInt(a.id);
-    }).each(function() {
-      var elem = $(this);
-      elem.remove();
-      $(elem).appendTo("#returns");
-    });
-
-  }
-}
-
-function toggleChangePlanView() {
-  if (userPlan !== "" && userPlan !== undefined && userPlan !== null) {
-    $("#changePlanView").toggle();
-  } else {
-    $('#upgrade').fadeIn(250);
-  }
-}
 
 function toggleHistoryView() {
   $("#historyView").toggle();
 }
+
+
+function showCancelSubsButton() {
+  $("#cancelSubscriptionNotification").fadeIn();
+  $("#prorateView").fadeOut();
+}
+
+$(".closeCancelSubs").on('click', function(){
+  $("#cancelSubscriptionNotification").fadeOut();
+});
+
+function cancelSubscription() {
+  dataRef.update({"cancelsub" : "cancel"});
+  $("#cancelSubscriptionNotification").find("button").addClass("is-loading").prop("disabled", true);
+}
+
+function showProrateView () {
+  $("#prorateView").fadeIn();
+  $("#cancelSubscriptionNotification").fadeOut();
+}
+
+function prorateParallel (){
+  pendingProration = true;
+  $("#prorateToYearlyNotification").fadeOut();
+  $("#prorateView").find("button").addClass("is-loading").prop("disabled", true);
+  if (plan < 523300) {
+    dataRef.update({"prorate" : "toYearly"});
+  } else {
+    dataRef.update({"prorate" : "toMonthly"});
+  }
+}
+
+function prorateComplete() {
+  $("#prorateView").find("button").removeClass("is-loading").prop("disabled", false);
+  $("#prorateView").fadeOut();
+}
+
+function emailInvoices() {
+  var addressToUse = $("#invoice-email").val().trim();
+  $(".email-invoices-button").addClass("is-loading").prop("disabled", true);
+  Paddle.User.History(addressToUse, null, function(response) {
+    if(response.success) {
+      $(".email-invoices-button").removeClass("is-loading").prop("disabled", false);
+      $(".email-invoices-button").removeClass("is-dark").addClass("is-success").html("Check your inbox").prop("disabled", true);
+    } else {
+
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -313,9 +606,10 @@ function reauthForPass (){
   var currentPass = $("#currentpass").val();
   var credential = firebase.auth.EmailAuthProvider.credential(theUser.email, currentPass);
   reauthenticated = true;
-  theUser.reauthenticateWithCredential(credential).then(function() {
+  theUser.reauthenticateAndRetrieveDataWithCredential(credential).then(function() {
     changePassword();
   }, function(error) {
+    $("#change-pass-button").removeClass('loading disabled');
     showReauthPopup("is-warning", "Please check your current password and try again.");
   });
 }
@@ -325,26 +619,76 @@ function reauthForEmail (){
   var currentPass = $("#currentpass-email").val();
   var credential = firebase.auth.EmailAuthProvider.credential(theUser.email, currentPass);
   reauthenticated = true;
-  theUser.reauthenticateWithCredential(credential).then(function() {
+  theUser.reauthenticateAndRetrieveDataWithCredential(credential).then(function() {
     changeEmail();
   }, function(error) {
+    $("#change-email-button").removeClass('loading disabled');
     showReauthPopup("is-warning", "Please check your current password and try again.");
   });
 }
 
 function reauthForDelete (){
-  $("#delete-account-button").addClass('loading disabled');
-  $("#delete-account-confirm-button").addClass('loading disabled');
-  var currentPass = $("#currentpass-delete").val();
-  var credential = firebase.auth.EmailAuthProvider.credential(theUser.email, currentPass);
+  $("#delete-account-button").addClass('is-loading').prop('disabled', true);
+  $("#delete-account-confirm-button").addClass('is-loading').prop('disabled', true);
   reauthenticated = true;
-  theUser.reauthenticateWithCredential(credential).then(function() {
-    prepareToDeleteAccount();
-  }, function(error) {
-    showReauthPopup("is-warning", "Please check your current password and try again.");
-  });
+  var credential;
+
+  if (loginMethod === "password") {
+    var currentPass = $("#currentpass-delete").val();
+    credential = firebase.auth.EmailAuthProvider.credential(theUser.email, currentPass);
+    theUser.reauthenticateAndRetrieveDataWithCredential(credential).then(function() {
+      prepareToDeleteAccount();
+    }, function(error) {
+      $("#delete-account-button").removeClass('is-loading').prop('disabled', false);
+      $("#delete-account-confirm-button").removeClass('is-loading').prop('disabled', false);
+      showReauthPopup("is-warning", "Please check your current password and try again.");
+    });
+  }
+
+  else if (loginMethod === "google.com") {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    if (isInWebAppiOS || isInWebAppChrome) {
+      firebase.auth().signInWithRedirect(provider);
+    } else {
+      firebase.auth().signInWithPopup(provider).then(function(result) {
+         var token = result.credential.accessToken;
+         credential = firebase.auth.GoogleAuthProvider.credential(null, token);
+         theUser.reauthenticateAndRetrieveDataWithCredential(credential).then(function() {
+           prepareToDeleteAccount();
+         }, function(error) {
+           $("#delete-account-button").removeClass('is-loading').prop('disabled', false);
+           $("#delete-account-confirm-button").removeClass('is-loading').prop('disabled', false);
+           showReauthPopup("is-warning", "Please login to your google account and try again.");
+         });
+      });
+    }
+  }
+
+  else {
+    willLoseAuthForDeletion = true;
+    dataRef.update({"deleteme" : "byebye"});
+  }
 }
 
+firebase.auth().getRedirectResult().then(function(result) {
+  if (result.user !== null) {
+    $("body").addClass("is-loading");
+    var token = result.credential.accessToken;
+    credential = firebase.auth.GoogleAuthProvider.credential(null, token);
+    result.user.reauthenticateAndRetrieveDataWithCredential(credential).then(function() {
+      $("body").addClass("is-loading");
+      prepareToDeleteAccount();
+    }, function(error) {
+      $("#delete-account-button").removeClass('is-loading').prop('disabled', false);
+      $("#delete-account-confirm-button").removeClass('is-loading').prop('disabled', false);
+      showReauthPopup("is-warning", "Please login to your google account and try again.");
+    });
+  }
+});
+
+function gotEIDResponse (code) {
+  showReauthPopup("is-info", "You will receive a verification notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'>"+code+"</b>");
+}
 
 function changePassword (){
   var newPass = $("#newpass").val();
@@ -363,19 +707,19 @@ function changeEmail (){
       newEmail = theUser.displayName + "@users.crypt.ee";
   }
   theUser.updateEmail(newEmail).then(function() {
-  // Update successful.
-  if (newEmail.indexOf("@users.crypt.ee") !== -1) {
-    showReauthPopup("is-success", "Email successfully removed from our database!");
-    setTimeout(function () {
-      window.location.reload();
-    }, 2000);
-  } else {
-    showReauthPopup("is-success", "Email successfully set! Please check your inbox for a verification mail.");
-    verifyEmail();
-  }
-}, function(error) {
-  showReauthPopup("is-warning", "We can't seem to set your email. Please try again.");
-});
+    // Update successful.
+    if (newEmail.indexOf("@users.crypt.ee") !== -1) {
+      showReauthPopup("is-success", "Email successfully removed from our database!");
+      setTimeout(function () {
+        window.location.reload();
+      }, 2000);
+    } else {
+      showReauthPopup("is-success", "Email successfully set! Please check your inbox for a verification mail.");
+      verifyEmail();
+    }
+  }, function(error) {
+    showReauthPopup("is-warning", "We can't seem to set your email. Please try again.");
+  });
 }
 
 function verifyEmail() {
@@ -385,7 +729,7 @@ function verifyEmail() {
   });
 }
 
-function checkPass() {
+function checkPassStrength() {
   if ( $("#newpass").val().trim() !== $("#newpassver").val().trim() ) {
     $("#newpassver").addClass('is-danger');
     $("#newpassver").parents(".field").find(".help").fadeIn();
@@ -396,7 +740,7 @@ function checkPass() {
     passVerified = true;
   }
 
-  passScore = zxcvbn($("#newpass").val().trim()).score + 1;
+  var passScore = zxcvbn($("#newpass").val().trim()).score + 1;
 
   $("#pass-score").attr("value", passScore * 20);
   if (passScore <= 2) {
@@ -410,17 +754,86 @@ function checkPass() {
   }
 }
 
-$("#newpass").on("keyup", function(){
-  checkPass();
+
+function checkKeyStrength() {
+  if ( $("#newkey").val().trim() !== $("#newkeyver").val().trim() ) {
+    $("#newkeyver").addClass('is-danger');
+    $("#newkeyver").parents(".field").find(".help").fadeIn();
+    keyVerified = false;
+  } else {
+    $("#newkeyver").removeClass('is-danger');
+    $("#newkeyver").parents(".field").find(".help").fadeOut();
+    keyVerified = true;
+  }
+
+  var keyScore = zxcvbn($("#newkey").val().trim()).score + 1;
+
+  $("#key-score").attr("value", keyScore * 20);
+
+  if (keyScore <= 1) {
+    $("#newkey").addClass('is-danger');
+    $("#key-score").removeClass('is-success').addClass('is-danger');
+    keyIsGood = false;
+  } else {
+    $("#newkey").removeClass('is-danger');
+    $("#key-score").removeClass('is-danger').addClass('is-success');
+    keyIsGood = true;
+  }
+}
+
+function tryChangingKey () {
+  var currentkey = $("#currentkey").val().trim();
+  var newKey = $("#newkey").val().trim();
+  db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+    var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+    var hashedKey = hashString(currentkey);
+    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
+        // RIGHT KEY
+        var theStrongKey = plaintext.data;
+        var newHashedKey = hashString(newKey);
+
+        openpgp.encrypt({ data: theStrongKey, passwords: [newHashedKey], armor: true }).then(function(ciphertext) {
+            var newEncryptedStrongKey = JSON.stringify(ciphertext);
+            dataRef.update({ keycheck : newEncryptedStrongKey }, function(error){
+              if (error) {
+                showReauthPopup("is-warning", "Couldn't change your Encryption Key. Please try again.");
+              } else {
+                showReauthPopup("is-success", "Encryption Key successfully changed!");
+                $("#currentkey").val(""); $("#newkey").val(""); $("#newkeyver").val("");
+                $("#key-score").attr("value", 0);
+              }
+            });
+        });
+
+    }).catch(function(error) {
+      setTimeout(function(){
+        showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your current Encryption Key. Please try again.");
+      }, 1000);
+    });
+  });
+}
+
+$("#newpass, #newpassver").on("keydown keypress paste copy cut change", function(){
+  setTimeout(function(){
+    checkPassStrength();
+  },50);
 });
 
-$("#newpassver").on("keyup", function(){
-  checkPass();
+$("#newkey, #newkeyver").on("keydown keypress paste copy cut change", function(){
+  setTimeout(function(){
+    checkKeyStrength();
+  },50);
 });
 
 $("#change-pass-button").on("click" , function(){
   if (passVerified && passIsGood) {
     reauthForPass();
+  }
+});
+
+$("#change-key-button").on("click" , function(){
+  if (keyVerified && keyIsGood) {
+    tryChangingKey();
   }
 });
 
@@ -437,46 +850,193 @@ $("#delete-account-confirm-button").on('click', function(event) {
 });
 
 function prepareToDeleteAccount() {
+  $("body").addClass("is-loading");
   console.log("delete requested");
   willLoseAuthForDeletion = true;
   theUser.delete().then(function() {
     // User deleted.
   }, function(error) {
     $("#cant-delete").html("Strangely, we can't seem to delete your account. This is likely a temporary issue. Please try again soon.");
-    Raven.captureException(JSON.stringify(error));
+    handleError(error);
     console.log("strangely. can't delete: ", error);
   });
 
 }
 
-function showCancelSubsButton() {
-  $("#cancelSubscriptionNotification").fadeIn();
-  $("#prorateToYearlyNotification").fadeOut();
-  $("#prorateToMonthlyNotification").fadeOut();
+
+
+
+//////////////////////////////////////////////////////////
+////////////////// GDPR DATA EXPORT  /////////////////////
+//////////////////////////////////////////////////////////
+var dataAdded = false;
+var metaAdded = false;
+var ordersAdded = false;
+var exportData;
+
+function fillDataExporter (data, meta, orders) {
+  if (!isMobile) {
+    if (data && !dataAdded) {
+      var theData = data.toJSON();
+      delete theData.cryptmail;
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theData));
+      $("#account-data-json").append("<b><a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Account Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Account Data (JSON File)</a></b><br>");
+      $("#account-data-json").removeClass("is-loading");
+      exportData = data;
+      dataAdded = true;
+    }
+
+    if (meta && !metaAdded) {
+      var theMeta = meta.toJSON();
+      var metaStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theMeta));
+      $("#account-data-json").append("<b><a style='text-decoration:none;' href='"+metaStr+"' download='Cryptee Meta Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Meta Data (JSON File)</a></b><br>");
+      $("#account-data-json").removeClass("is-loading");
+      metaAdded = true;
+    }
+
+    if (orders && !ordersAdded) {
+      var theOrders = orders.toJSON();
+      var ordersStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theOrders));
+      $("#account-data-json").append("<b><a style='text-decoration:none;' href='"+ordersStr+"' download='Cryptee Orders Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Orders Data (JSON File)</a></b><br>");
+      $("#account-data-json").removeClass("is-loading");
+      ordersAdded = true;
+    }
+  }
 }
 
-function cancelSubscription() {
-  dataRef.update({"cancelsub" : "cancel"});
+
+$("#settings-my-data-button").on("click", function(){
+  generateExportURLs(exportData);
+});
+
+function generateExportURLs (data) {
+  var fileRef = rootRef.child("home.crypteedoc");
+  fileRef.getDownloadURL().then(function(docURL) {
+    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>Home Document</a><br>")
+  });
+
+  if (data) {
+    var docsFolders = data.val().folders;
+    if (docsFolders) {
+      $.each(docsFolders, function(fid, folder){
+        var docsOfFolder = folder.docs;
+        $.each(docsOfFolder, function(did, doc){
+          generateURLAndAppendToList(did);
+        });
+      });
+    }
+
+    generatePhotosURLs();
+  }
 }
 
-function showProrateToYearly () {
-  $("#prorateToYearlyNotification").fadeIn();
-  $("#prorateToMonthlyNotification").fadeOut();
-  $("#cancelSubscriptionNotification").fadeOut();
+function generateURLAndAppendToList(did) {
+  var fileRef = rootRef.child(did + ".crypteedoc");
+  fileRef.getDownloadURL().then(function(docURL) {
+    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>")
+  }).catch(function(error) {
+    var fileRef = rootRef.child(did + ".crypteefile");
+    fileRef.getDownloadURL().then(function(docURL) {
+      $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>")
+    });
+  });
 }
 
-function showProrateToMonthly () {
-  $("#prorateToMonthlyNotification").fadeIn();
-  $("#prorateToYearlyNotification").fadeOut();
-  $("#cancelSubscriptionNotification").fadeOut();
+function generatePhotosURLs () {
+  photosRef.get().then(function(photosHomeItems) {
+    photosHomeItems.docs.forEach(function(photosHomeItem){
+      var photosHomeItemId = photosHomeItem.data().id;
+      if (photosHomeItemId) {
+          if (photosHomeItemId.startsWith('p-')) {
+            var fileRef = rootRef.child(photosHomeItemId + ".crypteefile");
+            fileRef.getDownloadURL().then(function(docURL) {
+              $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+photosHomeItemId.replace("d-","").replace("p-","")+"</a><br>")
+            });
+          } else if (photosHomeItemId.startsWith('f-')) {
+            enumerateFolderForExport(photosHomeItemId);
+          }
+        }
+    });
+  });
 }
 
-function prorateToYearly (){
-  $("#prorateToYearlyNotification").fadeOut();
-  dataRef.update({"prorate" : "toYearly"});
+function enumerateFolderForExport(fid){
+  photosRef.doc(fid).collection(fid).get().then(function(folderItems) {
+
+    folderItems.docs.forEach(function(folderItem) {
+      var folderItemId = folderItem.id;
+      if (folderItemId) {
+        if (folderItemId.startsWith('p-')) {
+          var fileRef = rootRef.child(folderItemId + ".crypteefile");
+          fileRef.getDownloadURL().then(function(docURL) {
+            $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+folderItemId.replace("d-","").replace("p-","")+"</a><br>")
+          });
+        } else if (folderItemId.startsWith('f-')) {
+          enumerateFolderForExport(folderItemId)
+        }
+      }
+    });
+
+  });
 }
 
-function prorateToMonthly () {
-  $("#prorateToMonthlyNotification").fadeOut();
-  dataRef.update({"prorate" : "toMonthly"});
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//

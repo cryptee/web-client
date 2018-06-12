@@ -1,0 +1,81 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <url>
+  <loc>https://beta.crypt.ee/</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>1.00</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/about</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/signup</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/signin</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/security</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/threat-model</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/imprint</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/privacy</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/terms</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/transparency</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/press-kit</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/acknowledgements</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.80</priority>
+  </url>
+
+  <url>
+  <loc>https://beta.crypt.ee/forgot</loc>
+  <lastmod>2018-05-17T13:23:27+00:00</lastmod>
+  <priority>0.64</priority>
+  </url>
+
+</urlset>

@@ -1,0 +1,27 @@
+<p class="title">Change Encryption Key</p>
+
+<div class="field">
+  <p class="control has-icons-left">
+    <input class="input" id="currentkey" type="password" placeholder="Current Encryption Key">
+    <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+  </p>
+</div>
+
+<div class="field">
+  <p class="control has-icons-left">
+    <input class="input" id="newkey" type="password" placeholder="New Encryption Key">
+    <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+  </p>
+  <progress id="key-score" class="progress is-small" value="15" max="100">15%</progress>
+</div>
+
+<div class="field">
+  <p class="control has-icons-left">
+    <input class="input" id="newkeyver" type="password" placeholder="Verify">
+    <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+  </p>
+  <p class="help is-danger">Doesn't match</p>
+</div>
+<p class="deets"><b>If you forget this key, there is no way to recover it, and all your data will be forever inaccessible.</b></p>
+<br>
+<p class="button is-white" id="change-key-button">Change Encryption Key</p>

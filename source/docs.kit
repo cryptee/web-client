@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="overflow-y: hidden;" data-loading="One moment please">
 <head>
 
   <!-- @import "app-head.kit" -->
@@ -8,26 +8,28 @@
   <script src="../js/lib/html2pdf-0.7.6/vendor/jspdf.min.js"></script>
   <script src="../js/lib/html2pdf-0.7.6/vendor/html2canvas.min.js"></script>
   <script src="../js/lib/html2pdf-0.7.6/src/html2pdf.js"></script>
+  <script src="../js/quill-image-resize.js"></script>
+  <script src="../js/lib/markdownShortcuts.min.js"></script>
+  <script src="../js/lib/showdown.min.js"></script>
 
 </head>
 <body class="docs-body">
-  <div id="left-stuff" class="leftStuffOff">
+  <div id="left-stuff" class="leftStuffOff no-print">
 
     <div class="left-wrap">
       <div class="tabs is-small"> <!-- you can also make this is-centered -->
         <ul>
           <li title="Dashboard" id="dashboard-button"> <a class="top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
-          <li title="Documents" id="documents-button" class="is-active"> <a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-briefcase"></i></a></li>
-          <li title="Contacts" id="contacts-button"> <a class="top-left-icon" href="contacts"><i class="top-menu-icons fa fa-fw fa-address-book"></i></a></li>
-          <li title="Photos"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-camera"></i></a></li>
+          <li title="Documents" id="documents-button" class="is-active hiddenForFinger"> <a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
+          <li title="Photos" class="hiddenForFinger"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li>
           <li title="Account Settings" id="settings-button"> <a href="account" class="top-left-icon"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
-          <li title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
-          <li title="Upgrade" class="clickable"> &nbsp; &nbsp;<span id="upgrade-button" class="tag is-info" style="border-radius: 10px;">Upgrade</span></li>
-          <li title="Toggle Menu ( ⌘+\ / ctrl+\ )" class="menu-hamburger" style="display:none; margin-left:auto;">   <a class="top-left-icon" onclick="hideMenu(); quill.focus();" style="color:#000"><i class="top-menu-icons fa fa-fw fa-bars"></i></a></li>
+          <li class="is-hidden-webapp" title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+          <li title="Upgrade" class="clickable"><span id="upgrade-button" class="tag is-info" style="border-radius: 10px;">Upgrade</span></li>
+          <li title="Toggle Menu ( ⌘+\ / ctrl+\ )" class="menu-hamburger" style="display:none; margin-left:auto; margin-right:1px;">   <a class="top-left-icon" onclick="hideMenu(); quill.focus();" style="color:#000"><i class="top-menu-icons fa fa-fw fa-bars"></i></a></li>
         </ul>
       </div>
 
-      <div id="search-bar" class="notification">
+      <div id="search-bar" class="notification" title="Search ( ⌘+shift+o / ctrl+shift+o )">
         <div class="field is-grouped">
           <p class="control is-expanded">
             <input id="search-input" class="input" type="text" placeholder="Search files, folders, filetypes or tags"  autocomplete="off">
@@ -52,15 +54,15 @@
       </div>
 
       <nav class="level is-mobile left-contextual-buttons">
-        <button class="level-item has-text-centered button is-white is-small" id="homedoc">
+        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="homedoc">
           <p><span class="icon is-small" style="margin-right:0.75rem"><i class="fa fa-fw fa-home"></i></span><span>Home Doc</span></p>
         </button>
 
-        <button class="level-item has-text-centered button is-white is-small" id="help">
-          <p><span class="icon is-small" style="margin-right:0.75rem"><i class="fa fa-fw fa-question"></i></span><span>Help</span></p>
+        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="help">
+          <p><span class="icon is-small" style="margin-right:0.75rem"><i class="fa fa-fw fa-life-ring"></i></span><span>Help</span></p>
         </button>
 
-        <button class="level-item has-text-centered button is-white is-small" id="reportbug" onclick="reportBug()">
+        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="reportbug" onclick="reportBug()">
           <p><span class="icon is-small" style="margin-right:0.75rem"><i class="fa fa-fw fa-bug"></i></span><span>Report Bug</span></p>
         </button>
       </nav>
@@ -69,7 +71,7 @@
         <header class="card-header">
           <a class="card-header-icon" id="new-folder-button"><span class="icon"><i class="fa fa-fw fa-plus"></i></span></a>
           <p class="card-header-title new-folder-title control is-expanded">
-            <input id="new-folder-title" class="input" type="text" placeholder="New Folder"  autocomplete="off">
+            <input id="new-folder-title" class="input" type="text" placeholder="Create New Folder"  autocomplete="off">
           </p>
         </header>
       </div>
@@ -79,8 +81,9 @@
         <span class="icon" id="selection-download-button"><i class="fa fa-fw fa-cloud-download"></i></span>
       </div>
 
-      <div id="f-exists" class="notification is-loading is-danger" style="display:none;">
-        <span>That folder name already exists</span>
+      <div class="notification is-info" id="first-folder-hint">
+        <button class="delete" onclick="hideNotification(this);"></button>
+        <p>Let's start by creating your first folder.<br><br>All your new documents and files will go into folders here.</p>
       </div>
 
       <div id="all-folders" style="display:none;">
@@ -89,7 +92,7 @@
 
       <div id="ghost-folder" class="card">
         <header id="ghost-folder-header" class="card-header">
-          <a id="ghost-folder-icon" class="card-header-icon"><span class="icon"><i class="fa fa-fw fa-folder-o"></i></span></a>
+          <a id="ghost-folder-icon" class="card-header-icon"><span class="icon"><i class="fa fa-fw fa-eye"></i></span></a>
           <p class="card-header-title ghost-title control is-expanded">
             <input id="ghost-folder-input" class="input" type="text" placeholder="Summon Ghost Folder"  autocomplete="off">
           </p>
@@ -100,11 +103,9 @@
     </div>
   </div> <!-- left stuff -->
 
-  <div id="doc-top">
-    <div class="loading-message hero is-large is-bold is-dark">
-      <br>
-      <span><i class="fa fa-circle-o-notch fa-spin fa-fw fa-3x"></i> <span id="fileLoadingStatus">Decrypting file</span></span>
-      <br>
+  <div id="doc-top" class="no-print">
+    <div class="loading-message">
+      <div id="fileLoadingStatus">Starting Up</div>
     </div>
 
     <div class="outdated-message hero is-large is-light">
@@ -129,9 +130,23 @@
 
       <div class="toolbar-scroller">
 
-        <span class="ql-formats">
+        <span class="ql-formats" style='margin-right:0px;'>
           <select style="margin-top: 1px;" class="ql-font" title="Font"></select>
-          <select style="margin-top: 1px;" class="ql-size" title="Text Size"></select>
+          <select style="margin-top: 1px;" class="ql-size" title="Font Size">
+              <option value="8px">8</option>
+              <option value="10px">10</option>
+              <option value="13px" selected>13</option>
+              <option value="16px">16</option>
+              <option value="18px">18</option>
+              <option value="20px">20</option>
+              <option value="24px">24</option>
+              <option value="30px">30</option>
+              <option value="36px">36</option>
+              <option value="40px">40</option>
+              <option value="48px">48</option>
+          </select>
+          <button style="margin-top: 2px;" class="ql-header" value="1" title="Header 1"></button>
+          <button style="margin-top: 2px;" class="ql-header" value="2" title="Header 2"></button>
         </span>
         <span class="ql-formats">
           <button style="margin-top: 2px;" class="ql-bold" title="Bold ( ⌘+b / ctrl+b )"></button>
@@ -146,11 +161,9 @@
           <select class="ql-background" title="Background"></select>
           <button class="ql-script" value="sub" title="Sub"></button>
           <button class="ql-script" value="super" title="Super"></button>
-          <!-- <button class="ql-header" value="1" title="Header 1"></button>
-          <button class="ql-header" value="2" title="Header 2"></button> -->
         </span>
         <span class="ql-formats">
-          <button class="ql-list" value="check" title="Check List ( ⌘+shift+6 / ctrl+shift+6 )" id="checkbox-button"></button>
+          <button class="ql-list" value="check" title="Check List ( ⌘+shift+6 / ctrl+shift+6 )"></button>
           <button class="ql-list" value="ordered" title="Ordered List ( ⌘+shift+7 / ctrl+shift+7 )"></button>
           <button class="ql-list" value="bullet" title="Bullet List ( ⌘+shift+8 / ctrl+shift+8 )"></button>
           <button class="ql-indent" value="-1" title="Indent Left ( ⌘+[ / ctrl+[ )"></button>
@@ -163,7 +176,9 @@
           <button class="ql-formula" title="Formula ( ⌘+l / ctrl+l )"></button>
           <button class="ql-image" title="Image"></button>
           <button class="ql-video" title="Embed Video"></button>
-          <span class="ql-attachfile icon clickable" title="Attach File"><i class="fa fa-paperclip"></i></span>
+          <span class="ql-attachfile icon clickable" title="Attach File from Cryptee"><i class="fa fa-paperclip"></i></span>
+          <span onclick="toggleFullScreen();" class="zen-mode-button clickable icon" title="Zen Mode"><i class="fa fa-arrows-alt"></i></span>
+          <span onclick="toggleHotkeys();" class="icon clickable" title="Markdown & Shortcuts"><i class="fa fa-keyboard-o"></i></span>
         </span>
       </div>
       <!-- <div class="floating ui basic label desktop-hidden" id="toolbar-slideL-button" style="top: 6px; left:auto; right: 0px !important; margin-right: -5px !important; cursor:pointer; width:10px; padding-left: 6px !important;"><i class="ui angle right icon"></i></div> -->
@@ -181,6 +196,26 @@
         </span>
       </p>
 
+      <p class="control mobile-floating-tools hidden" style="margin-left: auto;">
+        <button id="mobile-floating-attach" class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-paperclip"></i></span></button>
+      </p>
+
+      <p class="control mobile-floating-tools hidden">
+        <button id="mobile-floating-check" class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-check-circle-o"></i></span></button>
+      </p>
+
+      <p class="control mobile-floating-tools hidden">
+        <button id="mobile-floating-list" class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-list-ul"></i></span></button>
+      </p>
+
+      <p class="control mobile-floating-tools hidden">
+        <button id="mobile-floating-picture" class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-picture-o"></i></span></button>
+      </p>
+
+      <p class="control mobile-floating-tools hidden" id="mobile-floating-undo">
+        <button class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-undo"></i></span></button>
+      </p>
+
       <p class="filesize-button control" style="display:none;">
         <a class="button is-light">
           <span id="filesize"></span>
@@ -188,7 +223,7 @@
       </p>
 
       <p class="save-doc-button control offlineHidden">
-        <span class="progressButtons button is-light">
+        <span title="Save Document" class="progressButtons button is-light">
           <span class="icon is-small">
             <i class="fa fa-save fa-fw"></i>
           </span>
@@ -196,7 +231,7 @@
       </p>
 
       <p class="control offlineHidden" onclick="toggleContextualMenu();" id="doc-contextual-button">
-        <a class="progressButtons button is-light">
+        <a title="Document Actions" class="progressButtons button is-light">
           <span class="icon is-small">
             <i class="fa fa-ellipsis-v fa-fw"></i>
           </span>
@@ -204,7 +239,7 @@
       </p>
 
       <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="closeDoc();">
-        <span class="button is-dark">
+        <span title="Close Document" class="button is-dark">
           <span class="icon is-small">
             <i class="fa fa-close fa-fw"></i>
           </span>
@@ -212,7 +247,7 @@
       </p>
 
       <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="showDeleteDocModal();">
-        <span class="button is-dark">
+        <span title="Delete Document"  class="button is-dark">
           <span class="icon is-small">
             <i class="fa fa-trash fa-fw"></i>
           </span>
@@ -220,15 +255,15 @@
       </p>
 
       <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="showExportDocModal();">
-        <span class="button is-dark">
+        <span title="Export Document"  class="button is-dark">
           <span class="icon is-small">
-            <i class="fa fa-download fa-fw"></i>
+            <i class="fa fa-share-square-o fa-fw"></i>
           </span>
         </span>
       </p>
 
       <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="showRenameDocModal();">
-        <span class="button is-dark">
+        <span title="Rename Document" class="button is-dark">
           <span class="icon is-small">
             <i class="fa fa-i-cursor fa-fw"></i>
           </span>
@@ -243,7 +278,7 @@
 
   </div>
 
-  <div id="file-viewer" class="message is-light is-medium" style="display:none;">
+  <div id="file-viewer" class="message is-light is-medium no-print" style="display:none;">
     <div class="message-header" id="file-viewer-header">
 
       <span>
@@ -272,7 +307,7 @@
       <span id="file-viewer-actions">
         <span class="button is-light" id="file-viewer-filesize"></span>
 
-        <a class="button is-light" onclick="downloadActiveFile();" id="active-file-download-button">
+        <a class="button is-light" id="active-file-download-button">
           <span class="icon is-small">
             <i class="fa fa-download fa-fw"></i>
           </span>
@@ -286,9 +321,8 @@
     </div>
   </div>
 
-  <div id="file-upload-status" class="notification is-loading is-warning">
-    <progress id="file-upload-progress" class="progress is-small is-dark" value="0" max="100"></progress>
-    <span class="upload-status-message">Uploading Files</span>
+  <div id="file-upload-status" class="notification is-loading is-warning" style="padding:0;">
+    <span class="upload-status-message" style="padding:1rem;">Uploading Files</span>
     <div id="upload-status-contents">
 
     </div>
@@ -298,6 +332,11 @@
     <span class="download-status-message">Downloading Files</span>
   </div>
 
+  <div id="docs-url-box" class="notification is-loading is-light" style="padding:0;">
+    <span class="icon"><i class="fa fa-fw fa-link"></i></span> <a class="openInSafari" href="" target="_blank"></a>
+  </div>
+
+  <!-- @import "modal-hotkeys.kit" -->
   <!-- @import "modal-key.kit" -->
 
   <div class="modal" id="rename-folder-modal">
@@ -325,7 +364,7 @@
     <div class="modal-content">
       <div class="notification is-warning ghost-status">
         <p class="title">Verify the name of the folder</p>
-        <p>Once you turn this into a ghost folder, you will need to type the name of it exactly (case-sensitive) to bring it back. Remember that you can only have one ghost folder with the exact same name.</p>
+        <p>Once you turn this into a ghost folder, you will need to type the name of it exactly (case-sensitive) to bring it back. <br><br>If there's any file(s) in this folder, that are attached to a document outside of this folder, their shortcuts will remain in those document(s). This could potentially reveal that you have ghost (hidden) folders, or have deleted a folder with a file attached to a document outside of that folder. Since Cryptee can't see or access the contents of your encrypted documents, there is no way for us to automatically remove these. You will need to delete the links to these attachments (if you have any).</p>
       </div>
       <div class="notification">
         <div class="field">
@@ -419,7 +458,24 @@
       </div>
       <div class="notification">
         <nav class="level is-mobile">
-          <div class="level-item">
+
+          <div class="level-item has-text-centered">
+            <div class="media clickable" id="print-currentdoc">
+              <figure class="media-left has-text-centered">
+                <span class="icon is-large" style="margin-bottom: 0.35rem;"><i class="fa fa-print fa-fw html-export-icon"></i></span><br><strong>Print</strong>
+              </figure>
+
+              <figure class="media-left has-text-centered">
+                <strong style="line-height:4rem;">or</strong>
+              </figure>
+
+              <figure class="media-left has-text-centered">
+                <span class="icon is-large" style="margin-bottom: 0.35rem;"><i class="fa fa-file-pdf-o fa-fw pdf-export-icon"></i></span><br><strong>PDF</strong>
+              </figure>
+            </div>
+          </div>
+
+          <!-- <div class="level-item">
             <div class="media">
               <figure class="media-left has-text-centered">
                 <span class="icon is-large"><i class="fa fa-file-pdf-o fa-fw pdf-export-icon"></i></span><br><strong>PDF</strong>
@@ -430,13 +486,16 @@
                 </div>
               </div>
             </div>
-          </div>
-          <!-- <div class="level-item has-text-centered">
-            <div>
-              <p class="heading"><span class="icon is-large"><i class="fa fa-file-o fa-fw"></i></span></p>
-              <p class="subtitle">CRYPTEE</p>
-            </div>
           </div> -->
+
+          <div class="level-item has-text-centered">
+            <div class="media clickable" id="export-currentdoc-as-html">
+              <figure class="media-left has-text-centered">
+                <span class="icon is-large" style="margin-bottom: 0.35rem;"><i class="fa fa-file-code-o fa-fw html-export-icon"></i></span><br><strong>HTML</strong>
+              </figure>
+            </div>
+          </div>
+
         </nav>
       </div>
       <a class="button is-danger" onclick="hideExportDocModal();">Cancel</a>
@@ -444,30 +503,17 @@
     <button class="modal-close"></button>
   </div>
 
-  <!-- @import "modal-exceeded-storage.kit" -->
-  <!-- @import "modal-low-storage.kit" -->
-
-  <div id="upgrade-thanks">
-    <div class="notification is-success">
-      <button class="delete"></button>
-      <p class="title">Thank you!</p>
-      <p>We have successfully upgraded your account.</p>
-      <p>You can always view your invoices, update your payment methods, payments settings and subscription plan from your account settings.</p>
-      <br>
-      <p>Once again, thank you for choosing to support us, and helping us defend privacy all over the world.</p>
-    </div>
-  </div>
-
-  <!-- @import "modal-bump.kit" -->
+  <!-- @import "modal-webapp.kit" -->
 
   <div class="modal" id="ghost-info-modal">
     <div class="modal-background"></div>
     <div class="modal-content">
       <div class="notification is-light">
         <p class="title">What is a ghost folder?</p>
-        <p>We recognize the possibility that you might find yourself in situations which require you to hand over access to your account under stressful/forceful conditions.<br>Ghost folders are a feature which allows you to hide certain documents and have deniability in these situations.<br><br>When you make a ghost (hidden) folder, this folder is temporarily removed from your account. It can only be brought back (summoned) by typing its exact name in the "Summon Ghost Folder" field. Only then it will reappear in your account. This way, you can deny the existence of the folder entirely.</p>
+        <p>We recognize the possibility that you might find yourself in situations which require you to hand over access to your account under stressful/forceful conditions.<br>Ghost folders are a feature which allows you to hide certain documents and have deniability in these situations.<br>
+          <br>When you make a ghost (hidden) folder, this folder is temporarily removed from your account. It can only be brought back (summoned) by typing its exact name in the "Summon Ghost Folder" field. Only then it will reappear in your account. This way, you can deny the existence of the folder entirely.</p>
         <br>
-        <p>To learn more about Ghost folders, check out our Getting Started guide.</p>
+        <p>To make a ghost (hidden) folder, first click on <span class="icon is-small"><i class="fa fa-ellipsis-v fa-fw"></i></span> for the folder you'd like to ghost (hide), then click <b>Make Ghost Folder</b>.<br><br></p>
       </div>
     </div>
     <button class="modal-close"></button>
@@ -510,7 +556,7 @@
         <!-- @import "attachment-selector.html" -->
       </div>
 
-      <div id="attachment-target-box" class="notification hidden">
+      <div id="attachment-target-box" class="notification" style="display:none;">
         <div class="columns">
           <div class="column has-text-centered clickable" id="embed-attachment-inline-button">
             <span class="icon is-medium"><i class="fa fa-picture-o fa-fw"></i></span><br>
@@ -533,24 +579,27 @@
     </div>
   </div>
 
-
+  <iframe class="hidden" id="downloadFrame"></iframe>
 
   <div class="hidden" id="mobile-toolbar">
     <button style="margin-top: 2px;" class="ql-bold" title="Bold ( ⌘+b / ctrl+b )"></button>
     <button style="margin-top: 2px;" class="ql-italic" title="Italic ( ⌘+i / ctrl+i )"></button>
     <button style="margin-top: 3px;" class="ql-underline" title="Underline ( ⌘+u / ctrl+u )"></button>
     <button style="margin-top: 2px;" class="ql-strike" title="Strike"></button>
-    <button style="margin-top: 2px;" class="ql-list" value="check" title="Check List ( ⌘+shift+6 / ctrl+shift+6 )"></button>
-    <button style="margin-top: 2px;" class="ql-list" value="bullet" title="Bullet List ( ⌘+shift+8 / ctrl+shift+8 )"></button>
+    <button style="margin-top: 2px;" class="ql-header" value="1" title="Header 1"></button>
+    <button style="margin-top: 2px;" class="ql-header" value="2" title="Header 2"></button>
     <button style="margin-top: 2px;" class="ql-link" title="Hyperlink ( ⌘+k / ctrl+k )"></button>
-    <button style="margin-top: 2px;" class="ql-image" title="Image"></button>
-    <span   style="margin-top: 2px;" class="ql-attachfile icon clickable" title="Attach File"><i class="fa fa-paperclip"></i></span>
+    <button style="margin-top: 2px;" class="ql-list" value="check" title="Check List ( ⌘+shift+6 / ctrl+shift+6 )" id="checkbox-button"></button>
+    </div>
+
+  <div id="bootOffline" class="no-print">
+    <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo">
+    <h2>You seem offline.<br>Cryptee will start once you're online.<br><br><span style="font-size:10px;">You may also be seeing this message if you have a VPN, company firewall or content blocker that is blocking access to Cryptee's servers.</span></h2>
   </div>
 
-  <div id="bootOffline">
-    <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo">
-    <h2>You seem offline.<br>Cryptee will start once you're online.</h2>
-  </div>
+  <!-- @import "modal-exceeded-storage.kit" -->
+  <!-- @import "modal-low-storage.kit" -->
+  <!-- @import "modal-bump.kit" -->
 
   <!-- @import "footer-js.kit" -->
 

@@ -5,6 +5,12 @@
 /functions-cron
 /marketing
 /public
+/sketches
 database.rules.json
 .tern-project
 .tags
+config.codekit3
+firebase.json
+.firebaserc
+firebase-debug.log
+24hcors.json

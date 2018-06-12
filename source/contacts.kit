@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-loading="One moment please">
 <head>
 
   <!-- @import "app-head.kit" -->
@@ -18,9 +18,9 @@
           <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
             <ul>
               <li title="Dashboard"> <a class="top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
-              <li title="Documents"> <a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-briefcase"></i></a></li>
+              <li title="Documents"> <a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
               <li title="Contacts" class="is-active"> <a class="top-left-icon" href="contacts"><i class="top-menu-icons fa fa-fw fa-address-book"></i></a></li>
-              <li title="Photos"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-camera"></i></a></li>
+              <li title="Photos"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li>
               <li title="Account Settings"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
               <li title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
               <li title="Upgrade" class="clickable" style="margin-left:10px;"> <a id="upgrade-button" class="tag is-info" style="border-radius: 10px; color: #fff !important;">Upgrade</a></li>
@@ -253,121 +253,13 @@
   <button id="contact-modal-close" class="modal-close"></button>
 </div>
 
-<div class="modal" id="exceeded-modal">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <div class="notification is-light">
-      <p class="title">Exceeded Storage Space</p>
-      <p><b>Unfortunately you have used all the storage space you can get for free.</b></p><br>
-      <p>You can upgrade to our paid plan and remove all storage space limitations.</p><br><p>Paid plan will get you 1GB storage and premium support.<br>Should you need more storage, each additional 1GB is <span class="additional-cur">€</span>1/mo or <span class="additional-cur">€</span>10/yr</p>
-    </div>
-    <div class="notification is-light">
-      <p class="deets">If you don't wish to upgrade, you can of course open your documents &amp; files, but you won't be able to add new things or save your documents until you clean up some space.</p>
-    </div>
 
-    <div class="notification is-info" style="padding: 1.25rem;">
+<!-- @import "modal-exceeded-storage.kit" -->
+<!-- @import "modal-low-storage.kit" -->
+<!-- @import "modal-bump.kit" -->
+<!-- @import "modal-webapp.kit" -->
 
-      <nav class="level" style="margin-bottom: 1rem;">
-        <div class="level-item has-text-centered" style="padding-left: 10px;">
-          <p class="heading"><span class="cur">€</span></p>
-          <p class="title">5&nbsp;</p>
-          <p> / month</p>
-        </div>
-
-        <div class="level-item has-text-centered" style="padding-left: 10px;">
-          <p class="heading"><span class="cur">€</span></p>
-          <p class="title">50&nbsp;</p>
-          <p> / year</p>
-        </div>
-      </nav>
-
-      <nav class="level">
-        <div class="level-item has-text-centered">
-          <p class="button is-white subscribe-monthly-button">Subscribe Monthly</p>
-        </div>
-        <div class="level-item has-text-centered">
-          <p class="button is-white subscribe-yearly-button">Subscribe Yearly</p>
-        </div>
-      </nav>
-    </div>
-    <a class="button is-danger" onclick="closeExceededStorageModal()">Clean up&nbsp;<span class="exceeded-storage"></span></a>
-  </div>
-  <button class="modal-close"></button>
-</div>
-
-<div id="low-storage-warning">
-  <div class="notification is-info">
-    <button class="delete"></button>
-
-    <span class="hideWithUpgradeButton">
-      <p class="title">You're about to run out of storage space.</p>
-      <p>You have used <b class="used-storage"></b> of your <b>50 MB</b> free storage space.</p>
-      <p>You can upgrade to our paid plan and remove all storage space limitations.</p><br>
-    </span>
-    <span class="showWithUpgradeButton">
-      <p class="title">Upgrade</p>
-      <b>Thank you so much for choosing to ugprade.</b>
-    </span>
-
-    <p>Paid plan will get you 1GB storage and premium support.<br>Should you need more storage, each additional 1GB is <span class="additional-cur">€</span>1/mo or <span class="additional-cur">€</span>10/yr</p>
-
-    <br>
-
-    <nav class="level" style="margin-bottom: 1rem;">
-      <div class="level-item has-text-centered" style="padding-left: 10px;">
-        <p class="heading"><span class="cur">€</span></p>
-        <p class="title">5&nbsp;</p>
-        <p> / month</p>
-      </div>
-
-      <div class="level-item has-text-centered" style="padding-left: 10px;">
-        <p class="heading"><span class="cur">€</span></p>
-        <p class="title">50&nbsp;</p>
-        <p> / year</p>
-      </div>
-    </nav>
-
-    <nav class="level">
-      <div class="level-item has-text-centered">
-        <p class="button is-white subscribe-monthly-button">Subscribe Monthly</p>
-      </div>
-      <div class="level-item has-text-centered">
-        <p class="button is-white subscribe-yearly-button">Subscribe Yearly</p>
-      </div>
-    </nav>
-  </div>
-</div>
-
-<div id="upgrade-thanks">
-  <div class="notification is-success">
-    <button class="delete"></button>
-    <p class="title">Thank you!</p>
-    <p>We have successfully upgraded your account.</p>
-    <p>You can always view your invoices, update your payment methods, payments settings and subscription plan from your account settings.</p>
-    <br>
-    <p>Once again, thank you for choosing to support us, and helping us defend privacy all over the world.</p>
-  </div>
-</div>
-
-<div id="bumpup-window">
-  <div class="notification is-info">
-    <button class="delete"></button>
-    <p class="title"></p>
-    <p id="bumpup-message"></p>
-    <br>
-    <button class="button is-success" onclick="bumpUpThePlan();">Upgrade Plan</button>
-  </div>
-</div>
-
-<div id="bumpdown-window">
-  <div class="notification is-success">
-    <button class="delete"></button>
-    <p class="title">Payment Update</p>
-    <p>You were using significantly less storage than the additional 1GB you were paying for. So we automatically took off <span class="additional-cur">€</span>1/mo (if you're on a monthly plan), or <span class="additional-cur">€</span>10/yr (if you're on a yearly plan) from your payments, and lowered your plan to save you money.</p>
-  </div>
-</div>
-
-  <a id="download-anchor-elem" style="display:none"></a>
+<a id="download-anchor-elem" style="display:none"></a>
 
   <!-- @import "footer-js.kit" -->
   <script src="../js/contacts.js?v=1.0.0"></script>

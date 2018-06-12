@@ -1,0 +1,105 @@
+
+<html>
+
+<head>
+  <!-- @import "www-head.kit" -->
+  <meta id="pagehas" type="critical">
+  <title>Cryptee | Authenticate with Google</title>
+
+
+  </head>
+
+  <body class="gauth-body">
+
+    <div class="gauth-top">
+      <a href="/" class="gauth-logo"><img src="../assets/cryptee-logo-w.svg" alt="Cryptee logo"></a>
+      <h1 class="title is-3 gauth-title">AUTHENTICATE WITH GOOGLE</h1>
+    </div>
+
+
+    <div class="gauth-notification notification is-light has-text-centered is-loading" id="gauth-success">
+      <p>You can now go back to the Cryptee app, by tapping the "<span style="margin-top:-2px;" class="icon fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i style='margin-top:-1px; margin-left:-1px;' class="fa fa-angle-left fa-stack-1x fa-inverse"></i></span>Cryptee" from the top left of your phone's screen.</p>
+    </div>
+
+    <div class="gauth-notification notification is-danger" id="gauth-error">
+      <p id="error-text">Seems like an error occurred. Please go back to the app by tapping the "<span style="margin-top:-2px;" class="icon fa-stack fa-lg"><i class="fa fa-square fa-stack-2x"></i><i style='margin-top:-1px; margin-left:-1px;' class="fa fa-angle-left fa-stack-1x fa-inverse"></i></span>Cryptee" from the top left of your phone's screen, and try again.</p>
+    </div>
+
+    <!-- @import "footer-js.kit" -->
+
+    <script type="text/javascript">
+
+      var gauthURL = 'https://crypt.ee/api/';
+
+      function gotUUID(uuid) {
+        // TAKE UUID from SignIn page, convert to guuid.
+        // since uuid param triggers a trip to google, if it stays
+        // coming back from google will trigger another trip to google and loop infinitely.
+
+        var paramToRemove = "?uuid=" + uuid;
+        var newURL = window.location.href.replace(paramToRemove, "?guuid=" + uuid);
+        window.history.replaceState(null, null, newURL);
+
+        // This will open in SAFARI.
+
+        var provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('email');
+        firebase.auth().signInWithRedirect(provider);
+      }
+
+      firebase.auth().getRedirectResult().catch(function(error) {
+        problem();
+      });
+
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          firebase.auth().currentUser.getIdToken(true).then(function(googleAuthToken) {
+            gotGAuthToken (googleAuthToken)
+          }).catch(function(error) {
+            problem();
+          });
+        } else {
+          if (getUrlParameter("uuid")) {
+            var uuidFromURL = getUrlParameter("uuid");
+            gotUUID(uuidFromURL);
+          } else {
+            // problem();
+          }
+        }
+      });
+
+      function gotGAuthToken (googleAuthToken) {
+        var uuid = getUrlParameter("guuid");
+        $.ajax({
+          url : gauthURL + 'iosgauth',
+          type: 'POST',
+          dataType : "json",
+          data: {"uuid" : uuid, "googleAuthToken" : googleAuthToken}
+        }).done(function( response ) {
+          allGood();
+        }).fail(function( error ){
+          if (error.responseText === "ok") {
+            allGood();
+          } else {
+            console.log(error);
+            problem();
+          }
+        });
+      }
+
+      function allGood() {
+        $("#gauth-success").show();
+        $("#gauth-success").removeClass('is-loading');
+        $("#gauth-error").removeClass('show');
+      }
+
+      function problem() {
+        $("#gauth-success").hide();
+        $("#gauth-error").addClass('show');
+      }
+
+
+    </script>
+  </body>
+
+  </html>

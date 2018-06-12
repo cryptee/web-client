@@ -1,0 +1,51 @@
+<mjml>
+  <mj-head>
+    <mj-font name="Montserrat" href="https://fonts.googleapis.com/css?family=Montserrat:400,600" />
+  </mj-head>
+  
+  <mj-body background-color="#F1F1F1">
+    
+    <mj-section background-url="https://flare.crypt.ee/imgs/eberhard-grossgasteiger-351238.jpg" vertical-align="middle" background-size="cover" full-width="full-width" background-repeat="no-repeat">
+      
+      <mj-column width="25%" vertical-align="middle">
+        <mj-image src="https://flare.crypt.ee/assets/cryptee-logotype-b.png" alt="Cryptee" padding-bottom="30" padding-top="10"></mj-image>
+      </mj-column>
+      
+      
+      <mj-column width="100%" vertical-align="middle">
+        
+        <mj-text align="center" font-size="30px" color="#45474e" padding-bottom="40px" padding-top="30" line-height="30px" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif" font-weight="600" letter-spacing="2px">VERIFY EMAIL</mj-text>
+        
+      </mj-column>
+    </mj-section>
+        
+        
+        
+        
+        
+        
+    <mj-section background-color="#ffffff" vertical-align="top" full-width="full-width" padding-top="50" padding-bottom="50">
+      <mj-column vertical-align="top" width="100%">
+        <mj-text align="center" color="#000" padding-bottom="30px" line-height="20px" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif" font-weight="400">Hello %DISPLAY_NAME%,<br><br>Please click below to verify your email.</mj-text>
+        
+        <mj-button align="center" background-color="#323232" color="#fff" border-radius="24px" href="%LINK%" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif" padding-bottom="30px" padding-top="10">VERIFY EMAIL ADDRESS</mj-button>
+        
+        <mj-text align="center" color="#323232" font-size="10px" line-height="14px" padding-bottom="10px" padding-top="20" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif">Or copy and paste this link into your browser:<br>%LINK%</mj-text>
+      </mj-column>
+    </mj-section>
+        
+        
+        
+        
+        
+        
+        
+    <mj-section background-color="#323232" vertical-align="middle" full-width="full-width">
+      <mj-column width="100%" vertical-align="middle">
+        <mj-text align="center" color="#f1f1f1" font-size="12px" padding-bottom="20px" padding-top="20" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif">CRYPTEE &nbsp; • &nbsp; You're safe here.</mj-text>
+      </mj-column>
+    </mj-section>
+ 
+
+  </mj-body>
+</mjml>

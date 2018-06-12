@@ -3,9 +3,17 @@
 <head>
 
   <!-- @import "www-head.kit" -->
+  <meta id="pagehas" type="critical">
 
   <title>Cryptee | Sign up</title>
+  <script src="../js/lib/openpgp.min.js" ></script>
   <script src="../js/lib/zxcvbn.min.js"></script>
+  <script src="../js/lib/hwcrypto-0.0.11.js"></script>
+  <style media="screen">
+  li.is-active { border-bottom: #FFF solid 1px; }
+  .tabs a { padding: .5em 0.75em; font-size : 12px;}
+
+  </style>
 </head>
 
 <body class="signup-body">
@@ -15,11 +23,105 @@
         <div class="columns is-vcentered">
 
           <div class="column is-8 is-offset-2">
-            <p class="title"><a class="title" href="/"><img src="../assets/cryptee-logo-w.svg" alt="Cryptee logo" class="small-logo" style="vertical-align: bottom;"></a> &nbsp;<strong>sign up</strong></p>
-            <div class="box">
 
+            <div style="text-align:center;">
+              <br>
+                <a class="title" href="/"><img src="../assets/cryptee-logo-w.svg" alt="Cryptee logo" class="small-logo" style="vertical-align: bottom; margin-bottom:1rem;"></a>
+                <br><br>
+                <h1 class="question title is-hidden-mobile">How would you like to <strong>sign up</strong>?</h1>
+                <h1 class="question subtitle is-hidden-tablet">How would you like to <strong>sign up</strong>?</h1>
+                <h4 class="fromSignIn title is-6" style="display:none;"><br><br><br>Looks like you didn't have an account with us. Choose an encryption key that you can always remember.</h4>
+              <br>
+            </div>
+
+            <div class="tabs is-full-width is-centered">
+              <ul>
+                <li tab='userpass'>
+                  <a>
+                    <span class="icon is-medium"><i class="fa fa-user fa-fw"></i></span>
+                    <b>Username <span class="is-hidden-mobile">& Password</span></b>
+                  </a>
+                </li>
+                <li tab='google'>
+                  <a><span class="icon is-medium"><i class="fa fa-google fa-fw"></i></span><b class="is-hidden-mobile">Google</b></a>
+                </li>
+                <li tab='smartid' >
+                  <a>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 40 40">
+                      <defs> <style> .cls-1 { fill: #fff; fill-rule: evenodd; width: 100%; } </style> </defs>
+                      <path id="logo" class="cls-1" d="M6152.17,692.544a1.445,1.445,0,1,1-1.45-1.445A1.448,1.448,0,0,1,6152.17,692.544Zm5.99,23.8a1.148,1.148,0,0,1-.68-2.069,17.709,17.709,0,0,0-13.05-31.8v25.041a1.145,1.145,0,1,1-2.29,0V681.513a1.142,1.142,0,0,1,.92-1.124,20,20,0,0,1,15.78,35.73A1.124,1.124,0,0,1,6158.16,716.342ZM6147,720a19.994,19.994,0,0,1-11.83-36.117,1.146,1.146,0,0,1,1.36,1.846,17.7,17.7,0,0,0,10.47,31.98,18.1,18.1,0,0,0,2.58-.186V701.093a1.145,1.145,0,1,1,2.29,0v17.393a1.153,1.153,0,0,1-.92,1.124A20.193,20.193,0,0,1,6147,720Z" transform="translate(-6127 -680)"></path>
+                    </svg>
+                    <b class="is-hidden-mobile"> &nbsp; Smart-ID</b>
+                  </a>
+                </li>
+                <li tab='mobileid' >
+                  <a>
+                    <img src="../assets/mobiilid-w.svg" alt="Mobile ID" style="height:28px;">
+                    <b class="is-hidden-mobile">&nbsp; Mobile-ID</b>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <br class="hideFromSignin">
+
+            <div id="smartid-tab-contents" class="box tab-content" style="display:none;">
               <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Personal Code *</label>
+                    <p class="control has-icons-left">
+                      <input id="signup-si-personal-code" class="input" type="tel" placeholder="37101010021" value="">
+                      <span class="icon is-small is-left"><i class="fa fa-id-card"></i></span>
+                    </p>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Country *</label>
+                    <div class="control">
+                      <label class="radio">
+                        <input type="radio" value="EE" name="Country" checked> Estonia
+                      </label>
+                      <label class="radio">
+                        <input type="radio" value="LV" name="Country"> Latvia
+                      </label>
+                      <label class="radio">
+                        <input type="radio" value="LT" name="Country"> Lithuania
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            <div id="mobileid-tab-contents" class="box tab-content" style="display:none;">
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Personal Code *</label>
+                    <p class="control has-icons-left">
+                      <input id="signup-mi-personal-code" class="input" type="tel" placeholder="37101010021" value="">
+                      <span class="icon is-small is-left"><i class="fa fa-id-card"></i></span>
+                    </p>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label class="label">Phone Number *</label>
+                    <p class="control has-icons-left">
+                      <input id="signup-mi-phone-number" class="input" type="tel" placeholder="+372xxxxxxxx" value="">
+                      <span class="icon is-small is-left"><i class="fa fa-phone"></i></span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+            <div class="box tab-content" id="userpass-tab-contents" style="display:none;">
+              <div class="columns"> <!--USERNAME / EMAIL COLUMNS -->
                 <div class="column">
                   <div class="field">
                     <label class="label">Username *</label>
@@ -50,16 +152,11 @@
                     </p>
                   </div>
                 </div>
-
-              </div> <!--USERNAME / EMAIL COLUMNS -->
-
+              </div>
 
               <hr>
 
-              <div class="columns">
-
-
-
+              <div class="columns"> <!-- PASSWORD COLUMNS -->
                 <div class="column">
                   <div class="field">
                     <label class="label">Password *</label>
@@ -90,17 +187,15 @@
                       <br>If you ever wish to recover this password, Cryptee will need your email address. You can add a recovery email later.</p>
                   </div>
                 </div>
+              </div>
+            </div>
 
-              </div>  <!-- PASSWORD COLUMNS -->
+            <div id="google-tab-contents" style="display:none;">
 
+            </div>
 
-
-              <hr>
-
-
-
-
-              <div class="columns">
+            <div id="encryption-key" class="box" style="display:none;">
+              <div class="columns"> <!-- KEY COLUMNS -->
 
                 <div class="column">
                   <div class="field">
@@ -128,41 +223,55 @@
 
                 <div class="column">
                   <div class="notification" style="height: 100%;">
-                    <p class="deets">Second enter your <b>encryption key</b> here.<br>
+                    <p class="deets">Cryptee uses an additional <b>encryption key</b> to keep your data secure.<br>
                       <br>Your encryption key never leaves your device nor sent to our servers. It is used to encrypt and decrypt your data on your device.<br>
-                      <br>If you ever forget or lose your Encryption Key, your notes will be forever inaccessible and unrecoverable.</p>
+                      <br>If you ever forget or lose your Encryption Key, your data will be forever inaccessible and unrecoverable.</p>
                   </div>
                 </div>
 
-              </div> <!-- KEY COLUMNS -->
+              </div>
+            </div> <!-- ENCRYPTION KEY BOX -->
 
+            <div class="control" id="button-section" style="display:none;">
+              <div class="notification is-light" style="border-radius:5px;">
+                <p class="deets signupterms">By signing up, you agree to our <a href="/terms" target="_blank"><b>terms and conditions</b></a>.</p>
+              </div>
 
+              <nav class="level">
+                <div class="level-left">
 
-              <hr>
+                  <label class="checkbox">
+                    <input type="checkbox" class="button signuptermsbutton">
+                    <span class="deets signupterms"  style="color:#FFF!important">I have read the simplified <a href="/privacy" target="_blank"><b>privacy policy</b></a> and agree to how <br class="is-hidden-mobile"> Cryptee will handle and protect my data.</span>
+                  </label>
 
+                </div>
 
+                <div class="level-right">
+                  <button id="signup-button" class="button" disabled>Sign Up</button>&nbsp;
+                  <button class="button is-danger fromSignIn fromSignInSignOut" style="display:none;">not &nbsp; <span class="username"></span>?</button>
+                </div>
+              </nav>
+            </div>
 
+            <div id="signup-info" class="notification is-info" style="display:none;">
+              <span>Please check your phone for further notifications.</span>
+            </div>
 
-              <p class="control">
-                <nav class="level">
-                  <div class="level-left">
-                    <button id="signup-button" class="button is-primary">Sign Up</button>
-                  </div>
-                  <div class="level-right">
-                    <span class="deets signupterms">By clicking Sign Up, you agree to our <a href="/terms"><b>terms and conditions</b></a><br> and that you have read our <a href="/privacy"><b>privacy policy</b></a></span>
-                  </div>
-                </nav>
-              </p>
-
-            </div> <!-- BOX -->
+            <br class="hideFromSignin">
 
             <div id="signup-message" class="notification is-warning">
-              <button class="delete"></button>
               <span>Seems like something's missing.</span>
             </div>
 
-            <p class="has-text-centered">
-              <a href="signin">Sign In</a> | <a href="#">Need help or more info?</a>
+
+
+
+
+
+            <p class="has-text-centered signup-bottom-buttons">
+              <br><br>
+              <a href="signin"><b>sign in</b></a> | <a href="https://cryptee.kayako.com" target="_blank">help</a>
             </p>
           </div>
         </div>
@@ -170,6 +279,9 @@
     </div>
 
   </section>
+
+  <iframe class="hidden" id="gauthFrame"></iframe>
   <!-- @import "footer-js.kit" -->
-  <script src="../js/signup.js?v=1.0.0"></script>
+  <script src="../js/eid-cryptee.js"></script>
+  <script src="../js/signup.js"></script>
 </body></html>

@@ -2,17 +2,22 @@
   <div class="modal-background key-modal-background"></div>
   <div class="modal-content">
     <div class="notification is-dark">
-      <p class="title"><span id="key-status">Please enter your encryption key</span></p>
+      <p class="title"><span id="key-status">Enter your encryption key</span></p>
     </div>
     <div class="notification">
-      <div class="field">
-        <p class="control">
-          <input id="key-input"  class="modal-input input" type="password" placeholder="Encryption Key" autocomplete="off">
+      <div class="field has-addons">
+        <p class="control is-expanded" id="keymodal-input-control">
+          <input type="password" id="prevent_autofill" autocomplete="off" style="display:none" tabindex="-1" />
+          <input id="key-input"  class="modal-input input" type="password" placeholder="••••••••" autocomplete="off">
         </p>
+        <div class="control" style="margin-left: auto;">
+          <a id="key-modal-decrypt-button" class="button is-dark" onclick="keyModalApproved ();">
+            <span>decrypt</span>
+          </a>
+        </div>
       </div>
     </div>
-    <a class="button is-success" onclick="keyModalApproved ();">decrypt</a>
-    <a class="button is-danger" onclick="signOut();">not &nbsp; <span class="username"></span>?</a>
+    <a class="is-hidden-webapp" id="key-modal-signout-button" onclick="signOut();"><b>not</b> <span class="username"></span> <b>?</b></a>
   </div>
   <div class="modal-img-credit">
     <p class="has-text-centered"><a id="photo-credit" target="_blank">Photo Credit</a></p>

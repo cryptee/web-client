@@ -1,0 +1,69 @@
+<mjml>
+  <mj-head>
+    <mj-font name="Montserrat" href="https://fonts.googleapis.com/css?family=Montserrat:400,600" />
+  </mj-head>
+  
+  <mj-body background-color="#F1F1F1">
+    
+    <mj-section background-url="https://flare.crypt.ee/imgs/eberhard-grossgasteiger-351238.jpg" vertical-align="middle" background-size="cover" full-width="full-width" background-repeat="no-repeat">
+      
+      <mj-column width="25%" vertical-align="middle">
+        <mj-image src="https://flare.crypt.ee/assets/cryptee-logotype-b.png" alt="Cryptee" padding-bottom="30" padding-top="10"></mj-image>
+      </mj-column>
+      
+      
+      <mj-column width="100%" vertical-align="middle">
+        
+        <mj-text align="center" font-size="30px" color="#45474e" padding-bottom="40px" padding-top="30" line-height="30px" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif" font-weight="600" letter-spacing="2px">RESET PASSWORD </mj-text>
+        
+      </mj-column>
+    </mj-section>
+        
+        
+        
+        
+        
+        
+    <mj-section background-color="#ffffff" vertical-align="top" full-width="full-width">
+      <mj-column vertical-align="top" width="100%">
+        <mj-text align="center" color="#000" padding-bottom="30px" line-height="20px" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif" font-weight="400">Click below to reset your Cryptee account password. Please keep in mind that this will only reset your account password, and not your encryption key. </mj-text>
+        
+        <mj-button align="center" background-color="#323232" color="#fff" border-radius="24px" href="%LINK%" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif" padding-bottom="30px" padding-top="10">RESET</mj-button>
+      </mj-column>
+    </mj-section>
+        
+        
+        
+        
+        
+        
+        
+    <mj-section background-color="#323232" vertical-align="middle" full-width="full-width">
+      <mj-column width="100%" vertical-align="middle">
+        <mj-text align="center" color="#F1F1F1" font-size="16px" padding-bottom="10px" padding-top="25" font-family="Montserrat, Ubuntu, Helvetica, Arial, sans-serif" letter-spacing="1px">DIDN'T REQUEST THIS?</mj-text>
+        
+        
+        <mj-divider border-color="#F1F1F1" border-style="solid" border-width="1px" padding-left="100px" padding-right="100px" padding-bottom="20px" padding-top="20"></mj-divider>
+          <mj-text align="center" color="#F1F1F1" font-size="11px" padding-bottom="25px" padding-top="20">Don't worry, your account is perfectly safe.<br></br>If you didn’t ask to reset your password, you can ignore this email.</mj-text>
+      </mj-column>
+    </mj-section>
+        
+        
+        
+        
+        
+        
+        
+    <mj-section vertical-align="middle" background-color="#ffffff" full-width="full-width">
+      <mj-column width="50%" vertical-align="middle">
+        <mj-image src="http://191n.mj.am/img/191n/1t/h2.jpg" alt="" padding-bottom="20px" padding-top="20"></mj-image>
+      </mj-column>
+      <mj-column width="50%" vertical-align="middle">
+        <mj-text align="left" color="#9da3a3" font-size="11px" padding-bottom="25px" padding-top="25"><span style="font-weight: bold; font-size: 14px; color: #45474e">Great newsletter for the best company out there</span><br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
+          aliqua. Ut enim ad minim veniam.</mj-text>
+        <mj-button align="left" background-color="#e85034" color="#fff" border-radius="24px" font-size="11px" href="https://mjml.io" font-family="Ubuntu, Helvetica, Arial, sans-serif, Helvetica, Arial, sans-serif" padding-bottom="45px" padding-top="10">READ MORE</mj-button>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>

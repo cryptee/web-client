@@ -1,0 +1,103 @@
+<button type="button" name="Close Upgrade" id="close-upgrade-button">✕</button>
+
+<h2 class="title" id="upgrade-container-title">UPGRADE</h2>
+<p id="upgrade-container-subtitle">At Cryptee, we don't sell your data, nor rely on advertising.<br class="is-hidden-desktop"> Only your support. <br class="is-hidden-touch">Help us defend privacy online &amp; offline.</p>
+
+<div class="upgrade-container">
+  <div class="columns">
+    <div class="column" id="upgrade-reason">
+      <p style="margin-bottom:1rem;">
+        <span style="font-size:1.25rem">Paid Plan</span><br>
+        <span>10GB Storage &amp; Priority Support</span>
+      </p>
+
+      <p><b>Need More?</b></p>
+      <p style="margin-bottom:1rem;"><span class="additional-cur">€</span><span class="additional-price">3</span><span class="per-period"> / mo</span> for every additional 10GB</p>
+    </div>
+
+    <div class="column" id="upgrade-form">
+
+      <div class="upgrade-first-form">
+        <div class="cost" id="upgrade-cost">
+          <p class="price">
+            <span style="width:100px; display:inline-block"><span class="cur">€</span><span class="price" id="priceToPay">3</span><span class="per-period"> / mo</span></span>
+            <span class="period-selection"><span class="button period-button is-small" style="width:68px;" period="mo" amount="3" additional="3">Monthly</span> &nbsp; <span class="button period-button is-small is-white" style="width:50px; background-color:transparent;" period="yr" amount="30" additional="30">Yearly</span></span>
+          </p>
+        </div>
+
+        <div class="field">
+          <p class="control has-icons-left is-expanded" id="upgrade-email">
+            <input class="input" type="email" placeholder="Email" id="upgrade-email-input">
+            <span class="icon is-small is-left" style="margin-top: 0;">
+              <i class="fa fa-envelope fa-fw"></i>
+            </span>
+          </p>
+        </div>
+
+        <div class="field is-grouped is-horizontal">
+          <div class="field" style="margin-right:1rem">
+            <p class="control upgradeFormControl has-icons-left">
+              <span class="select upgrade-countries-select">
+                <select id="upgrade-countries">
+                  <!-- @import "country-options.kit" -->
+                </select>
+              </span>
+              <span class="icon is-small is-left" style="margin-top: 0;">
+                <i class="fa fa-globe fa-fw"></i>
+              </span>
+            </p>
+          </div>
+
+
+          <div class="field">
+            <p class="control upgradeFormControl has-icons-left" id="upgrade-zip">
+              <input class="input" type="text" placeholder="Zip Code" id="upgrade-zip-input">
+              <span class="icon is-small is-left" style="margin-top: 0;">
+                <i class="fa fa-map-marker fa-fw"></i>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="field is-grouped is-horizontal">
+          <div class="field" style="margin-right:1rem">
+            <p class="control upgradeFormControl has-icons-left">
+              <input class="input" type="text" placeholder="Coupon Code" id="upgrade-coupon-input">
+              <span class="icon is-small is-left" style="margin-top: 0;">
+                <i class="fa fa-ticket fa-fw"></i>
+              </span>
+            </p>
+          </div>
+          <div class="field">
+            <button class="button is-success paymentButton" disabled>Upgrade</button>
+          </div>
+        </div>
+
+        <p class="deets"></p>
+      </div> <!-- .upgrade-first-form -->
+
+      <div class="checkout-container"> </div>
+
+    </div> <!-- #upgrade-form -->
+  </div> <!-- .columns -->
+
+  <div class="pay-method">
+    <p>
+      <span class="the-methods">
+        <span class="icon is-small"><i class="fa fa-credit-card fa-fw"></i></span>&nbsp; Card &nbsp; &nbsp; <span class="icon is-small"><i class="fa fa-paypal fa-fw"></i></span> Paypal
+         <!-- &nbsp; &nbsp; <span class="icon is-small"><i class="fa fa-apple fa-fw"></i></span> Pay -->
+      </span>
+      <span class="the-totals" style="display:none;">
+        Sub: <span id="checkout-subtotal"></span>&nbsp; &nbsp; Tax: <span id="checkout-tax"></span>&nbsp; &nbsp; Total: <span id="checkout-total"></span>
+        <br>
+        <span id="checkout-recurringPrice"></span>
+      </span>
+    </p>
+  </div>
+</div>
+
+<p id="upgrade-container-deets" class="deets">
+  Once you click "Upgrade", you'll be presented with a payment box provided by Paddle.com, our payment processor.
+  We need the above information to securely pass onto Paddle for them to calculate tax and be compliant. We don't store any of it.
+  In case if you're a GDPR-nerd, you can find links to Paddle's terms and conditions and privacy policy in our privacy policy.
+</p>

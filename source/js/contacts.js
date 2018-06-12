@@ -1,4 +1,7 @@
 var theKey = JSON.parse(sessionStorage.getItem('key'));
+sessionStorage.removeItem('key');
+
+
 var theUser;
 var theUserID;
 var theUsername;
@@ -6,8 +9,11 @@ var reauthenticated = false;
 var retokening = false;
 var rootRef;
 var contactsRef;
-var connectedRef;
+var connectedRef = firebase.database().ref(".info/connected");
 var allFieldKeys;
+var metaRef;
+var dataRef;
+var rootRef;
 
 var fieldChanged = false;
 var idleTime = 0;
@@ -54,8 +60,9 @@ function getToken() {
           }
       });
     }).catch(function(error) {
-      // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-FETCHING ERRORS
-      Raven.captureException(JSON.stringify(error));
+      if (error.code !== "auth/network-request-failed") {
+        handleError(error);
+      }
       console.log("error getting token");
       retokening = false;
     });
@@ -64,11 +71,12 @@ function getToken() {
 
 function gotToken(tokenData) {
   var token = tokenData;
-  firebase.auth().signInWithCustomToken(token).catch(function(error) {
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
-    Raven.captureException(JSON.stringify(error));
+  firebase.auth().signInWithCustomToken(token).then(function(){
+    retokening = false;
+  }).catch(function(error) {
+    if (error.code !== "auth/network-request-failed") {
+      handleError(error);
+    }
     setTimeout(function () {
       retokening = false;
     }, 5000);
@@ -88,18 +96,18 @@ firebase.auth().onAuthStateChanged(function(user) {
       theUserID = theUser.uid;
       theUsername = theUser.displayName;
 
+      dataRef = db.ref().child('/users/' + theUserID + "/data/");
       metaRef = db.ref().child('/users/' + theUserID + "/meta/");
       rootRef = store.ref().child('/users/' + theUserID);
       contactsRef = rootRef.child("contacts.crypteedoc");
-      connectedRef = firebase.database().ref(".info/connected");
+
+      Raven.setUserContext({ id: theUserID });
 
       $('.username').html(theUsername);
 
-      if (theKey) {
-        checkKey(theKey);
-      } else {
+      checkForExistingUser(function(){
         showKeyModal();
-      }
+      });
     }
 
     getToken();
@@ -108,28 +116,57 @@ firebase.auth().onAuthStateChanged(function(user) {
     // no user. redirect to sign up
     window.location = "signin.html?redirect=contacts";
   }
+}, function(error){
+  if (error.code !== "auth/network-request-failed") {
+    handleError(error);
+  }
 });
+
+function checkForExistingUser (callback){
+  callback = callback || noop;
+
+  db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+    if (snapshot.val() === null) {
+      window.location = "signup.html?status=newuser";
+    } else {
+      callback();
+    }
+  });
+
+}
 
 
 function checkKey(key){
-  key = key || theKey;
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-    var checkString = JSON.parse(snapshot.val()).data;
-    var theCheck;
-    openpgp.decrypt({ message: openpgp.message.readArmored(checkString), password: key,  format: 'utf8' }).then(function(plaintext) {
-        theCheck = plaintext.data;
-        sessionStorage.setItem('key', JSON.stringify(key));
-        hideKeyModal();
-        theKey = key;
-        signInComplete();
+    var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+    var hashedKey = hashString(key);
+    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
+        rightKey(plaintext);
     }).catch(function(error) {
-        console.log("wrong key or ", error);
-        sessionStorage.removeItem('key');
-        showKeyModal();
-        $('#key-status').html("Wrong key, please try again.");
+        checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
+          rightKey(plaintext);
+          // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+        });
     });
   });
 }
+
+
+function rightKey (plaintext) {
+  var theStrongKey = plaintext.data;
+  hideKeyModal();
+  theKey = theStrongKey;
+  signInComplete();
+}
+
+function wrongKey (error) {
+  console.log("wrong key or ", error);
+  sessionStorage.removeItem('key');
+  showKeyModal();
+  $('#key-status').html("Wrong key, please try again.");
+}
+
+
 
 function keyModalApproved (){
   $('#key-status').html("Checking key");
@@ -138,36 +175,12 @@ function keyModalApproved (){
   checkKey(key);
 }
 
-function signOut(){
-  try { sessionStorage.clear(); sessionStorage.removeItem('key'); } finally {
-    firebase.auth().signOut().then(function() {
-      console.log('Signed Out');
-    }, function(error) {
-      Raven.captureException(JSON.stringify(error));
-      console.error('Sign Out Error', error);
-    });
-  }
-}
-
-function showKeyModal() {
-  $("#key-modal").addClass("is-active");
-  setTimeout(function () {
-    $("#key-input").focus();
-  }, 10);
-
-  if (!isMobile) { $('.contacts-key-modal-background').css({"background-image": "url('https://unsplash.it/2000/1000')"}); }
-  $('.contacts-key-modal-background').delay(250).animate({"opacity" : 1});
-}
-
-function hideKeyModal() {
-  $("#key-modal").removeClass("is-active");
-  $("#key-input").blur();
-}
-
-$("#key-input").on('keyup', function (e) {
+$("#key-input").on('keydown', function (e) {
+  setTimeout(function(){
     if (e.keyCode == 13) {
         keyModalApproved ();
     }
+  },50);
 });
 
 function signInComplete(){
@@ -197,7 +210,8 @@ function signInComplete(){
         showBumpUpThePlan(true);
       } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage){
         showBumpUpThePlan(false);
-      } else if ((usedStorage <= (allowedStorage - 1500000000)) && userMeta.val().quantity >= 6){
+      } else if (usedStorage <= (allowedStorage - 13000000000)){
+        // this is 13GB because if user has 20GB, and using 7GB we'll downgrade to 10GB plan.
         bumpDownThePlan();
       }
     } else {
@@ -208,6 +222,8 @@ function signInComplete(){
         $("#low-storage-warning").addClass('showLowStorage');
       }
     }
+
+    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
   });
 
   db.ref().child('/users/' + theUserID + "/data/").child("orderComplete").on('value', function(snapshot) {
@@ -252,6 +268,11 @@ $(window).resize(function(event) {
 
 $(window).on("load", function(event) {
   arrangeTools();
+  if ($(window).width() > 768) {
+    loadKeyModalBackground();
+  } else {
+    $(".modal-img-credit").hide();
+  }
 });
 
 function arrangeTools() {
@@ -285,7 +306,7 @@ $(".modal-background").on('click', function(event) {
   }
 });
 
-$(document).keyup(function(e) {
+$(document).keydown(function(e) {
     if (e.keyCode == 27) {
       $(".modal").removeClass('is-active');
       $(".modal").find('input').blur();
@@ -348,10 +369,10 @@ function skipImport() {
 
 function encryptAndUploadContacts(contactsObject, callback, callbackParam) {
   $("#import-status > .title").html("Encrypting your contacts");
-  contactsToEncrypt = JSON.stringify(contactsObject);
+  var contactsToEncrypt = JSON.stringify(contactsObject);
 
   openpgp.encrypt({ data: contactsToEncrypt, passwords: [theKey], armor: true }).then(function(ciphertext) {
-      encryptedContactsToUpload = JSON.stringify(ciphertext);
+      var encryptedContactsToUpload = JSON.stringify(ciphertext);
       $("#import-status > .title").html("Uploading your contacts");
 
       $('#upload-progress, #save-progress').attr("max", "0").attr("value", "100");
@@ -367,7 +388,7 @@ function encryptAndUploadContacts(contactsObject, callback, callbackParam) {
         $("#import-status").removeClass("is-info is-danger is-warning is-success").addClass("is-danger");
         $("#import-status > .title").html("Error");
         $("#import-status").append("<p>Sorry, there seems to be a problem uploading your file. This is most likely a temporary problem on our end. Please try again shortly.</p>");
-        Raven.captureException(JSON.stringify(error));
+        handleError(error);
       }, function() {
         db.ref('/users/' + theUserID + "/data").update({"contacts" : 1});
         $("#import-status").removeClass("is-info is-danger is-warning is-success").addClass("is-success");
@@ -385,9 +406,7 @@ function downloadContacts() {
   $("#download-status").fadeIn(250);
 
   //DOWNLOAD _DOC
-  contactsRef.getMetadata().then(function(metadata) {
-
-    var theURL = metadata.downloadURLs[0];
+  contactsRef.getDownloadURL().then(function(theURL) {
 
     $.ajax({ url: theURL, type: 'GET',
           xhr: function() {
@@ -414,7 +433,7 @@ function downloadContacts() {
 
   }).catch(function(error) {
     console.log(error);
-    Raven.captureException(JSON.stringify(error));
+    handleError(error);
     $("#download-status").removeClass("is-info is-danger is-warning is-success").addClass("is-danger");
     $("#download-status > .title").html("Error");
     $("#download-status").append("<p>Sorry, there seems to be a problem loading your contacts. This is most likely a temporary problem on our end. Please try again shortly.</p>");
@@ -425,8 +444,8 @@ function decryptContacts(encryptedContacts) {
   $("#import-status, #contacts-welcome, #upload-progress, #download-status").fadeOut(250).promise().done(function() {
     $("#decrypting-status").fadeIn(250, function(){
       var encryptedContactsData = JSON.parse(encryptedContacts).data;
-      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedContactsData),   password: theKey,  format: 'utf8' }).then(function(plaintext) {
-          decryptedText = plaintext.data;
+      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedContactsData),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+          var decryptedText = plaintext.data;
           var contactObjects = JSON.parse(decryptedText);
           $("#decrypting-status").fadeOut(250, function() {
             openContacts(contactObjects);
@@ -532,42 +551,45 @@ function prepareSearch() {
   $("#search-input").focus();
 }
 
-$("#search-input").keyup(function(event) {
+$("#search-input").on("keydown", function(event) {
 
-  if (event.keyCode === 27 || $("#search-input").val().trim() === "") {
-    event.preventDefault();
-    clearSearch();
-  } else if (event.keyCode === 38) {
-    event.preventDefault();
-    moveSearchUp();
-  } else if (event.keyCode === 40) {
-    event.preventDefault();
-    moveSearchDown();
-  } else if (event.keyCode === 13) {
-    event.preventDefault();
-    if ($( ".highlightedResult" ).length > 0) {
-        var cidToDisplay = $( ".highlightedResult" ).attr("cid");
-        displayContact(cidToDisplay);
-        $(".highlightedResult").addClass("is-dark");
-        // open selection.
-        //
-        // var activeDID = activeDocID;
-        // if ((didToLoad !== activeDID) && (typeof didToLoad != 'undefined')) {
-        //   clearSearch();
-        //   currentResultSelection = 0;
-        //   saveDoc(loadDoc, didToLoad);
-        // }
+  setTimeout(function(){
+    if (event.keyCode === 27 || $("#search-input").val().trim() === "") {
+      event.preventDefault();
+      clearSearch();
+    } else if (event.keyCode === 38) {
+      event.preventDefault();
+      moveSearchUp();
+    } else if (event.keyCode === 40) {
+      event.preventDefault();
+      moveSearchDown();
+    } else if (event.keyCode === 13) {
+      event.preventDefault();
+      if ($( ".highlightedResult" ).length > 0) {
+          var cidToDisplay = $( ".highlightedResult" ).attr("cid");
+          displayContact(cidToDisplay);
+          $(".highlightedResult").addClass("is-dark");
+          // open selection.
+          //
+          // var activeDID = activeDocID;
+          // if ((didToLoad !== activeDID) && (typeof didToLoad != 'undefined')) {
+          //   clearSearch();
+          //   currentResultSelection = 0;
+          //   saveDoc(loadDoc, didToLoad);
+          // }
+      }
+    } else if ($("#search-input").val().trim().length >= 2){
+      currentResultSelection = 0;
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(function(){
+        //if the user is typing too fast, this allows us to slow the search down.
+        search($("#search-input").val());
+      }, 250);
+    } else {
+      $("#search-results").html("");
     }
-  } else if ($("#search-input").val().trim().length >= 2){
-    currentResultSelection = 0;
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(function(){
-      //if the user is typing too fast, this allows us to slow the search down.
-      search($("#search-input").val());
-    }, 250);
-  } else {
-    $("#search-results").html("");
-  }
+  },50);
+
 });
 
 var fuse;
@@ -711,22 +733,25 @@ $("#contact-display").on('click', '.add-more-info', function(event) {
   $(".new-fields").toggle();
 });
 
-$("#contact-display").on('keyup', '.detail-input', function(event) {
-  if ($(this).val().trim() !== $(this).attr("placeholder")){
-    var newValue = $(this).val().trim();
-    var cid = $(this).attr("cid");
-    var field = $(this).attr("field");
+$("#contact-display").on('keydown', '.detail-input', function(event) {
+  var theinput = $(this);
+  setTimeout(function(){
+    if (theinput.val().trim() !== $(this).attr("placeholder")){
+      var newValue = theinput.val().trim();
+      var cid = theinput.attr("cid");
+      var field = theinput.attr("field");
 
-    var theContact = contactByCID(cid);
-    theContact[field] = newValue;
+      var theContact = contactByCID(cid);
+      theContact[field] = newValue;
 
-    idleTime = 0;
-    fieldChanged = true;
-    $("#contacts-status").html("Changes will be saved shortly");
-    $("#modal-status").html("Changes will be saved shortly");
-    $("#contact-modal-close").removeClass("modal-close").html('<span class="icon"><i class="fa fa-check fa-fw fa-3" aria-hidden="true"></i></span>').addClass("approveModal");
-    $("#save-progress").attr("value", 0);
-  }
+      idleTime = 0;
+      fieldChanged = true;
+      $("#contacts-status").html("Changes will be saved shortly");
+      $("#modal-status").html("Changes will be saved shortly");
+      $("#contact-modal-close").removeClass("modal-close").html('<span class="icon"><i class="fa fa-check fa-fw fa-3" aria-hidden="true"></i></span>').addClass("approveModal");
+      $("#save-progress").attr("value", 0);
+    }
+  },50);
 });
 
 function autosaveTimer () {
@@ -871,10 +896,7 @@ function exportContacts() {
   $("#contacts-status").html("Preparing CSV file for download...");
   var contactsCSV = $.csv.fromObjects(contactsObject);
   var csvstr = "data:text/csv;charset=utf-8," + encodeURIComponent(contactsCSV);
-  var dlAnchorElem = document.getElementById('download-anchor-elem');
-  dlAnchorElem.setAttribute("href", csvstr);
-  dlAnchorElem.setAttribute("download", "contacts.csv");
-  dlAnchorElem.click();
+  saveAs(dataURIToBlob(csvstr), "contacts.csv");
 }
 
 

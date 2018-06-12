@@ -1,0 +1,270 @@
+<div class="notification is-light" style="padding: 1rem;" id="hotkeys-modal">
+  <button class="delete" onclick="toggleHotkeys();"></button>
+  <h4 class="title is-4"><b>MARKDOWN &amp; HOTKEYS</b></h4>
+
+  <p>Here's all the cool things you can do without lifting your hands off the keyboard.</p>
+  <br>
+  <h5 class="title is-5">Hotkeys</h5>
+
+  <table style="width:100%;">
+    <tr style="border-bottom: 1px solid #000;">
+      <th>Action</th>
+      <th>Mac OS</th>
+      <th>UNIX &amp; Windows</th>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><b>Bold</b></td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">b</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">b</span></td>
+    </tr>
+    <tr>
+      <td><em>Italic</em></td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">i</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">i</span></td>
+    </tr>
+    <tr>
+      <td><u>Underline</u></td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">u</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">u</span></td>
+    </tr>
+    <tr>
+      <td><s>Strike</s></td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">s</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">s</span></td>
+    </tr>
+    <tr>
+      <td><span style="border-left: 4px solid #ccc; margin-bottom: 5px; margin-top: 5px; padding-left: 6px;"></span> Quote</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">9</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">9</span></td>
+    </tr>
+    <tr>
+      <td>&lt;<span style="color:red;">Code</span> /&gt;</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">0</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">0</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><span class="icon is-small"><i class="fa fa-fw fa-check-circle-o"></i></span> Checklist</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">6</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">6</span></td>
+    </tr>
+    <tr>
+      <td>1.&nbsp; Numbered List</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">7</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">7</span></td>
+    </tr>
+    <tr>
+      <td>●&nbsp; Bulleted List</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">8</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">8</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-indent fa-fw"></i></span> Indent Left</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">[</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">[</span></td>
+    </tr>
+    <tr>
+      <td><span class="icon"><i class="fa fa-indent fa-fw fa-rotate-180"></i></span> Indent Right</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">]</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">]</span></td>
+    </tr>
+    <tr>
+      <td><span class="icon"><i class="fa fa-link fa-fw"></i></span> Hyperlink</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">k</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">k</span></td>
+    </tr>
+    <tr>
+      <td><span style="width:1.5rem; display:inline-block;">&nbsp;ƒ<sub>x</sub></span> Formula</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">l</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">l</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-paperclip fa-fw "></i></span> Attach File <span class="deets">(from Cryptee)</span></td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">.</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">.</span></td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-tag fa-fw "></i></span> Tag Document</td>
+      <td><span class="tag is-white"><b>#hashtag</b></span> ⇒ <span class="tag is-white">tab</span></td>
+      <td><span class="tag is-white"><b>#hashtag</b></span> ⇒ <span class="tag is-white">tab</span></td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-search fa-fw"></i></span> Open Files <span class="deets">(Search)</span></td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">o</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">o</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-save fa-fw"></i></span> Force Save</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">s</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">s</span></td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-undo fa-fw"></i></span> Undo</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">z</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">z</span></td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-repeat fa-fw"></i></span> Redo</td>
+      <td><span class="tag is-white">⌘</span>+ <span class="tag is-white">Shift</span> + <span class="tag is-white">z</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">Shift</span> + <span class="tag is-white">z</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-bars fa-fw"></i></span> Toggle Menu</td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">\</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">\</span></td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-keyboard-o fa-fw "></i></span> Markdown &amp; Hotkeys</span></td>
+      <td><span class="tag is-white">⌘</span> + <span class="tag is-white">/</span></td>
+      <td><span class="tag is-white">ctrl</span> + <span class="tag is-white">/</span></td>
+    </tr>
+  </table>
+
+  <br><br>
+
+  <h5 class="title is-5">Markdown</h5>
+
+  <table style="width:100%;">
+    <tr style="border-bottom: 1px solid #000;">
+      <th>Style</th>
+      <th>Markdown</th>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><h2 class="title is-2"><b>Lg Header</b></h2></td>
+      <td><span class="tag is-white">#</span> + <span class="tag is-white">space</span></td>
+    </tr>
+    <tr>
+      <td><h4 class="title is-4">Md Header</h4></td>
+      <td><span class="tag is-white">##</span> + <span class="tag is-white">space</span></td>
+    </tr>
+    <tr>
+      <td><h5 class="title is-5">Sm Header</h5></td>
+      <td><span class="tag is-white">###</span> + <span class="tag is-white">space</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><b>Bold</b></td>
+      <td><span class="tag is-white"><b>**bold**</b></span></td>
+    </tr>
+    <tr>
+      <td><em>Italic</em></td>
+      <td><span class="tag is-white"><b>*italic*</b></span></td>
+    </tr>
+    <tr>
+      <td><b><em>Bold Italic</em></b></td>
+      <td><span class="tag is-white"><b>**bold italic**</b></span></td>
+    </tr>
+    <tr>
+      <td><s>Strike</s></td>
+      <td><span class="tag is-white"><b>~~strike~~</b></span></td>
+    </tr>
+    <tr>
+      <td><span style="border-left: 4px solid #ccc; margin-bottom: 5px; margin-top: 5px; padding-left: 6px;"></span> Quote</td>
+      <td><span class="tag is-white"><b>&gt;</b></span> + <span class="tag is-white">space</span></td>
+    </tr>
+    <tr>
+      <td><code>Inline Code</code></td>
+      <td><span class="tag is-white"><b>`code`</b></span></td>
+    </tr>
+    <tr>
+      <td>&lt;<span style="color:red;">Code</span> /&gt; <span class="deets">(with highlighting)</span></td>
+      <td><span class="tag is-white"><b>```</b></span> + <span class="tag is-white">Enter</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><span class="icon is-small"><i class="fa fa-fw fa-circle-o"></i></span> Checklist</td>
+      <td><span class="tag is-white"><b>[ ]</b></span> + <span class="tag is-white">space</span></td>
+    </tr>
+    <tr>
+      <td><span class="icon is-small"><i class="fa fa-fw fa-check-circle-o"></i></span> <s>Checklist</s></td>
+      <td><span class="tag is-white"><b>[x]</b></span> + <span class="tag is-white">space</span></td>
+    </tr>
+    <tr>
+      <td>1.&nbsp; Numbered List</td>
+      <td><span class="tag is-white"><b>1.</b></span> + <span class="tag is-white">space</span></td>
+    </tr>
+    <tr>
+      <td>●&nbsp; Bulleted List</td>
+      <td><span class="tag is-white"><b>*</b></span> + <span class="tag is-white">space</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-fw fa-minus"></i></span> Divider</td>
+      <td><span class="tag is-white"><b>---</b></span></td>
+    </tr>
+
+    <tr>
+      <td><span class="icon"><i class="fa fa-link fa-fw"></i></span> Hyperlink</td>
+      <td><span class="tag is-white"><b>[Cryptee](https://crypt.ee)</b></span> + <span class="tag is-white">Enter</span></td>
+    </tr>
+
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+
+  </table>
+</div>
