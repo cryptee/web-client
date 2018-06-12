@@ -1,4 +1,4 @@
-// a test line for gitlab workflow
+// a test line for github public workflow
 var theKey = JSON.parse(sessionStorage.getItem('key'));
 sessionStorage.removeItem('key');
 var theUser;
