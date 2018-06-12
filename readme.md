@@ -15,7 +15,7 @@ If you find any life threatening / critical security issues, please reach out to
 
 Otherwise, feel free to throw in your bug reports and issues here on github! The issues section is meme & emoji friendly. Please use fun GIFs. It'll cheer everyone up. This doesn't mean Cryptee isn't a serious product, it just means you can relax, smile and take things easy. We're all humans.
 
-![humans](https://media.giphy.com/media/tS6yrO1Eo88Te/giphy.gif)
+![humans](https://media.giphy.com/media/OCh6NOK0nkEJG/giphy-downsized.gif)
 
 &nbsp;
 
