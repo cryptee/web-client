@@ -1,4 +1,3 @@
-var theKey = JSON.parse(sessionStorage.getItem('key'));
 var theUser;
 var theUserID;
 var theUsername;
@@ -133,6 +132,7 @@ function checkKey(key){
 function rightKey (plaintext) {
   var theStrongKey = plaintext.data;
   theKey = theStrongKey;
+  sessionStorage.setItem("key", JSON.stringify(theKey));
   signInComplete();
 }
 

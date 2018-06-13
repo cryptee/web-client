@@ -640,6 +640,7 @@ function hideKeyModal () {
 
 function inactivityTimeout () {
   if (theKey !== "" && theKey !== undefined && theKey !== null) {
+    sessionStorage.removeItem('key');
     window.location.reload();
   }
 }

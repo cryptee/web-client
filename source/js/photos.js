@@ -352,7 +352,11 @@ firebase.auth().onAuthStateChanged(function(user) {
       $(".photos-search").animate({opacity: 1}, 500);
 
       checkForExistingUser(function(){
-        showKeyModal();
+        if (theKey) {
+          checkKey(theKey);
+        } else {
+          showKeyModal();
+        }
       });
     }
 

@@ -1,4 +1,3 @@
-// a test line for github public workflow
 var theKey = JSON.parse(sessionStorage.getItem('key'));
 sessionStorage.removeItem('key');
 var theUser;
@@ -913,7 +912,11 @@ firebase.auth().onAuthStateChanged(function(user) {
         if (getUrlParameter("dlddid")) {
           $("#key-status").html("Enter your encryption key to start the download");
         }
-        showKeyModal();
+        if (theKey) {
+          checkKey(theKey);
+        } else {
+          showKeyModal();
+        }
       });
     }
 

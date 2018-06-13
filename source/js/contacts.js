@@ -106,7 +106,11 @@ firebase.auth().onAuthStateChanged(function(user) {
       $('.username').html(theUsername);
 
       checkForExistingUser(function(){
-        showKeyModal();
+        if (theKey) {
+          checkKey(theKey);
+        } else {
+          showKeyModal();
+        }
       });
     }
 

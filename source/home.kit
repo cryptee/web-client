@@ -15,7 +15,7 @@
         <nav class="level is-mobile">
 
           <div class="level-item level-left home-level-left">
-            <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
+            <div class="settings-tabs tabs is-small">
               <ul>
                 <li title="Dashboard" class="is-active"> <a class="top-left-icon" href="#"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
                 <li title="Documents" class="hiddenForFinger"><a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
@@ -27,9 +27,8 @@
           </div>
 
           <div class="level-item level-right home-level-right">
-            <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
+            <div class="settings-tabs tabs is-small">
               <ul>
-                <!-- <li title="Getting Started"><a class="top-left-icon" href="/start"><i class="top-menu-icons fa fa-fw fa-info-circle"></i></a></li> -->
                 <li title="Support"><a class="openInSafari" href="https://cryptee.kayako.com" target="_blank"><i class="top-menu-icons fa fa-fw fa-question-circle"></i><span class="is-hidden-touch">&nbsp; FAQ &amp; Support</span></a></li>
                 <li title="Support"><a class="clickable" onclick="showModal('donate-modal');">Donate</a></li>
               </ul>
@@ -157,5 +156,9 @@
   $(".home-item").on('click', function(event) {
     $(this).addClass('is-loading');
   });
+
+  setTimeout(function () {
+    sessionStorage.removeItem('key');
+  }, 120000); // 2 minutes later if user still haven't made a choice, remove key from session storage
   </script>
 </body></html>
