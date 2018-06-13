@@ -1517,45 +1517,49 @@ html {
   margin-bottom: 1rem;
   width: 100%;
   opacity: 1;
-  transition: all 0.3s ease;
 }
 
 .folder, #ghost-folder {
   border-radius: 0;
 }
 
-.folder:last-child{
+.folder:last-child {
   margin-bottom: 0.5rem;
 }
 
-.folder.openForDrop.drophover > .card-content {
-  display: block;
-}
+/* TEMPORARILY OFF UNTIL THERE'S A BETTER SOLUTION */
+/* opening all folders automatically pushes things off. */
+/* and dragover isn't working on touch devices. */
+/* meaning we can't detect what's under the finger during a drag */
+/* in the interest of making the UX identical on desktop and mobile */
+/* making this procedure more manual for now */
 
-.folder.openForDrop.drophover > .hidden > .menu {
-  height: 50px;
+/* .folder.openForDrop {
   overflow: hidden;
 }
 
-.folder.openForDrop.drophover > .hidden > .menu > .docs-list {
-  height: 50px;
+.folder.openForDrop > .card-content {
+  display: block !important;
+}
+
+.folder.openForDrop > .hidden > .menu {
+  height: 7.5rem;
   overflow: hidden;
 }
+
+.folder.openForDrop > .hidden > .menu > .docs-list {
+  height: 7.5rem;
+  overflow: hidden;
+} */
 
 .aboutToDragFolder {
-  transition: all 0.3s ease 0.3s;
   border: 1px solid #c8cdd0;
   box-shadow: 0 0 30px 0px rgba(0,0,0,0.1);
-  width: 90%;
-  margin-left: 5%;
 }
 
-.draggingFolder{
-  transition: all 0.3s ease 0.3s;
+.draggingFolder {
   border: 1px solid #c8cdd0;
   box-shadow: 0 0 30px 0px rgba(0,0,0,0.1);
-  width: 90%;
-  margin-left: 5%;
 }
 
 .folderDraggingActive:not(.draggingFolder) {
@@ -1563,30 +1567,29 @@ html {
   transition: all 0.15s ease 0.15s;
 }
 
+.draggingDoc {
+  overflow: hidden;
+  opacity: 1 !important;
+  background-color: #FFF !important;
+}
+
 .sortable-ghost {
   opacity: 0 !important;
 }
 
-.fileDropFolder{
+.fileDropFolder {
   border: 1px dashed #000 !important;
   box-shadow: none;
 }
 
-.draggingDoc {
-  transition: all 0.15s ease 0.15s;
-  border: 1px solid #c8cdd0;
-  box-shadow: 0 0 30px 0px rgba(0,0,0,0.1);
-  width: 90% !important;
-  margin-left: 5%;
-}
-
-.draggingDoc > a {
-  transition: all 0.15s ease 0.15s;
+.docs-list {
+  transition: 1s background-color ease;
+  background-color: rgba(255,255,255,1);
 }
 
 .docDrop {
   min-height: 30px;
-  border: dashed 1px #c8cdd0;
+  background-color: #F1f1f1;
 }
 
 .top-menu-icons {
@@ -1645,6 +1648,16 @@ html {
   max-height: calc(100% - 205px);
   padding-top: 1rem;
   padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+#all-folders.draggingStuff, body.draggingStuff, html.draggingStuff, #active-doc-contents.draggingStuff, .ql-editor.draggingStuff {
+  overflow: hidden !important;
+}
+
+body.draggingStuff {
+  position: fixed;
+  width: 100%;
 }
 
 #results {
@@ -1984,7 +1997,6 @@ html {
 .adoc {
   width: 100%;
   opacity: 1;
-  transition: all 0.15s ease 0.15s;
 }
 
 .docs-float-context {
@@ -4260,11 +4272,6 @@ html {
     border: 1px solid #ccc;
   }
 
-  .draggingDoc {
-    width: 260px !important;
-    margin-left: 10px;
-  }
-
   .attachment-result {
     width: calc(100% - 0.5rem) !important;
   }
@@ -4798,6 +4805,10 @@ html {
 
   .activefile .docs-float-context .tag {
     background-color: #f5f5f5 !important;
+  }
+
+  .docDrop .adoc-float-context {
+    background-color: transparent !important;
   }
 
   .docs-float-context {

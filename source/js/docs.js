@@ -89,10 +89,13 @@ var sortableFoldersMobilePreferences = {
 if (isMobile) {
   $('#all-folders').on('touchstart', '.folder-clicker-icon', function(event) {
     $(this).parents(".afolder").addClass("aboutToDragFolder");
+    $("#all-folders, body, html, .ql-editor, #active-doc-contents").addClass("draggingStuff");
   });
 
   $('#all-folders').on('touchend', '.folder-clicker-icon', function(event) {
     $(this).parents(".afolder").removeClass("aboutToDragFolder");
+    $("#all-folders").removeClass("draggingStuff");
+    $("#all-folders, body, html, .ql-editor, #active-doc-contents").removeClass("draggingStuff");
   });
 }
 
@@ -129,11 +132,13 @@ var sortableDocsMobilePreferences = {
   sort: true,
   onStart: function (evt) {
     docIsBeingSorted = true;
+    $("#all-folders, body, html, .ql-editor, #active-doc-contents").addClass("draggingStuff");
 		$(".docs-list").addClass("docDrop");
     $('.afolder').addClass("openForDrop");
 	},
 	onEnd: function (evt) {
     docIsBeingSorted = false;
+    $("#all-folders, body, html, .ql-editor, #active-doc-contents").removeClass("draggingStuff");
 		$(".docs-list").removeClass("docDrop");
     $('.afolder').removeClass("openForDrop");
     var fid = $("#" + evt.item.id).parents(".afolder").attr("id");
@@ -3346,26 +3351,6 @@ function moveDoc (from, did) {
      });
   });
 }
-
-var isDragDocOver = false, draginterval;
-$("#all-folders").on('dragover', '.folder', function(e) {
-    e.preventDefault();
-
-    clearInterval(draginterval);
-
-    draginterval = setInterval(function() {
-        isDragDocOver = false;
-        clearInterval(draginterval);
-        $(this).removeClass("drophover");
-        /*** callback for onDragLeave ***/
-    }, 10);
-
-    if (!isDragDocOver) {
-        isDragDocOver = true;
-          $(this).addClass("drophover");
-        /*** callback for onDragEnter ***/
-    }
-});
 
 
 
