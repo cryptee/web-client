@@ -92,6 +92,20 @@
      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
+  key('d', function(){
+    window.location = "docs";
+     return false;
+  });
+
+  key('p', function(){
+    window.location = "photos";
+     return false;
+  });
+
+
+
+
+
   firebase.auth().onAuthStateChanged(function(user) {
     if (!user) {
       webAppURLController("signin?redirect=home");

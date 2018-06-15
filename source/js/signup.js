@@ -25,6 +25,13 @@ $(window).on("load", function(event) {
   // if (isInWebAppiOS) {
   //   $("#google-tab-contents").prepend('<p><b>(Only for iOS 11.2+)</b><b> For older versions of iOS:</b><br>In order to sign up to Cryptee using your Google account in an iOS Home Screen application, <a href="https://cryptee.kayako.com/article/24-how-to-sign-up-using-google-account-in-home-screen-application-using-an-older-version-of-ios" target="_blank"><b> please read this tutorial.</b></a></p><br><br>');
   // }
+  try {
+    sessionStorage.setItem("sessionStorageTest", "test");
+    sessionStorage.removeItem("sessionStorageTest");
+  } catch (e) {
+    // SHOW MODAL ABOUT SESSION STORAGE ACCESS.
+    $("#signup-info").html("<i class='fa fa-exclamation-triangle'></i>&nbsp; It seems like your browser is blocking accesss to sessionStorage.<br><br> Cryptee needs access to sessionStorage to keep your information in memory while logged in. This error usually happens because some browsers like Firefox is a bit heavy-handed, and if you have cookies disabled, it disables sessionStorage too. Without this Cryptee will not work. We're very sorry for the inconvenience. ").removeClass("is-info").addClass("is-danger").show();
+  }
 
   var referrerButton = sessionStorage.getItem("signup-referrer");
   if (referrerButton){

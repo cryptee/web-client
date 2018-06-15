@@ -1819,27 +1819,34 @@ $('#new-folder-title').on('keydown', function(event) {
   },50);
 });
 
-function newFolder (){
+function newFolder (callback){
+  callback = callback || noop;
   $("#new-folder-button").removeClass("is-armed");
   var newFTitle = $("#new-folder-title").val().trim();
+  if (newFTitle === "" || newFTitle === undefined || newFTitle === null) {
+    newFTitle = "Untitled Folder";
+  }
   var fid = "f-" + newUUID();
   var fcount = 0;
   var folderData = {
-      folderid : fid,
-      count : fcount,
-      open : true
-    };
-
-  dataRef.update({"foldersCount" : foldersCount+1});
-  foldersRef.child(fid).update(folderData);
+    folderid : fid,
+    count : fcount,
+    open : true
+  };
 
   titlesObject.folders[fid] = JSON.stringify(newFTitle);
   updateTitles();
 
-  $("#new-folder-title").val("");
-  updateFolderIndexes();
+  foldersRef.child(fid).update(folderData , function(){
+    dataRef.update({"foldersCount" : foldersCount+1});
 
-  $("#first-folder-hint").hide();
+    $("#new-folder-title").val("");
+    updateFolderIndexes();
+
+    $("#first-folder-hint").hide();
+
+    callback(fid);
+  });
 }
 
 
@@ -4172,30 +4179,41 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
   });
 }
 
-function fileUploadComplete(fid, did, filename, filesize, callback, callbackParam) {
+function fileUploadComplete(fidToUpdateInDB, did, filename, filesize, callback, callbackParam) {
   numFilesLeftToBeUploaded--;
   numFilesUploaded++;
 
   callback = callback || noop;
   callbackParam = callbackParam || did;
-  foldersRef.child(fid + "/count").once('value', function(snapshot) {
-    var fcount = snapshot.val();
-    var docData = { docid : did, fid : fid, isfile : true };
-    foldersRef.child(fid).update({"count" : fcount+1});
-    foldersRef.child(fid + "/docs/" + did).update(docData, function(){
-      $("#" + fid).attr("count", fcount + 1);
-      appendDoc(fid, did, docData, true);
+
+  function saveToDB(fid) {
+    foldersRef.child(fid + "/count").once('value', function(snapshot) {
+      var fcount = snapshot.val();
+      var docData = { docid : did, fid : fid, isfile : true };
+      foldersRef.child(fid).update({"count" : fcount+1});
+      foldersRef.child(fid + "/docs/" + did).update(docData, function(){
+        $("#" + fid).attr("count", fcount + 1);
+        appendDoc(fid, did, docData, true);
+      });
+
+      titlesObject.docs[did] = JSON.stringify(filename);
+      updateTitles();
+
+      if (numFilesLeftToBeUploaded <= 0) {
+        hideFileUploadStatus();
+        updateDocIndexesOfFID (fid);
+      }
+      callback(callbackParam);
     });
+  }
 
-    titlesObject.docs[did] = JSON.stringify(filename);
-    updateTitles();
-
-    if (numFilesLeftToBeUploaded <= 0) {
-      hideFileUploadStatus();
-      updateDocIndexesOfFID (fid);
-    }
-    callback(callbackParam);
-  });
+  if (fidToUpdateInDB !== undefined && fidToUpdateInDB !== null && fidToUpdateInDB !== "") {
+    saveToDB(fidToUpdateInDB);
+  } else {
+    newFolder(function(newFolderFID){
+      saveToDB(newFolderFID);
+    });
+  }
 }
 
 

@@ -416,7 +416,11 @@ $(window).on('scroll', function(event) {
 $("a[href='signup']").click(function (event) {
   event.preventDefault();
   var referrerButton = $(this).attr("id");
-  sessionStorage.setItem('signup-referrer', referrerButton.replace("ping-signup-", ""));
+  try {
+    sessionStorage.setItem('signup-referrer', referrerButton.replace("ping-signup-", ""));
+  } catch (e) {
+    console.log("cookies disabled.");
+  }
   window.location = $(this).attr("href");
 });
 
