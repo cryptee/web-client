@@ -2704,7 +2704,7 @@ function previewController (dtitle, did, decryptedContents, callback, callbackPa
 
     if (isios) {
       if (isInWebAppiOS) {
-        var urlToPass = "https://flare.crypt.ee/download?dlddid=" + did;
+        var urlToPass = "https://flare.crypt.ee/docsdld?dlddid=" + did;
         $("#active-file-download-button").attr("href", urlToPass);
       } else {
         $("#active-file-download-button").attr("href", decryptedContents);
@@ -3014,7 +3014,7 @@ function displayUnsupportedFile (dtitle, did, decryptedContents, callback, files
 
   if (isios) {
     if (isInWebAppiOS) {
-      $('#file-viewer-contents').html('<a class="unsupported-file-preview clickable openInSafari" href="https://flare.crypt.ee/download?dlddid='+did+'" target="_blank"><p><b>'+dtitle+'</b></p><span class="icon is-large"><i class="fa fa-download"></i></span><br><p class="deets">Unfortunately it isn\'t possible to preview this filetype on your device in browser/app yet. Click here to download/open the file.</p></a>');
+      $('#file-viewer-contents').html('<a class="unsupported-file-preview clickable openInSafari" href="https://flare.crypt.ee/docsdld?dlddid='+did+'" target="_blank"><p><b>'+dtitle+'</b></p><span class="icon is-large"><i class="fa fa-download"></i></span><br><p class="deets">Unfortunately it isn\'t possible to preview this filetype on your device in browser/app yet. Click here to download/open the file.</p></a>');
     } else {
       $('#file-viewer-contents').html('<a class="unsupported-file-preview clickable openInSafari" href="'+decryptedContents+'" target="_blank"><p><b>'+dtitle+'</b></p><span class="icon is-large"><i class="fa fa-download"></i></span><br><p class="deets">Unfortunately it isn\'t possible to preview this filetype on your device in browser/app yet. Click here to download/open the file.</p></a>');
     }

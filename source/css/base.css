@@ -241,6 +241,10 @@ code, pre {
   z-index: 999;
 }
 
+.katex .katex-mathml {
+  position : relative;
+}
+
 crypteefile::after {
   font-family: 'Montserrat', sans-serif;
   text-rendering: optimizeLegibility;
@@ -614,8 +618,12 @@ html {
   margin-bottom: 0rem !important;
 }
 
-#security, #www-os-agnostic-section {
-  padding-top: 0rem !important;
+#security {
+  padding-left: 0rem !important;
+}
+
+.www-body #download {
+  padding: 0rem 1rem 5rem 1rem !important;
 }
 
 .hero-body {
@@ -1057,6 +1065,18 @@ html {
 
 .hero h2 {
   font-weight: 600;
+}
+
+.downloads-body #download {
+  padding: 1rem!important;
+}
+
+.installation {
+  display: none;
+}
+
+.installation:target {
+  display: block;
 }
 
 .hero-button {
@@ -4138,7 +4158,6 @@ body.draggingStuff {
 
   #key-input{
     font-size: 1rem;
-    line-height: 1rem;
     width: 100%;
   }
 

@@ -43,6 +43,15 @@ $(window).on("load", function(event) {
       generateNewUUIDForGoogleAuthOniOSPWA ();
     }
   }
+
+  try {
+    sessionStorage.setItem("sessionStorageTest", "test");
+    sessionStorage.removeItem("sessionStorageTest");
+  } catch (e) {
+    // SHOW MODAL ABOUT SESSION STORAGE ACCESS.
+    $("#signin-info").html("<i class='fa fa-exclamation-triangle'></i>&nbsp; It seems like your browser is blocking accesss to sessionStorage.<br><br> Cryptee needs access to sessionStorage to keep you in memory while you're logged in. This error usually happens because some browsers like Firefox is a bit heavy-handed, and if you have cookies disabled, it disables sessionStorage too. Without this Cryptee will not work. We're very sorry for the inconvenience. ").removeClass("is-info").addClass("is-danger").show();
+  }
+
 });
 
 firebase.auth().onAuthStateChanged(function(user) {

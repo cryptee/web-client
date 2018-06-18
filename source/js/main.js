@@ -4,6 +4,27 @@ var isMobile = false; //initiate as false
 var freeUserQuotaInBytes = 100000000;
 var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
+var isChromium = window.chrome;
+var winNav = window.navigator;
+var vendorName = winNav.vendor;
+var isOpera = typeof window.opr !== "undefined";
+var isIEedge = winNav.userAgent.indexOf("Edge") > -1;
+var isIOSChrome = winNav.userAgent.match("CriOS");
+var isGoogleChrome = false;
+if (isIOSChrome) {
+   // is Google Chrome on IOS
+} else if (
+  isChromium !== null && typeof isChromium !== "undefined" &&
+  vendorName === "Google Inc." && isOpera === false && isIEedge === false
+) {
+   // is Google Chrome
+   isGoogleChrome = true;
+} else {
+   // not Google Chrome
+   isGoogleChrome = false;
+}
+
 var canUploadFolders = false;
 
 var availableDesktopMemory = 512 * 1000000; // 512MB
@@ -787,4 +808,35 @@ function handleError (error) {
       Raven.captureException(error);
     }
   }
+}
+
+///////////////////////////////////////////
+//////////// LAYOUT MODIFICATIONS /////////
+///////////////////////////////////////////
+
+if (isios) {
+  if (isSafari) {
+    $(".is-in-safari").show();
+    $(".is-not-in-safari").hide();
+  } else {
+    $(".is-not-in-safari").show();
+    $(".is-in-safari").hide();
+  }
+} else {
+  $(".is-not-in-safari").show();
+  $(".is-in-safari").hide();
+}
+
+
+if (isAndroid) {
+  if (isGoogleChrome) {
+    $(".is-in-chrome").show();
+    $(".is-not-in-chrome").hide();
+  } else {
+    $(".is-not-in-chrome").show();
+    $(".is-in-chrome").hide();
+  }
+} else {
+  $(".is-not-in-chrome").show();
+  $(".is-in-chrome").hide();
 }
