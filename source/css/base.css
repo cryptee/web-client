@@ -1752,17 +1752,19 @@ body.draggingStuff {
 }
 
 .loading-message::before {
-  content: "\f023";
-  font-family: FontAwesome;
+  content: "";
   display: block;
   height: 50px;
   width: 100px;
   text-align: center;
-  font-size: 2rem;
   left: calc(50% - 50px);
   top: 33vh;
   color:#000;
   position: absolute !important;
+  background-image: url(../assets/loading.gif);
+  background-size: 32px;
+  background-repeat: no-repeat;
+  background-position: center;
  }
 
 .loading-message::after {
