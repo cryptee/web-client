@@ -921,7 +921,11 @@ function generateExportURLs (data) {
       $.each(docsFolders, function(fid, folder){
         var docsOfFolder = folder.docs;
         $.each(docsOfFolder, function(did, doc){
-          generateURLAndAppendToList(did);
+          if (doc.isfile) {
+            generateFileURLAndAppendToList(did);
+          } else {
+            generateDocURLAndAppendToList(did);
+          }
         });
       });
     }
@@ -930,15 +934,17 @@ function generateExportURLs (data) {
   }
 }
 
-function generateURLAndAppendToList(did) {
+function generateDocURLAndAppendToList(did) {
   var fileRef = rootRef.child(did + ".crypteedoc");
   fileRef.getDownloadURL().then(function(docURL) {
     $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>")
-  }).catch(function(error) {
-    var fileRef = rootRef.child(did + ".crypteefile");
-    fileRef.getDownloadURL().then(function(docURL) {
-      $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>")
-    });
+  });
+}
+
+function generateFileURLAndAppendToList(did) {
+  var fileRef = rootRef.child(did + ".crypteefile");
+  fileRef.getDownloadURL().then(function(docURL) {
+    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>")
   });
 }
 

@@ -1422,14 +1422,14 @@ function encryptTitles() {
   var ftitles = {};
 
   $(".afolder").each(function(index, el) {
-    var folderTitle = $(this).find(".folder-title").html().trim();
+    var folderTitle = $(this).find(".folder-title").text().trim();
     var folderID = $(this).attr("id");
     ftitles[folderID] = JSON.stringify(folderTitle);
   });
 
   var dtitles = {};
   $(".adoc").each(function(index, el) {
-    var docTitle = $(this).find(".doctitle").html().trim();
+    var docTitle = $(this).find(".doctitle").text().trim();
     var docID = $(this).attr("id");
     dtitles[docID] = JSON.stringify(docTitle);
   });
@@ -1491,7 +1491,7 @@ function processTitles (callback) {
     $.each(docsArray, function(index, docObject) {
       if (docObject.did === did && theParsedTitle !== "") {
         docsArray[index].name = theParsedTitle;
-        docsArray[index].fname = $("#" + did).parents(".afolder").find(".folder-title").html();
+        docsArray[index].fname = $("#" + did).parents(".afolder").find(".folder-title").text();
         docsArray[index].ftype = filetypeFromFilename(theParsedTitle);
 
         var diconClass = iconFromFilename(theParsedTitle);
@@ -1893,6 +1893,7 @@ function deleteFolder (folderElement){
 
   var anyDocsFromThisFolderOpen = false;
   clearSelections();
+
   $("#" + fid).find(".adoc").each(function(index, doc) {
     var docID = doc.id;
     if (activeDID === docID) {
@@ -1900,14 +1901,17 @@ function deleteFolder (folderElement){
       anyDocsFromThisFolderOpen = true;
     }
 
-    var docRef = rootRef.child(docID + ".crypteedoc");
-    delete titlesObject.docs[docID];
-    docRef.delete().then(function(){}).catch(function(error) {
-      handleError(error);
-    });
+    var deletionRef;
+    if ($(doc).hasClass("itsADoc")) {
+      deletionRef = rootRef.child(docID + ".crypteedoc");
+    }
 
-    var fileRef = rootRef.child(docID + ".crypteefile");
-    fileRef.delete().then(function(){}).catch(function(error) {
+    if ($(doc).hasClass("itsAFile")) {
+      deletionRef = rootRef.child(docID + ".crypteefile");
+    }
+
+    delete titlesObject.docs[docID];
+    deletionRef.delete().then(function(){}).catch(function(error) {
       handleError(error);
     });
 
@@ -2038,7 +2042,7 @@ function renameFolderConfirmed() {
 
 $('#all-folders').on('click', '.rename-folder-button', function(event) {
   var fid = $(this).parents(".afolder").attr("id");
-  var folderOldName = $(this).parents(".afolder").find(".folder-title").html();
+  var folderOldName = $(this).parents(".afolder").find(".folder-title").text();
   $("#rename-folder-input").attr("placeholder", folderOldName).val(folderOldName);
   $("#rename-folder-modal").addClass('is-active').attr("fid", fid);
   setTimeout(function () {
@@ -2095,7 +2099,7 @@ $("#ghost-folder-help").on('click', function(event) {
 
 
 $('#all-folders').on('click', '.make-ghost-folder-button', function(event) {
-  ghostFTitleToConfirm = $(this).parents(".afolder").find(".folder-title").html();
+  ghostFTitleToConfirm = $(this).parents(".afolder").find(".folder-title").text();
   fidToGhost = $(this).parents(".afolder").attr("id");
   $("#ghost-folder-confirm-input").attr("placeholder", ghostFTitleToConfirm);
   saveDoc(prepareForGhostFolderModal);
@@ -2146,7 +2150,7 @@ function makeGhostFolder () {
   ghostTitles.fid = fidToGhost;
   ghostTitles.fname = JSON.stringify(ghostFTitleToConfirm);
   $("#docs-of-" + fidToGhost).children(".adoc").each(function(index, doc){
-    ghostTitles.docs[doc.id] = JSON.stringify($("#" + doc.id).find(".doctitle").html());
+    ghostTitles.docs[doc.id] = JSON.stringify($("#" + doc.id).find(".doctitle").text());
   });
 
   var plaintextGhostTitles = JSON.stringify(ghostTitles);
@@ -2517,17 +2521,27 @@ $('#all-folders').on('click', '.adoc', function(event) {
 
 function loadDoc (did, callback, callbackParam){
 
-    callback = callback || noop;
+  callback = callback || noop;
 
-    //get necessary variables
-    var fid = $("#" + did).parents(".afolder").attr("id");
-    var docRef = rootRef.child(did + ".crypteedoc");
-    var dtitle = $("#"+did).find(".doctitle").html();
+  $(".outdated-message").fadeOut();
+  $(".outdated-save-message").fadeOut();
 
-    $(".outdated-message").fadeOut();
-    $(".outdated-save-message").fadeOut();
+  //get necessary variables
+  var itsAFile = false;
+  var itsADoc = false;
 
+  if ($("#" + did).hasClass("itsAFile")) {
+    itsAFile = true;
+  } else {
+    itsADoc = true;
+  }
+
+  var dtitle = $("#"+did).find(".doctitle").text();
+  // var fid = $("#" + did).parents(".afolder").attr("id");
+
+  if (itsADoc) {
     //DOWNLOAD _DOC
+    var docRef = rootRef.child(did + ".crypteedoc");
     docRef.getMetadata().then(function(metadata) {
       docRef.getDownloadURL().then(function(docURL) {
 
@@ -2567,8 +2581,9 @@ function loadDoc (did, callback, callbackParam){
           if (did === "home") {
             fixHomeDoc(loadDoc, "home");
           } else {
-            var preview = true;
-            downloadFile(did, dtitle, preview, callback, callbackParam);
+            handleError(error);
+            errorText = "Seems like this doc doesn't exist or you don't have permission to open this doc. We're not sure how this happened. Please try again shortly, or contact our support. We're terribly sorry about this.";
+            showDocProgress(errorText);
           }
           break;
         case 'storage/unauthorized':
@@ -2588,6 +2603,13 @@ function loadDoc (did, callback, callbackParam){
           break;
       }
     });
+
+  } else {
+    // IT'S A FILE. LOAD PREVIEWER INSTEAD.
+    var preview = true;
+    downloadFile(did, dtitle, preview, callback, callbackParam);
+  }
+
 }
 
 function docLoaded(did, dtitle, delta, docsize, callback, callbackParam){
@@ -3380,7 +3402,7 @@ function showRenameInactiveDocModal (did) {
   clearSelections();
   $("#rename-inactive-doc-modal").addClass("is-active");
   $("#inactive-doc-title-input").attr("did", did);
-  var inactiveTitle = $("#" + did).find(".doctitle").html();
+  var inactiveTitle = $("#" + did).find(".doctitle").text();
   $("#inactive-doc-title-input").val(inactiveTitle);
   $("#inactive-doc-title-input").attr("placeholder", inactiveTitle);
   setTimeout(function () { $("#inactive-doc-title-input").focus(); }, 10);
@@ -3567,7 +3589,9 @@ $('#all-folders').on('click', '.uncheckedicon', function(event) {
   var uncheckedicon = $(this).parents(".adoc").find(".uncheckedicon");
   var exticon = $(this).parents(".adoc").find(".exticon");
   var did = $(this).parents(".adoc").attr("id");
-  var dtitle = $(this).parents(".adoc").find(".doctitle").html();
+  var dtitle = $(this).parents(".adoc").find(".doctitle").text();
+  var itsAFile = $(this).parents(".adoc").hasClass("itsAFile");
+  var itsADoc = $(this).parents(".adoc").hasClass("itsADoc");
 
   if (did !== activeDocID) {
     uncheckedicon.hide();
@@ -3579,7 +3603,7 @@ $('#all-folders').on('click', '.uncheckedicon', function(event) {
       selectedDocs++;
     }
 
-    selectionArray.push({ did : did , dtitle : dtitle});
+    selectionArray.push({ did : did , dtitle : dtitle , itsADoc : itsADoc , itsAFile : itsAFile});
     toggleSelectionActions();
   }
 
@@ -3653,19 +3677,21 @@ $("#all-folders").on('click', '.adoc-float-delete', function(event) {
     var checkedicon = $(this).parents(".adoc").find(".checkedicon");
     var uncheckedicon = $(this).parents(".adoc").find(".uncheckedicon");
     var exticon = $(this).parents(".adoc").find(".exticon");
-    var dtitle = $(this).parents(".adoc").find(".doctitle").html();
+    var dtitle = $(this).parents(".adoc").find(".doctitle").text();
+    var itsAFile = $(this).parents(".adoc").hasClass("itsAFile");
+    var itsADoc = $(this).parents(".adoc").hasClass("itsADoc");
 
     if (did !== activeDocID) {
       uncheckedicon.hide(); exticon.hide();
       checkedicon.css('display', 'inline-block');
 
-      if ($(this).parents(".adoc").hasClass("itsAFile")) {
+      if (itsAFile) {
         selectedFiles++;
       } else {
         selectedDocs++;
       }
 
-      selectionArray.push({ did : did , dtitle : dtitle});
+      selectionArray.push({ did : did , dtitle : dtitle , itsADoc : itsADoc , itsAFile : itsAFile});
       toggleSelectionActions();
     }
 
@@ -3703,15 +3729,20 @@ function deleteSelections () {
   completedDeletions = 0;
   $.each(selectionArray, function(index, selection) {
     var fid = $("#" + selection.did).parents(".afolder").attr("id");
-
-    var docRef = rootRef.child(selection.did + ".crypteedoc");
-    var fileRef = rootRef.child(selection.did + ".crypteefile");
-
     if (selection.did === activeFileID) {
       hideFileViewer ();
     }
 
-    docRef.delete().then(function() {
+    var deletionRef;
+    if (selection.itsADoc) {
+      deletionRef = rootRef.child(selection.did + ".crypteedoc");
+    }
+
+    if (selection.itsAFile) {
+      deletionRef = rootRef.child(selection.did + ".crypteefile");
+    }
+
+    deletionRef.delete().then(function() {
       foldersRef.child(fid + "/count").once('value', function(snapshot) {
         var fcount = snapshot.val();
         foldersRef.child(fid).update({"count" : fcount-1}, function(){
@@ -3721,25 +3752,10 @@ function deleteSelections () {
         });
       });
     }).catch(function(error) {
-      fileRef.delete().then(function() {
-        foldersRef.child(fid + "/count").once('value', function(snapshot) {
-          var fcount = snapshot.val();
-          foldersRef.child(fid).update({"count" : fcount-1}, function(){
-            $("#" + fid).attr("count", fcount-1);
-            foldersRef.child(fid + "/docs/" + selection.did).remove();
-            areDeletionsComplete(selection.did, fid);
-          });
-        });
-      }).catch(function(error) {
-        if (error.code === "storage/object-not-found") {
-          foldersRef.child(fid + "/docs/" + selection.did).remove();
-          areDeletionsComplete(selection.did, fid);
-        } else {
-          handleError(error);
-          $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
-        }
-      });
+      handleError(error);
+      $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
     });
+
   });
 }
 
@@ -3763,7 +3779,7 @@ function areDeletionsComplete (did, fid) {
 function updateActiveTags () {
   var activeDocTags = [];
   $('crypteetag').each(function(index, el) {
-    var tagContent = $(this).html().replace("&nbsp;", "");
+    var tagContent = $(this).text().replace("&nbsp;", "");
     activeDocTags.push(tagContent);
   });
   for (var doc in docsArray) {
@@ -4889,7 +4905,7 @@ $("#attachment-results").on('click', '.attachment-result', function(event) {
 
   var filetype = $("#attachment-search-input").attr("filetype");
   var didToAttach = $(this).attr("did");
-  var attachmentTitle = $(this).find(".doctitle").html();
+  var attachmentTitle = $(this).find(".doctitle").text();
 
   if (filetype === "image") {
     downloadAttachment(didToAttach, attachmentTitle);

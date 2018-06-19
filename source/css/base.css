@@ -2319,12 +2319,12 @@ body.draggingStuff {
   height: 1.5rem;
   margin-top: 0.25rem;
   margin-left: 0.125rem;
-  margin-right: 0.625rem;
+  margin-right: calc(0.625rem + 1.5px);
 }
 
 .checkedicon {
   margin-left: calc(0.125rem + 1px);
-  margin-right: calc(0.625rem - 1px);
+  margin-right: calc(0.625rem + 0.5px);
 }
 
 #new-folder-card {
