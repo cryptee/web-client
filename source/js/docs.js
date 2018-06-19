@@ -1869,8 +1869,8 @@ function newFolder (callback){
 
 $('#all-folders').on('click', '.delete-folder-confirm', function(event) {
     deleteFolder($(this).parents(".afolder"));
-    $(this).addClass("is-loading").prop("disabled", true);
-    $(this).parents(".afolder").find(".delete-folder-cancel").addClass("is-loading").prop("disabled", true);
+    $(this).addClass("is-loading").prop("disabled", true).attr("disabled", true);
+    $(this).parents(".afolder").find(".delete-folder-cancel").addClass("is-loading").prop("disabled", true).attr("disabled", true);
     $(this).parents(".afolder").find(".dropdowns > p, .dropdowns > label").hide();
     $(this).parents(".afolder").find(".delete-folder-buttons").css("margin-top", 0);
 });
@@ -2128,13 +2128,13 @@ $("#ghost-folder-confirm-input").on('keydown', function(event) {
   setTimeout(function () {
     var valueTyped = $("#ghost-folder-confirm-input").val();
     if (valueTyped === ghostFTitleToConfirm) {
-      $("#ghost-folder-confirm-button").prop("disabled", false);
+      $("#ghost-folder-confirm-button").prop("disabled", false).attr("disabled", false);
     } else {
-      $("#ghost-folder-confirm-button").prop("disabled", true);
+      $("#ghost-folder-confirm-button").prop("disabled", true).attr("disabled", true);
     }
 
     if (event.keyCode == 27) {
-      $("#ghost-folder-confirm-button").prop("disabled", true);
+      $("#ghost-folder-confirm-button").prop("disabled", true).attr("disabled", true);
       $("#ghost-folder-confirm-input").val("");
       $("#ghost-folder-confirm-input").blur();
       $("#ghost-folder-modal").removeClass('is-active');
@@ -2143,7 +2143,7 @@ $("#ghost-folder-confirm-input").on('keydown', function(event) {
 });
 
 function makeGhostFolder () {
-  $("#ghost-folder-confirm-button").addClass("is-loading").prop("disabled", true);
+  $("#ghost-folder-confirm-button").addClass("is-loading").prop("disabled", true).attr("disabled", true);
 
   var ghostTitles = {};
   ghostTitles.docs = {};
@@ -2162,7 +2162,7 @@ function makeGhostFolder () {
         dataRef.child("makeghost").on('value', function(snapshot) {
           if (snapshot === undefined || !snapshot.val() || snapshot.val() === "" || snapshot.val() === " "){
             //successfully erased ghost. close modal.
-            $("#ghost-folder-confirm-button").prop("disabled", true);
+            $("#ghost-folder-confirm-button").prop("disabled", true).attr("disabled", true);
             $("#ghost-folder-modal").removeClass('is-active');
             $("#ghost-folder-confirm-button").removeClass("is-loading");
             $("#ghost-folder-confirm-input").val("");
@@ -2312,7 +2312,7 @@ function newDocCreated (did, dtitle) {
   lastSaved = (new Date()).getTime();
   docChanged = true;
 
-  $("#homedoc").prop("disabled", false);
+  $("#homedoc").prop("disabled", false).attr("disabled", false);
   $("#homedoc").removeClass("is-dark");
   $("#doc-contextual-button").fadeIn(100);
 
@@ -2635,12 +2635,12 @@ function docLoaded(did, dtitle, delta, docsize, callback, callbackParam){
 
 
       if (did !== "home"){
-        $("#homedoc").prop("disabled", false);
+        $("#homedoc").prop("disabled", false).attr("disabled", false);
         $("#homedoc").removeClass("is-dark");
         $("#doc-contextual-button").fadeIn(100);
       } else {
         $("#homedoc").addClass("is-dark");
-        $("#homedoc").prop("disabled", true);
+        $("#homedoc").prop("disabled", true).attr("disabled", true);
 
         $(".document-contextual-button").addClass("docContextOff");
         $(".filesize-button, .mobile-floating-tools").addClass('menuOpen');
@@ -3703,7 +3703,7 @@ $("#all-folders").on('click', '.adoc-float-delete', function(event) {
 
 
 function hideDeleteSelectionsModal () {
-  $("#delete-selections-modal").find(".button").removeClass("is-loading").prop("disabled", false);
+  $("#delete-selections-modal").find(".button").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
   $('#delete-selections-modal').removeClass("is-active");
   if (floatDelete) { clearSelections(); floatDelete = false; }
 }
@@ -3725,7 +3725,7 @@ function showDeleteSelectionsModal () {
 }
 
 function deleteSelections () {
-  $("#delete-selections-modal").find(".button").addClass("is-loading").prop("disabled", true);
+  $("#delete-selections-modal").find(".button").addClass("is-loading").prop("disabled", true).attr("disabled", true);
   completedDeletions = 0;
   $.each(selectionArray, function(index, selection) {
     var fid = $("#" + selection.did).parents(".afolder").attr("id");
@@ -5062,7 +5062,7 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
   var milliseconds = (new Date()).getTime();
   sessionStorage.setItem('session-last-loaded', JSON.stringify(milliseconds));
 
-  $("#homedoc").prop("disabled", false);
+  $("#homedoc").prop("disabled", false).attr("disabled", false);
   $("#homedoc").removeClass("is-dark");
   $("#doc-contextual-button").fadeIn(100);
   $(".activedoc").removeClass('is-active activedoc');
@@ -5117,7 +5117,7 @@ function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, 
   var milliseconds = (new Date()).getTime();
   sessionStorage.setItem('session-last-loaded', JSON.stringify(milliseconds));
 
-  $("#homedoc").prop("disabled", false);
+  $("#homedoc").prop("disabled", false).attr("disabled", false);
   $("#homedoc").removeClass("is-dark");
   $("#doc-contextual-button").fadeIn(100);
   $(".activedoc").removeClass('is-active activedoc');

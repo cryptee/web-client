@@ -692,7 +692,7 @@ function sadlyPurgeFile(pidOrTid) {
         updateTitles();
       } else {
         handleError(error);
-        $("#photos-delete-selections-modal").find(".button.is-success").removeClass("is-loading").prop("disabled", false);
+        $("#photos-delete-selections-modal").find(".button.is-success").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
         $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
       }
     });
@@ -3087,13 +3087,13 @@ $("#ghost-folder-confirm-input").on('keydown', function(event) {
     var valueTyped = $("#ghost-folder-confirm-input").val().toUpperCase();
     var valueToConfirm = $("#ghost-folder-confirm-input").attr("placeholder");
     if (valueTyped === valueToConfirm) {
-      $("#ghost-folder-confirm-button").attr("disabled", false)
+      $("#ghost-folder-confirm-button").attr("disabled", false).prop("disabled", false);
     } else {
-      $("#ghost-folder-confirm-button").attr("disabled", true);
+      $("#ghost-folder-confirm-button").attr("disabled", true).prop("disabled", true);
     }
 
     if (event.keyCode == 27) {
-      $("#ghost-folder-confirm-button").attr("disabled", true);
+      $("#ghost-folder-confirm-button").attr("disabled", true).prop("disabled", true);
       $("#ghost-folder-confirm-input").val("");
       $("#ghost-folder-confirm-input").blur();
       hideModal("ghost-album-modal");
@@ -3224,11 +3224,15 @@ function updateSelections () {
     } else {
       $("#photos-set-thumb-button").addClass("unavailable");
     }
+
+    $("#photos-del-sel-modal-toggle-button").attr("disabled", false).prop("disabled", false);
   } else {
     if (!selectionmode) {
       $(".normal-nav-item").show();
       $(".selection-nav-item").hide();
     }
+
+    $("#photos-del-sel-modal-toggle-button").attr("disabled", true).prop("disabled", true);
   }
 
   if (numberOfSelections <= 1) {
@@ -3278,7 +3282,7 @@ function deleteSelections() {
           areDeletionsComplete(pid, isFolderThumbDeleted);
         } else {
           handleError(error);
-          $("#photos-delete-selections-modal").find(".button.is-success").removeClass("is-loading").prop("disabled", false);
+          $("#photos-delete-selections-modal").find(".button.is-success").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
           $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
         }
       });
