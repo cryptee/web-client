@@ -155,17 +155,22 @@ var isInWebAppiOS = (window.navigator.standalone === true);
 var isInWebAppChrome = (window.matchMedia('(display-mode: standalone)').matches);
 var isios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
-if (isInWebAppiOS || isInWebAppChrome) {
-  $("a").click(function (event) {
-    var attr = $(this).attr('href');
+
+$("a").click(function (event) {
+  var attr = $(this).attr('href');
+  if ($(this).hasClass("rememberKey")) {
+    sessionStorage.setItem("key", JSON.stringify(theKey));
+  }
+  if (isInWebAppiOS || isInWebAppChrome) {
     if (!$(this).hasClass("openInSafari")) {
       if (typeof attr !== typeof undefined && attr !== false) {
         event.preventDefault();
-        window.location = $(this).attr("href");
+        window.location = attr;
       }
     }
-  });
-}
+  }
+});
+
 
 
 try {

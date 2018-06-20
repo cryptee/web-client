@@ -174,7 +174,6 @@ function wrongKey (error) {
 
 function keyModalApproved (){
   $('#key-status').html("Checking key");
-  event.preventDefault();
   var key = $('#key-input').val();
   checkKey(key);
 }
