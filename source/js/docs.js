@@ -1030,6 +1030,7 @@ function signInComplete () {
             $(".exceeded-storage").html(formatBytes(usedStorage + 100000 - allowedStorage));
             exceededStorage();
           } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage){
+            quill.blur();
             $("#low-storage-warning").addClass('showLowStorage');
           }
 

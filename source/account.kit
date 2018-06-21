@@ -48,7 +48,7 @@
       <div class="columns">
 
         <div class="column is-one-quarter settings-left-column">
-          <p class="button settings-tab is-fullwidth is-info"  tab="upgrade" id="upgrade-setting">Upgrade</p>
+          <p class="button settings-tab is-fullwidth is-success"  tab="upgrade" id="upgrade-setting">Upgrade</p>
           <p id="settings-my-data-button" class="button settings-tab is-fullwidth is-light is-hidden-webapp is-hidden-tiny"  tab="mydata">My Data</p>
           <p class="button settings-tab is-fullwidth is-light paid-plan-only"  tab="planpayment" id="plan-setting">Plan &amp; Payment Settings</p>
           <p id="paymenthistorybutton" class="button settings-tab is-fullwidth is-light"  tab="history">Payment History</p>
@@ -136,25 +136,7 @@
     </div>
   </div>
 
-  <div id="bumpup-window">
-    <div class="notification is-info">
-      <button class="delete"></button>
-      <p class="title"></p>
-      <p id="bumpup-message"></p>
-      <br>
-      <button class="button is-success" onclick="bumpUpThePlan();">Upgrade Plan</button>
-    </div>
-  </div>
-
-  <div id="bumpdown-window">
-    <div class="notification is-success">
-      <button class="delete"></button>
-      <p class="title">Payment Update</p>
-      <p>You were using significantly less storage than the additional 1GB you were paying for. So we automatically took off <span class="additional-cur">€</span>1/mo (if you're on a monthly plan), or <span class="additional-cur">€</span>10/yr (if you're on a yearly plan) from your payments, and lowered your plan to save you money.</p>
-    </div>
-  </div>
-
-
+  <!-- @import "modal-bump.kit" -->
   <!-- @import "modal-donate.html" -->
   <!-- @import "modal-webapp.kit" -->
   <!-- @import "footer-js.kit" -->

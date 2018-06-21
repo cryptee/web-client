@@ -1742,7 +1742,9 @@ function getThumbnail (pid, fid) {
 }
 
 function getThumbForItem (folderContent, tid, id) {
-  if (folderContent) {
+  // this happens if for some reason the browser crashes or gets closed mid-upload,
+  // then some items / folders gets a thumbnail generated. #sad.
+  if (folderContent !== null && folderContent !== undefined) {
     if (folderContent.classList.contains("albumitem")) {
       var album = folderContent.querySelector(".album");
       if (!album.classList.contains("is-loading")) {

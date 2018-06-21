@@ -33,6 +33,7 @@ function orderComplete () {
 }
 
 function showBumpUpThePlan (exceeded) {
+  try { quill.blur(); } catch (e){}
   if (exceeded) {
     $("#bumpup-window").find(".title").html("Exceeded Storage");
     $("#bumpup-message").html("You have exceeded your storage limit. If you would like to add another 10GB to your plan click 'Upgrade' and we will automatically add another 10GBs to your account. Otherwise, you will need to clean up some space to be able to keep saving.");
@@ -57,6 +58,7 @@ function bumpDownThePlan () {
 }
 
 function exceededStorage(callback, callbackParam) {
+  try { quill.blur(); } catch (e){}
   callback = callback || noop;
   getToken();
   if (!huaExceededStorage) {

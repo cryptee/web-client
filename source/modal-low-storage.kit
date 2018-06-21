@@ -1,16 +1,16 @@
 <div id="low-storage-warning">
-  <div class="notification is-info">
+  <div class="notification is-light">
     <button class="delete"></button>
 
     <span class="hideWithUpgradeButton">
-      <p class="title">You're about to run out of storage space.</p>
-      <p>You can upgrade to our paid plan and remove all storage space limitations.</p><br>
+      <p class="title is-4">Storage Almost Full</p>
+      <p><span class="is-hidden-touch">You're about to run out of storage space. </span>You can upgrade to our paid plan and remove all storage space limitations.</p><br>
     </span>
     <span class="showWithUpgradeButton">
       <p class="title">UPGRADE</p>
     </span>
 
-    <p>Paid plan will get you <b>10 GB storage</b> and <b>premium support</b>.<br>Should you need more storage, each additional 10 GB is <span class="additional-cur">€</span>3/mo or <span class="additional-cur">€</span>30/yr</p>
+    <p>Paid plan will get you <b>10 GB storage</b> and should you need more storage, each additional 10 GB is <span class="additional-cur">€</span>3/mo or <span class="additional-cur">€</span>30/yr</p>
     <br>
 
     <nav class="level" style="margin-bottom: 1rem;">
@@ -18,9 +18,9 @@
         <p class="heading"><span class="cur">€</span></p>
         <p class="title">3&nbsp;</p>
         <p> / month</p>
-        &nbsp;&nbsp;
-        <b>or</b>
-        &nbsp;&nbsp;
+        &nbsp;
+        or
+        &nbsp;
         <p class="heading"><span class="cur">€</span></p>
         <p class="title">30&nbsp;</p>
         <p> / year</p>
@@ -29,7 +29,7 @@
 
     <nav class="level">
       <div class="level-item has-text-centered">
-        <p class="button is-white subscribe-button">Upgrade</p>
+        <p class="button is-success subscribe-button" onclick="upgradeFromExceed();">Upgrade</p>
       </div>
     </nav>
   </div>
