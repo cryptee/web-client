@@ -4157,7 +4157,7 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
       fileUpload.on('state_changed', function(snapshot){
         if (!fileUploadError) {
           var processingMessage = "Uploading file(s)";
-          showFileUploadStatus("is-warning", processingMessage);
+          showFileUploadStatus("is-light", processingMessage);
         }
 
         if ($('#upload-' + did).length === 0) {
