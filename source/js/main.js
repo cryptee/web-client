@@ -159,7 +159,7 @@ var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
 $("a").click(function (event) {
   var attr = $(this).attr('href');
   if ($(this).hasClass("rememberKey")) {
-    sessionStorage.setItem("key", JSON.stringify(theKey));
+    sessionStorage.setItem("key", JSON.stringify(keyToRemember));
   }
   if (isInWebAppiOS || isInWebAppChrome) {
     if (!$(this).hasClass("openInSafari")) {

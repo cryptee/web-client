@@ -6,9 +6,9 @@ var firestoreSettings = {timestampsInSnapshots: true}; firestore.settings(firest
 var cloudfunctions = firebase.functions();
 
 
-var theKey = JSON.parse(sessionStorage.getItem('key'));
+var theKey;
+var keyToRemember = JSON.parse(sessionStorage.getItem('key'));
 sessionStorage.removeItem('key');
-
 
 var theUser;
 var theUserID;
@@ -352,8 +352,8 @@ firebase.auth().onAuthStateChanged(function(user) {
       $(".photos-search").animate({opacity: 1}, 500);
 
       checkForExistingUser(function(){
-        if (theKey) {
-          checkKey(theKey);
+        if (keyToRemember) {
+          checkKey();
         } else {
           showKeyModal();
         }
@@ -388,22 +388,28 @@ function checkForExistingUser (callback){
 function checkKey (key) {
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
-    var hashedKey = hashString(key);
+    var hashedKey;
+    if (key) {
+      hashedKey = hashString(key);
+    } else {
+      hashedKey = keyToRemember;
+    }
     openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-        rightKey(plaintext);
+        rightKey(plaintext, hashedKey);
     }).catch(function(error) {
         checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
-          rightKey(plaintext);
+          rightKey(plaintext, hashedKey);
           // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
         });
     });
   });
 }
 
-function rightKey (plaintext) {
+function rightKey (plaintext, hashedKey) {
   var theStrongKey = plaintext.data;
   hideKeyModal();
   theKey = theStrongKey;
+  keyToRemember = hashedKey;
   signInComplete();
 }
 

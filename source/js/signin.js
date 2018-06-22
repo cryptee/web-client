@@ -127,10 +127,10 @@ function checkKey(key){
       var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
       var hashedKey = hashString(key);
       openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-          rightKey(plaintext);
+          rightKey(plaintext, hashedKey);
       }).catch(function(error) {
           checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
-            rightKey(plaintext);
+            rightKey(plaintext, hashedKey);
             // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
           });
       });
@@ -138,10 +138,10 @@ function checkKey(key){
   });
 }
 
-function rightKey (plaintext) {
+function rightKey (plaintext, hashedKey) {
   var theStrongKey = plaintext.data;
   theKey = theStrongKey;
-  sessionStorage.setItem("key", JSON.stringify(theKey));
+  sessionStorage.setItem("key", JSON.stringify(hashedKey));
   signInComplete();
 }
 
