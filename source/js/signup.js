@@ -104,12 +104,15 @@ function generateNewUUIDForGoogleAuthOniOSPWA () {
   });
 }
 
-if (leftForGoogleRedirect || localStorage.getItem("iosgauthsignupkey")) {
-  $(".signup-bottom-buttons").hide();
-  $(".small-logo").attr("src", "../../assets/spinner.gif");
-  $(".tabs").hide();
-  $(".question").html("One moment, we're waiting for Google.");
+if (localStorage) {
+  if (leftForGoogleRedirect || localStorage.getItem("iosgauthsignupkey")) {
+    $(".signup-bottom-buttons").hide();
+    $(".small-logo").attr("src", "../../assets/spinner.gif");
+    $(".tabs").hide();
+    $(".question").html("One moment, we're waiting for Google.");
+  }
 }
+
 
 $(".tabs").on('click', 'li', function(event) {
   whichTab = $(this).attr("tab");
@@ -466,7 +469,7 @@ function createUserWithGoogle () {
       theEpoch = (new Date()).getTime();
       $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
     }).catch(function(error) {
-      handleError(error);
+      console.log(error); // replacing this with a traditional console log because it only throws "user cancelled / closed popup error"
       $("#signup-message > span").html("Something went wrong... We're terribly sorry. Please try again soon."); $("#signup-message").fadeIn(); $("#signup-button").prop('disabled', false).removeClass("is-loading is-success").html("Try Again");
     });
   }

@@ -3125,12 +3125,30 @@ body.draggingStuff {
 
   .photoitem, .photoitem img {
     width: 206.5px !important;
-    height: 206.5px !important;
+    /* height: 206.5px !important; */
+    max-width: 206.5px !important;
+    /* max-height: 206.5px !important; */
   }
 
-  .albumitem + .photoitem .photo, .albumitem + .photoitem, .albumitem + .photoitem img {
+  .albumitem + .photoitem .photo {
     width: 320px !important;
     height: 200px !important;
+    max-width: 320px !important;
+    max-height: 200px !important;
+  }
+
+  .albumitem + .photoitem {
+    width: 320px !important;
+    height: 200px !important;
+    max-width: 320px !important;
+    max-height: 200px !important;
+  }
+
+  .albumitem + .photoitem img {
+    width: 320px !important;
+    /* height: 200px !important; */
+    max-width: 320px !important;
+    /* max-height: 200px !important; */
   }
 
   #photos-search-contents {
@@ -3178,12 +3196,12 @@ body.draggingStuff {
   }
   .album, .albumitem, .albumitem img, .photoitem, .photoitem img {
     width: 220px !important;
-    height: 220px !important;
+    /* height: 220px !important; */
   }
 
   .albumitem + .photoitem .photo, .albumitem + .photoitem, .albumitem + .photoitem img {
     width: 220px !important;
-    height: 220px !important;
+    /* height: 220px !important; */
   }
 
   #photos-search-contents {
@@ -3240,14 +3258,25 @@ body.draggingStuff {
     height: calc(50vw - 2rem) !important;
   }
 
-  .albumitem + .photoitem .photo, .albumitem + .photoitem {
-    width: calc(100% - 1rem) !important;
+  .albumitem + .photoitem .photo {
+    width: 100% !important;
     height: 220px !important;
+    max-width: 100% !important;
+    max-height: 220px !important;
   }
+
+  .albumitem + .photoitem {
+   width: calc(100% - 2rem) !important;
+   height: 220px !important;
+   max-width: 100% !important;
+   max-height: 220px !important;
+ }
 
   .albumitem + .photoitem img {
     width: 100% !important;
     height: 220px !important;
+    max-width: 100% !important;
+    max-height: 220px !important;
   }
 
   #photos-search-contents {
@@ -4736,6 +4765,8 @@ body.draggingStuff {
     font-size: 10px;
     margin-bottom: -1.65rem;
     display: none;
+    /* height: 3rem;
+    border-radius: 0; */
   }
 
 

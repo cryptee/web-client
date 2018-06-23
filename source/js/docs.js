@@ -312,7 +312,7 @@ var quillkeyboardbindings = {
     context: { format: ['file', 'tag'] },
     handler: function(range, context) {
       if (tribute.isActive) {
-        tribute.selectItemAtIndex(tribute.menuSelected, event);
+        tribute.selectItemAtIndex(tribute.menuSelected);
         tribute.hideMenu();
         return false;
       } else {
@@ -1223,21 +1223,25 @@ function fixFilesAndFolders () {
 function fixFolders () {
   foldersRef.once('value', function(snapshot) {
     var allFolders = snapshot.val();
-    var allFoldersCount = Object.keys(allFolders).length;
-    var foldersCountOnServer;
-    dataRef.child("foldersCount").on('value', function(snapshot) {
-      foldersCountOnServer = snapshot.val();
-      if (foldersCountOnServer !== allFoldersCount) {
-        dataRef.update({"foldersCount" : allFoldersCount});
-        // folders should be fixed. Or there's not much we can do since the folder completely disappeared anyway
-        // TODO FIX FILES, BY CHECKING IF THEY EXIST IN THE FIRST PLACE. USE
-        // storageRef.child("file.png").getDownloadURL().then(onResolve, onReject);
-        // TO SEE IF THEY EXIST ONE BY ONE IF YOU HAVE TO.
-        fixFiles();
-      } else {
-        fixFiles();
-      }
-    });
+    if (allFolders) {
+      var allFoldersCount = Object.keys(allFolders).length;
+      var foldersCountOnServer;
+      dataRef.child("foldersCount").on('value', function(snapshot) {
+        foldersCountOnServer = snapshot.val();
+        if (foldersCountOnServer !== allFoldersCount) {
+          dataRef.update({"foldersCount" : allFoldersCount});
+          // folders should be fixed. Or there's not much we can do since the folder completely disappeared anyway
+          // TODO FIX FILES, BY CHECKING IF THEY EXIST IN THE FIRST PLACE. USE
+          // storageRef.child("file.png").getDownloadURL().then(onResolve, onReject);
+          // TO SEE IF THEY EXIST ONE BY ONE IF YOU HAVE TO.
+          fixFiles();
+        } else {
+          fixFiles();
+        }
+      });
+    } else {
+      fixFiles();
+    }
   });
 }
 
@@ -4149,7 +4153,7 @@ function processDroppedDoc (file, fid, callback, callbackParam) {
   };
   reader.onerror = function(err){
     fileUploadError = true;
-    handleError(err);
+    // handleError(err); // this is not helping anything and only causing anxiety disorder.
     showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your file. This is most likely a problem we need to fix, and rest assured we will.");
   };
 }

@@ -1768,10 +1768,12 @@ function getThumbForItem (folderContent, tid, id) {
   if (folderContent !== null && folderContent !== undefined) {
     if (folderContent.classList.contains("albumitem")) {
       var album = folderContent.querySelector(".album");
-      if (!album.classList.contains("is-loading")) {
-        album.classList.add("is-loading");
+      if (album) {
+        if (!album.classList.contains("is-loading")) {
+          album.classList.add("is-loading");
+        }
+        getThumbnail(tid, id);
       }
-      getThumbnail(tid, id);
     }
 
     if (folderContent.classList.contains("photoitem")) {
@@ -2267,20 +2269,20 @@ function generateDominant(canvas, ctx, callback) {
   callback (dominantColor.toString());
 }
 
-function generatePallette(imgEl, callback) {
-  var canvas = document.createElement("canvas");
-  var ctx = canvas.getContext("2d");
-  var img = new Image();
-  img.src = imgEl.attr("src");
-
-  img.onload = function () {
-    canvas.width = img.width; canvas.height = img.height;
-    ctx.drawImage(img, 0,0, canvas.width, canvas.height);
-    var colorThief = new ColorThief();
-    var pallette = colorThief.getPalette(canvas, ctx);
-    callback(pallette);
-  };
-}
+// function generatePallette(imgEl, callback) {
+//   var canvas = document.createElement("canvas");
+//   var ctx = canvas.getContext("2d");
+//   var img = new Image();
+//   img.src = imgEl.attr("src");
+//
+//   img.onload = function () {
+//     canvas.width = img.width; canvas.height = img.height;
+//     ctx.drawImage(img, 0,0, canvas.width, canvas.height);
+//     var colorThief = new ColorThief();
+//     var pallette = colorThief.getPalette(canvas, ctx);
+//     callback(pallette);
+//   };
+// }
 
 
 ////////////////////////////////////////////////////
@@ -3799,7 +3801,9 @@ function closeLightbox() {
   try {
     var doc = window.document;
     var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-    cancelFullScreen.call(doc);
+    if (cancelFullScreen) {
+      cancelFullScreen.call(doc);
+    }
   } catch (e) {
     // likely a phone
   }
@@ -3814,6 +3818,10 @@ function toggleExif() {
     $("#lightbox-photo").removeClass("exif");
     $(".lightboxExif").addClass("behind");
   }
+}
+
+if (isMobile) {
+  $("#lightbox-fullscreen").hide();
 }
 
 

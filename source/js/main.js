@@ -291,10 +291,14 @@ function toggleFullScreen() {
   var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
   if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-    requestFullScreen.call(docEl);
+    if (requestFullScreen) {
+      requestFullScreen.call(docEl);
+    }
   }
   else {
-    cancelFullScreen.call(doc);
+    if (cancelFullScreen) {
+      cancelFullScreen.call(doc);
+    }
   }
 }
 
