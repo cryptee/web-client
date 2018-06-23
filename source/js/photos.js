@@ -1297,7 +1297,7 @@ function queueUpload(file, fid, predefinedPID, callback, callbackParam) {
   startUploadTimeout = setTimeout(function () {
     // check first and last image in uploadList, get their file sizes, make an average file size.
     // then check total size of uploadList, and calculate how much memory would be needed
-    // then decide how many photos should be uploaded. (currently it's 3, but could be higher)
+    // then decide how many photos should be uploaded. (currently it's 2, but could be 3 or 4 on strong systems.)
     // then again, it seems like a memory leak, and probably needs monitoring the memory instead.
     // # of photos were relatively low, and sizes were feasible and still crashed.
     // chances are encryption leaks memory. Try to find a way to clean up after it.
@@ -1641,11 +1641,26 @@ function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
   document.title = "Cryptee | Photos";
   numFilesUploaded = 0;
   numFilesUploading = 0;
-  if (!fileUploadError) {
-    hideFileUploadStatus();
+
+  homeFolderLoaded = false; otherFolderLoaded = false;
+  if (activeFID !== "home") {
+    getAllFilesOfFolder(activeFID, function(){
+      if (!fileUploadError) {
+        hideFileUploadStatus();
+      } else {
+        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
+      }
+    });
   } else {
-    showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
+    getHomeFolder(function(){
+      if (!fileUploadError) {
+        hideFileUploadStatus();
+      } else {
+        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
+      }
+    });
   }
+
   somethingDropped = false;
   uploadList = [];
   isUploading = false;
