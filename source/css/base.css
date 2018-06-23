@@ -242,7 +242,7 @@ code, pre {
 }
 
 .katex .katex-mathml {
-  position : relative;
+  display: none;
 }
 
 crypteefile::after {
