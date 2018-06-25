@@ -618,10 +618,6 @@ html {
   margin-bottom: 0rem !important;
 }
 
-#security {
-  padding-left: 0rem !important;
-}
-
 .www-body #download {
   padding: 0rem 1rem 5rem 1rem !important;
 }
@@ -4122,6 +4118,10 @@ body.draggingStuff {
   .www-body section {
     padding: 2rem !important;
   }
+
+  /* #security {
+    padding: 2rem !important;
+  } */
 
   #www-photos-desktop-right {
     padding-right: 1rem;

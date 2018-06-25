@@ -259,7 +259,7 @@ function sortByTitle (reverse){
   reverse = reverse || false;
   if (reverse) {
     $('.folder-content').sort(function(a, b) {
-      if ($(a).attr("name") > $(b).attr("name")) {
+      if ($(a).attr("photositemname") > $(b).attr("photositemname")) {
         return -1;
       } else {
         return 1;
@@ -267,7 +267,7 @@ function sortByTitle (reverse){
     }).appendTo('#folder-contents');
   } else {
     $('.folder-content').sort(function(a, b) {
-      if ($(a).attr("name") < $(b).attr("name")) {
+      if ($(a).attr("photositemname") < $(b).attr("photositemname")) {
         return -1;
       } else {
         return 1;
@@ -2451,7 +2451,7 @@ function renderDOMElement (id){
 function renderFolderShell(id, pinky, title) {
   pinky = pinky || "246,246,246";
   dominant = "background-color:rgb(" + pinky + ");"; // optional, removing could speed up painting & reflow
-  var html = "<div name='"+title+"' class='folder-content albumitem shell' id='"+id+"' style='"+dominant+"'></div>";
+  var html = "<div photositemname='"+title+"' class='folder-content albumitem shell' id='"+id+"' style='"+dominant+"'></div>";
   return html;
 }
 
@@ -2464,7 +2464,7 @@ function renderPhotoShell (id, pinky, title) {
 
   pinky = pinky || "246,246,246";
   dominant = "background-color:rgb(" + pinky + ");"; // optional, removing could speed up painting & reflow
-  var html = "<div name='"+theParsedFilename+"' class='folder-content photoitem shell' id='"+id+"' style='"+dominant+"'></div>";
+  var html = "<div photositemname='"+theParsedFilename+"' class='folder-content photoitem shell' id='"+id+"' style='"+dominant+"'></div>";
   return html;
 }
 
