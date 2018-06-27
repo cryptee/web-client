@@ -5077,6 +5077,7 @@ function attachmentLoaded(did) {
 function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, callbackParam) {
   var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
   var rawHTML = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
+  var fid = $("#" + did).parents(".afolder").attr("id");
 
   quill.setText('\n');
   quill.clipboard.dangerouslyPasteHTML(1, rawHTML);
@@ -5109,14 +5110,16 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
     var newDocName = dtitle.replace(/\.html/g, '');
     titlesObject.docs[activeDocID] = JSON.stringify(newDocName);
     updateTitles(function(){
-
-      //set doc title in taskbar
-      $("#active-doc-title").html(newDocName);
-      $("#active-doc-title-input").val(newDocName);
-      document.title = newDocName;
-      $("#active-doc-title-input").attr("placeholder", newDocName);
-      $("#" + activeDocID).find(".doctitle").html(newDocName);
+      foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false }, function(){
+        //set doc title in taskbar
+        $("#active-doc-title").html(newDocName);
+        $("#active-doc-title-input").val(newDocName);
+        document.title = newDocName;
+        $("#active-doc-title-input").attr("placeholder", newDocName);
+        $("#" + activeDocID).find(".doctitle").html(newDocName);
+        $("#" + did).removeClass("itsAFile");
         callback(callbackParam);
+      });d
     });
   });
 }
@@ -5132,6 +5135,7 @@ function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, 
   var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
   var rawTXT = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
   var rawHTML = markdownConverter.makeHtml(rawTXT).split("\n").join("<br>");
+  var fid = $("#" + did).parents(".afolder").attr("id");
 
   quill.setText('\n');
   quill.clipboard.dangerouslyPasteHTML(1, rawHTML);
@@ -5164,14 +5168,16 @@ function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, 
     var newDocName = dtitle.replace(/\.md/g, '').replace(/\.txt/g, '');
     titlesObject.docs[activeDocID] = JSON.stringify(newDocName);
     updateTitles(function(){
-
-      //set doc title in taskbar
-      $("#active-doc-title").html(newDocName);
-      $("#active-doc-title-input").val(newDocName);
-      document.title = newDocName;
-      $("#active-doc-title-input").attr("placeholder", newDocName);
-      $("#" + activeDocID).find(".doctitle").html(newDocName);
+      foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false }, function(){
+        //set doc title in taskbar
+        $("#active-doc-title").html(newDocName);
+        $("#active-doc-title-input").val(newDocName);
+        document.title = newDocName;
+        $("#active-doc-title-input").attr("placeholder", newDocName);
+        $("#" + activeDocID).find(".doctitle").html(newDocName);
+        $("#" + did).removeClass("itsAFile");
         callback(callbackParam);
+      });
     });
   });
 }

@@ -15,6 +15,8 @@ var rootRef;
 var db = firebase.database();
 var store = firebase.storage();
 var firestore = firebase.firestore();
+var cloudfunctions = firebase.functions();
+
 var firestoreSettings = {timestampsInSnapshots: true}; firestore.settings(firestoreSettings);
 
 var reauthenticated = false;
@@ -85,7 +87,7 @@ $(".settings-tab").on('click', function(event) {
 
 function loadTab(whichTab) {
 
-  if (whichTab === "upgrade") {
+  if (whichTab === "upgrade" || whichTab === "history") {
     theKey = null;
     loadJS('https://cdn.paddle.com/paddle/paddle.js', function(){
       paddleInit();
@@ -557,10 +559,22 @@ function prorateParallel (){
   pendingProration = true;
   $("#prorateToYearlyNotification").fadeOut();
   $("#prorateView").find("button").addClass("is-loading").prop("disabled", true);
-  if (plan < 523300) {
-    dataRef.update({"prorate" : "toYearly"});
+  if (userPlan) {
+    if (userPlan < 523300) {
+      dataRef.update({"prorate" : "toYearly"});
+    } else {
+      dataRef.update({"prorate" : "toMonthly"});
+    }
   } else {
-    dataRef.update({"prorate" : "toMonthly"});
+    var prorateNoPlan = cloudfunctions.httpsCallable('prorateNoPlan');
+    prorateNoPlan({uid : theUserID}).then(function(result) {
+      $("#prorateView").find("button").removeClass("is-loading");
+      $("#prorateView").find("p").html("Looks like you're trying to access a panel meant for paid users. Perhaps become a paid user first?");
+    }).catch(function(error) {
+      $("#prorateView").find("button").removeClass("is-loading");
+      $("#prorateView").find("p").html("Looks like you're trying to access a panel meant for paid users. Perhaps become a paid user first?");
+      console.log(error);
+    });
   }
 }
 
@@ -577,7 +591,8 @@ function emailInvoices() {
       $(".email-invoices-button").removeClass("is-loading").prop("disabled", false);
       $(".email-invoices-button").removeClass("is-dark").addClass("is-success").html("Check your inbox").prop("disabled", true);
     } else {
-
+      $(".email-invoices-button").removeClass("is-loading").prop("disabled", false);
+      $(".email-invoices-button").removeClass("is-dark").addClass("is-danger").html("Looks like you made a mistake").prop("disabled", false);
     }
   });
 }
