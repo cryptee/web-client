@@ -1591,6 +1591,7 @@ function appendFolder (folder){
                         uploadButton +
                         '<p class="rename-folder-button clickable"><span class="icon"><i class="fa fa-i-cursor"></i></span> Rename Folder</p>'+
                         '<p class="make-ghost-folder-button clickable"><span class="icon"><i class="fa fa-eye-slash"></i></span> Make Ghost Folder</p>'+
+                        "<p class='notification invalid-foldername is-danger'>Folder name contains an invalid symbol or character. Please rename the folder and try again.</p>" +
                         '<p class="clickable color-folder-thing">'+
                           '<span class="icon"><i class="fa fa-paint-brush"></i></span>'+
                           '<span class="icon folder-color-select-button" color="#FFC0CB" ><i style="color:#FFC0CB;" class="fa fa-tint"></i></span>'+
@@ -2066,6 +2067,7 @@ $('#all-folders').on('click', '.rename-folder-button', function(event) {
   var folderOldName = $(this).parents(".afolder").find(".folder-title").text();
   $("#rename-folder-input").attr("placeholder", folderOldName).val(folderOldName);
   $("#rename-folder-modal").addClass('is-active').attr("fid", fid);
+  $(".invalid-foldername").removeClass("shown");
   setTimeout(function () {
     $("#rename-folder-input").focus();
   }, 10);
@@ -2121,9 +2123,17 @@ $("#ghost-folder-help").on('click', function(event) {
 
 $('#all-folders').on('click', '.make-ghost-folder-button', function(event) {
   ghostFTitleToConfirm = $(this).parents(".afolder").find(".folder-title").text();
-  fidToGhost = $(this).parents(".afolder").attr("id");
-  $("#ghost-folder-confirm-input").attr("placeholder", ghostFTitleToConfirm);
-  saveDoc(prepareForGhostFolderModal);
+
+  try {
+    var testHashingTheTitle = hashString(ghostFTitleToConfirm);
+    fidToGhost = $(this).parents(".afolder").attr("id");
+    $("#ghost-folder-confirm-input").attr("placeholder", ghostFTitleToConfirm);
+    $(".invalid-foldername").removeClass("shown");
+    saveDoc(prepareForGhostFolderModal);
+  } catch (e) {
+    $(".invalid-foldername").addClass("shown");
+  }
+
 });
 
 function prepareForGhostFolderModal() {

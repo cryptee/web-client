@@ -612,6 +612,7 @@ function emailInvoices() {
 
 function showReauthPopup(color, message){
   $("#change-pass-button").removeClass('loading disabled');
+  $("#change-key-button").removeClass('loading disabled');
   $("#reauth-error").html(message);
   $("#reauth-error").removeClass("is-warning is-success is-info is-danger").addClass(color).show();
 }
@@ -794,6 +795,23 @@ function checkKeyStrength() {
     $("#key-score").removeClass('is-danger').addClass('is-success');
     keyIsGood = true;
   }
+
+  if (keyIsGood) {
+    try {
+      var keyToTest = $("#newkey").val().trim();
+      var newHashedKey = hashString(keyToTest);
+
+      $("#newkey").removeClass('is-danger');
+      $("#newkey").parents(".field").find(".help").fadeOut();
+      keyIsGood = true;
+    } catch (e) {
+
+      $("#newkey").addClass('is-danger');
+      $("#newkey").parents(".field").find(".help").fadeIn();
+      keyIsGood = false;
+    }
+  }
+
 }
 
 function tryChangingKey () {
@@ -821,6 +839,7 @@ function tryChangingKey () {
         });
 
     }).catch(function(error) {
+      console.log(error);
       setTimeout(function(){
         showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your current Encryption Key. Please try again.");
       }, 1000);

@@ -205,6 +205,20 @@ function checkKey() {
     $("#key-score").removeClass('is-danger').addClass('is-success');
     keyIsGood = true;
   }
+
+  if (keyIsGood) {
+    try {
+      var keyToTest = $("#signup-key").val().trim();
+      var newHashedKey = hashString(keyToTest);
+      $("#signup-key").removeClass('is-danger');
+      $("#signup-key").parents(".field").find(".help").fadeOut();
+      keyIsGood = true;
+    } catch (e) {
+      $("#signup-key").addClass('is-danger');
+      $("#signup-key").parents(".field").find(".help").fadeIn();
+      keyIsGood = false;
+    }
+  }
   checkSignupButton();
 }
 

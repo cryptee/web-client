@@ -536,7 +536,7 @@ function fixFilesAndFolders (callback, callbackParam) {
             if (item.data().pinky === null && item.data().thumb === null) {
               var itemID = item.id;
               homeRef.doc(itemID).delete();
-              console.log("Deleted corrupted item refernce with id:", itemID);
+              console.log("Deleted corrupted item reference with id: ", itemID);
             }
           }
         });
@@ -735,6 +735,8 @@ function getHomeFolder (callback, callbackParam) {
           $("#get-home-folder-button").addClass("unavailable");
           processItemsFromFirestore("home", items, callback, callbackParam);
           homeFolderLoaded = true; otherFolderLoaded = false;
+        } else {
+          $("#folder-contents").removeClass("is-loading");
         }
       });
     });
@@ -758,6 +760,8 @@ function getAllFilesOfFolder (fid, callback, callbackParam) {
         $("#photos-new-folder-button, #photos-get-ghost-folder-button").addClass("unavailable");
         processItemsFromFirestore(fid, items, callback, callbackParam);
         homeFolderLoaded = false; otherFolderLoaded = true;
+      } else {
+        $("#folder-contents").removeClass("is-loading");
       }
     });
   });
@@ -769,7 +773,6 @@ function getAllFilesOfFolder (fid, callback, callbackParam) {
 function processItemsFromFirestore (fid, items, callback, callbackParam) {
   callback = callback || noop;
   $("#folder-contents").html("");
-
   // clear old global object (referenced in appendfolde r & appendPhot o & getTitles)
   activeItemsObject = {};
 
@@ -783,13 +786,11 @@ function processItemsFromFirestore (fid, items, callback, callbackParam) {
         showEmptyFolderDialog();
         $("#folder-contents").removeClass("is-loading");
       } else {
-
         getTitles(fid, contents, function(){
           $("#photos-sort-button").find("i").addClass("fa-sort-alpha-desc").removeClass("fa-sort-alpha-asc");
           $("#folder-contents").removeClass("is-loading");
           callback(callbackParam);
         });
-
       }
     });
   } else {
@@ -1132,7 +1133,9 @@ function cycleThroughUploadedFoldersAndPIDs(moveOperations, i) {
 }
 
 function batchUploadComplete(hasFolders) {
-  homeFolderLoaded = false; otherFolderLoaded = false;
+  // DON'T ENABLE THESE. IT CALLS GETHOMEFOLDER TWICE.
+  // homeFolderLoaded = false; otherFolderLoaded = false;
+  // THIS IS ONLY WRITTEN HERE FOR FUTURE NOTICE.
 
   if (activeFID !== "home") {
     getAllFilesOfFolder(activeFID, function(){
@@ -1604,13 +1607,12 @@ function uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename,
   numFilesLeftToBeUploaded--;
   numFilesUploaded++;
   numFilesUploading--;
-
   if (fid === activeFID) {
     activeItemsObject[pid] = activeItemsObject[pid] || {};
     activeItemsObject[pid].title = filename;
     activeItemsObject[pid].pinky = dominant;
     updateTitles(function(){
-      if (numFilesLeftToBeUploaded === 0) {
+      if (numFilesLeftToBeUploaded <= 0) {
         if (fid !== "home") {
           adjustFolderCount (fid, numFilesUploaded, false, function(){
             uploadCompleteAndFolderAdjusted (callback, callbackParam);
@@ -1642,8 +1644,8 @@ function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
   numFilesUploaded = 0;
   numFilesUploading = 0;
 
-  homeFolderLoaded = false; otherFolderLoaded = false;
   if (activeFID !== "home") {
+    otherFolderLoaded = false;
     getAllFilesOfFolder(activeFID, function(){
       if (!fileUploadError) {
         hideFileUploadStatus();
@@ -1652,6 +1654,7 @@ function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
       }
     });
   } else {
+    homeFolderLoaded = false;
     getHomeFolder(function(){
       if (!fileUploadError) {
         hideFileUploadStatus();
@@ -2686,7 +2689,6 @@ function gotTitles (JSONifiedEncryptedTitlesObject, contents, callback) {
 function processTitles (titlesObject, contents, callback) {
   callback = callback || noop;
 
-
   /////////////////////////////////////////
   // - 1 - CYCLE ALL ITEMS FROM FIRESTORE
   // AND ADD TO active Items Object
@@ -2756,7 +2758,6 @@ function processTitles (titlesObject, contents, callback) {
   // insert dom elements into the sortedDOMArray in correct order.
   itemsArray.forEach(function (item, index) {
     // item[0] is the id, item[1] is the filename
-
     var shellElement = renderDOMShell(item[0]);
     sortedDOMArray.push(shellElement);
 
@@ -3100,11 +3101,18 @@ var fidToGhost;
 $("#folder-contents").on("click", '.ghostfoldericon', function(event) {
   event.stopPropagation(); event.preventDefault();
   var albumTitle = $(this).parents(".albumitem").find("input").val().toUpperCase();
-  var fid = $(this).parents(".albumitem").attr("id");
-  fidToGhost = fid;
-  $("#ghost-folder-confirm-input").val(albumTitle);
-  $("#ghost-folder-confirm-input").attr("placeholder", albumTitle);
-  showModal("ghost-album-modal");
+
+  try {
+    var testHashingTheTitle = hashString(albumTitle);
+    var fid = $(this).parents(".albumitem").attr("id");
+    fidToGhost = fid;
+    $("#ghost-folder-confirm-input").val(albumTitle);
+    $("#ghost-folder-confirm-input").attr("placeholder", albumTitle);
+    showModal("ghost-album-modal");
+  } catch(e){
+    showModal("ghost-album-titleerror-modal");
+  }
+
 });
 
 $("#ghost-folder-confirm-input").on('keydown', function(event) {
@@ -3151,6 +3159,7 @@ function makeGhostFolder () {
       $("#ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
       console.log(error);
     });
+
   });
 }
 

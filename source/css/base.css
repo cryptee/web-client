@@ -2100,6 +2100,14 @@ body.draggingStuff {
   box-shadow: 0 0 2rem rgba(0,0,0,0.2);
 }
 
+.invalid-foldername {
+  display: none !important;
+}
+
+.invalid-foldername.shown {
+  display: block !important;
+}
+
 .delete-folder-buttons {
   display: none;
   margin-top: 0.75rem;
