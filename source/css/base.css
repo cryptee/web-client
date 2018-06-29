@@ -4916,6 +4916,7 @@ body.draggingStuff {
   }
   #active-doc-contents {
     padding-top: 0 !important;
+    padding-left: 0 !important;
     width: 100% !important;
     height: auto !important;
     overflow: auto !important;

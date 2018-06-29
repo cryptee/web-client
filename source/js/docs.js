@@ -2393,6 +2393,19 @@ quill.on('text-change', function(delta, oldDelta, source) {
   lastActivityTime = (new Date()).getTime();
   idleTime = 0;
   docChanged = true;
+
+  if (quill.hasFocus()) {
+    var qs = quill.getSelection().index;
+    var bounds = quill.getBounds(qs);
+    var quillHeight = $(".ql-editor").height();
+    var quillScrollHeight = $(".ql-editor")[0].scrollHeight;
+
+    if (bounds.bottom > quillHeight) {
+      $("body").stop().scrollTop(bounds.bottom);
+      $(".ql-editor").scrollTop(quillScrollHeight);
+    }
+  }
+
 });
 
 function idleTimer () {
