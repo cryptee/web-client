@@ -145,7 +145,7 @@
   }
 
   function gotUser() {
-    $('.username').html(theUsername);
+    $('.username').html(theUsername || theEmail);
     metaRef.on('value', function(snapshot) {  gotUserMeta(snapshot.val());  });
   }
 

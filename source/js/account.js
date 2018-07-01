@@ -179,7 +179,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 function gotUser() {
-  $('#account-username').html(theUsername);
+  $('#account-username').html(theUsername || theUser.email);
   if (theEmail.indexOf("@users.crypt.ee") !== -1) {
     // if anonymous email
 
@@ -208,6 +208,10 @@ function gotUser() {
       console.log("not verified");
       $("#noemail").show();
     }
+  }
+
+  if (theUsername === null || theUsername === undefined || theUsername === "") {
+    $("#nousername").show();
   }
 
   dataRef.on('value', function(snapshot) {  gotUserData(snapshot.val()); fillDataExporter(snapshot, null, null); });
@@ -720,24 +724,61 @@ function changePassword (){
 }
 
 function changeEmail (){
+
   var newEmail = $("#recoveryemail").val().trim();
-  if (newEmail === "") {
-      newEmail = theUser.displayName + "@users.crypt.ee";
-  }
-  theUser.updateEmail(newEmail).then(function() {
-    // Update successful.
-    if (newEmail.indexOf("@users.crypt.ee") !== -1) {
-      showReauthPopup("is-success", "Email successfully removed from our database!");
-      setTimeout(function () {
-        window.location.reload();
-      }, 2000);
+  var newUsername = $("#newusername").val().trim();
+
+  if (newEmail === "" && (theUser.displayName === null || theUser.displayName === undefined || theUser.displayName === "")) {
+    // USER DOESN'T HAVE A USERNAME, AND IS TRYING TO REMOVE THE EMAIL.
+    if (newUsername === "") {
+      // USER DIDN'T SET A NEW USERNAME EITHER. THROW ALERT
+      showReauthPopup("is-warning", "You have signed up to Cryptee with an email address and not with a username. Please pick a username if you'd like to remove your email address.");
     } else {
-      showReauthPopup("is-success", "Email successfully set! Please check your inbox for a verification mail.");
-      verifyEmail();
+      // USER DID SET A NEW USERNAME. TRY SETTING THIS ONE UP.
+      setEmail (newUsername + "@users.crypt.ee");
     }
-  }, function(error) {
-    showReauthPopup("is-warning", "We can't seem to set your email. Please try again.");
-  });
+  } else {
+    // USER DOES HAVE A USERNAME OR DIDN'T LEAVE THE EMAIL FIELD BLANK.
+    if (newEmail === "") {
+      // USER LEFT THE EMAIL FIELD BLANK, WILL START USING USERNAME INSTEAD.
+      newEmail = theUser.displayName + "@users.crypt.ee";
+    }
+    setEmail(newEmail);
+  }
+
+  function setEmail (emailToSet) {
+    theUser.updateEmail(emailToSet).then(function() {
+      // Update successful.
+      if (emailToSet.indexOf("@users.crypt.ee") !== -1) {
+        // USER WILL USE A USERNAME FROM NOW ON.
+
+        if (newUsername !== "") {
+          //USER SET A NEW USERNAME, UPDATE REALTIME DB + USER PROFILE.
+          theUser.updateProfile({ displayName : newUsername}).then(function() {
+            dataRef.update({ username : newUsername }, function(){
+              showReauthPopup("is-success", "Email successfully removed from our database! From now on, you will need to use your new username ( " + newUsername + " ) to sign in.");
+              $("#nousername").hide();
+            });
+          });
+        } else {
+          if (theUser.displayName !== null && theUser.displayName !== undefined && theUser.displayName !== "") {
+            // USER ALREADY HAD A USERNAME, AND WILL START USING THE USERNAME INSTEAD OF THE EMAIL.
+            showReauthPopup("is-success", "Email successfully removed from our database! From now on, you will need to use your username ( " + theUser.displayName + " ) to sign in.");
+          }
+        }
+      } else {
+        showReauthPopup("is-success", "Email successfully set! Please check your inbox for a verification mail. From now on, you will need to use your new email ( " + emailToSet + " ) to sign in. ");
+        verifyEmail();
+      }
+    }, function(error) {
+      if (error.code === "auth/email-already-in-use") {
+        showReauthPopup("is-warning", "It seems like this email / username is already in use. Please try another one.");
+      } else {
+        showReauthPopup("is-warning", "We're having trouble changing your email. Please try again later.");
+      }
+      console.log(error);
+    });
+  }
 }
 
 function verifyEmail() {

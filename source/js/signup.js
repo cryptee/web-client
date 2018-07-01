@@ -304,7 +304,8 @@ function checkSignupButton () {
   // sign up with username & pass
   if ($("li[tab='userpass']").hasClass("is-active")) {
     if (passVerified && keyVerified && passIsGood && keyIsGood && privAgreed) {
-      if ($("#signup-username").val().trim() !== "" || ($("#signup-email").val().trim() !== "" && isEmail($("#signup-email").val()))) {
+      // if ($("#signup-username").val().trim() !== "" || ($("#signup-email").val().trim() !== "" && isEmail($("#signup-email").val()))) {
+      if ($("#signup-username").val().trim() !== "") {
         $("#signup-button").prop('disabled', false);
       } else {
         $("#signup-button").prop('disabled', true);
@@ -607,7 +608,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user // if this is just a logged in user, don't start process again.
 
-    $('.username').html(user.displayName);
+    $('.username').html(user.displayName || user.email);
     if (signUpWithToken || signUpWithEmail) {
       sessionStorage.clear();
       var iosGAuthSignupKey = JSON.parse(localStorage.getItem("iosgauthsignupkey"));

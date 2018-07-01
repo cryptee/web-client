@@ -2,6 +2,7 @@ var theUser;
 var theUserID;
 var theUsername;
 var theToken;
+var theEmail;
 var dataRef;
 var signinURL = "https://crypt.ee/api/auth";
 var latest = (new Date()).getTime();
@@ -59,10 +60,11 @@ firebase.auth().onAuthStateChanged(function(user) {
     //got user
     theUser = user;
     theUserID = theUser.uid;
+    theEmail = theUser.email;
     theUsername = theUser.displayName;
     Raven.setUserContext({ id: theUserID });
     dataRef = db.ref().child('/users/' + theUserID + "/data/");
-    $('.username').html(theUsername);
+    $('.username').html(theUsername || theEmail);
 
     $("html, body").removeClass("is-loading");
 

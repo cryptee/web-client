@@ -2457,7 +2457,7 @@ body.draggingStuff {
 /* DOCS ZEN MODE  */
 
 #active-doc-contents.zenMode {
-  padding-top: calc(49px + 1rem);
+  padding-top: 44px;
 }
 
 #active-doc-contents.zenMode .ql-editor {
@@ -4690,7 +4690,7 @@ body.draggingStuff {
     padding-top: 101px;
   }
   #active-doc-contents.zenMode {
-    padding-top: calc(73px + 0.5rem);
+    padding-top: 68px;
   }
   #doc-top.zenMode #toolbar-container {
     margin-left: auto;
