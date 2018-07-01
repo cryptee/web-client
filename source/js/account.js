@@ -39,7 +39,7 @@ var productForPaddle = 523200;
 var emailForPaddle;
 var countryForPaddle;
 var zipForPaddle;
-var couponForPaddle;
+var couponForPaddle = getUrlParameter("coupon") || "";
 
 try {
   sessionStorage.removeItem('key');
@@ -118,6 +118,8 @@ $(window).on('load', function(event) {
   if (isInWebAppiOS || isInWebAppChrome) {
     $("#acct-signout").hide();
   }
+
+  $("#upgrade-coupon-input").val(couponForPaddle);
 });
 
 //////////////////////////////////////////////////////////

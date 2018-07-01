@@ -542,6 +542,7 @@ key('command+shift+8, ctrl+shift+8', function(){ quill.format('list', 'bullet');
 key('command+shift+s, ctrl+shift+s', function(){ $(".ql-strike").click(); return false; });
 key('command+., ctrl+.', function(){ showAttachmentSelector(" "); return false; });
 key('command+/, ctrl+/', function(){ toggleHotkeys(); return false; });
+key('command+alt+z, ctrl+alt+z', function(){ toggleZenMode(); return false; });
 
 
 var quoteToggle = false;
@@ -675,7 +676,9 @@ $(".ql-editor").on('scroll', throttleScroll(function(event) {
 }, 100));
 
 $(window).resize(function(event) {
-  arrangeTools();
+  if (!zenMode) {
+    arrangeTools();
+  }
 });
 
 $(window).on("load", function(event) {
@@ -751,21 +754,21 @@ function showZenMode() {
 }
 
 
-if (document.addEventListener) {
-  document.addEventListener('webkitfullscreenchange', fullScreenExitHandler, false);
-  document.addEventListener('mozfullscreenchange', fullScreenExitHandler, false);
-  document.addEventListener('fullscreenchange', fullScreenExitHandler, false);
-  document.addEventListener('MSFullscreenChange', fullScreenExitHandler, false);
-}
-
-function fullScreenExitHandler() {
-  // if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== null) {
-  //
-  // } else {
-  //
-  // }
-  toggleZenMode();
-}
+// if (document.addEventListener) {
+//   document.addEventListener('webkitfullscreenchange', fullScreenExitHandler, false);
+//   document.addEventListener('mozfullscreenchange', fullScreenExitHandler, false);
+//   document.addEventListener('fullscreenchange', fullScreenExitHandler, false);
+//   document.addEventListener('MSFullscreenChange', fullScreenExitHandler, false);
+// }
+//
+// function fullScreenExitHandler() {
+//   // if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== null) {
+//   //
+//   // } else {
+//   //
+//   // }
+//   toggleZenMode();
+// }
 
 
 function hideZenMode() {
