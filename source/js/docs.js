@@ -2629,7 +2629,15 @@ function downloadFile (did, dtitle, preview, callback, callbackParam) {
 $("#all-recent").on('click', '.recent-doc', function(event) {
   var did = $(this).attr("did");
   var didToLoad = did;
-  prepareToLoad (didToLoad);
+  if (didToLoad !== activeDocID) {
+    prepareToLoad (didToLoad);
+  } else {
+    if (isMobile) {
+      hideDocProgress(hideMenu);
+    } else {
+      hideDocProgress();
+    }
+  }
 });
 
 
@@ -2638,7 +2646,15 @@ $('#all-folders').on('click', '.adoc', function(event) {
   if (!selectionButtons.is(event.target) && selectionButtons.has(event.target).length === 0) {
     var did = $(this).attr("id");
     var didToLoad = did;
-    prepareToLoad (didToLoad);
+    if (didToLoad !== activeDocID) {
+      prepareToLoad (didToLoad);
+    } else {
+      if (isMobile) {
+        hideDocProgress(hideMenu);
+      } else {
+        hideDocProgress();
+      }
+    }
   }
 });
 

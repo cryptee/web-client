@@ -2094,8 +2094,8 @@ function generateThumbnail (imgB64, callback) {
 
     img.onload = function () {
 
-      var width = img.width
-      var height = img.height
+      var width = img.width;
+      var height = img.height;
 
       orientCanvas.width = width;
       orientCanvas.height = height;
@@ -2108,40 +2108,40 @@ function generateThumbnail (imgB64, callback) {
       switch (orientation) {
         case 2:
           // horizontal flip
-          orientContext.translate(width, 0)
-          orientContext.scale(-1, 1)
-          break
+          orientContext.translate(width, 0);
+          orientContext.scale(-1, 1);
+          break;
         case 3:
           // 180° rotate left
-          orientContext.translate(width, height)
-          orientContext.rotate(Math.PI)
-          break
+          orientContext.translate(width, height);
+          orientContext.rotate(Math.PI);
+          break;
         case 4:
           // vertical flip
-          orientContext.translate(0, height)
-          orientContext.scale(1, -1)
-          break
+          orientContext.translate(0, height);
+          orientContext.scale(1, -1);
+          break;
         case 5:
           // vertical flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI)
-          orientContext.scale(1, -1)
-          break
+          orientContext.rotate(0.5 * Math.PI);
+          orientContext.scale(1, -1);
+          break;
         case 6:
           // 90° rotate right
-          orientContext.rotate(0.5 * Math.PI)
-          orientContext.translate(0, -height)
-          break
+          orientContext.rotate(0.5 * Math.PI);
+          orientContext.translate(0, -height);
+          break;
         case 7:
           // horizontal flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI)
-          orientContext.translate(width, -height)
-          orientContext.scale(-1, 1)
-          break
+          orientContext.rotate(0.5 * Math.PI);
+          orientContext.translate(width, -height);
+          orientContext.scale(-1, 1);
+          break;
         case 8:
           // 90° rotate left
-          orientContext.rotate(-0.5 * Math.PI)
-          orientContext.translate(-width, 0)
-          break
+          orientContext.rotate(-0.5 * Math.PI);
+          orientContext.translate(-width, 0);
+          break;
       }
 
       orientContext.drawImage(img, 0, 0);
@@ -2192,8 +2192,8 @@ function generateLightboxPreview (imgB64, callback) {
 
     img.onload = function () {
 
-      var width = img.width
-      var height = img.height
+      var width = img.width;
+      var height = img.height;
 
       orientCanvas.width = width;
       orientCanvas.height = height;
@@ -2206,40 +2206,40 @@ function generateLightboxPreview (imgB64, callback) {
       switch (orientation) {
         case 2:
           // horizontal flip
-          orientContext.translate(width, 0)
-          orientContext.scale(-1, 1)
-          break
+          orientContext.translate(width, 0);
+          orientContext.scale(-1, 1);
+          break;
         case 3:
           // 180° rotate left
-          orientContext.translate(width, height)
-          orientContext.rotate(Math.PI)
-          break
+          orientContext.translate(width, height);
+          orientContext.rotate(Math.PI);
+          break;
         case 4:
           // vertical flip
-          orientContext.translate(0, height)
-          orientContext.scale(1, -1)
-          break
+          orientContext.translate(0, height);
+          orientContext.scale(1, -1);
+          break;
         case 5:
           // vertical flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI)
-          orientContext.scale(1, -1)
-          break
+          orientContext.rotate(0.5 * Math.PI);
+          orientContext.scale(1, -1);
+          break;
         case 6:
           // 90° rotate right
-          orientContext.rotate(0.5 * Math.PI)
-          orientContext.translate(0, -height)
-          break
+          orientContext.rotate(0.5 * Math.PI);
+          orientContext.translate(0, -height);
+          break;
         case 7:
           // horizontal flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI)
-          orientContext.translate(width, -height)
-          orientContext.scale(-1, 1)
-          break
+          orientContext.rotate(0.5 * Math.PI);
+          orientContext.translate(width, -height);
+          orientContext.scale(-1, 1);
+          break;
         case 8:
           // 90° rotate left
-          orientContext.rotate(-0.5 * Math.PI)
-          orientContext.translate(-width, 0)
-          break
+          orientContext.rotate(-0.5 * Math.PI);
+          orientContext.translate(-width, 0);
+          break;
       }
 
       orientContext.drawImage(img, 0, 0);
@@ -2394,7 +2394,7 @@ function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
   var loadingColor = "is-black-loader";
   // if (!justUploaded) { isItLoading = "is-loading"; } else { isLoaded = 'opacity : 1'; }
   if (justUploaded) { isLoaded = 'opacity : 1'; }
-  if (pid in selectionsObject) {isItSelected = " selected"}
+  if (pid in selectionsObject) { isItSelected = " selected"; }
 
   var theParsedFilename = "";
   try { theParsedFilename = JSON.parse(pname); } catch (e) { theParsedFilename = pname; }
@@ -2491,12 +2491,12 @@ function onEntryAndExit (changes, observer) {
 
   changes.forEach(function (change) {
     var onScreenTimer;
-
+    var id, folderContent;
     if (change.intersectionRatio > 0.15) {
       // entered
       if (change.target.classList.contains("shell")) {
-        var folderContent = change.target;
-        var id = folderContent.id;
+        folderContent = change.target;
+        id = folderContent.id;
 
         var domElement = renderDOMElement(id);
         folderContent.innerHTML = domElement;
@@ -2512,8 +2512,8 @@ function onEntryAndExit (changes, observer) {
 
     } else {
       // exited
-      var folderContent = change.target;
-      var id = folderContent.id;
+      folderContent = change.target;
+      id = folderContent.id;
 
       clearTimeout(onScreenTimer);
 
@@ -3025,7 +3025,7 @@ function confirmDeleteFolder () {
           var pid = item.data().id;
           var tid = pid.replace("p-", "t-");
           var lid = pid.replace("p-", "l-");
-          var photoRef = rootRef.child(pid + ".crypteefile");
+          var photoRef = rootRef.child(pid + ".crypteefile"); 
           var thumbRef = rootRef.child(tid + ".crypteefile");
           var lightRef = rootRef.child(lid + ".crypteefile");
 
@@ -3481,57 +3481,58 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
       useLightboxPrev();
     }
 
-    function useOriginal () {
-      photoRef.getDownloadURL().then(function(originalDownloadURL) {
-        gotMeta(originalDownloadURL);
-      }).catch(function(error) {
-        var errorText;
-        handleError(error);
-        switch (error.code) {
-          case 'storage/object-not-found':
-            // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
-            fixFile(pid);
-            break;
-          case 'storage/unauthorized':
-            // File or doc doesn't exist at all ~ shit. alright let's try to repair things. // Chances are we've got a problem.
-            fixFilesAndFolders();
-            break;
-        }
-        $("#" + pid).find(".photo").addClass("is-loading");
-      });
-    }
-
-    function useLightboxPrev () {
-      lightRef.getDownloadURL().then(function(lightboxDownloadURL) {
-        gotMeta(lightboxDownloadURL);
-      }).catch(function(error) {
-        if (error.code === 'storage/object-not-found') {
-          // fallback for legacy photo without preview image. so load original.
-          useOriginal();
-        }
-      });
-    }
-
-    function gotMeta (downloadURL) {
-
-      $.ajax({ url: downloadURL, type: 'GET',
-          success: function(encryptedPhoto){
-            photoLoaded(pid, ptitle, encryptedPhoto, null, displayOrDownload, callback, callbackParam);
-          },
-          error:function (xhr, ajaxOptions, thrownError){
-            console.log(thrownError);
-            var errorText = "A rather strange error happened! Please try reloading. Please try again shortly, or contact our support. We're terribly sorry about this.";
-            // showDocProgress(errorText);
-            setTimeout(function(){ window.location.reload(); }, 2500);
-          }
-      }).progress(function(e) {
-        $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
-      });
-    }
-
   } else {
     handleError("Load Photo : Blank PID");
   }
+
+  function useOriginal () {
+    photoRef.getDownloadURL().then(function(originalDownloadURL) {
+      gotMeta(originalDownloadURL);
+    }).catch(function(error) {
+      var errorText;
+      handleError(error);
+      switch (error.code) {
+        case 'storage/object-not-found':
+          // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
+          fixFile(pid);
+          break;
+        case 'storage/unauthorized':
+          // File or doc doesn't exist at all ~ shit. alright let's try to repair things. // Chances are we've got a problem.
+          fixFilesAndFolders();
+          break;
+      }
+      $("#" + pid).find(".photo").addClass("is-loading");
+    });
+  }
+
+  function useLightboxPrev () {
+    lightRef.getDownloadURL().then(function(lightboxDownloadURL) {
+      gotMeta(lightboxDownloadURL);
+    }).catch(function(error) {
+      if (error.code === 'storage/object-not-found') {
+        // fallback for legacy photo without preview image. so load original.
+        useOriginal();
+      }
+    });
+  }
+
+  function gotMeta (downloadURL) {
+
+    $.ajax({ url: downloadURL, type: 'GET',
+        success: function(encryptedPhoto){
+          photoLoaded(pid, ptitle, encryptedPhoto, null, displayOrDownload, callback, callbackParam);
+        },
+        error:function (xhr, ajaxOptions, thrownError){
+          console.log(thrownError);
+          var errorText = "A rather strange error happened! Please try reloading. Please try again shortly, or contact our support. We're terribly sorry about this.";
+          // showDocProgress(errorText);
+          setTimeout(function(){ window.location.reload(); }, 2500);
+        }
+    }).progress(function(e) {
+      $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
+    });
+  }
+
 }
 
 
@@ -3759,7 +3760,7 @@ function displayPhoto (pid, ptitle, psize, pb64, callback, callbackParam) {
     setTimeout(function(){
       loadNextFromPID(pid);
       loadPrevFromPID(pid);
-    },500)
+    },500);
 
   // });
 }
