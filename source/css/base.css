@@ -446,7 +446,7 @@ crypteetag {
 
 .ql-editor ul[data-checked="true"] li {
   text-decoration: line-through;
-  color: #999;
+  opacity: 0.5 !important;
   line-height: 1.5rem;
 }
 
@@ -477,7 +477,6 @@ crypteetag {
   content: '\f05d';
   font-size: 20px;
   line-height: 1.5rem;
-  color: #999;
   transition: color 0.3s ease;
   vertical-align: middle;
   text-align: left;
@@ -727,6 +726,7 @@ html {
 #upgrade-button {
   margin-left: 0.75rem;
   text-transform: uppercase;
+  padding: 0 1.25rem;
 }
 
 /*///////////////////////////////////////////////////
@@ -1510,7 +1510,7 @@ html {
 
 .left-wrap {
   margin-bottom: auto;
-  height: calc(100% - 5px);
+  height: 100%;
 }
 
 .tabs:not(:last-child) {
@@ -1691,9 +1691,9 @@ html {
 #ghost-folder {
   margin-top: 0px;
   bottom: 10px;
-  left: 10px;
+  left: 1px;
   position: absolute;
-  width: calc(100% - 20px);
+  width: calc(100% - 2px);
 }
 
 #all-folders, #results {
@@ -1704,10 +1704,129 @@ html {
 
 #all-folders {
   height: 100%;
-  max-height: calc(100% - 205px);
+  max-height: calc(100% - 7rem);
   padding-top: 1rem;
-  padding-bottom: 0.5rem;
+  /* padding-bottom: 0.5rem; */
+}
+
+#all-recent {
+  padding-top:3rem;
+  height: 100%;
+  z-index: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+}
+
+
+.left-view {
+  position: relative;
+  left: 0;
+  /* float: left; */
+  width: calc((100% / 3) - 2px);
+  height: 100%;
+  overflow: hidden;
+  display: inline-block;
+  transition: 0.5s opacity ease;
+  opacity: 0;
+  pointer-events: none;
+  vertical-align: top;
+}
+
+.left-views-container {
+  position: absolute;
+  width: calc(100% - 20px);
+  height: 100%;
+  max-height: calc(100% - 128px);
+  overflow: hidden;
+}
+
+.left-views-scroller {
+  position:absolute;
+  width: 300%;
+  height: 100%;
+  transition: 0.75s transform ease;
+}
+
+.left-views-scroller.pos-0 {
+  transform: translateX(0px);
+}
+
+.left-views-scroller.pos-1 {
+  transform: translateX(calc(0px - (100% / 3)));
+}
+
+.left-views-scroller.pos-2 {
+  transform: translateX(calc(0px - (2 * (100% / 3))));
+}
+
+.left-views-scroller.pos-0 .left-view:nth-of-type(1) {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+.left-views-scroller.pos-1 .left-view:nth-of-type(2) {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+.left-views-scroller.pos-2 .left-view:nth-of-type(3) {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+.recent-doc {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.recent-doc .details {
+  font-size: 0.7rem;
+  margin-left: 0.25rem;
+  margin-top: 0rem;
+  opacity: 0;
+  height: 0px;
+  overflow: hidden;
+  transition: 0.5s all ease 1s;
+}
+
+.recent-doc .details .icon {
+  margin-right: 1rem;
+}
+
+
+.recent-new-doc {
+  cursor: pointer;
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  padding: 0.5rem;
+  background: rgb(255,255,255);
+  background: linear-gradient(180deg, rgba(255,255,255,1) 80%, rgba(255,255,255,0) 100%);
+}
+
+.recenticon, .recent-new-doc .icon {
+  float: left;
+  margin-right:1rem;
+}
+
+.recent-new-doc i {
+  transition: 0.3s color ease;
+  color : #363636;
+}
+
+.recent-new-doc i.is-armed {
+  color : #4BBF73;
+}
+
+#recent-new-doc-input {
+  padding: 0.5rem 0;
+  border: 0;
+  font-size: 0.9rem;
+  width: calc(100% - 3rem);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: subpixel-antialiased;
+  background-color: transparent;
 }
 
 #all-folders.draggingStuff, body.draggingStuff, html.draggingStuff, #active-doc-contents.draggingStuff, .ql-editor.draggingStuff {
@@ -1828,6 +1947,22 @@ body.draggingStuff {
   display: block;
 }
 
+#loading-sideways {
+  font-size: 29.5vw;
+  font-weight: 900;
+  letter-spacing: 2px;
+  -webkit-transform-origin: top left;
+  transform-origin: top left;
+  -webkit-transform: rotate(90deg) translatey(-584px);
+  transform: rotate(90deg) translatey(-380px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: 90px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background-color: #FFF;
+}
 
 #bootOffline {
   position: absolute;
@@ -2020,17 +2155,28 @@ body.draggingStuff {
 
 #homedoc {
   float: right;
+  transition: ease-in-out 0.3s all;
 }
 
 #homedoc.is-dark[disabled] {
   opacity: 1;
-  border-radius: 3rem;
   box-shadow: 0 2px 3px rgba(10,10,10,0.1);
+  border-radius: 3rem;
 }
 
-.left-contextual-buttons {
+.left-view-controller-buttons {
   margin-bottom: 1rem !important;
 }
+
+.left-view-controller-buttons button {
+  border-bottom: 1px solid transparent !important;
+  transition: 0.5s border ease;
+}
+
+.left-view-controller-buttons button.active {
+  border-bottom: 1px solid #363636 !important;
+}
+
 
 
 .new-doc-input {
@@ -2283,6 +2429,26 @@ body.draggingStuff {
   transition: 0.3s opacity ease;
 }
 
+.recent-doctitle {
+  word-wrap: break-word;
+}
+
+.recent-doctime {
+  color: #aaa;
+  margin-left: 3rem;
+}
+
+.activerecentdoc {
+  transition: 0.5s background-color ease;
+  background-color: #363636;
+  color:#f1f1f1;
+  width: calc(100% - 1px);
+}
+
+.activerecentdoc i {
+  color:#f1f1f1;
+}
+
 .card-header {
   box-shadow: none !important;
 }
@@ -2317,6 +2483,40 @@ body.draggingStuff {
   height: 1rem;
   width: 1rem;
   left: 1rem;
+  position: absolute !important;
+}
+
+.recenticon {
+  transition: 0.5s color ease;
+  color:#363636;
+  position: relative;
+}
+
+.recenticon i, .recent-new-doc i {
+  font-size: 18px !important;
+}
+
+.recenticon.is-loading {
+  color:transparent;
+}
+
+.recenticon.is-loading::after {
+  transition: 0.5s border ease;
+  border: 2px solid transparent;
+}
+
+.recenticon.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid #000;
+  border-radius: 2rem;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 20px;
+  width: 20px;
+  left: 0.25rem;
   position: absolute !important;
 }
 
@@ -2423,9 +2623,16 @@ body.draggingStuff {
   box-shadow: 0 2px 3px rgba(10,10,10,0.1);
 }
 
-#first-folder-hint {
+.first-folder-hint {
   padding: 0.75rem;
   margin-top: 1rem;
+  margin-bottom: 0;
+  display: none;
+}
+
+.first-doc-hint {
+  padding: 0.75rem;
+  margin-top: 4rem;
   margin-bottom: 0;
   display: none;
 }
@@ -4307,9 +4514,7 @@ body.draggingStuff {
 }
 
 #all-folders.itsMobile {
-  max-height: calc(100% - 215px + 1rem);
   padding-top: 1rem;
-  padding-bottom: 0.5rem;
   touch-action: manipulation;
 }
 
@@ -4761,6 +4966,9 @@ body.draggingStuff {
     box-shadow: none;
   }
 
+  #doc-top.menuOpen #loading-sideways.shown {
+    opacity: 1;
+  }
 
   #donate-modal .column, #donate-modal .notification {
     padding-left: 0;
@@ -4864,6 +5072,33 @@ body.draggingStuff {
   .photos-search-result .title:hover, .photos-search-result .subtitle:hover {
     color:#000;
   }
+
+  .recent-doc:hover {
+    background-color: #F1F1F1;
+    color:#000;
+  }
+
+  .activerecentdoc:hover {
+    background-color: #000;
+    color:#FFF;
+  }
+
+  .recent-doc:hover .details {
+    margin-top: 0.5rem;
+    opacity: 1;
+    height: 2rem;
+  }
+
+  .left-view-controller-buttons button:hover {
+    background-color: transparent !important;
+    border-bottom: 1px solid #CCC !important;
+  }
+
+  #homedoc.is-dark[disabled]:hover {
+    background-color: #363636 !important;
+    border-bottom: 1px solid transparent !important;
+  }
+
 }
 
 @media (-moz-touch-enabled: 1), (pointer:coarse) {
@@ -4914,8 +5149,8 @@ body.draggingStuff {
     max-height: calc(100% - 60px);
   }
 
-  .left-wrap {
-    height: calc(100% - 35px);
+  .left-views-container {
+    height: calc(100% - 156px);
   }
 
   #active-doc-contents {

@@ -1,0 +1,32 @@
+<div class="card folder" id="new-folder-card">
+  <header class="card-header">
+    <a class="card-header-icon" id="new-folder-button"><span class="icon"><i class="fa fa-fw fa-plus"></i></span></a>
+    <p class="card-header-title new-folder-title control is-expanded">
+      <input id="new-folder-title" class="input" type="text" placeholder="Create New Folder"  autocomplete="off">
+    </p>
+  </header>
+</div>
+
+<div id="selection-actions-card" class="hiddenSelectionActions" style="display:none;">
+  <span class="icon" id="seletion-delete-button"><i class="fa fa-fw fa-trash-o"></i></span>
+  <span class="icon" id="selection-download-button"><i class="fa fa-fw fa-cloud-download"></i></span>
+</div>
+
+<div class="notification is-info first-folder-hint">
+  <button class="delete" onclick="hideNotification(this);"></button>
+  <p>Let's start by creating your <br> first folder.<br><br>All your new documents and files will go into folders here.</p>
+</div>
+
+<div id="all-folders" style="display:none;">
+
+</div> <!--all-folders -->
+
+<div id="ghost-folder" class="card">
+  <header id="ghost-folder-header" class="card-header">
+    <a id="ghost-folder-icon" class="card-header-icon"><span class="icon"><i class="fa fa-fw fa-eye"></i></span></a>
+    <p class="card-header-title ghost-title control is-expanded">
+      <input id="ghost-folder-input" class="input" type="text" placeholder="Summon Ghost Folder"  autocomplete="off">
+    </p>
+    <a class="card-header-icon"><span class="icon ghost-folder-info"><i class="fa fa-question"></i></span></a>
+  </header>
+</div>

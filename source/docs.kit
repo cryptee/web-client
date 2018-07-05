@@ -20,10 +20,10 @@
       <div class="tabs is-small"> <!-- you can also make this is-centered -->
         <ul>
           <li title="Dashboard" id="dashboard-button"> <a class="rememberKey top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
-          <li title="Documents" id="documents-button" class="is-active hiddenForFinger"> <a class="rememberKey top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
-          <li title="Photos" class="hiddenForFinger"> <a class="rememberKey top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li>
-          <li title="Account Settings" id="settings-button"> <a href="account" class="top-left-icon"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
-          <li class="is-hidden-webapp" title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+
+          <li title="Help"> <a href="https://cryptee.kayako.com" target="_blank" rel="noopener" class="openInSafari top-left-icon"><i class="top-menu-icons fa fa-fw fa-life-ring"></i></a></li>
+          <li title="Report Bug" id="reportbug" onclick="reportBug()"> <a class="top-left-icon"><i class="top-menu-icons fa fa-fw fa-bug"></i></a></li>
+
           <li title="Upgrade" class="clickable"><span id="upgrade-button" class="tag is-success" style="border-radius: 10px;">Upgrade</span></li>
           <li title="Toggle Menu ( ⌘+\ / ctrl+\ )" class="menu-hamburger" style="display:none; margin-left:auto; margin-right:1px;">   <a class="top-left-icon" onclick="hideMenu(); quill.focus();" style="color:#000"><i class="top-menu-icons fa fa-fw fa-bars"></i></a></li>
         </ul>
@@ -53,52 +53,42 @@
         <span>Loading your folders</span>
       </div>
 
-      <nav class="level is-mobile left-contextual-buttons">
+      <nav class="level is-mobile left-view-controller-buttons">
+
+        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger active" id="recentDocsViewButton">
+          <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-clock-o"></i></span><span>Recent</span></p>
+        </button>
+
+        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="foldersViewButton">
+          <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-folder"></i></span><span>Folders</span></p>
+        </button>
+
+        <!-- <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="tagsViewButton">
+          <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-tags"></i></span><span>Tags</span></p>
+        </button> -->
+
         <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="homedoc">
-          <p><span class="icon is-small" style="margin-right:0.75rem"><i class="fa fa-fw fa-home"></i></span><span>Home Doc</span></p>
+          <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-home"></i></span><span>Home Doc</span></p>
         </button>
 
-        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="help">
-          <p><span class="icon is-small" style="margin-right:0.75rem"><i class="fa fa-fw fa-life-ring"></i></span><span>Help</span></p>
-        </button>
-
-        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="reportbug" onclick="reportBug()">
-          <p><span class="icon is-small" style="margin-right:0.75rem"><i class="fa fa-fw fa-bug"></i></span><span>Report Bug</span></p>
-        </button>
       </nav>
 
-      <div class="card folder" id="new-folder-card">
-        <header class="card-header">
-          <a class="card-header-icon" id="new-folder-button"><span class="icon"><i class="fa fa-fw fa-plus"></i></span></a>
-          <p class="card-header-title new-folder-title control is-expanded">
-            <input id="new-folder-title" class="input" type="text" placeholder="Create New Folder"  autocomplete="off">
-          </p>
-        </header>
+      <div class="left-views-container">
+        <div class="left-views-scroller pos-0">
+          <div class="left-view">
+            <!-- @import "docs-recent.kit" -->
+          </div>
+          <div class="left-view">
+            <!-- @import "docs-folders.kit" -->
+          </div>
+
+          <!-- <div class="left-view">
+
+          </div> -->
+        </div>
       </div>
 
-      <div id="selection-actions-card" class="hiddenSelectionActions" style="display:none;">
-        <span class="icon" id="seletion-delete-button"><i class="fa fa-fw fa-trash-o"></i></span>
-        <span class="icon" id="selection-download-button"><i class="fa fa-fw fa-cloud-download"></i></span>
-      </div>
 
-      <div class="notification is-info" id="first-folder-hint">
-        <button class="delete" onclick="hideNotification(this);"></button>
-        <p>Let's start by creating your <br> first folder.<br><br>All your new documents and files will go into folders here.</p>
-      </div>
-
-      <div id="all-folders" style="display:none;">
-
-      </div> <!--all-folders -->
-
-      <div id="ghost-folder" class="card">
-        <header id="ghost-folder-header" class="card-header">
-          <a id="ghost-folder-icon" class="card-header-icon"><span class="icon"><i class="fa fa-fw fa-eye"></i></span></a>
-          <p class="card-header-title ghost-title control is-expanded">
-            <input id="ghost-folder-input" class="input" type="text" placeholder="Summon Ghost Folder"  autocomplete="off">
-          </p>
-          <a class="card-header-icon"><span class="icon ghost-folder-info"><i class="fa fa-question"></i></span></a>
-        </header>
-      </div>
 
     </div>
   </div> <!-- left stuff -->
@@ -106,6 +96,7 @@
   <div id="doc-top" class="no-print">
     <div class="loading-message">
       <div id="fileLoadingStatus">Starting Up</div>
+      <p id="loading-sideways">LOADING</p>
     </div>
 
     <div class="outdated-message hero is-large is-light">
@@ -596,7 +587,7 @@
 
   <div id="bootOffline" class="no-print">
     <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo">
-    <h2>You seem offline.<br>Cryptee will start once you're online.<br><br><span style="font-size:10px;">You may also be seeing this message if you have a VPN, company firewall or content blocker that is blocking access to Cryptee's servers.</span></h2>
+    <h2>You seem offline.<br>Cryptee will start once you're online.<br><br><span style="font-size:10px; width:270px; display:block; margin: auto;">You may also be seeing this message if you have a VPN, company firewall or content blocker that is blocking access to Cryptee's servers.</span></h2>
   </div>
 
   <!-- @import "modal-exceeded-storage.kit" -->
@@ -605,6 +596,7 @@
 
   <!-- @import "footer-js.kit" -->
 
+    <script src="../js/lib/magicurl.js"></script>
   <script src="../js/docs.js"></script>
   <script src="../js/upgrade.js"></script>
 </body></html>
