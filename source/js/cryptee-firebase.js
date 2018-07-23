@@ -23,12 +23,9 @@ var tokenURL = "https://crypt.ee/api/auth";
 
 function signOut () {
   try {
-    localStorage.removeItem('crypteeuser');
-    localStorage.removeItem('guuid');
-    localStorage.removeItem('uuid');
-    localStorage.removeItem('gauthUUID');
+    localStorage.clear();
     sessionStorage.clear();
-    sessionStorage.removeItem('key');
+    offlineStorage.clear();
   } finally {
     firebase.auth().signOut().then(function() {
       try { localStorage.clear(); } finally {

@@ -1,10 +1,18 @@
-var precache_urls = [
-  '../',
-  '../css/',
-  '../assets/',
-  '../fonts/',
-  '../pdf/'
-];
+// var precache_urls = [
+//   '../',
+//   '../css/',
+//   '../assets/',
+//   '../fonts/',
+//   '../pdf/'
+// ];
+
+
+
+
+// DON'T CHANGE THIS.
+// ADDED A CODEKIT BUILD HOOK SHELL SCRIPT THAT REPLACES THIS WITH ALL FILES NEEDED TO BE PRE-CACHED
+
+var precache_urls = TO-BE-REPLACED-WITH-AN-ARRAY-OF-ALL-FILES;
 
 // DON'T CHANGE THIS CACHENAME.
 // ADDED A CODEKIT BUILD HOOK SHELL SCRIPT THAT REPLACES THIS WITH THE LATEST GITHUB HASH
@@ -45,6 +53,7 @@ self.addEventListener('fetch', function(event) {
     ||  event.request.url.startsWith( 'https://fonts.googleapis.com' )
     // ||  event.request.url.startsWith( 'https://firebasestorage.googleapis.com' )
     ||  event.request.url.startsWith( 'https://sentry.io' )
+    // ||  event.request.url.startsWith( 'http://127.0.0.1' )
   ) {
     event.respondWith(
       caches.open(cacheName).then(function(cache) {

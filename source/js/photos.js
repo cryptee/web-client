@@ -388,6 +388,7 @@ function checkForExistingUser (callback){
 function checkKey (key) {
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+
     var hashedKey;
     if (key) {
       hashedKey = hashString(key);
@@ -410,7 +411,12 @@ function rightKey (plaintext, hashedKey) {
   hideKeyModal();
   theKey = theStrongKey;
   keyToRemember = hashedKey;
-  signInComplete();
+
+  newEncryptedKeycheck(hashedKey,function(newKeycheck){
+    var encryptedKeycheck = newKeycheck; // here we encrypt a timestamp using the hashedKey, and save this to localstore.
+    localStorage.setItem("encryptedKeycheck", encryptedKeycheck); // we will use this in docs offline mode to verify the entered encryption key is correct.
+    signInComplete();
+  });
 }
 
 function wrongKey (error) {
@@ -927,7 +933,7 @@ function traverseFileTree(entry, path, entryname) {
       var dirReader = entry.createReader();
       var readEntries = function () {
         dirReader.readEntries(function (entries) {
-          var forEach = function(i) {
+          var forEachEntry = function(i) {
             if ((!entries[i] && i === 0) || (this.maximum > 0 && filesOfDir.length >= this.maximum)) {
               // THIS GETS CALLED FOR EVERY ROOT & SUB-FOLDER
               // WHICH MEANS WE GET REPEAT RESULTS FOR FILES FROM SUB-FOLDERS,
@@ -952,10 +958,10 @@ function traverseFileTree(entry, path, entryname) {
             }
             this.traverseFileTree(entries[i], path, entry.name).then(function (results) {
               filesOfDir.push.apply(filesOfDir, results);
-              forEach(i + 1);
+              forEachEntry(i + 1);
             });
           };
-          forEach(0);
+          forEachEntry(0);
         });
       };
       readEntries();
@@ -1010,7 +1016,6 @@ function createFileTree(path, file) {
     numFilesLeftToBeUploaded++;
     document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
   }
-
   var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s).<br><br> Please don't navigate away from this page, or close the window.";
   showFileUploadStatus("is-warning", processingMessage);
   checkUploadQueue();
@@ -1058,6 +1063,9 @@ function processUploadTree (callback, callbackParam) {
           // ALL THE FILES UPLOADED TO HOME.
           // UPDATETITLES AUTO CALLED ONCE ALL UPDATES ARE COMPLETE.
 
+
+          // if there are folders in the file tree uploaded,
+          // create those albums now, and move things into them.
           if (Object.keys(fileTreeToUpload).length > 1) {
             showFileUploadStatus("is-info", "Creating albums.");
             var tempFoldersArray = Object.keys(fileTreeToUpload);
@@ -1074,6 +1082,8 @@ function processUploadTree (callback, callbackParam) {
               }
             });
           } else {
+
+            // no folders in the upload, awesome. update titles and we're good to go.
             updateTitles(function(){
               batchUploadComplete(false);
             });
@@ -1133,36 +1143,49 @@ function cycleThroughUploadedFoldersAndPIDs(moveOperations, i) {
 }
 
 function batchUploadComplete(hasFolders) {
-  // DON'T ENABLE THESE. IT CALLS GETHOMEFOLDER TWICE.
-  // homeFolderLoaded = false; otherFolderLoaded = false;
-  // THIS IS ONLY WRITTEN HERE FOR FUTURE NOTICE.
+
+  // all files moved into folders if there were any. we can now safely purge filetree
+  fileTreeToUpload = {};
+  fileTreeToUpload.thecrypteehomefolder = {};
+  fileTreeToUpload.thecrypteehomefolder.files = [];
+
+  // and finally load the target folder once again to avoid double show up issues etc. and hide modal.
+  if (hasFolders) {
+    // means that we didn't call doneWithAllUploads in uploadCompleteAndFolderAdjusted, call it now.
+    // a.k.a reload home / target folder
+    doneWithAllUploads();
+  } else {
+    // doneWithAllUploads is already called in uploadCompleteAndFolderAdjusted so we're all good.
+
+  }
+
+}
+
+function doneWithAllUploads(callback, callbackParam) {
+  callback = callback || noop;
 
   if (activeFID !== "home") {
+    otherFolderLoaded = false;
     getAllFilesOfFolder(activeFID, function(){
       if (!fileUploadError) {
         hideFileUploadStatus();
+        callback(callbackParam);
       } else {
-        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</b>");
+        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
       }
-      fileTreeToUpload = {};
-      fileTreeToUpload.thecrypteehomefolder = {};
-      fileTreeToUpload.thecrypteehomefolder.files = [];
     });
   } else {
+    homeFolderLoaded = false;
     getHomeFolder(function(){
       if (!fileUploadError) {
         hideFileUploadStatus();
+        callback(callbackParam);
       } else {
-        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</b>");
+        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
       }
-      fileTreeToUpload = {};
-      fileTreeToUpload.thecrypteehomefolder = {};
-      fileTreeToUpload.thecrypteehomefolder.files = [];
     });
   }
 }
-
-
 
 
 function handlePhotoSelect(evt) {
@@ -1489,7 +1512,8 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
 
                           '<p class="deets fs">'+ Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +'%</p>'+
                         '</div>';
-                        $("#upload-status-contents").append(uploadElem);
+                        $("#upload-status-contents").prepend(uploadElem);
+                        $("#upload-status-contents").animate({ scrollTop: 0 }, 500);
                       } else {
                         $("#upload-"+pid).find("progress").attr("value", snapshot.bytesTransferred);
                         $("#upload-"+pid).find(".fs").html(Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +"%");
@@ -1637,6 +1661,10 @@ function uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename,
   }
 }
 
+
+// this will called once uploads are finished.
+// drag or select. at the end of every upload one way or another.
+
 function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
   callback = callback || noop;
 
@@ -1644,31 +1672,25 @@ function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
   numFilesUploaded = 0;
   numFilesUploading = 0;
 
-  if (activeFID !== "home") {
-    otherFolderLoaded = false;
-    getAllFilesOfFolder(activeFID, function(){
-      if (!fileUploadError) {
-        hideFileUploadStatus();
-      } else {
-        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
-      }
-    });
-  } else {
-    homeFolderLoaded = false;
-    getHomeFolder(function(){
-      if (!fileUploadError) {
-        hideFileUploadStatus();
-      } else {
-        showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
-      }
-    });
-  }
-
   somethingDropped = false;
   uploadList = [];
   isUploading = false;
 
-  callback(callbackParam);
+ // SO BECAUSE THIS GETS CALLED AT THE END OF ALL TYPES OF UPLOADS,
+ // BUT WE WANT TO FIRST MOVE FILES BEFORE HIDING THE UPLOAD MODALS
+ // IF THE UPLOAD HAS ANY FOLDERS, WE DON'T CALL THIS. THIS PART WILL INSTEAD GET CALLED BY
+ // BATCH UPLOAD COMPLETE.
+
+  if (Object.keys(fileTreeToUpload).length <= 1) {
+    // so if there are no folders to move photos into, done with uploads.
+    // a.k.a. load home / target folder and hide upload modals.
+    doneWithAllUploads(callback, callbackParam);
+  } else {
+    // if there are photos to move into folders, we'll deal with these guys in queueUpload's callback in processUploadTree.
+    // which will be executed with this callback.
+    callback(callbackParam);
+  }
+
 }
 
 function getThumbnail (pid, fid) {
@@ -3025,7 +3047,7 @@ function confirmDeleteFolder () {
           var pid = item.data().id;
           var tid = pid.replace("p-", "t-");
           var lid = pid.replace("p-", "l-");
-          var photoRef = rootRef.child(pid + ".crypteefile"); 
+          var photoRef = rootRef.child(pid + ".crypteefile");
           var thumbRef = rootRef.child(tid + ".crypteefile");
           var lightRef = rootRef.child(lid + ".crypteefile");
 
@@ -4110,7 +4132,7 @@ function downloadSelections () {
 
 function downloadPhotoToDisk (pid, ptitle, decryptedPhoto, callback, callbackParam) {
   callback = callback || noop;
-  if (ptitle === ".jpg" || ptitle === undefined || ptitle === null) {
+  if (ptitle === ".jpg" || ptitle === undefined || ptitle === null || ptitle === "" || ptitle === " ") {
     ptitle = "Photo.jpg";
   }
   saveAs(dataURIToBlob(decryptedPhoto), ptitle);

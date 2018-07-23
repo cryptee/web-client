@@ -144,6 +144,7 @@ function checkForExistingUser (callback){
 function checkKey(key){
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+
     var hashedKey;
     if (key) {
       hashedKey = hashString(key);
@@ -167,7 +168,13 @@ function rightKey (plaintext, hashedKey) {
   hideKeyModal();
   theKey = theStrongKey;
   keyToRemember = hashedKey;
-  signInComplete();
+
+  newEncryptedKeycheck(hashedKey,function(newKeycheck){
+    var encryptedKeycheck = newKeycheck; // here we encrypt a timestamp using the hashedKey, and save this to localstore.
+    localStorage.setItem("encryptedKeycheck", encryptedKeycheck); // we will use this in docs offline mode to verify the entered encryption key is correct.
+    signInComplete();
+  });
+
 }
 
 function wrongKey (error) {

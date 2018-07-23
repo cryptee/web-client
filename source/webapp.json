@@ -1,6 +1,7 @@
 {
   "short_name": "Cryptee",
   "name": "Cryptee",
+  "description": "Cryptee is a zero-knowledge, secure, encrypted documents & encrypted photos service for all your private files that need to be safe.",
   "icons": [
     {
       "src": "../assets/cryptee-icon-b.png",

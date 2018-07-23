@@ -127,6 +127,7 @@ function checkKey(key){
       window.location = "signup.html?status=newuser";
     } else {
       var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+
       var hashedKey = hashString(key);
       openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
           rightKey(plaintext, hashedKey);
@@ -141,10 +142,15 @@ function checkKey(key){
 }
 
 function rightKey (plaintext, hashedKey) {
-  var theStrongKey = plaintext.data;
-  theKey = theStrongKey;
+  // var theStrongKey = plaintext.data;
+  // var theKey = theStrongKey;
   sessionStorage.setItem("key", JSON.stringify(hashedKey));
-  signInComplete();
+
+  newEncryptedKeycheck(hashedKey,function(newKeycheck){
+    var encryptedKeycheck = newKeycheck; // here we encrypt a timestamp using the hashedKey, and save this to localstore.
+    localStorage.setItem("encryptedKeycheck", encryptedKeycheck); // we will use this in docs offline mode to verify the entered encryption key is correct.
+    signInComplete();
+  });
 }
 
 function wrongKey (error) {

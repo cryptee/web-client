@@ -21,10 +21,10 @@
         <ul>
           <li title="Dashboard" id="dashboard-button"> <a class="rememberKey top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
 
-          <li title="Help"> <a href="https://cryptee.kayako.com" target="_blank" rel="noopener" class="openInSafari top-left-icon"><i class="top-menu-icons fa fa-fw fa-life-ring"></i></a></li>
-          <li title="Report Bug" id="reportbug" onclick="reportBug()"> <a class="top-left-icon"><i class="top-menu-icons fa fa-fw fa-bug"></i></a></li>
+          <li class="is-hidden-offline" title="Help"> <a href="https://cryptee.kayako.com" target="_blank" rel="noopener" class="openInSafari top-left-icon"><i class="top-menu-icons fa fa-fw fa-life-ring"></i></a></li>
+          <li class="is-hidden-offline clickable" title="Report Bug" id="reportbug" onclick="reportBug()"> <a class="top-left-icon"><i class="top-menu-icons fa fa-fw fa-bug"></i></a></li>
 
-          <li title="Upgrade" class="clickable"><span id="upgrade-button" class="tag is-success" style="border-radius: 10px;">Upgrade</span></li>
+          <li class="is-hidden-offline clickable" title="Upgrade"><span id="upgrade-button" class="tag is-success" style="border-radius: 10px;">Upgrade</span></li>
           <li title="Toggle Menu ( ⌘+\ / ctrl+\ )" class="menu-hamburger" style="display:none; margin-left:auto; margin-right:1px;">   <a class="top-left-icon" onclick="hideMenu(); quill.focus();" style="color:#000"><i class="top-menu-icons fa fa-fw fa-bars"></i></a></li>
         </ul>
       </div>
@@ -49,25 +49,37 @@
       </div>
 
 
-      <div class="folders-status notification is-loading is-dark" style="display:none;">
+      <div class="folders-status notification is-loading is-white shown">
         <span>Loading your folders</span>
       </div>
 
       <nav class="level is-mobile left-view-controller-buttons">
 
-        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger active" id="recentDocsViewButton">
+        <button class="onlineLeftButtons level-item has-text-centered button is-white is-small isNotSmallForFinger active" id="recentDocsViewButton">
           <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-clock-o"></i></span><span>Recent</span></p>
         </button>
 
-        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="foldersViewButton">
+        <button class="onlineLeftButtons level-item has-text-centered button is-white is-small isNotSmallForFinger" id="foldersViewButton">
           <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-folder"></i></span><span>Folders</span></p>
+        </button>
+
+        <button class="offlineLeftButtons level-item has-text-centered button is-white is-small isNotSmallForFinger is-unavailable" id="offlineViewButton">
+          <p>
+            <span class="icon is-small" style="margin-right:0.25rem">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-cloud fa-stack-1x" style=""></i>
+                <i class="fa fa-times fa-stack-2x text-danger" style="color: #FFF; margin-top: 9px; font-size: 8px; margin-left:-0.5px;"></i>
+              </span>
+            </span>
+            <span>Offline Documents</span>
+          </p>
         </button>
 
         <!-- <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="tagsViewButton">
           <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-tags"></i></span><span>Tags</span></p>
         </button> -->
 
-        <button class="level-item has-text-centered button is-white is-small isNotSmallForFinger" id="homedoc">
+        <button class="onlineLeftButtons level-item has-text-centered button is-white is-small isNotSmallForFinger" id="homedoc">
           <p><span class="icon is-small" style="margin-right:0.25rem"><i class="fa fa-fw fa-home"></i></span><span>Home Doc</span></p>
         </button>
 
@@ -82,13 +94,11 @@
             <!-- @import "docs-folders.kit" -->
           </div>
 
-          <!-- <div class="left-view">
-
-          </div> -->
+          <div class="left-view">
+            <!-- @import "docs-offline.kit" -->
+          </div>
         </div>
       </div>
-
-
 
     </div>
   </div> <!-- left stuff -->
@@ -97,6 +107,32 @@
     <div class="loading-message">
       <div id="fileLoadingStatus">Starting Up</div>
       <p id="loading-sideways">LOADING</p>
+    </div>
+
+    <div id="no-offline-docs-to-show" class="no-print">
+        <div class="top">
+          <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo">
+          <div class="top-text">
+            <h2 class="title is-5">OFFLINE</h2>
+            <p>No Offline Documents Found</p>
+          </div>
+        </div>
+
+        <br><br>
+
+        <div class="offline-info-new-doc">
+          <span class="icon is-medium"><i class="fa fa-fw fa-plus"></i></span>
+          <input type="text" name="" placeholder="Type a new document name here" id="offline-info-new-doc-input">
+        </div>
+
+        <div class="notification">
+          <p>You can make your documents accessible offline too!</p><br>
+          <p>While online, select the document(s) you wish to access offline and check "Make Doc Available Offline".
+            These documents will be sync'ed every time you are online on that device, and will be available offline on the specific device you've enabled this setting.
+          </p>
+        </div>
+
+
     </div>
 
     <div class="outdated-message hero is-large is-light">
@@ -199,7 +235,7 @@
         <button id="mobile-floating-list" class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-list-ul"></i></span></button>
       </p>
 
-      <p class="control mobile-floating-tools hidden">
+      <p class="control mobile-floating-tools hidden is-hidden-offline">
         <button id="mobile-floating-picture" class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-picture-o"></i></span></button>
       </p>
 
@@ -213,7 +249,7 @@
         </a>
       </p>
 
-      <p class="save-doc-button control offlineHidden">
+      <p class="save-doc-button control">
         <span title="Save Document" class="progressButtons button is-light">
           <span class="icon is-small">
             <i class="fa fa-save fa-fw"></i>
@@ -221,7 +257,7 @@
         </span>
       </p>
 
-      <p class="control offlineHidden" onclick="toggleContextualMenu();" id="doc-contextual-button">
+      <p class="control" onclick="toggleContextualMenu();" id="doc-contextual-button">
         <a title="Document Actions" class="progressButtons button is-light">
           <span class="icon is-small">
             <i class="fa fa-ellipsis-v fa-fw"></i>
@@ -229,37 +265,7 @@
         </a>
       </p>
 
-      <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="closeDoc();">
-        <span title="Close Document" class="button is-dark">
-          <span class="icon is-small">
-            <i class="fa fa-close fa-fw"></i>
-          </span>
-        </span>
-      </p>
-
-      <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="showDeleteDocModal();">
-        <span title="Delete Document"  class="button is-dark">
-          <span class="icon is-small">
-            <i class="fa fa-trash fa-fw"></i>
-          </span>
-        </span>
-      </p>
-
-      <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="showExportDocModal();">
-        <span title="Export Document"  class="button is-dark">
-          <span class="icon is-small">
-            <i class="fa fa-share-square-o fa-fw"></i>
-          </span>
-        </span>
-      </p>
-
-      <p class="document-contextual-button control docContextOff offlineHidden" style="display:none;" onclick="showRenameDocModal();">
-        <span title="Rename Document" class="button is-dark">
-          <span class="icon is-small">
-            <i class="fa fa-i-cursor fa-fw"></i>
-          </span>
-        </span>
-      </p>
+      <!-- @import "docs-dropdown-menu.kit" -->
 
     </div>
 
@@ -323,8 +329,26 @@
     <span class="download-status-message">Downloading Files</span>
   </div>
 
-  <div id="docs-url-box" class="notification is-loading is-light" style="padding:0;">
+  <div id="docs-url-box" class="notification is-loading is-light no-print" style="padding:0;">
     <span class="icon"><i class="fa fa-fw fa-link"></i></span> <a class="openInSafari" href="" target="_blank"></a>
+  </div>
+
+  <div class="syncMessagesWrap">
+    <div id="got-connection" class="notification is-success no-print" onclick="restartToOnlineMode();">
+      <p>Connection Restored.<br />Click to switch to online mode.</p>
+    </div>
+
+    <div id="error-bubble" class="notification is-danger no-print">
+      <p class="error-bubble-details">Error</p>
+    </div>
+
+    <div id="sync-progress" class="no-print">
+      <div class="sync-left">
+
+      </div>
+      <p class="sync-details">Syncing Offline Docs</p>
+      <progress id="sync-progress-bar" class="progress is-small" value="50" max="100"></progress>
+    </div>
   </div>
 
   <!-- @import "modal-hotkeys.kit" -->
@@ -360,7 +384,7 @@
       <div class="notification">
         <div class="field">
           <p class="control">
-            <input id="ghost-folder-confirm-input" class="modal-input input" type="text" placeholder="">
+            <input id="ghost-folder-confirm-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
           </p>
         </div>
       </div>
@@ -410,7 +434,7 @@
       <div class="notification">
         <div class="field">
           <p class="control">
-            <input id="active-doc-title-input" class="modal-input input" type="text" placeholder="">
+            <input id="active-doc-title-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
           </p>
         </div>
       </div>
@@ -585,10 +609,8 @@
     <button style="margin-top: 2px;" class="ql-list" value="check" title="Check List ( ⌘+shift+6 / ctrl+shift+6 )" id="checkbox-button"></button>
     </div>
 
-  <div id="bootOffline" class="no-print">
-    <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo">
-    <h2>You seem offline.<br>Cryptee will start once you're online.<br><br><span style="font-size:10px; width:270px; display:block; margin: auto;">You may also be seeing this message if you have a VPN, company firewall or content blocker that is blocking access to Cryptee's servers.</span></h2>
-  </div>
+
+
 
   <!-- @import "modal-exceeded-storage.kit" -->
   <!-- @import "modal-low-storage.kit" -->
@@ -596,7 +618,7 @@
 
   <!-- @import "footer-js.kit" -->
 
-    <script src="../js/lib/magicurl.js"></script>
+  <script src="../js/lib/magicurl.js"></script>
   <script src="../js/docs.js"></script>
   <script src="../js/upgrade.js"></script>
 </body></html>

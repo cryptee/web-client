@@ -513,6 +513,7 @@ function updatePrices(data) {
   document.getElementById("checkout-subtotal").innerHTML = subtotal.toFixed(2);
   document.getElementById("checkout-tax").innerHTML = data.eventData.checkout.prices.customer.total_tax;
   // document.getElementById("checkout-total").innerHTML = data.eventData.checkout.prices.customer.total;
+  var recurringString;
 
   if (data.eventData.checkout.recurring_prices) {
     var recurringCurrency = data.eventData.checkout.recurring_prices.customer.currency;
@@ -520,11 +521,11 @@ function updatePrices(data) {
     var intervalType = data.eventData.checkout.recurring_prices.interval.type.replace("month", "mo").replace("year", "yr");
     var intervalCount = data.eventData.checkout.recurring_prices.interval.length;
 
-    if(intervalCount > 1) {
-      var recurringString = '<span class="is-line-value">'+recurringCurrency+" "+recurringTotal+"/"+intervalCount+" "+intervalType+"s</span>";
+    if (intervalCount > 1) {
+      recurringString = '<span class="is-line-value">'+recurringCurrency+" "+recurringTotal+"/"+intervalCount+" "+intervalType+"s</span>";
     }
     else {
-      var recurringString = '<span class="is-line-value">'+recurringCurrency+" "+recurringTotal+"/"+intervalType+"</span>";
+      recurringString = '<span class="is-line-value">'+recurringCurrency+" "+recurringTotal+"/"+intervalType+"</span>";
     }
 
     // document.getElementById("checkout-recurringPrice").innerHTML = recurringString;
@@ -989,7 +990,7 @@ $("#settings-my-data-button").on("click", function(){
 function generateExportURLs (data) {
   var fileRef = rootRef.child("home.crypteedoc");
   fileRef.getDownloadURL().then(function(docURL) {
-    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>Home Document</a><br>")
+    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>Home Document</a><br>");
   });
 
   if (data) {
@@ -1014,14 +1015,14 @@ function generateExportURLs (data) {
 function generateDocURLAndAppendToList(did) {
   var fileRef = rootRef.child(did + ".crypteedoc");
   fileRef.getDownloadURL().then(function(docURL) {
-    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>")
+    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
   });
 }
 
 function generateFileURLAndAppendToList(did) {
   var fileRef = rootRef.child(did + ".crypteefile");
   fileRef.getDownloadURL().then(function(docURL) {
-    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>")
+    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
   });
 }
 
@@ -1033,7 +1034,7 @@ function generatePhotosURLs () {
           if (photosHomeItemId.startsWith('p-')) {
             var fileRef = rootRef.child(photosHomeItemId + ".crypteefile");
             fileRef.getDownloadURL().then(function(docURL) {
-              $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+photosHomeItemId.replace("d-","").replace("p-","")+"</a><br>")
+              $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+photosHomeItemId.replace("d-","").replace("p-","")+"</a><br>");
             });
           } else if (photosHomeItemId.startsWith('f-')) {
             enumerateFolderForExport(photosHomeItemId);
@@ -1052,10 +1053,10 @@ function enumerateFolderForExport(fid){
         if (folderItemId.startsWith('p-')) {
           var fileRef = rootRef.child(folderItemId + ".crypteefile");
           fileRef.getDownloadURL().then(function(docURL) {
-            $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+folderItemId.replace("d-","").replace("p-","")+"</a><br>")
+            $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+folderItemId.replace("d-","").replace("p-","")+"</a><br>");
           });
         } else if (folderItemId.startsWith('f-')) {
-          enumerateFolderForExport(folderItemId)
+          enumerateFolderForExport(folderItemId);
         }
       }
     });

@@ -4,6 +4,7 @@ var isMobile = false; //initiate as false
 var freeUserQuotaInBytes = 100000000;
 var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+var crypto = window.crypto || window.msCrypto; // a fix for IE. ughhh microsoft. y u do dis.
 
 var isChromium = window.chrome;
 var winNav = window.navigator;
@@ -254,8 +255,8 @@ var decodeBase64 = function(s) {
 
 function decodeBase64Unicode(str) {
     return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    }).join(''))
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
 }
 
 // BASE64 TO UINT8 ARRAY
@@ -319,7 +320,7 @@ function throttleScroll (func, wait) {
     throttling = true;
     return result;
   };
-};
+}
 
 
 
@@ -451,7 +452,7 @@ process.nextTick = (function() {
 
 function newUUID (len) {
   var arr = new Uint8Array((len || 32) / 2);
-  window.crypto.getRandomValues(arr);
+  crypto.getRandomValues(arr);
   return Array.from(arr, dec2hex).join('');
 }
 
@@ -507,7 +508,7 @@ function loadJSON(url, callback) {
 
    var xobj = new XMLHttpRequest();
    xobj.overrideMimeType("application/json");
-   xobj.open('GET', url, true); url
+   xobj.open('GET', url, true);
    xobj.onreadystatechange = function () {
      if (xobj.readyState == 4 && xobj.status == "200") {
       callback(xobj.responseText);
@@ -592,7 +593,7 @@ function hideModal (id) {
   $("#"+id).find(".theStatus").html("").hide();
   setTimeout(function(){
     $("html, body").removeClass("modal-is-active");
-  },250)
+  },250);
 }
 
 function hideActiveModal() {
@@ -763,8 +764,34 @@ function ping (type, obj, callback) {
   });
 }
 
+////////////////////////////////////////////////
+///////////// CHECK CONNECTION /////////////////
+////////////////////////////////////////////////
 
-
+var retriedCheckConnection = false;
+function checkConnection (callback) {
+  var now = (new Date()).getTime(); // milliseconds
+  $.ajax({
+    url: "https://crypt.ee/cors-min.json?cachebuster=" + now,
+    type: 'GET',
+    dataType: 'jsonp',
+    error: function(x) {
+      if (x.status === 200) {
+        callback(true);
+      } else {
+        if (!retriedCheckConnection) {
+          console.log("Connection offline, trying again in 2.5sec...");
+          setTimeout(function () {
+            retriedCheckConnection = true;
+            checkConnection (callback);
+          }, 2500);
+        } else {
+          callback(false);
+        }
+      }
+    },
+  });
+}
 
 ///////////////////////////////////////////
 //////////////// PGP SETUP ////////////////
@@ -780,7 +807,7 @@ function hashString(str) {
 
 function generateStrongKey() {
   var arr = new Uint8Array(1024);
-  window.crypto.getRandomValues(arr);
+  crypto.getRandomValues(arr);
   return Array.from(arr, dec2hex).join('');
 }
 
@@ -814,6 +841,13 @@ function convertLegacyKey (dataRef, typedKey, hashedKey, callback) {
   });
 }
 
+function newEncryptedKeycheck(hashedKey, callback) {
+  var now = ((new Date()).getTime()).toString();
+  openpgp.encrypt({ data: now, passwords: [hashedKey], armor: true }).then(function(ciphertext) {
+      var encryptedKeycheck = JSON.stringify(ciphertext);
+      callback(encryptedKeycheck);
+  });
+}
 ///////////////////////////////////////////
 //////////////// REPORT BUGS /////////////
 ///////////////////////////////////////////
