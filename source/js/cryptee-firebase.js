@@ -15,7 +15,7 @@ firebase.initializeApp(config);
 var db = firebase.database();
 var store = firebase.storage();
 var tokenURL = "https://crypt.ee/api/auth";
-
+var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
 
 ////////////////////////////////////////////////////
 ///////////// AUTHENTICATION HELPERS ///////////////
