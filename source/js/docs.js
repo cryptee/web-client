@@ -1548,6 +1548,12 @@ function processTitles (callback) {
         var extension = theParsedTitle.slice((theParsedTitle.lastIndexOf(".") - 1 >>> 0) + 2);
         var dext = (extension || "crypteedoc");
         $("#" + did).attr("ext", dext);
+
+        if (dext !== "crypteedoc") {
+          $("#" + did).find(".context-make-doc-offline").hide();
+        } else {
+          $("#" + did).find(".context-make-doc-offline").show();
+        }
       }
     });
 
@@ -1836,6 +1842,7 @@ function appendDoc (fid, did, doc, isfile) {
   var offlineStatus = "Make Doc Available Offline";
   var offlineIconColor = "#FFF";
   var offlineClass = "false";
+  var offlineButton = "";
 
   offlineStorage.getItem(did).then(function (offlineDoc) {
     if (offlineDoc) {
@@ -1843,7 +1850,9 @@ function appendDoc (fid, did, doc, isfile) {
       offlineIconColor = "#000";
       offlineClass = "true";
     }
-
+    if (!isfile) {
+      offlineButton = '<p class="context-make-doc-offline"><span class="icon is-small"><span class="fa-stack fa-lg"><i class="fa fa-cloud fa-stack-1x" style=""></i><i class="fa fa-times fa-stack-2x text-danger" style="color: '+offlineIconColor+'; margin-top: 13px; font-size: 8px; margin-left:1px;"></i></span></span> &nbsp; <span class="status">'+offlineStatus+'</span></p>';
+    }
     var doccard = "<li class='adoc "+dclass+"' id='"+ did +"' offline='"+offlineClass+"' ext='"+ext+"'>"+
 
                     "<a><span class='icon docicon exticon'><i class='"+iconClass+"'></i></span>"+
@@ -1860,7 +1869,7 @@ function appendDoc (fid, did, doc, isfile) {
                     "</div>"+
 
                     '<div class="docs-contextual-dropdown">'+
-                      '<p class="context-make-doc-offline"><span class="icon is-small"><span class="fa-stack fa-lg"><i class="fa fa-cloud fa-stack-1x" style=""></i><i class="fa fa-times fa-stack-2x text-danger" style="color: '+offlineIconColor+'; margin-top: 13px; font-size: 8px; margin-left:1px;"></i></span></span> &nbsp; <span class="status">'+offlineStatus+'</span></p>'+
+                      offlineButton +
                       '<p class="context-rename-doc       adoc-float-rename"><span class="icon is-small"><i class="fa fa-fw fa-i-cursor"></i></span> &nbsp; Rename Document</p>'+
                       '<p class="context-delete-doc       adoc-float-delete"><span class="icon is-small"><i class="fa fa-fw fa-trash"></i></span> &nbsp; Delete Document</p>'+
                     '</div>'+
