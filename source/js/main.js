@@ -714,6 +714,47 @@ function displayVersion() {
 
 displayVersion();
 
+function checkLatestVersion() {
+  // get latest deploy version from server. don't trust the current one you've in cache.
+  var serverDeployVersion;
+  var now = (new Date()).getTime(); // milliseconds
+  $.ajax({
+    url: "https://crypt.ee/v.json?cachebuster=" + now,
+    type: 'GET'
+  }).done(function( dep ) {
+    // got server's latestDeployVersion.
+    // now compare to local.
+    if (dep) {
+      serverDeployVersion = dep.v;
+      if (serverDeployVersion !== latestDeployVersion) {
+        // update available
+        showUpdateAvailable();
+      }
+    }
+  });
+}
+
+function showUpdateAvailable () {
+  $("body").append("<div id='update-available' onclick='reloadForNewVersion();'><b>New version available</b><br>Click here to reload</div>");
+}
+
+function reloadForNewVersion () {
+  navigator.serviceWorker.getRegistration().then(function(reg) {
+    if (reg) {
+      reg.unregister().then(function() {
+        caches.keys().then(function(keyList) {
+          return Promise.all(keyList.map(function(key) {
+            return caches.delete(key);
+          }));
+        }).then(function(){
+          window.location.reload(true);
+        });
+      });
+    } else {
+      window.location.reload(true);
+    }
+  });
+}
 ////////////////////////////////////////////////
 ////////////////  RAVEN  SETUP  ////////////////
 ////////////////////////////////////////////////

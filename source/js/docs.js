@@ -1056,7 +1056,9 @@ function signInComplete () {
 
     dataRef.child("foldersCount").on('value', function(snapshot) {
       foldersCount = snapshot.val();
-      // amITheLastFolder();
+      if (foldersCount === 0) {
+        amITheLastFolder();
+      }
     });
 
     dataRef.child("orderComplete").on('value', function(snapshot) {
@@ -1406,7 +1408,11 @@ function hideGenerationWarning () {
 
 function saveAnyway (){
   isDocOutdated = false;
-  saveDoc();
+  if (connectivityMode) {
+    saveDoc();
+  } else {
+    saveOfflineDoc();
+  }
   $(".outdated-save-message").fadeOut();
 }
 
@@ -3599,7 +3605,7 @@ function saveDoc (callback, callbackParam){
           isSaving = true;
         }
 
-        var fid = $("#" + did).parents(".afolder").attr("id");
+        var fid = $("#" + did).parents(".afolder").attr("id") || "f-uncat";
         updateActiveTags();
 
         if (callbackParam) {
@@ -3614,9 +3620,66 @@ function saveDoc (callback, callbackParam){
           foldersRef.child(fid + "/docs/" + did).once('value', function(snapshot) {
             if (snapshot.val() === null) {
               // doc deleted from server, but still open somehow. Could be because the user went offline.
-              // it came back online, and tried to save, and if it does save it would/could fuck things up in backend. so instead reload page to make sure shit's up to date.
-              handleError(error);
-              window.location.reload();
+              // it came back online, and tried to save, and if it does save it would/could fuck things up in backend.
+
+              // start by making sure crucial folder details are there first.
+              // this is harmless if folder already exists, and if it doesn't this will create an uncat folder :)
+              foldersRef.child(fid).update({folderid: fid} , function(){
+
+                // this +1s the folder docscount (if it's new it'll just be 1)
+                foldersRef.child(fid + "/count").transaction(function(currentCount) {
+                  return currentCount + 1;
+                }).then(function(){
+
+                  // if folder doesn't exist on server, this plus ups the folder count.
+                  // say if it's the first uncat folder for example or if user deleted folder offline etc.
+                  titlesObject = titlesObject || {};
+                  titlesObject.folders = titlesObject.folders || {};
+                  if (!titlesObject.folders[fid]) {
+
+                    // this +1s the folderscount
+                    dataRef.child("foldersCount").transaction(function(curFoldersCount) {
+                      return curFoldersCount + 1;
+                    }).then(function(){
+
+                      var fnameToPatch;
+                      for (var docFromArray in docsArray) {
+                        if (docsArray[docFromArray].did === did) {
+                          if (did !== "home") {
+                            fnameToPatch = docsArray[docFromArray].fname;
+                          }
+                          break;
+                        }
+                      }
+
+                      // set folder title too and we should be good to go.
+                      // if it's a new uncat folder set title here, if it's an existing file's folder no need to touch this.
+                      if (fid === "f-uncat") {
+                        titlesObject.folders[fid] = JSON.stringify("Uncategorized Docs");
+                      } else {
+                        titlesObject.folders[fid] = JSON.stringify(fnameToPatch);
+                      }
+
+                      var docData = { docid : did, fid : fid };
+                      foldersRef.child(fid + "/docs/" + did).update(docData, function(){
+                        encryptAndUploadDoc(did, fid, callback, callbackParam);
+                      });
+                    }).catch(function(err) {
+                      handleError(err);
+                    });
+                  } else {
+                    var docData = { docid : did, fid : fid };
+                    foldersRef.child(fid + "/docs/" + did).update(docData, function(){
+                      encryptAndUploadDoc(did, fid, callback, callbackParam);
+                    });
+                  }
+
+                }).catch(function(err) {
+                  handleError(err);
+                });
+              });
+
+
             } else {
               encryptAndUploadDoc(did, fid, callback, callbackParam);
             }
@@ -3658,6 +3721,10 @@ function encryptAndUploadDoc(did, fid, callback, callbackParam) {
           saveUploadComplete(did, totalBytes, callback, callbackParam);
         }
       }, function(error) {
+
+        // IF THIS DOC DIDN'T EXIST IN SERVER, WE HAVE JUST CREATED REFERENCES FOR IT + FOLDER COUNTS ETC. AND FILE ISN'T UPLOADED.
+        // UH-OH. THIS WILL NEED TO BE CLEANED LATER ON BY A FIXER.
+
         if (usedStorage >= allowedStorage) {
           exceededStorage(callback, callbackParam);
         } else {
@@ -5005,7 +5072,11 @@ function openSettingsUpgrade (){
 ///////////////////////////////////////////////////
 
 $("#upgrade-button").on('click', function(event) {
-  saveDoc(openSettingsUpgrade);
+  if (connectivityMode) {
+    saveDoc(openSettingsUpgrade);
+  } else {
+    saveOfflineDoc(openSettingsUpgrade);
+  }
 });
 
 ////
@@ -6592,6 +6663,8 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
 
                     // if folder doesn't exist on server, this plus ups the folder count.
                     // say if it's the first uncat folder for example or if user deleted folder offline etc.
+                    titlesObject = titlesObject || {};
+                    titlesObject.folders = titlesObject.folders || {};
                     if (!titlesObject.folders[fid]) {
 
                       // this +1s the folderscount

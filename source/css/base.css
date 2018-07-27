@@ -112,6 +112,7 @@ strong {
   font-weight: 600;
 }
 
+
 input {
   box-shadow: none;
   outline: none;
@@ -250,6 +251,25 @@ code, pre {
 .ql-snow .ql-editor pre {
   margin: 1rem 0;
   font-family: Monaco, Courier New, monospace;
+}
+
+.ql-editor blockquote {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  border-left: 2px solid #363636 !important;
+  padding: 0.3rem 0 0.3rem 0.6rem !important;
+}
+
+.ql-editor *:not(blockquote) + blockquote {
+  margin-bottom: 10px !important;
+}
+
+.ql-editor blockquote + *:not(blockquote) {
+  margin-top: 10px !important;
+}
+
+.ql-editor *:not(blockquote) + blockquote + blockquote {
+  margin-top: -10px !important;
 }
 
 .ql-tooltip {
@@ -484,6 +504,10 @@ crypteetag {
   transition: color 0.3s ease;
   vertical-align: middle;
   text-align: left;
+}
+
+.ql-editor blockquote + ul[data-checked=true], ul[data-checked=false]{
+  margin-top: 10px !important;
 }
 
 
@@ -2723,6 +2747,23 @@ body.draggingStuff {
   font-size: 11px;
 }
 
+#update-available {
+  text-align: left;
+  position: absolute;
+  bottom: 4rem;
+  z-index: 12;
+  width: 30%;
+  min-width: 15rem;
+  margin: 0;
+  -webkit-box-shadow: 0 1rem 2rem rgba(10,10,10,0.1);
+  box-shadow: 0 1rem 2rem rgba(10,10,10,0.1);
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  background-color: #4BBF73;
+  color: #FFF;
+  right: 0;
+}
+
 .showLowStorage, .showUpgradeThanks, .showBumpUp, .showBumpDown {
   height: auto !important;
   transition: all ease 0.5s !important;
@@ -2779,6 +2820,21 @@ body.draggingStuff {
   position: absolute;
   opacity: 1;
   transition: 0.3s opacity ease;
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+.folder-title {
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
 
 .recent-doctitle {
