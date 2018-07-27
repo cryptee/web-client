@@ -5529,27 +5529,19 @@ function displayAttachmentSearchResults (results, filetype) {
   $("#attachment-results").html("");
 
   $.each(results, function(i, result){
-    if (result.ftype) {
-      if (result.ftype.indexOf(filetype) !== -1) {
-        var folderColor = result.fcolor;
-        if ( result.fcolor === " #363636" ) { folderColor = "#000"; }
-        var folderCard = '<p class="attachment-result-folder column is-11" id="attachment-result-'+result.fid+'"><span class="icon"><i class="fa fa-folder" style="color:'+folderColor+'"></i></span> '+result.fname+'</p>';
-        var theResultFolder = $("#attachment-result-" + result.fid);
-        if (theResultFolder.length <= 0) {
-          $("#attachment-results").append(folderCard);
-        }
-      }
+    var folderColor = result.fcolor;
+    if ( result.fcolor === " #363636" ) { folderColor = "#000"; }
+    var folderCard = '<p class="attachment-result-folder column is-11" id="attachment-result-'+result.fid+'"><span class="icon"><i class="fa fa-folder" style="color:'+folderColor+'"></i></span> '+result.fname+'</p>';
+    var theResultFolder = $("#attachment-result-" + result.fid);
+    if (theResultFolder.length <= 0) {
+      $("#attachment-results").append(folderCard);
     }
   });
 
   $.each(results, function(i, result){
-    if (result.ftype) {
-      if (result.ftype.indexOf(filetype) !== -1) {
-        var theResultFolder = $("#attachment-result-" + result.fid);
-        var resultCard = '<div class="attachment-result column is-half" did="'+result.did+'"><span class="icon docicon exticon"><i class="'+result.icon+'"></i></span><span class="doctitle">'+result.name+'</span></div>';
-        theResultFolder.after(resultCard);
-      }
-    }
+    var theResultFolder = $("#attachment-result-" + result.fid);
+    var resultCard = '<div class="attachment-result column is-half" did="'+result.did+'"><span class="icon docicon exticon"><i class="'+result.icon+'"></i></span><span class="doctitle">'+result.name+'</span></div>';
+    theResultFolder.after(resultCard);
   });
 
 }
@@ -5684,11 +5676,17 @@ $('.ql-editor').on('click', 'crypteefile', function(event) {
     var preview = true;
 
     var fileRef = rootRef.child(did + ".crypteefile");
+    var docRef = rootRef.child(did + ".crypteedoc");
+
     // just to check file exists
     fileRef.getDownloadURL().then(function(url) {
-      downloadFile(did, fileTitle, preview, attachmentLoaded, did);
+      loadDoc(did, attachmentLoaded, did);
     }).catch(function(error){
-      theFile.removeClass("loading").addClass("error");
+      docRef.getDownloadURL().then(function(url) {
+        loadDoc(did, attachmentLoaded, did);
+      }).catch(function(error){
+        theFile.removeClass("loading").addClass("error");
+      });
     });
   } else {
     theFile.remove();
