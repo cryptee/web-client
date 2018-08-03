@@ -24,7 +24,9 @@ var cacheName = 'stale-while-revalidate';
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(cacheName).then(function(cache) {
-      return cache.addAll(precache_urls);
+      precache_urls.forEach(function (precacheURL) {
+        cache.add(precacheURL);
+      });
     }).then(function() {
       return self.skipWaiting();
     }).catch(function(error){
@@ -54,8 +56,8 @@ self.addEventListener('fetch', function(event) {
     ||  event.request.url.startsWith( 'https://beta.crypt.ee' )
     ||  event.request.url.startsWith( 'https://fonts.gstatic.com' )
     ||  event.request.url.startsWith( 'https://fonts.googleapis.com' )
-    // ||  event.request.url.startsWith( 'https://firebasestorage.googleapis.com' )
     ||  event.request.url.startsWith( 'https://sentry.io' )
+    // ||  event.request.url.startsWith( 'https://firebasestorage.googleapis.com' )
     // ||  event.request.url.startsWith( 'http://127.0.0.1' )
   ) {
     event.respondWith(

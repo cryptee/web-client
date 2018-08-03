@@ -6611,7 +6611,7 @@ function prepareForSync(numberOfOfflineDocs, callback, callbackParam) {
       }
     }).catch(function(err) {
       offlineStorage.removeItem(did);
-      showErrorBubble("Error decrypting offline an doc(s) in sync, doc(s) removed for security.", err);
+      showErrorBubble("Error decrypting offline doc(s), removed for security.", err);
       handleError(err);
       syncCompleted(callback, callbackParam);
     });

@@ -5718,7 +5718,18 @@ body.draggingStuff {
 
   .document-contextual-dropdown {
     margin-top: 40px;
-    width: 208px;
+    width: 250px;
+  }
+
+  #doc-contextual-buttons .document-contextual-dropdown i.fa-cloud.fa-stack-1x {
+    font-size: 1rem !important;
+    margin-left: -1px !important;
+  }
+
+  #doc-contextual-buttons .document-contextual-dropdown i.fa-times.fa-stack-2x {
+    font-size: 0.7rem !important;
+    margin-left: 0px !important;
+    margin-top: 12px !important;
   }
 
   .document-contextual-dropdown p, .docs-contextual-dropdown p {
