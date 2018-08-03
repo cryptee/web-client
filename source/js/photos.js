@@ -389,20 +389,30 @@ function checkKey (key) {
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
 
-    var hashedKey;
+    var hashedKey, goodKey = true;
     if (key) {
-      hashedKey = hashString(key);
+      try {
+        hashedKey = hashString(key);
+      } catch (e) {
+        goodKey = false;
+        wrongKey ("Wide Character Error");
+      }
     } else {
       hashedKey = keyToRemember;
     }
-    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-        rightKey(plaintext, hashedKey);
-    }).catch(function(error) {
-        checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
+
+    if (goodKey) {
+      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
           rightKey(plaintext, hashedKey);
-          // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-        });
-    });
+      }).catch(function(error) {
+          checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
+            rightKey(plaintext, hashedKey);
+            // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+          });
+      });
+    } else {
+      wrongKey ("Wide Character Error");
+    }
   });
 }
 
@@ -464,36 +474,38 @@ function signInComplete () {
   });
 
   metaRef.on('value', function(userMeta) {
-    allowedStorage = userMeta.val().allowedStorage || freeUserQuotaInBytes;
-    usedStorage = userMeta.val().usedStorage || 0;
+    if (userMeta.val() !== null) {
+      allowedStorage = userMeta.val().allowedStorage || freeUserQuotaInBytes;
+      usedStorage = userMeta.val().usedStorage || 0;
 
-    if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
-      // paid user remove upgrade button
-      $("#upgrade-button").parents("li").hide();
-      $("#low-storage-warning").removeClass('showLowStorage viaUpgradeButton');
-      closeExceededStorageModal();
-      if (usedStorage >= allowedStorage) {
-        showBumpUpThePlan(true);
-      } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
-        showBumpUpThePlan(false);
-      } else if (usedStorage <= (allowedStorage - 13000000000)) {
-        // this is 13GB because if user has 20GB, and using 7GB we'll downgrade to 10GB plan.
-        bumpDownThePlan();
-      }
-    } else {
-
-      if (usedStorage >= allowedStorage) {
-        $(".exceeded-storage").html(formatBytes(usedStorage + 100000 - allowedStorage));
-        exceededStorage();
-      } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
-        $("#low-storage-warning").addClass('showLowStorage');
-      }
-      if (allowedStorage > freeUserQuotaInBytes) {
+      if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
+        // paid user remove upgrade button
         $("#upgrade-button").parents("li").hide();
-      }
-    }
+        $("#low-storage-warning").removeClass('showLowStorage viaUpgradeButton');
+        closeExceededStorageModal();
+        if (usedStorage >= allowedStorage) {
+          showBumpUpThePlan(true);
+        } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
+          showBumpUpThePlan(false);
+        } else if (usedStorage <= (allowedStorage - 13000000000)) {
+          // this is 13GB because if user has 20GB, and using 7GB we'll downgrade to 10GB plan.
+          bumpDownThePlan();
+        }
+      } else {
 
-    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
+        if (usedStorage >= allowedStorage) {
+          $(".exceeded-storage").html(formatBytes(usedStorage + 100000 - allowedStorage));
+          exceededStorage();
+        } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
+          $("#low-storage-warning").addClass('showLowStorage');
+        }
+        if (allowedStorage > freeUserQuotaInBytes) {
+          $("#upgrade-button").parents("li").hide();
+        }
+      }
+
+      saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
+    }
   });
 
   if (getUrlParameter("p")) {

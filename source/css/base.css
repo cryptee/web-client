@@ -1799,6 +1799,55 @@ html {
   -webkit-overflow-scrolling: touch;
 }
 
+.offline-badge {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background-color: #1F9BCF;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  margin-left: 4px;
+  margin-top: 2px;
+  cursor: pointer !important;
+  transition: 0.3s all ease;
+  opacity: 0;
+}
+
+.offline-badge.visible {
+  opacity: 1;
+}
+
+.is-loading > .offline-badge {
+  width: 17px !important;
+  height: 17px !important;
+  margin-top: 6px;
+  margin-left: 6px;
+  border-radius: 10px !important;
+}
+
+.offline-badge::after {
+  opacity: 0;
+  content: "Available Offline";
+  background-color: #00b4ff;
+  color: #FFF;
+  font-size: 9px;
+  border-radius: 0;
+  padding: 0px 3px 1px 7px;
+  display: inline-block;
+  width: 90px;
+  height: 14px;
+  position: absolute;
+  top: 0;
+  left: 7px;
+  transition: 0.3s all ease;
+  pointer-events: none;
+}
+
+.is-loading > .offline-badge::after {
+  opacity: 0 !important;
+}
+
 .folders-status {
   position: absolute;
   z-index: 99;
@@ -2841,7 +2890,7 @@ body.draggingStuff {
   word-wrap: break-word;
 }
 
-.recent-doctime {
+.recent-docdeet {
   color: #aaa;
   margin-left: 3rem;
 }
@@ -3338,7 +3387,6 @@ body.draggingStuff {
   opacity: 0;
   margin: 0 auto 2rem auto;
   padding: 20px;
-  max-height: 70%;
   max-width: 540px;
   background-color: #F1f1f1;
   border-radius: 1.5rem;
@@ -3347,16 +3395,24 @@ body.draggingStuff {
   transform: translateY(-50px);
 }
 
-#news-window .news-card:nth-of-type(1) {
+#news-window .news-card:nth-of-type(2) {
   transform: translateY(-40px);
 }
 
-#news-window .news-card:nth-of-type(2) {
+#news-window .news-card:nth-of-type(3) {
   transform: translateY(-30px);
 }
 
-#news-window .news-card:nth-of-type(3) {
+#news-window .news-card:nth-of-type(4) {
   transform: translateY(-20px);
+}
+
+#news-window .news-card:nth-of-type(5) {
+  transform: translateY(-10px);
+}
+
+#news-window .news-card:nth-of-type(6) {
+  transform: translateY(-5px);
 }
 
 #news-window.newsOn .news-card {
@@ -5554,6 +5610,16 @@ body.draggingStuff {
   #homedoc.is-dark[disabled]:hover {
     background-color: #363636 !important;
     border-bottom: 1px solid transparent !important;
+  }
+
+  .offline-badge:hover {
+    background-color: #00b4ff;
+    border-radius: 0;
+    height: 14px;
+  }
+
+  .offline-badge:hover::after {
+    opacity: 1;
   }
 
 }

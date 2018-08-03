@@ -714,9 +714,10 @@ function displayVersion() {
 
 displayVersion();
 
+var serverDeployVersion;
 function checkLatestVersion() {
   // get latest deploy version from server. don't trust the current one you've in cache.
-  var serverDeployVersion;
+
   var now = (new Date()).getTime(); // milliseconds
   $.ajax({
     url: "https://crypt.ee/v.json?cachebuster=" + now,
@@ -752,6 +753,22 @@ function reloadForNewVersion () {
       });
     } else {
       window.location.reload(true);
+    }
+  });
+}
+
+function flushOldCaches() {
+  navigator.serviceWorker.getRegistration().then(function(reg) {
+    if (reg) {
+      reg.unregister().then(function() {
+        caches.keys().then(function(keyList) {
+          return Promise.all(keyList.map(function(key) {
+            if (key !== serverDeployVersion) {
+              return caches.delete(key);
+            }
+          }));
+        });
+      });
     }
   });
 }

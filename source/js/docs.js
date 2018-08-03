@@ -1145,39 +1145,48 @@ function checkKey (key){
     showDocProgress("Checking Key");
   }
 
-  var hashedKey;
+  var hashedKey, goodKey = true;
   if (key) {
-    hashedKey = hashString(key);
+    try {
+      hashedKey = hashString(key);
+    } catch (e) {
+      goodKey = false;
+      wrongKey ("Wide Character Error");
+    }
   } else {
     hashedKey = keyToRemember;
   }
 
-  if (connected) {
-    // USER ONLINE. CHECK KEY FROM ONLINE, AND UPDATE OFFLINE COPY.
+  if (goodKey) {
+    if (connected) {
+      // USER ONLINE. CHECK KEY FROM ONLINE, AND UPDATE OFFLINE COPY.
 
-    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-        rightKey(plaintext, hashedKey);
-    }).catch(function(error) {
-        checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
+      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
           rightKey(plaintext, hashedKey);
-          // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-        });
-    });
-
-
-  } else {
-    // USER OFFLINE. CHECK KEY FROM OFFLINE, AND START OFFLINE MODE.
-    if (encryptedKeycheck) {
-      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedKeycheck), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-        console.log("Used offline key.");
-        rightKey(plaintext, hashedKey);
       }).catch(function(error) {
-        wrongKey (error);
+          checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
+            rightKey(plaintext, hashedKey);
+            // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+          });
       });
+
+
     } else {
-      showKeyModal();
-      $('#key-status').html("<p class='subtitle'>We can't seem to verify your identity because you seem to be offline. In order to start using offline mode, you need to enter your key at least once when online on this device.</p>");
+      // USER OFFLINE. CHECK KEY FROM OFFLINE, AND START OFFLINE MODE.
+      if (encryptedKeycheck) {
+        openpgp.decrypt({ message: openpgp.message.readArmored(encryptedKeycheck), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
+          console.log("Used offline key.");
+          rightKey(plaintext, hashedKey);
+        }).catch(function(error) {
+          wrongKey (error);
+        });
+      } else {
+        showKeyModal();
+        $('#key-status').html("<p class='subtitle'>We can't seem to verify your identity because you seem to be offline. In order to start using offline mode, you need to enter your key at least once when online on this device.</p>");
+      }
     }
+  } else {
+    wrongKey ("Wide Character Error");
   }
 
 }
@@ -1527,7 +1536,6 @@ function processTitles (callback) {
 
     if ($("#" + did).length <= 0 ) {
       delete titlesObject.docs[did];
-      console.log("found deleted doc in titles, and deleted it", did);
     }
 
     var theParsedTitle = "Untitled Document";
@@ -1882,12 +1890,19 @@ function appendDoc (fid, did, doc, isfile) {
                   "</li>";
 
     if ( $("#docs-of-" + fid + " > " + "#" + did).length > 0 ) {
-      //doc exists
+      // doc exists in master folders list.
+      // check if it's moving. So we'll update recents here
+
+      if (movingDoc) {
+        updateRecentDocs();
+      }
+
     } else {
       docsArray.push({ fid : fid, did : did, fcolor : fcolor, gen : generation, isfile : isfile });
       $("#docs-of-" + fid).prepend(doccard);
       if(isMobile){ $(".docs-float-context").addClass("itsMobile"); }
     }
+
   }).catch(function(err) {
     handleError(err);
   });
@@ -3002,9 +3017,17 @@ function loadDoc (did, callback, callbackParam){
             // use online copy, it's newer.
             downloadOnlineCopy();
           }
+
+          // HIDE THE DROPDOWN MAKE OFFLINE / show make ONLINE BUTTON
+          $(".dropdown-makeoffline-button").hide();
+          $(".dropdown-makeonline-button").show();
         } else {
           // use online copy, there's no offline one.
           downloadOnlineCopy();
+
+          $(".dropdown-makeoffline-button").show();
+          $(".dropdown-makeonline-button").hide();
+          // SHOW THE DROPDOWN MAKE OFFLINE / HIDE make ONLINE BUTTON
         }
       }).catch(function(error) {
           console.log("LOAD ERROR", error);
@@ -3913,10 +3936,16 @@ function deleteDoc (did){
 
 function deleteDocComplete(fid, did, callback, callbackParam) {
   callback = callback || noop;
-  removeByAttr(docsArray, 'did', did);
   $("#docs-of-" + fid + " > " + "#" + did).remove();
-  $(".recent-doc[did='"+did+"']").remove();
 
+  if (!movingDoc) {
+    $(".recent-doc[did='"+did+"']").remove();
+    removeByAttr(docsArray, 'did', did);
+  } else {
+    movingDoc = false;
+  }
+
+  // if doc is moving these won't matter since active doc can't be moved. not yet at least.
   if ( did === activeFileID ) {
     hideFileViewer ();
   }
@@ -3930,9 +3959,11 @@ function deleteDocComplete(fid, did, callback, callbackParam) {
 //   MOVE _DOC  //
 ////////////////////
 
+var movingDoc = false;
 function moveDoc (from, did) {
   var fromFID = $("#"+ from).parents(".afolder").attr("id");
   var toFID = $("#" + did).parents(".afolder").attr("id");
+  movingDoc = true;
 
   foldersRef.child(fromFID + "/docs/" + did).once('value', function(snap)  {
      foldersRef.child(toFID + "/docs/" + did).set( snap.val(), function(error) {
@@ -4462,7 +4493,7 @@ function getTags (callback) {
         // no tags found. maybe call updateTags() to follow get Titles?
         // ONLY IF THERE'S A docsArray. OR YOU'LL FUCK SHIT UP BIGTIME.
         // THERE SHOULD BE, BECAUSE THIS IS CALLED AFTER AMITHELASTDOC,
-        // WHICH IS CALLED AFTER AN APPENDDOC LOOP WHICH PUSHES DOCS TO DOCSARRAY
+        // WHICH IS CALLED AFTER AN APPEND DOC LOOP WHICH PUSHES DOCS TO DOCSARRAY
         if (!initialLoadComplete) {
           callback();
         }
@@ -4471,7 +4502,7 @@ function getTags (callback) {
       // no tags found. maybe call updateTags() to follow get Titles?
       // ONLY IF THERE'S A docsArray. OR YOU'LL FUCK SHIT UP BIGTIME.
       // THERE SHOULD BE, BECAUSE THIS IS CALLED AFTER AMITHELASTDOC,
-      // WHICH IS CALLED AFTER AN APPENDDOC LOOP WHICH PUSHES DOCS TO DOCSARRAY
+      // WHICH IS CALLED AFTER AN APPEND DOC LOOP WHICH PUSHES DOCS TO DOCSARRAY
       if (!initialLoadComplete) {
         callback();
       }
@@ -5853,6 +5884,12 @@ function updateRecentDocs() {
     if (doc.name && !doc.isfile) {
       if ($(".recent-doc[did='"+doc.did+"']").length === 0) {
         $("#all-recent").prepend(renderRecentOrOfflineDoc(doc));
+
+        offlineStorage.getItem(doc.did).then(function (offlineDoc) {
+          if (offlineDoc) {
+            $(".recent-doc[did='"+doc.did+"']").find(".offline-badge").addClass("visible");
+          }
+        });
       }
     }
   });
@@ -5884,17 +5921,20 @@ function renderRecentOrOfflineDoc (doc) {
   }
 
   var offlineOrRecent = "recent";
+  var recentFolder = '&bull; '+doc.fname;
+  var offlineBadge = '<span class="offline-badge"></span>';
   if (doc.content) {
     offlineOrRecent = "offline";
+    recentFolder = "";
+    offlineBadge = "";
   }
 
 
   var docElem =
   '<div class="'+offlineOrRecent+'-doc ' + active + '" did="'+ doc.did +'" isfile="'+isFile+'" gen="'+ gen +'">'+
-    '<span class="icon recenticon is-medium"><i class="' + icon + '"></i></span>'+
+    '<span class="icon recenticon is-medium"><i class="' + icon + '"></i>'+ offlineBadge +'</span>'+
     '<p class="recent-doctitle">'+doc.name+'</p>'+
-    '<p class="deets recent-doctime">'+ since + ' ago</p>'+
-    // '<p class="details"><span class="icon"><i class="fa fa-folder" style="color:'+doc.fcolor+'"></i></span> '+doc.fname+'</p>' +
+    '<p class="deets recent-docdeet">'+ since + ' ago ' + recentFolder + '</p>' +
   '</div>';
 
   return docElem;
@@ -6398,6 +6438,7 @@ function makeOfflineDoc(did) {
 
                 offlineStorage.setItem(did, offlineDocObject).then(function () {
                   // done
+                  docMadeAvailableOffline(did);
                 }).catch(function(err) {
                   handleError(err);
                 });
@@ -6426,6 +6467,7 @@ function makeOfflineDoc(did) {
 function removeOfflineDoc(did) {
   offlineStorage.removeItem(did).then(function() {
     updateOfflineDocs();
+    docMadeOnlineOnly(did);
   }).catch(function(err) {
     showErrorBubble("Error deleting offline document", err);
     handleError(err);
@@ -6945,13 +6987,54 @@ $("#all-folders").on('click touchend', '.context-make-doc-offline', function(eve
   });
 });
 
+$(".dropdown-makeoffline-button").on('click', function(event) {
+
+  // make active doc offline.
+  makeOfflineDoc(activeDocID);
+  $(".document-contextual-dropdown").removeClass("open");
+});
+
+$(".dropdown-makeonline-button").on('click', function(event) {
+
+  // make active doc online only
+  removeOfflineDoc(activeDocID);
+  $(".document-contextual-dropdown").removeClass("open");
+});
 
 
 
 
+function docMadeAvailableOffline(did) {
+  var adoc = $("#"+did);
+  var offline = adoc.attr("offline");
 
+  adoc.attr("offline", "true");
+  adoc.find(".fa-times").css({"color" : "#000"});
+  adoc.find(".status").html( "Make Doc Online Only");
 
+  $(".recent-doc[did='"+did+"']").find(".offline-badge").addClass("visible");
 
+  if (activeDocID === did) {
+    $(".dropdown-makeoffline-button").hide();
+    $(".dropdown-makeonline-button").show();
+  }
+}
+
+function docMadeOnlineOnly(did) {
+  var adoc = $("#"+did);
+  var offline = adoc.attr("offline");
+
+  adoc.attr("offline", "false");
+  adoc.find(".fa-times").css({"color" : "#FFF"});
+  adoc.find(".status").html("Make Doc Available Offline");
+
+  $(".recent-doc[did='"+did+"']").find(".offline-badge").removeClass("visible");
+
+  if (activeDocID === did) {
+    $(".dropdown-makeoffline-button").show();
+    $(".dropdown-makeonline-button").hide();
+  }
+}
 
 
 
