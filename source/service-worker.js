@@ -40,6 +40,9 @@ self.addEventListener('fetch', function(event) {
     ||  event.request.url.indexOf( 'about:blank' ) !== -1
     ||  event.request.url.indexOf( '/imgs/' ) !== -1
     ||  event.request.url.indexOf( '/heroes/' ) !== -1
+    ||  event.request.url.indexOf( '/v.json' ) !== -1
+    ||  event.request.url.indexOf( '/cors.json' ) !== -1
+    ||  event.request.url.indexOf( '/cors-min.json' ) !== -1
   ) {
     // console.log('Fetching from network: ', event.request.url);
     return false;
