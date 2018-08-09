@@ -67,7 +67,6 @@ var initialLoadComplete = false;
 var initialSyncComplete = false;
 var docIsBeingSorted = false;
 var numFilesLeftToBeUploaded = 0;
-var numFilesUploaded = 0;
 var fileUploadError = false;
 var menuBeforeDrag;
 var somethingDropped = false;
@@ -81,6 +80,8 @@ var sortableFoldersDesktopPreferences = {
   animation: 300, delay:0,
   handle: ".folder-header",
   chosenClass: "draggingFolder",
+  scroll : $("#all-folders")[0],
+  filter : ".archived",
   onStart: function (evt) {
     $('.afolder').addClass("folderDraggingActive");
 	},
@@ -94,6 +95,8 @@ var sortableFoldersMobilePreferences = {
   animation: 300, delay:0,
   handle: ".folder-clicker-icon",
   chosenClass: "draggingFolder",
+  scroll : $("#all-folders")[0],
+  filter : ".archived",
   onStart: function (evt) {
     $('.afolder').addClass("folderDraggingActive");
 	},
@@ -586,11 +589,20 @@ $("body").on('swiperight',  function(){
 
 $("#all-folders").on('click', '.dropdown-buttons', function(event) {
   var theDropdown = $(this).parents(".afolder").find(".folder-dropdown");
+  var numOfFolders = $(".afolder").length;
+
   if (!theDropdown.hasClass("dropdown-open")){
     theDropdown.fadeIn(100).addClass('dropdown-open');
+      if ($(this).parents(".afolder").index() + 1 >= numOfFolders - 6) {
+        setTimeout(function () {
+          $("#all-folders").animate({ scrollTop: $("#all-folders")[0].scrollHeight }, "slow");
+        }, 105);
+      }
   } else {
     theDropdown.fadeOut(100).removeClass('dropdown-open');
   }
+
+
 });
 
 $(document).on('mouseup', function (e) {
@@ -634,6 +646,12 @@ $("#all-folders").on('click', '.adoc-float-context', function(event) {
     thisOne.fadeOut(300);
   } else {
     thisOne.fadeIn(300);
+    var numOfDocs = $(this).parents(".docs-list").children().length;
+    if ($(this).parents(".adoc").index() + 1 >= numOfDocs - 4 && $(this).parents(".afolder").is(":last-child")) {
+      setTimeout(function () {
+        $("#all-folders").animate({ scrollTop: $("#all-folders")[0].scrollHeight }, "slow");
+      }, 100);
+    }
   }
 });
 
@@ -1085,7 +1103,8 @@ function amITheLastFolder(){
 
       getTitles();
 
-      sortFolders();
+      // This gets called in archive Folder once we get /archived on value in append Folder for the last folder using a timeout
+      // sortFolders();
 
       if (parseInt(foldersCount) === 0) {
         $(".first-folder-hint").fadeIn();
@@ -1135,8 +1154,13 @@ function sortFolders () {
 
     $('.afolder').sort(function (a, b) {
       return ($(b).data('sort')) < ($(a).data('sort')) ? 1 : -1;
-    }).appendTo('#all-folders');
+    }).prependTo('#all-folders');
 
+    $(".afolder").each(function(folder){
+      if ($(this).hasClass("archived")){
+        $(this).insertAfter("#archiveDivider");
+      }
+    });
   });
 }
 
@@ -1534,8 +1558,13 @@ function processTitles (callback) {
 
   $.each(titlesObject.docs, function(did, dtitle) {
 
-    if ($("#" + did).length <= 0 ) {
-      delete titlesObject.docs[did];
+    // this is a corrective measure
+    // just in case if at boot a file doesn't exist,
+    // we remove it from titles too so that next updatetitles wouldn't have this.
+    if (!initialLoadComplete) {
+      if ($("#" + did).length <= 0 ) {
+        delete titlesObject.docs[did];
+      }
     }
 
     var theParsedTitle = "Untitled Document";
@@ -1647,6 +1676,7 @@ function appendFolder (folder){
   var fcount = folder.count;
   var fopen = folder.open;
   var fcolor = folder.color;
+  var farchived = folder.archived;
   var openClass = "-open";
   var colorClass = " ";
   var hiddenClass = "hidden";
@@ -1662,14 +1692,20 @@ function appendFolder (folder){
 
   var makeGhostButton = '<p class="make-ghost-folder-button clickable"><span class="icon"><i class="fa fa-eye-slash"></i></span> Make Ghost Folder</p>';
   var renameButton = '<p class="rename-folder-button clickable"><span class="icon"><i class="fa fa-i-cursor"></i></span> Rename Folder</p>';
-
+  var archiveButton = '<p class="archive-folder-button clickable" onclick="archiveFolder(\''+fid+'\')"><span class="icon"><i class="fa fa-archive"></i></span> Archive Folder</p>';
   if (fid === "f-uncat") {
     makeGhostButton = '';
     renameButton = '';
+    archiveButton = '';
   }
 
-  var folderCard =  '<div class="afolder card folder" id="'+fid+'" color=" '+colorClass+'" count="'+fcount+'">'+
-                      '<header class="card-header folder-header">'+
+  var archived = "";
+  if (farchived) {
+    archived = "archived";
+  }
+
+  var folderCard =  '<div class="afolder card folder '+archived+'" id="'+fid+'" color=" '+colorClass+'" count="'+fcount+'">'+
+                      '<header class="card-header folder-header '+archived+'">'+
                         '<a class="card-header-icon card-folder-icon folder-clicker-icon"><span class="icon"><i style="color:'+colorClass+';" class="folder-icon fa fa-folder'+openClass+'"></i></span></a>'+
                         '<p class="card-header-title folder-title">Untitled Folder</p>'+
                         '<a title="Folder Actions" class="card-header-icon dropdown-buttons"><span class="icon"><i class="fa fa-ellipsis-v"></i></span></a>'+
@@ -1677,7 +1713,6 @@ function appendFolder (folder){
                       '<div class="notification dropdowns folder-dropdown">'+
                         uploadButton +
                         renameButton +
-                        makeGhostButton +
                         "<p class='notification invalid-foldername is-danger'>Folder name contains an invalid symbol or character. Please rename the folder and try again.</p>" +
                         '<p class="clickable color-folder-thing">'+
                           '<span class="icon"><i class="fa fa-paint-brush"></i></span>'+
@@ -1692,6 +1727,8 @@ function appendFolder (folder){
                           '<span class="icon folder-color-select-button" color="#8A2BE2" ><i style="color:#8A2BE2;" class="fa fa-tint"></i></span>'+
                           '<span class="icon folder-color-select-button" color="#363636" ><i style="color:#363636;" class="fa fa-tint"></i></span>'+
                         '</p>'+
+                        makeGhostButton +
+                        archiveButton +
                         '<p class="delete-folder-button clickable"><span class="icon"><i class="fa fa-trash-o"></i></span> Delete Folder</p>'+
                         '<span class="delete-folder-buttons sub-dropdown"><p>Are you sure? Everything in this folder will be deleted as well.</p><br><a class="button is-success delete-folder-confirm">Yes Delete</a> <a class="button is-danger delete-folder-cancel">No Wait</a></span>'+
                       '</div>'+
@@ -1728,6 +1765,10 @@ function appendFolder (folder){
 
     foldersRef.child(folder.folderid + "/docs").on('child_changed', function(doc) {
       checkDocGeneration(doc.val());
+    });
+
+    foldersRef.child(folder.folderid + "/archived").on('value', function(archiveBool) {
+      setArchivedFolder(folder.folderid, archiveBool.val());
     });
 
     if (!folder.ghosttitles) {
@@ -1840,7 +1881,7 @@ function appendDoc (fid, did, doc, isfile) {
   }
 
   if (initialLoadComplete) {
-    title = titlesObject.docs[did] || "Untitled Document";
+    title = doc.name || titlesObject.docs[did] || "Untitled Document";
     try { title = JSON.parse(title); } catch (e) {}
 
     var tempExt = title.slice((title.lastIndexOf(".") - 1 >>> 0) + 2);
@@ -2053,6 +2094,12 @@ $('#all-folders').on('click', '.delete-folder-cancel', function(event) {
 
 $('#all-folders').on('click', '.delete-folder-button', function(event) {
     $(this).parents(".afolder").find(".delete-folder-buttons").show().css("display", "block");
+    var numOfFolders = $(".afolder").length;
+    if ($(this).parents(".afolder").index() + 1 >= numOfFolders - 6) {
+      setTimeout(function () {
+        $("#all-folders").animate({ scrollTop: $("#all-folders")[0].scrollHeight }, "slow");
+      }, 50);
+    }
 });
 
 
@@ -2087,9 +2134,11 @@ function deleteFolder (folderElement){
     offlineStorage.removeItem(docID).catch(function(err) {
       handleError(err);
     });
-    deletionRef.delete().then(function(){}).catch(function(error) {
-      handleError(error);
-    });
+    if (deletionRef) {
+      deletionRef.delete().then(function(){}).catch(function(error) {
+        handleError(error);
+      });
+    }
 
   });
 
@@ -2164,13 +2213,50 @@ $('#all-folders').on('click', '.folder-clicker-icon, .folder-title', function(ev
 });
 
 
+/////////////////////
+//  ARCHIVE FOLDER  //
+/////////////////////
+
+var archiveSortTimer;
+function setArchivedFolder(fid, archiveBool) {
+  $("#" + fid).find(".folder-dropdown").hide().removeClass('dropdown-open');
+  if (archiveBool) {
+    setTimeout(function () {
+      $("#" + fid).addClass("archived");
+      $("#" + fid).find(".folder-header").addClass("archived");
+    }, 50);
+  } else {
+    setTimeout(function () {
+      $("#" + fid).removeClass("archived");
+      $("#" + fid).find(".folder-header").removeClass("archived");
+    }, 50);
+  }
+
+  clearTimeout(archiveSortTimer);
+  archiveSortTimer = setTimeout(function () {
+
+    // this will insert the folder into the correct place.
+    // also will call sort Folders for the first time after am I the last
+    sortFolders();
+  }, 500);
+}
+
+$("#archiveDivider").on('click', function(event) {
+  $("#archiveDivider").toggleClass("open");
+  if ($("#archiveDivider").hasClass("open")) {
+    $("#all-folders").animate({ scrollTop: $("#all-folders")[0].scrollHeight }, "slow");
+  }
+});
+
+function archiveFolder(fid) {
+  foldersRef.child(fid).update({archived : true});
+}
 
 
-
-
-
-
-
+$('#all-folders').on('click touchend', '.folder.archived', function(event) {
+  var fid = $(this).attr("id");
+  foldersRef.child(fid).update({archived : null});
+});
 
 /////////////////////
 //  RENAME FOLDER  //
@@ -2630,7 +2716,7 @@ function newRecentDoc () {
     newFolder(function(){
       // if not create uncat folder for the first time.
       createRecentDoc ();
-    }, "Uncategorized Docs", "uncat");
+    }, "Inbox", "uncat");
   }
 
   function createRecentDoc () {
@@ -3678,7 +3764,7 @@ function saveDoc (callback, callbackParam){
                       // set folder title too and we should be good to go.
                       // if it's a new uncat folder set title here, if it's an existing file's folder no need to touch this.
                       if (fid === "f-uncat") {
-                        titlesObject.folders[fid] = JSON.stringify("Uncategorized Docs");
+                        titlesObject.folders[fid] = JSON.stringify("Inbox");
                       } else {
                         titlesObject.folders[fid] = JSON.stringify(fnameToPatch);
                       }
@@ -4378,7 +4464,7 @@ function hideDeleteSelectionsModal () {
   if (floatDelete) { clearSelections(); floatDelete = false; }
 }
 
-$('#seletion-delete-button').on('click', function(event) {
+$('#selection-delete-button').on('click', function(event) {
   showDeleteSelectionsModal();
 });
 
@@ -4672,6 +4758,7 @@ function handleDragEnter(evt) {
     } else {
       menuBeforeDrag = true;
     }
+    $("#foldersViewButton").click();
   }
 
   dragCounter++;
@@ -4881,10 +4968,10 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
 
 function fileUploadComplete(fidToUpdateInDB, did, filename, filesize, callback, callbackParam) {
   numFilesLeftToBeUploaded--;
-  numFilesUploaded++;
 
   callback = callback || noop;
   callbackParam = callbackParam || did;
+  titlesObject.docs[did] = JSON.stringify(filename);
 
   function saveToDB(fid) {
     foldersRef.child(fid + "/count").once('value', function(snapshot) {
@@ -4893,17 +4980,22 @@ function fileUploadComplete(fidToUpdateInDB, did, filename, filesize, callback, 
       foldersRef.child(fid).update({"count" : fcount+1});
       foldersRef.child(fid + "/docs/" + did).update(docData, function(){
         $("#" + fid).attr("count", fcount + 1);
-        appendDoc(fid, did, docData, true);
+        updateTitles(function(){
+          // docData.name = JSON.stringify(filename);
+          // appendDoc(fid, did, docData, true);
+
+          if (numFilesLeftToBeUploaded <= 0) {
+            // all uploads complete
+            hideFileUploadStatus();
+            updateDocIndexesOfFID (fid);
+
+            updateTitles();
+          }
+          callback(callbackParam);
+
+        });
       });
 
-      titlesObject.docs[did] = JSON.stringify(filename);
-      updateTitles();
-
-      if (numFilesLeftToBeUploaded <= 0) {
-        hideFileUploadStatus();
-        updateDocIndexesOfFID (fid);
-      }
-      callback(callbackParam);
     });
   }
 
@@ -5440,7 +5532,6 @@ function processDroppedAttachment (file) {
       var fileContents = base64FileContents.substr(base64FileContents.indexOf(',')+1);
       var targetfid = activeFileFolder();
       processDroppedDoc(file, targetfid, function(did){
-        console.log("testing upload");
         attachCrypteeFile (filename, did);
       });
 
@@ -6069,9 +6160,9 @@ function alsoSaveDocOffline (did, callback) {
   var fid = activeFileFolder() || "f-uncat";
   var fname;
   if (titlesObject.folders) {
-    fname = titlesObject.folders[fid] || "Uncategorized Docs";
+    fname = titlesObject.folders[fid] || "Inbox";
   } else {
-    fname = "Uncategorized Docs";
+    fname = "Inbox";
   }
   var tags = [];
   $('crypteetag').each(function(index, el) {
@@ -6134,9 +6225,9 @@ function saveOfflineDoc (callback, callbackParam) {
     } else {
       fid = activeFileFolder() || "f-uncat";
       if (titlesObject.folders) {
-        fname = titlesObject.folders[fid] || "Uncategorized Docs";
+        fname = titlesObject.folders[fid] || "Inbox";
       } else {
-        fname = "Uncategorized Docs";
+        fname = "Inbox";
       }
     }
 
@@ -6490,7 +6581,9 @@ var checkConnectionEvery10Seconds;
 function activateOnlineMode () {
   if (!connectivityMode) {
     console.log("Activating Online Mode");
-    connectivityMode = true;
+
+    // this is unnecessary because we don't handle a state in which getting connectivity back changes anything.
+    // connectivityMode = true;
 
     showGotConnectionBubble();
 
@@ -6715,7 +6808,7 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
                         // set folder title too and we should be good to go.
                         // if it's a new uncat folder set title here, if it's an existing file's folder no need to touch this.
                         if (fid === "f-uncat") {
-                          titlesObject.folders[fid] = JSON.stringify("Uncategorized Docs");
+                          titlesObject.folders[fid] = JSON.stringify("Inbox");
                         } else {
                           titlesObject.folders[fid] = JSON.stringify(doc.fname);
                         }
@@ -6823,7 +6916,7 @@ function downSyncOnlineDoc (doc, docRef, onlineGen, callback, callbackParam) {
   if (did === "home") {
     dtitle = "Home";
     fid = "f-uncat";
-    fname = "Uncategorized Docs";
+    fname = "Inbox";
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -7035,6 +7128,24 @@ function docMadeOnlineOnly(did) {
     $(".dropdown-makeonline-button").hide();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

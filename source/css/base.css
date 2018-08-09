@@ -464,6 +464,18 @@ crypteetag {
   margin-bottom: 0.5rem !important;
 }
 
+.ql-editor ol li.ql-indent-1:not(.ql-direction-rtl) {
+  padding-left: 4em !important;
+}
+
+.ql-editor ol li.ql-indent-2:not(.ql-direction-rtl) {
+  padding-left: 7em !important;
+}
+
+.ql-editor ol li.ql-indent-3:not(.ql-direction-rtl) {
+  padding-left: 10em !important;
+}
+
 .ql-editor ol li::before {
   padding-right: 1.5rem;
 }
@@ -1462,6 +1474,7 @@ html {
   z-index: 96;
   background-color: #FFF;
   transition: 0.35s ease all;
+  box-shadow: 0 2px 3px rgba(10,10,10,0);
 }
 
 #active-doc-contents.menuOpen {
@@ -1667,6 +1680,101 @@ html {
   margin-bottom: 0.5rem;
 }
 
+.folder.archived {
+  transition: 0.35s all ease !important;
+  border: 0px solid transparent;
+  box-shadow: 0 1px 0 0 transparent;;
+  margin-bottom: 0;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.folder.archived .card-content, .folder.archived .card-header-icon {
+  display: none !important;
+}
+
+.folder.archived .card-header-title {
+  transition: 0.35s all ease !important;
+  padding: 0.75rem 2.75rem 0.75rem 0rem;
+  color:#999;
+  font-weight: 400 !important;
+  pointer-events: none;
+}
+
+.folder.archived .card-header-title::before {
+  transition: 0.35s all ease !important;
+  content: "\f114";
+  font-family: FontAwesome;
+  display: block;
+  margin-left: calc(1rem + 2px);
+  margin-right: 1rem;
+  color:#999;
+  pointer-events: none;
+}
+
+.folder.archived .card-header-title::after {
+  transition: 0.35s all ease !important;
+  content: "\f1b8";
+  font-family: FontAwesome;
+  display: inline-block;
+  margin-right: calc(0.75rem + 3px);
+  margin-left: 1rem;
+  color:#363636;
+  position: absolute;
+  right: 0px;
+  pointer-events:auto;
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+#archiveDivider {
+  text-align: center;
+  width: 100%;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1rem;
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+}
+
+#archiveDivider::after {
+  content: "\f0da";
+  font-family: FontAwesome;
+  display: inline-block;
+  color:#363636;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: 0.75rem;
+  vertical-align: middle;
+  width: 1rem;
+}
+
+#archiveDivider.open {
+  text-align: center;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 1rem;
+}
+
+#archiveDivider.open::after {
+  content: "\f0d7";
+  font-family: FontAwesome;
+  display: inline-block;
+  color:#363636;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: 0.75rem;
+  vertical-align: middle;
+  width: 1rem;
+}
+
+#archiveDivider ~ .afolder {
+  display: none;
+}
+
+#archiveDivider.open ~ .afolder {
+  display: block;
+}
+
 /* TEMPORARILY OFF UNTIL THERE'S A BETTER SOLUTION */
 /* opening all folders automatically pushes things off. */
 /* and dragover isn't working on touch devices. */
@@ -1700,6 +1808,7 @@ html {
 .draggingFolder {
   border: 1px solid #c8cdd0;
   box-shadow: 0 0 30px 0px rgba(0,0,0,0.1);
+  z-index: 2;
 }
 
 .folderDraggingActive:not(.draggingFolder) {
@@ -2583,6 +2692,7 @@ body.draggingStuff {
 
 .dropdowns > .upload-to-folder-button > .icon,
 .dropdowns > .rename-folder-button > .icon,
+.dropdowns > .archive-folder-button > .icon,
 .dropdowns > .make-ghost-folder-button > .icon,
 .dropdowns > .delete-folder-button > .icon {
   transition: 0.3s ease all;
@@ -2991,7 +3101,7 @@ body.draggingStuff {
 .docprogress-visible { opacity: 0.15 !important;}
 
 
-.rename-folder-button > .icon, .make-ghost-folder-button > .icon, .delete-folder-button > .icon, .color-folder-thing > .icon:first-child, .upload-to-folder-button > .icon {
+.rename-folder-button > .icon, .make-ghost-folder-button > .icon, .delete-folder-button > .icon, .color-folder-thing > .icon:first-child, .upload-to-folder-button > .icon, .archive-folder-button > .icon {
   margin-right: 0.5rem;
 }
 
@@ -3080,6 +3190,10 @@ body.draggingStuff {
   box-shadow: 0 2px 3px rgba(10,10,10,0.1);
 }
 
+#selection-delete-button {
+  background-color: #d9534f !important;
+}
+
 .first-folder-hint {
   padding: 0.75rem;
   margin-top: 1rem;
@@ -3145,6 +3259,15 @@ body.draggingStuff {
 
 #doc-top.zenMode #upload-progress {
   height: 2px !important;
+}
+
+#doc-top.zenMode {
+  box-shadow: 0 2px 3px rgba(10,10,10,0.1);
+}
+
+.zenMode .ql-editor p {
+  line-height: 1.75rem !important;
+  margin-bottom: 0.75rem !important;
 }
 
 /* #doc-top.zenMode {
@@ -5533,6 +5656,7 @@ body.draggingStuff {
 
   .dropdowns > .upload-to-folder-button:hover > .icon,
   .dropdowns > .rename-folder-button:hover > .icon,
+  .dropdowns > .archive-folder-button:hover > .icon,
   .dropdowns > .make-ghost-folder-button:hover > .icon,
   .dropdowns > .delete-folder-button:hover > .icon
   {

@@ -4,6 +4,18 @@
 <head>
   <!-- @import "app-head.kit" -->
   <title>Cryptee | Home</title>
+
+  <style media="screen">
+    .shownForOffline {
+      display: none;
+    }
+
+    .disabledForOffline.disabled {
+      pointer-events: none;
+      opacity: 0.3;
+      filter: blur(1px);
+    }
+  </style>
 </head>
 
 <body class="home-body is-loading">
@@ -20,7 +32,7 @@
                 <li title="Dashboard" class="is-active"> <a class="top-left-icon" href="#" onclick="hideNews();"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
                 <li title="Documents" class="hiddenForFinger"><a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
                 <li title="Photos" class="hiddenForFinger"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li>
-                <li title="Account Settings"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
+                <li title="Account Settings" class="hiddenForOffline"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
                 <li class="is-hidden-webapp" title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
               </ul>
             </div>
@@ -29,8 +41,8 @@
           <div class="level-item level-right home-level-right">
             <div class="settings-tabs tabs is-small">
               <ul>
-                <li class="hideWhenNewsOn" title="Donate"><a class="clickable" onclick="showModal('donate-modal');">Donate</a></li>
-                <li class="hideWhenNewsOn" title="Support"><a class="openInSafari" href="https://cryptee.kayako.com" target="_blank"><i class="top-menu-icons fa fa-fw fa-question-circle"></i><span class="is-hidden-touch">&nbsp; FAQ &amp; Support</span></a></li>
+                <li class="hideWhenNewsOn hiddenForOffline" title="Donate"><a class="clickable" onclick="showModal('donate-modal');">Donate</a></li>
+                <li class="hideWhenNewsOn hiddenForOffline" title="Support"><a class="openInSafari" href="https://cryptee.kayako.com" target="_blank"><i class="top-menu-icons fa fa-fw fa-question-circle"></i><span class="is-hidden-touch">&nbsp; FAQ &amp; Support</span></a></li>
                 <li title="News" id="news-icon"><a class="clickable" onclick="toggleNews();"><i class="top-menu-icons fa fa-fw fa-bullhorn"></i><span class="is-hidden-touch">&nbsp; News</span></a></li>
               </ul>
             </div>
@@ -44,7 +56,10 @@
       <div class="container" style="max-width: 100%;">
         <nav class="level home-title">
           <div class="level-item has-text-centered">
-            <p class="subtitle">Welcome home, <span class="username" style="font-weight:600"></span>.<br> Looks like you are using <span id="settings-storage-used" style="font-weight:600">0 KB</span> of your <span style="font-weight:600" class="settings-storage-total"> 100 MB</span> storage.</p>
+            <p class="subtitle">Welcome home, <span class="username" style="font-weight:600"></span>.
+              <br> Looks like you are <span class="hiddenForOffline">using <span id="settings-storage-used" style="font-weight:600">0 KB</span> of your <span style="font-weight:600" class="settings-storage-total"> 100 MB</span> storage.</span>
+              <span class="shownForOffline"><strong>offline</strong>.<br>Internet-dependent features are disabled.</span>
+            </p>
           </div>
         </nav>
         <br>
@@ -54,11 +69,11 @@
               <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-file"></i></span></p>
               <p class="subtitle">Documents</p>
             </a>
-            <a href="photos" class="home-item secondHomeItem">
+            <a href="photos" class="home-item secondHomeItem disabledForOffline">
               <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></span></p>
               <p class="subtitle">Photos</p>
             </a>
-            <a href="account?action=upgrade" class="home-item thirdHomeItem" style="background-color:#4BBF73; color:#FFF" id="home-upgrade-button">
+            <a href="account?action=upgrade" class="home-item thirdHomeItem hiddenForOffline" style="background-color:#4BBF73; color:#FFF" id="home-upgrade-button">
               <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-certificate"></i></span></p>
               <p class="subtitle" style="color:#FFF">Upgrade</p>
             </a>
@@ -200,6 +215,14 @@
       $("#news-icon").addClass('update');
     }
   }
+
+  checkConnection (function(status){
+    if (!status) {
+      $(".hiddenForOffline").hide();
+      $(".shownForOffline").show();
+      $(".disabledForOffline").addClass('disabled');
+    }
+  });
 
   </script>
 </body></html>
