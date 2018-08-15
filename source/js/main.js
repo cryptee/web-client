@@ -911,7 +911,8 @@ function newEncryptedKeycheck(hashedKey, callback) {
 ///////////////////////////////////////////
 
 function reportBug () {
-  Raven.showReportDialog(Raven.captureException(new Error('User Reported Feedback/Bug')));
+  var userDetails = theUserID || "Unknown User";
+  Raven.showReportDialog(Raven.captureException(new Error('Bug Report/Feedback by ' + userDetails)));
 }
 
 function handleError (error) {

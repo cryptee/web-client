@@ -1898,9 +1898,11 @@ function appendDoc (fid, did, doc, isfile) {
   var offlineIconColor = "#FFF";
   var offlineClass = "false";
   var offlineButton = "";
+  var offlineBadge = "<div class='offline-badge'></div>";
 
   offlineStorage.getItem(did).then(function (offlineDoc) {
     if (offlineDoc) {
+      offlineBadge = "<div class='offline-badge visible'></div>";
       offlineStatus = "Make Doc Online Only";
       offlineIconColor = "#000";
       offlineClass = "true";
@@ -1909,6 +1911,8 @@ function appendDoc (fid, did, doc, isfile) {
       offlineButton = '<p class="context-make-doc-offline"><span class="icon is-small"><span class="fa-stack fa-lg"><i class="fa fa-cloud fa-stack-1x" style=""></i><i class="fa fa-times fa-stack-2x text-danger" style="color: '+offlineIconColor+'; margin-top: 13px; font-size: 8px; margin-left:1px;"></i></span></span> &nbsp; <span class="status">'+offlineStatus+'</span></p>';
     }
     var doccard = "<li class='adoc "+dclass+"' id='"+ did +"' offline='"+offlineClass+"' ext='"+ext+"'>"+
+
+                    offlineBadge +
 
                     "<a><span class='icon docicon exticon'><i class='"+iconClass+"'></i></span>"+
                        "<span class='icon uncheckedicon docicon'><i class='fa fa-fw fa-square-o'></i></span>"+
@@ -2838,13 +2842,15 @@ quill.on('text-change', function(delta, oldDelta, source) {
   idleTime = 0;
   docChanged = true;
 
+  theChange = delta.ops[1].attributes;
+
   if (quill.hasFocus()) {
     var qs = quill.getSelection().index;
     var bounds = quill.getBounds(qs);
     var quillHeight = $(".ql-editor").height();
     var quillScrollHeight = $(".ql-editor")[0].scrollHeight;
 
-    if (bounds.bottom > quillHeight) {
+    if (bounds.bottom > quillHeight && !theChange.list) {
       $("body").stop().scrollTop(bounds.bottom);
       $(".ql-editor").scrollTop(quillScrollHeight);
     }
@@ -4655,22 +4661,25 @@ function handleAttachmentDrop(evt) {
   evt.preventDefault();
 
   if (isAPIAvailable()) {
-    var files = evt.dataTransfer.files;
+    if (connectivityMode) {
+      var files = evt.dataTransfer.files;
 
-    for (var i = 0; i < files.length; i++) {
-      var filename = files[i].name;
-      var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
-      if (extension.match(/^(JPEG|JPG|PNG|GIF)$/i)) {
-        embedDroppedImages(evt);
-      } else {
-        if (activeDocID !== "home") {
-          embedDroppedAttachments(evt);
+      for (var i = 0; i < files.length; i++) {
+        var filename = files[i].name;
+        var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+        if (extension.match(/^(JPEG|JPG|PNG|GIF)$/i)) {
+          embedDroppedImages(evt);
         } else {
-          showFileUploadHomeInfo(evt);
+          if (activeDocID !== "home") {
+            embedDroppedAttachments(evt);
+          } else {
+            showFileUploadHomeInfo(evt);
+          }
         }
       }
+    } else {
+      showFileUploadStatus("is-danger", "Unfortunately this feature is only available when you're online.");
     }
-
   } else {
     showFileUploadStatus("is-danger", "Unfortunately your browser or device does not support File API, which is what allows us to encrypt files on your device. Therefore we can't upload your file.");
   }
@@ -4689,21 +4698,26 @@ function handleFileDrop(evt) {
 
   if (isAPIAvailable()) {
 
-    var files = evt.dataTransfer.files;
+    if (connectivityMode) {
 
-    numFilesLeftToBeUploaded = 0;
-    fileUploadError = false;
+      var files = evt.dataTransfer.files;
 
-    for (var i = 0; i < files.length; i++) {
-      processDroppedDoc(files[i], targetfid);
-      numFilesLeftToBeUploaded++;
+      numFilesLeftToBeUploaded = 0;
+      fileUploadError = false;
+
+      for (var i = 0; i < files.length; i++) {
+        processDroppedDoc(files[i], targetfid);
+        numFilesLeftToBeUploaded++;
+      }
+
+      if (numFilesLeftToBeUploaded > 0) {
+        var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
+        showFileUploadStatus("is-warning", processingMessage);
+      }
+
+    } else {
+      showFileUploadStatus("is-danger", "Unfortunately this feature is only available when you're online.");
     }
-
-    if (numFilesLeftToBeUploaded > 0) {
-      var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-      showFileUploadStatus("is-warning", processingMessage);
-    }
-
   } else {
     showFileUploadStatus("is-danger", "Unfortunately your browser or device does not support File API, which is what allows us to encrypt files on your device. Therefore we can't upload your file.");
   }
@@ -4723,19 +4737,25 @@ function handleFileSelect(evt) {
 
   if (isAPIAvailable()) {
 
-    var files = evt.target.files;
+    if (connectivityMode) {
 
-    numFilesLeftToBeUploaded = 0;
-    fileUploadError = false;
+      var files = evt.target.files;
 
-    for (var i = 0; i < files.length; i++) {
-      processDroppedDoc(files[i], targetfid);
-      numFilesLeftToBeUploaded++;
-    }
+      numFilesLeftToBeUploaded = 0;
+      fileUploadError = false;
 
-    if (numFilesLeftToBeUploaded > 0) {
-      var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-      showFileUploadStatus("is-warning", processingMessage);
+      for (var i = 0; i < files.length; i++) {
+        processDroppedDoc(files[i], targetfid);
+        numFilesLeftToBeUploaded++;
+      }
+
+      if (numFilesLeftToBeUploaded > 0) {
+        var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
+        showFileUploadStatus("is-warning", processingMessage);
+      }
+
+    } else {
+      showFileUploadStatus("is-danger", "Unfortunately this feature is only available when you're online.");
     }
 
   } else {
@@ -4751,14 +4771,16 @@ var menuBeforeDrag;
 
 function handleDragEnter(evt) {
   if (dragCounter === 0) {
-    if ($(".leftStuffOff").length === 1) {
-      // MENU WAS OFF SO SHOW IT
-      menuBeforeDrag = false;
-      showMenu();
-    } else {
-      menuBeforeDrag = true;
+    if (connectivityMode) {
+      if ($(".leftStuffOff").length === 1) {
+        // MENU WAS OFF SO SHOW IT
+        menuBeforeDrag = false;
+        showMenu();
+      } else {
+        menuBeforeDrag = true;
+      }
+      $("#foldersViewButton").click();
     }
-    $("#foldersViewButton").click();
   }
 
   dragCounter++;
@@ -4775,9 +4797,11 @@ function handleDragEnter(evt) {
 function handleDragLeave(evt) {
   dragCounter--;
   if (dragCounter === 0) {
-    if (!menuBeforeDrag) {
-      hideMenu();
-      menuBeforeDrag = false;
+    if (connectivityMode) {
+      if (!menuBeforeDrag) {
+        hideMenu();
+        menuBeforeDrag = false;
+      }
     }
   }
 
@@ -5979,6 +6003,7 @@ function updateRecentDocs() {
         offlineStorage.getItem(doc.did).then(function (offlineDoc) {
           if (offlineDoc) {
             $(".recent-doc[did='"+doc.did+"']").find(".offline-badge").addClass("visible");
+            $("#"+doc.did).find(".offline-badge").addClass("visible");
           }
         });
       }
@@ -6068,18 +6093,26 @@ function updateRecency() {
 /////////////////// CONNECTION STATUS  /////////////////
 ////////////////////////////////////////////////////////
 
+var windowVisible;
 document.addEventListener('visibilityChange', handleVisibilityChange, false);
 
 $(window).on("focus", function () {
   forceCheckConnection();
+  windowVisible = true;
+});
+
+$(window).on("blur", function () {
+  windowVisible = false;
 });
 
 function handleVisibilityChange() {
   if (document[hidden]) {
     // hidden
+    windowVisible = false;
   } else {
     // shown
     forceCheckConnection();
+    windowVisible = true;
   }
 }
 
@@ -6584,9 +6617,11 @@ function activateOnlineMode () {
 
     // this is unnecessary because we don't handle a state in which getting connectivity back changes anything.
     // connectivityMode = true;
-
-    showGotConnectionBubble();
-
+    if (windowVisible) {
+      showGotConnectionBubble();
+    } else {
+      restartToOnlineMode();
+    }
   }
 }
 
@@ -7061,7 +7096,7 @@ $("#all-folders").on('click touchend', '.context-make-doc-offline', function(eve
   var adoc = $(this).parents(".adoc");
   var did = adoc.attr("id");
   var offline = adoc.attr("offline");
-  $(".docs-contextual-dropdown").fadeOut(300, function(){
+  adoc.find(".docs-contextual-dropdown").fadeOut(300, function(){
     if (offline === "true") {
       // remove from offline
       removeOfflineDoc(did);
@@ -7106,6 +7141,7 @@ function docMadeAvailableOffline(did) {
   adoc.find(".status").html( "Make Doc Online Only");
 
   $(".recent-doc[did='"+did+"']").find(".offline-badge").addClass("visible");
+  $("#"+did).find(".offline-badge").addClass("visible");
 
   if (activeDocID === did) {
     $(".dropdown-makeoffline-button").hide();
@@ -7122,6 +7158,7 @@ function docMadeOnlineOnly(did) {
   adoc.find(".status").html("Make Doc Available Offline");
 
   $(".recent-doc[did='"+did+"']").find(".offline-badge").removeClass("visible");
+  $("#"+did).find(".offline-badge").removeClass("visible");
 
   if (activeDocID === did) {
     $(".dropdown-makeoffline-button").show();

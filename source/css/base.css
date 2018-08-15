@@ -1927,6 +1927,18 @@ html {
   opacity: 1;
 }
 
+.adoc > .offline-badge {
+  top: auto;
+  left: 0;
+  position: absolute;
+  display: block;
+  height: 2.5rem;
+  width: 4px;
+  border-radius: 0;
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
 .is-loading > .offline-badge {
   width: 17px !important;
   height: 17px !important;
@@ -1951,6 +1963,13 @@ html {
   left: 7px;
   transition: 0.3s all ease;
   pointer-events: none;
+  z-index: 4;
+}
+
+.adoc > .offline-badge::after {
+  left: 0;
+  height: 2.5rem;
+  line-height: 2.5rem;
 }
 
 .is-loading > .offline-badge::after {
@@ -5740,6 +5759,11 @@ body.draggingStuff {
     background-color: #00b4ff;
     border-radius: 0;
     height: 14px;
+  }
+
+  .adoc > .offline-badge:hover {
+    background-color: #00b4ff;
+    height: 2.5rem;
   }
 
   .offline-badge:hover::after {

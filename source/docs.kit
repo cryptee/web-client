@@ -201,9 +201,9 @@
         <span class="ql-formats">
           <button class="ql-link" title="Hyperlink ( ⌘+k / ctrl+k )"></button>
           <button class="ql-formula" title="Formula ( ⌘+l / ctrl+l )"></button>
-          <button class="ql-image" title="Image"></button>
-          <button class="ql-video" title="Embed Video"></button>
-          <span class="ql-attachfile icon clickable" title="Attach File from Cryptee"><i class="fa fa-paperclip"></i></span>
+          <button class="ql-image is-hidden-offline" title="Image"></button>
+          <button class="ql-video is-hidden-offline" title="Embed Video"></button>
+          <span class="ql-attachfile icon clickable is-hidden-offline" title="Attach File from Cryptee"><i class="fa fa-paperclip"></i></span>
           <span onclick="toggleZenMode();" class="zen-mode-button clickable icon" title="Zen Mode (⌘+alt+z / ctrl+alt+z)"><i class="fa fa-arrows-alt"></i></span>
           <span onclick="toggleHotkeys();" class="icon clickable" title="Markdown & Shortcuts"><i class="fa fa-keyboard-o"></i></span>
         </span>
@@ -224,7 +224,7 @@
       </p>
 
       <p class="control mobile-floating-tools hidden" style="margin-left: auto;">
-        <button id="mobile-floating-attach" class="button is-light"><span class="icon is-small"><i class="fa fa-fw fa-paperclip"></i></span></button>
+        <button id="mobile-floating-attach" class="button is-light is-hidden-offline"><span class="icon is-small"><i class="fa fa-fw fa-paperclip"></i></span></button>
       </p>
 
       <p class="control mobile-floating-tools hidden">
