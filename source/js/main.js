@@ -240,6 +240,12 @@ function dataURIToBlob(dataURI) {
   return new Blob([arr]);
 }
 
+// WEB SAFE BASE64
+
+function sanitizeB64(base64) {
+  return base64.replace(/\n/g, "").replace(/\s/g, '');
+}
+
 // DECODE BASE64 (INSTEAD OF ATOB)
 
 var decodeBase64 = function(s) {
@@ -740,6 +746,7 @@ function showUpdateAvailable () {
 }
 
 function reloadForNewVersion () {
+  $("#update-available").addClass("is-loading");
   navigator.serviceWorker.getRegistration().then(function(reg) {
     if (reg) {
       reg.unregister().then(function() {

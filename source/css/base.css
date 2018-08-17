@@ -2938,8 +2938,28 @@ body.draggingStuff {
   padding: 1rem 1.5rem;
   cursor: pointer;
   background-color: #4BBF73;
-  color: #FFF;
+  color: rgba(255,255,255,1);
   right: 0;
+}
+
+#update-available.is-loading {
+  color: rgba(255,255,255,0) !important;
+}
+
+#update-available.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 3px solid #FFF;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 50px;
+  width: 50px;
+  left: calc(50% - 25px);
+  top: calc(50% - 25px);
+  position: absolute !important;
 }
 
 .showLowStorage, .showUpgradeThanks, .showBumpUp, .showBumpDown {

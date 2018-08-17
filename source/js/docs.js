@@ -722,6 +722,7 @@ function firstLoadComplete() {
   // THIS IS THE LAST THING TO BE EXECUTED AFTER SIGN IN COMPLETE.
 
   if (!initialLoadComplete) {
+    initialLoadComplete = true;
     setTimeout(function () {
       $("#doc-contextual-buttons").show();
       if (!isMobile) {
@@ -733,7 +734,6 @@ function firstLoadComplete() {
       // YOU CAN NOW START OFFLINE SYNC HERE
       toSyncOrNotToSync();
     }, 1000);
-    initialLoadComplete = true;
   }
 }
 
@@ -1340,7 +1340,7 @@ function fixFiles(did) {
   });
 
   if (did) {
-    // means that this did got a "storage/object-not-found" so sadly the best we can do is to delete this file now.
+    // means that this docid(did) got a "storage/object-not-found" so sadly the best we can do is to delete this file now.
     verifyDocExistsOrDelete(did);
   }
 }
@@ -1352,11 +1352,28 @@ function verifyDocExistsOrDelete(did) {
 
   docRef.getMetadata().then(function(metadata) {
     // doc exists ??
+    // likely thought was a file got object-not-found, but it's a doc and it exists
+    // set type again and problem should be solved.
+
+    foldersRef.child(fid + "/docs/" + did).update({ isfile : false },function(){
+      $("#" + did).removeClass("itsAFile");
+      $("#" + did).addClass("itsADoc");
+      loadDoc(did);
+    });
+
   }).catch(function(error) {
     if (error.code === 'storage/object-not-found') {
       // doc doesn't exist. maybe it's a file.
       fileRef.getMetadata().then(function(metadata) {
         // file exists.
+        // likely thought was a doc got object-not-found, but it's a file and it exists
+        // set type again and problem should be solved.
+
+        foldersRef.child(fid + "/docs/" + did).update({ isfile : true },function(){
+          $("#" + did).addClass("itsAFile");
+          $("#" + did).removeClass("itsADoc");
+          loadDoc(did);
+        });
       }).catch(function(error) {
         if (error.code === 'storage/object-not-found') {
           // file doesn't exist either. uh oh.
@@ -1516,7 +1533,23 @@ function encryptTitles() {
   titlesObject.folders = ftitles;
   titlesObject.docs = dtitles;
 
-  updateTitles();
+  ////////////////////////////////////////////////////////////
+
+  // updateTitles();
+  // instead of update titles call below. since we need to bruteforce through even if initial load isn't complete
+  // this should affect only new accounts. and rarely not new ones if titles return undefined or sth.
+  // what's crazy is if titles are undefined, and getTitles enumerates through all undefined folders & files,
+  // this could still bulldozer through everything and set to "Untitled Document & Folder".
+
+  var plaintextTitles = JSON.stringify(titlesObject);
+  openpgp.encrypt({ data: plaintextTitles, passwords: [theKey], armor: true }).then(function(ciphertext) {
+    var encryptedTitlesObject = JSON.stringify(ciphertext);
+    dataRef.update({"titles" : encryptedTitlesObject},function(){
+      // done. no need for callback either since there's none.
+    });
+  });
+
+  ////////////////////////////////////////////////////////////
 
 }
 
@@ -1524,14 +1557,16 @@ function updateTitles (callback, callbackParam) {
   callback = callback || noop;
   var plaintextTitles = JSON.stringify(titlesObject);
 
-  openpgp.encrypt({ data: plaintextTitles, passwords: [theKey], armor: true }).then(function(ciphertext) {
-    var encryptedTitlesObject = JSON.stringify(ciphertext);
+  if (initialLoadComplete) {
+    openpgp.encrypt({ data: plaintextTitles, passwords: [theKey], armor: true }).then(function(ciphertext) {
+      var encryptedTitlesObject = JSON.stringify(ciphertext);
 
-    dataRef.update({"titles" : encryptedTitlesObject},function(){
-      callback(callbackParam);
+      dataRef.update({"titles" : encryptedTitlesObject},function(){
+        callback(callbackParam);
+      });
+
     });
-
-  });
+  }
 }
 
 function gotTitles (JSONifiedEncryptedTitlesObject, callback) {
@@ -2842,19 +2877,24 @@ quill.on('text-change', function(delta, oldDelta, source) {
   idleTime = 0;
   docChanged = true;
 
-  theChange = delta.ops[1].attributes;
+  if (delta) {
+    if (delta.ops[1]) {
+      theChange = delta.ops[1].attributes;
+      if (quill.hasFocus() && theChange) {
+        var qs = quill.getSelection().index;
+        var bounds = quill.getBounds(qs);
+        var quillHeight = $(".ql-editor").height();
+        var quillScrollHeight = $(".ql-editor")[0].scrollHeight;
 
-  if (quill.hasFocus()) {
-    var qs = quill.getSelection().index;
-    var bounds = quill.getBounds(qs);
-    var quillHeight = $(".ql-editor").height();
-    var quillScrollHeight = $(".ql-editor")[0].scrollHeight;
-
-    if (bounds.bottom > quillHeight && !theChange.list) {
-      $("body").stop().scrollTop(bounds.bottom);
-      $(".ql-editor").scrollTop(quillScrollHeight);
+        if (bounds.bottom > quillHeight && !theChange.list) {
+          $("body").stop().scrollTop(bounds.bottom);
+          $(".ql-editor").scrollTop(quillScrollHeight);
+        }
+      }
     }
   }
+
+
 
 });
 
@@ -3341,7 +3381,7 @@ function previewController (dtitle, did, decryptedContents, callback, callbackPa
       resetFileViewer = true;
     }
     else if (ext.match(/^(mp3)$/i)) {
-      displayMP3File(dtitle, did, decryptedContents, callback, filesize, callbackParam);
+      displayAudioFile(dtitle, did, decryptedContents, callback, filesize, callbackParam, ext);
       resetFileViewer = true;
     }
     else if (ext.match(/^(mp4|mov)$/i)) {
@@ -3354,7 +3394,11 @@ function previewController (dtitle, did, decryptedContents, callback, callbackPa
       resetFileViewer = true;
     }
     else if (ext.match(/^(htm|html)$/i)) {
-      importHTMLDocument(dtitle, did, decryptedContents, callback, filesize, callbackParam);
+      importHTMLDocument(dtitle, did, decryptedContents, callback, filesize, callbackParam, null);
+      resetFileViewer = false;
+    }
+    else if (ext.match(/^(enex)$/i)) {
+      importEvrntDocument(dtitle, did, decryptedContents, callback, filesize, callbackParam);
       resetFileViewer = false;
     }
     else if (ext.match(/^(txt|md)$/i)) {
@@ -3506,6 +3550,7 @@ function displayImageFile (dtitle, did, decryptedContents, callback, filesize, c
 }
 
 function displayPDFNatively (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
+  decryptedContents = sanitizeB64(decryptedContents);
   activeFileContents = decryptedContents;
   activeFileTitle = dtitle;
   activeFileID = did;
@@ -3531,6 +3576,7 @@ function displayPDFNatively (dtitle, did, decryptedContents, callback, filesize,
 }
 
 function displayPDFWithPDFjs (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
+  decryptedContents = sanitizeB64(decryptedContents);
   activeFileContents = decryptedContents;
   activeFileTitle = dtitle;
   activeFileID = did;
@@ -3564,7 +3610,8 @@ function displayPDFWithPDFjs (dtitle, did, decryptedContents, callback, filesize
 
 }
 
-function displayMP3File (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
+function displayAudioFile (dtitle, did, decryptedContents, callback, filesize, callbackParam, ext) {
+  decryptedContents = sanitizeB64(decryptedContents);
   activeFileContents = decryptedContents;
   activeFileTitle = dtitle;
   activeFileID = did;
@@ -3575,7 +3622,7 @@ function displayMP3File (dtitle, did, decryptedContents, callback, filesize, cal
     $("#file-viewer").width("9999");
     $("#file-viewer").height("9999");
 
-    $('#file-viewer-contents').html('<audio id="'+did+'" controls controlsList="nodownload"><source src='+decryptedContents+' type="audio/mp3"><p>It seems your browser does not support MP3 playback. Please download the file to hear it</p></audio>');
+    $('#file-viewer-contents').html('<audio id="'+did+'" controls controlsList="nodownload"><source src='+ decryptedContents +' type="audio/'+ext+'"><p>It seems your browser does not support MP3 playback. Please download the file to hear it</p></audio>');
     $("#file-viewer-title").html(dtitle);
     $("#file-viewer-filesize").html(formatBytes(filesize));
 
@@ -3593,6 +3640,7 @@ function displayMP3File (dtitle, did, decryptedContents, callback, filesize, cal
 }
 
 function displayMP4File (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
+  decryptedContents = sanitizeB64(decryptedContents);
   activeFileContents = decryptedContents;
   activeFileTitle = dtitle;
   activeFileID = did;
@@ -3832,14 +3880,13 @@ function encryptAndUploadDoc(did, fid, callback, callbackParam) {
         $("#filesize").attr("size", filesize);
         lastActivityTime = (new Date()).getTime();
         switch (snapshot.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
-        if (snapshot.bytesTransferred === totalBytes) {
-          saveUploadComplete(did, totalBytes, callback, callbackParam);
-        }
+        // if (snapshot.bytesTransferred === totalBytes) {
+        //   saveUploadComplete(did, totalBytes, callback, callbackParam);
+        // }
       }, function(error) {
 
         // IF THIS DOC DIDN'T EXIST IN SERVER, WE HAVE JUST CREATED REFERENCES FOR IT + FOLDER COUNTS ETC. AND FILE ISN'T UPLOADED.
         // UH-OH. THIS WILL NEED TO BE CLEANED LATER ON BY A FIXER.
-
         if (usedStorage >= allowedStorage) {
           exceededStorage(callback, callbackParam);
         } else {
@@ -3858,6 +3905,9 @@ function encryptAndUploadDoc(did, fid, callback, callbackParam) {
             }
           });
         }
+      }, function (){
+        /// UPLOAD COMPLETE.
+        saveUploadComplete(did, totalBytes, callback, callbackParam);
       });
   });
 }
@@ -3893,6 +3943,8 @@ function saveUploadComplete(did, dsize, callback, callbackParam) {
       }
     }
 
+  }).catch(function(err) {
+    console.log("can't get metadata", err);
   });
 }
 
@@ -4969,10 +5021,10 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
 
         lastActivityTime = (new Date()).getTime();
         switch (snapshot.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
-        if (snapshot.bytesTransferred === snapshot.totalBytes) {
-          $("#upload-"+did).remove();
-          fileUploadComplete(fid, did, filename, filesize, callback, callbackParam);
-        }
+        // if (snapshot.bytesTransferred === snapshot.totalBytes) {
+        //   $("#upload-"+did).remove();
+        //   fileUploadComplete(fid, did, filename, callback, callbackParam);
+        // }
       }, function(error) {
         if (usedStorage >= allowedStorage) {
           showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading to a paid plan or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>" + ' &nbsp; <a class="button is-info" onclick="upgradeFromExceed()">Upgrade</a>');
@@ -4986,11 +5038,15 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
           '</div>';
           $("#upload-status-contents").append(uploadElem);
         }
+      }, function (){
+        // upload complete
+        $("#upload-"+did).remove();
+        fileUploadComplete(fid, did, filename, callback, callbackParam);
       });
   });
 }
 
-function fileUploadComplete(fidToUpdateInDB, did, filename, filesize, callback, callbackParam) {
+function fileUploadComplete(fidToUpdateInDB, did, filename, callback, callbackParam) {
   numFilesLeftToBeUploaded--;
 
   callback = callback || noop;
@@ -5847,18 +5903,206 @@ function attachmentLoaded(did) {
 
 
 
+///////////////////////////////////////////////////////////
+//////////////////  IMPORT Evrnt DOCUMENT   ////////////////
+///////////////////////////////////////////////////////////
+
+function unpackENEXFile (enoteJSON, dtitle, did, decryptedContents, callback, docsize, callbackParam) {
+  var fid = $("#" + did).parents(".afolder").attr("id");
+  var x2js = new X2JS();
+  var numOfNotesToUpload = 0;
+  var numNotesUploaded = 0;
+  var parentDid = did;
+  enoteJSON['en-export'].note.forEach(function(note){
+    var noteToUpload = { "en-export" : { "note" : note } };
+    var xmlToEncrypt = x2js.json2xml_str(noteToUpload);
+    var titleToUpload = note.title + ".enex";
+    numOfNotesToUpload++;
+
+    encryptAndUploadFile(xmlToEncrypt, fid, titleToUpload, function(did){
+      numNotesUploaded++;
+      if (numNotesUploaded === numOfNotesToUpload) {
+        // ALL NOTES UPLOADED.
+
+        updateTitles(function(){
+          console.log("All Notes Unpacked.");
+          $("#" + parentDid).find(".exticon").removeClass("is-loading");
+          $(".recent-doc[did='"+parentDid+"']").find(".recenticon").removeClass("is-loading");
+        });
+
+      }
+    });
+  });
+}
 
 
+
+// Importer from Evrnt using ENEX files with an enml-js parser
+
+function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize, callbackParam) {
+  var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
+  var rawENML;
+  try {
+    rawENML = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
+  } catch (e) {
+    // if it's extracted by cryptee, it won't be B64 encoded.
+    rawENML = decryptedContents;
+  }
+
+  var fid = $("#" + did).parents(".afolder").attr("id");
+
+  var x2js = new X2JS();
+  var enoteJSON = x2js.xml_str2json( rawENML );
+
+  var singleENEX = true; // false means there's more than one note exported.
+  if (enoteJSON['en-export'].note.length) { singleENEX = false; }
+
+  if (!singleENEX) {
+    console.log("Got a multi-note export. Unpacking.");
+    // SHORT CIRCUIT HERE. WE GOTTA OPEN THIS ONE UP.
+    return unpackENEXFile (enoteJSON, dtitle, did, decryptedContents, callback, docsize, callbackParam);
+  } else {
+    console.log("Got EN export file. Importing.");
+  }
+
+  var enoteContent = enoteJSON['en-export'].note.content;
+  var enoteTitle = enoteJSON['en-export'].note.title;
+  var enoteResources = enoteJSON['en-export'].note.resource;
+  var $html = $('<div />',{html:enoteContent});
+  var contentsForHashes = [];
+  var attachments = {};
+  var numAttachments = 0;
+  var numCompletedAttachmentUploads = 0;
+
+  if (enoteResources) {
+    try {
+      enoteResources.forEach(function(resObj){
+        prepareResource(resObj);
+      });
+    } catch (e) {
+      // not an array so there's only one resource.
+      prepareResource(enoteResources);
+    }
+
+
+    // attachments are in attachments object now. start uploading. then it'll call replace elements
+    startUploadingAttachments();
+
+  } else {
+    // no resources, start replacing elements then import.
+    replaceElements();
+  }
+
+  function prepareResource(resObj) {
+    var recoJSON = x2js.xml_str2json( resObj.recognition );
+    var hash;
+    if (recoJSON) {
+      hash = recoJSON.recoIndex._objID;
+      contentsForHashes[hash] = resObj.data.__text;
+      console.log("Added image", hash ,"to embed queue.");
+    } else {
+      var attachmentTitle = resObj["resource-attributes"]["file-name"];
+      var attachmentType = resObj.mime;
+      var attachmentContent = resObj.data.__text.replace(/\n/g, "");
+      if (attachmentContent.indexOf("data:") === -1 ) {
+        attachmentContent = "data:"+attachmentType+";base64," + attachmentContent;
+      }
+      var attachmentUUID = newUUID();
+      attachments[attachmentUUID] = {title : attachmentTitle, type : attachmentType, content : attachmentContent, uuid : attachmentUUID};
+      console.log("Added attachment", attachmentTitle ,"to upload queue.");
+    }
+  }
+
+  function startUploadingAttachments() {
+    var attachmentsToUpload = Object.keys(attachments);
+    attachmentsToUpload.forEach(function(aid){
+      numAttachments++;
+      var attachment = attachments[aid];
+
+      encryptAndUploadFile(attachment.content, fid, attachment.title, function(did){
+        var attachmentTag = "<crypteefile did='"+did+"' filetitle='"+attachment.title+"'>&#xf0c6;</crypteefile><p><br></p>";
+        $html.append(attachmentTag);
+        numCompletedAttachmentUploads++;
+        if (numCompletedAttachmentUploads === numAttachments) {
+          // ALL ATTACHMENTS UPLOADED + APPENDED TO DOCUMENT HTML.
+          // now embed images then we're all set.
+
+          replaceElements();
+        }
+      });
+    });
+
+    if (attachmentsToUpload.length === 0) {
+      // there are no attachments. but there is embed content, so moving on
+      replaceElements();
+    }
+  }
+
+
+  function replaceElements() {
+    // REPLACE EN-MEDIA EN-TODO WITH WHATEVER THEY ACTUALLY ARE.
+    // IMG if it's a type image etc.
+    // OTHERWISE CRYPTEEFILE-ATTACHMENT
+
+    $html.find("en-media").replaceWith(function(){
+      var whatToReturn;
+      if ($(this).attr("type").indexOf("image") !== -1) {
+        whatToReturn = this.outerHTML.replace("<en-media", "<img");
+      }
+      return whatToReturn;
+    });
+
+    // IF THERE ARE EMBEDDED IMAGES, EMBED THEM.
+    // WE'RE TRUSTING THAT THE IMAGES HAVE A RECOGNITION OBJ. IF THEY DON'T THEY'LL SHOW UP EMPTY
+    // but they will be added as an attachment and uploaded.
+
+    $html.find('img').each(function(){
+      var hash = $(this).attr("hash");
+      if (contentsForHashes[hash]) {
+        $(this).attr("src", "data:image/png;base64," + contentsForHashes[hash]);
+      } else {
+        // not an image.
+      }
+    });
+
+    // all images embedded.
+
+    /// NOW LET'S FETCH THE TODOS.
+
+    $html.find('span:has(en-todo)').each(function() {
+      var checkedBool = $(this).find("en-todo").attr("checked");
+      var checkboxContent = $(this).html();
+      $(this).replaceWith( "<ul data-checked='"+checkedBool+"'><li>" + checkboxContent + "</li></ul>" );
+    });
+
+    // NOW CODEBLOCKS
+
+
+    $html.find('div').each(function() {
+      if ($(this)[0].outerHTML.indexOf('-en-codeblock') > -1) {
+        var codeblockContent = $(this).html();
+        $(this).replaceWith( "<pre class='ql-syntax' spellcheck='false'>" + codeblockContent + "</pre>" );
+      }
+    });
+
+    prepCompleteReadyToImport();
+  }
+
+  function prepCompleteReadyToImport() {
+    var rawHTML = $html.html();
+    importHTMLDocument(enoteTitle, did, decryptedContents, callback, docsize, callbackParam, rawHTML);
+  }
+}
 
 ///////////////////////////////////////////////////////////
 //////////////////  IMPORT HTML DOCUMENT   ////////////////
 ///////////////////////////////////////////////////////////
 
-// Importer from HTML using (which can import from Bear & Evernote or anything else HTML)
+// Importer from HTML using (which can import from Bear & Evrnt or anything else HTML)
 
-function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, callbackParam) {
+function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, callbackParam, rawHTML) {
   var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
-  var rawHTML = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
+  rawHTML = rawHTML || decodeBase64Unicode(spacelessDataURI.split(',')[1]);
   var fid = $("#" + did).parents(".afolder").attr("id");
 
   quill.setText('\n');
@@ -5902,7 +6146,13 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
         $("#active-doc-title-input").attr("placeholder", newDocName);
         $("#" + activeDocID).find(".doctitle").html(newDocName);
         $("#" + did).removeClass("itsAFile");
-        callback(callbackParam);
+        $("#" + did).addClass("itsADoc");
+
+        // now that we've imported the file, and made it a crypteedoc, delete it.
+        var fileRef = rootRef.child(did + ".crypteefile");
+        fileRef.delete().then(function() {
+          callback(callbackParam);
+        });
       });
     });
   });
@@ -5964,7 +6214,13 @@ function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, 
         $("#active-doc-title-input").attr("placeholder", newDocName);
         $("#" + activeDocID).find(".doctitle").html(newDocName);
         $("#" + did).removeClass("itsAFile");
-        callback(callbackParam);
+        $("#" + did).addClass("itsADoc");
+
+        // now that we've imported the file, and made it a crypteedoc, delete it.
+        var fileRef = rootRef.child(did + ".crypteefile");
+        fileRef.delete().then(function() {
+          callback(callbackParam);
+        });
       });
     });
   });
@@ -6810,78 +7066,9 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
       var encryptedDocDelta = JSON.stringify(ciphertext);
       var syncUpload = docRef.putString(encryptedDocDelta);
       syncUpload.on('state_changed', function(snapshot){
-        if (snapshot.bytesTransferred === snapshot.totalBytes) {
-          if (did !== "home") {
-
-            foldersRef.child(fid + "/docs/" + did).once('value', function(onlineDocSnap) {
-              // Doc already exists on server, no need to plus up the folder count or create folder or anything like that. just save it.
-              if (onlineDocSnap.val()) {
-                saveDocData();
-              } else {
-                // doc is new, or doesn't exist on server anymore.
-
-                // start by making sure crucial folder details are there first.
-                // this is harmless if folder already exists, and if it doesn't this will create an uncat folder :)
-                foldersRef.child(fid).update({folderid: fid} , function(){
-
-                  // this +1s the folder docscount (if it's new it'll just be 1)
-                  foldersRef.child(fid + "/count").transaction(function(currentCount) {
-                    return currentCount + 1;
-                  }).then(function(){
-
-                    // if folder doesn't exist on server, this plus ups the folder count.
-                    // say if it's the first uncat folder for example or if user deleted folder offline etc.
-                    titlesObject = titlesObject || {};
-                    titlesObject.folders = titlesObject.folders || {};
-                    if (!titlesObject.folders[fid]) {
-
-                      // this +1s the folderscount
-                      dataRef.child("foldersCount").transaction(function(curFoldersCount) {
-                        return curFoldersCount + 1;
-                      }).then(function(){
-
-                        // set folder title too and we should be good to go.
-                        // if it's a new uncat folder set title here, if it's an existing file's folder no need to touch this.
-                        if (fid === "f-uncat") {
-                          titlesObject.folders[fid] = JSON.stringify("Inbox");
-                        } else {
-                          titlesObject.folders[fid] = JSON.stringify(doc.fname);
-                        }
-
-                        saveDocData();
-                      }).catch(function(err) {
-                        handleError(err);
-                      });
-                    } else {
-                      saveDocData();
-                    }
-
-                  }).catch(function(err) {
-                    handleError(err);
-                  });
-                });
-              }
-            });
-
-
-          } else {
-            dataRef.update({"homegeneration" : doc.gen}, function(){
-              for (var docFromArray in docsArray) {
-                if (docsArray[docFromArray].did === doc.did) {
-                  docsArray[docFromArray].tags = doc.tags;
-                  docsArray[docFromArray].gen = doc.gen;
-                  break;
-                }
-              }
-
-              doneSyncingDoc (callback, callbackParam);
-            }).catch(function(err) {
-              skipSyncingDoc(callback, callbackParam);
-              showErrorBubble("Error setting generation of "+doc.name+" during sync", err);
-              handleError(err);
-            });
-          }
-        }
+        // if (snapshot.bytesTransferred === snapshot.totalBytes) {
+        //   // UPLOAD COMPLETE USED TO BE HERE
+        // }
       }, function(error) {
         if (usedStorage >= allowedStorage) {
           skipSyncingDoc (callback, callbackParam);
@@ -6892,6 +7079,79 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
             upSyncOfflineDoc (doc, docRef, callback, callbackParam);
           }, 3000);
         }
+      }, function (){
+        // UPLOAD COMPLETE
+
+        if (did !== "home") {
+
+          foldersRef.child(fid + "/docs/" + did).once('value', function(onlineDocSnap) {
+            // Doc already exists on server, no need to plus up the folder count or create folder or anything like that. just save it.
+            if (onlineDocSnap.val()) {
+              saveDocData();
+            } else {
+              // doc is new, or doesn't exist on server anymore.
+
+              // start by making sure crucial folder details are there first.
+              // this is harmless if folder already exists, and if it doesn't this will create an uncat folder :)
+              foldersRef.child(fid).update({folderid: fid} , function(){
+
+                // this +1s the folder docscount (if it's new it'll just be 1)
+                foldersRef.child(fid + "/count").transaction(function(currentCount) {
+                  return currentCount + 1;
+                }).then(function(){
+
+                  // if folder doesn't exist on server, this plus ups the folder count.
+                  // say if it's the first uncat folder for example or if user deleted folder offline etc.
+                  titlesObject = titlesObject || {};
+                  titlesObject.folders = titlesObject.folders || {};
+                  if (!titlesObject.folders[fid]) {
+
+                    // this +1s the folderscount
+                    dataRef.child("foldersCount").transaction(function(curFoldersCount) {
+                      return curFoldersCount + 1;
+                    }).then(function(){
+
+                      // set folder title too and we should be good to go.
+                      // if it's a new uncat folder set title here, if it's an existing file's folder no need to touch this.
+                      if (fid === "f-uncat") {
+                        titlesObject.folders[fid] = JSON.stringify("Inbox");
+                      } else {
+                        titlesObject.folders[fid] = JSON.stringify(doc.fname);
+                      }
+
+                      saveDocData();
+                    }).catch(function(err) {
+                      handleError(err);
+                    });
+                  } else {
+                    saveDocData();
+                  }
+
+                }).catch(function(err) {
+                  handleError(err);
+                });
+              });
+            }
+          });
+
+        } else {
+          dataRef.update({"homegeneration" : doc.gen}, function(){
+            for (var docFromArray in docsArray) {
+              if (docsArray[docFromArray].did === doc.did) {
+                docsArray[docFromArray].tags = doc.tags;
+                docsArray[docFromArray].gen = doc.gen;
+                break;
+              }
+            }
+
+            doneSyncingDoc (callback, callbackParam);
+          }).catch(function(err) {
+            skipSyncingDoc(callback, callbackParam);
+            showErrorBubble("Error setting generation of "+doc.name+" during sync", err);
+            handleError(err);
+          });
+        }
+
       });
   }).catch(function(err) {
     skipSyncingDoc(callback, callbackParam);
