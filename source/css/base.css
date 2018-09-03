@@ -368,10 +368,9 @@ crypteetag {
 }
 
 #docs-url-box {
-  display: block;
+  display: none;
   position: absolute;
   transition: 0.3s ease all;
-  transform: translateY(+3rem);
   opacity: 0;
   pointer-events: none;
   bottom: 0;
@@ -386,16 +385,15 @@ crypteetag {
 }
 
 #docs-url-box.isios {
-  transform: translateY(-3rem);
   top: 2.5rem;
   padding: 0.75rem 0.25rem !important;
   bottom: auto;
 }
 
 #docs-url-box.is-visible {
-  transform: translateY(0px);
   opacity: 1;
   pointer-events:auto;
+  display: block;
 }
 
 
@@ -956,20 +954,20 @@ html {
   max-width: calc(600px - 6rem);
   width: 100%;
   height: calc(550px - 12rem);
-  transform: translateX(100%);
+  transform: translateX(100%) translateZ(0);
   position: absolute;
 }
 
 .signup-section.active {
   opacity: 1;
   pointer-events: all;
-  transform: translateX(0%);
+  transform: translateX(0%) translateZ(0);
 }
 
 .signup-section.previous {
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-100%);
+  transform: translateX(-100%) translateZ(0);
 }
 
 .signup-input {

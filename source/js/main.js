@@ -842,10 +842,11 @@ var retriedCheckConnection = false;
 function checkConnection (callback) {
   callback = callback || noop;
   var now = (new Date()).getTime(); // milliseconds
+  var checkConnectionURL = window.location.origin + "/v.json?cachebuster=" + now;
   $.ajax({
-    url: "https://crypt.ee/v.json?cachebuster=" + now,
+    url: checkConnectionURL,
     type: 'GET',
-    dataType: 'jsonp',
+    dataType: 'json',
     success: function(data){ callback(true); },
     error: function(x) {
       if (x.status === 200) {

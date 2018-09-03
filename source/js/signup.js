@@ -131,12 +131,12 @@ function goToSection(targetSection) {
 
 var enextTimeout; // this is in place in case if the keypress/change gets called multiple times, and "enter" calls next twice.
 function enableNext() {
-  $(".signup-section.active").find(".signup-next-button").prop("disabled", false).attr("disabled", false);
+  $(".signup-section.active").find("button.signup-next-button").prop("disabled", false).attr("disabled", false);
   clearTimeout(enextTimeout);
   enextTimeout = setTimeout(function () {
     if (userPressedEnterToMoveOn) {
       userPressedEnterToMoveOn = false;
-      var targetSection = $(".signup-section.active").find(".signup-next-button").attr("next");
+      var targetSection = $(".signup-section.active").find("button.signup-next-button").attr("next");
       if (targetSection !== "createacct") {
         goToSection(targetSection);
       }
@@ -145,7 +145,7 @@ function enableNext() {
 }
 
 function disableNext() {
-  $(".signup-section.active").find(".signup-next-button").prop("disabled", true).attr("disabled", true);
+  $(".signup-section.active").find("button.signup-next-button").prop("disabled", true).attr("disabled", true);
 }
 
 $(".signup-back").on('click', function(event) {
