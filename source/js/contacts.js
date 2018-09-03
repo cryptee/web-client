@@ -119,7 +119,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
   } else {
     // no user. redirect to sign up
-    window.location = "signin.html?redirect=contacts";
+    window.location = "signin?redirect=contacts";
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
@@ -132,7 +132,7 @@ function checkForExistingUser (callback){
 
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     if (snapshot.val() === null) {
-      window.location = "signup.html?status=newuser";
+      window.location = "signup?status=newuser";
     } else {
       callback();
     }

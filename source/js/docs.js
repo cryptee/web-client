@@ -36,6 +36,8 @@ var connected = true;
 var startedOffline = false;
 var connectivityMode = true; // true = online // false = offline
 var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
+var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
+
 var connectedRef = db.ref(".info/connected");
 connectedRef.on("value", function(snap) {
   // this limits these triggers to only happen after the key is entered to make sure we won't switch to online mode before they key screen. Sometimes this gets a false negative.
@@ -762,11 +764,11 @@ function showZenMode() {
   // ☯
 
   zenMode = true;
+  $("#left-stuff").addClass('leftStuffOff');
+  $(thingsNeedResizing).removeClass("menuOpen");
   setTimeout(function () {
-    $("#left-stuff").addClass('leftStuffOff');
-    $(thingsNeedResizing).removeClass("menuOpen");
     $("#active-doc-contents, #doc-contextual-buttons, #doc-top").addClass("zenMode");
-  }, 500);
+  }, 300);
 }
 
 
@@ -790,12 +792,13 @@ function showZenMode() {
 function hideZenMode() {
 
   zenMode = false;
+
+  $(thingsNeedResizing).addClass("menuOpen");
+  $("#left-stuff").removeClass('leftStuffOff');
+  arrangeTools();
   setTimeout(function () {
     $("#active-doc-contents, #doc-contextual-buttons, #doc-top").removeClass("zenMode");
-    $(thingsNeedResizing).addClass("menuOpen");
-    $("#left-stuff").removeClass('leftStuffOff');
-    arrangeTools();
-  }, 500);
+  }, 300);
 }
 
 function toggleHotkeys() {
@@ -948,9 +951,9 @@ firebase.auth().onAuthStateChanged(function(user) {
     // no user. redirect to sign in IF NOT WEBAPP
     var downloadDID = getUrlParameter("dlddid");
     if (downloadDID) {
-      webAppURLController("signin.html?redirect=docs&dlddid="+downloadDID);
+      webAppURLController("signin?redirect=docs&dlddid="+downloadDID);
     } else {
-      webAppURLController("signin.html?redirect=docs");
+      webAppURLController("signin?redirect=docs");
     }
   }
 }, function(error){
@@ -968,7 +971,7 @@ function checkForExistingUser (callback){
     if (connected){
       db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
         if (snapshot.val() === null) {
-          window.location = "signup.html?status=newuser";
+          window.location = "signup?status=newuser";
         } else {
           encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
           callback();
@@ -1335,13 +1338,35 @@ function fixFiles(did) {
 
   // GO THROUGH EVERY FILE,
   // AND MAKE SURE TITLES DON'T HAVE SOMETHING THAT DOESN'T EXIST IN DATABASE.
+
   dataRef.update({"lastOpenDocID" : "home"},function(){
     loadDoc("home", firstLoadComplete);
   });
 
   if (did) {
-    // means that this docid(did) got a "storage/object-not-found" so sadly the best we can do is to delete this file now.
-    verifyDocExistsOrDelete(did);
+    if (did === "undefined") {
+      // means that somehow a doc got undefined ID in the database.
+      // First check if there's an actual undefined.cdoc or undefined.cfile in storage.
+      // if there's one, rename both with a new ID, and updateTitles and tags to reflect changes.
+      var fidWithUndefinedFile = $("#undefined").parents(".afolder").attr("id");
+      handleError(new Error('Undefined Doc/File by uid: ' + theUserID + " in fid" + fidWithUndefinedFile));
+      showErrorBubble("An error occured while trying to open this file. Our team is informed. Sorry.", {});
+
+      $("#" + did).find(".exticon").removeClass("is-loading");
+      $(".recent-doc[did='"+did+"']").find(".recenticon").removeClass("is-loading");
+
+      if (isMobile) {
+        hideDocProgress(hideMenu);
+      } else {
+        hideDocProgress();
+      }
+
+    } else {
+      var fidOfNotFoundDID = $("#" + did).parents(".afolder").attr("id");
+      handleError(new Error('Doc/File with did: ' + did + " in fid" + fidOfNotFoundDID + ' not found by uid: ' + theUserID));
+      // means that this docid(did) got a "storage/object-not-found" so sadly the best we can do is to delete this file now.
+      verifyDocExistsOrDelete(did);
+    }
   }
 }
 
@@ -1505,16 +1530,15 @@ function getTitles () {
         }
 
       } else {
-        encryptTitles();
+        regenerateTitles();
       }
     } else {
-      encryptTitles();
+      regenerateTitles();
     }
   });
 }
 
-function encryptTitles() {
-
+function regenerateTitles() {
   var ftitles = {};
 
   $(".afolder").each(function(index, el) {
@@ -1595,7 +1619,7 @@ function processTitles (callback) {
 
     // this is a corrective measure
     // just in case if at boot a file doesn't exist,
-    // we remove it from titles too so that next updatetitles wouldn't have this.
+    // we remove it from titles too so that next update Titles wouldn't have this.
     if (!initialLoadComplete) {
       if ($("#" + did).length <= 0 ) {
         delete titlesObject.docs[did];
@@ -1783,9 +1807,11 @@ function appendFolder (folder){
     //folder exists.
   } else {
     $("#all-folders").prepend(folderCard);
-    if (isAPIAvailable() && fid !== "f-uncat") {
+    if (isAPIAvailable()) {
       document.getElementById(fid).addEventListener('drop', handleFileDrop, false);
-      document.getElementById('upload-to-'+fid).addEventListener('change', handleFileSelect, false);
+      if (fid !== "f-uncat") {
+        document.getElementById('upload-to-'+fid).addEventListener('change', handleFileSelect, false);
+      }
     }
 
     foldersRef.child(folder.folderid + "/docs").on('child_added', function(doc) {
@@ -3039,28 +3065,36 @@ function downloadFile (did, dtitle, preview, callback, callbackParam) {
 $("#all-offline").on('click', '.offline-doc', function(event) {
   var did = $(this).attr("did");
   var didToLoad = did;
-  if (didToLoad !== activeDocID) {
-    prepareToLoadOfflineDoc(didToLoad);
-  } else {
-    if (isMobile) {
-      hideDocProgress(hideMenu);
+  if (didToLoad !== "undefined" || didToLoad !== undefined) {
+    if (didToLoad !== activeDocID) {
+      prepareToLoadOfflineDoc(didToLoad);
     } else {
-      hideDocProgress();
+      if (isMobile) {
+        hideDocProgress(hideMenu);
+      } else {
+        hideDocProgress();
+      }
     }
+  } else {
+    fixFilesAndFolders(didToLoad);
   }
 });
 
 $("#all-recent").on('click', '.recent-doc', function(event) {
   var did = $(this).attr("did");
   var didToLoad = did;
-  if (didToLoad !== activeDocID) {
-    prepareToLoad (didToLoad);
-  } else {
-    if (isMobile) {
-      hideDocProgress(hideMenu);
+  if (didToLoad !== "undefined" || didToLoad !== undefined) {
+    if (didToLoad !== activeDocID) {
+      prepareToLoad (didToLoad);
     } else {
-      hideDocProgress();
+      if (isMobile) {
+        hideDocProgress(hideMenu);
+      } else {
+        hideDocProgress();
+      }
     }
+  } else {
+    fixFilesAndFolders(didToLoad);
   }
 });
 
@@ -3072,14 +3106,18 @@ $('#all-folders').on('click', '.adoc', function(event) {
   if (!selectionButtons.is(event.target) && selectionButtons.has(event.target).length === 0 && !dropdowns.is(event.target) && dropdowns.has(event.target).length === 0 && !context.is(event.target) && context.has(event.target).length === 0) {
     var did = $(this).attr("id");
     var didToLoad = did;
-    if (didToLoad !== activeDocID) {
-      prepareToLoad (didToLoad);
-    } else {
-      if (isMobile) {
-        hideDocProgress(hideMenu);
+    if (didToLoad !== "undefined" || didToLoad !== undefined) {
+      if (didToLoad !== activeDocID) {
+        prepareToLoad (didToLoad);
       } else {
-        hideDocProgress();
+        if (isMobile) {
+          hideDocProgress(hideMenu);
+        } else {
+          hideDocProgress();
+        }
       }
+    } else {
+      fixFilesAndFolders(didToLoad);
     }
   }
 });
@@ -7302,6 +7340,7 @@ function upSyncAndDownSyncComplete (callback, callbackParam) {
 function syncCompleted (callback, callbackParam) {
   callback = callback || noop;
 
+  showSyncingProgress(); // this will receive 100 / 100 since it's already complete.
   $("#sync-progress").addClass("done");
   $(".sync-details").html("Sync Complete");
   setTimeout(function () {
@@ -7311,19 +7350,30 @@ function syncCompleted (callback, callbackParam) {
   numberOfDocsCompletedSync = 0;
   initialSyncComplete = true;
   callback(callbackParam);
+  reportOfflineErrors();
 }
 
 var syncErrors = [];
 function showErrorBubble(message, err) {
   error = err || "";
   message = message || "Error";
-  syncErrors.push ({
-    message : message,
-    error: error
-  });
+
+  var now = (new Date()).getTime();
+  offlineErrorStorage.setItem(now, error);
 
   $(".error-bubble-details").html(message + "&nbsp; <span onclick='hideErrorBubble();' class='icon is-small clickable'><i class='fa fa-close fa-fw'></i></span>");
   $("#error-bubble").addClass("errored");
+}
+
+function reportOfflineErrors () {
+  offlineErrorStorage.iterate(function(syncerr, errtime, i) {
+    handleError(syncerr);
+  }).then(function() {
+    // Reported all offline errors.
+    try { offlineErrorStorage.clear(); } catch (e) {}
+  }).catch(function(err) {
+    handleError(err);
+  });
 }
 
 function hideErrorBubble() {

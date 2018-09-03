@@ -26,6 +26,9 @@ function orderComplete () {
   $(".settings-tab[tab='account']").addClass('is-dark');
 
   $("#upgrade-thanks").addClass("showUpgradeThanks");
+  // REMOVE UPGRADE FROM URL
+  history.pushState("upgrade-complete", null, '/account');
+
   // currentPlan = meta.plan;
   // console.log("Order Complete. New Plan is : ", meta.plan);
   // console.log("Order Complete. New Subscription D is : ", meta.subscriptionid);

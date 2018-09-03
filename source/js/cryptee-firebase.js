@@ -16,29 +16,25 @@ var db = firebase.database();
 var store = firebase.storage();
 var tokenURL = "https://crypt.ee/api/auth";
 var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
+var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
 
 ////////////////////////////////////////////////////
 ///////////// AUTHENTICATION HELPERS ///////////////
 ////////////////////////////////////////////////////
 
 function signOut () {
-  try {
-    localStorage.clear();
-    sessionStorage.clear();
-    offlineStorage.clear();
-  } finally {
-    firebase.auth().signOut().then(function() {
-      try { localStorage.clear(); } finally {
-        console.log('Signed Out');
-        if (location.pathname === "/signin" || location.pathname === "/signin.html") {
-          window.location.reload(true);
-        }
+  purgeOfflineStorage();
+  firebase.auth().signOut().then(function() {
+    try { localStorage.clear(); } finally {
+      console.log('Signed Out');
+      if (location.pathname === "/signin" || location.pathname === "/signin.html") {
+        window.location.reload(true);
       }
-    }, function(error) {
-      handleError(error);
-      console.error('Sign Out Error', error);
-    });
-  }
+    }
+  }, function(error) {
+    handleError(error);
+    console.error('Sign Out Error', error);
+  });
 }
 
 function saveUserDetailsToLS (theUsername, usedStorage, allowedStorage) {
@@ -66,6 +62,13 @@ function loadUserDetailsFromLS () {
     console.log("no user found in localstorage");
   }
 
+}
+
+function purgeOfflineStorage () {
+  try { localStorage.clear(); } catch (e) {}
+  try { sessionStorage.clear();} catch (e) {}
+  try { offlineStorage.clear(); } catch (e) {}
+  try { offlineErrorStorage.clear(); } catch (e) {}
 }
 
 ////////////////////////////////////////////////////

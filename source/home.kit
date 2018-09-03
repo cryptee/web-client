@@ -157,7 +157,7 @@
     callback = callback || noop;
     db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
       if (snapshot.val() === null) {
-        window.location = "signup.html?status=newuser";
+        window.location = "signup?status=newuser";
       } else {
         callback();
       }

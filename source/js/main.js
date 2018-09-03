@@ -143,8 +143,13 @@ function timeSince(epoch) {
         }
     }
 
-    if (interval > 1 || interval === 0) {
-        intervalType += 's';
+    if (interval > 1) {
+      intervalType += 's';
+    }
+
+    if (interval <= 0) {
+      interval = 0;
+      intervalType += 's';
     }
 
     return interval + ' ' + intervalType;
@@ -835,11 +840,13 @@ function ping (type, obj, callback) {
 
 var retriedCheckConnection = false;
 function checkConnection (callback) {
+  callback = callback || noop;
   var now = (new Date()).getTime(); // milliseconds
   $.ajax({
-    url: "https://crypt.ee/cors-min.json?cachebuster=" + now,
+    url: "https://crypt.ee/v.json?cachebuster=" + now,
     type: 'GET',
     dataType: 'jsonp',
+    success: function(data){ callback(true); },
     error: function(x) {
       if (x.status === 200) {
         callback(true);
@@ -918,7 +925,12 @@ function newEncryptedKeycheck(hashedKey, callback) {
 ///////////////////////////////////////////
 
 function reportBug () {
-  var userDetails = theUserID || "Unknown User";
+  var userDetails;
+  try {
+    userDetails = theUserID;
+  } catch (e) {
+    userDetails = "Unknown User";
+  }
   Raven.showReportDialog(Raven.captureException(new Error('Bug Report/Feedback by ' + userDetails)));
 }
 

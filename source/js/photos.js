@@ -364,7 +364,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     webAppURLController();
   } else {
     // no user. redirect to sign in IF NOT WEBAPP
-    webAppURLController("signin.html?redirect=photos");
+    webAppURLController("signin?redirect=photos");
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
@@ -377,7 +377,7 @@ function checkForExistingUser (callback){
 
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     if (snapshot.val() === null) {
-      window.location = "signup.html?status=newuser";
+      window.location = "signup?status=newuser";
     } else {
       callback();
     }
@@ -617,6 +617,11 @@ function removeExtrasTitleObjects (titleObjectsToDelete, callback, callbackParam
 
 
 function fixFile (pidOrTid) {
+
+  try {
+    // leave in try catch in case if pid or tid is undefined for some reason. 
+    handleError(new Error('Photo/Thumb with id: ' + pidOrTid + ' not found by uid: ' + theUserID));
+  } catch (e) {}
 
   doesTheOriginalExist(pidOrTid.replace("t","p"), function(originalLost){
     if (originalLost) {

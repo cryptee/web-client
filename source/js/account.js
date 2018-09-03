@@ -131,11 +131,11 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (!user) {
     if (willLoseAuthForDeletion) {
       try { sessionStorage.removeItem('key'); } finally {
-        window.location = "goodbye.html";
+        window.location = "goodbye";
       }
     } else {
       try { sessionStorage.removeItem('key'); } finally {
-        webAppURLController("signin.html?redirect=account");
+        webAppURLController("signin?redirect=account");
       }
     }
   } else {
@@ -261,7 +261,7 @@ $("#signout-button").on('click', function(event) {
 function checkDeletionMarks() {
   if (deletionMarkForData && deletionMarkForMeta && willLoseAuthForDeletion) {
     try { localStorage.removeItem('crypteeuser'); sessionStorage.clear(); sessionStorage.removeItem('key'); } finally {
-      window.location = "goodbye.html";
+      window.location = "goodbye";
     }
   }
 }

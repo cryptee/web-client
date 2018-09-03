@@ -92,7 +92,7 @@ function checkForExistingUser (){
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     //  CHECK IF USER HAS KEY IN DATABASE. IF NOT REDIRECT TO SIGNUP.
     if (snapshot.val() === null) {
-      window.location = "signup.html?status=newuser";
+      window.location = "signup?status=newuser";
     } else {
       if (isMobile) {
         signInComplete();
@@ -124,7 +124,7 @@ function hideKeyModal() {
 function checkKey(key){
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     if (snapshot.val() === null) {
-      window.location = "signup.html?status=newuser";
+      window.location = "signup?status=newuser";
     } else {
       var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
 
@@ -184,10 +184,10 @@ function signInComplete () {
     if (getUrlParameter("dlddid")) {
       window.location = getUrlParameter("redirect") + "?dlddid=" + getUrlParameter("dlddid");
     } else {
-      window.location = getUrlParameter("redirect") + ".html";
+      window.location = getUrlParameter("redirect");
     }
   } else {
-    window.location = "home.html";
+    window.location = "home";
   }
 }
 

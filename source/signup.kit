@@ -12,10 +12,6 @@
   <script src="../js/lib/localforage-1.7.1.min.js"></script>
   <style media="screen">
   li.is-active { border-bottom: #FFF solid 1px; }
-  .tabs a { padding: .5em 0.75em; font-size : 12px;}
-  .question {
-    letter-spacing: 0px !important;
-  }
   input {
     border-radius: 3px;
   }
@@ -23,270 +19,247 @@
 </head>
 
 <body class="signup-body">
-  <section class="hero is-fullheight is-dark is-bold">
-    <div class="hero-body">
-      <div class="container">
-        <div class="columns is-vcentered">
+  <div id="signup-body-wrapper">
+    <div id="signup-wrapper" class="columns">
+      <div class="column" id="signup-form-column">
 
-          <div class="column is-8 is-offset-2">
+        <h1 class="title is-3">SIGN UP</h1>
 
-            <div style="text-align:center;">
-              <br>
-                <a class="title" href="/"><img src="../assets/cryptee-logo-w.svg" alt="Cryptee logo" class="small-logo" style="vertical-align: bottom; margin-bottom:1rem;"></a>
-                <br><br>
-                <h1 class="question title is-hidden-mobile">How would you like to <strong>sign up</strong>?</h1>
-                <h1 class="question subtitle is-hidden-tablet">How would you like to <strong>sign up</strong>?</h1>
-                <h4 class="fromSignIn title is-6" style="display:none;"><br><br><br>Looks like you didn't have an account with us. Choose an encryption key that you can always remember.</h4>
-              <br>
-            </div>
+        <div id="signup-sections-wrap">
 
-            <div class="tabs is-full-width is-centered">
-              <ul>
-                <li tab='userpass'>
-                  <a>
-                    <span class="icon is-medium"><i class="fa fa-user fa-fw"></i></span>
-                    <b>Username <span class="is-hidden-mobile">& Password</span></b>
-                  </a>
-                </li>
-                <li tab='google'>
-                  <a><span class="icon is-medium"><i class="fa fa-google fa-fw"></i></span><b class="is-hidden-mobile">Google</b></a>
-                </li>
-                <li tab='smartid' >
-                  <a>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 40 40">
-                      <defs> <style> .cls-1 { fill: #fff; fill-rule: evenodd; width: 100%; } </style> </defs>
+
+
+
+
+
+
+            <!-- PICK AUTH SECTION -->
+            <span class="signup-section active" section="auth" style="z-index:1;" secno="0">
+              <p class="signup-title">Welcome! <br class="is-hidden-desktop">How would you like to sign up?</p>
+              <br><br>
+              <div id="signup-auth-methods">
+
+                <!-- <hr> -->
+
+                <p class="title signup-next-button" next="user">
+                  <span class="icon">
+                    <i class="fa fa-user fa-fw"></i>
+                  </span>
+                  <span>&nbsp; Username / Email</span>
+                </p>
+
+                <hr>
+
+                <p class="title signup-next-button" next="google">
+                  <span class="icon">
+                    <i class="fa fa-google fa-fw"></i>
+                  </span>
+                  <span>&nbsp; Google</span>
+                </p>
+
+                <hr>
+
+                <p class="title signup-next-button" next="sid">
+                  <span class="smartid-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="16px" viewBox="0 0 40 40" style="margin-bottom: -2px;">
+                      <defs> <style> .cls-1 { fill: #000; fill-rule: evenodd; width: 100%; } </style> </defs>
                       <path id="logo" class="cls-1" d="M6152.17,692.544a1.445,1.445,0,1,1-1.45-1.445A1.448,1.448,0,0,1,6152.17,692.544Zm5.99,23.8a1.148,1.148,0,0,1-.68-2.069,17.709,17.709,0,0,0-13.05-31.8v25.041a1.145,1.145,0,1,1-2.29,0V681.513a1.142,1.142,0,0,1,.92-1.124,20,20,0,0,1,15.78,35.73A1.124,1.124,0,0,1,6158.16,716.342ZM6147,720a19.994,19.994,0,0,1-11.83-36.117,1.146,1.146,0,0,1,1.36,1.846,17.7,17.7,0,0,0,10.47,31.98,18.1,18.1,0,0,0,2.58-.186V701.093a1.145,1.145,0,1,1,2.29,0v17.393a1.153,1.153,0,0,1-.92,1.124A20.193,20.193,0,0,1,6147,720Z" transform="translate(-6127 -680)"></path>
                     </svg>
-                    <b class="is-hidden-mobile"> &nbsp; Smart-ID</b>
-                  </a>
-                </li>
-                <li tab='mobileid' >
-                  <a>
-                    <img src="../assets/mobiilid-w.svg" alt="Mobile ID" style="height:28px;">
-                    <b class="is-hidden-mobile">&nbsp; Mobile-ID</b>
-                  </a>
-                </li>
-              </ul>
-            </div>
+                  </span>
+                  <span>&nbsp; SmartID</span>
+                </p>
 
-            <br class="hideFromSignin">
-
-            <div id="smartid-tab-contents" class="box tab-content" style="display:none;">
-              <div class="columns">
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Personal Code *</label>
-                    <p class="control has-icons-left">
-                      <input id="signup-si-personal-code" class="input" type="tel" placeholder="37101010021" value="">
-                      <span class="icon is-small is-left"><i class="fa fa-id-card"></i></span>
-                    </p>
-                  </div>
-                </div>
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Country *</label>
-                    <div class="control">
-                      <label class="radio">
-                        <input type="radio" value="EE" name="Country" checked> Estonia
-                      </label>
-                      <label class="radio">
-                        <input type="radio" value="LV" name="Country"> Latvia
-                      </label>
-                      <label class="radio">
-                        <input type="radio" value="LT" name="Country"> Lithuania
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="mobileid-tab-contents" class="box tab-content" style="display:none;">
-              <div class="columns">
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Personal Code *</label>
-                    <p class="control has-icons-left">
-                      <input id="signup-mi-personal-code" class="input" type="tel" placeholder="37101010021" value="">
-                      <span class="icon is-small is-left"><i class="fa fa-id-card"></i></span>
-                    </p>
-                  </div>
-                </div>
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Phone Number *</label>
-                    <p class="control has-icons-left">
-                      <input id="signup-mi-phone-number" class="input" type="tel" placeholder="+372xxxxxxxx" value="">
-                      <span class="icon is-small is-left"><i class="fa fa-phone"></i></span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-
-
-            <div class="box tab-content" id="userpass-tab-contents" style="display:none;">
-              <div class="columns"> <!--USERNAME / EMAIL COLUMNS -->
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Username *</label>
-                    <p class="control has-icons-left">
-                      <input id="signup-username" class="input" type="text" placeholder="jsmith" value="">
-                      <span class="icon is-small is-left">
-                        <i class="fa fa-user"></i>
-                      </span>
-                    </p>
-                    <p id="username-help" class="help is-danger">This username is taken</p>
-                  </div>
-                  <div class="field">
-                    <label class="label">Email</label>
-                    <p class="control has-icons-left">
-                      <input id="signup-email"  class="input" type="text" placeholder="jsmith@example.com" value="">
-                      <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                      </span>
-                    </p>
-                    <p id="email-help" class="help is-danger">This email is invalid</p>
-                  </div>
-                </div>
-
-                <div class="column">
-                  <div class="notification" style="height: 100%;">
-                    <p class="deets">You only need a username to sign up for Cryptee.<br>
-                      <br>You can enter an email address if you wish. In that case, this email address will be your Cryptee username.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <hr>
-
-              <div class="columns"> <!-- PASSWORD COLUMNS -->
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Password *</label>
-                    <p class="control has-icons-left has-icons-right">
-                      <input id="signup-pass" class="input" type="password" placeholder="●●●●●●●">
-                      <span class="icon is-small is-left">
-                        <i class="fa fa-lock"></i>
-                      </span>
-                    </p>
-                    <progress id="pass-score" class="progress is-small" value="15" max="100">15%</progress>
-                  </div>
-                  <div class="field">
-                    <label class="label">Verify Password *</label>
-                    <p class="control has-icons-left has-icons-right">
-                      <input id="signup-pass-ver" class="input" type="password" placeholder="●●●●●●●">
-                      <span class="icon is-small is-left">
-                        <i class="fa fa-lock"></i>
-                      </span>
-                    </p>
-                    <p class="help is-danger">Doesn't match</p>
-                  </div>
-                </div>
-
-                <div class="column">
-                  <div class="notification" style="height: 100%;">
-                    <p class="deets">Cryptee uses two passwords to keep your data secure. An <b>account password</b> and an <b>encryption key</b>.<br>
-                      <br>First, enter your account password here.<br>
-                      <br>If you ever wish to recover this password, Cryptee will need your email address. You can add a recovery email later.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="google-tab-contents" style="display:none;">
-
-            </div>
-
-            <div id="encryption-key" class="box" style="display:none;">
-              <div class="columns"> <!-- KEY COLUMNS -->
-
-                <div class="column">
-                  <div class="field">
-                    <label class="label">Encryption Key *</label>
-                    <p class="control has-icons-left has-icons-right">
-                      <input id="signup-key" class="input" type="password" placeholder="●●●●●●●">
-                      <span class="icon is-small is-left">
-                        <i class="fa fa-key"></i>
-                      </span>
-                    </p>
-                    <progress id="key-score" class="progress is-small" value="15" max="100">15%</progress>
-                    <p class="help is-danger">Key contains a special character that isn't safe to use.</p>
-                  </div>
-
-                  <div class="field">
-                    <label class="label">Verify Encryption Key *</label>
-                    <p class="control has-icons-left has-icons-right">
-                      <input id="signup-key-ver" class="input" type="password" placeholder="●●●●●●●">
-                      <span class="icon is-small is-left">
-                        <i class="fa fa-key"></i>
-                      </span>
-                    </p>
-                    <p class="help is-danger">Doesn't match</p>
-                  </div>
-                </div>
-
-                <div class="column">
-                  <div class="notification" style="height: 100%;">
-                    <p class="deets">Cryptee uses an <b>encryption key</b> to keep your data secure.<br>
-                      <br>Your encryption key never leaves your device nor sent to our servers. It is used to encrypt and decrypt your data on your device.<br>
-                      <br>If you ever forget or lose your Encryption Key, your data will be forever inaccessible and unrecoverable.</p>
-                  </div>
-                </div>
+                <!-- <hr> -->
 
               </div>
-            </div> <!-- ENCRYPTION KEY BOX -->
-
-            <div class="control" id="button-section" style="display:none;">
-              <div class="notification is-light" style="border-radius:5px;">
-                <p class="deets signupterms">By signing up, you agree to our <a href="/terms" target="_blank"><b>terms and conditions</b></a>.</p>
-              </div>
-
-              <nav class="level">
-                <div class="level-left">
-
-                  <label class="checkbox">
-                    <input type="checkbox" class="button signuptermsbutton">
-                    <span class="deets signupterms"  style="color:#FFF!important">I have read the simplified <a href="/privacy" target="_blank"><b>privacy policy</b></a> and agree to how <br class="is-hidden-mobile"> Cryptee will handle and protect my data.</span>
-                  </label>
-
-                </div>
-
-                <div class="level-right">
-                  <button id="signup-button" class="button is-success" disabled>Sign Up</button>&nbsp;
-                </div>
-              </nav>
-            </div>
-
-            <div id="signup-info" class="notification is-info" style="display:none; margin-top: 1.5rem;">
-              <span>Please check your phone for further notifications.</span>
-            </div>
-
-            <br class="hideFromSignin">
-
-            <div id="signup-message" class="notification is-warning">
-              <span>Seems like something's missing.</span>
-            </div>
+            </span>
 
 
 
 
 
 
-            <p class="has-text-centered signup-bottom-buttons">
+
+
+
+            <!-- USERNAME EMAIL SECTION -->
+            <span class="signup-section" section="user" style="z-index:2;" secno="1">
+              <p class="signup-title">First, type in a username or email to use for signing in.</p>
+
+              <br><br><br class="is-hidden-touch">
+
+              <label class="label">Username or Email</label>
+              <p class="control has-icons-left">
+                <input id="signup-username" class="input signup-input" type="text" placeholder="jsmith or me@email.com" value="">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-user"></i>
+                </span>
+              </p>
+              <p id="username-help" class="help is-danger">This username is taken</p>
+              <p id="email-help" class="help is-info">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-exclamation-circle"></i>
+                </span>
+                Please use a valid email. You will need to use this email to sign in.
+              </p>
+
               <br><br>
-              <a href="signin"><b>sign in</b></a> | <a href="https://cryptee.kayako.com" target="_blank" rel="noopener" class="openInSafari">help</a>
+
+              <p class="signup-back clickable" prev="auth">back</p>
+              <button class="button is-dark signup-next signup-next-button www-action-button" next="pass" disabled>Next</button>
+            </span>
+
+
+
+            <!-- PASSWORD SECTION -->
+            <span class="signup-section" section="pass" style="z-index:3;" secno="2">
+              <p class="signup-title">Second, type in a password to use for signing in.</p>
+
+              <br><br><br class="is-hidden-touch">
+
+              <label class="label">
+                <span>Account Password</span>
+              </label>
+
+              <p class="control has-icons-left has-icons-right">
+                <input id="signup-pass" class="input signup-input" type="password" placeholder="●●●●●●●">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+                <span class="icon is-small is-right reveal-pass-input-button">
+                  <i class="fa fa-eye"></i>
+                </span>
+              </p>
+              <progress id="pass-score" class="progress is-small" value="0" max="100">15%</progress>
+
               <br><br>
-              <button class="button is-danger fromSignIn fromSignInSignOut" style="display:none;">not &nbsp; <span class="username"></span>?</button>
-            </p>
-          </div>
+              <p class="deets">If you ever wish to recover your account password, Cryptee will need your email address. You can add a recovery email later.</p>
+              <p class="signup-back clickable" prev="user">back</p>
+              <button class="button is-dark signup-next signup-next-button www-action-button" next="key" disabled>Next</button>
+            </span>
+
+
+
+            <!-- SMART-ID SECTION -->
+            <span class="signup-section" section="sid" style="z-index:3;" secno="2">
+              <p class="signup-title">Please enter your personal code and select your country</p>
+
+              <br><br><br class="is-hidden-touch">
+
+              <label class="label">Personal Code</label>
+              <p class="control has-icons-left">
+                <input id="signup-si-personal-code" class="input signup-input" type="tel" placeholder="37101010021" value="">
+                <span class="icon is-small is-left"><i class="fa fa-id-card"></i></span>
+              </p>
+
+              <br><br>
+
+              <label class="label">Country</label>
+              <div class="control">
+                <label class="radio" style="margin-right: 1rem;">
+                  <input type="radio" value="EE" name="Country" style="margin-right: 3px;" checked> Estonia
+                </label>
+                <label class="radio" style="margin-right: 1rem;">
+                  <input type="radio" value="LV" name="Country" style="margin-right: 3px;"> Latvia
+                </label>
+                <label class="radio" style="margin-right: 1rem;">
+                  <input type="radio" value="LT" name="Country" style="margin-right: 3px;"> Lithuania
+                </label>
+              </div>
+
+              <p class="signup-back clickable" prev="auth">back</p>
+              <button class="button is-dark signup-next signup-next-button www-action-button" next="key" disabled>Next</button>
+            </span>
+
+
+
+            <!-- ENCRYPTION KEY SECTION -->
+            <span class="signup-section" section="key" style="z-index:4;" secno="3">
+              <p class="signup-title">Finally, type in an encryption key.</p>
+
+              <br><br class="is-hidden-touch">
+
+              <label class="label">
+                <span>Encryption Key</span>
+                <span class="icon is-small question">
+                  <i class="fa fa-question-circle"></i>
+                </span>
+              </label>
+
+              <p class="control has-icons-left has-icons-right">
+                <input id="signup-key" class="input signup-input" type="password" placeholder="●●●●●●●">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-key"></i>
+                </span>
+                <span class="icon is-small is-right reveal-pass-input-button">
+                  <i class="fa fa-eye"></i>
+                </span>
+              </p>
+              <progress id="key-score" class="progress is-small" value="0" max="100">15%</progress>
+
+              <p class="help is-danger">
+                <span class="icon is-small">
+                  <i class="fa fa-fw fa-exclamation-triangle"></i>
+                </span> &nbsp;
+                Key contains a special character that isn't safe to use.
+              </p>
+
+              <p id="unique-key-error">
+                <span class="icon is-small">
+                  <i class="fa fa-fw fa-exclamation-triangle"></i>
+                </span> &nbsp;
+                Encryption Key can't be the same as your account password.
+              </p>
+
+              <p class="notification">
+                <span class="delete"></span>
+                Cryptee uses <span class="key-regular-desc">two passwords to keep your data safe. An <b>account password</b> to sign you in and</span> an <b>encryption key</b> to keep your data private and encrypted.<br class="is-hidden-touch">
+                Your encryption key never leaves your device nor sent to our servers. It is only used to encrypt and decrypt your data on your device.
+              </p>
+
+              <br>
+
+              <b class="deets" style="padding-left:2px;">
+                <span class="icon is-small">
+                  <i class="fa fa-fw fa-exclamation-triangle"></i>
+                </span> &nbsp;
+                If you ever lose your Encryption Key, <br class="is-hidden-desktop">your data will be forever unrecoverable.
+              </b>
+
+              <br><br><br><br class="is-hidden-touch">
+
+              <label class="checkbox">
+                <input type="checkbox" class="button signuptermsbutton">
+                <!-- DON'T MAKE THIS SELECT ON ENTER, EVEN IF YOU CAN. USING A DIFFERENT KEY ON KEYBOARD HELPS WITH GDPR CONSENT & LEGALITIES. -->
+                <span class="deets signupterms">I have read the simplified <a href="/privacy" target="_blank"><b>privacy policy</b></a>, I agree to the <a href="/terms" target="_blank"><b>terms and conditions</b></a>, and understand how my data will be handled.</span>
+              </label>
+
+              <p class="signup-back clickable" prev="auth">back</p>
+              <button id="signup-button" class="button is-dark signup-next signup-next-button www-action-button" next="createacct" disabled>Create Account</button>
+
+            </span>
+
+            <div class="signup-info-wrapper">
+              <div id="signup-info" class="notification">
+                <span id='signup-info-delete' class="delete" onclick-"hideSignupInfo()"></span>
+              </div>
+            </div>
+
+
         </div>
       </div>
-    </div>
+    <div class="column is-hidden-mobile" id="signup-hero"></div>
 
-  </section>
+  </div>
+
+
+  </div>
+  <div id="signup-bottom">
+    <p class="has-text-centered signup-bottom-buttons">
+      <span id="signinButton"><a href="signin"><b>sign in</b></a> &bull;</span> <a href="https://cryptee.kayako.com" target="_blank" rel="noopener" class="openInSafari">help</a>
+      <span class="fromSignIn fromSignInSignOut" style="display:none;"><b>&bull; not <span class="username"></span>?</b></span>
+    </p>
+  </div>
 
   <iframe class="hidden" id="gauthFrame"></iframe>
   <!-- @import "footer-js.kit" -->

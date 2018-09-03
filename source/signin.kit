@@ -50,7 +50,7 @@
 
     .hero-banner .title {
       display: inline-block;
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: rgba(0, 0, 0, 0.8);
       padding: 7.5px;
     }
 
@@ -137,7 +137,7 @@
                         </svg>
                       </a>
                     </li>
-                    <li class="signin-tab" tab='mobileid'>
+                    <!-- <li class="signin-tab" tab='mobileid'>
                       <a style="padding:0;">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 300" height="30">
                           <defs> <style> .cls-2 { fill-rule: evenodd; fill: #969696;} </style> </defs>
@@ -146,20 +146,20 @@
                           <path class="cls-2" d="M108.61,69.09.32,112,.94,49.66S-.61,0,54.15,0s54.32,46.24,54.32,46.24Z"/>
                         </svg>
                       </a>
-                    </li>
+                    </li> -->
                   </ul>
                 </div>
 
                 <div class="login-form">
                   <div class="tab-content" id="userpass-tab-contents">
                     <p class="control has-icon has-icon-right">
-                      <input id="signin-user" class="input email-input" type="email" placeholder="username or email" style="text-transform: lowercase;">
+                      <input id="signin-user" class="input email-input signin-input" type="email" placeholder="username or email" style="text-transform: lowercase;">
                       <span class="icon user">
                         <i class="fa fa-user"></i>
                       </span>
                     </p>
                     <p class="control has-icon has-icon-right">
-                      <input id="signin-pass" class="input password-input" type="password" placeholder="password">
+                      <input id="signin-pass" class="input password-input signin-input" type="password" placeholder="password">
                       <span class="icon user">
                         <i class="fa fa-lock"></i>
                       </span>
@@ -170,24 +170,24 @@
                     <p style="font-size:12px">Sign in using your Google Account</p>
                   </div>
 
-                  <div id="mobileid-tab-contents" class="tab-content" style="display:none;">
+                  <!-- <div id="mobileid-tab-contents" class="tab-content" style="display:none;">
                     <p class="control has-icon has-icon-right">
-                      <input id="signin-mi-personal-code" class="input" type="tel" placeholder="37101010021">
+                      <input id="signin-mi-personal-code" class="input signin-input" type="tel" placeholder="37101010021">
                       <span class="icon user">
                         <i class="fa fa-id-card"></i>
                       </span>
                     </p>
                     <p class="control has-icon has-icon-right">
-                      <input id="signin-mi-phone-number" class="input" type="tel" placeholder="+372xxxxxxxx">
+                      <input id="signin-mi-phone-number" class="input signin-input" type="tel" placeholder="+372xxxxxxxx">
                       <span class="icon user">
                         <i class="fa fa-phone"></i>
                       </span>
                     </p>
-                  </div>
+                  </div> -->
 
                   <div id="smartid-tab-contents" class="tab-content" style="display:none;">
                     <p class="control has-icon has-icon-right">
-                      <input id="signin-si-personal-code" class="input" type="tel" placeholder="37101010021">
+                      <input id="signin-si-personal-code" class="input signin-input" type="tel" placeholder="37101010021">
                       <span class="icon user">
                         <i class="fa fa-id-card"></i>
                       </span>
@@ -209,14 +209,13 @@
                   </div>
 
                   <p class="control login control-group">
-                    <button id="signin-button" class="button is-dark is-fullwidth" disabled>Sign in</button>
+                    <button id="signin-button" class="button is-dark is-fullwidth www-action-button" disabled>Sign in</button>
                   </p>
                 </div>
 
                 <div class="section forgot-password">
                   <p class="has-text-centered">
-                    <a href="forgot" class="tag">Forgot password</a>
-                    <a href="signup" class="tag">Sign Up</a>
+                    <a href="forgot" class="deets">Forgot</a> &nbsp; | &nbsp; <a href="signup" class="deets"><strong>Sign Up</strong></a>
                   </p>
                 </div>
               </div>
