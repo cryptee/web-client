@@ -46,7 +46,7 @@ try {
 } finally { }
 
 function paddleInit() {
-  // This is to how paddle detects mobile layout, so we use the same to make sure ours match
+  // This is how paddle detects mobile layout, so we use the same to make sure ours match
   if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     $("#upgrade-form").addClass("paddleWillBeMobile");
   }
@@ -75,6 +75,24 @@ function paddleInit() {
 	});
 }
 
+var paddleTries = 0;
+var paddleMaxTries = 60;
+var paddleLoaded = false;
+function checkIfPaddleIsLoaded () {
+  setTimeout(function () {
+    try {
+      if (Paddle) { paddleLoaded = true; }
+    } catch (e) {
+      if (paddleTries <= paddleMaxTries) {
+        if (paddleTries < 3) {
+          console.log("Likely an ad blocker or Paddle down.");
+        }
+        paddleTries++;
+        checkIfPaddleIsLoaded();
+      }
+    }
+  }, 1000);
+}
 //////////////////////////////////////////////////////
 //////////////////// HELPERS ////////////////////////
 /////////////////////////////////////////////////////
@@ -92,6 +110,7 @@ function loadTab(whichTab) {
     loadJS('https://cdn.paddle.com/paddle/paddle.js', function(){
       paddleInit();
     }, document.body);
+    checkIfPaddleIsLoaded();
   }
 
   $("#upgrade").hide();
@@ -329,6 +348,8 @@ function gotUserData (data) {
       showReauthPopup("is-warning", "Something went wrong. It seems that either you've cancelled the Smart-ID/Mobile-ID request, or our Smart-ID/Mobile-ID login system is experiencing some trouble. Please try again shortly.");
     }
 
+    gotPreferences(data.preferences);
+
   } else {
     deletionMarkForData = true; checkDeletionMarks();
   }
@@ -457,28 +478,35 @@ $(".paymentButton").on("click",function(){
 });
 
 function openPaddle () {
-  Paddle.Checkout.open({
-    method: 'inline',
-    frameTarget: 'checkout-container', //classname of checkout container
-    frameInitialHeight: 360,
-    frameStyle: 'width:320px; border: none; background: transparent;',
-    product: productForPaddle,
-    disableLogout : true,
-    successCallback : 'paymentSuccessful',
-    closeCallback : 'paymentTerminated',
-    email : emailForPaddle,
-    guest_country : countryForPaddle,
-    guest_postcode : zipForPaddle,
-    coupon : couponForPaddle,
-    passthrough : theUserID
-  });
+  if (paddleLoaded && Paddle) {
+      $("#paddle-loading").hide();
 
-  $(PaddleFrame).on('load', function(){
+      Paddle.Checkout.open({
+        method: 'inline',
+        frameTarget: 'checkout-container', //classname of checkout container
+        frameInitialHeight: 360,
+        frameStyle: 'width:320px; border: none; background: transparent;',
+        product: productForPaddle,
+        disableLogout : true,
+        successCallback : 'paymentSuccessful',
+        closeCallback : 'paymentTerminated',
+        email : emailForPaddle,
+        guest_country : countryForPaddle,
+        guest_postcode : zipForPaddle,
+        coupon : couponForPaddle,
+        passthrough : theUserID
+      });
+
+      $(PaddleFrame).on('load', function(){
+        $("#upgrade-form").removeClass("is-loading");
+        $(".checkout-container").addClass("is-visible");
+      });
+
+      $("#upgrade-container-deets").fadeOut();
+  } else {
     $("#upgrade-form").removeClass("is-loading");
     $(".checkout-container").addClass("is-visible");
-  });
-
-  $("#upgrade-container-deets").fadeOut();
+  }
 }
 
 // unnecessary but keeping anyway.
@@ -958,7 +986,7 @@ function fillDataExporter (data, meta, orders) {
       var theData = data.toJSON();
       delete theData.cryptmail;
       var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theData));
-      $("#account-data-json").append("<b><a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Account Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Account Data (JSON File)</a></b><br>");
+      $("#account-data-json").append("<a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Account Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Account Data (JSON File)</a><br>");
       $("#account-data-json").removeClass("is-loading");
       exportData = data;
       dataAdded = true;
@@ -967,7 +995,7 @@ function fillDataExporter (data, meta, orders) {
     if (meta && !metaAdded) {
       var theMeta = meta.toJSON();
       var metaStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theMeta));
-      $("#account-data-json").append("<b><a style='text-decoration:none;' href='"+metaStr+"' download='Cryptee Meta Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Meta Data (JSON File)</a></b><br>");
+      $("#account-data-json").append("<a style='text-decoration:none;' href='"+metaStr+"' download='Cryptee Meta Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Meta Data (JSON File)</a><br>");
       $("#account-data-json").removeClass("is-loading");
       metaAdded = true;
     }
@@ -975,7 +1003,7 @@ function fillDataExporter (data, meta, orders) {
     if (orders && !ordersAdded) {
       var theOrders = orders.toJSON();
       var ordersStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theOrders));
-      $("#account-data-json").append("<b><a style='text-decoration:none;' href='"+ordersStr+"' download='Cryptee Orders Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Orders Data (JSON File)</a></b><br>");
+      $("#account-data-json").append("<a style='text-decoration:none;' href='"+ordersStr+"' download='Cryptee Orders Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Orders Data (JSON File)</a><br>");
       $("#account-data-json").removeClass("is-loading");
       ordersAdded = true;
     }
@@ -1075,12 +1103,72 @@ function enumerateFolderForExport(fid){
 
 
 
+//////////////////////////////////////////////////////////
+//////////////////   PREFERENCES     /////////////////////
+//////////////////////////////////////////////////////////
+var populatingPreferences = false;
 
 
+var inactivityTimeoutInputTimeout;
+$("#inactivityTimeoutInput").on("keydown keypress paste copy cut change", function(e){
+  clearTimeout(inactivityTimeoutInputTimeout);
+  if (!populatingPreferences) {
+    setTimeout(function () {
+      var timeoutValue = parseInt($("#inactivityTimeoutInput").val().trim()) || 30;
+      if (timeoutValue <= 0) {
+        timeoutValue = 0;
+        $("#inactivityTimeoutInput").val(0);
+      }
+      inactivityTimeoutInputTimeout = setTimeout(function () {
+        if (userPreferences) {
+          userPreferences.general.inactivityTimeout = timeoutValue;
+          dataRef.update({"preferences" : userPreferences});
+        }
+      }, 1000);
+    }, 50);
+  }
+});
 
+$(".ltrswitch").on("change", function(e){
+  if (!populatingPreferences) {
+    if ($(".ltrswitch").is(':checked')) {
+      $(".rtlswitch").prop('checked', false).attr('checked', false);
+    } else {
+      $(".rtlswitch").prop('checked', true).attr('checked', true);
+    }
 
+    updateTextDirection();
+  }
+});
 
+$(".rtlswitch").on("change", function(e){
+  if (!populatingPreferences) {
+    if ($(".rtlswitch").is(':checked')) {
+      $(".ltrswitch").prop('checked', false).attr('checked', false);
+    } else {
+      $(".ltrswitch").prop('checked', true).attr('checked', true);
+    }
 
+    updateTextDirection();
+  }
+});
+
+var textDirectionTimeout;
+function updateTextDirection() {
+  setTimeout(function () {
+    var selection = "ltr";
+    if ($(".ltrswitch").is(':checked')) {
+      selection = "ltr";
+    } else {
+      selection = "rtl";
+    }
+
+    if (userPreferences) {
+      userPreferences.docs.direction = selection;
+      dataRef.update({"preferences" : userPreferences});
+    }
+  }, 500);
+}
 
 
 

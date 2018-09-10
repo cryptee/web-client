@@ -50,6 +50,7 @@
         <div class="column is-one-quarter settings-left-column">
           <p class="button settings-tab is-fullwidth is-success"  tab="upgrade" id="upgrade-setting">Upgrade</p>
           <p id="settings-my-data-button" class="button settings-tab is-fullwidth is-light is-hidden-webapp is-hidden-tiny"  tab="mydata">My Data</p>
+          <p id="settings-preferences-button" class="button settings-tab is-fullwidth is-light"  tab="preferences">My Preferences</p>
           <p class="button settings-tab is-fullwidth is-light paid-plan-only"  tab="planpayment" id="plan-setting">Plan &amp; Payment Settings</p>
           <p id="paymenthistorybutton" class="button settings-tab is-fullwidth is-light"  tab="history">Payment History</p>
           <!-- <p class="button settings-tab is-fullwidth is-light"  tab="loginsettings">Login Settings</p> -->
@@ -110,6 +111,10 @@
 
           <div class="settings-tab-contents notification mydata-setting" id="mydata-tab-contents">
             <!-- @import "settings-tab-mydata.kit" -->
+          </div>
+
+          <div class="settings-tab-contents notification preferences-setting" id="preferences-tab-contents">
+            <!-- @import "settings-tab-preferences.kit" -->
           </div>
 
           <div class="notification is-danger" id="reauth-error" style="display:none;">

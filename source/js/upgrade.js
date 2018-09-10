@@ -39,10 +39,10 @@ function showBumpUpThePlan (exceeded) {
   try { quill.blur(); } catch (e){}
   if (exceeded) {
     $("#bumpup-window").find(".title").html("Exceeded Storage");
-    $("#bumpup-message").html("You have exceeded your storage limit. If you would like to add another 10GB to your plan click 'Upgrade' and we will automatically add another 10GBs to your account. Otherwise, you will need to clean up some space to be able to keep saving.");
+    $("#bumpup-message").html("You have exceeded your storage limit. If you would like to add another 10GB to your plan click 'Upgrade Plan' below. We will automatically add another 10GBs to your account and update your subscription payments. Otherwise, you will need to clean up some space to be able to keep saving.");
   } else {
     $("#bumpup-window").find(".title").html("About to Exceed Storage");
-    $("#bumpup-message").html("You are about to exceed your storage limit. You won't be able to save files once you exceed your storage limit. If you would like to add another 10GB to your plan click 'Upgrade' and we will automatically add another 10GB to your account.");
+    $("#bumpup-message").html("You are about to exceed your storage limit. You won't be able to save files once you exceed your storage limit. If you would like to add another 10GB to your plan click 'Upgrade Plan'. We will automatically add another 10GBs to your account and update your subscription payments.");
   }
   $("#bumpup-window").addClass("showBumpUp");
 }

@@ -11,6 +11,7 @@ sessionStorage.removeItem('key');
 var theUser;
 var theUserID;
 var theUsername;
+var theEmail;
 var theToken;
 var foldersCount;
 var dataRef;
@@ -20,6 +21,7 @@ var foldersRef;
 var minuteTimer;
 var idleTime = 0;
 var lastActivityTime = (new Date()).getTime();
+var userPlan;
 
 var lastSaved = (new Date()).getTime();
 var lastScrollTop = 0;
@@ -76,7 +78,7 @@ var somethingDropped = false;
 var isDocOutdated = false;
 var menuClosedDueToOffline = false;
 var zenMode = false;
-var desktopCutOffWidthPixel = 1092;
+var desktopCutOffWidthPixel = 1114;
 
 var sortableFoldersDesktopPreferences = {
   animation: 300, delay:0,
@@ -506,7 +508,7 @@ $("#mobile-floating-undo").on("click", function(){
 
 //////// HOTKEYS //////////
 
-key('command+shift+o, ctrl+shift+o', function(){ if (ww() <= desktopCutOffWidthPixel) {  quill.blur(); showMenu(); } $("#search-input").focus(); return false; });
+key('command+shift+o, ctrl+shift+o', function(){ if (ww() <= desktopCutOffWidthPixel) {  quill.blur(); showMenu(); } $("#search-input").focus(); checkAndSaveDocIfNecessary(); return false; });
 key('command+\\, ctrl+\\', function(){ if (ww() <= desktopCutOffWidthPixel) { $("#hamburger").click(); } return false; });
 key('command+], ctrl+]', function(){ quill.format('indent', '+1'); return false; });
 key('command+[, ctrl+[', function(){ quill.format('indent', '-1'); return false; });
@@ -567,6 +569,7 @@ key('esc', function(){
     $(".modal.is-active").find("input").val("");
     $(".modal.is-active").find("input").blur();
   }
+  checkAndSaveDocIfNecessary();
   clearSelections();
 });
 
@@ -743,6 +746,7 @@ function showMenu () {
   $(thingsNeedResizing).addClass("menuOpen");
   $("#left-stuff").removeClass('leftStuffOff');
   $(".document-contextual-dropdown").removeClass("open");
+  checkAndSaveDocIfNecessary();
 }
 
 function hideMenu () {
@@ -924,6 +928,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       theUser = user;
       theUserID = theUser.uid;
       theUsername = theUser.displayName;
+      theEmail = theUser.email;
       dataRef = db.ref().child('/users/' + theUserID + "/data/");
       metaRef = db.ref().child('/users/' + theUserID + "/meta/");
       homeGenerationRef = db.ref().child('/users/' + theUserID + "/data/homegeneration");
@@ -931,7 +936,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       rootRef = store.ref().child('/users/' + theUserID);
       Raven.setUserContext({ id: theUserID });
 
-      $('.username').html(theUsername);
+      $('.username').html(theUsername || theEmail);
 
       checkForExistingUser(function(){
         if (getUrlParameter("dlddid") && connected) {
@@ -1046,13 +1051,20 @@ function signInComplete () {
 
         if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
           // paid user remove upgrade button
+            var userPlan = userMeta.val().plan;
             $("#upgrade-button").parents("li").hide();
             $("#low-storage-warning").removeClass('showLowStorage viaUpgradeButton');
             closeExceededStorageModal();
           if (usedStorage >= allowedStorage){
             showBumpUpThePlan(true);
           } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage){
-            showBumpUpThePlan(false);
+            if (allowedStorage <= freeUserQuotaInBytes) {
+              showBumpUpThePlan(false);
+            } else {
+              if (usedStorage >= allowedStorage * 0.9) {
+                showBumpUpThePlan(false);
+              }
+            }
           } else if (usedStorage <= (allowedStorage - 13000000000)){
             // this is 13GB because if user has 20GB, and using 7GB we'll downgrade to 10GB plan.
             bumpDownThePlan();
@@ -1088,6 +1100,10 @@ function signInComplete () {
         orderComplete();
         dataRef.update({"orderComplete" : ""});
       }
+    });
+
+    dataRef.child("preferences").on('value', function(snapshot) {
+      gotPreferences(snapshot.val());
     });
   }
 }
@@ -1349,7 +1365,7 @@ function fixFiles(did) {
       // First check if there's an actual undefined.cdoc or undefined.cfile in storage.
       // if there's one, rename both with a new ID, and updateTitles and tags to reflect changes.
       var fidWithUndefinedFile = $("#undefined").parents(".afolder").attr("id");
-      handleError(new Error('Undefined Doc/File by uid: ' + theUserID + " in fid" + fidWithUndefinedFile));
+      handleError(new Error('Undefined Doc/File by uid: ' + theUserID + " in fid: " + fidWithUndefinedFile));
       showErrorBubble("An error occured while trying to open this file. Our team is informed. Sorry.", {});
 
       $("#" + did).find(".exticon").removeClass("is-loading");
@@ -1363,7 +1379,7 @@ function fixFiles(did) {
 
     } else {
       var fidOfNotFoundDID = $("#" + did).parents(".afolder").attr("id");
-      handleError(new Error('Doc/File with did: ' + did + " in fid" + fidOfNotFoundDID + ' not found by uid: ' + theUserID));
+      handleError(new Error('Doc/File with did: ' + did + " in fid: " + fidOfNotFoundDID + ' not found by uid: ' + theUserID));
       // means that this docid(did) got a "storage/object-not-found" so sadly the best we can do is to delete this file now.
       verifyDocExistsOrDelete(did);
     }
@@ -1740,7 +1756,7 @@ function appendFolder (folder){
   var colorClass = " ";
   var hiddenClass = "hidden";
   var uploadButton = '';
-  if (isAPIAvailable() && fid !== "f-uncat") {
+  if (isAPIAvailable()) {
     uploadButton =
     '<input class="folder-upload-input" type="file" id="upload-to-'+fid+'" name="files[]" multiple />' +
     '<label class="upload-to-folder-button clickable" for="upload-to-'+fid+'"><span class="icon"><i class="fa fa-cloud-upload"></i></span> Upload a File to Folder</label>';
@@ -1809,9 +1825,9 @@ function appendFolder (folder){
     $("#all-folders").prepend(folderCard);
     if (isAPIAvailable()) {
       document.getElementById(fid).addEventListener('drop', handleFileDrop, false);
-      if (fid !== "f-uncat") {
+      // if (fid !== "f-uncat") {
         document.getElementById('upload-to-'+fid).addEventListener('change', handleFileSelect, false);
-      }
+      // }
     }
 
     foldersRef.child(folder.folderid + "/docs").on('child_added', function(doc) {
@@ -2844,6 +2860,13 @@ function newDoc (whichInput){
 
 function newDocCreated (did, fid, dtitle) {
   quill.setText('\n');
+  if (userPreferences.docs.direction === "rtl") {
+    quill.format('direction', 'rtl');
+    quill.format('align', 'right');
+  } else {
+    quill.format('direction', 'ltr');
+    quill.format('align', 'left');
+  }
 
   idleTime = 0;
   lastSaved = (new Date()).getTime();
@@ -2920,29 +2943,30 @@ quill.on('text-change', function(delta, oldDelta, source) {
     }
   }
 
+});
 
-
+quill.on('selection-change', function(range) {
+  if (!range) {
+    // CURSOR LEFT EDITOR, TRIGGER AUTOSAVE
+    checkAndSaveDocIfNecessary();
+  }
 });
 
 function idleTimer () {
   idleTime++;
-  if (idleTime > 5 && docChanged && !isSaving) { // 5 secs
-    if (connectivityMode) {
-      if (!isSaving) {
-        saveDoc();
-      }
-    } else {
-      saveOfflineDoc();
-    }
+  if (idleTime > 5) { // 5 secs
+    checkAndSaveDocIfNecessary();
   }
 }
 
 function inactiveTimer () {
   var now = (new Date()).getTime();
+  var timeoutAmount = userPreferences.general.inactivityTimeout * 60000; // default is 30 mins
 
-  // 30minutes
-  if (now - lastActivityTime > 1800000) {
-    inactivityTimeout();
+  if (timeoutAmount !== 0) {
+    if (now - lastActivityTime > timeoutAmount) {
+      inactivityTimeout();
+    }
   }
 }
 
@@ -3504,6 +3528,7 @@ function downloadActiveFile () {
 
 function showFileViewer (callback, callbackParam) {
   quill.blur();
+  checkAndSaveDocIfNecessary();
   $("#file-viewer").show();
   if (isMobile) { hideMenu(); }
   callback(callbackParam);
@@ -3546,6 +3571,7 @@ function maximizeFileViewer () {
     $("#file-viewer").removeClass("minimized");
     $('#file-viewer-maximize-button').hide();
     $('#file-viewer-minimize-button').show();
+    checkAndSaveDocIfNecessary();
  }
 }
 
@@ -3778,6 +3804,20 @@ function closeDoc (){
 //////////////////////
 //   SAVE  _DOC    //
 //////////////////////
+
+// CHECKS CONNECTION, IF DOC HAS CHANGEd, AND IF ITS NOT SAVING, SAVE THE CORRECT WAY (ONLINE OR OFFLINE);
+
+function checkAndSaveDocIfNecessary () {
+  if (docChanged && !isSaving) {
+    if (connectivityMode) {
+      if (!isSaving) {
+        saveDoc();
+      }
+    } else {
+      saveOfflineDoc();
+    }
+  }
+}
 
 $(".save-doc-button, .dropdown-save-button").on('click', function(event) {
   $(".document-contextual-dropdown").removeClass("open");
@@ -5065,7 +5105,7 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
         // }
       }, function(error) {
         if (usedStorage >= allowedStorage) {
-          showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading to a paid plan or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>" + ' &nbsp; <a class="button is-info" onclick="upgradeFromExceed()">Upgrade</a>');
+          showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
           exceededStorage(callback, callbackParam);
         } else {
           handleError(error);
@@ -6140,60 +6180,67 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
 
 function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, callbackParam, rawHTML) {
   var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
-  rawHTML = rawHTML || decodeBase64Unicode(spacelessDataURI.split(',')[1]);
-  var fid = $("#" + did).parents(".afolder").attr("id");
+  try {
+    rawHTML = rawHTML || decodeBase64Unicode(spacelessDataURI.split(',')[1]);
+    var fid = $("#" + did).parents(".afolder").attr("id");
 
-  quill.setText('\n');
-  quill.clipboard.dangerouslyPasteHTML(1, rawHTML);
+    quill.setText('\n');
+    quill.clipboard.dangerouslyPasteHTML(1, rawHTML);
 
-  dataRef.update({"lastOpenDocID" : did});
-  sessionStorage.setItem('session-last-did', JSON.stringify(did));
+    dataRef.update({"lastOpenDocID" : did});
+    sessionStorage.setItem('session-last-did', JSON.stringify(did));
 
-  var milliseconds = (new Date()).getTime();
-  sessionStorage.setItem('session-last-loaded', JSON.stringify(milliseconds));
+    var milliseconds = (new Date()).getTime();
+    sessionStorage.setItem('session-last-loaded', JSON.stringify(milliseconds));
 
-  $("#homedoc").prop("disabled", false).attr("disabled", false);
-  $("#homedoc").removeClass("is-dark");
-  $("#doc-contextual-button").fadeIn(100);
-  $(".activedoc").removeClass('is-active activedoc');
-  $(".activerecentdoc").removeClass('activerecentdoc');
-  //set new did active
-  activeDocID = did;
-  activeDocTitle = dtitle;
+    $("#homedoc").prop("disabled", false).attr("disabled", false);
+    $("#homedoc").removeClass("is-dark");
+    $("#doc-contextual-button").fadeIn(100);
+    $(".activedoc").removeClass('is-active activedoc');
+    $(".activerecentdoc").removeClass('activerecentdoc');
+    //set new did active
+    activeDocID = did;
+    activeDocTitle = dtitle;
 
-  $(".filesize-button").prop('onclick',null).off('click');
+    $(".filesize-button").prop('onclick',null).off('click');
 
-  $("#" + did + "> a").addClass("is-active activedoc");
-  $("#" + did).find(".exticon").removeClass("is-loading");
+    $("#" + did + "> a").addClass("is-active activedoc");
+    $("#" + did).find(".exticon").removeClass("is-loading");
 
-  $(".recent-doc[did='"+did+"']").find(".recenticon").removeClass("is-loading");
-  $(".recent-doc[did='"+did+"']").addClass("activerecentdoc");
+    $(".recent-doc[did='"+did+"']").find(".recenticon").removeClass("is-loading");
+    $(".recent-doc[did='"+did+"']").addClass("activerecentdoc");
 
-  // always inherited from load doc.
+    // always inherited from load doc.
 
-  saveDoc(function (){
-    // RENAME DOCUMENT AND REMOVE HTML NOW.
-    var newDocName = dtitle.replace(/\.html/g, '');
-    titlesObject.docs[activeDocID] = JSON.stringify(newDocName);
-    updateTitles(function(){
-      foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false }, function(){
-        //set doc title in taskbar
-        $("#active-doc-title").html(newDocName);
-        $("#active-doc-title-input").val(newDocName);
-        document.title = newDocName;
-        $("#active-doc-title-input").attr("placeholder", newDocName);
-        $("#" + activeDocID).find(".doctitle").html(newDocName);
-        $("#" + did).removeClass("itsAFile");
-        $("#" + did).addClass("itsADoc");
+    saveDoc(function (){
+      // RENAME DOCUMENT AND REMOVE HTML NOW.
+      var newDocName = dtitle.replace(/\.html/g, '');
+      titlesObject.docs[activeDocID] = JSON.stringify(newDocName);
+      updateTitles(function(){
+        foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false }, function(){
+          //set doc title in taskbar
+          $("#active-doc-title").html(newDocName);
+          $("#active-doc-title-input").val(newDocName);
+          document.title = newDocName;
+          $("#active-doc-title-input").attr("placeholder", newDocName);
+          $("#" + activeDocID).find(".doctitle").html(newDocName);
+          $("#" + did).removeClass("itsAFile");
+          $("#" + did).addClass("itsADoc");
 
-        // now that we've imported the file, and made it a crypteedoc, delete it.
-        var fileRef = rootRef.child(did + ".crypteefile");
-        fileRef.delete().then(function() {
-          callback(callbackParam);
+          // now that we've imported the file, and made it a crypteedoc, delete it.
+          var fileRef = rootRef.child(did + ".crypteefile");
+          fileRef.delete().then(function() {
+            callback(callbackParam);
+          });
         });
       });
     });
-  });
+  } catch (e) {
+    $("#" + did).find(".exticon").removeClass("is-loading");
+    $(".recent-doc[did='"+did+"']").find(".recenticon").removeClass("is-loading");
+    showErrorBubble("Sorry, can't import file. Are you sure this is an html file?", e);
+    callback(callbackParam);
+  }
 }
 
 
@@ -6205,63 +6252,71 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
 
 function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
   var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
-  var rawTXT = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
-  var rawHTML = markdownConverter.makeHtml(rawTXT).split("\n").join("<br>");
-  var fid = $("#" + did).parents(".afolder").attr("id");
+  try {
+    var rawTXT = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
+    var rawHTML = markdownConverter.makeHtml(rawTXT).split("\n").join("<br>");
+    var fid = $("#" + did).parents(".afolder").attr("id");
 
-  quill.setText('\n');
-  quill.clipboard.dangerouslyPasteHTML(1, rawHTML);
+    quill.setText('\n');
+    quill.clipboard.dangerouslyPasteHTML(1, rawHTML);
 
-  dataRef.update({"lastOpenDocID" : did});
-  sessionStorage.setItem('session-last-did', JSON.stringify(did));
+    dataRef.update({"lastOpenDocID" : did});
+    sessionStorage.setItem('session-last-did', JSON.stringify(did));
 
-  var milliseconds = (new Date()).getTime();
-  sessionStorage.setItem('session-last-loaded', JSON.stringify(milliseconds));
+    var milliseconds = (new Date()).getTime();
+    sessionStorage.setItem('session-last-loaded', JSON.stringify(milliseconds));
 
-  $("#homedoc").prop("disabled", false).attr("disabled", false);
-  $("#homedoc").removeClass("is-dark");
-  $("#doc-contextual-button").fadeIn(100);
+    $("#homedoc").prop("disabled", false).attr("disabled", false);
+    $("#homedoc").removeClass("is-dark");
+    $("#doc-contextual-button").fadeIn(100);
 
-  $(".activedoc").removeClass('is-active activedoc');
-  $(".activerecentdoc").removeClass('activerecentdoc');
+    $(".activedoc").removeClass('is-active activedoc');
+    $(".activerecentdoc").removeClass('activerecentdoc');
 
-  //set new did active
-  activeDocID = did;
-  activeDocTitle = dtitle;
+    //set new did active
+    activeDocID = did;
+    activeDocTitle = dtitle;
 
-  $(".filesize-button").prop('onclick',null).off('click');
+    $(".filesize-button").prop('onclick',null).off('click');
 
-  $("#" + did + "> a").addClass("is-active activedoc");
-  $("#" + did).find(".exticon").removeClass("is-loading");
+    $("#" + did + "> a").addClass("is-active activedoc");
+    $("#" + did).find(".exticon").removeClass("is-loading");
 
-  $(".recent-doc[did='"+did+"']").find(".recenticon").removeClass("is-loading");
-  $(".recent-doc[did='"+did+"']").addClass("activerecentdoc");
+    $(".recent-doc[did='"+did+"']").find(".recenticon").removeClass("is-loading");
+    $(".recent-doc[did='"+did+"']").addClass("activerecentdoc");
 
-  // always inherited from load doc.
+    // always inherited from load doc.
 
-  saveDoc(function (){
-    // RENAME DOCUMENT AND REMOVE HTML NOW.
-    var newDocName = dtitle.replace(/\.md/g, '').replace(/\.txt/g, '');
-    titlesObject.docs[activeDocID] = JSON.stringify(newDocName);
-    updateTitles(function(){
-      foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false }, function(){
-        //set doc title in taskbar
-        $("#active-doc-title").html(newDocName);
-        $("#active-doc-title-input").val(newDocName);
-        document.title = newDocName;
-        $("#active-doc-title-input").attr("placeholder", newDocName);
-        $("#" + activeDocID).find(".doctitle").html(newDocName);
-        $("#" + did).removeClass("itsAFile");
-        $("#" + did).addClass("itsADoc");
+    saveDoc(function (){
+      // RENAME DOCUMENT AND REMOVE HTML NOW.
+      var newDocName = dtitle.replace(/\.md/g, '').replace(/\.txt/g, '');
+      titlesObject.docs[activeDocID] = JSON.stringify(newDocName);
+      updateTitles(function(){
+        foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false }, function(){
+          //set doc title in taskbar
+          $("#active-doc-title").html(newDocName);
+          $("#active-doc-title-input").val(newDocName);
+          document.title = newDocName;
+          $("#active-doc-title-input").attr("placeholder", newDocName);
+          $("#" + activeDocID).find(".doctitle").html(newDocName);
+          $("#" + did).removeClass("itsAFile");
+          $("#" + did).addClass("itsADoc");
 
-        // now that we've imported the file, and made it a crypteedoc, delete it.
-        var fileRef = rootRef.child(did + ".crypteefile");
-        fileRef.delete().then(function() {
-          callback(callbackParam);
+          // now that we've imported the file, and made it a crypteedoc, delete it.
+          var fileRef = rootRef.child(did + ".crypteefile");
+          fileRef.delete().then(function() {
+            callback(callbackParam);
+          });
         });
       });
     });
-  });
+
+  } catch (e) {
+    $("#" + did).find(".exticon").removeClass("is-loading");
+    $(".recent-doc[did='"+did+"']").find(".recenticon").removeClass("is-loading");
+    showErrorBubble("Sorry, can't import file. Are you sure this is a text/markdown file?", e);
+    callback(callbackParam);
+  }
 }
 
 ///////////////////////////////////////////////////////////
@@ -7358,7 +7413,7 @@ function showErrorBubble(message, err) {
   error = err || "";
   message = message || "Error";
 
-  var now = (new Date()).getTime();
+  var now = (new Date()).getTime().toString();
   offlineErrorStorage.setItem(now, error);
 
   $(".error-bubble-details").html(message + "&nbsp; <span onclick='hideErrorBubble();' class='icon is-small clickable'><i class='fa fa-close fa-fw'></i></span>");

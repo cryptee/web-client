@@ -6,6 +6,7 @@ sessionStorage.removeItem('key');
 var theUser;
 var theUserID;
 var theUsername;
+var theEmail;
 var reauthenticated = false;
 var retokening = false;
 var rootRef;
@@ -96,6 +97,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       theUser = user;
       theUserID = theUser.uid;
       theUsername = theUser.displayName;
+      theEmail = theUser.email;
 
       dataRef = db.ref().child('/users/' + theUserID + "/data/");
       metaRef = db.ref().child('/users/' + theUserID + "/meta/");
@@ -104,7 +106,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
       Raven.setUserContext({ id: theUserID });
 
-      $('.username').html(theUsername);
+      $('.username').html(theUsername || theEmail);
 
       checkForExistingUser(function(){
         if (keyToRemember) {
@@ -249,6 +251,10 @@ function signInComplete(){
         $("#low-storage-warning").addClass('showLowStorage');
       }
     }
+
+    dataRef.child("preferences").on('value', function(snapshot) {
+      gotPreferences(snapshot.val());
+    });
 
     saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
   });

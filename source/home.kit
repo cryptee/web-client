@@ -142,6 +142,7 @@
       theEmail = theUser.email;
       theUserID = theUser.uid;
       metaRef = db.ref().child('/users/' + theUserID + "/meta/");
+      dataRef = db.ref().child('/users/' + theUserID + "/data/");
       checkForExistingUser(function(){
         gotUser();
         webAppURLController();
@@ -167,6 +168,11 @@
   function gotUser() {
     $('.username').html(theUsername || theEmail);
     metaRef.on('value', function(snapshot) {  gotUserMeta(snapshot.val());  });
+
+    dataRef.child("preferences").on('value', function(snapshot) {
+      gotPreferences(snapshot.val());
+    });
+
   }
 
   function gotUserMeta (meta) {

@@ -5,11 +5,12 @@
 
 <div class="columns">
   <div class="column">
-    <p><span class="settings-plan"></span> (<span class="settings-storage-total"></span>)</p><br>
+    <!-- <p><span class="settings-plan"></span> (<span class="settings-storage-total"></span>)</p><br> -->
+    <p>Would you like to change your payment method?</p>
   </div>
   <div class="column">
-    <button class="button is-dark is-small change-plan-button" onclick="showProrateView()">Change</button>
-    <br><br>
+    <!-- <button class="button is-dark is-small change-plan-button" onclick="showProrateView()">Change</button> -->
+    <!-- <br><br> -->
     <button class="button is-dark is-small change-payment-button">Update Payment Method</button>
   </div>
 </div>
@@ -45,7 +46,7 @@
 
 <div class="columns" id="prorateView" style="display:none;">
   <div class="column">
-    <div class="notification is-info">
+    <div class="notification is-dark">
       <p>Your active subscription will be prorated, and you will only pay the amount due until today and your new subscription will start today.</p>
       <br>
       <button class="button is-light is-small" onclick="prorateParallel();">Switch Payment Cycles</button>

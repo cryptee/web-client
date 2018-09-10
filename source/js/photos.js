@@ -13,7 +13,9 @@ sessionStorage.removeItem('key');
 var theUser;
 var theUserID;
 var theUsername;
+var theEmail;
 var theToken;
+var userPlan;
 
 var rootRef, dataRef, titlesRef;
 var connectedRef = firebase.database().ref(".info/connected");
@@ -172,13 +174,15 @@ function hideBootOffline () {
 
 function inactiveTimer () {
   var now = (new Date()).getTime();
+  var timeoutAmount = userPreferences.general.inactivityTimeout * 60000; // default is 30 mins
 
-  // 30minutes
-  if (now - lastActivityTime > 1800000) {
-    inactivityTimeout();
+  if (timeoutAmount !== 0) {
+    if (now - lastActivityTime > timeoutAmount) {
+      inactivityTimeout();
+    }
   }
-
 }
+
 
 $(window).on("click", function(){
   lastActivityTime = (new Date()).getTime();
@@ -339,6 +343,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       theUser = user;
       theUserID = theUser.uid;
       theUsername = theUser.displayName;
+      theEmail = theUser.email;
 
       rootRef = store.ref().child('/users/' + theUserID);
       dataRef = db.ref().child('/users/' + theUserID + "/data/");
@@ -348,7 +353,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
       Raven.setUserContext({ id: theUserID });
 
-      $('.username').html(theUsername);
+      $('.username').html(theUsername || theEmail);
       $(".photos-search").animate({opacity: 1}, 500);
 
       checkForExistingUser(function(){
@@ -480,13 +485,20 @@ function signInComplete () {
 
       if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
         // paid user remove upgrade button
+        userPlan = userMeta.val().plan;
         $("#upgrade-button").parents("li").hide();
         $("#low-storage-warning").removeClass('showLowStorage viaUpgradeButton');
         closeExceededStorageModal();
         if (usedStorage >= allowedStorage) {
           showBumpUpThePlan(true);
         } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
-          showBumpUpThePlan(false);
+          if (allowedStorage <= freeUserQuotaInBytes) {
+            showBumpUpThePlan(false);
+          } else {
+            if (usedStorage >= allowedStorage * 0.9) {
+              showBumpUpThePlan(false);
+            }
+          }
         } else if (usedStorage <= (allowedStorage - 13000000000)) {
           // this is 13GB because if user has 20GB, and using 7GB we'll downgrade to 10GB plan.
           bumpDownThePlan();
@@ -506,6 +518,10 @@ function signInComplete () {
 
       saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
     }
+
+    dataRef.child("preferences").on('value', function(snapshot) {
+      gotPreferences(snapshot.val());
+    });
   });
 
   if (getUrlParameter("p")) {
@@ -619,19 +635,26 @@ function removeExtrasTitleObjects (titleObjectsToDelete, callback, callbackParam
 function fixFile (pidOrTid) {
 
   try {
-    // leave in try catch in case if pid or tid is undefined for some reason. 
+    // leave in try catch in case if pid or tid is undefined for some reason.
     handleError(new Error('Photo/Thumb with id: ' + pidOrTid + ' not found by uid: ' + theUserID));
-  } catch (e) {}
+  } catch (e) {
+    handleError(new Error('Photo/Thumb with undefined id is not found, and trying to get fixed for uid: ' + theUserID));
+  }
 
-  doesTheOriginalExist(pidOrTid.replace("t","p"), function(originalLost){
+  doesTheOriginalExist(pidOrTid, function(originalLost){
     if (originalLost) {
       // ORIGINAL FILE LOST. DELETE BOTH THUMB AND ORIGINAL.
+      handleError(new Error('Photo/Thumb with id: ' + pidOrTid + ' doesnt have original, by uid: ' + theUserID + " will sadly purge."));
+
       sadlyPurgeFile(pidOrTid);
     } else {
-      // ORIGINAL FILE EXISTS
-      doesTheOriginalExist(pidOrTid.replace("t","p"), function(thumbLost){
+      // ORIGINAL FILE EXISTS, LET'S CHECK IF THUMBNAIL IS MISSING.
+      doesTheThumbnailExist(pidOrTid, function(thumbLost){
         if (thumbLost) {
-          // REGENERATE THUMBNAIL.
+          handleError(new Error('Photo/Thumb with id: ' + pidOrTid + ' does have original will regenerate thumb, by uid: ' + theUserID));
+          // THUMB IS MISSING, REGENERATE THUMBNAIL.
+          // mimic the upload phase, but first download original, use generateThumbnail and go through the whole spiel to make it work from scratch.
+          // this will definitely be more extensive than the original uploader.
         } else {
           // WTF. ALL IS GOOD. SOMETHING'S OFF.
         }
@@ -655,7 +678,7 @@ function doesTheOriginalExist(pid, callback) {
 }
 
 function doesTheThumbnailExist(tid, callback) {
-  var fileRef = rootRef.child(tid.replace("t","p") + ".crypteefile");
+  var fileRef = rootRef.child(tid.replace("p","t") + ".crypteefile");
   fileRef.getDownloadURL().then(function(url) {
       // just to check if it exists. not really going to use it.
       thumbLost = false;
@@ -1429,8 +1452,14 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
         '</div>';
         $("#upload-status-contents").append(uploadElem);
         isUploading = false; // allows next file to go through.
-        nextUpload(callback, callbackParam);
-        document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
+        // this allows users to quit the uploader if they only dragged a PDF or sth. that isn't supported.
+        if (numFilesLeftToBeUploaded <= 0) {
+          showFileUploadStatus("is-danger", "Some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
+          uploadCompleteResetUploaderState();
+        } else {
+          nextUpload(callback, callbackParam);
+          document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
+        }
       }
     } catch (e) {
       handleError(e);
@@ -1464,7 +1493,14 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
       '</div>';
       $("#upload-status-contents").append(uploadElem);
       isUploading = false; // allows next file to go through.
-      nextUpload(callback, callbackParam);
+
+      // this allows users to quit the uploader if they only dragged an unreadable file or sth.
+      if (numFilesLeftToBeUploaded <= 0) {
+        showFileUploadStatus("is-danger", "Some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
+        uploadCompleteResetUploaderState();
+      } else {
+        nextUpload(callback, callbackParam);
+      }
     } else {
       setTimeout(function () {
         hideFileUploadStatus();
@@ -1587,8 +1623,14 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
 
 function handleUploadError (pid, filename, error, callback, callbackParam) {
   if (usedStorage >= allowedStorage) {
-    showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading to a paid plan or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>" + ' &nbsp; <a class="button is-info" onclick="upgradeFromExceed()">Upgrade</a>');
-    exceededStorage(callback, callbackParam);
+    if (allowedStorage === freeUserQuotaInBytes) {
+      //  FREE USER
+      showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading to a paid plan or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>" + ' &nbsp; <a class="button is-success" onclick="upgradeFromExceed()">Upgrade Plan</a>');
+    } else {
+      // PAID USER
+      showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading to a higher plan or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>" + ' &nbsp; <a class="button is-success" onclick="hideFileUploadStatus(); showBumpUpThePlan(true)">Upgrade Plan</a>');
+    }
+
   } else {
     if (error.code === "storage/retry-limit-exceeded") {
       handleError(error);
@@ -1685,13 +1727,7 @@ function uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename,
 function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
   callback = callback || noop;
 
-  document.title = "Cryptee | Photos";
-  numFilesUploaded = 0;
-  numFilesUploading = 0;
-
-  somethingDropped = false;
-  uploadList = [];
-  isUploading = false;
+  uploadCompleteResetUploaderState ();
 
  // SO BECAUSE THIS GETS CALLED AT THE END OF ALL TYPES OF UPLOADS,
  // BUT WE WANT TO FIRST MOVE FILES BEFORE HIDING THE UPLOAD MODALS
@@ -1708,6 +1744,16 @@ function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
     callback(callbackParam);
   }
 
+}
+
+function uploadCompleteResetUploaderState () {
+  document.title = "Cryptee | Photos";
+  numFilesUploaded = 0;
+  numFilesUploading = 0;
+
+  somethingDropped = false;
+  uploadList = [];
+  isUploading = false;
 }
 
 function getThumbnail (pid, fid) {
