@@ -79,6 +79,7 @@
   margin-top: 0;
   height: calc(100% - 3rem);
   box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+  transition: 0.75s transform ease, 0.5s opacity ease;
 }
 
 #docs-page-wrap.showLeft {

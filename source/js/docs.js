@@ -7951,7 +7951,8 @@ function syncCompleted (callback, callbackParam) {
 
 var syncErrors = [];
 function showErrorBubble(message, err) {
-  error = err || "";
+  // serialize and deserialize to remove functions from err object, localforage can't save functions in objects.
+  error = JSON.parse(JSON.stringify(err)) || "";
   message = message || "Error";
 
   var now = (new Date()).getTime().toString();
@@ -8111,7 +8112,9 @@ $("#doc-sections").on('click', '.docsection', function() {
   var targetIndex = $(this).attr("index");
   targetSection = sectionsArray[targetIndex];
   var targetOffset = targetSection[0].offsetTop;
-  $('.ql-editor').animate({ scrollTop: targetOffset - 75}, 1000);
+  $(targetSection[0]).addClass("highlighted");
+  setTimeout(function () { $(targetSection[0]).removeClass("highlighted"); }, 2000);
+  $('.ql-editor').animate({ scrollTop: targetOffset - 75}, 750);
 });
 
 var quillScrollTimeout;

@@ -227,10 +227,29 @@ code, pre {
   font-size: 30px;
   letter-spacing: 0.5px;
   line-height: 2.5rem;
+  transition: 1s color ease;
+  color:inherit;
+}
+
+.ql-editor h1 *, .ql-editor h2 * {
+  transition: 1s color ease;
+  color:inherit;
+}
+
+.ql-editor h1.highlighted,
+.ql-editor h1.highlighted *,
+.ql-editor h2.highlighted,
+.ql-editor h2.highlighted *,
+.ql-editor h3.highlighted,
+.ql-editor h3.highlighted *
+ {
+  color : rgb(31, 155, 207);
 }
 
 .ql-editor h2 {
   font-size: 20px;
+  transition: 1s color ease;
+  color:inherit;
 }
 
 .ql-editor p {
@@ -275,6 +294,7 @@ code, pre {
 
 .ql-tooltip {
   z-index: 999;
+  max-width: 310px;
 }
 
 .katex .katex-mathml {
@@ -2013,6 +2033,13 @@ html {
 
 #mobile-toolbar {
   padding:5px;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.25);
+  border-radius: 1rem;
+  background-color: #363636;
+}
+
+.ql-bubble.ql-toolbar button, .ql-bubble .ql-toolbar button {
+  float: none;
 }
 
 .ql-container.ql-snow, #toolbar-container {

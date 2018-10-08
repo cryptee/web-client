@@ -834,10 +834,15 @@ function ping (type, obj, callback) {
   obj.aip = 1;
   obj.t = type;
   obj.ua = navigator.userAgent;
-  obj.geoid = detectedLocale || "XX";
   obj.sr = $(window).width().toString() + "x" + $(window).height().toString();
   obj.dp = location.pathname;
 
+  if (detectedLocale) {
+    obj.geoid = detectedLocale;
+  } else {
+    obj.geoid = "XX";
+  }
+  
   if (sessionID) { obj.cid = sessionID; }
   if (isInWebAppiOS || isInWebAppChrome) {
     obj.ds = "app";
@@ -974,7 +979,7 @@ function handleError (error) {
     if (error.code) {
       Sentry.withScope(function(scope) {
         scope.setFingerprint([error.code]);
-        Sentry.captureException(e);
+        Sentry.captureException(error);
       });
     } else {
       Sentry.captureException(error);
