@@ -19,8 +19,7 @@
             <ul>
               <li title="Dashboard"> <a class="rememberKey top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
 
-              <li title="Help"> <a href="https://cryptee.kayako.com" target="_blank" rel="noopener" class="openInSafari top-left-icon"><i class="top-menu-icons fa fa-fw fa-life-ring"></i></a></li>
-              <li title="Report Bug" id="reportbug" onclick="reportBug()"> <a class="top-left-icon"><i class="top-menu-icons fa fa-fw fa-bug"></i></a></li>
+              <li title="Report Bug" onclick="showModal('help-modal')"> <a class="top-left-icon"><i class="fa fa-fw fa-question"></i></a></li>
 
               <li title="Upgrade" class="clickable"> <a href="account?action=upgrade" id="upgrade-button" class="tag is-success" style="border-radius: 10px; color: #fff !important;">Upgrade</a></li>
             </ul>
@@ -302,6 +301,7 @@
   <!-- @import "modal-webapp.kit" -->
 
   <!-- @import "modal-key.kit" -->
+  <!-- @import "modal-help.kit" -->
 
   <!-- @import "footer-js.kit" -->
 
