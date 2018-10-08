@@ -62,7 +62,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     theUserID = theUser.uid;
     theEmail = theUser.email;
     theUsername = theUser.displayName;
-    Raven.setUserContext({ id: theUserID });
+    setSentryUser(theUserID);
     dataRef = db.ref().child('/users/' + theUserID + "/data/");
     $('.username').html(theUsername || theEmail);
 

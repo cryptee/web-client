@@ -1,0 +1,25 @@
+<div class="modal" id="crypteedoc-export-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-dark">
+      <p class="title">
+      <img src="../assets/cryptee-logo-w.svg" alt="Cryptee Document" style="width:22px; margin: 0 15px 0 0px; height:auto; float:left;">
+      <span id="crypteedoc-export-key-status">Export Document</span></p>
+      <p>Choose a new key to encrypt &amp; export this document.</p><br>
+      <p>You will need to enter this key to decrypt &amp; import the exported file in the future.</p><br>
+      <p>You can't use your own encryption key for your safety.</p>
+      <br>
+      <div class="field has-addons">
+        <p class="control is-expanded keymodal-input-control">
+          <input type="password" id="crypteedoc-export-prevent_autofill" autocomplete="off" style="display:none" tabindex="-1" />
+          <input id="crypteedoc-export-key-input" class="modal-input input" type="text" placeholder="Type an encryption key" autocomplete="off">
+        </p>
+        <div class="control" style="margin-left: auto;">
+          <a id="crypteedoc-export-modal-decrypt-button" class="button is-light" onclick="exportActiveDocAsCrypteedoc();">
+            <span class="icon"><i class="fa fa-lock"></i></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

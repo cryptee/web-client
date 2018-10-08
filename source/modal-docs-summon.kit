@@ -1,0 +1,25 @@
+<div class="modal" id="ghost-info-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-light">
+      <p style="margin-bottom:0; cursor:pointer;" class="title is-4" onclick="whatisaghost();"><span class="icon" style="vertical-align: middle;"><i class="fa fa-question-circle" aria-hidden="true"></i></span>&nbsp; What is a ghost folder?</p>
+      <span class="whatisaghost">
+        <p style="font-size: 11px;"><br>You might find yourself in situations requiring you to hand over access to your account under stressful/forceful conditions. Cryptee has a unique feature called Ghost Folders, that allows you to hide certain folders, and be able to deny the existence of such folders in these rare situations.<br>
+          <br>When you make a ghost (hidden) folder, this folder is temporarily removed from your account. It can only be brought back (summoned), by typing its exact name in the "Summon Ghost Folder" field below.</p>
+        <br>
+        <p style="font-size: 11px;">To make a ghost folder, first click on <span class="icon is-small"><i class="fa fa-ellipsis-v fa-fw"></i></span> for the folder you'd like to ghost, then click <b>Make Ghost Folder</b>.<br><br></p>
+      </span>
+    </div>
+    <div class="notification is-light">
+      <p style="margin-bottom:0;" class="title is-4" onclick="whatisaghost();"><span id="ghost-folder-icon" class="icon" style="vertical-align: middle;"><i class="fa fa-fw fa-eye"></i></span>&nbsp; Summon Ghost Folder</p>
+      <div class="field summonghostfield">
+        <p class="control">
+          <br>
+          <input id="ghost-folder-input" class="input modal-input" type="text" placeholder="Type ghost folder's name here"  autocomplete="off">
+        </p>
+      </div>
+    </div>
+    <button class="button is-success" id="ghost-folder-summon-button" disabled>Summon Folder</button>
+  </div>
+  <button class="modal-close"></button>
+</div>

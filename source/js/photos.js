@@ -351,7 +351,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       homeRef = firestore.collection("users").doc(theUserID).collection("photos");
       titlesRef = firestore.collection("users").doc(theUserID).collection("titles");
 
-      Raven.setUserContext({ id: theUserID });
+      setSentryUser(theUserID);
 
       $('.username').html(theUsername || theEmail);
       $(".photos-search").animate({opacity: 1}, 500);

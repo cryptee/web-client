@@ -29,9 +29,9 @@
           <div class="level-item level-left home-level-left">
             <div class="settings-tabs tabs is-small">
               <ul>
-                <li title="Dashboard" class="is-active"> <a class="top-left-icon" href="#" onclick="hideNews();"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
+                <!-- <li title="Dashboard" class="is-active"> <a class="top-left-icon" href="#" onclick="hideNews();"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
                 <li title="Documents" class="hiddenForFinger"><a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
-                <li title="Photos" class="hiddenForFinger hiddenForOffline"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li>
+                <li title="Photos" class="hiddenForFinger hiddenForOffline"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li> -->
                 <li title="Account Settings" class="hiddenForOffline"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
                 <li class="is-hidden-webapp" title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
               </ul>
@@ -84,8 +84,8 @@
     <div class="hero-foot is-hidden-webapp">
       <nav class="level home-title">
         <div class="level-item has-text-centered">
-          <p class="tag title is-6 is-light">not &nbsp;<span class="username"></span>?</p>
-          <p class="tag title is-6 is-black clickable" onclick="signOut();">SIGN OUT</p>
+          <p class="title is-6">not &nbsp;<span class="username"></span>?</p> &nbsp; &bull; &nbsp;
+          <p class="title is-6 clickable" onclick="signOut();"><b>sign out</b></p>
         </div>
       </nav>
     </div>
@@ -95,7 +95,6 @@
   <!-- @import "modal-donate.html" -->
   <!-- @import "modal-webapp.kit" -->
   <!-- @import "footer-js.kit" -->
-
 
   <script type="text/javascript">
   var theUser, theUsername, theEmail, metaRef, theUserID;
@@ -123,13 +122,13 @@
   });
 
   function toggleNews() {
-    $("#news-icon, .hero-body, .home-title, .home-item, #news-window, .hero-head, .hideWhenNewsOn").toggleClass('newsOn');
+    $("#news-icon, .hero-body, .home-title, .home-item, #news-window, .hero-head, .hideWhenNewsOn, .home-level-left").toggleClass('newsOn');
     $("#news-icon").removeClass('update');
     readNews();
   }
 
   function hideNews() {
-    $("#news-icon, .hero-body, .home-title, .home-item, #news-window, .hero-head, .hideWhenNewsOn").removeClass('newsOn');
+    $("#news-icon, .hero-body, .home-title, .home-item, #news-window, .hero-head, .hideWhenNewsOn, .home-level-left").removeClass('newsOn');
   }
 
   firebase.auth().onAuthStateChanged(function(user) {
@@ -143,6 +142,7 @@
       theUserID = theUser.uid;
       metaRef = db.ref().child('/users/' + theUserID + "/meta/");
       dataRef = db.ref().child('/users/' + theUserID + "/data/");
+      setSentryUser(theUserID);
       checkForExistingUser(function(){
         gotUser();
         webAppURLController();

@@ -1,0 +1,31 @@
+<div class="modal" id="export-doc-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-dark">
+      <p class="title">Export Document</p>
+      <p class="subtitle is-6">Choose a format to export your document</p>
+    </div>
+    <div class="notification">
+
+      <div class="export-option clickable" id="print-currentdoc">
+        <span class="icon"><i class="fa fa-print fa-fw html-export-icon"></i></span><strong>Print</strong>&nbsp;<span> or </span><span class="icon"><i class="fa fa-file-pdf-o fa-fw pdf-export-icon"></i></span><strong>PDF</strong>
+      </div>
+
+      <div class="export-option clickable is-hidden-ios-pwa" id="export-currentdoc-as-html">
+        <span class="icon"><i class="fa fa-file-code-o fa-fw html-export-icon"></i></span><strong>HTML</strong>
+      </div>
+
+      <div class="export-option clickable is-hidden-ios-pwa" id="export-currentdoc-as-crypteedoc" onclick="showModal('crypteedoc-export-modal'); hideExportDocModal();">
+        <img src="../assets/cryptee-logo-b.svg" alt="Cryptee Document" style="width:11px; margin: 0 1px 0 6px; height:auto;">
+        <strong>Encrypted Cryptee Document</strong>
+      </div>
+
+      <!-- <div class="content">
+        <p><span id="export-currentdoc-as-pdf-A4" class="clickable">A4</span><br><span id="export-currentdoc-as-pdf-USL" class="clickable">US Letter</span></p>
+      </div>
+       -->
+    </div>
+    <a class="button is-danger" onclick="hideExportDocModal();">Cancel</a>
+  </div>
+  <button class="modal-close"></button>
+</div>

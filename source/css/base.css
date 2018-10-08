@@ -108,8 +108,8 @@ h1,h2,h3,h4,h5 {
   letter-spacing: normal;
 }
 
-strong {
-  font-weight: 600;
+strong,b {
+  font-weight: 700;
 }
 
 
@@ -226,6 +226,7 @@ code, pre {
 .ql-editor h1 {
   font-size: 30px;
   letter-spacing: 0.5px;
+  line-height: 2.5rem;
 }
 
 .ql-editor h2 {
@@ -446,14 +447,17 @@ crypteetag {
 
 .ql-editor ul>li::before {
   content: '\25cf';
+  font-size: 14px;
 }
 
 .ql-editor ul>li.ql-indent-1::before {
   content: '\25E6';
+  font-size: 14px;
 }
 
 .ql-editor ul>li.ql-indent-2::before {
   content: '\25A0';
+  font-size: 14px;
 }
 
 .ql-editor ul {
@@ -549,6 +553,9 @@ crypteetag {
   margin-top: 10px !important;
 }
 
+.ql-editor .ql-align-justify {
+  white-space: normal;
+}
 
 #active-doc-contents.zenMode ul {
   padding-left: 6px;
@@ -640,10 +647,56 @@ html {
   background-color: transparent !important;
 }
 
-#key-modal-decrypt-button {
-  height: 100%;
+#key-modal-decrypt-button,
+#crypteedoc-modal-decrypt-button,
+#crypteedoc-export-modal-decrypt-button {
   height: 4rem;
 }
+
+#crypteedoc-key-status,
+#crypteedoc-export-key-status {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#crypteedoc-modal-decrypt-button,
+#crypteedoc-export-modal-decrypt-button {
+  width: 4rem;
+  border-radius: 4rem;
+  transition: 0.5s background-color ease;
+}
+
+#crypteedoc-modal-decrypt-button *,
+#crypteedoc-export-modal-decrypt-button * {
+  font-size: 1.25rem;
+}
+
+#crypteedoc-import-modal .modal-background,
+#crypteedoc-export-modal .modal-background {
+  background-color: rgba(245,245,245,0.9);
+}
+
+#crypteedoc-import-modal .modal-content,
+#crypteedoc-export-modal .modal-content {
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+}
+
+#crypteedoc-key-input,
+#crypteedoc-export-key-input {
+  font-size: 2rem;
+  height: 4rem;
+  line-height: 4rem;
+  text-security:disc;
+  -webkit-text-security:disc;
+  -moz-text-security:disc;
+  width: calc(100% - 1.25rem);
+  color:#FFF;
+}
+
+#crypteedoc-export-key-input{
+  font-size: 1.2rem;
+}
+
 
 #key-modal-signout-button {
   /* float: right; */
@@ -684,6 +737,10 @@ html {
 
 .www-body #download {
   padding: 0rem 1rem 5rem 1rem !important;
+}
+
+.www-body .nav-right {
+  flex-grow: 2;
 }
 
 .hero-body {
@@ -758,6 +815,14 @@ html {
   padding: 0 1.25rem;
 }
 
+#help-modal .modal-background {
+  background-color: rgba(245,245,245,0.8);
+}
+
+#help-modal .modal-content {
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+}
+
 /*///////////////////////////////////////////////////
 ////////////////////// GENERAL //////////////////////
 ///////////////////////////////////////////////////*/
@@ -765,8 +830,6 @@ html {
 .help { display:none; }
 .hidden {display: none !important;}
 .disable-clicks { pointer-events: none; cursor:not-allowed;}
-.progress::-webkit-progress-value { transition: ease 0.5s width; }
-.progress::-webkit-progress-bar { transition: ease-in-out 1s background-color; }
 .modal, .rename-status, .folder-icon { transition: ease-in-out 0.5s all; }
 .clickable { cursor: pointer; }
 .unclickable { pointer-events: none !important; cursor:default !important;}
@@ -778,9 +841,31 @@ html {
 .is-hidden-offline.offline { display : none !important; }
 .is-hidden-phablet { display: none !important; }
 .is-hidden-phone { display : block; }
+.overflowhidden { overflow:hidden !important; }
 
 /* HOLY SHIT THIS IS UNBELIEVABLE */
 *[disabled] { pointer-events: none; }
+
+.progress:indeterminate::-webkit-progress-bar { background: transparent !important; }
+.progress:indeterminate::-moz-progress-bar { background: transparent !important; }
+.progress::-webkit-progress-value { transition: ease 0.5s width; }
+.progress::-webkit-progress-bar { transition: ease-in-out 1s background-color; }
+.progress:indeterminate {
+  transform: translateZ(0);
+  appearance:progress-bar;
+  animation: progress-indeterminate 3s ease infinite;
+  background: #f5f5f5 linear-gradient(to right, #4BBF73 50%, #f5f5f5 50%) top left/150% 150% no-repeat;
+}
+@keyframes progress-indeterminate {
+  0% {
+    background-image: linear-gradient(to right, #363636 50%, #f5f5f5 50%);
+    background-position: 200% 0;
+  }
+  100% {
+    background-image: linear-gradient(to right, #4BBF73 50%, #f5f5f5 50%);
+    background-position: -200% 0;
+  }
+}
 
 /*///////////////////////////////////////////////////
 ////////////////////// SIGNUP //////////////////////
@@ -2067,11 +2152,16 @@ html {
   font-size: 1.25rem;
 }
 
-#archiveDivider {
+.folder.archived:last-of-type {
+  border-bottom: 1px solid #ccc;
+}
+
+#archiveDivider, #summonDividerButton {
   text-align: center;
   width: 100%;
+  line-height: 3rem;
+  padding-bottom: 0;
   border-bottom: 1px solid transparent;
-  padding-bottom: 1rem;
   margin-bottom: 0.25rem;
   cursor: pointer;
 }
@@ -2176,6 +2266,10 @@ html {
   background-color: rgba(255,255,255,1);
 }
 
+.folderClosable {
+  overflow: hidden;
+}
+
 .docDrop {
   min-height: 30px;
   background-color: #F1f1f1;
@@ -2205,6 +2299,10 @@ html {
   padding-left: 0px;
 }
 
+.whatisaghost {
+  display: none;
+}
+
 #new-folder-button {
   transition: 0.3s ease color;
 }
@@ -2230,11 +2328,15 @@ html {
   overflow-y: scroll;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+
+  /* HIDES SCROLLBAR */
+  width: calc(100% + 20px);
+  padding-right: 20px;
 }
 
 #all-folders {
   height: 100%;
-  max-height: calc(100% - 7rem);
+  max-height: calc(100% - 3.2rem);
   padding-top: 1rem;
   /* padding-bottom: 0.5rem; */
 }
@@ -2246,6 +2348,10 @@ html {
   overflow-y: scroll;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+
+  /* HIDES SCROLLBAR */
+  width: calc(100% + 20px);
+  padding-right: 20px;
 }
 
 .offline-badge {
@@ -2763,10 +2869,10 @@ body.draggingStuff {
 }
 
 .modal-content {
-    max-height: 100%;
-    z-index: 999;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
+  max-height: 100%;
+  z-index: 999;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 #key-input {
@@ -2779,7 +2885,7 @@ body.draggingStuff {
   width: calc(100% - 1.25rem);
 }
 
-#keymodal-input-control {
+.keymodal-input-control {
   margin-right: 1.25rem;
   width: calc(100% - 6rem);
 }
@@ -2796,8 +2902,10 @@ body.draggingStuff {
 }
 
 #attachment-results {
-  padding: 1rem 0 0 0;
+  padding: 1rem 20px 0 0;
+  width: calc(100% + 20px);
   overflow: scroll;
+  max-height: 400px;
 }
 
 .attachment-selector {
@@ -2809,12 +2917,16 @@ body.draggingStuff {
   /*border: 1px solid #FFF;*/
   padding: 0.25rem;
   margin: 0.25rem 0.25rem 0.25rem 0.5rem;
-  width: calc(50% - 0.5rem) !important;
+  width: calc(100% - 0.5rem) !important;
   cursor: pointer;
   transition: ease-in-out 0.25s all;
   background-color: transparent;
   color: #FFF;
   height: auto;
+}
+
+.attachment-result .doctitle {
+  position: relative;
 }
 
 .attachment-result-folder {
@@ -2928,13 +3040,17 @@ body.draggingStuff {
   border: 0px solid transparent !important;
 }
 
-#offlineViewButton {
+#offline-button {
   cursor: default;
 }
 
 .docs-body #search-bar {
   overflow: auto;
   transition: 0.5s all ease;
+}
+
+.docs-body #search-bar .left-button {
+  margin-right: 0;
 }
 
 .docs-body #search-bar.is-unavailable {
@@ -3078,23 +3194,19 @@ body.draggingStuff {
   margin-bottom: 1rem;
 }
 
-.showUploadStatus{
-  height: 150px !important;
-  transition: all ease 0.5s !important;
-  margin-bottom: 1rem !important;
-  margin-right: 1rem !important;
-}
-
-#file-upload-status {
-  position: fixed;
+#file-upload-status, #file-download-status {
+  padding : 0;
+  position: absolute;
   bottom: 0;
   right: 0;
   width: calc(50% - 2rem);
   min-width: 320px;
-  margin-bottom: -150px;
-  height: 0px;
+  transform: translateY(180px);
+  margin:0 1rem 1rem 0 !important;
+  height: 150px;
   transition: all ease 1s;
   z-index: 98;
+  -webkit-box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.2);
   box-shadow: 0px 0px 25px 0px rgba(0,0,0,0.2);
   overflow: scroll;
 }
@@ -3115,27 +3227,14 @@ body.draggingStuff {
   display: block;
 }
 
-.showDownloadStatus {
-  height: 150px !important;
-  transition: all ease 0.5s !important;
-  margin-bottom: 0px !important;
+.showUploadStatus, .showDownloadStatus{
+  transform: translateY(0) !important;
 }
 
-#file-download-status {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  margin-bottom: -150px;
-  height: 0px;
-  transition: all ease 1s;
-  z-index: 98;
-  overflow: scroll;
-}
-
-.syncMessagesWrap {
+.syncMessagesWrap, .uploadDownloadStatWrap {
   position: absolute;
   width: 100%;
-  height: 150px;
+  height: calc(150px + 1rem + 25px);
   bottom: 0;
   right: 0;
   overflow: hidden;
@@ -3350,6 +3449,38 @@ body.draggingStuff {
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
 }
 
+#enoteimport-modal .modal-content {
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+  border-radius: 0.5rem !important;
+}
+
+#enoteimport-modal .notification {
+  padding: 0;
+}
+
+#enoteimport-modal .import-status {
+  padding: 1.25rem;
+}
+
+#enoteimport-modal .modal-background {
+  background-color: rgba(245,245,245,0.5);
+  pointer-events: none !important;
+}
+
+#enoteimport-modal .progress {
+  margin-top: -0.5rem;
+  margin-bottom: 0rem;
+  height: 0.5rem;
+}
+
+.export-option {
+  padding: 1rem;
+}
+
+.export-option:not(:last-of-type) {
+  border-bottom: 1px solid #ccc;
+}
+
 .card-content {
   padding: 0rem;
 }
@@ -3465,6 +3596,7 @@ body.draggingStuff {
 }
 
 .docicon {
+  margin-top: 2px;
   margin-right : 0.85rem;
 }
 
@@ -3502,12 +3634,9 @@ body.draggingStuff {
   color:transparent;
 }
 
-.recenticon.is-loading::after {
-  transition: 0.5s border ease;
-  border: 2px solid transparent;
-}
 
 .recenticon.is-loading::after {
+  transition: 0.5s border ease;
   -webkit-animation: spinAround 500ms infinite linear;
   animation: spinAround 500ms infinite linear;
   border: 2px solid #000;
@@ -3535,6 +3664,12 @@ body.draggingStuff {
 
 .docprogress-visible { opacity: 0.15 !important;}
 
+.upgradeProgress {
+  display: block;
+  width: 100%;
+  margin:auto;
+  position: relative;
+}
 
 .rename-folder-button > .icon, .make-ghost-folder-button > .icon, .delete-folder-button > .icon, .color-folder-thing > .icon:first-child, .upload-to-folder-button > .icon, .archive-folder-button > .icon {
   margin-right: 0.5rem;
@@ -3694,10 +3829,6 @@ body.draggingStuff {
 
 #doc-top.zenMode #upload-progress {
   height: 2px !important;
-}
-
-#doc-top.zenMode {
-  box-shadow: 0 2px 3px rgba(10,10,10,0.1);
 }
 
 .zenMode .ql-editor p {
@@ -3871,6 +4002,14 @@ body.draggingStuff {
 .home-level-left {
   margin-top: 12px !important;
   margin-left: 10px !important;
+  opacity: 1;
+  pointer-events: all;
+  transition: 0.5s opacity ease;
+}
+
+.home-level-left.newsOn {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .home-level-right {
@@ -4030,6 +4169,10 @@ body.draggingStuff {
   opacity: 1;
 }
 
+.hero-foot .home-title {
+  margin-bottom: 0.5rem;
+}
+
 .home-title.newsOn {
   transform: translateY(30px);
 }
@@ -4185,6 +4328,36 @@ body.draggingStuff {
 .ltrswitch:checked::before {
   font-family: Montserrat;
   content: 'LTR';
+  font-size: 14px;
+  color:#FFF;
+}
+
+.spellcheckswitch {
+  background-color: #f5f5f5;
+  border-color:#000;
+  width: 3rem;
+  height: 2rem;
+  margin-top: 2px;
+  margin-bottom: 0.25rem;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.spellcheckswitch::before {
+  font-family: Montserrat;
+  content: 'OFF';
+  text-align: left;
+  font-size: 14px;
+  color:#000;
+}
+
+.spellcheckswitch:checked {
+  background-color: #4BBF73;
+}
+
+.spellcheckswitch:checked::before {
+  font-family: Montserrat;
+  content: 'ON';
   font-size: 14px;
   color:#FFF;
 }
@@ -4732,6 +4905,10 @@ body.draggingStuff {
   #signup-info {
     padding: 1rem !important;
     font-size: 12px !important;
+  }
+
+  .modal-content {
+    overflow-y : scroll;
   }
 }
 
@@ -6365,9 +6542,8 @@ body.draggingStuff {
     border-bottom: 1px solid #CCC !important;
   }
 
-  #offlineViewButton:not(.is-unavailable) {
+  #offline-button:not(.is-unavailable) {
     background-color: transparent !important;
-    border-bottom: 1px solid #000 !important;
   }
 
   #homedoc.is-dark[disabled]:hover {
@@ -6710,12 +6886,19 @@ body.draggingStuff {
   html, body {
     height: auto !important;
   }
-  #active-doc-contents {
-    padding-top: 0 !important;
-    padding-left: 0 !important;
-    width: 100% !important;
+
+  #docs-page-wrap, #docs-main-wrap, #docs-center-wrap {
     height: auto !important;
     overflow: auto !important;
+  }
+
+  #docs-page-wrap {
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    min-width: 100% !important;
+    width: 100% !important;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0) !important;
+    margin: 0 !important;
   }
 
   .ql-editor {

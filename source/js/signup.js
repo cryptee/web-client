@@ -662,7 +662,7 @@ function createUser () {
       signUpWithEmail = true;
       theUser = usercred.user;
       theUserID = theUser.uid;
-      Raven.setUserContext({ id: theUserID });
+      setSentryUser(theUserID);
       logUser(theUser, theUsername, theKey);
   }, function(error) {
       var errorCode = error.code;

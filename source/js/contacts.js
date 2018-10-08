@@ -104,7 +104,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       rootRef = store.ref().child('/users/' + theUserID);
       contactsRef = rootRef.child("contacts.crypteedoc");
 
-      Raven.setUserContext({ id: theUserID });
+      setSentryUser(theUserID);
 
       $('.username').html(theUsername || theEmail);
 
@@ -460,7 +460,7 @@ function downloadContacts() {
           $("#download-status").removeClass("is-info is-danger is-warning is-success").addClass("is-danger");
           $("#download-status > .title").html("Error");
           $("#download-status").append("<p>Sorry, there seems to be a problem loading your contacts. This is most likely a temporary problem on our end. Please try again shortly.</p>");
-          Raven.captureException(thrownError);
+          handleError(thrownError);
         }
     });
 

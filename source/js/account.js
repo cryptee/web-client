@@ -173,7 +173,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       foldersRef = db.ref().child('/users/' + theUserID + "/data/folders/");
       photosRef = firestore.collection("users").doc(theUserID).collection("photos");
       rootRef = store.ref().child('/users/' + theUserID);
-      Raven.setUserContext({ id: theUserID });
+      setSentryUser(theUserID);
 
       gotUser();
       reauthenticated = false;
@@ -510,8 +510,12 @@ function openPaddle () {
 }
 
 // unnecessary but keeping anyway.
-function paymentSuccessful(data) {}
-function paymentTerminated(data) {}
+function paymentSuccessful(data) {
+  console.log("Payment Successful", data);
+}
+function paymentTerminated(data) {
+  console.log("Payment Terminated", data);
+}
 
 function populatePlanDetails (meta) {
   plan = meta.plan;
@@ -1114,7 +1118,7 @@ $("#inactivityTimeoutInput").on("keydown keypress paste copy cut change", functi
   clearTimeout(inactivityTimeoutInputTimeout);
   if (!populatingPreferences) {
     setTimeout(function () {
-      var timeoutValue = parseInt($("#inactivityTimeoutInput").val().trim()) || 30;
+      var timeoutValue = Number($("#inactivityTimeoutInput").val().trim());
       if (timeoutValue <= 0) {
         timeoutValue = 0;
         $("#inactivityTimeoutInput").val(0);
@@ -1153,7 +1157,6 @@ $(".rtlswitch").on("change", function(e){
   }
 });
 
-var textDirectionTimeout;
 function updateTextDirection() {
   setTimeout(function () {
     var selection = "ltr";
@@ -1170,9 +1173,27 @@ function updateTextDirection() {
   }, 500);
 }
 
+$(".spellcheckswitch").on("change", function(e){
+  if (!populatingPreferences) {
+    updateSpellchecker();
+  }
+});
 
+function updateSpellchecker() {
+  setTimeout(function () {
+    var spellcheckStatus = "on";
+    if ($(".spellcheckswitch").is(':checked')) {
+      spellcheckStatus = "on";
+    } else {
+      spellcheckStatus = "off";
+    }
 
-
+    if (userPreferences) {
+      userPreferences.docs.spellcheck = spellcheckStatus;
+      dataRef.update({"preferences" : userPreferences});
+    }
+  }, 500);
+}
 
 
 

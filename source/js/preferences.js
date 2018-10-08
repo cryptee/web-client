@@ -93,7 +93,8 @@ var userPreferences = {
     "inactivityTimeout" : 30
   },
   "docs" : {
-    "direction" : "ltr"
+    "direction" : "ltr",
+    "spellcheck" : "on"
   },
   "photos" : {
 
@@ -107,7 +108,7 @@ function gotPreferences(pref) {
   if (pref !== undefined && pref !== null && pref !== "" && pref !== {}) {
 
     if (pref.general) {
-      if (pref.general.inactivityTimeout) {
+      if (pref.general.inactivityTimeout >= 0) {
         userPreferences.general.inactivityTimeout = pref.general.inactivityTimeout;
       }
 
@@ -116,6 +117,10 @@ function gotPreferences(pref) {
     if (pref.docs) {
       if (pref.docs.direction) {
         userPreferences.docs.direction = pref.docs.direction;
+      }
+
+      if (pref.docs.spellcheck) {
+        userPreferences.docs.spellcheck = pref.docs.spellcheck;
       }
 
     }
@@ -151,16 +156,29 @@ function populatePreferences () {
     $(".rtlswitch").prop('checked', true).attr('checked', true);
   }
 
+  if (userPreferences.docs.spellcheck === "on") {
+    $(".spellcheckswitch").prop('checked', true).attr('checked', true);
+  } else {
+    $(".spellcheckswitch").prop('checked', false).attr('checked', false);
+  }
+
   setTimeout(function () {
     populatingPreferences = false;
   }, 100);
 }
 
 function applyPreferences () {
-  if (userPreferences.docs.direction === "rtl") {
-    $("body").addClass("direction-pref-rtl");
-  } else {
-    $("body").removeClass("direction-pref-rtl");
-  }
+  if (window.location.pathname === "/docs") {
+    if (userPreferences.docs.direction === "rtl") {
+      $("body").addClass("direction-pref-rtl");
+    } else {
+      $("body").removeClass("direction-pref-rtl");
+    }
 
+    if (userPreferences.docs.spellcheck === "on") {
+      if (quill) { quill.root.spellcheck = true; }
+    } else {
+      if (quill) { quill.root.spellcheck = false; }
+    }
+  }
 }

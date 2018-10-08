@@ -60,6 +60,33 @@
     li.is-active i { color: #000 !important; }
     li.is-active path { fill: #000 !important; }
 
+    .goodbye-form {
+      padding: 1rem !important;
+      background-color: rgba(0, 0, 0, 0.9) !important;
+    }
+
+    .goodbye-form input {
+      padding: 1.5rem 0 0 1rem;
+      color: #FFF !important;
+      background-color: transparent;
+      border:none;
+      font-size: 18px;
+      line-height: 24px;
+    }
+
+    .goodbye-form input[disabled] {
+      color:#FFF !important;
+      background-color: transparent !important;
+    }
+
+    .goodbye-form .control {
+      margin:0;
+    }
+
+    .goodbye-form button {
+      height: 60px;
+    }
+
   </style>
 
 </head>
@@ -77,7 +104,21 @@
           </div>
         </div>
         <div class="hero-footer">
-          <p class="has-text-centered"><a id="photo-credit" target="_blank">Photo Credit</a></p>
+
+          <div class="notification is-black has-text-left goodbye-form">
+              <div class="field has-addons">
+                <div class="control is-expanded">
+                  <input id="feedback-input" class="input" type="text" name="reason" placeholder="Please let us know why you left, so we can improve ...">
+                </div>
+                <div class="control submit-button">
+                  <button class="button is-light" onclick="submitForm();">
+                    Submit
+                  </button>
+                </div>
+              </div>
+          </div>
+
+          <!-- <p class="has-text-centered"><a id="photo-credit" target="_blank">Photo Credit</a></p> -->
         </div>
       </section>
     </div>
@@ -90,11 +131,10 @@
   purgeOfflineStorage ();
 
   $(window).on("load", function(event) {
+    $("input").focus();
     if (!isMobile) {
-
       $.ajax({url: photoJSON}).done(function(data) {
         var usObj = JSON.parse(data);
-
         $('<img/>').attr('src', photoURL).on('load', function() {
           $(this).remove();
           $(".hero-banner .hero").css("background-image", "url("+photoURL+")");
@@ -102,9 +142,27 @@
           $('#photo-credit').attr("href", usObj.author_url);
         });
       });
-
     }
   });
+
+  $("#feedback-input").on('keydown', function (e) {
+    setTimeout(function(){ if (e.keyCode == 13) { submitForm(); } },50);
+  });
+
+  function submitForm () {
+    var feedback = $("#feedback-input").val().trim();
+    if (feedback !== "") {
+      collectFeedback("Goodbye", $("#feedback-input").val().trim());
+      formSubmitted();
+    } else {
+      $("#feedback-input").attr("placeholder", "Your account is already deleted. This is just a feedback form!");
+    }
+  }
+
+  function formSubmitted() {
+    $(".submit-button .button").html("Submitted").addClass("is-success").attr('disabled', 'disabled').prop( "disabled", true );
+    $("#feedback-input").val("Thank you for helping us improve!").attr('disabled', 'disabled').prop( "disabled", true );
+  }
 
   </script>
 </body>

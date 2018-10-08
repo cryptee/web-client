@@ -149,6 +149,7 @@ function createUserInDB() {
         username: theUsername,
         keycheck : encryptedStrongKey,
         lastOpenDocID : "home",
+        tie : true,
         foldersCount : 0
       };
       dataRef.set(newUserData, function(error){

@@ -785,11 +785,39 @@ function flushOldCaches() {
   });
 }
 ////////////////////////////////////////////////
-////////////////  RAVEN  SETUP  ////////////////
+////////////////  SENTRY  SETUP  ////////////////
 ////////////////////////////////////////////////
 
-try { Raven.config('https://bbfa9a3a54234070bc0899a821e613b8@sentry.io/149319', { release: latestDeployVersion }).install(); } catch (e) { }
+try {
+  Sentry.init({
+    dsn: 'https://bbfa9a3a54234070bc0899a821e613b8@sentry.io/149319',
+    release: latestDeployVersion,
+  });
+} catch (e) { }
 
+////////////////////////////////////////////////
+//////////////// FEEDBACK SETUP ////////////////
+////////////////////////////////////////////////
+
+// callback ( result )
+var feedbackURL = "https://crypt.ee/api/feedback";
+function collectFeedback (form, msg, uid, callback) {
+  callback = callback || noop;
+  uid = uid || null;
+  msg = msg || null;
+  form = form || null;
+
+  if (form !== null && msg !== null && msg.trim() !== "") {
+    var dataToSubmit = { msg : msg, form : form };
+    if (uid !== null && uid !== "undefined") {  dataToSubmit.uid = uid; }
+
+    $.ajax({ url: feedbackURL, method: "POST", data: dataToSubmit, dataType: "json", success: function(){
+      callback();
+    }}).done(function(data) {
+      callback(data);
+    });
+  }
+}
 
 
 ////////////////////////////////////////////////
@@ -847,9 +875,13 @@ function checkConnection (callback) {
     url: checkConnectionURL,
     type: 'GET',
     dataType: 'json',
-    success: function(data){ callback(true); },
+    success: function(data){
+      // callback(false); // for testing
+      callback(true);
+    },
     error: function(x) {
       if (x.status === 200) {
+        // callback(false); // for testing
         callback(true);
       } else {
         if (!retriedCheckConnection) {
@@ -925,25 +957,35 @@ function newEncryptedKeycheck(hashedKey, callback) {
 //////////////// REPORT BUGS /////////////
 ///////////////////////////////////////////
 
-function reportBug () {
-  var userDetails;
-  try {
-    userDetails = theUserID;
-  } catch (e) {
-    userDetails = "Unknown User";
-  }
-  Raven.showReportDialog(Raven.captureException(new Error('Bug Report/Feedback by ' + userDetails)));
-}
+// USING CUSTOM BUGREPORTING AT /BUGREPORT NOW
+// function reportBug () {
+//   var userDetails;
+//   try {
+//     userDetails = theUserID;
+//   } catch (e) {
+//     userDetails = "Unknown User";
+//   }
+//   Raven.showReportDialog(Raven.captureException(new Error('Bug Report/Feedback by ' + userDetails)));
+// }
 
 function handleError (error) {
   if (error) {
     console.log(error);
     if (error.code) {
-      Raven.captureException(error, {fingerprint: [error.code]});
+      Sentry.withScope(function(scope) {
+        scope.setFingerprint([error.code]);
+        Sentry.captureException(e);
+      });
     } else {
-      Raven.captureException(error);
+      Sentry.captureException(error);
     }
   }
+}
+
+function setSentryUser(userid) {
+  Sentry.configureScope(function(scope) {
+    scope.setUser({ id: userid });
+  });
 }
 
 ///////////////////////////////////////////
