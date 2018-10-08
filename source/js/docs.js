@@ -6831,7 +6831,7 @@ function processPlaintextCrypteedoc (plaintextCrypteedoc) {
 
   saveDoc(function (){
     // RENAME DOCUMENT AND REMOVE HTML NOW.
-    var newDocName = dtitle.replace(/\.crypteedoc/g, '');
+    var newDocName = dtitle.replace(/\.crypteedoc/g, '').replace(/\.ecd/g, '');
     encryptTitle(activeDocID, JSON.stringify(newDocName), function(encryptedTitle){
       foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false, title : encryptedTitle }, function(){
         //set doc title in taskbar
