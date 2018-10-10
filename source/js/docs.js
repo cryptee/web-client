@@ -2241,8 +2241,9 @@ function appendFolder (folder){
 
 
 function filetypeFromFilename (filename) {
+  filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
   var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
-  var filetype;
+  var filetype = null;
 
   if (extension.match(/^(006|007|3DMF|3DX|8PBS|ABM|ABR|ADI|AEX|AI|AIS|ALBM|AMU|ARD|ART|ARW|ASAT|B16|BIL|BLEND|BLKRT|BLZ|BMC|BMC|BMP|BOB|BR4|BR5|C4|CADRG|CATPART|CCX|CDR|CDT|CDX|CGM|CHT|CM2|CMX|CMZ|COMICDOC|CPL|CPS|CPT|CR2|CSF|CV5|CVG|CVI|CVI|CVX|DAE|DCIM|DCM|DCR|DCS|DDS|DESIGN|DIB|DJV|DJVU|DNG|DRG|DRW|DRWDOT|DT2|DVL|DWB|DWF|DXB|EASM|EC3|EDP|EDRW|EDW|EMF|EPRT|EPS|EPSF|EPSI|EXR|FAC|FACE|FBM|FBX|FC2|FCZ|FD2|FH11|FHD|FIT|FLIC|FLM|FM|FPF|FS|FXG|GIF|GRAFFLE|GTX|HD2|HDZ|HPD|HPI|HR2|HTZ4|ICL|ICS|IDW|IEF|IGES|IGR|ILBM|ILM|IMA|IME|IMI|IMS|INDD|INDT|IPJ|IRF|ITC2|ITHMB|J2K|JIFF|JNG|JPEG|JPF|JPG|JPG2|JPS|JPW|JT|JWL|JXR|KDC|KODAK|KPG|LDA|LDM|LET|LT2|LTZ|LVA|LVF|LXF|MAC|MACP|MCS|MCZ|MDI|MGS|MGX|MIC|MIP|MNG|MPF|MPO|MTZ|MUR|MUR|NAV|NCR|NEU|NFF|NJB|NTC|NTH|ODI|ODIF|OLA|OPD|ORA|OTA|OTB|OTC|OTG|OTI|OVW|P21|P2Z|PAT|PC6|PC7|PCD|PCT|PCX|PDN|PEF|PI2|PIC|PIC|PICNC|PICTCLIPPING|PL0|PL2|PLN|PMB|PNG|POL|PP2|PPSX|PRW|PS|PS|PSB|PSD|PSF|PSG|PSP|PSPIMAGE|PSQ|PVL|PWD|PWS|PX|PXR|PZ2|PZ3|QTIF|QTZ|QXD|RIC|RLC|RLE|RW2|SDK|SDR|SEC|SFW|SIG|SKP|SLDASM|SLDDRW|SLDPRT|SNX|SRF|SST|SUN|SVG|SVGZ|TARGA|TCW|TCX|TEX|TGA|TIF|TIFF|TJP|TN|TPF|TPX|TRIF|TRX|U3D|UPX|URT|UTX|V00|V3D|VFS|VGA|VHD|VIS|VRL|VTX|WB1|WBC|WBD|WBZ|WEBP|WGS|WI|WMF|WNK|XDW|XIP|XSI|X_B|X_T|ZDL|ZIF|ZNO|ZPRF|ZT)$/i)) {
     filetype = "image photo foto";
@@ -7840,7 +7841,13 @@ function downSyncOnlineDoc (doc, docRef, onlineGen, callback, callbackParam) {
   // GET THESE FROM CATALOG. THESE SHOULD BE IN MEMORY NOW. //
   ///////////////////////////////////////////////////////////////////////////
 
-  var tags = catalog.docs[did].tags || [];
+  var tags;
+  if (catalog.docs[did]) {
+    tags = catalog.docs[did].tags || [];
+  } else {
+    tags = [];
+  }
+
   var fid = fidOfDID(did);
   var dtitle = titleOf(did);
   var fname = titleOf(fid);
@@ -7952,7 +7959,14 @@ function syncCompleted (callback, callbackParam) {
 var syncErrors = [];
 function showErrorBubble(message, err) {
   // serialize and deserialize to remove functions from err object, localforage can't save functions in objects.
-  error = JSON.parse(JSON.stringify(err)) || "";
+  var errorObj;
+  if (err) {
+    errorObj = JSON.parse(JSON.stringify(err));
+  } else {
+    errorObj = null;
+  }
+
+  error = errorObj || "";
   message = message || "Error";
 
   var now = (new Date()).getTime().toString();
