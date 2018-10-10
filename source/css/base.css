@@ -1527,6 +1527,7 @@ html {
 .hero-visual {
   overflow: hidden;
   margin: -35vh auto 0rem auto;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
 }
 
 .hero-visual img {

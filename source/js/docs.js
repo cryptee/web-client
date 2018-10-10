@@ -4843,7 +4843,7 @@ function showFileDownloadStatus(color, message) {
 }
 
 function hideFileDownloadStatus() {
-  $("#file-download-status").removeClass("is-dark is-light is-warning is-danger is-success").addClass("is-warning");
+  $("#file-download-status").removeClass("is-dark is-light is-warning is-danger is-success").addClass("is-light");
   $("#file-download-status").removeClass("showUploadStatus");
 }
 
@@ -4967,7 +4967,7 @@ var completedDownloads = 0;
 var completedDeletions = 0;
 function downloadSelections () {
   completedDownloads = 0;
-  showFileDownloadStatus("is-warning", '<span class="icon is-small"><i class="fa fa-fw fa-circle-o-notch fa-spin"></i></span> &nbsp; <b>Decrypting &amp; Downloading</b><br>Please <b>do not</b> close this window until all downloads are complete');
+  showFileDownloadStatus("is-light", '<span class="icon is-small"><i class="fa fa-fw fa-circle-o-notch fa-spin"></i></span> &nbsp; <b>Decrypting &amp; Downloading</b><br>Please <b>do not</b> close this window until all downloads are complete');
   $("#selection-download-button > i").removeClass("fa-download").addClass("fa-circle-o-notch fa-spin");
   $.each(selectionArray, function(index, selection) {
     $("#file-download-status").append("<br><span id='dld-" + selection.did + "'>" + selection.dtitle + "</span>");
@@ -5110,7 +5110,7 @@ function showFileUploadStatus(color, message) {
 }
 
 function hideFileUploadStatus() {
-  $("#file-upload-status").removeClass("is-dark is-light is-warning is-danger is-success").addClass("is-warning");
+  $("#file-upload-status").removeClass("is-dark is-light is-warning is-danger is-success").addClass("is-light");
   $("#file-upload-status").removeClass("showUploadStatus");
 }
 
@@ -5183,7 +5183,7 @@ function handleFileDrop(evt) {
 
       if (numFilesLeftToBeUploaded > 0) {
         var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-        showFileUploadStatus("is-warning", processingMessage);
+        showFileUploadStatus("is-light", processingMessage);
       }
 
     } else {
@@ -5222,7 +5222,7 @@ function handleFileSelect(evt) {
 
       if (numFilesLeftToBeUploaded > 0) {
         var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-        showFileUploadStatus("is-warning", processingMessage);
+        showFileUploadStatus("is-light", processingMessage);
       }
 
     } else {
@@ -5361,7 +5361,7 @@ function processDroppedFile (file, fid, callback, callbackParam) {
       encryptAndUploadFile(base64FileContents, fid, filename, callback, callbackParam);
 
       var processingMessage = "Encrypting <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-      showFileUploadStatus("is-warning", processingMessage);
+      showFileUploadStatus("is-light", processingMessage);
     } catch (e) {
       fileUploadError = true;
       showFileUploadStatus("is-danger", "Error. You have tried uploading an <b>empty file</b> or <b>folder</b>. Currently we intentionally do not to support uploading folders or its contents as they can reveal identifiable information about your computer. We suggest that you compress folders before uploading instead. We know this is a major inconvenience, and we're working on finding a solution. <b>If you have selected any files that are not in folders, those are being uploaded.</b>");
@@ -5431,6 +5431,7 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
   });
 }
 
+var uploadCompleteTimeout;
 function fileUploadComplete(fidToUpdateInDB, did, filename, callback, callbackParam) {
   numFilesLeftToBeUploaded--;
 
@@ -5446,11 +5447,41 @@ function fileUploadComplete(fidToUpdateInDB, did, filename, callback, callbackPa
         foldersRef.child(fid + "/docs/" + did).update(docData, function(){
           $("#" + fid).attr("count", fcount + 1);
           decryptEncryptedCatalogItems();
+
+          // if there's no queue, this should go through since it'll be smaller than 0
+          // if there's a queue, this will wait until the queue is complete.
+
+          clearTimeout(uploadCompleteTimeout);
           if (numFilesLeftToBeUploaded <= 0) {
-            // all uploads complete
-            hideFileUploadStatus();
+            // to assure this remains as 0 even if it's a queue upload
+            numFilesLeftToBeUploaded = 0;
+
             updateDocIndexesOfFID (fid);
+            showFileUploadStatus("is-light", "Processing Uploads");
+            uploadCompleteTimeout = setTimeout(function () {
+              // to buffer for the time in between items getting added to queue.
+              hideFileUploadStatus();
+            }, 2500);
           }
+
+          // if there's a queue, proceed with the next one in queue
+          if (activeUploadsInQueue > 0) {
+            activeUploadsInQueue--;
+            setTimeout(function () {
+              // this is to not overwhelm the database, and give time
+              // for things to sync back to client
+              // (like files appearing -syncing back- into the list of folders etc.)
+              nextInQueue();
+            }, 930);
+
+            // this is intentionally 930 not 1 second to make sure it doesn't overlap with previous timeout easily.
+            // there's no race condition, but it's just a cosmetics thing.
+
+          } else {
+            // to assure this remains as 0 even if queue goes negative for some reason
+            activeUploadsInQueue = 0;
+          }
+
 
           callback(callbackParam);
         });
@@ -5466,6 +5497,51 @@ function fileUploadComplete(fidToUpdateInDB, did, filename, callback, callbackPa
     });
   }
 }
+
+
+var uploadQueue = [];
+var startQueueTimeout;
+var activeUploadsInQueue = 0;
+var maxItemsInQueue = 4;
+function queueFileForEncryptAndUpload (base64FileContents, fid, filename, callback, callbackParam) {
+
+  uploadQueue.push({
+    data : base64FileContents,
+    fid : fid,
+    name : filename,
+    cb : callback,
+    cbp : callbackParam,
+    processed : false
+  });
+
+  clearTimeout(startQueueTimeout);
+  startQueueTimeout = setTimeout(function () {
+    console.info("Starting upload queue");
+    nextInQueue ();
+  }, 500);
+}
+
+function nextInQueue () {
+  uploadQueue.forEach(function(upload, index) {
+    if ( !upload.processed && (activeUploadsInQueue < maxItemsInQueue) ) {
+      uploadQueue[index].processed = true;
+      activeUploadsInQueue++;
+      numFilesLeftToBeUploaded++;
+      encryptAndUploadFile(upload.data, upload.fid, upload.name, upload.cb, upload.cbp);
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 ///////////////////////////////////////////////////
@@ -6052,7 +6128,7 @@ function uploadSelectionsToCurrentFolder (selectedAttachmentFiles) {
 
     if (numFilesLeftToBeUploaded > 0) {
       var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-      showFileUploadStatus("is-warning", processingMessage);
+      showFileUploadStatus("is-light", processingMessage);
     }
 
   } else {
@@ -6328,10 +6404,12 @@ function unpackENEXFile (enoteJSON, dtitle, did, decryptedContents, callback, do
     numOfNotesToUpload++;
 
     // CONVERT THIS TO A QUEUE. MAYBE MAKE IT 3 AT A TIME AND MAKE IT KINDA LIKE PHOTOS. OTHERWISE THIS OPENS THE FLOODGATES.
-    encryptAndUploadFile(xmlToEncrypt, fid, titleToUpload, function(did){
+    queueFileForEncryptAndUpload(xmlToEncrypt, fid, titleToUpload, function(did){
       numNotesUploaded++;
       if (numNotesUploaded === numOfNotesToUpload) {
         // ALL NOTES UPLOADED.
+        numNotesUploaded = 0;
+        numOfNotesToUpload = 0;
         hideModal("enoteimport-modal");
         console.log("All Notes Unpacked.");
         $("#" + parentDid).find(".exticon").removeClass("is-loading");
