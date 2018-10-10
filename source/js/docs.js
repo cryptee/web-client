@@ -7913,14 +7913,18 @@ function downSyncOnlineDoc (doc, docRef, onlineGen, callback, callbackParam) {
     tags = [];
   }
 
-  var fid = fidOfDID(did);
-  var dtitle = titleOf(did);
-  var fname = titleOf(fid);
+  var fid;
+  var dtitle;
+  var fname;
 
   if (did === "home") {
     dtitle = "Home";
     fid = "f-uncat";
     fname = "Inbox";
+  } else {
+    fid = fidOfDID(did);
+    dtitle = titleOf(did);
+    fname = titleOf(fid);
   }
 
   ///////////////////////////////////////////////////////////////////////////
