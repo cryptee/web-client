@@ -22,7 +22,7 @@
     version: '2.1.2',
     enabled: 'ontouchstart' in document.documentElement,
     // preventDefault: true, --- dunno why it's there but fucks up ios scrolling.
-    threshold: 200
+    threshold: 150
   };
 
   var startX,

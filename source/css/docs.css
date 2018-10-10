@@ -350,7 +350,7 @@
 
 #docs-sections-wrapper {
   position: relative;
-  height: calc(100% - 3rem);
+  height: calc(100% - 4rem);
   margin-top: 3rem;
   padding: 0 0rem 0 180px;
   opacity: 1;
@@ -368,6 +368,17 @@
   transform: translateY(-50%);
   padding-left: 180px;
   width: 100%;
+  max-height: calc(100% - 2rem);
+}
+
+#doc-counts {
+  right: 0;
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  padding-left: 180px;
+  width: 100%;
+  height: 2rem;
 }
 
 .docsection.H1 {
@@ -428,6 +439,14 @@
   color: #f5f5f5;
 }
 
+#word-count, #char-count {
+  font-size: 9px;
+  color : #f5f5f5;
+  text-align: left;
+  transition: 0.5s color ease;
+  font-weight:600;
+}
+
 /* /////////////////////////////////////////////////
 ////////////////////// LEFT ///////////////////////
 /////////////////////////////////////////////////*/
@@ -436,9 +455,12 @@
 
 #docs-left-center:not(.showLeft) .left-nav-field,
 #docs-left-wrap:not(.showLeft) #docs-left-bottom,
-#docs-left-wrap.is-loading #docs-left-center,
-#docs-left-wrap.is-loading #docs-left-bottom,
-#docs-left-wrap.is-loading #docs-left-top,
+#docs-left-wrap.is-loading #docs-left-center.itsMobile,
+#docs-left-wrap.is-loading #docs-left-bottom.itsMobile,
+#docs-left-wrap.is-loading #docs-left-top.itsMobile,
+#docs-left-wrap.is-loading #docs-left-center.firstLoad,
+#docs-left-wrap.is-loading #docs-left-bottom.firstLoad,
+#docs-left-wrap.is-loading #docs-left-top.firstLoad,
 #docs-right-wrap.is-loading
 {
   opacity: 0 !important;
@@ -866,7 +888,8 @@
     border-color: rgba(0,0,0,1);
   }
 
-  #docs-right-wrap:hover .docsection {
+  #docs-right-wrap:hover .docsection,
+  #docs-right-wrap:hover #doc-counts * {
     color: rgba(0,0,0,0.4);
   }
 

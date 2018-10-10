@@ -690,7 +690,7 @@ if (!isMobile) {
       // when nothing's being dragged to be dropped show right.
       // this may change one day so account for file drops.
       clearSearch();
-
+      updateCounts();
       // wrappersToMove.addClass("showRight");
 
     }
@@ -704,29 +704,15 @@ var thingsNeedResizing = "#help-button, #toolbar-container, #editor-toolbar, #do
 function ww() { return $(window).width(); }
 
 function arrangeTools () {
-  // if (!isMobile) {
   if (isMobile) {
-    //DESKTOP
-    // if (ww() <= desktopCutOffWidthPixel) {
-    //   hideMenu();
-    // } else if (ww() > desktopCutOffWidthPixel){
-    //   $(thingsNeedResizing).removeClass("menuOpen");
-    //   $("#doc-top, #docs-page-wrap, #file-viewer").addClass("menuOpen");
-    // }
-  // } else {
     $("#hamburger").fadeIn(100);
   }
 }
-
-// $(window).resize(function(event) {
-//   arrangeTools();
-// });
 
 $(window).on("load", function(event) {
   if (isMobile) {
     $("#mobile-toolbar, .mobile-floating-tools").removeClass("hidden");
     $(thingsNeedResizing).addClass("itsMobile");
-    // $(".menu-hamburger").show();
     $(".save-doc-button").addClass("unavailable");
     $(".dropdown-save-button").show();
   } else {
@@ -757,6 +743,8 @@ function firstLoadComplete() {
   if (!initialLoadComplete) {
     initialLoadComplete = true;
 
+    $(".firstLoad").removeClass("firstLoad");
+
     updateRecentDocs();
 
     setTimeout(function () { // this is for UX
@@ -782,9 +770,6 @@ function showMenu () {
 }
 
 function hideMenu () {
-  // if (ww() <= desktopCutOffWidthPixel || isMobile) {
-    // $(thingsNeedResizing).removeClass("menuOpen");
-  // }
   $("#help-button").removeClass("shown");
   wrappersToMove.removeClass("showLeft");
   clearSearch();
@@ -3786,9 +3771,10 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
 
     $('#main-progress').attr("value", "100").attr("max", "100").removeClass("is-danger is-warning").addClass("is-success");
 
-    hideDocProgress(hideMenu);
-    if (!isMobile) {
-      quill.focus();
+    if (isMobile) {
+      hideDocProgress(hideMenu);
+    } else {
+      hideDocProgress();
     }
 
     //set doc title in taskbar
@@ -5191,7 +5177,7 @@ function handleFileDrop(evt) {
       fileUploadError = false;
 
       for (var i = 0; i < files.length; i++) {
-        processDroppedDoc(files[i], targetfid);
+        processDroppedFile(files[i], targetfid);
         numFilesLeftToBeUploaded++;
       }
 
@@ -5230,7 +5216,7 @@ function handleFileSelect(evt) {
       fileUploadError = false;
 
       for (var i = 0; i < files.length; i++) {
-        processDroppedDoc(files[i], targetfid);
+        processDroppedFile(files[i], targetfid);
         numFilesLeftToBeUploaded++;
       }
 
@@ -5356,7 +5342,7 @@ function showFileUploadInfo(evt) {
   }
 }
 
-function processDroppedDoc (file, fid, callback, callbackParam) {
+function processDroppedFile (file, fid, callback, callbackParam) {
   callback = callback || noop;
 
   var reader = new FileReader();
@@ -6034,7 +6020,7 @@ function processDroppedAttachment (file) {
         targetfid = activeFileFolder();
       }
 
-      processDroppedDoc(file, targetfid, function(did){
+      processDroppedFile(file, targetfid, function(did){
         attachCrypteeFile (filename, did);
       });
 
@@ -6060,7 +6046,7 @@ function uploadSelectionsToCurrentFolder (selectedAttachmentFiles) {
     fileUploadError = false;
 
     for (var i = 0; i < files.length; i++) {
-      processDroppedDoc(files[i], targetfid);
+      processDroppedFile(files[i], targetfid);
       numFilesLeftToBeUploaded++;
     }
 
@@ -6341,6 +6327,7 @@ function unpackENEXFile (enoteJSON, dtitle, did, decryptedContents, callback, do
     var titleToUpload = note.title + ".enex";
     numOfNotesToUpload++;
 
+    // CONVERT THIS TO A QUEUE. MAYBE MAKE IT 3 AT A TIME AND MAKE IT KINDA LIKE PHOTOS. OTHERWISE THIS OPENS THE FLOODGATES.
     encryptAndUploadFile(xmlToEncrypt, fid, titleToUpload, function(did){
       numNotesUploaded++;
       if (numNotesUploaded === numOfNotesToUpload) {
@@ -8145,6 +8132,44 @@ $(".ql-editor").on('scroll', throttleScroll(function(event) {
     });
 	}, 300);
 }, 100));
+
+///////////////////////////////////////////////////////////
+///////////////////// WORD COUNT  /////////////////////////
+///////////////////////////////////////////////////////////
+
+
+function wordCount() {
+  var text = quill.getText().trim();
+  // Splitting empty text returns a non-empty array
+  var count = text.length > 0 ? text.split(/\s+/).length : 0;
+  return count;
+}
+
+function charCount() {
+  var text = quill.getText().trim();
+  var count = text.length;
+  return count;
+}
+
+function updateCounts() {
+  var words = wordCount();
+  var chars = charCount();
+
+  var wCountString = words + " " + "word";
+  if (words !== 1) { wCountString += 's'; }
+
+  var cCountString = chars + " " + "char";
+  if (chars !== 1) { cCountString += 's'; }
+
+  $("#word-count").html(wCountString);
+  $("#char-count").html(cCountString);
+}
+
+
+
+
+
+
 
 
 
