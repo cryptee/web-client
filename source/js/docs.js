@@ -747,6 +747,7 @@ function firstLoadComplete() {
 
     updateRecentDocs();
 
+
     setTimeout(function () { // this is for UX
       $("#doc-contextual-buttons").show();
       if (!isMobile) {
@@ -1410,6 +1411,24 @@ $("#key-input").on('keydown', function (e) {
 /////////////////// ERROR HANDLING  ////////////////
 ////////////////////////////////////////////////////
 
+function checkCatalogIntegrity () {
+  var undefinedFolder = false;
+  breadcrumb("catalog integrity check : starting");
+  Object.keys(catalog.folders).forEach(function(key){
+    if (key === "undefined") {
+      // there is an undefined folder.
+      undefinedFolder = true;
+      breadcrumb("catalog integrity check : found undefined folder");
+    }
+  });
+
+  if (undefinedFolder) {
+    fixUndefinedFolder();
+  } else {
+    breadcrumb("catalog integrity check : passed");
+  }
+}
+
 function fixHomeDoc (callback, callbackParam){
   loadJSON ("../js/homedoc.json", function(jsonRes){
     var homeDelta = JSON.parse(jsonRes);
@@ -1445,20 +1464,38 @@ function fixFilesAndFolders (did) {
 }
 
 function fixFolders (did) {
+  var isThereAnUndefinedFolder = false;
   foldersRef.once('value', function(snapshot) {
     var allFolders = snapshot.val();
     if (allFolders) {
-      var allFoldersCount = Object.keys(allFolders).length;
+      var allFoldersKeys = Object.keys(allFolders);
+      var allFoldersCount = allFoldersKeys.length;
       var foldersCountOnServer;
       dataRef.child("foldersCount").once('value', function(snapshot) {
         foldersCountOnServer = snapshot.val();
         if (foldersCountOnServer !== allFoldersCount) {
           dataRef.update({"foldersCount" : allFoldersCount});
-          // folders should be fixed. Or there's not much we can do since the folder completely disappeared anyway
+
+          // folders count is fixed.
+          // check if there is an undefined folder.
+
+          allFoldersKeys.forEach(function(fid){
+            if (fid === "undefined" || fid === undefined) {
+              // there is an undefined folder. fix it below.
+              isThereAnUndefinedFolder = true;
+            }
+          });
+
+          //Or there's not much we can do since the folder completely disappeared anyway
           // TODO FIX FILES, BY CHECKING IF THEY EXIST IN THE FIRST PLACE. USE
           // storageRef.child("file.png").getDownloadURL().then(onResolve, onReject);
           // TO SEE IF THEY EXIST ONE BY ONE IF YOU HAVE TO.
-          fixFiles(did);
+
+          if (isThereAnUndefinedFolder) {
+            fixUndefinedFolder(did); // passing did for future to pass into fixFiles
+          } else {
+            fixFiles(did);
+          }
         } else {
           fixFiles(did);
         }
@@ -1466,6 +1503,47 @@ function fixFolders (did) {
     } else {
       fixFiles(did);
     }
+  });
+}
+
+
+function fixUndefinedFolder (did) {
+  var newFID = "f-" + newUUID();
+  foldersRef.child("undefined").on('value', function(folder) {
+    var undefinedFolderContents = folder.val();
+
+    Object.keys(undefinedFolderContents.docs).forEach(function(docid){
+      undefinedFolderContents.docs[docid].fid = newFID;
+    });
+
+    foldersRef.child(newFID).update(undefinedFolderContents, function(error){
+      if (!error) {
+        dataRef.child("foldersOrder").once('value', function(foldersOrder) {
+          var fOrderObj = foldersOrder.val();
+
+          Object.keys(fOrderObj).forEach(function(index){
+            if (fOrderObj[index] === "undefined" || fOrderObj[index] === undefined) {
+              fOrderObj[index] = newFID;
+            }
+          });
+
+          dataRef.update({"foldersOrder" : fOrderObj}, function(error){
+            if (!error) {
+              foldersRef.child("undefined").remove().then(function() {
+                console.log("Fixed UID: "+ userID + "'s undefined folder");
+                breadcrumb("Fixed undefined folder");
+                if (did) { fixFiles(did); }
+              });
+            } else {
+              if (did) { fixFiles(did); }
+            }
+          });
+        });
+      } else {
+        handleError(new Error('uid: ' + theUserID + "had undefined folder, can't create replacement."));
+        console.log(error);
+      }
+    });
   });
 }
 
@@ -1497,9 +1575,8 @@ function fixFiles(did) {
       }
 
     } else {
-      var fidOfNotFoundDID = fidOfDID(did);
-      handleError(new Error('Doc/File with did: ' + did + " in fid: " + fidOfNotFoundDID + ' not found by uid: ' + theUserID));
-      // means that this docid(did) got a "storage/object-not-found" so sadly the best we can do is to delete this file now.
+      // means that this docid(did) got a "storage/object-not-found" so either we thought it was a file and it was a doc vice versa,
+      // or it doesn't exist at all and sadly the best we can do is to delete this file now.
       verifyDocExistsOrDelete(did);
     }
   }
@@ -1537,6 +1614,7 @@ function verifyDocExistsOrDelete(did) {
       }).catch(function(error) {
         if (error.code === 'storage/object-not-found') {
           // file doesn't exist either. uh oh.
+          handleError(new Error('did: ' + did + " in fid: " + fid + ' was not found by uid: ' + theUserID + " not found in storage - so deleted references."));
           foldersRef.child(fid + "/docs/" + did).remove();
           foldersRef.child(fid + "/count").once('value', function(snapshot) {
             var fcount = snapshot.val();
@@ -1670,6 +1748,7 @@ function gotPlaintextDocTitle (did, plaintextTitle, callback) {
 
   var dtitle = plaintextTitle || "Document";
   try { dtitle = JSON.parse(plaintextTitle); } catch (e) {}
+  dtitle = dtitle + "";// this is to make sure if it's a number, it becomes a string.
 
   // add title, filetype, ext to catalog
   catalog.docs[did].name = dtitle;
@@ -2038,6 +2117,7 @@ function isCatalogReadyForDecryption() {
     // sortFolders();
     if (catalogReadyForDecryption === false) {
       console.log("Catalog and DOM ready.");
+      checkCatalogIntegrity();
     }
     catalogReadyForDecryption = true;
   }
@@ -2265,10 +2345,12 @@ function filetypeFromFilename (filename) {
 }
 
 function extensionFromFilename (filename) {
+  filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
   return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
 }
 
 function iconFromFilename (filename) {
+  filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
   var icon;
   var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
 
@@ -5140,7 +5222,7 @@ function handleAttachmentDrop(evt) {
 
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
-        var filename = files[i].name;
+        var filename = files[i].name + ""; // this is to make sure it's a string, even if it receives a number for some random reason.
         var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
         if (extension.match(/^(JPEG|JPG|PNG|GIF)$/i)) {
           embedDroppedImage(file);

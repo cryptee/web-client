@@ -842,7 +842,7 @@ function ping (type, obj, callback) {
   } else {
     obj.geoid = "XX";
   }
-  
+
   if (sessionID) { obj.cid = sessionID; }
   if (isInWebAppiOS || isInWebAppChrome) {
     obj.ds = "app";
@@ -990,6 +990,15 @@ function handleError (error) {
 function setSentryUser(userid) {
   Sentry.configureScope(function(scope) {
     scope.setUser({ id: userid });
+  });
+}
+
+// level takes "info" or "warning"
+function breadcrumb (message, level) {
+  level = level || "info";
+  Sentry.addBreadcrumb({
+    message: message,
+    level: level
   });
 }
 
