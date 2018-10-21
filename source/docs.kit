@@ -12,7 +12,7 @@
   <script src="../js/lib/xml2json.js"></script>
 
   <script src="../js/quill-image-resize.js"></script>
-  <script src="../js/lib/markdownShortcuts.min.js"></script>
+  <script src="../js/lib/markdownShortcuts.js"></script>
   <script src="../js/lib/showdown.min.js"></script>
 
   <link rel="stylesheet" type="text/css" href="../css/docs.css">
@@ -128,7 +128,8 @@
   </div>
 </div>
 
-<span class="icon no-print" id="help-button" onclick="showModal('help-modal')"><i class="fa fa-fw fa-question"></i></span>
+<span class="icon no-print clickable" id="help-button" onclick="showModal('help-modal')" title="Help"><i class="fa fa-fw fa-question"></i></span>
+<span class="icon no-print clickable" id="hotkeys-button" onclick="toggleHotkeys();" title="Markdown & Shortcuts"><i class="fa fa-keyboard-o"></i></span>
 
 <!-- @import "docs-file-viewer.kit" -->
 

@@ -184,7 +184,7 @@
   z-index: 9;
   top: 0.5rem;
   right: calc(100px + 4rem);
-  width: calc(100% - 320px - 4rem);
+  width: calc(100% - 420px - 4rem);
   margin: calc(12vh + 200px) 0 0 0;
   opacity: 0;
   transition: 0.5s opacity ease;
@@ -276,6 +276,10 @@
   max-height: calc(100% - 16.75rem - 1px);
 }
 
+#docs-left-bottom.itsMobile .left-views-container.offline {
+  max-height: calc(100% - 9.5rem - 1px);
+}
+
 .zen-mode-button {
   display: none;
 }
@@ -322,12 +326,14 @@
 ///////////////////// RIGHT ///////////////////////
 /////////////////////////////////////////////////*/
 
-#help-button {
+#help-button, #hotkeys-button {
   position: absolute;
   top: 0;
   right: 0;
-  width: 4rem;
+  width: 2rem;
   height: 4rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
   cursor: pointer;
   z-index: 12;
   color : #999;
@@ -337,13 +343,21 @@
   pointer-events: all;
 }
 
-#help-button.itsMobile {
+#hotkeys-button {
+  right: 2.5rem;
+}
+
+#help-button.itsMobile, #hotkeys-button.itsMobile {
   top: 3px;
   width: 3rem !important;
   height: 3rem !important;
 }
 
-#help-button:not(.shown).itsMobile {
+#hotkeys-button.itsMobile {
+  right: 3rem;
+}
+
+#help-button:not(.shown).itsMobile, #hotkeys-button:not(.shown).itsMobile {
   opacity: 0 !important;
   pointer-events: none !important;
 }
@@ -901,7 +915,7 @@
     color: transparent;
   }
 
-  #help-button:hover {
+  #help-button:hover, #hotkeys-button:hover {
     color : #000;
   }
 }

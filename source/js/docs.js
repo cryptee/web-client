@@ -300,23 +300,64 @@ var Keyboard = Quill.import('modules/keyboard');
 var quillkeyboardbindings = {
   enter: {
     key: Keyboard.keys.ENTER,
-    context: { format: ['file', 'tag'] },
     handler: function(range, context) {
       if (tribute.isActive) {
+
         tribute.selectItemAtIndex(tribute.menuSelected);
         tribute.hideMenu();
         return false;
+      
       } else {
         if (context.format.file) {
+
           quill.insertText(range.index, '\n');
+        
         } else if (context.format.tag) {
+        
           quill.insertText(range.index, '\n ');
           quill.setSelection(range.index + 1, "silent");
           quill.deleteText(range.index, 1);
           quill.setSelection(range.index + 1, "silent");
+        
+        } else if (context.format.list) {
+        
+          if (context.collapsed && context.empty && context.offset < 1) {
+            this.quill.format('list', false);
+          } else {
+            return true;
+          }
+        
+        } else if (context.format.blockquote) {
+        
+          if (context.collapsed && context.empty && context.offset < 1) {
+            this.quill.format('blockquote', false);
+          } else {
+            return true;
+          }
+        
         } else {
           return true;
         }
+      }
+    }
+  },
+  backspace: {
+    key: Keyboard.keys.BACKSPACE,
+    handler: function(range, context) {
+      if (context.format.list) {
+        if (context.collapsed && context.empty && context.offset < 1) {
+          this.quill.format('list', false);
+        } else {
+          return true;
+        }
+      } else if (context.format.blockquote) {
+        if (context.collapsed && context.empty && context.offset < 1) {
+          this.quill.format('blockquote', false);
+        } else {
+          return true;
+        }
+      } else {
+        return true;
       }
     }
   }
@@ -700,7 +741,7 @@ if (!isMobile) {
 }
 
 
-var thingsNeedResizing = "#help-button, #toolbar-container, #editor-toolbar, #docs-left-top, #docs-left-center, #docs-left-bottom, #docs-center-wrap, #docs-right-wrap, #mobile-topbar, #doc-contextual-buttons, #doc-contextual-button, #docs-page-wrap, #file-viewer, #all-folders, #main-progress, .filesize-button, .save-doc-button, #doc-top, #hamburger, .docs-float-context, .mobile-floating-tools";
+var thingsNeedResizing = "#help-button, #hotkeys-button, #toolbar-container, #editor-toolbar, #docs-left-top, #docs-left-center, #docs-left-bottom, #docs-center-wrap, #docs-right-wrap, #mobile-topbar, #doc-contextual-buttons, #doc-contextual-button, #docs-page-wrap, #file-viewer, #all-folders, #main-progress, .filesize-button, .save-doc-button, #doc-top, #hamburger, .docs-float-context, .mobile-floating-tools";
 function ww() { return $(window).width(); }
 
 function arrangeTools () {
@@ -764,14 +805,14 @@ function firstLoadComplete() {
 
 function showMenu () {
   // $(thingsNeedResizing).addClass("menuOpen");
-  $("#help-button").addClass("shown");
+  $("#help-button, #hotkeys-button").addClass("shown");
   wrappersToMove.addClass("showLeft");
   $(".document-contextual-dropdown").removeClass("open");
   checkAndSaveDocIfNecessary();
 }
 
 function hideMenu () {
-  $("#help-button").removeClass("shown");
+  $("#help-button, #hotkeys-button").removeClass("shown");
   wrappersToMove.removeClass("showLeft");
   clearSearch();
 }
@@ -957,7 +998,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
 
 
-
+var keyModalConnectionTimer;
 function checkForExistingUser (callback){
   callback = callback || noop;
 
@@ -989,6 +1030,11 @@ function checkForExistingUser (callback){
     } else {
       console.log("Starting Offline");
       startedOffline = true;
+
+      keyModalConnectionTimer = setInterval(function () {
+        forceCheckConnection();
+      }, 1000);
+
       callback();
     }
   });
@@ -1349,6 +1395,7 @@ function checkKey (key) {
 }
 
 function rightKey (plaintext, hashedKey) {
+  clearInterval(keyModalConnectionTimer);
 
   hideKeyModal();
   keyToRemember = hashedKey;
@@ -1486,7 +1533,7 @@ function fixFolders (did) {
             }
           });
 
-          //Or there's not much we can do since the folder completely disappeared anyway
+          // Or there's not much we can do since the folder completely disappeared anyway
           // TODO FIX FILES, BY CHECKING IF THEY EXIST IN THE FIRST PLACE. USE
           // storageRef.child("file.png").getDownloadURL().then(onResolve, onReject);
           // TO SEE IF THEY EXIST ONE BY ONE IF YOU HAVE TO.
@@ -1512,38 +1559,52 @@ function fixUndefinedFolder (did) {
   foldersRef.child("undefined").on('value', function(folder) {
     var undefinedFolderContents = folder.val();
 
-    Object.keys(undefinedFolderContents.docs).forEach(function(docid){
-      undefinedFolderContents.docs[docid].fid = newFID;
-    });
+    if (undefinedFolderContents !== null) {
+      Object.keys(undefinedFolderContents.docs).forEach(function(docid){
+        undefinedFolderContents.docs[docid].fid = newFID;
+      });
 
-    foldersRef.child(newFID).update(undefinedFolderContents, function(error){
-      if (!error) {
-        dataRef.child("foldersOrder").once('value', function(foldersOrder) {
-          var fOrderObj = foldersOrder.val();
+      foldersRef.child(newFID).update(undefinedFolderContents, function(error){
+        if (!error) {
+          dataRef.child("foldersOrder").once('value', function(foldersOrder) {
+            var fOrderObj = foldersOrder.val();
 
-          Object.keys(fOrderObj).forEach(function(index){
-            if (fOrderObj[index] === "undefined" || fOrderObj[index] === undefined) {
-              fOrderObj[index] = newFID;
-            }
-          });
+            Object.keys(fOrderObj).forEach(function(index){
+              if (fOrderObj[index] === "undefined" || fOrderObj[index] === undefined) {
+                fOrderObj[index] = newFID;
+              }
+            });
 
-          dataRef.update({"foldersOrder" : fOrderObj}, function(error){
-            if (!error) {
-              foldersRef.child("undefined").remove().then(function() {
-                console.log("Fixed UID: "+ userID + "'s undefined folder");
-                breadcrumb("Fixed undefined folder");
+            dataRef.update({"foldersOrder" : fOrderObj}, function(error){
+              if (!error) {
+                foldersRef.child("undefined").remove().then(function() {
+                  console.log("Fixed UID: "+ theUserID + "'s undefined folder");
+                  breadcrumb("Fixed undefined folder");
+                  if (did) { fixFiles(did); }
+                });
+              } else {
                 if (did) { fixFiles(did); }
-              });
-            } else {
-              if (did) { fixFiles(did); }
-            }
+              }
+            });
           });
-        });
-      } else {
-        handleError(new Error('uid: ' + theUserID + "had undefined folder, can't create replacement."));
-        console.log(error);
-      }
-    });
+        } else {
+          handleError(new Error('uid: ' + theUserID + "had undefined folder, can't create replacement."));
+          console.log(error);
+        }
+      });
+    } else {
+      breadcrumb('uid: ' + theUserID + "has undefined folder with no contents. will attempt to delete");
+
+      foldersRef.child("undefined").remove().then(function() {
+        console.log("Deleted UID: "+ theUserID + "'s undefined folder");
+        breadcrumb("Deleted undefined folder, now fixing folders count");
+        fixFoldersCount();
+      });
+    }
+
+  }).catch(function(error) {
+    breadcrumb('uid: ' + theUserID + "had undefined folder, can't read contents.");
+    handleError(error);
   });
 }
 
@@ -1627,7 +1688,6 @@ function verifyDocExistsOrDelete(did) {
 }
 
 function fixFoldersCount () {
-
   foldersRef.once('value', function(snapshot) {
     var allFolders = snapshot.val();
     if (allFolders) {
@@ -1892,7 +1952,14 @@ function decryptTitle (id, encryptedTitle, callback) {
 
 // returns fid from catalog;
 function fidOfDID (did) {
-  return catalog.docs[did].fid || null;
+  var fidToReturn = null;
+  if (catalog.docs[did]) {
+    if (catalog.docs[did].fid) {
+      fidToReturn = catalog.docs[did].fid;
+    }
+  }
+  
+  return fidToReturn;
 }
 
 // returns title of did or fid intelligently
@@ -3401,22 +3468,22 @@ quill.on('text-change', function(delta, oldDelta, source) {
   idleTime = 0;
   docChanged = true;
 
-  if (delta) {
-    if (delta.ops[1]) {
-      theChange = delta.ops[1].attributes;
-      if (quill.hasFocus() && theChange) {
-        var qs = quill.getSelection().index;
-        var bounds = quill.getBounds(qs);
-        var quillHeight = $(".ql-editor").height();
-        var quillScrollHeight = $(".ql-editor")[0].scrollHeight;
+  // if (delta) {
+  //   if (delta.ops[1]) {
+  //     theChange = delta.ops[1].attributes;
+  //     if (quill.hasFocus() && theChange) {
+  //       var qs = quill.getSelection().index;
+  //       var bounds = quill.getBounds(qs);
+  //       var quillHeight = $(".ql-editor").height();
+  //       var quillScrollHeight = $(".ql-editor")[0].scrollHeight;
 
-        if (bounds.bottom > quillHeight && !theChange.list) {
-          $("body").stop().scrollTop(bounds.bottom);
-          $(".ql-editor").scrollTop(quillScrollHeight);
-        }
-      }
-    }
-  }
+  //       if (bounds.bottom > quillHeight && !theChange.list) {
+  //         $("body").stop().scrollTop(bounds.bottom);
+  //         $(".ql-editor").scrollTop(quillScrollHeight);
+  //       }
+  //     }
+  //   }
+  // }
 
 });
 
@@ -3431,9 +3498,16 @@ quill.on('selection-change', function(range) {
 
 function idleTimer () {
   idleTime++;
-  if (idleTime > 5) { // 5 secs
-    checkAndSaveDocIfNecessary();
+  if (connectivityMode) {
+    if (idleTime > 5) { // 5 secs if online
+      checkAndSaveDocIfNecessary();
+    }
+  } else {
+    if (idleTime > 1) { // 1 sec if offline
+      checkAndSaveDocIfNecessary();
+    }
   }
+  
 }
 
 function inactiveTimer () {
@@ -3798,11 +3872,12 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
 
 
   function docLoaded(){
-
+    
     quill.history.clear();
     // if (initialLoadComplete) {
     //   quill.focus();
     // }
+    $(".ql-editor").scrollTop(0);
     dataRef.update({"lastOpenDocID" : did});
     sessionStorage.setItem('session-last-did', JSON.stringify(did));
 
@@ -4724,7 +4799,7 @@ function moveDoc (from, did) {
                 if (doc) {
                   if (gotDid === did) {
                     var updatedDoc = doc;
-                    updatedDoc.fname = JSON.parse(titleOf(toFID) || "Inbox");
+                    updatedDoc.fname = JSON.parse(titleOf(toFID)) || "Inbox";
                     updatedDoc.fid = toFID;
                     offlineStorage.setItem(did, updatedDoc).catch(function(err) {
                       handleError(err);
@@ -6521,43 +6596,48 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
   var enoteJSON = x2js.xml_str2json( rawENML );
 
   var singleENEX = true; // false means there's more than one note exported.
-  if (enoteJSON['en-export'].note.length) { singleENEX = false; }
+  if (enoteJSON) {
+    if (enoteJSON['en-export'].note.length) { singleENEX = false; }
 
-  if (!singleENEX) {
-    console.log("Got a multi-note export. Unpacking.");
-    showModal("enoteimport-modal");
-    // SHORT CIRCUIT HERE. WE GOTTA OPEN THIS ONE UP.
-    return unpackENEXFile (enoteJSON, dtitle, did, decryptedContents, callback, docsize, callbackParam);
-  } else {
-    console.log("Got EN export file. Importing.");
-  }
-
-  var enoteContent = enoteJSON['en-export'].note.content;
-  var enoteTitle = enoteJSON['en-export'].note.title;
-  var enoteResources = enoteJSON['en-export'].note.resource;
-  var $html = $('<div />',{html:enoteContent});
-  var contentsForHashes = [];
-  var attachments = {};
-  var numAttachments = 0;
-  var numCompletedAttachmentUploads = 0;
-
-  if (enoteResources) {
-    try {
-      enoteResources.forEach(function(resObj){
-        prepareResource(resObj);
-      });
-    } catch (e) {
-      // not an array so there's only one resource.
-      prepareResource(enoteResources);
+    if (!singleENEX) {
+      console.log("Got a multi-note export. Unpacking.");
+      showModal("enoteimport-modal");
+      // SHORT CIRCUIT HERE. WE GOTTA OPEN THIS ONE UP.
+      return unpackENEXFile (enoteJSON, dtitle, did, decryptedContents, callback, docsize, callbackParam);
+    } else {
+      console.log("Got EN export file. Importing.");
     }
 
+    var enoteContent = enoteJSON['en-export'].note.content;
+    var enoteTitle = enoteJSON['en-export'].note.title;
+    var enoteResources = enoteJSON['en-export'].note.resource;
+    var $html = $('<div />',{html:enoteContent});
+    var contentsForHashes = [];
+    var attachments = {};
+    var numAttachments = 0;
+    var numCompletedAttachmentUploads = 0;
 
-    // attachments are in attachments object now. start uploading. then it'll call replace elements
-    startUploadingAttachments();
+    if (enoteResources) {
+      try {
+        enoteResources.forEach(function(resObj){
+          prepareResource(resObj);
+        });
+      } catch (e) {
+        // not an array so there's only one resource.
+        prepareResource(enoteResources);
+      }
 
+
+      // attachments are in attachments object now. start uploading. then it'll call replace elements
+      startUploadingAttachments();
+
+    } else {
+      // no resources, start replacing elements then import.
+      replaceElements();
+    }
   } else {
-    // no resources, start replacing elements then import.
-    replaceElements();
+    showErrorBubble("Error reading Evernote XML File.", e);
+    callback(callbackParam);
   }
 
   function prepareResource(resObj) {
@@ -6835,7 +6915,7 @@ function cancelImportingCrypteedoc (error) {
   crypteeDocForImportTitle = null;
   crypteeDocForImportSize = null;
 
-  // CANCEL LOADDOC HERE IF YOU NEED TO DO MORE.
+  // CANCEL LOAD DOC HERE IF YOU NEED TO DO MORE.
 
   if (error) {
     handleError(error);
@@ -7202,6 +7282,8 @@ function connectionStatus(status, forced) {
     } else {
       activateOfflineMode();
     }
+  } else {
+    window.location.reload();
   }
 
 }
@@ -7661,7 +7743,7 @@ function activateOnlineMode () {
 
     // this is unnecessary because we don't handle a state in which getting connectivity back changes anything.
     // connectivityMode = true;
-    if (windowVisible) {
+    if (windowVisible || isios) {
       showGotConnectionBubble();
     } else {
       restartToOnlineMode();
@@ -7939,8 +8021,15 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
         } else {
           var genToSyncUp = doc.gen || (new Date()).getTime() * 1000;
           dataRef.update({"homegeneration" : genToSyncUp}, function(){
-            catalog.docs[doc.did].tags = dtags;
-            catalog.docs[doc.did].gen = genToSyncUp;
+            if (catalog.docs.home) {
+
+              // this is so ugly and so terrible, but seems like it could fix the issue. 
+              // for some reason home isn't in catalog. This is only going to be a problem until the next boot.
+              // since the generation is already updated + tags aren't as critically important for any operations
+
+              catalog.docs.home.tags = dtags;
+              catalog.docs.home.gen = genToSyncUp;
+            }
 
             doneSyncingDoc (callback, callbackParam);
           }).catch(function(err) {

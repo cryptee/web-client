@@ -3505,10 +3505,6 @@ body.draggingStuff {
   padding: 1rem;
 }
 
-.export-option:not(:last-of-type) {
-  border-bottom: 1px solid #ccc;
-}
-
 .card-content {
   padding: 0rem;
 }
@@ -3811,7 +3807,8 @@ body.draggingStuff {
   top: 0;
   right: 0px;
   z-index: 100;
-  width: 480px;
+  width: 100%;
+  max-width: 480px;
   height: 100%;
   overflow-y: scroll;
   transition: transform 1s ease;
@@ -6838,9 +6835,9 @@ body.draggingStuff {
     padding-top: 0.125rem;
   }
 
-  #hotkeys-modal {
+/*   #hotkeys-modal {
     display: none;
-  }
+  } */
 
   .showUpgradeThanks .delete, .showLowStorage .delete, .showBumpUp .delete, .showBumpDown .delete{
     min-width: 40px;

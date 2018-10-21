@@ -1462,7 +1462,9 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
         }
       }
     } catch (e) {
-      handleError(e);
+      if (base64FileContents) {
+        handleError(e);
+      }
       console.log(e);
       fileUploadError = true;
       showFolderUploadError();
@@ -1545,6 +1547,8 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
                 var processingMessage = "<span class='icon'><i class='fa fa-circle-o-notch fa-spin fa-fw fa-3x'></i></span> Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
                 showFileUploadStatus("is-warning", processingMessage);
               }
+              
+              lastActivityTime = (new Date()).getTime();
 
               // switch (thumbSnap.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
               if (thumbSnap.bytesTransferred === thumbSnap.totalBytes) {
@@ -1589,6 +1593,8 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
                                 var processingMessage = "<span class='icon'><i class='fa fa-circle-o-notch fa-spin fa-fw fa-3x'></i></span> Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
                                 showFileUploadStatus("is-warning", processingMessage);
                               }
+                              
+                              lastActivityTime = (new Date()).getTime();
 
                               if (lightSnap.bytesTransferred === lightSnap.totalBytes) {
 
@@ -2520,11 +2526,19 @@ function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
 
 function renderDOMElement (id){
   var domElement = "";
-  if (id.startsWith('p-')) {
-    domElement = renderPhoto(id, activeItemsObject[id].pinky, activeItemsObject[id].title);
-  } else if (id.startsWith('f-')) {
-    domElement = renderFolder(id, activeItemsObject[id].count, activeItemsObject[id].title, activeItemsObject[id].pinky, activeItemsObject[id].thumb);
-  } else { // wtf. neither photo nor folder.
+
+  if (activeItemsObject[id]) {
+    if (id.startsWith('p-')) {
+      domElement = renderPhoto(id, activeItemsObject[id].pinky, activeItemsObject[id].title);
+    } else if (id.startsWith('f-')) {
+      domElement = renderFolder(id, activeItemsObject[id].count, activeItemsObject[id].title, activeItemsObject[id].pinky, activeItemsObject[id].thumb);
+    } else { 
+      // wtf. neither photo nor folder.
+      handleError(new Error('uid: ' + theUserID + "has a non-folder non-photo item: " + id));
+    }
+  } else {
+    handleError(new Error('uid: ' + theUserID + "has an item that's not in activeItemsObject: " + id));
+    // somehow item isn't in activeItemsObject. wtf. soooo not adding. since it's better than crashing. but wtf. 
   }
 
   return domElement;
