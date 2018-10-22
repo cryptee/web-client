@@ -3810,11 +3810,21 @@ body.draggingStuff {
   width: 100%;
   max-width: 480px;
   height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hotkeys-modal-sliding-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
   overflow-y: scroll;
+  padding : 1rem;
   transition: transform 1s ease;
-  box-shadow: 0px 0px 0px rgba(0,0,0,0);
   transform: translateX(480px);
-  display: block;
 }
 
 #hotkeys-modal td, #hotkeys-modal th {
@@ -3822,8 +3832,11 @@ body.draggingStuff {
 }
 
 #hotkeys-modal.is-visible {
+  pointer-events: all;
+}
+
+#hotkeys-modal.is-visible .hotkeys-modal-sliding-wrapper {
   transform: translateX(0px);
-  box-shadow: 0px 0px 2rem rgba(0,0,0,0.15);
 }
 
 
