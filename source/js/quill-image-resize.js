@@ -305,7 +305,7 @@
   }, function(t, e, n) {
     "use strict";
     e.a = {
-      modules: ["DisplaySize", "Resize"],
+      modules: ["DisplaySize", "Resize", 'Toolbar'],
       overlayStyles: {
         position: "absolute",
         boxSizing: "border-box"
@@ -314,22 +314,26 @@
         position: "absolute",
         height: "12px",
         width: "12px",
-        backgroundColor: "white",
-        border: "1px solid #000",
+        backgroundColor: "#363636",
+        border: "0px solid #000",
         boxSizing: "border-box",
-        opacity: "1"
+        opacity: "1",
+        boxShadow: "0 0.25rem 0.5rem rgba(0,0,0,0.2)",
+        borderRadius: "2rem",
       },
       displayStyles: {
         position: "absolute",
         padding: "4px 8px",
         textAlign: "center",
-        backgroundColor: "white",
-        color: "#000",
-        border: "1px solid #000",
+        backgroundColor: "#363636",
+        color: "#F5F5F5",
+        border: "0px solid #000",
         boxSizing: "border-box",
+        borderRadius: "1rem",
         opacity: "1",
         cursor: "default",
-        fontSize: "0.7rem"
+        fontSize: "0.7rem",
+        boxShadow: "0 0.5rem 1rem rgba(0,0,0,0.2)"
       },
       toolbarStyles: {
         position: "absolute",
@@ -347,13 +351,13 @@
         display: "inline-block",
         width: "24px",
         height: "24px",
-        background: "white",
-        border: "1px solid #ccc",
+        background: "#363636",
+        border: "0px solid #ccc",
         verticalAlign: "middle"
       },
       toolbarButtonSvgStyles: {
-        fill: "#444",
-        stroke: "#444",
+        fill: "#F5F5F5",
+        stroke: "#F5F5F5",
         strokeWidth: "2",
         padding: "3px",
         width: "100%"

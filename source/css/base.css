@@ -265,8 +265,19 @@ code, pre {
   max-width: 100%;
   height: auto;
   border-radius: 1rem;
-  margin: 5px 0px !important;
+  margin: 1rem !important;
 }
+
+.ql-editor img[style*="float:left"],
+.ql-editor img[style*="float: left"] {
+  margin: 1rem 2rem 1rem 0rem !important;
+}
+
+.ql-editor img[style*="float:right"],
+.ql-editor img[style*="float: right"] {
+  margin: 1rem 0rem 1rem 2rem !important;
+}
+
 
 .ql-snow .ql-editor pre {
   margin: 1rem 0;
@@ -386,6 +397,29 @@ crypteetag {
   pointer-events: none;
   line-height: 1.75rem;
   font-size: 14px;
+}
+
+.imageResizeOverlay .ql-stroke {
+  stroke: #F5F5F5;
+}
+
+.imageResizeOverlay div span {
+  cursor: pointer;
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.3);
+}
+
+.imageResizeOverlay div span:first-of-type {
+  width: 30px !important;
+  padding-left: 6px !important;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+
+.imageResizeOverlay div span:last-of-type {
+  width: 30px !important;
+  padding-right: 6px !important;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
 }
 
 #docs-url-box {
@@ -1752,6 +1786,20 @@ html {
   flex-grow: 1;
   width: 100%;
 }
+
+.press-item img {
+  height: 40px;
+  margin-bottom: 1rem;
+}
+
+.press-item {
+  opacity: 0.7;
+  width: 100%;
+  max-width: 33.3333%;
+  transition: 0.3s opacity ease;
+  cursor: pointer;
+}
+
 /*///////////////////////////////////////////////////
 //////////////////  DASHBOARD  //////////////////////
 ///////////////////////////////////////////////////*/
@@ -4948,6 +4996,10 @@ body.draggingStuff {
   .modal-content {
     overflow-y : scroll;
   }
+  
+  .press-item {
+    max-width: 100%;
+  }
 }
 
 @media (max-width:708px) {
@@ -6614,6 +6666,10 @@ body.draggingStuff {
 
   .www-action-button:active {
     box-shadow: 0 3px 5px rgba(10,10,10,0.1) !important;
+  }
+
+  .press-item:hover {
+    opacity: 1;
   }
 }
 
