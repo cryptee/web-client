@@ -1,5 +1,5 @@
 # Hello there 👋
-If you've found your way here, that means you're serious about your security and privacy! ~ or maybe just want to copy paste some code. Either way, you're welcome awesome human.
+If you've found your way here, that means you're serious about your security and privacy! ~ or maybe just want to copy paste some code. Either way, you're welcome awesome human (beep boop?)
 
 Thanks for checking out Cryptee's source code.
 First, let's get a few things out of the way.
