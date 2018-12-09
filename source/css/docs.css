@@ -145,7 +145,7 @@
   }
 }
 
-@media (max-width : 521px) {
+@media (max-width : 547px) {
   #mobile-topbar:not(.itsMobile) {
     top: 7.25rem;
   }
@@ -219,6 +219,8 @@
   position: relative;
   margin: 1rem auto 0rem auto;
   padding-bottom: 1rem;
+  padding-right: 13px;
+  padding-left: 13px;
 }
 
 #editor-toolbar.showLeft,
