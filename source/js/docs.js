@@ -1248,7 +1248,7 @@ function startUserSockets () {
           $("#low-storage-warning").addClass('showLowStorage');
         }
 
-        if (allowedStorage > freeUserQuotaInBytes) {
+        if (allowedStorage > paidUserThresholdInBytes) {
           $("#upgrade-badge").stop( true, true ).fadeOut();
         } else {
           $("#upgrade-badge").stop( true, true ).fadeIn();
@@ -1381,7 +1381,7 @@ function sortFolders () {
       } else {
         sortableDocs = Sortable.create(folderDocs, sortableDocsDesktopPreferences);
       }
-      sortDocsOfFID(fid, updateDocIndexesOfFID, fid);
+      sortDocsOfFID(fid);
     });
 
     $('.afolder').sort(function (a, b) {
@@ -1633,7 +1633,7 @@ function fixUndefinedFolder (did) {
                 foldersRef.child("undefined").remove().then(function() {
                   console.log("Fixed UID: "+ theUserID + "'s undefined folder");
                   breadcrumb("Fixed undefined folder");
-                  if (did) { fixFiles(did); }
+                  if (did) { fixFiles(did, newFID); }
                 });
               } else {
                 if (did) { fixFiles(did); }
@@ -1655,14 +1655,14 @@ function fixUndefinedFolder (did) {
       });
     }
 
-  }).catch(function(error) {
+  }, function(error) {
     breadcrumb('uid: ' + theUserID + "had undefined folder, can't read contents.");
     handleError(error);
   });
 }
 
-function fixFiles(did) {
-
+function fixFiles(did, newFID) {
+  newFID = newFID || null;
   // GO THROUGH EVERY FILE,
   // AND MAKE SURE TITLES DON'T HAVE SOMETHING THAT DOESN'T EXIST IN DATABASE.
 
@@ -1676,6 +1676,10 @@ function fixFiles(did) {
       // First check if there's an actual undefined.cdoc or undefined.cfile in storage.
       // if there's one, rename both with a new ID, and updateTitles and tags to reflect changes.
       var fidWithUndefinedFile = $("#undefined").parents(".afolder").attr("id");
+      if (fidWithUndefinedFile === "undefined") {
+        fidWithUndefinedFile = newFID || "undefined";
+      }
+
       handleError(new Error('Undefined Doc/File by uid: ' + theUserID + " in fid: " + fidWithUndefinedFile));
       showErrorBubble("An error occured while trying to open this file. Our team is informed. Sorry.", {});
 
@@ -2018,12 +2022,14 @@ function fidOfDID (did) {
 // returns title of did or fid intelligently
 function titleOf (id) {
   var titleToReturn = null;
-  if (id.indexOf('d-') > -1) {
-    try { titleToReturn = catalog.docs[id].name; } catch(e) {}
-    if (id === "home") { titleToReturn = "Home"; }
-  } else {
-    try { titleToReturn = catalog.folders[id].name; } catch(e) {}
-    if (id === "f-uncat") { titleToReturn = "Inbox"; }
+  if (id) {
+    if (id.indexOf('d-') > -1) {
+      try { titleToReturn = catalog.docs[id].name; } catch(e) {}
+      if (id === "home") { titleToReturn = "Home"; }
+    } else {
+      try { titleToReturn = catalog.folders[id].name; } catch(e) {}
+      if (id === "f-uncat") { titleToReturn = "Inbox"; }
+    }
   }
   return titleToReturn;
 }
@@ -2156,6 +2162,7 @@ function updateActiveTags () {
     var tagContent = $(this).text().replace("&nbsp;", "");
     activeDocTags.push(tagContent);
   });
+  catalog.docs[activeDocID] = catalog.docs[activeDocID] || {};
   catalog.docs[activeDocID].tags = activeDocTags;
 }
 
@@ -2636,7 +2643,7 @@ function updateDocIndexesOfFID (fid) {
   $("#docs-of-"+fid).find(".adoc").each(function(index, theDoc) {
     newDocsOrderObject[index] = $(this).attr("id");
   });
-
+  
   foldersRef.child(fid).update({"docsOrder" : newDocsOrderObject});
 }
 
@@ -5177,7 +5184,7 @@ var completedDownloads = 0;
 var completedDeletions = 0;
 function downloadSelections () {
   completedDownloads = 0;
-  showFileDownloadStatus("is-light", '<span class="icon is-small"><i class="fa fa-fw fa-circle-o-notch fa-spin"></i></span> &nbsp; <b>Decrypting &amp; Downloading</b><br>Please <b>do not</b> close this window until all downloads are complete');
+  showFileDownloadStatus("is-light", '<span class="icon is-small"><i class="fa fa-fw fa-circle-o-notch fa-spin"></i></span> &nbsp; <b>Decrypting &amp; Downloading</b><br>Please <b>do not</b> close this window until all downloads are complete.');
   $("#selection-download-button > i").removeClass("fa-download").addClass("fa-circle-o-notch fa-spin");
   $.each(selectionArray, function(index, selection) {
     $("#file-download-status").append("<br><span id='dld-" + selection.did + "'>" + selection.dtitle + "</span>");
@@ -6689,7 +6696,7 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
       replaceElements();
     }
   } else {
-    showErrorBubble("Error reading Evernote XML File.", e);
+    showErrorBubble("Error reading Evernote XML File.");
     callback(callbackParam);
   }
 
@@ -6701,7 +6708,11 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
       contentsForHashes[hash] = resObj.data.__text;
       console.log("Added image", hash ,"to embed queue.");
     } else {
-      var attachmentTitle = resObj["resource-attributes"]["file-name"];
+      var attachmentTitle = "Untitled Evernote Note";
+      if (resObj["resource-attributes"]) {
+        attachmentTitle = resObj["resource-attributes"]["file-name"];
+      }
+
       var attachmentType = resObj.mime;
       var attachmentContent = resObj.data.__text.replace(/\n/g, "");
       if (attachmentContent.indexOf("data:") === -1 ) {
@@ -6997,7 +7008,7 @@ function importCrypteedoc (dtitle, did, decryptedContents, callback, docsize, ca
     crypteeDocForImportDID = did;
     crypteeDocForImportTitle = dtitle;
     crypteeDocForImportSize = docsize;
-    crypteeDocImportCallback = callback;
+    crypteeDocImportCallback = callback || noop;
 
     processEncryptedCrypteedoc();
   } catch (e) {
@@ -7187,10 +7198,19 @@ function gensort(a,b) {
 
 function updateRecentDocs() {
   var recentDocsArray = Object.values(catalog.docs);
+
+  // let's get 6 months ago (and exclude anything older than that)
+  var curDate = new Date(); 
+  var now = (new Date()).getTime();
+  curDate.setMonth(curDate.getMonth() - 6);
+  curDate.setHours(0, 0, 0);
+  curDate.setMilliseconds(0);
+  var sixMoAgo = curDate.getTime();
+
   $("#all-recent").html("");
   recentDocsArray.sort(gensort);
   recentDocsArray.forEach(function(doc){
-    if (doc.name && !doc.isfile && !isDIDinArchivedFID(doc.did)) {
+    if (doc.name && !doc.isfile && !isDIDinArchivedFID(doc.did) && doc.gen / 1000 > sixMoAgo) {
       if ($(".recent-doc[did='"+doc.did+"']").length === 0) {
         $("#all-recent").prepend(renderRecentOrOfflineDoc(doc));
 

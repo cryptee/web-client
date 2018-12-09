@@ -96,8 +96,11 @@ function upgradeLegacyTitles () {
           // no tags found.
           callback(callbackParam);
         }
+      } else {
+        // no tags found.
+        callback(callbackParam);
       }
-    }).catch(function(error) { handleError(error); });
+    }).catch(function(error) { handleError(error); callback(callbackParam); });
   }
 
 
@@ -127,20 +130,30 @@ function upgradeLegacyTitles () {
       foldersRef.once('value', function(folders) {
         rootObject = folders.val();
         console.log("Got Root Directory");
-        Object.values(rootObject).forEach(function(folderObj){
-          console.log("Got Folder:", folderObj);
-          if (folderObj.docs) { // if folder has docs, add the fid to lookup object
-            Object.keys(folderObj.docs).forEach(function(didForFID){
-              fidLookupObject[didForFID] = folderObj.folderid;
-              console.log("Got Doc with ID:", didForFID, "in:", folderObj.folderid);
-            });
-          }
-        });
+
+        if (rootObject !== null && rootObject !== undefined) {
+          Object.values(rootObject).forEach(function(folderObj){
+            console.log("Got Folder:", folderObj);
+            if (folderObj.docs) { // if folder has docs, add the fid to lookup object
+              Object.keys(folderObj.docs).forEach(function(didForFID){
+                fidLookupObject[didForFID] = folderObj.folderid;
+                console.log("Got Doc with ID:", didForFID, "in:", folderObj.folderid);
+              });
+            }
+          });
+        }
 
         // make sure foldercount matches the actual number of folders to ensure boot.
         checkFolderCountIntegrity(rootObject, function(){
-          writeFolderTitles ();
-          writeDocTitlesAndTags ();
+          console.log("Folder count integrity check complete."); 
+          if (totalTitlesToWrite !== 0) {
+            console.log("Starting to write titles for", totalTitlesToWrite, "items.");  
+            writeFolderTitles ();
+            writeDocTitlesAndTags ();
+          } else {
+            console.log("No titles to write, wrapping things up.");  
+            upgradeSuccesful();
+          }          
         });
       }).catch(function(error) { console.log("Couldn't get root directory"); handleError(error);  });
     });

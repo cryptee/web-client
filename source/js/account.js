@@ -105,7 +105,7 @@ $(".settings-tab").on('click', function(event) {
 
 function loadTab(whichTab) {
 
-  if (whichTab === "upgrade" || whichTab === "history") {
+  if (whichTab === "history") {
     theKey = null;
     loadJS('https://cdn.paddle.com/paddle/paddle.js', function(){
       paddleInit();
@@ -113,17 +113,49 @@ function loadTab(whichTab) {
     checkIfPaddleIsLoaded();
   }
 
-  $("#upgrade").hide();
-  $("#upgrade-button").fadeIn(250);
   $(".settings-tab-contents").hide();
+  $(".settings-tab-contents").removeClass('active');
   $("#" + whichTab + "-tab-contents").show();
+  $("#" + whichTab + "-tab-contents").addClass("active");
   $(".settings-tab.is-dark").removeClass('is-dark');
   $(".settings-tab[tab="+whichTab+"]").addClass('is-dark');
 }
 
-$("#upgrade-button").on('click', function(event) {
-  $('#upgrade').fadeIn(250);
+$("#upgrade-button, .upgrade-card").on('click', function(event) {
+  openUpgrade();
 });
+
+function openUpgrade() {
+  theKey = null;
+  loadJS('https://cdn.paddle.com/paddle/paddle.js', function(){
+    paddleInit();
+  }, document.body);
+  checkIfPaddleIsLoaded();
+
+  console.log("Opening Upgrade");
+  $("#upgrade-view").addClass("upgradeOn");
+
+  if ($(window).width() < 768) {
+    $(".upgrade-container, .upgrade-image-container").removeClass("is-checkout");
+  } else {
+    setTimeout(function() {
+      $(".upgrade-container, .upgrade-image-container").removeClass("is-checkout");
+    }, 500);
+  }
+}
+
+function closeUpgrade() {
+  console.log("Closing Upgrade");
+  history.pushState("upgrade-complete", null, '/account');
+  $(".upgrade-container, .upgrade-image-container").addClass("is-checkout");
+  if ($(window).width() < 768) {
+    $("#upgrade-view").removeClass("upgradeOn");
+  } else {
+    setTimeout(function() {
+      $("#upgrade-view").removeClass("upgradeOn");
+    }, 500);
+  }
+}
 
 $('.period-button').on('click', function(event) {
   $("#priceToPay").html($(this).attr("amount"));
@@ -224,8 +256,8 @@ function gotUser() {
     $("#recoveryemail").val(theEmail);
     $("#upgrade-email-input").val(theEmail);
     if (!emailVerified) {
-      console.log("not verified");
       $("#noemail").show();
+      $("#upgrade-email").show();
     }
   }
 
@@ -253,7 +285,12 @@ function gotUser() {
 function checkForAction() {
   var action = getUrlParameter("action") || "";
   if (action !== "") {
-    loadTab(action);
+    if (action !== "upgrade") {
+      loadTab(action);
+    } else {
+      openUpgrade();
+    }
+    
   }
 }
 
@@ -371,30 +408,31 @@ function gotUserMeta (meta){
     allowedStorage = meta.allowedStorage || freeUserQuotaInBytes;
     $('.settings-storage-total').html(formatBytes(allowedStorage));
 
+    $(".usage-progress").attr("value", usedStorage).attr("max", allowedStorage);
+
     if (meta.hasOwnProperty("plan") && meta.plan !== "") {
       userPlan = meta.plan;
 
-      $("#upgrade-button").parents("li").hide();
-      $("#upgrade").hide();
-      $("#upgrade-setting").hide();
+      $("#upgrade-button, #upgrade-setting, #donate-button").fadeOut();
 
       $(".paid-plan-only").show();
       $("#payment-method").show();
       populatePlanDetails(meta);
     } else {
       $(".paid-plan-only").hide();
-      $("#upgrade-setting").show();
+      $("#upgrade-setting").fadeIn();
 
-      if (allowedStorage > freeUserQuotaInBytes) {
-        $("#upgrade-button").parents("li").hide();
-        $("#upgrade").hide();
-        $("#upgrade-setting").hide();
+      if (allowedStorage > paidUserThresholdInBytes) {
+        $("#upgrade-button, #upgrade-setting, #donate-button").fadeOut();
       }
     }
 
     saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
 
-    $("body, html").removeClass('is-loading');
+    setTimeout(function() {
+      $("body, html").removeClass('is-loading');
+    }, 1000);
+    
   } else {
     deletionMarkForMeta = true; checkDeletionMarks();
   }
@@ -407,10 +445,6 @@ function gotUserOrders(orders) {
     $("#paymenthistorybutton").hide();
   }
 }
-
-$("#close-upgrade-button").on("click", function(){
-  loadTab("account");
-});
 
 $("#upgrade-email-input, #upgrade-zip-input").on("keydown keypress paste copy cut change click", function(e) {
   setTimeout(function(){
@@ -472,9 +506,12 @@ $(".paymentButton").on("click",function(){
   couponForPaddle = $("#upgrade-coupon-input").val().trim() || "";
 
   $("#upgrade-form").addClass("is-loading");
-  $("#upgrade-form, .upgrade-container").addClass("is-white");
-  $("#upgrade-reason").addClass("is-small");
-  openPaddle();
+  $(".upgrade-container, .upgrade-image-container").addClass("is-checkout");
+  setTimeout(function() {
+    $("#upgrade-form, .upgrade-container").addClass("is-white");
+    $("#upgrade-reason").addClass("is-small");
+    openPaddle();
+  }, 750);
 });
 
 function openPaddle () {

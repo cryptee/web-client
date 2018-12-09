@@ -4,94 +4,19 @@
 <head>
   <!-- @import "app-head.kit" -->
   <title>Cryptee | Home</title>
-
-  <style media="screen">
-    .shownForOffline {
-      display: none;
-    }
-
-    .disabledForOffline.disabled {
-      pointer-events: none;
-      opacity: 0.3;
-      filter: blur(1px);
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="../css/home.css">
 </head>
 
 <body class="home-body is-loading">
+  <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
 
-  <section class="hero is-fullheight">
+  <!-- @import "home-app-nav.kit" -->
 
-    <div class="hero-head">
-      <div class="container">
-        <nav class="level is-mobile">
+  <!-- @import "home-welcome-card.kit" -->
 
-          <div class="level-item level-left home-level-left">
-            <div class="settings-tabs tabs is-small">
-              <ul>
-                <!-- <li title="Dashboard" class="is-active"> <a class="top-left-icon" href="#" onclick="hideNews();"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
-                <li title="Documents" class="hiddenForFinger"><a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
-                <li title="Photos" class="hiddenForFinger hiddenForOffline"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li> -->
-                <li title="Account Settings" class="hiddenForOffline"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
-                <li class="is-hidden-webapp" title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
-              </ul>
-            </div>
-          </div>
+  <!-- @import "home-news-card.kit" -->
 
-          <div class="level-item level-right home-level-right">
-            <div class="settings-tabs tabs is-small">
-              <ul>
-                <li class="hideWhenNewsOn hiddenForOffline" title="Donate"><a class="clickable" onclick="showModal('donate-modal');">Donate</a></li>
-                <li class="hideWhenNewsOn hiddenForOffline" title="Support"><a class="openInSafari" href="https://cryptee.kayako.com" target="_blank"><i class="top-menu-icons fa fa-fw fa-question-circle"></i><span class="is-hidden-touch">&nbsp; FAQ &amp; Support</span></a></li>
-                <li title="News" id="news-icon"><a class="clickable" onclick="toggleNews();"><i class="top-menu-icons fa fa-fw fa-bullhorn"></i><span class="is-hidden-touch">&nbsp; News</span></a></li>
-              </ul>
-            </div>
-          </div>
-
-        </nav>
-      </div>
-
-    </div>
-    <div class="hero-body">
-      <div class="container" style="max-width: 100%;">
-        <nav class="level home-title">
-          <div class="level-item has-text-centered">
-            <p class="subtitle">Welcome home, <span class="username" style="font-weight:600"></span>.
-              <br> Looks like you are <span class="hiddenForOffline">using <span id="settings-storage-used" style="font-weight:600">0 KB</span> of your <span style="font-weight:600" class="settings-storage-total"> 100 MB</span> storage.</span>
-              <span class="shownForOffline"><strong>offline</strong>.<br>Internet-dependent features are disabled.</span>
-            </p>
-          </div>
-        </nav>
-        <br>
-        <nav class="level">
-          <div class="level-item has-text-centered">
-            <a href="docs" class="home-item firstHomeItem">
-              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-file"></i></span></p>
-              <p class="subtitle">Documents</p>
-            </a>
-            <a href="photos" class="home-item secondHomeItem disabledForOffline">
-              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></span></p>
-              <p class="subtitle">Photos</p>
-            </a>
-            <a href="account?action=upgrade" class="home-item thirdHomeItem hiddenForOffline" style="background-color:#4BBF73; color:#FFF" id="home-upgrade-button">
-              <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-certificate"></i></span></p>
-              <p class="subtitle" style="color:#FFF">Upgrade</p>
-            </a>
-          </div>
-        </nav>
-      </div>
-    </div>
-    <div class="hero-foot is-hidden-webapp">
-      <nav class="level home-title">
-        <div class="level-item has-text-centered">
-          <p class="title is-6">not &nbsp;<span class="username"></span>?</p> &nbsp; &bull; &nbsp;
-          <p class="title is-6 clickable" onclick="signOut();"><b>sign out</b></p>
-        </div>
-      </nav>
-    </div>
-  </section>
-
-  <!-- @import "modal-news.kit" -->
+  <!-- @import "modal-help.kit" -->
   <!-- @import "modal-donate.html" -->
   <!-- @import "modal-webapp.kit" -->
   <!-- @import "footer-js.kit" -->
@@ -99,8 +24,15 @@
   <script type="text/javascript">
   var theUser, theUsername, theEmail, metaRef, theUserID;
   loadUserDetailsFromLS();
-  checkNews();
   checkLatestVersion();
+
+  $(window).scroll(function() {
+    if ($(this).scrollTop() > 100) {
+      $('#home-welcome-card, #home-news-card').addClass('newsOn');
+    } else {
+      $('#home-welcome-card, #home-news-card').removeClass('newsOn');
+    }
+  });
 
   function formatBytes(bytes,decimals) {
      if (bytes === 0) { return '0 Bytes'; }
@@ -120,16 +52,6 @@
     window.location = "photos";
      return false;
   });
-
-  function toggleNews() {
-    $("#news-icon, .hero-body, .home-title, .home-item, #news-window, .hero-head, .hideWhenNewsOn, .home-level-left").toggleClass('newsOn');
-    $("#news-icon").removeClass('update');
-    readNews();
-  }
-
-  function hideNews() {
-    $("#news-icon, .hero-body, .home-title, .home-item, #news-window, .hero-head, .hideWhenNewsOn, .home-level-left").removeClass('newsOn');
-  }
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (!user) {
@@ -191,11 +113,12 @@
 
     $('#settings-storage-used').html(formatBytes(usedStorage, 0));
     $('.settings-storage-total').html(formatBytes(allowedStorage, 0));
+    $(".usage-progress").attr("value", usedStorage).attr("max", allowedStorage);
 
     saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
 
-    if (allowedStorage > freeUserQuotaInBytes) {
-      $("#home-upgrade-button").hide();
+    if (allowedStorage > 9999999999) {
+      $("#upgrade-button, #donate-button").fadeOut(500);
       $(".early-adopter-card").hide();
       $(".paid-user-card").show();
     }
@@ -208,19 +131,6 @@
   setTimeout(function () {
     sessionStorage.removeItem('key');
   }, 120000); // 2 minutes later if user still haven't made a choice, remove key from session storage
-
-  function readNews() {
-    var now = (new Date()).getTime();
-    localStorage.setItem("readnews", now);
-  }
-
-  function checkNews() {
-    var latestNews = $(".news-card").first().attr("date");
-    var lastRead = localStorage.getItem("readnews") || 0;
-    if (lastRead < latestNews) {
-      $("#news-icon").addClass('update');
-    }
-  }
 
   checkConnection (function(status){
     if (!status) {

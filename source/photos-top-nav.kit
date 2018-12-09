@@ -1,0 +1,38 @@
+<div class="photos-top-nav" id="photos-top-nav" style="opacity: 0">
+
+  <div class="normal-nav-item">
+    <!-- LEFT -->
+    <span class="button is-small is-white" id="get-home-folder-button"><span class="icon is-small"><i class="fa fa-home"></i></span></span>
+
+    <span class="button is-small is-white photos-nav-item">
+      <input class="folder-upload-input" type="file" id="upload-photo-to-folder" name="files[]" multiple/>
+      <label class="upload-photo-to-folder-button clickable" for="upload-photo-to-folder">
+        <span class="icon" style="margin-top: 3px;"><i class="fa fa-fw fa-cloud-upload" style="margin-top: 1px;"></i></span><span class="hiddenForFinger">&nbsp; Upload</span>
+      </label>
+    </span>
+
+    <span class="button is-small is-white unavailable photos-nav-item" id="photos-new-folder-button" onclick="showModal('photos-new-folder-modal');" ><span class="icon"><i class="fa fa-fw fa-book"></i></span><span>&nbsp; New Album</span></span>
+    <span class="button is-small is-white unavailable photos-nav-item" id="photos-get-ghost-folder-button" onclick="showModal('photos-summon-ghost-album-modal');"><span class="icon"><i class="fa fa-fw fa-eye" ></i></span><span class="hiddenForFinger is-hidden-mobile"> &nbsp; Summon Ghost Album</span></span>
+
+
+    <!-- RIGHT -->
+    <span style="float:right; margin-right:0;" id="photos-sort-button" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-sort-alpha-desc"></i></span></span>
+    <span style="float:right; margin-right:0.25rem;" onclick="selectAll();" class="button is-small is-white photos-nav-item hiddenForFinger"><span class="icon"><i class="fa fa-fw fa-check" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
+    <span style="float:right; margin-right:0.25rem;" onclick="selectionModeOn();" class="button is-small is-white photos-nav-item hidden visibleOnFinger"><span class="icon"><i class="fa fa-fw fa-check-circle-o" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
+  </div>
+
+  <div class="selection-nav-item" style="display:none;">
+    <!-- LEFT -->
+
+    <!-- RIGHT -->
+    <span style="float:right; margin-right:0;" id="photos-del-sel-modal-toggle-button" onclick="showModal('photos-delete-selections-modal');" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-trash"></i></span></span>
+    <span style="float:right; margin-right:0.25rem;" onclick="clearSelections();" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-times"></i></span><span class="hiddenForFinger"> &nbsp; Unselect All</span></span>
+    <span style="float:right; margin-right:0.25rem;" onclick="selectAll();" class="button is-small is-white photos-nav-item hidden visibleOnFinger"><span class="icon"><i class="fa fa-fw fa-check" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
+    <span style="float:right; margin-right:0.25rem;" class="button is-small is-white unclickable photos-nav-item"><span class="icon"><i class="fa fa-fw fa-file-image-o"></i></span> &nbsp; <span class="number-of-selections"></span></span>
+    <span style="float:right; margin-right:0.25rem;" onclick="downloadSelections();" class="button is-small is-white photos-nav-item is-hidden-mobile"><span class="icon"><i class="fa fa-fw fa-download"></i></span><span> &nbsp; Download</span></span>
+    <span style="float:right; margin-right:0.25rem;" onclick="showMoveSelectionsModal();" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-book"></i></span><span> &nbsp; Move</span></span>
+    <span style="float:right; margin-right:0.25rem;" id="photos-set-thumb-button" onclick="setFolderThumbnail();" class="button is-small is-white photos-nav-item is-hidden-mobile"><span class="icon"><i class="fa fa-fw fa-picture-o"></i></span><span> &nbsp; Set Thumbnail</span></span>
+
+  </div>
+
+</div>

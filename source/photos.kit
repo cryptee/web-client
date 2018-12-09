@@ -8,292 +8,66 @@
   <script src="../js/lib/color-thief.js"></script>
   <script src="../js/lib/intersection-observer.js"></script>
 
+  <link rel="stylesheet" type="text/css" href="../css/photos.css">
+
   </script>
 </head>
 <body class="photos-body">
+  <progress id="main-progress" class="no-print progress is-small is-success"></progress>
+
+  <!-- @import "photos-app-nav.kit" -->
+
+  <!-- @import "photos-search-bar.kit" -->
+
   <div class="photos-column" style="padding:0;">
-    <nav class="level" style="padding-top: 12px; margin-bottom: 12px;">
-      <div class="level-left">
-        <div class="level-item level-left" style="margin-left:10px;">
-          <div class="settings-tabs tabs is-small"> <!-- you can also make this is-centered -->
-            <ul>
-              <li title="Dashboard"> <a class="rememberKey top-left-icon" href="home"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
 
-              <li title="Report Bug" onclick="showModal('help-modal')"> <a class="top-left-icon"><i class="fa fa-fw fa-question"></i></a></li>
+    <!-- @import "photos-top-nav.kit" -->
 
-              <li title="Upgrade" class="clickable"> <a href="account?action=upgrade" id="upgrade-button" class="tag is-success" style="border-radius: 10px; color: #fff !important;">Upgrade</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <div class="photos-nav-spacer"></div>
 
-    <div id="search-bar" class="photos-search notification" style="opacity:0;">
-      <div class="field is-grouped">
-        <p class="control is-expanded">
-          <input id="search-input" class="input" type="text" placeholder="Search for albums and photos" autocomplete="off">
-        </p>
-        <p class="control">
-          <a class="button is-dark" onclick="clearSearch();">
-            <i id="search-button-icon" class="top-menu-icons fa fa-fw fa-search" style="font-size:1em;"></i>
-          </a>
-        </p>
-      </div>
-    </div>
-
-    <div class="photos-top-nav" id="photos-top-nav">
-
-      <div class="normal-nav-item">
-        <!-- LEFT -->
-        <span class="button is-small is-white" id="get-home-folder-button"><span class="icon is-small"><i class="fa fa-home"></i></span></span>
-
-        <span class="button is-small is-white photos-nav-item">
-          <input class="folder-upload-input" type="file" id="upload-photo-to-folder" name="files[]" multiple/>
-          <label class="upload-photo-to-folder-button clickable" for="upload-photo-to-folder">
-            <span class="icon" style="margin-top: 3px;"><i class="fa fa-fw fa-cloud-upload" style="margin-top: 1px;"></i></span><span class="hiddenForFinger">&nbsp; Upload</span>
-          </label>
-        </span>
-
-        <span class="button is-small is-white unavailable photos-nav-item" id="photos-new-folder-button" onclick="showModal('photos-new-folder-modal');" ><span class="icon"><i class="fa fa-fw fa-book"></i></span><span>&nbsp; New Album</span></span>
-        <span class="button is-small is-white unavailable photos-nav-item" id="photos-get-ghost-folder-button" onclick="showModal('photos-summon-ghost-album-modal');"><span class="icon"><i class="fa fa-fw fa-eye" ></i></span><span class="hiddenForFinger is-hidden-mobile"> &nbsp; Summon Ghost Album</span></span>
-
-
-        <!-- RIGHT -->
-        <span style="float:right; margin-right:0;" id="photos-sort-button" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-sort-alpha-desc"></i></span></span>
-        <span style="float:right; margin-right:0.25rem;" onclick="selectAll();" class="button is-small is-white photos-nav-item hiddenForFinger"><span class="icon"><i class="fa fa-fw fa-check" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
-        <span style="float:right; margin-right:0.25rem;" onclick="selectionModeOn();" class="button is-small is-white photos-nav-item hidden visibleOnFinger"><span class="icon"><i class="fa fa-fw fa-check-circle-o" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
-      </div>
-
-      <div class="selection-nav-item" style="display:none;">
-        <!-- LEFT -->
-
-        <!-- RIGHT -->
-        <span style="float:right; margin-right:0;" id="photos-del-sel-modal-toggle-button" onclick="showModal('photos-delete-selections-modal');" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-trash"></i></span></span>
-        <span style="float:right; margin-right:0.25rem;" onclick="clearSelections();" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-times"></i></span><span class="hiddenForFinger"> &nbsp; Unselect All</span></span>
-        <span style="float:right; margin-right:0.25rem;" onclick="selectAll();" class="button is-small is-white photos-nav-item hidden visibleOnFinger"><span class="icon"><i class="fa fa-fw fa-check" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
-        <span style="float:right; margin-right:0.25rem;" class="button is-small is-white unclickable photos-nav-item"><span class="icon"><i class="fa fa-fw fa-file-image-o"></i></span> &nbsp; <span class="number-of-selections"></span></span>
-        <span style="float:right; margin-right:0.25rem;" onclick="downloadSelections();" class="button is-small is-white photos-nav-item is-hidden-mobile"><span class="icon"><i class="fa fa-fw fa-download"></i></span><span> &nbsp; Download</span></span>
-        <span style="float:right; margin-right:0.25rem;" onclick="showMoveSelectionsModal();" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-book"></i></span><span> &nbsp; Move</span></span>
-        <span style="float:right; margin-right:0.25rem;" id="photos-set-thumb-button" onclick="setFolderThumbnail();" class="button is-small is-white photos-nav-item is-hidden-mobile"><span class="icon"><i class="fa fa-fw fa-picture-o"></i></span><span> &nbsp; Set Thumbnail</span></span>
-
-      </div>
-
-
-
-    </div>
-
-    <div class="photos-nav-spacer">
-
-    </div>
-
-    <div class="photos-empty-folder" >
+    <div class="photos-empty-folder">
       <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo" style="height:100px; padding:1rem 3rem;">
       <h2 class="title">Let's get started.</h2>
       <p class="subtitle" style="margin-top:0.5rem;">Drag photos anywhere<br /> or click upload &nbsp;<span class="icon is-small"><i class="fa fa-fw fa-cloud-upload"></i></span></p>
     </div>
 
     <div class="photos-offline">
-      <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo" style="height:100px; padding:1rem 3rem;">
-      <h2 class="title">You seem offline.</h2>
-      <h3 class="subtitle">Cryptee will start once you're online</h3>
+      <!-- <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo" style="height:100px; padding:1rem 3rem;"> -->
+      <h2 class="title">OFFLINE</h2><br>
+      <h3 class="subtitle">You seem to be offline. Cryptee will start once you're online</h3>
       <p><span style="font-size:10px;">You may also be seeing this message if you have a VPN, company firewall or content blocker that is blocking access to Cryptee's servers.</span></p>
     </div>
 
   </div>
 
-  <div id="folder-contents" class="is-loading">
+<!--   <div class="photos-column" style="margin-bottom: 0 !important;">
+    <p id="active-album-title"></p>
+  </div> -->
+
+  <div class="is-hidden-mobile photos-desktop-spacer"></div>
+  
+  <div id="folder-contents" class="photos-column columns is-mobile is-multiline is-centered is-loading">
+    
+  </div>
+  <div id="photos-search-contents" class="photos-column columns is-mobile is-multiline is-centered">
 
   </div>
-  <div id="photos-search-contents">
 
-  </div>
+  <!-- @import "modal-photos-upload-status.kit" -->
+  <!-- @import "modal-photos-drop-overlay.kit" -->
 
-  <div class="modal" id="photos-upload-status">
-    <div class="modal-background unclickable" style="background: rgba(255,255,255,0.85);"></div>
-    <div class="modal-content">
-      <div class="notification is-warning" id="upload-status">
-        <p class="title">Uploading Photos</p>
-        <p class="upload-status-message"></p>
-      </div>
+  <!-- @import "modal-photos-folder-upload-error.kit" -->
+  <!-- @import "modal-photos-new-album.kit" -->
+  <!-- @import "modal-photos-move-selections.kit" -->
+  <!-- @import "modal-photos-delete-selections.kit" -->
+  <!-- @import "modal-photos-delete-album.kit" -->
 
-      <div class="notification is-loading" style="padding:0;">
-        <div id="upload-status-contents">
-
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay" id="photos-drag-overlay">
-    <div class="contents">
-      <span class="icon is-large"><i class="fa fa-3x fa-picture-o" style="font-size:75px;"></i></span>
-      <p class="subtitle">DROP HERE TO ENCRYPT &AMP; UPLOAD PHOTOS</p>
-    </div>
-  </div>
-
-
-
-
-
-
-  <div class="modal" id="folder-upload-error-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-danger">
-        <p class="title">Folder Drag &amp; Drop</p>
-      </div>
-      <div class="notification">
-        <p>You have tried dragging &amp; dropping <b>folder(s)</b>.
-          <br><br>
-          It seems that your browser does not support drag and drop folder uploads.<br><br>
-          Currently, only the latest versions of <b>Opera</b>, <b>Google Chrome</b> and <b>Firefox</b> running on desktops support drag and drop folder uploads.<br><br>
-          If you'd like to upload a folder or a large folder structure, there are two options:<br><br>
-          <b>1)</b> In order to use all of Cryptee's cutting edge features &amp; technologies, we recommend that you use <b>Google Chrome</b> or <b>Firefox</b>.<br><br>
-          <b>2)</b> You can manually create individual albums, open these albums one by one, and drag <b>multiple photos</b> from within your folders into these albums.<br><br>
-          We are very sorry about the inconvenience this may have caused. If you'd like this fixed, we encourage that you contact your browser manufacturer and ask them to add support for <b>getAsEntry</b> and/or <b>webkitGetAsEntry</b>.
-        </p>
-      </div>
-      <a class="button is-success" onclick="cancelModal();">Done</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
-  <div class="modal" id="photos-new-folder-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-dark">
-        <p class="title">New Album</p>
-        <p class="subtitle is-6">Type in an album name below</p>
-      </div>
-      <div class="notification">
-        <div class="field">
-          <p class="control">
-            <input id="photos-new-folder-title-input" class="modal-input input" type="text" placeholder="Family Photos, Trip to New York, etc." autocomplete="off">
-          </p>
-        </div>
-      </div>
-      <a class="button is-success" onclick="newFolder();">Create New Album</a>
-      <a class="button is-danger" onclick="cancelModal();">Cancel</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
-  <div class="modal" id="photos-move-selections-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-dark">
-        <p class="title">Move Photos</p>
-        <p class="subtitle is-6">Select an album below to move your <span class="number-of-selections"></span></p>
-      </div>
-      <div class="notification" style="min-height:75px;">
-        <ul class="menu-list">
-          <li>
-            <a id="move-folders-list-home" class="photos-move-folders-list-item" fid="home"><span class="icon is-small"><i class="fa fa-home fa-fw"></i></span> Home</a>
-            <ul id="photos-move-folders-list">
-
-            </ul>
-          </li>
-        </ul>
-      </div>
-      <a class="button is-success" onclick="moveFolderSelectionMade();">Move</a>
-      <a class="button is-danger" onclick="cancelModal();">Cancel</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
-  <div class="modal" id="photos-delete-selections-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-danger delete-selections-status">
-        <p class="title">Delete Photos</p>
-        <p class="subtitle is-6">Are you sure you want to delete your selections? (<span class="number-of-selections"></span>)?</p>
-      </div>
-      <a class="button is-success" onclick="deleteSelections();">Delete</a>
-      <a class="button is-danger" onclick="cancelModal();">Cancel</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
-  <div class="modal" id="delete-album-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-danger delete-album-status">
-        <p class="title">Delete Album</p>
-        <p class="subtitle is-6">Are you sure you want to delete <b class="delete-folder-name"></b> and all of its contents?</p>
-      </div>
-      <a class="button is-success" onclick="confirmDeleteFolder();">Delete</a>
-      <a class="button is-danger" onclick="cancelModal();">Cancel</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
-  <div class="modal" id="ghost-album-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-warning ghost-status">
-        <p class="title">Verify the name of the album</p>
-        <p>Once you turn this into a ghost album, you will need to type the name of it exactly to bring it back.</p>
-      </div>
-      <div class="notification is-danger theStatus" style="display:none;"></div>
-      <div class="notification">
-        <div class="field">
-          <p class="control">
-            <input id="ghost-folder-confirm-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
-          </p>
-        </div>
-      </div>
-      <a class="button is-success" id="ghost-folder-confirm-button" onclick="makeGhostFolder();" disabled>Make it Ghost</a>
-      <a class="button is-danger" onclick="cancelModal();">Cancel</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
-  <div class="modal" id="ghost-album-titleerror-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-danger">
-        <p class="title">Please rename the album</p>
-        <p>Album name contains an invalid symbol or character. Please rename the album, give it a few seconds and try ghosting it again.</p>
-      </div>
-      <a class="button is-danger" onclick="cancelModal();">Go back</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
-  <div class="modal" id="photos-summon-ghost-album-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-dark summon-status">
-        <p class="title">Summon Ghost Album</p>
-        <p>If you have any Ghost Albums, and if you'd like to bring one back, you can type its name below.</p>
-      </div>
-      <div class="notification is-danger theStatus" style="display:none;"></div>
-      <div class="notification">
-        <div class="field">
-          <p class="control">
-            <input id="ghost-folder-summon-input" class="modal-input input" type="text" placeholder="Album name to summon" autocomplete="off">
-          </p>
-        </div>
-      </div>
-      <a class="button is-success" id="ghost-folder-summon-button" onclick="summonGhostFolder();">Summon Ghost Album</a>
-      <a class="button is-danger" onclick="cancelModal();">Cancel</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
-
+  <!-- @import "modal-photos-ghost.kit" -->
+  <!-- @import "modal-photos-ghost-error.kit" -->
+  <!-- @import "modal-photos-summon.kit" -->
 
   <!-- @import "modal-photos-lightbox.kit" -->
-
-  <div class="modal" id="ios-download-modal">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-info">
-        <p class="subtitle is-6">To download a photo, simply tap and hold on the photo while viewing it in the lightbox. In 2-3 seconds your iPhone/iPad will prompt you to save the photo.</p>
-      </div>
-      <a class="button is-success" onclick="hideModal('ios-download-modal')">Done</a>
-    </div>
-    <button class="modal-close"></button>
-  </div>
+  <!-- @import "modal-photos-ios-download.kit" -->
 
   <!-- @import "modal-exceeded-storage.kit" -->
   <!-- @import "modal-low-storage.kit" -->

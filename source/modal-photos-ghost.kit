@@ -1,0 +1,20 @@
+<div class="modal" id="ghost-album-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-warning ghost-status">
+      <p class="title">Verify the name of the album</p>
+      <p>Once you turn this into a ghost album, you will need to type the name of it exactly to bring it back.</p>
+    </div>
+    <div class="notification is-danger theStatus" style="display:none;"></div>
+    <div class="notification">
+      <div class="field">
+        <p class="control">
+          <input id="ghost-folder-confirm-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
+        </p>
+      </div>
+    </div>
+    <a class="button is-success" id="ghost-folder-confirm-button" onclick="makeGhostFolder();" disabled>Make it Ghost</a>
+    <a class="button is-danger" onclick="cancelModal();">Cancel</a>
+  </div>
+  <button class="modal-close"></button>
+</div>

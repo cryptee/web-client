@@ -38,7 +38,7 @@
 <section>
   <div class="hero-visual container">
     <img src="../imgs/hero-browser-bar.png" alt="browser bar for Encrypted Photos">
-    <img src="../imgs/hero-photos.jpg" alt="Cryptee Encrypted Photos" class="www-desktop-screen" id="www-hero-image">
+    <img src="../imgs/hero-iceland.jpg" alt="Cryptee Encrypted Photos" class="www-desktop-screen" id="www-hero-image">
   </div>
 </section>
 
@@ -225,7 +225,7 @@
 
 <section class="container" id="www-photos-section">
   <img lazy-src="../imgs/photos-phone.jpg" alt="Cryptee Encrypted Photos Mobile" id="www-photos-phone" class="is-hidden-mobile">
-  <img lazy-src="../imgs/photos-phone2.jpg" alt="Cryptee Encrypted Photos Mobile" id="www-photos-phone2" class="is-hidden-tablet">
+  <img lazy-src="../imgs/photos-phone-landscape.jpg" alt="Cryptee Encrypted Photos Mobile" id="www-photos-phone2" class="is-hidden-tablet">
   <div>
     <h2 class="title is-3" id="ping-photos">ENCRYPTED PHOTOS</h2>
     <p>Your private photos,<br class="is-hidden-desktop"/> now safer than ever.</p><br/>
@@ -239,9 +239,9 @@
     </ul>
 
   </div>
-  <div class="is-hidden-mobile" id="www-photos-desktop-right">
+  <div class="is-hidden-mobile" id="www-photos-desktop-full">
     <img style="display:block;" lazy-src="../imgs/hero-browser-bar.png" alt="browser bar for Encrypted Photos">
-    <img style="display:block;" lazy-src="../imgs/hero-photos.jpg" alt="Cryptee Encrypted Photos" class="www-desktop-screen">
+    <img style="display:block;" lazy-src="../imgs/hero-iceland.jpg" alt="Cryptee Encrypted Photos" class="www-desktop-screen">
   </div>
 
   <div class="container has-text-centered">
@@ -341,28 +341,21 @@
   <div class="container has-text-centered">
     <h2 class="title is-3" id="ping-osagnostic">WORKS ON ALL YOUR DEVICES</h2>
 
-    <div class="columns">
-      <div class="column is-hidden-desktop">
+    <div class="columns is-multiline">
+      <div class="column is-full">
         <p>Mobile <br /><br /> </p>
         <p class="title is-3">
           <a href="download#ios" class="button is-small www-action-button"><span class="icon"><i class="fa fa-fw fa-apple"></i></span>&nbsp; ios</a>
           <a href="download#android" class="button is-small www-action-button"><span class="icon"><i class="fa fa-fw fa-android"></i></span>&nbsp; android</a>
         </p>
       </div>
-      <div class="column">
+      <div class="column is-full">
         <p>Desktop <br /><br /> </p>
         <p class="title is-3">
           <a href="download#desktop" class="button is-small www-action-button" style="margin-bottom: 1rem;"><span class="icon"><i class="fa fa-fw fa-apple"></i></span>&nbsp; mac</a>
           <a href="download#desktop" class="button is-small www-action-button" style="margin-bottom: 1rem;"><span class="icon"><i class="fa fa-fw fa-windows"></i></span>&nbsp; win</a>
           <a href="download#desktop" class="button is-small www-action-button" style="margin-bottom: 1rem;"><span class="icon"><i class="fa fa-fw fa-linux"></i></span>&nbsp; linux</a>
           <a href="download#desktop" class="button is-small www-action-button" style="margin-bottom: 1rem;"><span class="icon"><i class="fa fa-fw fa-chrome"></i></span>&nbsp; chrome os</a>
-        </p>
-      </div>
-      <div class="column is-hidden-touch">
-        <p>Mobile &amp; Tablet<br /><br /> </p>
-        <p class="title is-3">
-          <a href="download#ios" class="button is-small www-action-button"><span class="icon"><i class="fa fa-fw fa-apple"></i></span>&nbsp; ios</a>
-          <a href="download#android" class="button is-small www-action-button"><span class="icon"><i class="fa fa-fw fa-android"></i></span>&nbsp; android</a>
         </p>
       </div>
     </div>
@@ -381,7 +374,7 @@
 
 
 
-<section class="container has-text-centered" id="www-why-encryption-section">
+<section class="container has-text-centered long-read-section" id="www-why-encryption-section">
   <h2 class="title is-3" id="ping-why">WHY ENCRYPTION MATTERS</h2>
   <p class="justified">
     Imagine handing your private photos to a friend and saying <i>"Don't show these to anyone else."</i> If your friend is trustworthy, they won't show the photos to others. But <b>they</b> can still look at them. Worse, if thieves break into their home, they can see your photos too. This is how storage works on all unencrypted cloud-based services, like Dropbox, Evernote or Google Photos. Companies can see your files, and if they get hacked—which many companies do- hackers can see your files too.
@@ -407,40 +400,55 @@
     <div class="container has-text-centered">
       <h2 class="title is-3 is-spaced hero-head" id="ping-pricing">PRICING</h2>
       <p>Simple &amp; Flexible.</p>
-      <br><br>
+      <br>
     </div>
     <div class="container">
+
       <div class="columns">
-        <div class="column is-half price-col">
-          <div class="free-plan-box">
+        <div class="column">
+          <div class="notification is-dark pricing-card">
             <b>Basic Plan</b>
+            
+            <hr>
+
             <div class="cost"><p class="price">FREE</p></div>
+
+            <div style="height: 3rem;"></div>
+
+            <hr>
+
             <b>100 MB Storage</b> for your Documents &amp; Photos
 
-            <br><br><br>
-            <a href="signup" class="button is-dark www-action-button" id="ping-signup-pricing">Create an Account</a>
+            <br><br><br><br><br>
+            <a href="signup" class="button is-white www-action-button" id="ping-signup-pricing">Create an Account</a>
+            
           </div>
         </div>
-        <div class="column is-half price-col">
-          <div class="paid-plan-box">
+        <div class="column">
+          <div class="notification is-white pricing-card">
             <b>Paid Plan</b>
+
+            <hr>
 
             <div class="cost">
               <p class="price">
                 <span style="width:100px; display:inline-block"><span class="cur">€ </span><span class="price" id="priceToPay">3</span><span class="per-period"> / mo</span></span>
-                <span class="period-selection"><span class="button period-button is-small" period="mo" amount="3" additional="3">Monthly</span> &nbsp; <span class="button period-button is-small is-white" period="yr" amount="30" additional="30">Yearly</span></span>
+
+                <span class="www-period-selection"><span class="button period-button is-small" period="mo" amount="3" additional="3">Monthly</span> &nbsp; <span class="button period-button is-small is-white" period="yr" amount="30" additional="30">Yearly</span></span>
               </p>
             </div>
+
+            <hr>
+
             <b>10 GB Storage</b> for your Documents &amp; Photos
 
-            <br><br>
-            <b>Need More Storage?</b>
-            <p>It's <span class="additional-cur">€</span><span class="additional-price">3</span><span class="per-period"> / mo</span> per additional 10 GB*</p>
-            <br>
-            <p class="deets">* = Price is prorated automatically.<br>So you will be auto-downgraded if you're using less.</p>
+            <br><br><br><br>
+            <b class="deets has-text-centered">Need More Storage?</b>
+            <p class="deets has-text-centered">It's <span class="additional-cur">€</span><span class="additional-price">3</span><span class="per-period deets"> / mo</span> per additional 10 GB. Price is prorated automatically. So you only pay for what you use.</p>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -451,7 +459,7 @@
       <h2 class="title is-3" id="ping-security">SECURITY</h2>
     </div>
 
-    <div class="container has-text-left">
+    <div class="container long-read-section has-text-left">
       <p>Cryptee is incorporated, engineered and designed to provide you the ultimate security, privacy and deniability.
         <br><br>We know that security is a tricky topic, with lots of intricate details. If you wish to read more about how our security works, we have a dedicated page, detailing all the security measures we employ, how and where we store your data, and how we can provide an affordable, flexible and secure product.</p>
       <br>

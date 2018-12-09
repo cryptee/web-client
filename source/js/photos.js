@@ -41,7 +41,7 @@ if (isMobile) {
 
 var lastActivityTime = (new Date()).getTime();
 var inactivityInterval = setInterval(inactiveTimer, 1000);
-
+var ww = $(window).width();
 
 ////////////////////////////////////////////////////
 ///////////////////    HOTKEYS    //////////////////
@@ -152,17 +152,34 @@ function connectionStatus (status) {
 
 function showBootOffline () {
   $(".photos-offline").fadeIn(250);
-  $("#folder-contents").removeClass("is-loading");
+  hideWindowProgress ();
 }
 
 function hideBootOffline () {
   $(".photos-offline").fadeOut(250);
 }
 
+////////////////////////////////////////////////////////
+/////////////////// LOADING STATUS  /////////////////
+////////////////////////////////////////////////////////
 
+function showWindowProgress () {
+  // $("#nav-logo").animate({opacity : 0}, 300, function(){
+     $("#nav-logo").attr("src", "../assets/loading-f5f5f5.gif");
+  //   $("#nav-logo").animate({opacity : 1}, 300);
+  // });
+  $("#folder-contents").addClass("is-loading");
+  $("#main-progress").removeAttr("value");
+}
 
-
-
+function hideWindowProgress () {
+  // $("#nav-logo").animate({opacity : 0}, 300, function(){
+    $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
+    // $("#nav-logo").animate({opacity : 1}, 300);
+  // });
+  $("#folder-contents").removeClass("is-loading");
+  $("#main-progress").attr("value", "100");
+}
 
 
 
@@ -197,7 +214,7 @@ $(window).on("click", function(){
 ////////////////////////////////////////////////////
 
 $(window).on("load", function(event) {
-  if ($(window).width() > 768) {
+  if (ww > 768) {
     loadKeyModalBackground();
   } else {
     $(".modal-img-credit").hide();
@@ -279,7 +296,7 @@ function sortByTitle (reverse){
     }).appendTo('#folder-contents');
   }
 
-  $("#folder-contents").removeClass("is-loading");
+  hideWindowProgress();
 }
 
 
@@ -353,8 +370,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
       setSentryUser(theUserID);
 
-      $('.username').html(theUsername || theEmail);
-      $(".photos-search").animate({opacity: 1}, 500);
+      $('.username').html(theUsername || theEmail);  
 
       checkForExistingUser(function(){
         if (keyToRemember) {
@@ -486,7 +502,7 @@ function signInComplete () {
       if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
         // paid user remove upgrade button
         userPlan = userMeta.val().plan;
-        $("#upgrade-button").parents("li").hide();
+        $("#upgrade-button").hide();
         $("#low-storage-warning").removeClass('showLowStorage viaUpgradeButton');
         closeExceededStorageModal();
         if (usedStorage >= allowedStorage) {
@@ -511,8 +527,8 @@ function signInComplete () {
         } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
           $("#low-storage-warning").addClass('showLowStorage');
         }
-        if (allowedStorage > freeUserQuotaInBytes) {
-          $("#upgrade-button").parents("li").hide();
+        if (allowedStorage > paidUserThresholdInBytes) {
+          $("#upgrade-button").hide();
         }
       }
 
@@ -523,6 +539,9 @@ function signInComplete () {
       gotPreferences(snapshot.val());
     });
   });
+
+  $(".photos-search").delay(750).animate({opacity: 1}, 500);
+  $("#photos-top-nav").delay(750).animate({opacity: 1}, 500);    
 
   if (getUrlParameter("p")) {
     loadPhoto(getUrlParameter("p"), "", "display");
@@ -772,19 +791,18 @@ function getHomeFolder (callback, callbackParam) {
   if (homeRef) {
 
     clearSelections();
-    $("#folder-contents").addClass("is-loading");
-    $("body, html").animate({ scrollTop: "0px" }, 250, function(){
-      homeRef.get().then(function(items) {
-        if (!homeFolderLoaded) {
-          history.replaceState("home", null, '/photos');
-          $("#photos-new-folder-button, #photos-get-ghost-folder-button").removeClass("unavailable");
-          $("#get-home-folder-button").addClass("unavailable");
-          processItemsFromFirestore("home", items, callback, callbackParam);
-          homeFolderLoaded = true; otherFolderLoaded = false;
-        } else {
-          $("#folder-contents").removeClass("is-loading");
-        }
-      });
+    showWindowProgress();
+    $("body, html").animate({ scrollTop: "0px" }, 1000);
+    homeRef.get().then(function(items) {
+      if (!homeFolderLoaded) {
+        history.replaceState("home", null, '/photos');
+        $("#photos-new-folder-button, #photos-get-ghost-folder-button").removeClass("unavailable");
+        $("#get-home-folder-button").addClass("unavailable");
+        processItemsFromFirestore("home", items, callback, callbackParam);
+        homeFolderLoaded = true; otherFolderLoaded = false;
+      } else {
+        hideWindowProgress();
+      }
     });
     lastActivityTime = (new Date()).getTime();
   }
@@ -797,24 +815,22 @@ function getAllFilesOfFolder (fid, callback, callbackParam) {
   // if (activeFID !== fid) {
 
   clearSelections();
-  $("#folder-contents").addClass("is-loading");
-  $("body, html").animate({ scrollTop: "0px" }, 250, function(){
-    homeRef.doc(fid).collection(fid).get().then(function(items) {
-      if (!otherFolderLoaded) {
-        history.pushState(fid, null, '/photos?f='+fid);
-        $("#get-home-folder-button").removeClass("unavailable");
-        $("#photos-new-folder-button, #photos-get-ghost-folder-button").addClass("unavailable");
-        processItemsFromFirestore(fid, items, callback, callbackParam);
-        homeFolderLoaded = false; otherFolderLoaded = true;
-      } else {
-        $("#folder-contents").removeClass("is-loading");
-      }
-    });
+  showWindowProgress();
+  $("body, html").animate({ scrollTop: "0px" }, 1000);
+  homeRef.doc(fid).collection(fid).get().then(function(items) {
+    if (!otherFolderLoaded) {
+      history.pushState(fid, null, '/photos?f='+fid);
+      $("#get-home-folder-button").removeClass("unavailable");
+      $("#photos-new-folder-button, #photos-get-ghost-folder-button").addClass("unavailable");
+      processItemsFromFirestore(fid, items, callback, callbackParam);
+      homeFolderLoaded = false; otherFolderLoaded = true;      
+    } else {
+      hideWindowProgress();
+    }
   });
   lastActivityTime = (new Date()).getTime();
   // }
 }
-
 
 function processItemsFromFirestore (fid, items, callback, callbackParam) {
   callback = callback || noop;
@@ -830,17 +846,17 @@ function processItemsFromFirestore (fid, items, callback, callbackParam) {
       if (contents.length === 1 && contents[0].id === "home") {
         // HOME never gets adjustFolderCount, so might return length = 1 sometimes due to falsely getting pinky or thumb.
         showEmptyFolderDialog();
-        $("#folder-contents").removeClass("is-loading");
+        hideWindowProgress();
       } else {
         getTitles(fid, contents, function(){
           $("#photos-sort-button").find("i").addClass("fa-sort-alpha-desc").removeClass("fa-sort-alpha-asc");
-          $("#folder-contents").removeClass("is-loading");
+          hideWindowProgress();
           callback(callbackParam);
         });
       }
     });
   } else {
-    $("#folder-contents").removeClass("is-loading");
+    hideWindowProgress();
     showEmptyFolderDialog();
     clearFolderThumbnail(fid);
   }
@@ -876,11 +892,13 @@ function newFolder (newFTitle, preassignedFID, callback, callbackParam) {
       var titlesObject = {}; titlesObject.self = newFTitle;
       encryptAndUploadTitles (titlesObject, fid, function(){
 
-        activeItemsObject[fid] = {};
-        activeItemsObject[fid].title = newFTitle;
-        activeItemsObject[fid].pinky = null;
-        activeItemsObject[fid].count = 0;
-        activeItemsObject[fid].thumb = null;
+        if (activeFID === "home") {
+          activeItemsObject[fid] = {};
+          activeItemsObject[fid].title = newFTitle;
+          activeItemsObject[fid].pinky = null;
+          activeItemsObject[fid].count = 0;
+          activeItemsObject[fid].thumb = null;
+        }
 
         hideEmptyFolderDialog();
         folderCreated(fid, 0, newFTitle, function(){
@@ -899,19 +917,18 @@ function newFolder (newFTitle, preassignedFID, callback, callbackParam) {
 ////////////////// FILE UPLOAD ////////////////////
 ///////////////////////////////////////////////////
 
-function showFileUploadStatus(color, message) {
-  $("#photos-upload-progress").attr("value", "0");
+function showFileUploadStatus (color, message) {
   $(".upload-status-message").html(message);
-  if(color === "is-danger") { $("body").removeClass("disable-clicks"); }
-  $("#upload-status").removeClass("is-dark is-light is-warning is-danger is-success").addClass(color);
+  if (color === "is-danger") { $("body").removeClass("disable-clicks"); }
   $("#photos-upload-status").addClass("is-active");
 }
 
-function hideFileUploadStatus() {
+function hideFileUploadStatus () {
   $("body").removeClass("disable-clicks");
-  $("#upload-status").removeClass("is-dark is-light is-warning is-danger is-success").addClass("is-warning");
+  $("#upload-status").removeClass("is-dark is-light is-white is-danger is-success").addClass("is-white");
   $("#photos-upload-status").removeClass("is-active");
   $("#upload-status-contents").html("");
+  $("#upload-preview").css("backgroundImage", 'url("")');
 }
 
 window.addEventListener('dragenter', handleDragEnter, false);
@@ -1057,7 +1074,7 @@ function createFileTree(path, file) {
     document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
   }
   var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s).<br><br> Please don't navigate away from this page, or close the window.";
-  showFileUploadStatus("is-warning", processingMessage);
+  showFileUploadStatus("is-white", processingMessage);
   checkUploadQueue();
 }
 
@@ -1117,7 +1134,7 @@ function processUploadTree (callback, callbackParam) {
                     // ALL FOLDERS CREATED.
                     showFileUploadStatus("is-info", "Organizing photos and albums.");
                     prepareToMoveUploadsToWhereTheyBelong();
-                  }, 1000);
+                  }, 3000);
                 });
               }
             });
@@ -1252,7 +1269,7 @@ function handlePhotoSelect(evt) {
 
     if (numFilesLeftToBeUploaded > 0) {
       var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-      showFileUploadStatus("is-warning", processingMessage);
+      showFileUploadStatus("is-white", processingMessage);
     }
 
   } else {
@@ -1296,7 +1313,7 @@ function handlePhotosDrop (evt) {
 
     if (numFilesLeftToBeUploaded > 0) {
       var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-      showFileUploadStatus("is-warning", processingMessage);
+      showFileUploadStatus("is-white", processingMessage);
     }
 
   } else {
@@ -1381,7 +1398,7 @@ function nextUpload(callback, callbackParam) {
 
     uploadList.forEach(function(upload, index) {
 
-      if ( !upload.processed && (numFilesUploading < 2) ) {
+      if ( !upload.processed && (numFilesUploading < 1) ) {
         if ( upload.file.size < (memoryLimit / numFilesUploading) ) {
           uploadList[index].processed = true;
           numFilesUploading++;
@@ -1437,8 +1454,8 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
 
       // if (filetype.indexOf("image") !== -1) {
       if (fileExt.match(/^(jpg|jpeg|png)$/i)) {
-        var processingMessage = "<span class='icon'><i class='fa fa-circle-o-notch fa-spin fa-fw fa-3x'></i></span> Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos</b> left.";
-        showFileUploadStatus("is-warning", processingMessage);
+        var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos</b> left.";
+        showFileUploadStatus("is-white", processingMessage);
         encryptAndUploadPhoto(base64FileContents, predefinedPID, fid, filename, callback, callbackParam);
       } else {
         numFilesLeftToBeUploaded--;
@@ -1544,8 +1561,8 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
             var saveUploadThumb = thumbRef.putString(encryptedTextFile);
             saveUploadThumb.on('state_changed', function(thumbSnap){
               if (!fileUploadError) {
-                var processingMessage = "<span class='icon'><i class='fa fa-circle-o-notch fa-spin fa-fw fa-3x'></i></span> Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
-                showFileUploadStatus("is-warning", processingMessage);
+                var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
+                showFileUploadStatus("is-white", processingMessage);
               }
               
               lastActivityTime = (new Date()).getTime();
@@ -1571,6 +1588,7 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
                         '</div>';
                         $("#upload-status-contents").prepend(uploadElem);
                         $("#upload-status-contents").animate({ scrollTop: 0 }, 500);
+                        $("#upload-preview").css("backgroundImage", 'url("'+lp+'")');
                       } else {
                         $("#upload-"+pid).find("progress").attr("value", snapshot.bytesTransferred);
                         $("#upload-"+pid).find(".fs").html(Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +"%");
@@ -1590,8 +1608,8 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
                             var saveUploadLightboxPreview = lightRef.putString(encryptedTextFile);
                             saveUploadLightboxPreview.on('state_changed', function(lightSnap){
                               if (!fileUploadError) {
-                                var processingMessage = "<span class='icon'><i class='fa fa-circle-o-notch fa-spin fa-fw fa-3x'></i></span> Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
-                                showFileUploadStatus("is-warning", processingMessage);
+                                var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
+                                showFileUploadStatus("is-white", processingMessage);
                               }
                               
                               lastActivityTime = (new Date()).getTime();
@@ -1817,7 +1835,9 @@ function getThumbnail (pid, fid) {
       }
     }).catch(function(error) {
       var errorText;
-      handleError(error);
+      if (tid.indexOf("l-") === -1) {
+        handleError(error);
+      }
       switch (error.code) {
         case 'storage/object-not-found':
           errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support. We're terribly sorry about this.";
@@ -1825,7 +1845,13 @@ function getThumbnail (pid, fid) {
           // Chances are we've got a problem.
           // TODO : ERROR DISPLAYING
           // showDocProgress(errorText);
-          fixFile(tid);
+          if (tid.indexOf("l-") !== -1) {
+            console.log("Tried loading a high-res thumbnail (lightbox size) for", pid ,", but there wasn't one. Falling back to regular size.");
+            var regularSizeID = tid.replace("l-", "t-");
+            getThumbnail (regularSizeID, fid);
+          } else {
+            fixFile(tid);
+          }
           break;
         case 'storage/unauthorized':
           errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support. We're terribly sorry about this.";
@@ -1833,7 +1859,15 @@ function getThumbnail (pid, fid) {
           // Chances are we've got a problem.
           // TODO : ERROR DISPLAYING
           // showDocProgress(errorText);
-          fixFilesAndFolders();
+
+          if (tid.indexOf("l-") !== -1) {
+            console.log("Tried loading a high-res thumbnail (lightbox size) for", pid ,", but there wasn't one. Falling back to regular size.");
+            var regularSizeID = tid.replace("l-", "t-");
+            getThumbnail (regularSizeID, fid);
+          } else {
+            fixFilesAndFolders();
+          }
+          
           break;
         case 'storage/canceled':
           // TODO : ERROR DISPLAYING
@@ -1866,6 +1900,12 @@ function getThumbForItem (folderContent, tid, id) {
         if (!album.classList.contains("is-loading")) {
           album.classList.add("is-loading");
         }
+
+        // use higher resolution album images on desktops with retina displays
+        if (doWeNeedHighResThumbs() && tid) {
+          tid = tid.replace("t-", "l-");
+        }
+
         getThumbnail(tid, id);
       }
     }
@@ -1882,6 +1922,15 @@ function getThumbForItem (folderContent, tid, id) {
   }
 }
 
+function doWeNeedHighResThumbs() {
+  var highRes = false;
+  if (ww > 500) { highRes = true; }
+  return highRes;
+}
+
+if (doWeNeedHighResThumbs()) {
+  console.log("High resolution screen detected. Will use high-res album thumbnails.");
+}
 
 function generateFolderThumbnail(fid) {
   $("#" + fid).find(".album").addClass("is-loading");
@@ -1996,7 +2045,6 @@ function adjustFolderCount (fid, adjustment, forceGenerateThumb, callback, callb
 function moveSelectionsToFolder (arrayOfPIDsToMove, toFolderID, indexToMove, thumbnailIsMoving, callback, callbackParam) {
   callback = callback || noop;
   if (toFolderID !== activeFID) {
-    progressModal("photos-move-selections-modal");
     var numberOfItemsToMove = arrayOfPIDsToMove.length;
     indexToMove = indexToMove || 0;
     showFileUploadStatus("is-info", "Organizing photos and albums. ("+ Math.floor((indexToMove * 100) / numberOfItemsToMove) +"%)");
@@ -2065,9 +2113,12 @@ function moveSelectionsToFolder (arrayOfPIDsToMove, toFolderID, indexToMove, thu
 
 function showMoveSelectionsModal() {
   // SHOW LOADING
+  $("#photos-move-selections-modal").find(".is-success").attr("disabled", true).prop("disabled", true);
   $("#move-folders-list-home").hide();
+  $("#move-folders-list-home, #move-folders-list-new").removeClass("is-active");
+  $(".photos-move-folders-list-item.is-active").removeClass("is-active");
   $("#photos-move-folders-list").addClass("is-loading");
-  $("#photos-move-folders-list").find("li").remove();
+  $("#photos-move-folders-list").find("div").remove();
   showModal('photos-move-selections-modal');
 
   titlesRef.doc("home").get().then(function(titles) {
@@ -2076,7 +2127,7 @@ function showMoveSelectionsModal() {
       $.each(JSON.parse(plaintext.data).folders, function(fid, ftitle) {
         var parsedFilename = JSON.parse(ftitle);
         var isCurrent = ""; if (fid === activeFID) { isCurrent = "is-current"; }
-        $("#photos-move-folders-list").append('<li><a fid="'+fid+'" class="'+isCurrent+' photos-move-folders-list-item"><span class="icon is-small"><i class="fa fa-book"></i></span> '+parsedFilename+'</a></li>');
+        $("#photos-move-folders-list").append('<div class="column move-folder is-half" fname="'+parsedFilename+'"><button fid="'+fid+'" class="button is-fullwidth '+isCurrent+' photos-move-folders-list-item"><span class="icon is-small"><i class="fa fa-book"></i></span><span>'+parsedFilename+'</span></button></div>');
       });
 
       if (activeFID === "home") {
@@ -2085,19 +2136,28 @@ function showMoveSelectionsModal() {
         $("#move-folders-list-home").removeClass("is-current");
       }
 
+      $('.move-folder').sort(function(a, b) {
+        if ($(a).attr("fname") > $(b).attr("fname")) {
+          return -1;
+        } else {
+          return 1;
+        }
+      }).appendTo('#photos-move-folders-list');
+
       $("#move-folders-list-home").fadeIn(250);
       $("#photos-move-folders-list").removeClass("is-loading");
     });
   });
 }
 
-$("#photos-move-folders-list").on('click', 'a', function(event) {
+$("#photos-move-selections-modal").on('click', '.photos-move-folders-list-item', function(event) {
   event.preventDefault();
   var toFolderID = $(this).attr("fid");
   if (toFolderID !== activeFID) {
-    $("#move-folders-list-home").removeClass("is-active");
+    $("#move-folders-list-home, #move-folders-list-new").removeClass("is-active");
     $(".photos-move-folders-list-item.is-active").removeClass("is-active");
     $(this).addClass("is-active");
+    $("#photos-move-selections-modal").find(".is-success").attr("disabled", false).prop("disabled", false);
   }
 });
 
@@ -2108,13 +2168,25 @@ $("#move-folders-list-home").on('click', function(event) {
     $("#move-folders-list-home").removeClass("is-active");
     $(".photos-move-folders-list-item.is-active").removeClass("is-active");
     $(this).addClass("is-active");
+    $("#photos-move-selections-modal").find(".is-success").attr("disabled", false).prop("disabled", false);
   }
 });
 
 function moveFolderSelectionMade () {
   var toFolderID = $(".photos-move-folders-list-item.is-active").attr("fid");
   if (toFolderID !== undefined && toFolderID !== null && toFolderID !== "") {
+    progressModal("photos-move-selections-modal");
+    if (toFolderID === "new") {
+      var aNewUUID = "f-" + newUUID();
+      newFolder("New Album", aNewUUID, function(){
+        moveThem(aNewUUID);
+      });
+    } else {
+      moveThem(toFolderID);
+    }
+  }
 
+  function moveThem (fidToMoveTo) {
     var thumbnailIsMoving = false;
     getFolderThumbnail(activeFID, function(thumb){
       var selectionsArray = Object.keys(selectionsObject);
@@ -2124,7 +2196,7 @@ function moveFolderSelectionMade () {
         }
       });
       $("#photos-move-selections-modal").addClass("disable-clicks");
-      moveSelectionsToFolder(selectionsArray, toFolderID, 0, thumbnailIsMoving, function(){
+      moveSelectionsToFolder(selectionsArray, fidToMoveTo, 0, thumbnailIsMoving, function(){
         hideModal("photos-move-selections-modal");
         hideFileUploadStatus();
       });
@@ -2416,8 +2488,12 @@ function hideEmptyFolderDialog (callback) {
 
 function folderCreated (fid, fcount, fname, callback, callbackParam) {
   callback = callback || noop;
-  activeItemsObject[fid].title = fname;
-  renderFolder(fid, fcount, fname, "", "", updateTitles, callback, callbackParam);
+  if (activeFID === "home") {
+    activeItemsObject[fid].title = fname;
+    renderFolder(fid, fcount, fname, "", "", updateTitles, callback, callbackParam);
+  } else {
+    callback(callbackParam);
+  }
 }
 
 function renderFolder (fid, fcount, fname, pinky, thumb, callback, callback2, callbackParam2) {
@@ -2436,12 +2512,12 @@ function renderFolder (fid, fcount, fname, pinky, thumb, callback, callback2, ca
     pinkyObj = '<img draggable="false" src="'+pinky+'"  tid="'+thumb+'">';
   } else {
     if (!pinky.startsWith("<img")) {
-      dominant = "background-color:rgb(" + pinky + ");";
+      // dominant = "background-color:rgb(" + pinky + ");";
       pinkyObj = '<img draggable="false" src="//:0" tid="'+thumb+'">';
-      var colorContrast = pinky.split(",").reduce(function add(a, b) { return parseInt(a) + parseInt(b); }, 0);
-      if (colorContrast < 385) {
-        loadingColor = "is-white-loader";
-      }
+      // var colorContrast = pinky.split(",").reduce(function add(a, b) { return parseInt(a) + parseInt(b); }, 0);
+      // if (colorContrast < 385) {
+      //   loadingColor = "is-white-loader";
+      // }
     } else {
       pinkyObj = pinky;
     }
@@ -2449,16 +2525,19 @@ function renderFolder (fid, fcount, fname, pinky, thumb, callback, callback2, ca
 
   var theParsedFoldername = "";
   try { theParsedFoldername = JSON.parse(fname); } catch (e) { theParsedFoldername = fname; }
+  var year = yearFromTitle(theParsedFoldername);
+  var titleWithoutYear = yearOmittedTitle(theParsedFoldername);
 
-  var folderDivOpener = '<div name="'+theParsedFoldername+'" class="folder-content albumitem" id="'+fid+'" fcount="'+fcount+'" style="'+dominant+'">';
+  var folderDivOpener = '<div name="'+theParsedFoldername+'" class="column is-full folder-content albumitem" id="'+fid+'" fcount="'+ (year || fcount) +'" style="'+dominant+'">';
   var folderHTML =
     '<div class="album '+loadingColor+'" style="'+dominant+'">'+
       pinkyObj +
-      '<div class="button is-light unclickable albumicon"><span class="icon"><i class="fa fa-fw fa-book"></i></span></div>'+
-      '<input onclick="this.focus()" type="text" class="albumtitle" value="'+theParsedFoldername+'" placeholder="'+theParsedFoldername+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />'+
-      '<span class="settingsicon icon is-small"><i class="fa fa-fw fa-ellipsis-v"></i></span>'+
+      // '<div class="button is-light unclickable albumicon"><span class="icon"><i class="fa fa-fw fa-book"></i></span></div>'+
+      '<input onclick="this.focus()" type="text" class="albumtitle" value="'+titleWithoutYear+'" placeholder="'+theParsedFoldername+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />'+
+      // '<span class="settingsicon icon is-small"><i class="fa fa-fw fa-ellipsis-v"></i></span>'+
       '<span class="deletefoldericon icon is-small"><i class="fa fa-fw fa-trash"></i></span>'+
       '<span class="ghostfoldericon icon is-small"><i class="fa fa-fw fa-eye-slash"></i></span>'+
+      '<progress class="progress is-small is-dark"></progress>'+
     '</div>';
   var folderDivCloser = '</div>';
 
@@ -2492,7 +2571,6 @@ function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
 
   pext = extensionFromFilename(theParsedFilename) || "";
   theParsedFilename = titleFromFilename(theParsedFilename);
-
   var imgElem = ""; var dominant = "";
   if (nail.startsWith("data:image")) {
     imgElem = '<img draggable="false" src="'+nail+'" style="'+isLoaded+'">';
@@ -2505,7 +2583,7 @@ function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
     }
   }
 
-  var photoDivOpener = '<div name="'+theParsedFilename+'" class="folder-content photoitem '+isItSelected+'" id="'+pid+'" style="'+dominant+'">';
+  var photoDivOpener = '<div name="'+theParsedFilename+'" class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem '+isItSelected+'" id="'+pid+'" style="'+dominant+'">';
   var photoHTML =
     '<div class="photo '+isItLoading+' '+loadingColor+'" style="'+dominant+'">'+
       imgElem +
@@ -2550,10 +2628,11 @@ function renderDOMElement (id){
 
 
 
-function renderFolderShell(id, pinky, title) {
+function renderFolderShell(id, pinky, title, count) {
   pinky = pinky || "246,246,246";
-  dominant = "background-color:rgb(" + pinky + ");"; // optional, removing could speed up painting & reflow
-  var html = "<div photositemname='"+title+"' class='folder-content albumitem shell' id='"+id+"' style='"+dominant+"'></div>";
+  dominant = ""; // optional, removing could speed up painting & reflow
+  var year = yearFromTitle(title);
+  var html = "<div photositemname='"+title+"' class='column is-full folder-content albumitem shell' id='"+id+"' style='"+dominant+"' fcount='"+ (year || count) +"'><progress class='progress is-small is-dark'></progress></div>";
   return html;
 }
 
@@ -2561,12 +2640,11 @@ function renderPhotoShell (id, pinky, title) {
   var theParsedFilename = "";
   try { theParsedFilename = JSON.parse(title); } catch (e) { theParsedFilename = title; }
 
-  pext = extensionFromFilename(theParsedFilename) || "";
   theParsedFilename = titleFromFilename(theParsedFilename);
-
-  pinky = pinky || "246,246,246";
-  dominant = "background-color:rgb(" + pinky + ");"; // optional, removing could speed up painting & reflow
-  var html = "<div photositemname='"+theParsedFilename+"' class='folder-content photoitem shell' id='"+id+"' style='"+dominant+"'></div>";
+  // pinky = pinky || "246,246,246";
+  // dominant = "background-color:rgb(" + pinky + ");"; // optional, removing could speed up painting & reflow
+  dominant = "";
+  var html = "<div photositemname='"+theParsedFilename+"' class='column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem shell' id='"+id+"' style='"+dominant+"'></div>";
   return html;
 }
 
@@ -2575,7 +2653,7 @@ function renderDOMShell (id) {
   if (id.startsWith('p-')) {
     shellElement = renderPhotoShell(id, activeItemsObject[id].pinky, activeItemsObject[id].title);
   } else if (id.startsWith('f-')) {
-    shellElement = renderFolderShell(id, activeItemsObject[id].pinky, activeItemsObject[id].title);
+    shellElement = renderFolderShell(id, activeItemsObject[id].pinky, activeItemsObject[id].title, activeItemsObject[id].count);
   } else { // wtf. neither photo nor folder.
   }
   return shellElement;
@@ -2765,7 +2843,9 @@ function extensionFromFilename (filename) {
 
 function titleFromFilename (filename) {
   var extension = "." + extensionFromFilename(filename);
-  return (filename.substring(0,filename.lastIndexOf(extension)) + '');
+  var titleToReturn = (filename.substring(0,filename.lastIndexOf(extension)) + '');
+  if (titleToReturn === "") { titleToReturn = filename; }
+  return titleToReturn;
 }
 
 function getTitles (fid, contents, callback) {
@@ -3047,51 +3127,141 @@ function gotTargetFolderTitles (targetTitlesObject, toFID, callback, callbackPar
   });
 }
 
+
+////////////////////////////////////////////////////
+//////////////////   RENAME TITLE     //////////////
+////////////////////////////////////////////////////
+
+
 $("#folder-contents").on("keydown", '.phototitle, .albumtitle', function(event) {
   var theinput = $(this);
   setTimeout(function(){
     if (event.keyCode == 13) { theinput.blur(); }
+    else {
+      if (theinput.hasClass("albumtitle")) {
+        var tempTitle = theinput.val();
+        var year = yearFromTitle(tempTitle);
+        if (year) { 
+          theinput.parents(".folder-content").attr("fcount", year); 
+        } else {
+          theinput.parents(".folder-content").attr("fcount", "");
+        }
+      }
+    }
   },50);
 });
 
 $("#folder-contents").on("blur", '.phototitle, .albumtitle', function(event) {
-  if ($(this).val().trim() === "" || $(this).val().trim() === " ") {
-    $(this).val("Unnamed");
-  }
-
   var input = $(this);
-  var fidOrPid = $(this).parents(".folder-content").attr("id");
+  var trimmedTitle = input.val().trim();
+  if (trimmedTitle === "" || trimmedTitle === " ") {
+    input.val("Unnamed");
+  }
+  
+  var fidOrPid = input.parents(".folder-content").attr("id");
 
-  if (input.attr("placeholder") !== input.val().trim()) {
+  if (input.attr("placeholder") !== trimmedTitle) {
     input.parents(".folder-content").find(".photo").addClass("is-loading");
     input.parents(".folder-content").find(".album").addClass("is-loading");
 
     if (input.attr("ext")) {
-      activeItemsObject[fidOrPid].title = input.val().trim() + "." + input.attr("ext");
+      activeItemsObject[fidOrPid].title = trimmedTitle + "." + input.attr("ext");
     } else {
-      activeItemsObject[fidOrPid].title = input.val().trim();
+      activeItemsObject[fidOrPid].title = trimmedTitle;
     }
 
     updateTitles(function(){
       if (input.hasClass("albumtitle")){
-        updateFolderTitle(fidOrPid, input.val().trim(), function(){
+        updateFolderTitle(fidOrPid, trimmedTitle, function(){
           input.parents(".folder-content").find(".photo").removeClass("is-loading");
           input.parents(".folder-content").find(".album").removeClass("is-loading");
-          input.attr("placeholder", input.val().trim());
+          input.attr("placeholder", trimmedTitle);
+          input.val(yearOmittedTitle(trimmedTitle));
           console.log("folder title updated.");
         });
       } else {
         input.parents(".folder-content").find(".photo").removeClass("is-loading");
         input.parents(".folder-content").find(".album").removeClass("is-loading");
-        input.attr("placeholder", input.val().trim());
+        input.attr("placeholder", trimmedTitle);
+        console.log("photo title updated.");
       }
     });
+  } else {
+    if (input.hasClass("albumtitle")) {
+      input.val(yearOmittedTitle(trimmedTitle));
+    }
   }
 });
 
+$("#folder-contents").on("focus", '.albumtitle', function(event) {
+  var input = $(this);
+  input.val(input.attr("placeholder"));
+});
 
+function yearFromTitle (title) {
+  var year = title.match(/\b(19|20)\d{2}\b/gm);
+  if (Array.isArray(year)) {
+    // more than one year entered. use the first one. 
+    year = year[0] + "";
+  }
+  return year || null;
+}
 
+function yearOmittedTitle (title) {
+  var year = yearFromTitle(title);
+  if (year) {
 
+    // CHARACTERS ON BOTH SIDES
+
+    title = title.replace("( " + year + " )", "").replace("(" + year + ")", "");
+    title = title.replace("[ " + year + " ]", "").replace("[" + year + "]", "");
+    title = title.replace("{ " + year + " }", "").replace("{" + year + "}", "");
+    title = title.replace("| " + year + " |", "").replace("|" + year + "|", "");
+    
+    title = title.replace("( " + year + ")", "").replace("(" + year + " )", "");
+    title = title.replace("[ " + year + "]", "").replace("[" + year + " ]", "");
+    title = title.replace("{ " + year + "}", "").replace("{" + year + " }", "");
+    title = title.replace("| " + year + "|", "").replace("|" + year + " |", "");
+
+    title = title.replace("-" + year + "-", "");
+    title = title.replace("–" + year + "–", "");
+    title = title.replace("/" + year + "/", "");
+    title = title.replace("_" + year + "_", "");
+    title = title.replace("." + year + ".", "");
+    title = title.replace(":" + year + ":", "");
+
+    // CHARACTERS ON ONE SIDE
+
+    title = title.replace("- " + year, "").replace("-" + year, "");
+    title = title.replace(year + " -", "").replace(year + "-", "");
+
+    title = title.replace("/ " + year, "").replace("/" + year, "");
+    title = title.replace(year + " /", "").replace(year + "/", "");
+
+    title = title.replace("_ " + year, "").replace("_" + year, "");
+    title = title.replace(year + " _", "").replace(year + "_", "");
+
+    title = title.replace(". " + year, "").replace("." + year, "");
+    title = title.replace(year + " .", "").replace(year + ".", "");
+
+    title = title.replace(": " + year, "").replace(":" + year, "");
+    title = title.replace(year + " :", "").replace(year + ":", "");
+
+    title = title.replace("– " + year, "").replace("–" + year, "");
+    title = title.replace(year + " –", "").replace(year + "–", "");
+
+    title = title.replace("| " + year, "").replace("|" + year, "");
+    title = title.replace(year + " |", "").replace(year + "|", "");
+
+    // REMOVE YEAR, AND DOUBLE SPACES
+    title = title.replace(year, "").replace(/ {1,}/g," ");
+
+    // TRIM ENDING SPACES
+    title = title.trim();
+  }
+
+  return title;
+}
 
 
 
@@ -3199,7 +3369,7 @@ function closeFolderSettings(fid) {
 var fidToGhost;
 $("#folder-contents").on("click", '.ghostfoldericon', function(event) {
   event.stopPropagation(); event.preventDefault();
-  var albumTitle = $(this).parents(".albumitem").find("input").val().toUpperCase();
+  var albumTitle = $(this).parents(".albumitem").find("input").attr("placeholder").toUpperCase();
 
   try {
     var testHashingTheTitle = hashString(albumTitle);
@@ -3979,6 +4149,7 @@ $("#search-input").on('focus', function(event) {
 
 function initSearch () {
   //   get all titles.
+  searchArray = [];
   $("#search-bar").find(".button").addClass("is-loading");
   titlesRef.get().then(function(titles) {
     var howManyFolders = titles.docs.length;
@@ -4097,7 +4268,7 @@ function displaySearchResults (results, term) {
   $("#photos-search-contents").html("");
   var resultsToAppend = [];
   $.each(results, function(i, rslt) {
-    if (i <= 50) { // limits search results to max 50
+    if (i <= 48) { // limits search results to max 48 so that it's divisible by 6
       var result = rslt.item;
       var resultTitle = result.name;
       var resultFTitle = result.fname;
@@ -4142,7 +4313,7 @@ function displaySearchResults (results, term) {
       });
 
       var srCard =
-      '<div class="card photos-search-result sr-'+result.pid+'" pid="'+result.pid+'" ptitle="'+result.name+'" id="sr-'+result.pid+'">'+
+      '<div class="column card photos-search-result sr-'+result.pid+'" pid="'+result.pid+'" ptitle="'+result.name+'" id="sr-'+result.pid+'">'+
       '  <div class="card-image photos-sr-photo" pid="'+result.pid+'">'+
       '    <figure class="image is-loading">'+
       '      <img src="" id="">'+

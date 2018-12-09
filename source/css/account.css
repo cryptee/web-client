@@ -1,0 +1,575 @@
+/*///////////////////////////////////////////////////
+////////////////////// GENERAL //////////////////////
+///////////////////////////////////////////////////*/
+html.is-loading::before {
+  content: attr(data-loading);
+  white-space: pre;
+  font-family: 'Montserrat', sans-serif;
+  display: block;
+  height: 24px;
+  width: 240px;
+  text-align: center;
+  left: calc(50% - (240px/2) + 0.5%);
+  top: calc(50% - (24px/2));
+  position: absolute !important;
+  z-index: 9999999;
+ }
+
+html.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 3px solid #000;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 240px;
+  width: 240px;
+  left: calc(50% - (240px/2) + 0.5%);
+  top: calc(50% - (240px/2));
+  position: absolute !important;
+  z-index: 9999998;
+  box-shadow: 0px 0px 200px #FFF, 0px 0px 200px #FFF, 0px 0px 200px #FFF;
+  background-color: #F5F5F5;
+}
+
+.account-body, html {
+	background: url("../imgs/settings-coffee.jpg");
+	background-size: cover;
+	background-position: center;
+	min-height: 100%;
+}
+
+#main-progress {
+	margin-top: 0;
+	margin-bottom: 0;
+	height: 3px !important;
+}
+
+.is-hidden-large-checkout {
+	display: none;
+}
+
+.account-columns {
+	margin: auto !important;
+    max-height: calc(100% - 8rem);
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.settings-tab-contents {
+	padding-top: 0;
+	padding-left: 0;
+	background-color: transparent;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+	max-height: 100%;
+}
+
+.settings-tab, .vers {
+	color: #f5f5f5;
+}
+
+.settings-tab-contents input[type='text'], 
+.settings-tab-contents input[type='password'],
+.settings-tab-contents input[type='number'] {
+	border-top: none;
+	border-right: none;
+	border-left: none;
+	background-color: transparent;
+}
+
+.left-center {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// NAV //////////////////////////
+///////////////////////////////////////////////////*/
+
+#account-app-nav {
+	margin-top: 1rem;
+	height: 3rem;
+}
+
+#left-nav {
+	float: left;
+	text-align: left;
+	top: 0;
+	left: 0;
+}
+
+#right-nav {
+	float: right;
+	text-align: right;
+	top: 0;
+	right: 0;
+}
+
+.account-app-nav-item {
+  width: auto;
+  height: 2rem;
+  display: inline-block;
+  margin-left: 1rem;
+  vertical-align: middle;
+}
+
+.account-app-nav-item img {
+  width: auto;
+  height: 2rem;
+}
+
+#large-upgrade-button {
+	width: auto;
+}
+
+#upgrade-button {
+	border: 1px #4BBF73 solid;
+}
+
+#donate-button { 
+	border: 1px #1F9BCF solid;
+}
+
+
+#upgrade-button, #donate-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(10,10,10,0.1);
+  text-decoration: none;
+  cursor: pointer;
+
+  color : #FFF !important;
+  border-radius: 4rem;
+  
+  font-size: 10px;
+  line-height: 12px;
+  margin-left: 1rem;
+}
+
+#help-button, #signout-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2rem;
+  height: 4rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  z-index: 12;
+  color : #999;
+  font-size: 16px;
+  transition: 0.5s color ease, 1s opacity ease;
+  opacity: 1;
+  pointer-events: all;
+}
+
+#help-button.itsMobile, #signout-button.itsMobile {
+  top: 3px;
+  width: 3rem !important;
+  height: 3rem !important;
+}
+
+#signout-button {
+	right : 2.5rem;
+}
+
+#nav-logo-b {
+	display: none;
+}
+
+#nav-logo-w {
+	display: block;
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// LAYOUT //////////////////////
+///////////////////////////////////////////////////*/
+
+.settings-left-column p.is-white {
+	text-align: right;
+	margin-bottom: 0.75rem;
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 1px;
+	cursor: pointer !important;
+	border-bottom: 1px solid transparent;
+	transition: 0.3s border-color ease;
+}
+
+.settings-right-column {
+	overflow-y: scroll;
+	padding-right: 4rem;
+	max-height: 100%;
+}
+
+.settings-right-column .title {
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 1px;
+	font-size: 1.5rem;
+}
+
+/*///////////////////////////////////////////////////
+//////////////////////  USER  ///////////////////////
+///////////////////////////////////////////////////*/
+
+#user-card {
+	height: 120px;
+	background-color: #FFF;
+	box-shadow: 0 1rem 2rem rgba(10,10,10,0.1);
+	border-radius: 1rem;
+	overflow: hidden;
+	margin-bottom: 2rem;
+}
+
+.cryptee-latest-deploy-version {
+	font-size : 10px;
+}
+
+#user-card .progress {
+	height: 3px;
+}
+
+#user-card .usage {
+	display: inline-block;
+	width: 100%;
+	background-color: #f5f5f5;
+	padding: 0.25rem 1rem calc(0.5rem - 4px) 1rem;
+	color: #363636;
+	font-size : 10px;
+	pointer-events: none;
+}
+
+.user-card-container { 
+	height: 95px;
+	padding: 1rem;
+	font-size: 1.1em;
+	letter-spacing: 1px;
+}
+
+.user-card-container .icon {
+	vertical-align: top;
+}
+
+#account-username, #account-email, #account-phone, #account-personal-code {
+	max-width: calc(100% - 2rem);
+	display: inline-block;
+	overflow-wrap: break-word;
+}
+
+#noemail {
+	box-shadow: 0 1rem 2rem rgba(10,10,10,0.1);
+	border-radius: 1rem;
+}
+
+.vers {
+	text-align: right;
+	font-weight: 100;
+	font-size: 10px;
+	width: 100%;
+}
+
+#settings-delete-acct-button {
+	font-weight: 100;
+	color: #d9534f;
+	font-size: 10px;
+}
+
+#settings-delete-acct-button.is-dark {
+	border-bottom-color: #d9534f !important;
+}
+
+/*///////////////////////////////////////////////////
+/////////////////////  UPGRADE  /////////////////////
+///////////////////////////////////////////////////*/
+
+#upgrade-view {
+	background-color: #f5f5f5;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	z-index: 99;
+	pointer-events: none;
+	opacity: 0;
+	transition: 0.3s opacity ease;
+	overflow-y: scroll;
+}
+
+#upgrade-view.upgradeOn {
+	opacity: 1;
+	pointer-events: all;
+}
+
+.upgrade-card {
+	text-align: left;
+	height: auto;
+	box-shadow: 0 1rem 1rem rgba(10,10,10,0.1);
+	border-radius: 1rem;
+	overflow: hidden;
+	margin-bottom: 2rem;
+	cursor: pointer;
+	padding : 1rem;
+}
+
+.upgrade-card-img {
+	background: url("../imgs/coffee.jpg");
+	background-size: cover;
+	background-position: center;
+	box-shadow: 0 1rem 1rem rgba(10,10,10,0.1);
+	min-height: 131px;
+	border-radius: 1rem;
+	overflow: hidden;
+	margin-bottom: 2rem;
+	cursor: pointer;
+	padding : 1rem;
+}
+
+.upgrade-setting {
+  background-color: #F5F5F5;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-height: 100%;
+  height: auto;
+  width: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.upgrade-container {
+  max-width: calc(320px + 2rem);
+  width: calc(100% - 2rem);
+  min-height: 274px;
+  margin: 3rem auto !important;
+  background-color: #FFF;
+  padding: 0rem;
+  box-shadow: 0px 0px 3rem rgba(0,0,0,0.15);
+  transition: 0.75s all ease;
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+  z-index: 3;
+  transform: translateX(160px);
+}
+
+#upgrade-countries, #upgrade-coupon-input, #upgrade-zip-input, #upgrade-email-input {
+	border-left: none;
+	border-right: none;
+	border-top: none;
+}
+
+#upgrade-zip-input, #upgrade-email-input {
+	border-color :  #363636;
+}
+
+#upgrade-countries {
+	color : #aaa;
+}
+
+.upgrade-image-container { 
+	max-width: calc(320px + 2rem);
+	width: calc(100% - 2rem);
+	min-height: 280px;
+	margin: 3rem auto !important;
+	background: url("../imgs/coffee.jpg");
+	background-size: cover;
+	background-position: center;
+	padding: 1rem;
+	box-shadow: 0px 0px 3rem rgba(0,0,0,0.15);
+	transition: 0.75s all ease;
+	border-radius: 1rem;
+	overflow: hidden;
+	position: absolute;
+	z-index: 2;
+	left: 0;
+	right: 0;
+	transform: translate3d(-160px, 2rem, 0);
+}
+
+.upgrade-image-container p {
+	text-align: center;
+	position: absolute;
+	bottom: 1rem;
+	margin: auto;
+	left: 0;
+	right: 0;
+	font-size: 12px !important;
+	line-height: 20px;
+}
+
+.upgrade-image-container .per-period {
+	font-size: 12px !important;
+}
+
+.upgrade-container.is-checkout {
+  transform: translateX(0);
+}
+
+.upgrade-image-container.is-checkout {
+	transform: translate3d(0, 2rem, 0);
+}
+
+
+/*///////////////////////////////////////////////////
+////////////////  UPGRADE ANIMATION  ////////////////
+///////////////////////////////////////////////////*/
+
+.upgrade-setting.active .upgrade-image-container {
+	transform: translate3d(-160px, 2rem, 0);
+}
+
+.upgrade-setting.active .upgrade-container {
+	transform: translateX(160px);
+}
+
+/*///////////////////////////////////////////////////
+///////////////////  MOBILE   ///////////////////
+///////////////////////////////////////////////////*/
+
+
+
+@media (max-width: 840px) { 
+	.account-columns {
+		max-width: 100%;
+		margin: 0px !important;
+	}
+}
+
+@media (max-width: 768px) { 
+
+	html.is-loading::after { 
+		background-color: #FFF;
+	}
+
+	.account-upgrade-card {
+		background-color: #4BBF73;
+		color: #fff;
+		padding: 1rem;
+		border-radius: 1rem;
+		box-shadow: 0 1rem 2rem rgba(0,0,0,0.1);
+	}
+
+	#account-app-nav {
+		padding-top: 1rem;
+		margin-top: 0;
+		position: absolute;
+		z-index: 98;
+		width: 100%;
+		top: 0;
+	}
+
+	.account-body, html {
+		background: none;
+		background-size: cover;
+		background-position: center;
+		min-height: 100%;
+		background-color: #F5F5F5;
+	}
+
+	.account-columns {
+	    max-height: inherit;
+	    padding-top: 4rem;
+	    transform: translateX(0);
+        bottom: 0;
+        top: auto;
+        overflow: visible;
+	}
+
+	#upgrade-button, #donate-button, #right-nav * {
+		color : #363636 !important;
+	}
+
+	.settings-left-column {
+		max-width: calc(320px + 2rem);
+		min-height: auto;
+		padding-top: 1rem;
+		padding-bottom: 2rem;
+		margin: auto!important;
+		border-bottom: 1px solid #363636;
+	}
+
+	.settings-right-column {
+		min-height: auto;
+		max-height: initial;
+	    padding: 1rem;
+	    background-color: #F5F5F5;
+	    max-width: calc(320px + 2rem);
+	    width: 100%;
+	    margin: auto;
+	}
+
+	.left-center, .settings-tab-contents {
+		top: auto;
+		transform: translateY(0);
+		max-width: 320px;
+		margin: auto;
+		padding: 0;
+	}
+
+	.vers {
+		text-align: center;
+		color: #363636;
+	}
+
+	.settings-left-column p.is-white {
+		text-align: center;
+		color: #363636;
+	}
+
+	#nav-logo-w {
+		display: none;
+	}
+
+	#nav-logo-b {
+		display: block;
+	}
+
+	.settings-tab.is-dark {
+		border-color: #363636 !important;
+	}
+
+	#upgrade-view.upgradeOn {
+		overflow-y : scroll;
+	}
+
+}
+
+
+@media (max-width: 719px) { 
+	.settings-left-column {
+		min-width: auto;
+		max-width: auto;
+	}
+
+	.settings-left-column p.is-white {
+		text-align: center;
+	}
+
+	.upgrade-image-container { 
+		background: #FFF;
+	}
+
+	.upgrade-container {
+	  transform: translateX(0);
+	  width: 100%;
+	  border-radius: 0;
+	}
+
+	.upgrade-image-container {
+		transform: translate3d(0, 2rem, 0);
+	}
+
+	.is-hidden-large-checkout {
+		display: block;
+	}
+}
