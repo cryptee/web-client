@@ -115,13 +115,16 @@
     $('.settings-storage-total').html(formatBytes(allowedStorage, 0));
     $(".usage-progress").attr("value", usedStorage).attr("max", allowedStorage);
 
-    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
-
+    
+    var paid = false;
     if (allowedStorage > 9999999999) {
       $("#upgrade-button, #donate-button").fadeOut(500);
       $(".early-adopter-card").hide();
       $(".paid-user-card").show();
+      paid = true;
     }
+
+    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paid);
   }
 
   $(".home-item").on('click', function(event) {

@@ -264,11 +264,6 @@ html.is-loading::after {
 	overflow-wrap: break-word;
 }
 
-#noemail {
-	box-shadow: 0 1rem 2rem rgba(10,10,10,0.1);
-	border-radius: 1rem;
-}
-
 .vers {
 	text-align: right;
 	font-weight: 100;

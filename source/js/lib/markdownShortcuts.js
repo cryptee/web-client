@@ -263,8 +263,10 @@ var MarkdownShortcuts = function () {
       pattern: /^(\*|\+)\s$/g,
       action: function action(text, selection, pattern) {
         setTimeout(function () {
-          _this.quill.formatLine(selection.index, 1, 'list', 'unordered');
-          _this.quill.deleteText(selection.index - 2, 2);
+          if (!_this.quill.getFormat()['code-block']) {
+            _this.quill.formatLine(selection.index, 1, 'list', 'unordered');
+            _this.quill.deleteText(selection.index - 2, 2);
+          }
         }, 0);
       }
     }, {

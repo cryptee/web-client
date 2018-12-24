@@ -39,14 +39,34 @@ var everyFifteenSecondsInterval = setInterval(quarterMinutelyTimer, 15000);
 var connected = true;
 var startedOffline = false;
 var connectivityMode = true; // true = online // false = offline
+
 var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
 var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
+var storageDriver = offlineStorage.driver();
+breadcrumb("Offline Storage Driver: " + storageDriver);
 
+var checkConnectionTimeout;
 var connectedRef = db.ref(".info/connected");
 connectedRef.on("value", function(snap) {
-  // this limits these triggers to only happen after the key is entered to make sure we won't switch to online mode before they key screen. Sometimes this gets a false negative.
+  // this limits these triggers to only happen after the key is entered 
+  // to make sure we won't switch to online mode before they key screen. 
+  // Sometimes this gets a false negative.
   if (theKey) {
-    connectionStatus(snap.val(), false);
+    if (snap.val()) {
+      breadcrumb("Sockets Got Connection.");
+    } else {
+      breadcrumb("Sockets Lost Connection.");
+    }
+
+    clearTimeout(checkConnectionTimeout);
+    checkConnectionTimeout = setTimeout(function() {
+      if (snap.val()) { 
+        breadcrumb("Sockets Got Connection after 3 seconds. Will check server connection to confirm.");
+      } else {
+        breadcrumb("Sockets Lost Connection for 3 seconds. Will check server connection to decide.");
+      }
+      forceCheckConnection();
+    }, 3000);
   }
 });
 
@@ -95,6 +115,8 @@ var somethingDropped = false;
 var isDocOutdated = false;
 var menuClosedDueToOffline = false;
 var desktopCutOffWidthPixel = 1065;
+
+loadUserDetailsFromLS();
 
 var sortableFoldersDesktopPreferences = {
   animation: 300, delay:0,
@@ -228,18 +250,22 @@ $('.ql-hr').click(function () {
 var IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png)$/i;
 
 document.onpaste = function(e){
-  var items = e.clipboardData.items;
-  for (var i = 0; i < items.length; i++) {
-    if (IMAGE_MIME_REGEX.test(items[i].type)) {
-      processEmbedImage (items[i].getAsFile());
-      return;
+  if (e.clipboardData) {
+    var items = e.clipboardData.items;
+    if (items) {
+      for (var i = 0; i < items.length; i++) {
+        if (IMAGE_MIME_REGEX.test(items[i].type)) {
+          processEmbedImage (items[i].getAsFile());
+          return;
+        }
+        // else {
+        //   processDroppedAttachment(items[i].getAsFile());
+        //   return;
+        // }
+      }
+      // Normal paste handling here
     }
-    // else {
-    //   processDroppedAttachment(items[i].getAsFile());
-    //   return;
-    // }
   }
-  // Normal paste handling here
 };
 
 
@@ -1055,7 +1081,7 @@ var keyModalConnectionTimer;
 function checkForExistingUser (callback){
   callback = callback || noop;
 
-  checkConnection (function(status){
+  checkConnection(function(status){
     connected = status;
 
     if (connected){
@@ -1217,7 +1243,7 @@ function startUserSockets () {
       usedStorage = userMeta.val().usedStorage || 0;
       $(".used-storage").html(formatBytes(usedStorage));
       $(".allowed-storage").html(formatBytes(allowedStorage));
-
+      var paidOrNot = false; // to save into localstorage
       if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
         // paid user remove upgrade button
           var userPlan = userMeta.val().plan;
@@ -1250,12 +1276,13 @@ function startUserSockets () {
 
         if (allowedStorage > paidUserThresholdInBytes) {
           $("#upgrade-badge").stop( true, true ).fadeOut();
+          paidOrNot = true;
         } else {
           $("#upgrade-badge").stop( true, true ).fadeIn();
         }
       }
 
-      saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
+      saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot);
     }
   });
 
@@ -1513,7 +1540,12 @@ $("#key-input").on('keydown', function (e) {
 
 function checkCatalogIntegrity () {
   var undefinedFolder = false;
+  var undefinedDoc = false;
+
   breadcrumb("catalog integrity check : starting");
+
+
+  //check for undefined folders in the catalog
   Object.keys(catalog.folders).forEach(function(key){
     if (key === "undefined") {
       // there is an undefined folder.
@@ -1522,10 +1554,29 @@ function checkCatalogIntegrity () {
     }
   });
 
+  //check for undefined docs in the catalog
+  Object.keys(catalog.docs).forEach(function(key){
+    if (key === "undefined") {
+      // there is an undefined doc.
+      undefinedDoc = true;
+      breadcrumb("catalog integrity check : found undefined doc");
+    }
+  });
+
+  // fix the undefined folder if you found any
   if (undefinedFolder) {
     fixUndefinedFolder();
+  } 
+
+  //fix the undefined doc if you found any
+  if (undefinedDoc) {
+    // 
+  } 
+
+  if (!undefinedDoc && !undefinedFolder) {
+    breadcrumb("catalog integrity check : PASSED");
   } else {
-    breadcrumb("catalog integrity check : passed");
+    breadcrumb("catalog integrity check : FAILED");
   }
 }
 
@@ -1552,6 +1603,7 @@ function fixHomeDoc (callback, callbackParam){
           console.log("CREATE HOME FAILED. RETRYING IN 2 SECOND. Error: ", error);
           setTimeout(function(){ fixHomeDoc(); }, 2000);
         }, function() {
+          breadcrumb("Home doc fixed. Continuing.");
           setTimeout(function(){ callback(callbackParam); }, 2000);
         });
     });
@@ -1559,6 +1611,11 @@ function fixHomeDoc (callback, callbackParam){
 }
 
 function fixFilesAndFolders (did) {
+  if (did) {
+    breadcrumb("Attempting to fix files and folders. Trigger: " + did);
+  } else {
+    breadcrumb("Attempting to fix files and folders.");
+  }
   showDocProgress("This is taking too long...<br>One second. Going to ask the chef to see what's going on...");
   fixFolders(did);
 }
@@ -1567,15 +1624,18 @@ function fixFolders (did) {
   var isThereAnUndefinedFolder = false;
   foldersRef.once('value', function(snapshot) {
     var allFolders = snapshot.val();
+    breadcrumb("Got folders from server.");
     if (allFolders) {
       var allFoldersKeys = Object.keys(allFolders);
       var allFoldersCount = allFoldersKeys.length;
+      breadcrumb("Actual folders count = " + allFoldersCount);
       var foldersCountOnServer;
       dataRef.child("foldersCount").once('value', function(snapshot) {
         foldersCountOnServer = snapshot.val();
+        breadcrumb("Folders count value in db = " + foldersCountOnServer);
         if (foldersCountOnServer !== allFoldersCount) {
           dataRef.update({"foldersCount" : allFoldersCount});
-
+          breadcrumb("Fixed folders count.");
           // folders count is fixed.
           // check if there is an undefined folder.
 
@@ -1592,6 +1652,7 @@ function fixFolders (did) {
           // TO SEE IF THEY EXIST ONE BY ONE IF YOU HAVE TO.
 
           if (isThereAnUndefinedFolder) {
+            breadcrumb("Detected 'undefined' folder key in database. Will attempt to fix.");
             fixUndefinedFolder(did); // passing did for future to pass into fixFiles
           } else {
             fixFiles(did);
@@ -1641,6 +1702,7 @@ function fixUndefinedFolder (did) {
             });
           });
         } else {
+          breadcrumb("Couldn't fix undefined folder.");
           handleError(new Error('uid: ' + theUserID + "had undefined folder, can't create replacement."));
           console.log(error);
         }
@@ -1672,6 +1734,8 @@ function fixFiles(did, newFID) {
 
   if (did) {
     if (did === "undefined") {
+      breadcrumb("Detected undefined doc.");
+      
       // means that somehow a doc got undefined ID in the database.
       // First check if there's an actual undefined.cdoc or undefined.cfile in storage.
       // if there's one, rename both with a new ID, and updateTitles and tags to reflect changes.
@@ -1693,6 +1757,7 @@ function fixFiles(did, newFID) {
       }
 
     } else {
+      breadcrumb(did + " got object-not-found. Not sure if doc or file. Attempting to fix or worst case will delete.");
       // means that this docid(did) got a "storage/object-not-found" so either we thought it was a file and it was a doc vice versa,
       // or it doesn't exist at all and sadly the best we can do is to delete this file now.
       verifyDocExistsOrDelete(did);
@@ -1709,8 +1774,10 @@ function verifyDocExistsOrDelete(did) {
     // doc exists ??
     // likely thought was a file got object-not-found, but it's a doc and it exists
     // set type again and problem should be solved.
+    breadcrumb(did + " was thought to be a File, but is a Doc. Fixing.");
 
     foldersRef.child(fid + "/docs/" + did).update({ isfile : false },function(){
+      breadcrumb("Fixed " + did + " and it's now a Doc.");
       $("#" + did).removeClass("itsAFile");
       $("#" + did).addClass("itsADoc");
       loadDoc(did);
@@ -1723,8 +1790,10 @@ function verifyDocExistsOrDelete(did) {
         // file exists.
         // likely thought was a doc got object-not-found, but it's a file and it exists
         // set type again and problem should be solved.
+        breadcrumb(did + " was thought to be a Doc, but is a File. Fixing.");
 
         foldersRef.child(fid + "/docs/" + did).update({ isfile : true },function(){
+          breadcrumb("Fixed " + did + " and it's now a File.");
           $("#" + did).addClass("itsAFile");
           $("#" + did).removeClass("itsADoc");
           loadDoc(did);
@@ -1745,16 +1814,26 @@ function verifyDocExistsOrDelete(did) {
 }
 
 function fixFoldersCount () {
+  breadcrumb("Fixing Folder Counts: starting");
   foldersRef.once('value', function(snapshot) {
     var allFolders = snapshot.val();
     if (allFolders) {
       var allFoldersCount = Object.keys(allFolders).length;
+      
+      breadcrumb("Fixing Folder Counts: got folders, a total of: " + allFoldersCount);
+      
       var foldersCountOnServer;
       dataRef.child("foldersCount").once('value', function(snapshot) {
         foldersCountOnServer = snapshot.val();
-        if (foldersCountOnServer !== allFoldersCount) {
-          dataRef.update({"foldersCount" : allFoldersCount});
-        }
+      
+        breadcrumb("Fixing Folder Counts: got fCount: " + foldersCountOnServer);
+                  
+        dataRef.update({"foldersCount" : allFoldersCount}, function(){
+    
+          breadcrumb("Fixing Folder Counts: fCount fixed.");
+
+        });
+        
       });
     }
   });
@@ -1772,6 +1851,7 @@ function checkDocGeneration (changedDoc) {
     if (changedGenerationOnServer !== currentGeneration) {
       // we have an outdated doc. show doc is outdated.
       isDocOutdated = true;
+      breadcrumb("Displaying Outdated Doc Warning for " + activeDocID);
       showGenerationWarning();
     }
   }
@@ -1800,6 +1880,7 @@ function checkHomeGeneration (newHomeGen) {
   if (activeDocID === "home") {
     if (newHomeGen !== currentGeneration) {
       // we have an outdated home. show home is outdated.
+      breadcrumb("Displaying Outdated HomeDoc Warning");
       isDocOutdated = true;
       showGenerationWarning();
     }
@@ -1823,6 +1904,7 @@ function hideGenerationWarning () {
 }
 
 function saveAnyway (){
+  breadcrumb("Saving outdated doc anyway");
   isDocOutdated = false;
   if (connectivityMode) {
     saveDoc();
@@ -1833,11 +1915,13 @@ function saveAnyway (){
 }
 
 function dontSave () {
+  breadcrumb("Not saving outdated doc");
   docChanged = false;
   $(".outdated-save-message").fadeOut();
 }
 
 function loadNewest() {
+  breadcrumb("Loading the newest version of outdated doc");
   isDocOutdated = false;
   loadDoc(activeDocID);
 }
@@ -1869,14 +1953,14 @@ function gotPlaintextDocTitle (did, plaintextTitle, callback) {
 
   // add title, filetype, ext to catalog
   catalog.docs[did].name = dtitle;
-  catalog.docs[did].ftype = filetypeFromFilename(dtitle);
-  catalog.docs[did].icon = iconFromFilename(dtitle);
+  catalog.docs[did].ftype = extractFromFilename(dtitle, "filetype");
+  catalog.docs[did].icon = extractFromFilename(dtitle, "icon");
   delete catalog.docs[did].encryptedTitle;
 
   // reflect changes to dom (which means doc must be in dom before gotPlaintextDocTitle is called)
   $("#" + did).find(".doctitle").html(dtitle);
 
-  $("#"+did).find(".exticon").find("i").removeClass("fa fa-fw fa-file-text-o").addClass(iconFromFilename(dtitle));
+  $("#"+did).find(".exticon").find("i").removeClass("fa fa-fw fa-file-text-o").addClass(extractFromFilename(dtitle, "icon"));
 
   var extension = dtitle.slice((dtitle.lastIndexOf(".") - 1 >>> 0) + 2);
   var dext = (extension || "crypteedoc");
@@ -1903,7 +1987,9 @@ function gotPlaintextDocTitle (did, plaintextTitle, callback) {
     if (offlineDoc) {
       var updatedDoc = offlineDoc;
       updatedDoc.name = dtitle;
-      offlineStorage.setItem(did, updatedDoc);
+      offlineStorage.setItem(did, updatedDoc).catch(function(err) {
+        handleError(err);
+      });
     }
   }).catch(function(err) {
     handleError(err);
@@ -2430,45 +2516,64 @@ function appendFolder (folder){
 
 
 
-
-
-function filetypeFromFilename (filename) {
+function extractFromFilename (filename, whatToExtract) {
   filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
+  
   var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+  var icon = "fa fa-fw fa-file-text-o";
   var filetype = null;
+  var extract;
 
   if (extension.match(/^(006|007|3DMF|3DX|8PBS|ABM|ABR|ADI|AEX|AI|AIS|ALBM|AMU|ARD|ART|ARW|ASAT|B16|BIL|BLEND|BLKRT|BLZ|BMC|BMC|BMP|BOB|BR4|BR5|C4|CADRG|CATPART|CCX|CDR|CDT|CDX|CGM|CHT|CM2|CMX|CMZ|COMICDOC|CPL|CPS|CPT|CR2|CSF|CV5|CVG|CVI|CVI|CVX|DAE|DCIM|DCM|DCR|DCS|DDS|DESIGN|DIB|DJV|DJVU|DNG|DRG|DRW|DRWDOT|DT2|DVL|DWB|DWF|DXB|EASM|EC3|EDP|EDRW|EDW|EMF|EPRT|EPS|EPSF|EPSI|EXR|FAC|FACE|FBM|FBX|FC2|FCZ|FD2|FH11|FHD|FIT|FLIC|FLM|FM|FPF|FS|FXG|GIF|GRAFFLE|GTX|HD2|HDZ|HPD|HPI|HR2|HTZ4|ICL|ICS|IDW|IEF|IGES|IGR|ILBM|ILM|IMA|IME|IMI|IMS|INDD|INDT|IPJ|IRF|ITC2|ITHMB|J2K|JIFF|JNG|JPEG|JPF|JPG|JPG2|JPS|JPW|JT|JWL|JXR|KDC|KODAK|KPG|LDA|LDM|LET|LT2|LTZ|LVA|LVF|LXF|MAC|MACP|MCS|MCZ|MDI|MGS|MGX|MIC|MIP|MNG|MPF|MPO|MTZ|MUR|MUR|NAV|NCR|NEU|NFF|NJB|NTC|NTH|ODI|ODIF|OLA|OPD|ORA|OTA|OTB|OTC|OTG|OTI|OVW|P21|P2Z|PAT|PC6|PC7|PCD|PCT|PCX|PDN|PEF|PI2|PIC|PIC|PICNC|PICTCLIPPING|PL0|PL2|PLN|PMB|PNG|POL|PP2|PPSX|PRW|PS|PS|PSB|PSD|PSF|PSG|PSP|PSPIMAGE|PSQ|PVL|PWD|PWS|PX|PXR|PZ2|PZ3|QTIF|QTZ|QXD|RIC|RLC|RLE|RW2|SDK|SDR|SEC|SFW|SIG|SKP|SLDASM|SLDDRW|SLDPRT|SNX|SRF|SST|SUN|SVG|SVGZ|TARGA|TCW|TCX|TEX|TGA|TIF|TIFF|TJP|TN|TPF|TPX|TRIF|TRX|U3D|UPX|URT|UTX|V00|V3D|VFS|VGA|VHD|VIS|VRL|VTX|WB1|WBC|WBD|WBZ|WEBP|WGS|WI|WMF|WNK|XDW|XIP|XSI|X_B|X_T|ZDL|ZIF|ZNO|ZPRF|ZT)$/i)) {
     filetype = "image photo foto";
+    icon = "fa fa-fw fa-file-image-o";
   }
   if (extension.match(/^(pdf)$/i)) {
     filetype = "pdf adobe document";
+    icon = "fa fa-fw fa-file-pdf-o";
   }
   if (extension.match(/^(ecd)$/i)) {
     filetype = "encrypted cryptee document";
+    icon = "fa fa-fw fa-lock";
   }
   if (extension.match(/^(c|cake|clojure|coffee|jsx|cpp|cs|css|less|scss|csx|gfm|git-config|go|gotemplate|java|java-properties|js|jquery|regexp|json|litcoffee|makefile|nant-build|objc|objcpp|perl|perl6|plist|python|ruby|rails|rjs|sass|shell|sql|mustache|strings|toml|yaml|git-commit|git-rebase|html|erb|gohtml|jsp|php|py|junit-test-report|shell-session|xml|xsl)$/i)) {
     filetype = "code script program";
+    icon = "fa fa-fw fa-file-code-o";
   }
   if (extension.match(/^(7z|bz2|tar|gz|rar|zip|zipx|dmg|pkg|tgz|wim)$/i)) {
     filetype = "archive compress";
+    icon = "fa fa-fw fa-file-archive-o";
   }
   if (extension.match(/^(doc|dot|wbk|docx|docm|dotx|dotm|docb|apxl|pages)$/i)) {
     filetype = "office word microsoft document";
+    icon = "fa fa-fw fa-file-word-o";
   }
   if (extension.match(/^(xls|xlt|xlm|xlsx|xlsm|xltx|xltm|xlsb|xla|xlam|xll|xlw|numbers)$/i)) {
     filetype = "office excel microsoft document";
+    icon = "fa fa-fw fa-file-excel-o";
   }
   if (extension.match(/^(ppt|pot|pps|pptx|pptm|potx|potm|ppam|ppsx|ppsm|sldx|sldm|key|keynote)$/i)) {
     filetype = "office powerpoint microsoft document";
+    icon = "fa fa-fw fa-file-powerpoint-o";
   }
   if (extension.match(/^(3GA|AA|AA3|AAC|AAX|ABC|AC3|ACD|ACD|ACM|ACT|ADG|ADTS|AFC|AHX|AIF|AIFC|AIFF|AL|AMR|AMZ|AOB|APC|APE|APF|ATRAC|AU|AVR|AWB|AWB|BAP|BMW|CAF|CDA|CFA|CIDB|COPY|CPR|CWP|DAC|DCF|DCM|DCT|DFC|DIG|DSM|DSS|DTS|DTSHD|DVF|EFA|EFE|EFK|EFV|EMD|EMX|ENC|F64|FL|FLAC|FLP|FST|GNT|GPX|GSM|GSM|HMA|HTW|IFF|IKLAX|IMW|IMY|ITS|IVC|K26|KAR|KFN|KOE|KOZ|KOZ|KPL|KTP|LQT|M3U|M3U8|M4A|M4B|M4P|M4R|MA1|MID|MIDI|MINIUSF|MIO|MKA|MMF|MON|MP2|MP3|MPA|MPC|MPU|MP_|MSV|MT2|MTE|MTP|MUP|MXP4|MZP|NCOR|NKI|NRT|NSA|NTN|NWC|ODM|OGA|OGG|OMA|OMG|OMX|OTS|OVE|PCAST|PEK|PLA|PLS|PNA|PROG|PVC|QCP|R1M|RA|RAM|RAW|RAX|REX|RFL|RIF|RMJ|RNS|RSD|RSO|RTI|RX2|SA1|SBR|SD2|SFA|SGT|SID|SMF|SND|SNG|SNS|SPRG|SSEQ|SSND|SWA|SYH|SZ|TAP|TRM|UL|USF|USFLIB|USM|VAG|VMO|VOI|VOX|VPM|VRF|VYF|W01|W64|WAV|WMA|WPROJ|WRK|WUS|WUT|WWU|XFS|ZGR|ZVR)$/i)) {
     filetype = "sound audio song track vibe music voice record play tune phono phone capture";
+    icon = "fa fa-fw fa-file-audio-o";
   }
   if (extension.match(/^(264|3G2|3GP|3MM|3P2|60D|AAF|AEC|AEP|AEPX|AJP|AM4|AMV|ARF|ARV|ASD|ASF|ASX|AVB|AVD|AVI|AVP|AVS|AVS|AX|AXM|BDMV|BIK|BIX|BOX|BPJ|BUP|CAMREC|CINE|CPI|CVC|D2V|D3V|DAV|DCE|DDAT|DIVX|DKD|DLX|DMB|DM_84|DPG|DREAM|DSM|DV|DV2|DVM|DVR|DVR|DVX|DXR|EDL|ENC|EVO|F4V|FBR|FBZ|FCP|FCPROJECT|FLC|FLI|FLV|GTS|GVI|GVP|H3R|HDMOV|IFO|IMOVIEPROJ|IMOVIEPROJECT|IRCP|IRF|IRF|IVR|IVS|IZZ|IZZY|M1PG|M21|M21|M2P|M2T|M2TS|M2V|M4E|M4U|M4V|MBF|MBT|MBV|MJ2|MJP|MK3D|MKV|MNV|MOCHA|MOD|MOFF|MOI|MOV|MP21|MP21|MP4|MP4V|MPEG|MPG|MPG2|MQV|MSDVD|MSWMM|MTS|MTV|MVB|MVP|MXF|MZT|NSV|OGV|OGX|PDS|PGI|PIV|PLB|PMF|PNS|PPJ|PRPROJ|PRTL|PSH|PVR|PXV|QT|QTL|R3D|RATDVD|RM|RMS|RMVB|ROQ|RPF|RPL|RUM|RV|SDV|SFVIDCAP|SLC|SMK|SPL|SQZ|SUB|SVI|SWF|TDA3MT|THM|TIVO|TOD|TP0|TRP|TS|UDP|USM|VCR|VEG|VFT|VGZ|VIEWLET|VLAB|VMB|VOB|VP6|VP7|VRO|VSP|VVF|WD1|WEBM|WLMP|WMMP|WMV|WP3|WTV|XFL|XVID|ZM1|ZM2|ZM3|ZMV)$/i)) {
     filetype = "video film record play capture";
+    icon = "fa fa-fw fa-file-video-o";
   }
 
-  return filetype;
+  if (whatToExtract === "icon") {
+    extract = icon;
+  }
+
+  if (whatToExtract === "filetype") {
+    extract = filetype;
+  }
+
+  return extract;
 }
 
 function extensionFromFilename (filename) {
@@ -2476,47 +2581,6 @@ function extensionFromFilename (filename) {
   return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
 }
 
-function iconFromFilename (filename) {
-  filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
-  var icon;
-  var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
-
-  if (extension.match(/^(006|007|3DMF|3DX|8PBS|ABM|ABR|ADI|AEX|AI|AIS|ALBM|AMU|ARD|ART|ARW|ASAT|B16|BIL|BLEND|BLKRT|BLZ|BMC|BMC|BMP|BOB|BR4|BR5|C4|CADRG|CATPART|CCX|CDR|CDT|CDX|CGM|CHT|CM2|CMX|CMZ|COMICDOC|CPL|CPS|CPT|CR2|CSF|CV5|CVG|CVI|CVI|CVX|DAE|DCIM|DCM|DCR|DCS|DDS|DESIGN|DIB|DJV|DJVU|DNG|DRG|DRW|DRWDOT|DT2|DVL|DWB|DWF|DXB|EASM|EC3|EDP|EDRW|EDW|EMF|EPRT|EPS|EPSF|EPSI|EXR|FAC|FACE|FBM|FBX|FC2|FCZ|FD2|FH11|FHD|FIT|FLIC|FLM|FM|FPF|FS|FXG|GIF|GRAFFLE|GTX|HD2|HDZ|HPD|HPI|HR2|HTZ4|ICL|ICS|IDW|IEF|IGES|IGR|ILBM|ILM|IMA|IME|IMI|IMS|INDD|INDT|IPJ|IRF|ITC2|ITHMB|J2K|JIFF|JNG|JPEG|JPF|JPG|JPG2|JPS|JPW|JT|JWL|JXR|KDC|KODAK|KPG|LDA|LDM|LET|LT2|LTZ|LVA|LVF|LXF|MAC|MACP|MCS|MCZ|MDI|MGS|MGX|MIC|MIP|MNG|MPF|MPO|MTZ|MUR|MUR|NAV|NCR|NEU|NFF|NJB|NTC|NTH|ODI|ODIF|OLA|OPD|ORA|OTA|OTB|OTC|OTG|OTI|OVW|P21|P2Z|PAT|PC6|PC7|PCD|PCT|PCX|PDN|PEF|PI2|PIC|PIC|PICNC|PICTCLIPPING|PL0|PL2|PLN|PMB|PNG|POL|PP2|PPSX|PRW|PS|PS|PSB|PSD|PSF|PSG|PSP|PSPIMAGE|PSQ|PVL|PWD|PWS|PX|PXR|PZ2|PZ3|QTIF|QTZ|QXD|RIC|RLC|RLE|RW2|SDK|SDR|SEC|SFW|SIG|SKP|SLDASM|SLDDRW|SLDPRT|SNX|SRF|SST|SUN|SVG|SVGZ|TARGA|TCW|TCX|TEX|TGA|TIF|TIFF|TJP|TN|TPF|TPX|TRIF|TRX|U3D|UPX|URT|UTX|V00|V3D|VFS|VGA|VHD|VIS|VRL|VTX|WB1|WBC|WBD|WBZ|WEBP|WGS|WI|WMF|WNK|XDW|XIP|XSI|X_B|X_T|ZDL|ZIF|ZNO|ZPRF|ZT)$/i)) {
-    icon = "fa fa-fw fa-file-image-o";
-  }
-  else if (extension.match(/^(pdf)$/i)) {
-    icon = "fa fa-fw fa-file-pdf-o";
-  }
-  else if (extension.match(/^(c|cake|clojure|coffee|jsx|cpp|cs|css|less|scss|csx|gfm|git-config|go|gotemplate|java|java-properties|js|jquery|regexp|json|litcoffee|makefile|nant-build|objc|objcpp|perl|perl6|plist|python|ruby|rails|rjs|sass|shell|sh|sql|mustache|strings|toml|yaml|git-commit|git-rebase|html|erb|gohtml|jsp|php|py|junit-test-report|shell-session|xml|xsl)$/i)) {
-    icon = "fa fa-fw fa-file-code-o";
-  }
-  else if (extension.match(/^(7z|bz2|tar|gz|rar|zip|zipx|dmg|pkg|tgz|wim)$/i)) {
-    icon = "fa fa-fw fa-file-archive-o";
-  }
-  else if (extension.match(/^(doc|dot|wbk|docx|docm|dotx|dotm|docb|apxl|pages)$/i)) {
-    icon = "fa fa-fw fa-file-word-o";
-  }
-  else if (extension.match(/^(xls|xlt|xlm|xlsx|xlsm|xltx|xltm|xlsb|xla|xlam|xll|xlw|numbers)$/i)) {
-    icon = "fa fa-fw fa-file-excel-o";
-  }
-  else if (extension.match(/^(ppt|pot|pps|pptx|pptm|potx|potm|ppam|ppsx|ppsm|sldx|sldm|key|keynote)$/i)) {
-    icon = "fa fa-fw fa-file-powerpoint-o";
-  }
-  else if (extension.match(/^(3GA|AA|AA3|AAC|AAX|ABC|AC3|ACD|ACD|ACM|ACT|ADG|ADTS|AFC|AHX|AIF|AIFC|AIFF|AL|AMR|AMZ|AOB|APC|APE|APF|ATRAC|AU|AVR|AWB|AWB|BAP|BMW|CAF|CDA|CFA|CIDB|COPY|CPR|CWP|DAC|DCF|DCM|DCT|DFC|DIG|DSM|DSS|DTS|DTSHD|DVF|EFA|EFE|EFK|EFV|EMD|EMX|ENC|F64|FL|FLAC|FLP|FST|GNT|GPX|GSM|GSM|HMA|HTW|IFF|IKLAX|IMW|IMY|ITS|IVC|K26|KAR|KFN|KOE|KOZ|KOZ|KPL|KTP|LQT|M3U|M3U8|M4A|M4B|M4P|M4R|MA1|MID|MIDI|MINIUSF|MIO|MKA|MMF|MON|MP2|MP3|MPA|MPC|MPU|MP_|MSV|MT2|MTE|MTP|MUP|MXP4|MZP|NCOR|NKI|NRT|NSA|NTN|NWC|ODM|OGA|OGG|OMA|OMG|OMX|OTS|OVE|PCAST|PEK|PLA|PLS|PNA|PROG|PVC|QCP|R1M|RA|RAM|RAW|RAX|REX|RFL|RIF|RMJ|RNS|RSD|RSO|RTI|RX2|SA1|SBR|SD2|SFA|SGT|SID|SMF|SND|SNG|SNS|SPRG|SSEQ|SSND|SWA|SYH|SZ|TAP|TRM|UL|USF|USFLIB|USM|VAG|VMO|VOI|VOX|VPM|VRF|VYF|W01|W64|WAV|WMA|WPROJ|WRK|WUS|WUT|WWU|XFS|ZGR|ZVR)$/i)) {
-    icon = "fa fa-fw fa-file-audio-o";
-  }
-  else if (extension.match(/^(264|3G2|3GP|3MM|3P2|60D|AAF|AEC|AEP|AEPX|AJP|AM4|AMV|ARF|ARV|ASD|ASF|ASX|AVB|AVD|AVI|AVP|AVS|AVS|AX|AXM|BDMV|BIK|BIX|BOX|BPJ|BUP|CAMREC|CINE|CPI|CVC|D2V|D3V|DAV|DCE|DDAT|DIVX|DKD|DLX|DMB|DM_84|DPG|DREAM|DSM|DV|DV2|DVM|DVR|DVR|DVX|DXR|EDL|ENC|EVO|F4V|FBR|FBZ|FCP|FCPROJECT|FLC|FLI|FLV|GTS|GVI|GVP|H3R|HDMOV|IFO|IMOVIEPROJ|IMOVIEPROJECT|IRCP|IRF|IRF|IVR|IVS|IZZ|IZZY|M1PG|M21|M21|M2P|M2T|M2TS|M2V|M4E|M4U|M4V|MBF|MBT|MBV|MJ2|MJP|MK3D|MKV|MNV|MOCHA|MOD|MOFF|MOI|MOV|MP21|MP21|MP4|MP4V|MPEG|MPG|MPG2|MQV|MSDVD|MSWMM|MTS|MTV|MVB|MVP|MXF|MZT|NSV|OGV|OGX|PDS|PGI|PIV|PLB|PMF|PNS|PPJ|PRPROJ|PRTL|PSH|PVR|PXV|QT|QTL|R3D|RATDVD|RM|RMS|RMVB|ROQ|RPF|RPL|RUM|RV|SDV|SFVIDCAP|SLC|SMK|SPL|SQZ|SUB|SVI|SWF|TDA3MT|THM|TIVO|TOD|TP0|TRP|TS|UDP|USM|VCR|VEG|VFT|VGZ|VIEWLET|VLAB|VMB|VOB|VP6|VP7|VRO|VSP|VVF|WD1|WEBM|WLMP|WMMP|WMV|WP3|WTV|XFL|XVID|ZM1|ZM2|ZM3|ZMV)$/i)) {
-    icon = "fa fa-fw fa-file-video-o";
-  }
-  else if (extension.match(/^(ecd|ECD|bdoc|BDOC)$/i)) {
-    icon = "fa fa-fw fa-lock";
-  }
-  else {
-    icon = "fa fa-fw fa-file-text-o";
-  }
-
-  return icon;
-}
 
 ////////////////////////////////////
 // APPEND _DOC INTO THE FOLDER //
@@ -2542,7 +2606,7 @@ function appendDoc (fid, did, doc, isfile) {
   }
 
   var ext = "crypteedoc";
-  var iconClass = iconFromFilename(title);
+  var iconClass = extractFromFilename(title, "icon");
 
   var offlineStatus = "Make Doc Available Offline";
   var offlineIconColor = "#FFF";
@@ -3851,13 +3915,14 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
           //  NOT CAPTURING THIS. BUT STILL WORRIED.
           errorText = "Seems like this doc doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
           if (did === "home") {
+            breadcrumb("Couldn't find home doc. Attempting to fix.");
             fixHomeDoc(loadDoc, "home");
-          } else {
-            handleError(error);
+          } else {            
             errorText = "Seems like this doc doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
             showDocProgress(errorText);
             fixFilesAndFolders(did);
           }
+          handleError(error);
           break;
         case 'storage/unauthorized':
           handleError(error);
@@ -4363,7 +4428,7 @@ function displayUnsupportedFile (dtitle, did, decryptedContents, callback, files
   activeFileContents = decryptedContents;
   activeFileTitle = dtitle;
   activeFileID = did;
-  var iconClass = iconFromFilename(dtitle);
+  var iconClass = extractFromFilename(dtitle, "icon");
   var b64OfFile = decryptedContents.replace("data:", "data:application/octet-stream");
 
   $('#file-viewer').addClass("loading-contents");
@@ -4607,7 +4672,7 @@ function encryptAndUploadDoc(did, fid, callback, callbackParam) {
         } else {
           $('#main-progress').attr("max", "100").attr("value", "100").removeClass("is-warning is-success is-info").addClass("is-danger");
 
-          checkConnection (function(status){
+          checkConnection(function(status){
             if (status) {
               showErrorBubble("Error saving document, will retry again shortly.");
               console.log("SAVE FAILED. RETRYING IN 5 SECONDS.");
@@ -4855,16 +4920,19 @@ function moveDoc (from, did) {
               updateDocIndexesOfFID(fromFID);
               updateDocIndexesOfFID(toFID);
 
-              offlineStorage.iterate(function(doc, gotDid, i) {
-                if (doc) {
-                  if (gotDid === did) {
-                    var updatedDoc = doc;
+              offlineStorage.getItem(did).then(function (offlineDoc) {
+                if (offlineDoc) {
+                  var updatedDoc = offlineDoc;
+                  try {
+                    // in case if JSON parse fails
                     updatedDoc.fname = JSON.parse(titleOf(toFID)) || "Inbox";
-                    updatedDoc.fid = toFID;
-                    offlineStorage.setItem(did, updatedDoc).catch(function(err) {
-                      handleError(err);
-                    });
+                  } catch(e) {
+                    updatedDoc.fname = titleOf(toFID) || "Inbox";
                   }
+                  updatedDoc.fid = toFID;
+                  offlineStorage.setItem(did, updatedDoc).catch(function(err) {
+                    handleError(err);
+                  });
                 }
               }).catch(function(err) {
                 handleError(err);
@@ -4927,15 +4995,13 @@ function renameInactiveDoc () {
       theInput.val(newDocName);
       theInput.attr("placeholder", newDocName);
 
-      offlineStorage.iterate(function(doc, did, i) {
-        if (doc) {
-          if (did === inactiveDidToRename) {
-            var updatedDoc = doc;
-            updatedDoc.name = newDocName;
-            offlineStorage.setItem(did, updatedDoc).catch(function(err) {
-              handleError(err);
-            });
-          }
+      offlineStorage.getItem(inactiveDidToRename).then(function (offlineDoc) {
+        if (offlineDoc) {
+          var updatedDoc = offlineDoc;
+          updatedDoc.name = newDocName;
+          offlineStorage.setItem(inactiveDidToRename, updatedDoc).catch(function(err) {
+            handleError(err);
+          });
         }
       }).catch(function(err) {
         handleError(err);
@@ -5013,15 +5079,13 @@ function renameDoc () {
         theInput.attr("placeholder", newDocName);
         activeDocTitle = newDocName;
 
-        offlineStorage.iterate(function(doc, did, i) {
-          if (doc) {
-            if (did === activeDocID) {
-              var updatedDoc = doc;
-              updatedDoc.name = newDocName;
-              offlineStorage.setItem(did, updatedDoc).catch(function(err) {
-                handleError(err);
-              });
-            }
+        offlineStorage.getItem(activeDocID).then(function (offlineDoc) {
+          if (offlineDoc) {
+            var updatedDoc = offlineDoc;
+            updatedDoc.name = newDocName;
+            offlineStorage.setItem(activeDocID, updatedDoc).catch(function(err) {
+              handleError(err);
+            });
           }
         }).catch(function(err) {
           handleError(err);
@@ -6051,9 +6115,19 @@ $("export-currentdoc-as-crypteedoc").on('click', function(event) {
   exportAsCrypteedoc(activeDocID);
 });
 
+if (window.print) {
+  breadcrumb("Printing enabled.");
+  $('#print-currentdoc').show();
+} else {
+  breadcrumb("Printing disabled.");
+  $('#print-currentdoc').hide();
+}
+
 $('#print-currentdoc').on('click', function(event) {
   hideExportDocModal();
-  print();
+  if (window.print) {
+    print();
+  }
 });
 
 function exportAsPDF(did, pagesize) {
@@ -7334,24 +7408,24 @@ function handleVisibilityChange() {
   }
 }
 
-function forceCheckConnection(){
-  checkConnection (function(status){
-    connectionStatus(status, true);
+function forceCheckConnection (){
+  checkConnection(function(status){
+    connectionStatus(status);
   });
 }
 
-function connectionStatus(status, forced) {
+function connectionStatus(status) {
   connected = status; // boolean, true if connected
 
   if (gotKey) { // this prevents an early offline mode call from being made before key is typed.
     if (connected) {
       setTimeout(function () {
-        checkConnection (function(secondCheck){
+        checkConnection(function(secondCheck){
           if (secondCheck) {
             activateOnlineMode();
           }
         });
-      }, 3000);
+      }, 1000);
     } else {
       activateOfflineMode();
     }
@@ -7436,6 +7510,11 @@ function alsoSaveDocOffline (did, callback) {
       // offline doc saved
       callback();
     }).catch(function(err) {
+      if (err.code === 22) {
+        // USER EXCEEDED STORAGE QUOTA. 
+        breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
+        showWarningModal("offline-storage-full-modal");
+      }
       handleError(err);
     });
   });
@@ -7514,7 +7593,14 @@ function saveOfflineDoc (callback, callbackParam) {
           }, 150);
         }).catch(function (err) {
 
-          showErrorBubble("Error saving document", err);
+          if (err.code === 22) {
+            // USER EXCEEDED STORAGE QUOTA. 
+            breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
+            showWarningModal("offline-storage-full-modal");
+          } else {
+            showErrorBubble("Error saving document", err);
+          }
+          
           handleError(err);
         });
       }, 150);
@@ -7765,6 +7851,11 @@ function makeOfflineDoc(did) {
                   // done
                   docMadeAvailableOffline(did);
                 }).catch(function(err) {
+                  if (err.code === 22) {
+                    // USER EXCEEDED STORAGE QUOTA. 
+                    breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
+                    showWarningModal("offline-storage-full-modal");
+                  }
                   handleError(err);
                 });
               }).catch(function(err) {
@@ -8199,7 +8290,13 @@ function downSyncOnlineDoc (doc, docRef, onlineGen, callback, callbackParam) {
                 doneSyncingDoc (callback, callbackParam);
               }).catch(function(err) {
                 skipSyncingDoc(callback, callbackParam);
-                showErrorBubble("Error saving "+dtitle+" during sync", err);
+                if (err.code === 22) {
+                  // USER EXCEEDED STORAGE QUOTA. 
+                  breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
+                  showWarningModal("offline-storage-full-modal");
+                } else {
+                  showErrorBubble("Error saving "+dtitle+" during sync", err);
+                }
                 handleError(err);
               });
             }).catch(function(err) {
@@ -8293,7 +8390,7 @@ function showErrorBubble(message, err) {
 
 function reportOfflineErrors () {
   offlineErrorStorage.iterate(function(syncerr, errtime, i) {
-    handleError(syncerr);
+    handleError(syncerr, "offline");
   }).then(function() {
     // Reported all offline errors.
     try { offlineErrorStorage.clear(); } catch (e) {}

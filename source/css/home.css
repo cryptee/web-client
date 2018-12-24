@@ -163,6 +163,8 @@
 	padding: 1.5rem 0.5rem;
 	height: 7rem;
 	width: 7rem;
+	min-height: 7rem;
+    min-width: 7rem;
 	transition: none !important;
 }
 

@@ -34,10 +34,14 @@
     
     <div class="column is-4 settings-right-column">
 
-      <div class="notification is-danger"  id="noemail" style="display:none;">
+      <div class="notification is-danger crypteecard"  id="noemail" style="display:none;">
         <p class="title is-5" style="margin-bottom: 1rem"><b>VERIFY YOUR EMAIL</b></p>
         <p>Your email is not verified. Please check your inbox to verify your email.<br>If you didn't get the verification email, you can try resending it.</p><br>
         <p class="button is-white" onclick="verifyEmail()" id="verify-email-button">Resend Email</p>
+      </div>
+
+      <div class="notification is-danger crypteecard" id="reauth-error" style="display:none;">
+
       </div>
 
       <div class="settings-tab-contents notification active" id="account-tab-contents">
@@ -80,9 +84,7 @@
         <!-- @import "settings-tab-preferences.kit" -->
       </div>
 
-      <div class="notification is-danger" id="reauth-error" style="display:none;">
-
-      </div>
+      
 
     </div>
   </div>

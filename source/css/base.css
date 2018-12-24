@@ -709,7 +709,52 @@ html {
   max-height: 220px;
 }
 
+.warning-modal .modal-background{
+  background-color: rgba(245,245,245,0) !important;
+  transition: 1s background-color ease !important;
+}
 
+.warning-modal.is-shown .modal-background{
+  background-color: rgba(245,245,245,0.9) !important;
+}
+
+.warning-modal .crypteecard {
+  overflow: hidden;
+  box-shadow: rgba(10,10,10,0.2);
+  background-color: #FFF;
+}
+
+.warning-modal .modal-content {
+  max-width: 480px;
+  transform: translateY(250%);
+  transition: 1s transform ease;
+  margin: 0;
+}
+
+.warning-modal.is-shown .modal-content {
+  max-width: 480px;
+  transform: translateY(0);
+  transition: 1s transform ease; 
+}
+
+.warning-modal img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.warning-modal .content {
+  padding: 1.5rem;
+}
+
+.warning-modal .title {
+  text-align: center;
+}
+
+.warning-modal p:not(.title) {
+  text-align: left;
+}
 
 .login-key-modal .key-modal-background {
   background-color: rgba(0,0,0,0.35);
@@ -6102,6 +6147,15 @@ body.draggingStuff {
   #offline-info-new-doc-input {
     max-width: calc(100% - 3.75rem);
   }
+
+  .warning-modal img {
+    height: 100px;
+  }
+
+  .warning-modal .content {
+      padding: 1rem;
+  }
+
 }
 
 @media (max-width: 784px) {

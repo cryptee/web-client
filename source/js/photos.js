@@ -43,6 +43,7 @@ var lastActivityTime = (new Date()).getTime();
 var inactivityInterval = setInterval(inactiveTimer, 1000);
 var ww = $(window).width();
 
+loadUserDetailsFromLS();
 ////////////////////////////////////////////////////
 ///////////////////    HOTKEYS    //////////////////
 ////////////////////////////////////////////////////
@@ -498,7 +499,7 @@ function signInComplete () {
     if (userMeta.val() !== null) {
       allowedStorage = userMeta.val().allowedStorage || freeUserQuotaInBytes;
       usedStorage = userMeta.val().usedStorage || 0;
-
+      var paidOrNot = false;
       if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
         // paid user remove upgrade button
         userPlan = userMeta.val().plan;
@@ -529,10 +530,11 @@ function signInComplete () {
         }
         if (allowedStorage > paidUserThresholdInBytes) {
           $("#upgrade-button").hide();
+          paidOrNot = true;
         }
       }
 
-      saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
+      saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot);
     }
 
     dataRef.child("preferences").on('value', function(snapshot) {
@@ -552,6 +554,12 @@ function signInComplete () {
     getHomeFolder();
   }
   didAnyTitlesObjectChange = true;
+
+  if (isCanvasBlocked()) {
+    setTimeout(function() {
+      showCanvasBlockedModal();
+    }, 1000);
+  }
 }
 
 
@@ -937,7 +945,14 @@ window.addEventListener('dragleave', handleDragLeave, false);
 window.addEventListener('dragover', handleDragOver, false);
 window.addEventListener('drop', handlePhotosDrop, false);
 
-document.getElementById('upload-photo-to-folder').addEventListener('change', handlePhotoSelect, false);
+if (!isCanvasBlocked()) {
+  document.getElementById('upload-photo-to-folder').addEventListener('change', handlePhotoSelect, false);
+} else {
+  $("#upload-photo-to-folder").on('click', function(event) {
+    event.preventDefault();
+    showCanvasBlockedModal();
+  });
+}
 
 
 var dragCounter = 0;
@@ -1290,30 +1305,33 @@ function handlePhotosDrop (evt) {
   var targetfid = activeFID;
 
   if (isAPIAvailable()) {
+    if (!isCanvasBlocked()){
+      var items;
+      fileUploadError = false;
 
-    var items;
-    fileUploadError = false;
+      if (canUploadFolders) {
+        items = evt.dataTransfer.items;
+        for (var j=0; j<items.length; j++) {
+          var item = items[j].webkitGetAsEntry();
+          if (item) { traverseFileTree(item, ''); }
+        }
+      } else {
+        items = evt.dataTransfer.files;
+        for (var i = 0; i < items.length; i++) {
+          var uuid = "p-" + newUUID();
+          queueUpload(items[i], targetfid, uuid);
+          // processPhotoForUpload(items[i], targetfid, uuid);
+          numFilesLeftToBeUploaded++;
+          document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
+        }
+      }
 
-    if (canUploadFolders) {
-      items = evt.dataTransfer.items;
-      for (var j=0; j<items.length; j++) {
-        var item = items[j].webkitGetAsEntry();
-        if (item) { traverseFileTree(item, ''); }
+      if (numFilesLeftToBeUploaded > 0) {
+        var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
+        showFileUploadStatus("is-white", processingMessage);
       }
     } else {
-      items = evt.dataTransfer.files;
-      for (var i = 0; i < items.length; i++) {
-        var uuid = "p-" + newUUID();
-        queueUpload(items[i], targetfid, uuid);
-        // processPhotoForUpload(items[i], targetfid, uuid);
-        numFilesLeftToBeUploaded++;
-        document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
-      }
-    }
-
-    if (numFilesLeftToBeUploaded > 0) {
-      var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-      showFileUploadStatus("is-white", processingMessage);
+      showCanvasBlockedModal(); 
     }
 
   } else {
@@ -1862,8 +1880,8 @@ function getThumbnail (pid, fid) {
 
           if (tid.indexOf("l-") !== -1) {
             console.log("Tried loading a high-res thumbnail (lightbox size) for", pid ,", but there wasn't one. Falling back to regular size.");
-            var regularSizeID = tid.replace("l-", "t-");
-            getThumbnail (regularSizeID, fid);
+            var regSizeID = tid.replace("l-", "t-"); // using regSizeID to make linter happy
+            getThumbnail (regSizeID, fid);
           } else {
             fixFilesAndFolders();
           }
@@ -2678,7 +2696,13 @@ function onEntryAndExit (changes, observer) {
         var domElement = renderDOMElement(id);
         folderContent.innerHTML = domElement;
 
-        var tid = folderContent.querySelector("img").getAttribute("tid");
+        var tid = null; 
+        // fixes a bug where folderContent.querySelector("img") can be null. 
+        // passing null to get Thumb For Item which passes null to get Thumbnail,
+        // if FID exists, it generates folder thumb, if not throws a predefined error as it should now.
+        if (folderContent.querySelector("img")) {
+          tid = folderContent.querySelector("img").getAttribute("tid");
+        }
 
         onScreenTimer = setTimeout(function(){
           getThumbForItem (folderContent, tid, id);
@@ -2711,7 +2735,7 @@ function onEntryAndExit (changes, observer) {
 
 
 
-//breadcrumb management
+//breadcrumb navigation management /// not the error logging breadcrumbs. adding for clarity..
 function hanselAndGretel () {
   if (activeFID === "home") {
     $("#get-parent-folder-button").hide();
@@ -3199,6 +3223,7 @@ $("#folder-contents").on("focus", '.albumtitle', function(event) {
 });
 
 function yearFromTitle (title) {
+  title = title || ""; // fixes an issue where title could be null or not string, thus match isn't a function.
   var year = title.match(/\b(19|20)\d{2}\b/gm);
   if (Array.isArray(year)) {
     // more than one year entered. use the first one. 
