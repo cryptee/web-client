@@ -308,7 +308,8 @@
       modules: ["DisplaySize", "Resize", 'Toolbar'],
       overlayStyles: {
         position: "absolute",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        pointerEvents : "none"
       },
       handleStyles: {
         position: "absolute",
@@ -320,6 +321,7 @@
         opacity: "1",
         boxShadow: "0 0.25rem 0.5rem rgba(0,0,0,0.2)",
         borderRadius: "2rem",
+        pointerEvents : "all"
       },
       displayStyles: {
         position: "absolute",
@@ -333,7 +335,8 @@
         opacity: "1",
         cursor: "default",
         fontSize: "0.7rem",
-        boxShadow: "0 0.5rem 1rem rgba(0,0,0,0.2)"
+        boxShadow: "0 0.5rem 1rem rgba(0,0,0,0.2)",
+        pointerEvents : "all"
       },
       toolbarStyles: {
         position: "absolute",
@@ -345,7 +348,8 @@
         textAlign: "center",
         color: "#333",
         boxSizing: "border-box",
-        cursor: "default"
+        cursor: "default",
+        pointerEvents : "all"
       },
       toolbarButtonStyles: {
         display: "inline-block",
@@ -353,14 +357,16 @@
         height: "24px",
         background: "#363636",
         border: "0px solid #ccc",
-        verticalAlign: "middle"
+        verticalAlign: "middle",
+        pointerEvents : "all"
       },
       toolbarButtonSvgStyles: {
         fill: "#F5F5F5",
         stroke: "#F5F5F5",
         strokeWidth: "2",
         padding: "3px",
-        width: "100%"
+        width: "100%",
+        pointerEvents : "all"
       }
     }
   }, function(t, e, n) {
@@ -666,7 +672,7 @@
           n.img && (46 != t.keyCode && 8 != t.keyCode || window.Quill.find(n.img).deleteAt(0), n.hide())
         }, this.quill = e;
         var s = !1;
-        r.modules && (s = r.modules.slice()), this.options = i()({}, r, a.a), s !== !1 && (this.options.modules = s), document.execCommand("enableObjectResizing", !1, "false"), this.quill.root.addEventListener("click", this.handleClick, !1), this.quill.root.parentNode.style.position = this.quill.root.parentNode.style.position || "relative", this.moduleClasses = this.options.modules, this.modules = []
+        r.modules && (s = r.modules.slice()), this.options = i()({}, r, a.a), s !== !1 && (this.options.modules = s), document.execCommand("enableObjectResizing", !1, "false"), this.quill.root.addEventListener("click", this.handleClick, !1), this.quill.root.addEventListener('scroll', this.hide, !1), this.quill.root.parentNode.style.position = this.quill.root.parentNode.style.position || "relative", this.moduleClasses = this.options.modules, this.modules = []
       };
     e.default = f, window.Quill && window.Quill.register("modules/imageResize", f)
   }, function(t, e, n) {

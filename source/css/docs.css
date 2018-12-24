@@ -366,8 +366,8 @@
 
 #docs-sections-wrapper {
   position: relative;
-  height: calc(100% - 4rem);
-  margin-top: 3rem;
+  height: calc(100% - 8rem);
+  margin-top: 6rem;
   padding: 0 0rem 0 180px;
   opacity: 1;
   text-transform: uppercase;

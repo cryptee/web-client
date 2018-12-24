@@ -18,13 +18,8 @@ $("#bumpdown-window > .notification > .delete").on('click', function(event) {
 });
 
 function orderComplete () {
-  $("#upgrade").hide();
-  $("#upgrade-button").fadeIn(250);
-  $(".settings-tab-contents").hide();
-  $("#account-tab-contents").show();
-  $(".settings-tab.is-dark").removeClass('is-dark');
-  $(".settings-tab[tab='account']").addClass('is-dark');
-
+  loadTab("account");
+  closeUpgrade();
   $("#upgrade-thanks").addClass("showUpgradeThanks");
   // REMOVE UPGRADE FROM URL
   history.pushState("upgrade-complete", null, '/account');

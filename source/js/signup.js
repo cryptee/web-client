@@ -885,10 +885,11 @@ firebase.auth().onAuthStateChanged(function(user) {
     } else {
       if (getUrlParameter("status") === "newuser") {
         // USER CAME FROM SIGNIN. DIDN'T HAVE ACCOUNT. CREATE KEY.
-        var iosGAuthSignupKey = JSON.parse(localStorage.getItem("iosgauthsignupkey"));
+        // using "2" to make a linter happy
+        var iosGAuthSignupKey2 = JSON.parse(localStorage.getItem("iosgauthsignupkey"));
 
-        if (iosGAuthSignupKey) {
-          saveKey(iosGAuthSignupKey);
+        if (iosGAuthSignupKey2) {
+          saveKey(iosGAuthSignupKey2);
           localStorage.setItem("iosgauthsignupkey", "");
         } else {
           // try {

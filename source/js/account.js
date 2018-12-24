@@ -41,6 +41,8 @@ var countryForPaddle;
 var zipForPaddle;
 var couponForPaddle = getUrlParameter("coupon") || "";
 
+loadUserDetailsFromLS();
+
 try {
   sessionStorage.removeItem('key');
 } finally { }
@@ -400,7 +402,7 @@ function gotUserData (data) {
 
 function gotUserMeta (meta){
   if (meta !== null) {
-
+    var paidOrNot = false;
     usedStorage = meta.usedStorage - 100000;
     if (usedStorage <= 0) { usedStorage = 0; } else { usedStorage = meta.usedStorage; }
     $('#settings-storage-used').html(formatBytes(usedStorage));
@@ -420,14 +422,16 @@ function gotUserMeta (meta){
       populatePlanDetails(meta);
     } else {
       $(".paid-plan-only").hide();
-      $("#upgrade-setting").fadeIn();
 
       if (allowedStorage > paidUserThresholdInBytes) {
         $("#upgrade-button, #upgrade-setting, #donate-button").fadeOut();
+        paidOrNot = true;
+      } else {
+        $("#upgrade-button, #upgrade-setting, #donate-button").fadeIn();
       }
     }
 
-    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
+    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot);
 
     setTimeout(function() {
       $("body, html").removeClass('is-loading');
@@ -546,10 +550,20 @@ function openPaddle () {
   }
 }
 
-// unnecessary but keeping anyway.
 function paymentSuccessful(data) {
+  var checkoutid = data.checkout.id;
   console.log("Payment Successful", data);
+
+  var writeCheckoutID = cloudfunctions.httpsCallable('writecheckoutid');
+  writeCheckoutID({checkoutid: checkoutid}).then(function(result) {
+    console.log("CheckoutId written successfully");
+    orderComplete();
+  }).catch(function(error) {
+    handleError("Successful Checkout but couldn't write checkoutid" + checkoutid);
+  });
 }
+
+// unnecessary for now but keeping anyway.
 function paymentTerminated(data) {
   console.log("Payment Terminated", data);
 }
@@ -684,13 +698,15 @@ function emailInvoices() {
 
 
 
-
+function hideReauthPopup () {
+  $("#reauth-error").slideUp(500);
+}
 
 function showReauthPopup(color, message){
   $("#change-pass-button").removeClass('loading disabled');
   $("#change-key-button").removeClass('loading disabled');
-  $("#reauth-error").html(message);
-  $("#reauth-error").removeClass("is-warning is-success is-info is-danger").addClass(color).show();
+  $("#reauth-error").html('<button class="delete" onclick="hideReauthPopup();"></button>' + message);
+  $("#reauth-error").removeClass("is-warning is-success is-info is-danger").addClass(color).slideDown(500);
 }
 
 function reauthForPass (){
@@ -1051,9 +1067,12 @@ function fillDataExporter (data, meta, orders) {
   }
 }
 
-
+var myDataPopulated = false;
 $("#settings-my-data-button").on("click", function(){
-  generateExportURLs(exportData);
+  if (!myDataPopulated) {
+    myDataPopulated = true;
+    generateExportURLs(exportData);
+  }
 });
 
 function generateExportURLs (data) {

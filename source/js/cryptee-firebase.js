@@ -37,31 +37,32 @@ function signOut () {
   });
 }
 
-function saveUserDetailsToLS (theUsername, usedStorage, allowedStorage) {
+function saveUserDetailsToLS (theUsername, usedStorage, allowedStorage, paid) {
   localStorage.setItem('crypteeuser', JSON.stringify({
     "theUsername" : theUsername,
     "usedStorage" : usedStorage,
-    "allowedStorage"  : allowedStorage
+    "allowedStorage"  : allowedStorage,
+    "paid" : paid
   }));
 }
 
 function loadUserDetailsFromLS () {
+  if (localStorage) {
+    var crypteeuser = JSON.parse(localStorage.getItem("crypteeuser"));
+    if (crypteeuser !== null && crypteeuser !== undefined && crypteeuser !== "") {
+      var uname = crypteeuser.theUsername;
+      var usedStorage = crypteeuser.usedStorage;
+      var allowedStorage = crypteeuser.allowedStorage;
 
-  var crypteeuser = JSON.parse(localStorage.getItem("crypteeuser"));
-  if (crypteeuser !== null && crypteeuser !== undefined && crypteeuser !== "") {
-    var uname = crypteeuser.theUsername;
-    var usedStorage = crypteeuser.usedStorage;
-    var allowedStorage = crypteeuser.allowedStorage;
-
-    $('.username').html(uname);
-    $('#settings-storage-used').html(formatBytes(usedStorage, 0));
-    $('.settings-storage-total').html(formatBytes(allowedStorage, 0));
-    if (allowedStorage > freeUserQuotaInBytes) { $("#home-upgrade-button").hide(); }
-    $("html, body").removeClass("is-loading");
-  } else {
-    console.log("no user found in localstorage");
+      $('.username').html(uname);
+      $('#settings-storage-used').html(formatBytes(usedStorage, 0));
+      $('.settings-storage-total').html(formatBytes(allowedStorage, 0));
+      if (allowedStorage > freeUserQuotaInBytes) { $("#upgrade-button, #donate-button, #upgrade-setting").hide();  }
+      $("html, body").removeClass("is-loading");
+    } else {
+      console.log("no user found in localstorage");
+    }
   }
-
 }
 
 function purgeOfflineStorage () {

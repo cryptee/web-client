@@ -180,7 +180,7 @@ var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
 
 $("a").click(function (event) {
   var attr = $(this).attr('href');
-  if ($(this).hasClass("rememberKey")) {
+  if ($(this).hasClass("rememberKey") && keyToRemember) {
     sessionStorage.setItem("key", JSON.stringify(keyToRemember));
   }
   if (isInWebAppiOS || isInWebAppChrome) {
@@ -607,7 +607,7 @@ function cancelModal () {
 function showModal (id) {
   $("html, body").addClass("modal-is-active");
   $("#"+id).addClass("is-active");
-  $("#"+id).find("input").val(""); // LATE ADDITION. IF ANY INPUT IS SHOWING UP BLANK ACCIDENTALLY, THIS IS TO BLAME.
+  $("#"+id).find("input").val("");
   $("#"+id).find("input").focus();
 }
 
@@ -631,6 +631,23 @@ function hideActiveModal() {
   $("body").removeClass("disable-clicks");
 }
 
+function showWarningModal(id) {
+  $("html, body").addClass("modal-is-active");
+  $("#"+id).addClass("is-active");
+  $("#"+id).find("input").val("");
+  $("#"+id).find("input").focus();
+  setTimeout(function() {
+    $("#"+id).addClass("is-shown");
+  }, 100);
+}
+
+function hideActiveWarningModal() {
+  $(".warning-modal.is-active").removeClass("is-shown");
+  setTimeout(function() {
+    cancelModal();
+  }, 1000);
+}
+
 function progressModal (id) {
   $("#"+id).find(".button").addClass("is-loading");
   $("body").addClass("disable-clicks");
@@ -645,7 +662,7 @@ $(".modal-close").on('click', function(event) {
   cancelModal ();
 });
 
-$(".modal-background").on('click', function(event) {
+$(".modal:not(.warning-modal)").on('click', ".modal-background", function(event) {
   cancelModal();
 });
 
@@ -885,7 +902,7 @@ function ping (type, obj, callback) {
 ///////////// CHECK CONNECTION /////////////////
 ////////////////////////////////////////////////
 
-var retriedCheckConnection = false;
+var retriedCheckConnection = 0;
 function checkConnection (callback) {
   callback = callback || noop;
   var now = (new Date()).getTime(); // milliseconds
@@ -896,20 +913,24 @@ function checkConnection (callback) {
     dataType: 'json',
     success: function(data){
       // callback(false); // for testing
+      retriedCheckConnection = 0;
       callback(true);
     },
     error: function(x) {
       if (x.status === 200) {
         // callback(false); // for testing
+        retriedCheckConnection = 0;
         callback(true);
       } else {
-        if (!retriedCheckConnection) {
-          console.log("Connection offline, trying again in 2.5sec...");
+        if (retriedCheckConnection <= 3) {
+          console.log("Connection offline, trying again in 2sec...");
           setTimeout(function () {
-            retriedCheckConnection = true;
+            retriedCheckConnection++;
             checkConnection (callback);
-          }, 2500);
+          }, 2000);
         } else {
+          console.log("Connection offline, tried 3 times.");
+          retriedCheckConnection = 0;
           callback(false);
         }
       }
@@ -987,17 +1008,18 @@ function newEncryptedKeycheck(hashedKey, callback) {
 //   Raven.showReportDialog(Raven.captureException(new Error('Bug Report/Feedback by ' + userDetails)));
 // }
 
-function handleError (error) {
+function handleError (error, connectivity) {
+  connectivity = connectivity || "online";
   if (error) {
-    console.log(error);
-    if (error.code) {
-      Sentry.withScope(function(scope) {
+    console.log(error);  
+    Sentry.withScope(function(scope) {
+      if (error.code) {
         scope.setFingerprint([error.code]);
-        Sentry.captureException(error);
-      });
-    } else {
+      }
+
+      scope.setTag("connectivity", connectivity);
       Sentry.captureException(error);
-    }
+    });
   }
 }
 

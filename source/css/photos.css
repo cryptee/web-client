@@ -266,6 +266,7 @@
     letter-spacing: 2px;
     font-weight: 700;
     width : calc(50% - 0.5rem);
+    height: 3rem;
 }
 
 .albumitem:nth-child(even):after {
