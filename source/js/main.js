@@ -181,7 +181,7 @@ var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
 $("a").click(function (event) {
   var attr = $(this).attr('href');
   if ($(this).hasClass("rememberKey")) {
-    if (rememberKey) {
+    if (keyToRemember) {
       sessionStorage.setItem("key", JSON.stringify(keyToRemember));
     }
   }
