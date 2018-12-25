@@ -2036,6 +2036,7 @@ function adjustFolderCount (fid, adjustment, forceGenerateThumb, callback, callb
   // adjustment can be 1 or -1
   homeRef.doc(fid).get().then(function(item) {
     var count = item.data().count;
+    if (count <= 0) { count = 0; } // sometimes this gets negative values. putting this as a failsafe.
     var countToSet = count + adjustment;
     if (countToSet <= 0) { countToSet = 0; } // sometimes this gets negative values. putting this as a failsafe.
     var folderCountObject = {"count" : countToSet};
