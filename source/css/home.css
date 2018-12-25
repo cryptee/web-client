@@ -197,7 +197,7 @@
 }
 
 #home-welcome-card.newsOn {
-	box-shadow: 0 1rem 2rem rgba(10,10,10,0);
+	/* box-shadow: 0 1rem 2rem rgba(10,10,10,0); */
 	transform: translateY(-6rem);
 	opacity: 0;
 	pointer-events: none;
@@ -244,7 +244,7 @@
 }
 
 #home-news-card.newsOn {
-	box-shadow: 0 2rem 4rem rgba(10,10,10,0.2);
+	/* box-shadow: 0 2rem 4rem rgba(10,10,10,0.2); */
 	opacity: 1;
 }
 

@@ -17,7 +17,7 @@ var theEmail;
 var theToken;
 var userPlan;
 
-var rootRef, dataRef, titlesRef;
+var rootRef, dataRef, metaRef, homeRef, titlesRef;
 var connectedRef = firebase.database().ref(".info/connected");
 
 var reauthenticated = false;
@@ -743,9 +743,9 @@ function sadlyPurgeFile(pidOrTid) {
     var thumbRef = rootRef.child(tid + ".crypteefile");
     var lightRef = rootRef.child(lid + ".crypteefile");
 
-    photoRef.delete().then(function() {
-      thumbRef.delete().then(function() {
-        lightRef.delete().then(function() {
+    photoRef.delete().finally(function() {
+      thumbRef.delete().finally(function() {
+        lightRef.delete().finally(function() {
           whereFrom.delete().then(function() {
             if (activeFID !== "home") {
               var adjustmentCount = 0 - Object.keys(selectionsObject).length;
@@ -755,8 +755,8 @@ function sadlyPurgeFile(pidOrTid) {
             delete activeItemsObject[pid];
             updateTitles();
           });
-        });
-      });
+        }).catch();
+      }).catch();
     }).catch(function(error) {
       if (error.code === "storage/object-not-found") {
         thumbRef.delete();
@@ -1398,10 +1398,8 @@ function queueUpload(file, fid, predefinedPID, callback, callbackParam) {
   startUploadTimeout = setTimeout(function () {
     // check first and last image in uploadList, get their file sizes, make an average file size.
     // then check total size of uploadList, and calculate how much memory would be needed
-    // then decide how many photos should be uploaded. (currently it's 2, but could be 3 or 4 on strong systems.)
-    // then again, it seems like a memory leak, and probably needs monitoring the memory instead.
-    // # of photos were relatively low, and sizes were feasible and still crashed.
-    // chances are encryption leaks memory. Try to find a way to clean up after it.
+    // then decide how many photos should be uploaded simultaneously. Currently it's 1. 
+    // And they use a shared canvas for memory optimization while generating thumbnails.
 
     nextUpload(callback, callbackParam); // starts upload with first file
   }, 100);
@@ -1564,99 +1562,103 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
   var plaintextFileContents = fileContents;
   var dominant, thumbnail, lightboxPreview;
 
-  generateThumbnail(plaintextFileContents, function(tn, canvas, ctx){
+  generateThumbnails(plaintextFileContents, function(resizedB64sObject){
   // generatePrimitive(plaintextFileContents, function(pn){
-    thumbnail = tn;
-    generateDominant(canvas, ctx, function(dmnt){
-      dominant = dmnt;
-      generateLightboxPreview(plaintextFileContents, function(lp){
-        lightboxPreview = lp;
+    thumbnail = resizedB64sObject.thumbnail;
+    lightboxPreview = resizedB64sObject.lightbox;
 
-        // ENCRYPT & UPLOAD THUMBNAIL FIRST.
-        openpgp.encrypt({ data: thumbnail, passwords: [theKey], armor: true }).then(function(ciphertext) {
-            var encryptedTextFile = JSON.stringify(ciphertext);
+    generateDominant(function(dmnt){
+      dominant = dmnt;  
 
-            var saveUploadThumb = thumbRef.putString(encryptedTextFile);
-            saveUploadThumb.on('state_changed', function(thumbSnap){
-              if (!fileUploadError) {
-                var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
-                showFileUploadStatus("is-white", processingMessage);
-              }
-              
-              lastActivityTime = (new Date()).getTime();
+      // We don't need the contents of these canvases anymore.
+      // Before starting encryption clear them to save up memory.
+      // clearThumbnailCanvases();
+      
+      // ENCRYPT & UPLOAD THUMBNAIL FIRST.
+      openpgp.encrypt({ data: thumbnail, passwords: [theKey], armor: true }).then(function(ciphertext) {
+        var encryptedTextFile = JSON.stringify(ciphertext);
 
-              // switch (thumbSnap.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
-              if (thumbSnap.bytesTransferred === thumbSnap.totalBytes) {
+        var saveUploadThumb = thumbRef.putString(encryptedTextFile);
+        saveUploadThumb.on('state_changed', function(thumbSnap){
+          if (!fileUploadError) {
+            var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
+            showFileUploadStatus("is-white", processingMessage);
+          }
+          
+          lastActivityTime = (new Date()).getTime();
 
-                // THUMBNAIL UPLOADED. MOVE ON TO ORIGINAL PHOTO.
+          // switch (thumbSnap.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
+          if (thumbSnap.bytesTransferred === thumbSnap.totalBytes) {
 
-                openpgp.encrypt({ data: plaintextFileContents, passwords: [theKey], armor: true }).then(function(ciphertext) {
-                    var encryptedTextFile = JSON.stringify(ciphertext);
-                    var saveUploadOriginal = photoRef.putString(encryptedTextFile);
-                    saveUploadOriginal.on('state_changed', function(snapshot){
+            // THUMBNAIL UPLOADED. MOVE ON TO ORIGINAL PHOTO.
+
+            openpgp.encrypt({ data: plaintextFileContents, passwords: [theKey], armor: true }).then(function(ciphertext) {
+                var encryptedTextFile = JSON.stringify(ciphertext);
+                var saveUploadOriginal = photoRef.putString(encryptedTextFile);
+                saveUploadOriginal.on('state_changed', function(snapshot){
 
 
-                      if ($('#upload-' + pid).length === 0) {
-                        var uploadElem =
-                        '<div class="upload" id="upload-'+pid+'">'+
-                          '<progress class="progress is-small" value="'+snapshot.bytesTransferred+'" max="'+snapshot.totalBytes+'"></progress>'+
-                          '<p class="deets fn">'+filename+'</p>'+
+                  if ($('#upload-' + pid).length === 0) {
+                    var uploadElem =
+                    '<div class="upload" id="upload-'+pid+'">'+
+                      '<progress class="progress is-small" value="'+snapshot.bytesTransferred+'" max="'+snapshot.totalBytes+'"></progress>'+
+                      '<p class="deets fn">'+filename+'</p>'+
 
-                          '<p class="deets fs">'+ Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +'%</p>'+
-                        '</div>';
-                        $("#upload-status-contents").prepend(uploadElem);
-                        $("#upload-status-contents").animate({ scrollTop: 0 }, 500);
-                        $("#upload-preview").css("backgroundImage", 'url("'+lp+'")');
-                      } else {
-                        $("#upload-"+pid).find("progress").attr("value", snapshot.bytesTransferred);
-                        $("#upload-"+pid).find(".fs").html(Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +"%");
-                      }
+                      '<p class="deets fs">'+ Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +'%</p>'+
+                    '</div>';
+                    $("#upload-status-contents").prepend(uploadElem);
+                    $("#upload-status-contents").animate({ scrollTop: 0 }, 500);
+                    $("#upload-preview").css("backgroundImage", 'url("'+lightboxPreview+'")');
+                  } else {
+                    $("#upload-"+pid).find("progress").attr("value", snapshot.bytesTransferred);
+                    $("#upload-"+pid).find(".fs").html(Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +"%");
+                  }
 
-                      lastActivityTime = (new Date()).getTime();
+                  lastActivityTime = (new Date()).getTime();
 
-                      // switch (snapshot.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
-                      if (snapshot.bytesTransferred === snapshot.totalBytes) {
+                  // switch (snapshot.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
+                  if (snapshot.bytesTransferred === snapshot.totalBytes) {
 
-                        // ORIGINAL PHOTO UPLOADED. MOVE ON TO LIGHTBOX PREVIEW
+                    // ORIGINAL PHOTO UPLOADED. MOVE ON TO LIGHTBOX PREVIEW
 
-                        // ENCRYPT & UPLOAD LIGHTBOX PREVIEW IMAGE
-                        openpgp.encrypt({ data: lightboxPreview, passwords: [theKey], armor: true }).then(function(ciphertext) {
-                            var encryptedTextFile = JSON.stringify(ciphertext);
+                    // ENCRYPT & UPLOAD LIGHTBOX PREVIEW IMAGE
+                    openpgp.encrypt({ data: lightboxPreview, passwords: [theKey], armor: true }).then(function(ciphertext) {
+                        var encryptedTextFile = JSON.stringify(ciphertext);
 
-                            var saveUploadLightboxPreview = lightRef.putString(encryptedTextFile);
-                            saveUploadLightboxPreview.on('state_changed', function(lightSnap){
-                              if (!fileUploadError) {
-                                var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
-                                showFileUploadStatus("is-white", processingMessage);
-                              }
-                              
-                              lastActivityTime = (new Date()).getTime();
+                        var saveUploadLightboxPreview = lightRef.putString(encryptedTextFile);
+                        saveUploadLightboxPreview.on('state_changed', function(lightSnap){
+                          if (!fileUploadError) {
+                            var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
+                            showFileUploadStatus("is-white", processingMessage);
+                          }
+                          
+                          lastActivityTime = (new Date()).getTime();
 
-                              if (lightSnap.bytesTransferred === lightSnap.totalBytes) {
+                          if (lightSnap.bytesTransferred === lightSnap.totalBytes) {
 
-                                // LIGHTBOX PREVIEW UPLOADED.
+                            // LIGHTBOX PREVIEW UPLOADED.
 
-                                $("#upload-"+pid).remove();
-                                photoUploadComplete(fid, pid, dominant, thumbnail, filename, callback, callbackParam);
+                            $("#upload-"+pid).remove();
+                            photoUploadComplete(fid, pid, dominant, thumbnail, filename, callback, callbackParam);
 
-                              }
-                            }, function(error) {
-                              handleUploadError (pid, filename, error, callback, callbackParam);
-                            });
+                          }
+                        }, function(error) {
+                          handleUploadError (pid, filename, error, callback, callbackParam);
                         });
-
-                      }
-                    }, function(error) {
-                      handleUploadError (pid, filename, error, callback, callbackParam);
                     });
-                });
 
-              }
-            }, function(error) {
-              handleUploadError (pid, filename, error, callback, callbackParam);
+                  }
+                }, function(error) {
+                  handleUploadError (pid, filename, error, callback, callbackParam);
+                });
             });
+
+          }
+        }, function(error) {
+          handleUploadError (pid, filename, error, callback, callbackParam);
         });
       });
+      
     });
   });
 
@@ -1671,6 +1673,14 @@ function handleUploadError (pid, filename, error, callback, callbackParam) {
     } else {
       // PAID USER
       showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading to a higher plan or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>" + ' &nbsp; <a class="button is-success" onclick="hideFileUploadStatus(); showBumpUpThePlan(true)">Upgrade Plan</a>');
+    }
+
+    if (activeFID !== "home") {
+      otherFolderLoaded = false;
+      getAllFilesOfFolder(activeFID);
+    } else {
+      homeFolderLoaded = false;
+      getHomeFolder();
     }
 
   } else {
@@ -2026,7 +2036,9 @@ function adjustFolderCount (fid, adjustment, forceGenerateThumb, callback, callb
   // adjustment can be 1 or -1
   homeRef.doc(fid).get().then(function(item) {
     var count = item.data().count;
-    var folderCountObject = {"count" : count + adjustment};
+    var countToSet = count + adjustment;
+    if (countToSet <= 0) { countToSet = 0; } // sometimes this gets negative values. putting this as a failsafe.
+    var folderCountObject = {"count" : countToSet};
     homeRef.doc(fid).set(folderCountObject, {
       merge: true
     }).then(function(response) {
@@ -2034,7 +2046,7 @@ function adjustFolderCount (fid, adjustment, forceGenerateThumb, callback, callb
       $("#" + fid).removeClass("is-loading");
       // $("#"+fid).find(".deets").html(count + adjustment + " Photo(s)");
 
-      if ((count + adjustment) <= 0 ) {
+      if ((countToSet) <= 0) {
         // IT IS EMPTY NOW.
         showEmptyFolderDialog();
         clearFolderThumbnail(fid);
@@ -2252,205 +2264,124 @@ function generatePinkynail (imgB64, callback) {
   };
 }
 
-function generateThumbnail (imgB64, callback) {
-  getEXIF(imgB64, function(exif) {
-    var orientation;
-    if (exif.Orientation) {
-      orientation = exif.Orientation;
-    }
+var resizedCanvas, originalCanvas, orientationCanvas;
+var resizedContext, originalContext, orientationContext;
 
-    var maxWidth = 768, maxHeight = 768;
+function generateThumbnails(imgB64, callback) {
+    // image sizes in max pixels – for the longest dimension of image 
 
-    var canvas = document.createElement("canvas");
-    var ctx = canvas.getContext("2d");
+    var sizes = { "lightbox" : 1920, "thumbnail" : 768 };
+    var qualities = { "lightbox": 0.5, "thumbnail": 0.3 };
+    var b64OfImages = { "lightbox" : "", "thumbnail" : "" };
 
-    var canvasCopy = document.createElement("canvas");
-    var copyContext = canvasCopy.getContext("2d");
+    getEXIF(imgB64, function (exif) {
+        var orientation;
+        if (exif.Orientation) { orientation = exif.Orientation; }
 
-    var orientCanvas = document.createElement("canvas");
-    var orientContext = orientCanvas.getContext("2d");
+        // reuse these globally in the interest of saving memory if garbage collection is shittier / slower than expected.
 
-    var img = new Image();
-    img.src = imgB64;
+        resizedCanvas = resizedCanvas || document.createElement("canvas");
+        resizedContext = resizedContext || resizedCanvas.getContext("2d");
 
-    img.onload = function () {
+        originalCanvas = originalCanvas || document.createElement("canvas");
+        originalContext = originalContext || originalCanvas.getContext("2d");
 
-      var width = img.width;
-      var height = img.height;
+        orientationCanvas = orientationCanvas || document.createElement("canvas");
+        orientationContext = orientationContext || orientationCanvas.getContext("2d");
 
-      orientCanvas.width = width;
-      orientCanvas.height = height;
+        var img = new Image();
+        img.src = imgB64;
 
-      if (orientation > 4) {
-        orientCanvas.width = height;
-        orientCanvas.height = width;
-      }
+        img.onload = function () {
 
-      switch (orientation) {
-        case 2:
-          // horizontal flip
-          orientContext.translate(width, 0);
-          orientContext.scale(-1, 1);
-          break;
-        case 3:
-          // 180° rotate left
-          orientContext.translate(width, height);
-          orientContext.rotate(Math.PI);
-          break;
-        case 4:
-          // vertical flip
-          orientContext.translate(0, height);
-          orientContext.scale(1, -1);
-          break;
-        case 5:
-          // vertical flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI);
-          orientContext.scale(1, -1);
-          break;
-        case 6:
-          // 90° rotate right
-          orientContext.rotate(0.5 * Math.PI);
-          orientContext.translate(0, -height);
-          break;
-        case 7:
-          // horizontal flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI);
-          orientContext.translate(width, -height);
-          orientContext.scale(-1, 1);
-          break;
-        case 8:
-          // 90° rotate left
-          orientContext.rotate(-0.5 * Math.PI);
-          orientContext.translate(-width, 0);
-          break;
-      }
+            var width = img.width;
+            var height = img.height;
 
-      orientContext.drawImage(img, 0, 0);
+            orientationCanvas.width = width;
+            orientationCanvas.height = height;
 
-      var ratio = 1;
-      if (orientCanvas.width > maxWidth) { ratio = maxWidth / orientCanvas.width; }
-      else if (orientCanvas.height > maxHeight) { ratio = maxHeight / orientCanvas.height; }
+            if (orientation > 4) {
+                orientationCanvas.width = height;
+                orientationCanvas.height = width;
+            }
+            
+            switch (orientation) {
+                case 2:
+                    // horizontal flip
+                    orientationContext.translate(width, 0);
+                    orientationContext.scale(-1, 1);
+                    break;
+                case 3:
+                    // 180° rotate left
+                    orientationContext.translate(width, height);
+                    orientationContext.rotate(Math.PI);
+                    break;
+                case 4:
+                    // vertical flip
+                    orientationContext.translate(0, height);
+                    orientationContext.scale(1, -1);
+                    break;
+                case 5:
+                    // vertical flip + 90 rotate right
+                    orientationContext.rotate(0.5 * Math.PI);
+                    orientationContext.scale(1, -1);
+                    break;
+                case 6:
+                    // 90° rotate right
+                    orientationContext.rotate(0.5 * Math.PI);
+                    orientationContext.translate(0, -height);
+                    break;
+                case 7:
+                    // horizontal flip + 90 rotate right
+                    orientationContext.rotate(0.5 * Math.PI);
+                    orientationContext.translate(width, -height);
+                    orientationContext.scale(-1, 1);
+                    break;
+                case 8:
+                    // 90° rotate left
+                    orientationContext.rotate(-0.5 * Math.PI);
+                    orientationContext.translate(-width, 0);
+                    break;
+            }
 
-      canvasCopy.width = orientCanvas.width;
-      canvasCopy.height = orientCanvas.height;
+            orientationContext.drawImage(img, 0, 0);
 
-      copyContext.drawImage(orientCanvas, 0, 0, orientCanvas.width, orientCanvas.height, 0, 0, canvasCopy.width, canvasCopy.height);
+            for (var size in sizes) { // cycle through all sizes, and generate thumbnails
+                var maxWidthOrHeight = sizes[size]; // lightbox, thumbnail etc. 
+                var ratio = 1;
 
-      canvas.width = canvasCopy.width * ratio; // this canvas gets a reduced size
-      canvas.height = canvasCopy.height * ratio;
+                if (orientationCanvas.width > maxWidthOrHeight) { ratio = maxWidthOrHeight / orientationCanvas.width; }
+                else if (orientationCanvas.height > maxWidthOrHeight) { ratio = maxWidthOrHeight / orientationCanvas.height; }
 
-      ctx.drawImage(canvasCopy, 0, 0, canvasCopy.width, canvasCopy.height, 0, 0, canvas.width, canvas.height);
-      callback(canvas.toDataURL("image/jpeg", 0.3), canvasCopy, copyContext);
-    };
-  });
+                originalCanvas.width = orientationCanvas.width;
+                originalCanvas.height = orientationCanvas.height;
+
+                originalContext.drawImage(orientationCanvas, 0, 0, orientationCanvas.width, orientationCanvas.height, 0, 0, originalCanvas.width, originalCanvas.height);
+
+                resizedCanvas.width = originalCanvas.width * ratio; // this canvas gets a reduced size
+                resizedCanvas.height = originalCanvas.height * ratio;
+
+                resizedContext.drawImage(originalCanvas, 0, 0, originalCanvas.width, originalCanvas.height, 0, 0, resizedCanvas.width, resizedCanvas.height);
+                b64OfImages[size] = resizedCanvas.toDataURL("image/jpeg", qualities[size]);
+            }
+
+            callback(b64OfImages);
+        };
+    });
 }
 
-
-
-
-
-
-function generateLightboxPreview (imgB64, callback) {
-  getEXIF(imgB64, function(exif) {
-    var orientation;
-    if (exif.Orientation) {
-      orientation = exif.Orientation;
-    }
-
-    var maxWidth = 1920, maxHeight = 1920;
-
-    var canvas = document.createElement("canvas");
-    var ctx = canvas.getContext("2d");
-
-    var canvasCopy = document.createElement("canvas");
-    var copyContext = canvasCopy.getContext("2d");
-
-    var orientCanvas = document.createElement("canvas");
-    var orientContext = orientCanvas.getContext("2d");
-
-    var img = new Image();
-    img.src = imgB64;
-
-    img.onload = function () {
-
-      var width = img.width;
-      var height = img.height;
-
-      orientCanvas.width = width;
-      orientCanvas.height = height;
-
-      if (orientation > 4) {
-        orientCanvas.width = height;
-        orientCanvas.height = width;
-      }
-
-      switch (orientation) {
-        case 2:
-          // horizontal flip
-          orientContext.translate(width, 0);
-          orientContext.scale(-1, 1);
-          break;
-        case 3:
-          // 180° rotate left
-          orientContext.translate(width, height);
-          orientContext.rotate(Math.PI);
-          break;
-        case 4:
-          // vertical flip
-          orientContext.translate(0, height);
-          orientContext.scale(1, -1);
-          break;
-        case 5:
-          // vertical flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI);
-          orientContext.scale(1, -1);
-          break;
-        case 6:
-          // 90° rotate right
-          orientContext.rotate(0.5 * Math.PI);
-          orientContext.translate(0, -height);
-          break;
-        case 7:
-          // horizontal flip + 90 rotate right
-          orientContext.rotate(0.5 * Math.PI);
-          orientContext.translate(width, -height);
-          orientContext.scale(-1, 1);
-          break;
-        case 8:
-          // 90° rotate left
-          orientContext.rotate(-0.5 * Math.PI);
-          orientContext.translate(-width, 0);
-          break;
-      }
-
-      orientContext.drawImage(img, 0, 0);
-
-      var ratio = 1;
-      if (orientCanvas.width > maxWidth) { ratio = maxWidth / orientCanvas.width; }
-      else if (orientCanvas.height > maxHeight) { ratio = maxHeight / orientCanvas.height; }
-
-      canvasCopy.width = orientCanvas.width;
-      canvasCopy.height = orientCanvas.height;
-
-      copyContext.drawImage(orientCanvas, 0, 0, orientCanvas.width, orientCanvas.height, 0, 0, canvasCopy.width, canvasCopy.height);
-
-      canvas.width = canvasCopy.width * ratio; // this canvas gets a reduced size
-      canvas.height = canvasCopy.height * ratio;
-
-      ctx.drawImage(canvasCopy, 0, 0, canvasCopy.width, canvasCopy.height, 0, 0, canvas.width, canvas.height);
-      callback(canvas.toDataURL("image/jpeg", 0.5));
-    };
-  });
-}
-
-
-
-
-function generateDominant(canvas, ctx, callback) {
+function generateDominant (callback) {
   callback = callback || noop;
   var colorThief = new ColorThief();
-  var dominantColor = colorThief.getColor(canvas, ctx);
+  // resizedCanvas & resizedContext are globally shared to save memory
+  var dominantColor = colorThief.getColor(resizedCanvas, resizedContext);
   callback (dominantColor.toString());
+}
+
+function clearThumbnailCanvases () {
+  originalCanvas = null;
+  resizedCanvas = null;
+  orientationCanvas = null;
 }
 
 // function generatePallette(imgEl, callback) {
@@ -3223,7 +3154,9 @@ $("#folder-contents").on("focus", '.albumtitle', function(event) {
 });
 
 function yearFromTitle (title) {
-  title = title || ""; // fixes an issue where title could be null or not string, thus match isn't a function.
+  title = title || ""; 
+  if (typeof title !== 'string') { title = ""; } // fixes an issue where title could be null or not string, thus match isn't a function.
+
   var year = title.match(/\b(19|20)\d{2}\b/gm);
   if (Array.isArray(year)) {
     // more than one year entered. use the first one. 
@@ -3310,11 +3243,15 @@ var noItemsLeftToDelete;
 function confirmDeleteFolder () {
   progressModal("delete-album-modal");
   if (fidToDelete !== activeFID) {
+    $("#delete-album-modal").find(".subtitle").html("Deleting ...");
     var fid = fidToDelete;
     homeRef.doc(fid).collection(fid).get().then(function(items) {
 
       if (items.docs.length > 0) {
         noItemsLeftToDelete = items.docs.length;
+
+        $("#delete-album-modal").find(".subtitle").html("Deleting (<b>" + noItemsLeftToDelete + "</b> left)");
+        
         items.docs.forEach(function(item) {
           var pid = item.data().id;
           var tid = pid.replace("p-", "t-");
@@ -3323,12 +3260,15 @@ function confirmDeleteFolder () {
           var thumbRef = rootRef.child(tid + ".crypteefile");
           var lightRef = rootRef.child(lid + ".crypteefile");
 
-          photoRef.delete().then(function() {
-            thumbRef.delete().then(function() {
-              lightRef.delete().then(function() {
+          photoRef.delete().finally(function() {
+            thumbRef.delete().finally(function() {
+              lightRef.delete().finally(function() {
 
                 noItemsLeftToDelete--;
+                $("#delete-album-modal").find(".subtitle").html("Deleting (<b>" + noItemsLeftToDelete + "</b> left)");
+
                 if (noItemsLeftToDelete === 0) {
+                  $("#delete-album-modal").find(".subtitle").html("Deleting (Finalizing)");
                   var collectionRefToDelete = homeRef.doc(fid).collection(fid);
                   deleteCollection (collectionRefToDelete).then(function(){
                     homeRef.doc(fid).delete().then(function(){
@@ -3339,9 +3279,9 @@ function confirmDeleteFolder () {
                   });
                 }
 
-              });
-            });
-          });
+              }).catch();
+            }).catch();
+          }).catch();
         });
       } else {
         homeRef.doc(fid).delete().then(function(){
@@ -3529,6 +3469,9 @@ function summonGhostFolder () {
 var selectionsObject = {};
 
 function updateSelections () {
+  selectionsObject = selectionsObject || {}; // somehow sometimes, these could come undefined. not sure why yet. but this is a failsafe.
+  activeItemsObject = activeItemsObject || {}; // somehow sometimes, these could come undefined. not sure why yet. but this is a failsafe.
+  
   var selectionsArray = Object.keys(selectionsObject);
   var activeTitlesArray = Object.keys(activeItemsObject);
   activeTitlesArray.forEach(function(id){
@@ -3559,7 +3502,7 @@ function updateSelections () {
       $(".normal-nav-item").show();
       $(".selection-nav-item").hide();
     }
-
+    $("#photos-set-thumb-button").addClass("unavailable");
     $("#photos-del-sel-modal-toggle-button").attr("disabled", true).prop("disabled", true);
   }
 
@@ -3571,10 +3514,12 @@ function updateSelections () {
 }
 
 var completedDeletions;
+var numOfSelectionsToDelete;
 function deleteSelections() {
   progressModal("photos-delete-selections-modal");
   completedDeletions = 0;
-
+  numOfSelectionsToDelete = Object.keys(selectionsObject).length;
+  $("#photos-delete-selections-modal").find(".subtitle").html("Deleting (0 / " + numOfSelectionsToDelete + ")");
   getFolderThumbnail(activeFID, function(thumb){
     var isFolderThumbDeleted = false;
     $.each(selectionsObject, function(pid) {
@@ -3594,14 +3539,14 @@ function deleteSelections() {
       var thumbRef = rootRef.child(tid + ".crypteefile");
       var lightRef = rootRef.child(lid + ".crypteefile");
 
-      photoRef.delete().then(function() {
-        thumbRef.delete().then(function() {
-          lightRef.delete().then(function() {
+      photoRef.delete().finally(function() {
+        thumbRef.delete().finally(function() {
+          lightRef.delete().finally(function() {
             whereFrom.delete().then(function() {
               areDeletionsComplete(pid, isFolderThumbDeleted);
             });
-          });
-        });
+          }).catch();
+        }).catch();
       }).catch(function(error) {
         if (error.code === "storage/object-not-found") {
           thumbRef.delete();
@@ -3621,6 +3566,8 @@ function deleteSelections() {
 
 function areDeletionsComplete(pid, isFolderThumbDeleted) {
   completedDeletions++;
+  $("#photos-delete-selections-modal").find(".subtitle").html("Deleting (" + completedDeletions + " / " + numOfSelectionsToDelete + ")");
+
   if (Object.keys(selectionsObject).length === completedDeletions) {
     if (activeFID !== "home") {
       var adjustmentCount = 0 - Object.keys(selectionsObject).length;
@@ -3637,7 +3584,7 @@ function areDeletionsComplete(pid, isFolderThumbDeleted) {
     updateTitles(function(){
       hideModal("photos-delete-selections-modal");
       clearSelections();
-
+      numOfSelectionsToDelete = 0;
       if (activeFID === "home") {
         if ($(".folder-content").length > 0) {
           // hide empty after delete? idk how the fuck this would happen but still.
@@ -4102,16 +4049,17 @@ function closeLightbox() {
     history.pushState(activeFID, null, '/photos?f='+activeFID);
   }
 
-  try {
-    var doc = window.document;
-    var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-    if (cancelFullScreen) {
-      cancelFullScreen.call(doc);
+  if (!isMobile) {  // seems like some android phones have issues with the exit fullscreen call
+    try {
+      var doc = window.document;
+      var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+      if (cancelFullScreen) {
+        cancelFullScreen.call(doc);
+      }
+    } catch (e) {
+      // likely still a phone we didn't catch in isMobile or sth else happened.
     }
-  } catch (e) {
-    // likely a phone
   }
-
 }
 
 function toggleExif() {
