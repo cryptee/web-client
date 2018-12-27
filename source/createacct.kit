@@ -143,7 +143,7 @@ var createUserCounter = 0;
 function createUserInDB() {
   var theEpoch = (new Date()).getTime();
 
-  openpgp.encrypt({ data: theStrongKey, passwords: [theHashedKey], armor: true }).then(function(ciphertext) {
+  encrypt(theStrongKey, [theHashedKey]).then(function(ciphertext) {
       var encryptedStrongKey = JSON.stringify(ciphertext);
       var newUserData = {
         username: theUsername,
@@ -174,7 +174,7 @@ function createHomeDoc() {
   var homeRef = rootRef.child("home.crypteedoc");
   var homeDelta = JSON.stringify(homeDelta);
 
-  openpgp.encrypt({ data: homeDelta, passwords: [theStrongKey], armor: true }).then(function(ciphertext) {
+  encrypt(homeDelta, [theStrongKey]).then(function(ciphertext) {
       encryptedDocDelta = JSON.stringify(ciphertext);
 
       var homeUpload = homeRef.putString(encryptedDocDelta);

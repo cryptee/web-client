@@ -341,9 +341,11 @@
   color : #999;
   font-size: 16px;
   transition: 0.5s color ease, 1s opacity ease;
-  opacity: 1;
-  pointer-events: all;
+  opacity: 0;
+  pointer-events: none;
 }
+
+
 
 #hotkeys-button {
   right: 2.5rem;
@@ -359,9 +361,9 @@
   right: 3rem;
 }
 
-#help-button:not(.shown).itsMobile, #hotkeys-button:not(.shown).itsMobile {
-  opacity: 0 !important;
-  pointer-events: none !important;
+#help-button.shown, #hotkeys-button.shown {
+  opacity: 1 !important;
+  pointer-events: all !important;
 }
 
 #docs-sections-wrapper {

@@ -44,6 +44,8 @@ var inactivityInterval = setInterval(inactiveTimer, 1000);
 var ww = $(window).width();
 
 loadUserDetailsFromLS();
+checkLatestVersion();
+
 ////////////////////////////////////////////////////
 ///////////////////    HOTKEYS    //////////////////
 ////////////////////////////////////////////////////
@@ -411,30 +413,28 @@ function checkKey (key) {
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
 
-    var hashedKey, goodKey = true;
     if (key) {
-      try {
-        hashedKey = hashString(key);
-      } catch (e) {
-        goodKey = false;
+      hashString(key).then(function(hashedKey){
+        checkHashedKey(hashedKey);
+      }).catch(function(e){
         wrongKey ("Wide Character Error");
-      }
-    } else {
-      hashedKey = keyToRemember;
-    }
-
-    if (goodKey) {
-      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-          rightKey(plaintext, hashedKey);
-      }).catch(function(error) {
-          checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
-            rightKey(plaintext, hashedKey);
-            // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-          });
       });
     } else {
-      wrongKey ("Wide Character Error");
+      hashedKey = keyToRemember;
+      checkHashedKey(hashedKey);
     }
+
+    function checkHashedKey(hashedKey) {
+      decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+        rightKey(plaintext, hashedKey);
+      }).catch(function (error) {
+        checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
+          rightKey(plaintext, hashedKey);
+          // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+        });
+      });
+    }
+
   });
 }
 
@@ -1462,13 +1462,10 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
     var uploadElem;
     try {
       var filename = file.name;
-      var filesize = file.size;
-      var filetype = file.type;
       var fileExt = extensionFromFilename(filename);
       //THIS LINE IS TO MAKE SURE FILE HAS SOME CONTENTS AND MAKE THIS "TRY" FAIL IF IT'S EMPTY, LIKE WHEN IT IS A FOLDER.
       var fileContents = base64FileContents.substr(base64FileContents.indexOf(',')+1);
 
-      // if (filetype.indexOf("image") !== -1) {
       if (fileExt.match(/^(jpg|jpeg|png)$/i)) {
         var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos</b> left.";
         showFileUploadStatus("is-white", processingMessage);
@@ -1558,7 +1555,6 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
   var lid = pid.replace("p", "l");
   var lightRef = rootRef.child(lid + ".crypteefile");
 
-  var totalBytes;
   var plaintextFileContents = fileContents;
   var dominant, thumbnail, lightboxPreview;
 
@@ -1570,12 +1566,13 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
     generateDominant(function(dmnt){
       dominant = dmnt;  
 
+      // CURRENTLY UNUSED, CAUSES ERRORS IN SOME BROWSERS 
       // We don't need the contents of these canvases anymore.
       // Before starting encryption clear them to save up memory.
       // clearThumbnailCanvases();
       
       // ENCRYPT & UPLOAD THUMBNAIL FIRST.
-      openpgp.encrypt({ data: thumbnail, passwords: [theKey], armor: true }).then(function(ciphertext) {
+      encrypt(thumbnail, [theKey]).then(function(ciphertext) {
         var encryptedTextFile = JSON.stringify(ciphertext);
 
         var saveUploadThumb = thumbRef.putString(encryptedTextFile);
@@ -1592,7 +1589,7 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
 
             // THUMBNAIL UPLOADED. MOVE ON TO ORIGINAL PHOTO.
 
-            openpgp.encrypt({ data: plaintextFileContents, passwords: [theKey], armor: true }).then(function(ciphertext) {
+            encrypt(plaintextFileContents, [theKey]).then(function(ciphertext) {
                 var encryptedTextFile = JSON.stringify(ciphertext);
                 var saveUploadOriginal = photoRef.putString(encryptedTextFile);
                 saveUploadOriginal.on('state_changed', function(snapshot){
@@ -1622,7 +1619,7 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
                     // ORIGINAL PHOTO UPLOADED. MOVE ON TO LIGHTBOX PREVIEW
 
                     // ENCRYPT & UPLOAD LIGHTBOX PREVIEW IMAGE
-                    openpgp.encrypt({ data: lightboxPreview, passwords: [theKey], armor: true }).then(function(ciphertext) {
+                    encrypt(lightboxPreview, [theKey]).then(function(ciphertext) {
                         var encryptedTextFile = JSON.stringify(ciphertext);
 
                         var saveUploadLightboxPreview = lightRef.putString(encryptedTextFile);
@@ -1817,7 +1814,7 @@ function getThumbnail (pid, fid) {
       var tidrequest = $.ajax({ url: thumbURL, type: 'GET',
           success: function(encryptedFileContents){
             var theEncryptedFileContents = JSON.parse(encryptedFileContents).data;
-            openpgp.decrypt({ message: openpgp.message.readArmored(theEncryptedFileContents),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+            decrypt(theEncryptedFileContents, [theKey]).then(function(plaintext) {
               var decryptedContents = plaintext.data;
               var id = fid || pid;
 
@@ -2154,7 +2151,7 @@ function showMoveSelectionsModal() {
 
   titlesRef.doc("home").get().then(function(titles) {
     var encryptedTitlesObject = JSON.parse(titles.data().titles).data;
-    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+    decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
       $.each(JSON.parse(plaintext.data).folders, function(fid, ftitle) {
         var parsedFilename = JSON.parse(ftitle);
         var isCurrent = ""; if (fid === activeFID) { isCurrent = "is-current"; }
@@ -2693,25 +2690,30 @@ $("#folder-contents").on("click", ".albumitem", function(event){
 });
 
 window.addEventListener('popstate', function(e) {
-  var id = e.state;
-  if ($("#lightbox-modal").hasClass("is-active")) {
-    $("#lightbox-modal").removeClass("is-active");
-  } else {
-    if (id) {
-      if (id === "home") {
+  // this is to make sure we have a user before calling this function.
+  // otherwise getAllFilesOfFolder will get called before auth is complete, and tons of shit will be undefined.
+  
+  if (theUser) { 
+    var id = e.state;
+    if ($("#lightbox-modal").hasClass("is-active")) {
+      $("#lightbox-modal").removeClass("is-active");
+    } else {
+      if (id) {
+        if (id === "home") {
+          homeFolderLoaded = false; otherFolderLoaded = false;
+          getHomeFolder();
+        } else {
+          if (id.startsWith("f-")) {
+            homeFolderLoaded = false; otherFolderLoaded = false;
+            getAllFilesOfFolder(id);
+          } else {
+            loadPhoto(id, "", "display");
+          }
+        }
+      } else {
         homeFolderLoaded = false; otherFolderLoaded = false;
         getHomeFolder();
-      } else {
-        if (id.startsWith("f-")) {
-          homeFolderLoaded = false; otherFolderLoaded = false;
-          getAllFilesOfFolder(id);
-        } else {
-          loadPhoto(id, "", "display");
-        }
       }
-    } else {
-      homeFolderLoaded = false; otherFolderLoaded = false;
-      getHomeFolder();
     }
   }
 });
@@ -2815,7 +2817,7 @@ function getTitles (fid, contents, callback) {
 function gotTitles (JSONifiedEncryptedTitlesObject, contents, callback) {
   callback = callback || noop;
   var encryptedTitlesObject = JSON.parse(JSONifiedEncryptedTitlesObject).data;
-  openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+  decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
     var titlesObject = JSON.parse(plaintext.data);
     processTitles(titlesObject, contents, callback);
   });
@@ -2953,7 +2955,7 @@ function updateTitles (callback, callbackParam) {
   titlesRef.doc(activeFID).get().then(function(titles) {
     if (titles.data() !== undefined) {
       var encryptedTitlesObject = JSON.parse(titles.data().titles).data;
-      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+      decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
         var oldTitlesObject = JSON.parse(plaintext.data);
         writeTitles(oldTitlesObject.self);
       });
@@ -2969,7 +2971,7 @@ function updateTitles (callback, callbackParam) {
 function encryptAndUploadTitles (titlesObjectToEncrypt, fid, callback, callbackParam) {
   var plaintextTitles = JSON.stringify(titlesObjectToEncrypt);
   lastActivityTime = (new Date()).getTime();
-  openpgp.encrypt({ data: plaintextTitles, passwords: [theKey], armor: true }).then(function(ciphertext) {
+  encrypt(plaintextTitles, [theKey]).then(function(ciphertext) {
     var encryptedTitlesObject = JSON.stringify(ciphertext);
     titlesRef.doc(fid).set({"titles" : encryptedTitlesObject}, {
       merge: true
@@ -2985,7 +2987,7 @@ function updateFolderTitle(fid, newFTitle, callback) {
   callback = callback || noop;
   titlesRef.doc(fid).get().then(function(titles) {
     var encryptedTitlesObject = JSON.parse(titles.data().titles).data;
-    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+    decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
       var titlesObject = JSON.parse(plaintext.data);
       titlesObject.self = newFTitle;
       encryptAndUploadTitles(titlesObject, fid, callback);
@@ -3016,7 +3018,7 @@ function moveTitles (toFID, callback, callbackParam) {
   titlesRef.doc(toFID).get().then(function(titles) {
     // GOT TITLES OF TARGET FOLDER
     var encryptedTitlesObject = JSON.parse(titles.data().titles).data;
-    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+    decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
       gotTargetFolderTitles (JSON.parse(plaintext.data), toFID, callback, callbackParam);
     });
   }).catch(function(error) {
@@ -3336,17 +3338,17 @@ var fidToGhost;
 $("#folder-contents").on("click", '.ghostfoldericon', function(event) {
   event.stopPropagation(); event.preventDefault();
   var albumTitle = $(this).parents(".albumitem").find("input").attr("placeholder").toUpperCase();
-
-  try {
-    var testHashingTheTitle = hashString(albumTitle);
-    var fid = $(this).parents(".albumitem").attr("id");
-    fidToGhost = fid;
+  var thisIcon = $(this);
+  
+  // this is to test hashing the title to see if it has any invalid / wide / unsupported / unhashable characters
+  hashString(albumTitle).then(function(testHashingTheTitle){
+    fidToGhost = thisIcon.parents(".albumitem").attr("id");
     $("#ghost-folder-confirm-input").val(albumTitle);
     $("#ghost-folder-confirm-input").attr("placeholder", albumTitle);
     showModal("ghost-album-modal");
-  } catch(e){
+  }).catch(function(e){
     showModal("ghost-album-titleerror-modal");
-  }
+  });
 
 });
 
@@ -3372,24 +3374,28 @@ $("#ghost-folder-confirm-input").on('keydown', function(event) {
 function makeGhostFolder () {
   progressModal("ghost-album-modal");
   fixFilesAndFolders(function(){
-    var titleHashToGhost = hashString($("#ghost-folder-confirm-input").val().toUpperCase());
+    hashString($("#ghost-folder-confirm-input").val().toUpperCase()).then(function(titleHashToGhost){
+      var makeGhostAlbum = cloudfunctions.httpsCallable('makeGhostAlbum');
+      makeGhostAlbum({ hash: titleHashToGhost, fid: fidToGhost }).then(function (result) {
 
-    var makeGhostAlbum = cloudfunctions.httpsCallable('makeGhostAlbum');
-    makeGhostAlbum({hash: titleHashToGhost, fid : fidToGhost}).then(function(result) {
-
-      var functionResponse = result.data;
-      if (functionResponse) {
-        if (functionResponse.status === "done"){
-          // all set. album ghosted.
-          doneGhosting();
+        var functionResponse = result.data;
+        if (functionResponse) {
+          if (functionResponse.status === "done") {
+            // all set. album ghosted.
+            doneGhosting();
+          }
+          if (functionResponse.error) {
+            unprogressModal("ghost-album-modal");
+            $("#ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
+          }
         }
-        if (functionResponse.error){
-          unprogressModal("ghost-album-modal");
-          $("#ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
-        }
-      }
 
-    }).catch(function(error) {
+      }).catch(function (error) {
+        unprogressModal("ghost-album-modal");
+        $("#ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
+        console.log(error);
+      });
+    }).catch(function(e){
       unprogressModal("ghost-album-modal");
       $("#ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
       console.log(error);
@@ -3415,42 +3421,46 @@ function summonGhostFolder () {
   progressModal("photos-summon-ghost-album-modal");
   fixFilesAndFolders(function(){
     titleToSummon = $("#ghost-folder-summon-input").val().toUpperCase();
-    var titleHashToSummon = hashString(titleToSummon);
+    hashString(titleToSummon).then(function(titleHashToSummon){
+      // CLIENTSIDE ONCE GOT THE CONFIRMATION :
 
-    // CLIENTSIDE ONCE GOT THE CONFIRMATION :
+      var summonGhostAlbum = cloudfunctions.httpsCallable('summonGhostAlbum');
+      summonGhostAlbum({ hash: titleHashToSummon }).then(function (result) {
+        var functionResponse = result.data;
+        if (functionResponse) {
+          if (functionResponse.status === "done") {
+            // all set. album ghosted.
 
-    var summonGhostAlbum = cloudfunctions.httpsCallable('summonGhostAlbum');
-    summonGhostAlbum({hash: titleHashToSummon}).then(function(result) {
-      var functionResponse = result.data;
-      if (functionResponse) {
-        if (functionResponse.status === "done"){
-          // all set. album ghosted.
+            somethingSummoned = true;
+            summonedFID = functionResponse.fid;
+            summonedTitle = titleToSummon;
+            titleToSummon = "";
 
-          somethingSummoned = true;
-          summonedFID = functionResponse.fid;
-          summonedTitle = titleToSummon;
-          titleToSummon = "";
-
-          homeFolderLoaded = false; otherFolderLoaded = false;
-          getHomeFolder(function(){ // we save the ghost title into activeItemsObject['id'].title in processTitles in getHomeFolder here.
-            updateTitles(function(){
-              hideModal("photos-summon-ghost-album-modal");
+            homeFolderLoaded = false; otherFolderLoaded = false;
+            getHomeFolder(function () { // we save the ghost title into activeItemsObject['id'].title in processTitles in getHomeFolder here.
+              updateTitles(function () {
+                hideModal("photos-summon-ghost-album-modal");
+              });
             });
-          });
+          }
+
+          if (functionResponse.error) {
+            unprogressModal("photos-summon-ghost-album-modal");
+            $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
+          }
+
+          if (functionResponse.nope) {
+            unprogressModal("photos-summon-ghost-album-modal");
+            $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>No ghost folders found with this title.</p>").show();
+          }
         }
 
-        if (functionResponse.error){
-          unprogressModal("photos-summon-ghost-album-modal");
-          $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
-        }
-
-        if (functionResponse.nope) {
-          unprogressModal("photos-summon-ghost-album-modal");
-          $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>No ghost folders found with this title.</p>").show();
-        }
-      }
-
-    }).catch(function(error) {
+      }).catch(function (error) {
+        unprogressModal("photos-summon-ghost-album-modal");
+        $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
+        console.log(error);
+      }); 
+    }).catch(function(e){
       unprogressModal("photos-summon-ghost-album-modal");
       $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
       console.log(error);
@@ -3506,7 +3516,7 @@ function updateSelections () {
     $("#photos-set-thumb-button").addClass("unavailable");
     $("#photos-del-sel-modal-toggle-button").attr("disabled", true).prop("disabled", true);
   }
-
+  $("#photos-delete-selections-modal").find(".subtitle").html('Are you sure you want to delete your selections? (<span class="number-of-selections"></span>)?');
   if (numberOfSelections <= 1) {
     $(".number-of-selections").html(numberOfSelections + "<span class='hiddenForFinger'> photo</span>");
   } else {
@@ -3787,7 +3797,7 @@ function photoLoaded (pid, ptitle, encryptedPhoto, psize, displayOrDownload, cal
   displayOrDownload = displayOrDownload || "display";
   var encryptedB64 = JSON.parse(encryptedPhoto).data;
   $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
-  openpgp.decrypt({ message: openpgp.message.readArmored(encryptedB64),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+  decrypt(encryptedB64, [theKey]).then(function(plaintext) {
     $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
     var decryptedPhoto = plaintext.data;
     if (displayOrDownload === "download"){
@@ -3808,7 +3818,7 @@ function loadNextFromPID (pid, callback, callbackParam) {
     $.ajax({ url: photoURL, type: 'GET',
       success: function(encryptedPhoto){
         var encryptedB64 = JSON.parse(encryptedPhoto).data;
-        openpgp.decrypt({ message: openpgp.message.readArmored(encryptedB64),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+        decrypt(encryptedB64, [theKey]).then(function(plaintext) {
           nextB64 = plaintext.data;
           $("#lightbox-next-photo").attr("src", nextB64);
           $("#nextPhotoTitle").val(nextTitle);
@@ -3857,7 +3867,7 @@ function loadPrevFromPID (pid, callback, callbackParam) {
     $.ajax({ url: photoURL, type: 'GET',
       success: function(encryptedPhoto){
         var encryptedB64 = JSON.parse(encryptedPhoto).data;
-        openpgp.decrypt({ message: openpgp.message.readArmored(encryptedB64),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+        decrypt(encryptedB64, [theKey]).then(function(plaintext) {
           prevB64 = plaintext.data;
           $("#lightbox-previous-photo").attr("src", prevB64);
           $("#prevPhotoTitle").val(prevTitle);
@@ -4052,11 +4062,14 @@ function closeLightbox() {
 
   if (!isMobile) {  // seems like some android phones have issues with the exit fullscreen call
     try {
-      var doc = window.document;
-      var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-      if (cancelFullScreen) {
-        cancelFullScreen.call(doc);
+      
+      if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+        var cancelFullScreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        if (cancelFullScreen) {
+          cancelFullScreen.call(document);
+        }
       }
+      
     } catch (e) {
       // likely still a phone we didn't catch in isMobile or sth else happened.
     }
@@ -4134,7 +4147,7 @@ function initSearch () {
         var titlesOfFolder = titleObject.data().titles;
         var fid = titleObject.id;
         var encryptedTitlesObject = JSON.parse(titlesOfFolder).data;
-        openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+        decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
           currentFolderIndex++;
           titlesObject = JSON.parse(plaintext.data);
           $.each(titlesObject.photos, function(pid, ptitle) {
@@ -4374,7 +4387,7 @@ function downloadActiveLightboxPhotoToDisk () {
       $.ajax({ url: downloadURL, type: 'GET',
         success: function(encryptedPhoto){
           var encryptedB64 = JSON.parse(encryptedPhoto).data;
-          openpgp.decrypt({ message: openpgp.message.readArmored(encryptedB64),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+          decrypt(encryptedB64, [theKey]).then(function(plaintext) {
             var decryptedPhoto = plaintext.data;
             downloadPhotoToDisk(activePID, activePName, decryptedPhoto);
           });

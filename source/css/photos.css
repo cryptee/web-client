@@ -434,4 +434,14 @@
 		top: 0.25rem;
 	    right: 3.125rem;
 	}
+
+	.albumitem:nth-child(even) .deletefoldericon {
+		right: auto;
+		left: 0rem;
+	}
+
+	.albumitem:nth-child(even) .ghostfoldericon {
+		right: auto;
+		left: 3.125rem;
+	}
 }

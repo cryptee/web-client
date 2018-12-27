@@ -940,17 +940,108 @@ function checkConnection (callback) {
   });
 }
 
-///////////////////////////////////////////
-//////////////// PGP SETUP ////////////////
-///////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////
+//////////////// OPENPGPJS SETUP ////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+
 try {
-openpgp.initWorker({ path:'../js/lib/openpgp.worker.min.js' }); // set the relative web worker path
-openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
+  openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
+  openpgp.config.aead_protect_version = true;
+  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.1.min.js' }); // set the relative web worker path
 } catch (e) {}
 
-function hashString(str) {
-  return openpgp.util.str_to_hex(openpgp.util.Uint8Array_to_str(openpgp.crypto.hash.sha256(str))).split(" ").join("").split("\n").join("");
+
+/////////////////////////////////////////
+// ENCRYPT PLAINTEXT USING KEYS
+//                               
+// A DROP-IN, SHORTHAND REPLACEMENT FOR    
+// OPENPGPJS's .encrypt
+// WORKS STARTING WITH OPENPGPJS V4.4.1
+//////////////////////////////////////////
+
+function encrypt(plaintext, keys) {
+  var options = {
+    message: openpgp.message.fromText(plaintext),
+    passwords: keys,
+    armor: true
+  };
+
+  return new Promise(function (resolve, reject) {
+    openpgp.encrypt(options).then(function (ciphertext) {
+      resolve(ciphertext);
+    }).catch(function (error) {
+      reject(error);
+    });
+  });
 }
+
+/////////////////////////////////////////
+// DECRYPT CIPHERTEXT USING KEYS
+//                               
+// A DROP-IN, SHORTHAND REPLACEMENT FOR    
+// OPENPGPJS's .decrypt
+// WORKS STARTING WITH OPENPGPJS V4.4.1
+//////////////////////////////////////////
+
+function decrypt(ciphertext, keys) {
+  return new Promise(function (resolve, reject) {
+    openpgp.message.readArmored(ciphertext).then(function (msg) {
+
+      var options = {
+        message: msg,
+        passwords: keys,
+        format: 'utf8'
+      };
+
+      openpgp.decrypt(options).then(function (plaintext) {
+        resolve(plaintext);
+      }).catch(function (error) {
+        reject(error);
+      });
+
+    });
+  });
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+function hashString (str) {
+  return new Promise(function (resolve, reject) {
+    var uinta = openpgp.util.str_to_Uint8Array(str);
+    openpgp.crypto.hash.sha256(uinta).then(function (hashedUintA) {
+      var hashedStr = openpgp.util.Uint8Array_to_str(hashedUintA);
+      var hashedHex = openpgp.util.str_to_hex(hashedStr);
+      var result = hashedHex.split(" ").join("").split("\n").join("");
+      resolve(result);
+    }).catch(function (error) {
+      reject(error);
+    });
+  });
+}
+
 
 function generateStrongKey() {
   var arr = new Uint8Array(1024);
@@ -959,11 +1050,7 @@ function generateStrongKey() {
 }
 
 function checkLegacyKey (dataRef, typedKey, hashedKey, encryptedStrongKey, callback) {
-  openpgp.decrypt({
-    message: openpgp.message.readArmored(encryptedStrongKey),
-    passwords: [typedKey],
-    format: 'utf8'
-  }).then(function(plaintext) {
+  decrypt(encryptedStrongKey, [typedKey]).then(function(plaintext) {
     // WE HAVE A LEGACY KEY. ( which was just the former checkKeyString )
     convertLegacyKey (dataRef, typedKey, hashedKey, callback);
   }).catch(function(error) {
@@ -974,7 +1061,7 @@ function checkLegacyKey (dataRef, typedKey, hashedKey, encryptedStrongKey, callb
 
 function convertLegacyKey (dataRef, typedKey, hashedKey, callback) {
 
-  openpgp.encrypt({ data: typedKey, passwords: [hashedKey], armor: true }).then(function(ciphertext) {
+  encrypt(typedKey, [hashedKey]).then(function(ciphertext) {
       var encryptedStrongKey = JSON.stringify(ciphertext);
       dataRef.update({ keycheck : encryptedStrongKey }, function(error){
         if (error) {
@@ -990,25 +1077,18 @@ function convertLegacyKey (dataRef, typedKey, hashedKey, callback) {
 
 function newEncryptedKeycheck(hashedKey, callback) {
   var now = ((new Date()).getTime()).toString();
-  openpgp.encrypt({ data: now, passwords: [hashedKey], armor: true }).then(function(ciphertext) {
+  encrypt(now, [hashedKey]).then(function(ciphertext) {
       var encryptedKeycheck = JSON.stringify(ciphertext);
       callback(encryptedKeycheck);
   });
 }
+
+
 ///////////////////////////////////////////
 //////////////// REPORT BUGS /////////////
 ///////////////////////////////////////////
 
 // USING CUSTOM BUGREPORTING AT /BUGREPORT NOW
-// function reportBug () {
-//   var userDetails;
-//   try {
-//     userDetails = theUserID;
-//   } catch (e) {
-//     userDetails = "Unknown User";
-//   }
-//   Raven.showReportDialog(Raven.captureException(new Error('Bug Report/Feedback by ' + userDetails)));
-// }
 
 function handleError (error, connectivity) {
   connectivity = connectivity || "online";
@@ -1028,6 +1108,12 @@ function handleError (error, connectivity) {
 function setSentryUser(userid) {
   Sentry.configureScope(function(scope) {
     scope.setUser({ id: userid });
+  });
+}
+
+function setSentryLocale(locale) {
+  Sentry.configureScope(function (scope) {
+    scope.setTag("locale", locale);
   });
 }
 

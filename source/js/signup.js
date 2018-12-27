@@ -414,24 +414,29 @@ function checkKey() {
 
 
   if (keyIsGood) {
-    try {
-      var keyToTest = theKey;
-      var newHashedKey = hashString(keyToTest);
+    var keyToTest = theKey;
+
+    // this is to test hashing the key to see if it has any invalid / wide / unsupported / unhashable characters
+    hashString(keyToTest).then(function (newHashedKey) {
+
       $("#signup-key").removeClass('is-danger');
       $("#signup-key").parents(".signup-section").find(".help").fadeOut();
       keyIsGood = true;
-    } catch (e) {
+
+      if (keyIsGood && userPressedEnterToMoveOn) { $(".signuptermsbutton").focus(); }
+      checkSignupButton();
+
+    }).catch(function(e){
+
       $("#signup-key").addClass('is-danger');
       $("#signup-key").parents(".signup-section").find(".help").fadeIn();
       keyIsGood = false;
-    }
-  }
 
-  if (keyIsGood && userPressedEnterToMoveOn) {
-    $(".signuptermsbutton").focus();
-  }
+      if (keyIsGood && userPressedEnterToMoveOn) { $(".signuptermsbutton").focus(); }
+      checkSignupButton();
 
-  checkSignupButton();
+    });
+  }
 }
 
 $("#signup-pass").on("keydown keypress paste copy cut change", function(e){
@@ -926,9 +931,10 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 function saveKey(key){
-  var hashedKey = hashString(key);
-  sessionStorage.setItem('key', JSON.stringify(hashedKey));
-  createAcctHome();
+  hashString(key).then(function (hashedKey) {
+    sessionStorage.setItem('key', JSON.stringify(hashedKey));
+    createAcctHome();
+  });
 }
 
 

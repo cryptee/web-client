@@ -23,6 +23,8 @@
 
   <script type="text/javascript">
   var theUser, theUsername, theEmail, metaRef, theUserID;
+  var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedkey
+
   loadUserDetailsFromLS();
   checkLatestVersion();
 

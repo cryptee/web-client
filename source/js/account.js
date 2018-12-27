@@ -42,6 +42,7 @@ var zipForPaddle;
 var couponForPaddle = getUrlParameter("coupon") || "";
 
 loadUserDetailsFromLS();
+checkLatestVersion();
 
 try {
   sessionStorage.removeItem('key');
@@ -926,21 +927,18 @@ function checkKeyStrength() {
   }
 
   if (keyIsGood) {
-    try {
-      var keyToTest = $("#newkey").val().trim();
-      var newHashedKey = hashString(keyToTest);
-
+    var keyToTest = $("#newkey").val().trim();
+    // this is to test hashing the key to see if it has any invalid / wide / unsupported / unhashable characters
+    hashString(keyToTest).then(function (newHashedKey) {
       $("#newkey").removeClass('is-danger');
       $("#newkey").parents(".field").find(".help").fadeOut();
       keyIsGood = true;
-    } catch (e) {
-
+    }).catch(function(e){
       $("#newkey").addClass('is-danger');
       $("#newkey").parents(".field").find(".help").fadeIn();
       keyIsGood = false;
-    }
+    });
   }
-
 }
 
 function tryChangingKey () {
@@ -948,29 +946,39 @@ function tryChangingKey () {
   var newKey = $("#newkey").val().trim();
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
-    var hashedKey = hashString(currentkey);
-    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
+    hashString(currentkey).then(function (hashedKey) {
+      decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
         // RIGHT KEY
         var theStrongKey = plaintext.data;
-        var newHashedKey = hashString(newKey);
-
-        openpgp.encrypt({ data: theStrongKey, passwords: [newHashedKey], armor: true }).then(function(ciphertext) {
+        hashString(newKey).then(function (newHashedKey) {
+          encrypt(theStrongKey, [newHashedKey]).then(function (ciphertext) {
             var newEncryptedStrongKey = JSON.stringify(ciphertext);
-            dataRef.update({ keycheck : newEncryptedStrongKey }, function(error){
+            dataRef.update({
+              keycheck: newEncryptedStrongKey
+            }, function (error) {
               if (error) {
                 showReauthPopup("is-warning", "Couldn't change your Encryption Key. Please try again.");
               } else {
                 showReauthPopup("is-success", "Encryption Key successfully changed!");
-                $("#currentkey").val(""); $("#newkey").val(""); $("#newkeyver").val("");
+                $("#currentkey").val("");
+                $("#newkey").val("");
+                $("#newkeyver").val("");
                 $("#key-score").attr("value", 0);
               }
             });
+          });
         });
 
-    }).catch(function(error) {
+      }).catch(function (error) {
+        console.log(error);
+        setTimeout(function () {
+          showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your current Encryption Key. Please try again.");
+        }, 1000);
+      });
+    }).catch(function(e){
       console.log(error);
-      setTimeout(function(){
-        showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your current Encryption Key. Please try again.");
+      setTimeout(function () {
+        showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your Encryption Key. Please try again.");
       }, 1000);
     });
   });

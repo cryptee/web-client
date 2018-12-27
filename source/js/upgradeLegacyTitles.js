@@ -35,7 +35,7 @@ function upgradeLegacyTitles () {
           if (JSONifiedEncryptedTitlesObject !== null && JSONifiedEncryptedTitlesObject !== undefined) {
             var encryptedTitlesObject = JSON.parse(JSONifiedEncryptedTitlesObject).data;
             console.log("Got Encrypted Titles Object");
-            openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+            decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
               legacyTitlesObject = JSON.parse(plaintext.data);
               gotLegacyTitles();
             }).catch(function(error) { handleError(error); });
@@ -88,7 +88,7 @@ function upgradeLegacyTitles () {
       if (JSONifiedEncryptedTagsObject) {
         if (JSONifiedEncryptedTagsObject !== null && JSONifiedEncryptedTagsObject !== undefined) {
           var encryptedTagsObject = JSON.parse(JSONifiedEncryptedTagsObject).data;
-          openpgp.decrypt({ message: openpgp.message.readArmored(encryptedTagsObject), passwords: [theKey], format: 'utf8' }).then(function(plaintextTags) {
+          decrypt(encryptedTagsObject, [theKey]).then(function(plaintextTags) {
             legacyTagsObject = JSON.parse(plaintextTags.data);
             callback(callbackParam);
           }).catch(function(error) { handleError(error); });
@@ -270,7 +270,7 @@ function upgradeLegacyTitles () {
 
   function encryptTitleForUpgrade (didOrFid, title, callback) {
     callback = callback || noop;
-    openpgp.encrypt({ data: title, passwords: [theKey], armor: true }).then(function(ciphertext) {
+    encrypt(title, [theKey]).then(function(ciphertext) {
       var encryptedTitle = JSON.stringify(ciphertext);
       callback(didOrFid, encryptedTitle);
     }).catch(function(error) { handleError(error); });
@@ -282,7 +282,7 @@ function upgradeLegacyTitles () {
     if (Array.isArray(tags)) {
       if (tags.length > 0) {
         var plaintextTags = JSON.stringify(tags);
-        openpgp.encrypt({ data: plaintextTags, passwords: [theKey], armor: true }).then(function(ciphertext) {
+        encrypt(plaintextTags, [theKey]).then(function(ciphertext) {
           var encryptedTags = JSON.stringify(ciphertext);
           callback(encryptedTags);
         }).catch(function(error) { handleError(error); });

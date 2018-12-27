@@ -128,27 +128,18 @@ function checkKey(key){
     } else {
       var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
 
-      var hashedKey, goodKey = true;
-
-      try {
-        hashedKey = hashString(key);
-      } catch (e) {
-        goodKey = false;
-        wrongKey ("Wide Character Error");
-      }
-
-      if (goodKey) {
-        openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
+      hashString(key).then(function(hashedKey){
+        decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+          rightKey(plaintext, hashedKey);
+        }).catch(function (error) {
+          checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
             rightKey(plaintext, hashedKey);
-        }).catch(function(error) {
-            checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
-              rightKey(plaintext, hashedKey);
-              // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-            });
+            // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+          });
         });
-      } else {
-        wrongKey ("Wide Character Error");
-      }
+      }).catch(function(e){
+        wrongKey("Wide Character Error");
+      });      
     }
   });
 }

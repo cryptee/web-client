@@ -146,31 +146,29 @@ function checkForExistingUser (callback){
 function checkKey(key){
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
-
-    var hashedKey, goodKey = true;
+  
     if (key) {
-      try {
-        hashedKey = hashString(key);
-      } catch (e) {
-        goodKey = false;
-        wrongKey ("Wide Character Error");
-      }
-    } else {
-      hashedKey = keyToRemember;
-    }
-
-    if (goodKey) {
-      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-          rightKey(plaintext, hashedKey);
-      }).catch(function(error) {
-          checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
-            rightKey(plaintext, hashedKey);
-            // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-          });
+      hashString(key).then(function (hashedKey) {
+        checkHashedKey(hashedKey);
+      }).catch(function (e) {
+        wrongKey("Wide Character Error");
       });
     } else {
-      wrongKey ("Wide Character Error");
+      var hashedKey = keyToRemember;
+      checkHashedKey(hashedKey);
     }
+    
+    function checkHashedKey(hashedKey) {
+      decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+        rightKey(plaintext, hashedKey);
+      }).catch(function (error) {
+        checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
+          rightKey(plaintext, hashedKey);
+          // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+        });
+      });
+    }
+
   });
 }
 
@@ -404,7 +402,7 @@ function encryptAndUploadContacts(contactsObject, callback, callbackParam) {
   $("#import-status > .title").html("Encrypting your contacts");
   var contactsToEncrypt = JSON.stringify(contactsObject);
 
-  openpgp.encrypt({ data: contactsToEncrypt, passwords: [theKey], armor: true }).then(function(ciphertext) {
+  encrypt(contactsToEncrypt, [theKey]).then(function(ciphertext) {
       var encryptedContactsToUpload = JSON.stringify(ciphertext);
       $("#import-status > .title").html("Uploading your contacts");
 
@@ -477,7 +475,7 @@ function decryptContacts(encryptedContacts) {
   $("#import-status, #contacts-welcome, #upload-progress, #download-status").fadeOut(250).promise().done(function() {
     $("#decrypting-status").fadeIn(250, function(){
       var encryptedContactsData = JSON.parse(encryptedContacts).data;
-      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedContactsData),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+      decrypt(encryptedContactsData, [theKey]).then(function(plaintext) {
           var decryptedText = plaintext.data;
           var contactObjects = JSON.parse(decryptedText);
           $("#decrypting-status").fadeOut(250, function() {

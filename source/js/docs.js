@@ -42,8 +42,9 @@ var connectivityMode = true; // true = online // false = offline
 
 var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
 var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
-var storageDriver = offlineStorage.driver();
+var storageDriver = localforage.driver();
 breadcrumb("Offline Storage Driver: " + storageDriver);
+
 
 var checkConnectionTimeout;
 var connectedRef = db.ref(".info/connected");
@@ -61,7 +62,7 @@ connectedRef.on("value", function(snap) {
     clearTimeout(checkConnectionTimeout);
     checkConnectionTimeout = setTimeout(function() {
       if (snap.val()) { 
-        breadcrumb("Sockets Got Connection after 3 seconds. Will check server connection to confirm.");
+        breadcrumb("Sockets Got Connection within/after 3 seconds. Will check server connection to confirm.");
       } else {
         breadcrumb("Sockets Lost Connection for 3 seconds. Will check server connection to decide.");
       }
@@ -117,6 +118,7 @@ var menuClosedDueToOffline = false;
 var desktopCutOffWidthPixel = 1065;
 
 loadUserDetailsFromLS();
+checkLatestVersion();
 
 var sortableFoldersDesktopPreferences = {
   animation: 300, delay:0,
@@ -826,6 +828,9 @@ function ww() { return $(window).width(); }
 function arrangeTools () {
   if (isMobile) {
     $("#hamburger").fadeIn(100);
+    $("#close-menu-button").addClass("shown");
+  } else {
+    $("#help-button, #hotkeys-button").addClass("shown");
   }
 }
 
@@ -870,12 +875,7 @@ function firstLoadComplete() {
 
     setTimeout(function () { // this is for UX
       $("#doc-contextual-buttons").show();
-      if (!isMobile) {
-        arrangeTools();
-      } else {
-        $("#hamburger").fadeIn(100);
-        $("#close-menu-button").addClass("shown");
-      }
+      arrangeTools();
       // YOU CAN NOW START OFFLINE SYNC HERE
       toSyncOrNotToSync();
     }, 1000);
@@ -1216,7 +1216,7 @@ function startUserSockets () {
         // WHICH MEANS WE NEED TO DECRYPT THE GHOST TITLES, THEN E-ENCRYPT AND UPLOAD THEM INTO EACH DOC.
 
         var encryptedGhostTitlesObject = JSON.parse(folderObj.ghosttitles).data;
-        openpgp.decrypt({ message: openpgp.message.readArmored(encryptedGhostTitlesObject), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+        decrypt(encryptedGhostTitlesObject, [theKey]).then(function(plaintext) {
           var ghostTitlesObject = JSON.parse(plaintext.data);
           processLegacyGhostTitles(ghostTitlesObject, folderObj);
         });
@@ -1427,37 +1427,33 @@ function checkKey (key) {
   if (!$("#key-modal").hasClass("is-active")){
     showDocProgress("Checking Key");
   }
-
-  var hashedKey, goodKey = true;
+  
   if (key) {
-    try {
-      hashedKey = hashString(key);
-    } catch (e) {
-      goodKey = false;
+    hashString(key).then(function(hashedKey){
+      checkHashedKey(hashedKey);
+    }).catch(function(error){
       wrongKey ("Wide Character Error");
-    }
+    });
   } else {
-    hashedKey = keyToRemember;
+    var hashedKey = keyToRemember;
+    checkHashedKey(hashedKey);
   }
 
-  if (goodKey) {
+  function checkHashedKey(hashedKey) {
     if (connected) {
       // USER ONLINE. CHECK KEY FROM ONLINE, AND UPDATE OFFLINE COPY.
-
-      openpgp.decrypt({ message: openpgp.message.readArmored(encryptedStrongKey), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
-          rightKey(plaintext, hashedKey);
+      decrypt(encryptedStrongKey, [hashedKey]).then(function(plaintext) {
+        rightKey(plaintext, hashedKey);
       }).catch(function(error) {
-          checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
-            rightKey(plaintext, hashedKey);
-            // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-          });
+        checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function(plaintext){
+          rightKey(plaintext, hashedKey);
+          // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+        });
       });
-
-
     } else {
       // USER OFFLINE. CHECK KEY FROM OFFLINE, AND START OFFLINE MODE.
       if (encryptedKeycheck) {
-        openpgp.decrypt({ message: openpgp.message.readArmored(encryptedKeycheck), passwords: [hashedKey],  format: 'utf8' }).then(function(plaintext) {
+        decrypt(encryptedKeycheck, [hashedKey]).then(function(plaintext) {
           console.log("Used offline key.");
           rightKey(plaintext, hashedKey);
         }).catch(function(error) {
@@ -1468,10 +1464,8 @@ function checkKey (key) {
         $('#key-status').html("<p class='subtitle'>We can't seem to verify your identity because you seem to be offline. In order to start using offline mode, you need to enter your key at least once when online on this device.</p>");
       }
     }
-  } else {
-    wrongKey ("Wide Character Error");
   }
-
+  
 }
 
 function rightKey (plaintext, hashedKey) {
@@ -1542,7 +1536,7 @@ function checkCatalogIntegrity () {
   var undefinedFolder = false;
   var undefinedDoc = false;
 
-  breadcrumb("catalog integrity check : starting");
+  breadcrumb("catalog integrity check : STARTED");
 
 
   //check for undefined folders in the catalog
@@ -1587,7 +1581,7 @@ function fixHomeDoc (callback, callbackParam){
     var homeRef = rootRef.child("home.crypteedoc");
     homeDelta = JSON.stringify(homeDelta);
 
-    openpgp.encrypt({ data: homeDelta, passwords: [theKey], armor: true }).then(function(ciphertext) {
+    encrypt(homeDelta , [theKey]).then(function(ciphertext) {
         var encryptedDocDelta = JSON.stringify(ciphertext);
 
         var homeUpload = homeRef.putString(encryptedDocDelta);
@@ -2063,7 +2057,7 @@ function updateFolderTitle (id, plaintextTitle, callback, callbackParam) {
 // callback ( encryptedTitle, id )
 function encryptTitle (id, plaintextTitle, callback) {
   callback = callback || noop;
-  openpgp.encrypt({ data: plaintextTitle, passwords: [theKey], armor: true }).then(function(ciphertext) {
+  encrypt(plaintextTitle, [theKey]).then(function(ciphertext) {
     var encryptedTitle = JSON.stringify(ciphertext);
     callback(encryptedTitle, id);
   });
@@ -2081,7 +2075,7 @@ function decryptTitle (id, encryptedTitle, callback) {
     } else {
       // nothing to do with ghosts, just a title
       var parsedEncryptedTitle = JSON.parse(encryptedTitle).data; //
-      openpgp.decrypt({ message: openpgp.message.readArmored(parsedEncryptedTitle), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+      decrypt(parsedEncryptedTitle, [theKey]).then(function(plaintext) {
         var plaintextTitle = JSON.parse(plaintext.data);
         callback(plaintextTitle, id);
       });
@@ -2213,7 +2207,7 @@ function processLegacyGhostTitles(plaintextGhostTitlesObject, folder) {
 function encryptTags (did, plaintextTagsArray, callback) {
   callback = callback || noop;
   var plaintextTags = JSON.stringify(plaintextTagsArray);
-  openpgp.encrypt({ data: plaintextTags, passwords: [theKey], armor: true }).then(function(ciphertext) {
+  encrypt(plaintextTags, [theKey]).then(function(ciphertext) {
     var encryptedTagsArray = JSON.stringify(ciphertext);
     callback(encryptedTagsArray, did);
   });
@@ -2226,7 +2220,7 @@ function decryptTags (did, encryptedTagsArray, callback) {
   if (encryptedTagsArray) {
     if (encryptedTagsArray !== [] && encryptedTagsArray !== "[]" && typeof encryptedTagsArray === 'string') {
       var parsedEncryptedTags = JSON.parse(encryptedTagsArray).data; //
-      openpgp.decrypt({ message: openpgp.message.readArmored(parsedEncryptedTags), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+      decrypt(parsedEncryptedTags, [theKey]).then(function(plaintext) {
         var plaintextTagsArray = JSON.parse(plaintext.data);
         callback(plaintextTagsArray, did);
       }).catch(function(error){
@@ -3130,17 +3124,17 @@ $("#ghost-folder-help").on('click', function(event) {
 
 $('#all-folders').on('click', '.make-ghost-folder-button', function(event) {
   ghostFTitleToConfirm = $(this).parents(".afolder").find(".folder-title").text();
+  var thisButton = $(this);
 
-  try {
-    var testHashingTheTitle = hashString(ghostFTitleToConfirm);
-    fidToGhost = $(this).parents(".afolder").attr("id");
+  // this is to test hashing the title to see if it has any invalid / wide / unsupported / unhashable characters
+  hashString(ghostFTitleToConfirm).then(function(testHashingTheTitle){
+    fidToGhost = thisButton.parents(".afolder").attr("id");
     $("#ghost-folder-confirm-input").attr("placeholder", ghostFTitleToConfirm);
     $(".invalid-foldername").removeClass("shown");
     saveDoc(prepareForGhostFolderModal);
-  } catch (e) {
+  }).catch(function(e){
     $(".invalid-foldername").addClass("shown");
-  }
-
+  });
 });
 
 function prepareForGhostFolderModal() {
@@ -3183,7 +3177,8 @@ $("#ghost-folder-confirm-input").on('keydown', function(event) {
 var ghostingTitle = "A Ghosting Folder Title"; // this is set to something weird so that in decrypt title something won't accidentally match.
 function makeGhostFolder () {
   $("#ghost-folder-confirm-button").addClass("is-loading").prop("disabled", true).attr("disabled", true);
-    ghostingTitle = hashString(ghostFTitleToConfirm);
+  hashString(ghostFTitleToConfirm).then(function(theGhostingTitle){
+    ghostingTitle = theGhostingTitle;
     foldersRef.child(fidToGhost).update({"title" : ghostingTitle}, function(error){
       if (!error) {
         dataRef.update({"makeghost" : fidToGhost});
@@ -3211,6 +3206,9 @@ function makeGhostFolder () {
         });
       }
     });
+  }).catch(function(e){
+    handleError(e);
+  });
 }
 
 var summonedTitle;
@@ -3218,22 +3216,26 @@ function summonGhostFolder () {
   $("#ghost-folder-summon-button").addClass("is-loading").prop("disabled", true).attr("disabled", true);
   $("#ghost-folder-input").prop('disabled', true);
   summonedTitle = $("#ghost-folder-input").val();
-  folderTitleToSummon = hashString(summonedTitle);
-  $("#ghost-info-modal").find(".fa-eye").removeClass("fa-eye").addClass("fa-cog fa-spin fa-fw");
+  hashString(summonedTitle).then(function(theFolderTitleToSummon){
+    folderTitleToSummon = theFolderTitleToSummon;
+    $("#ghost-info-modal").find(".fa-eye").removeClass("fa-eye").addClass("fa-cog fa-spin fa-fw");
 
-  dataRef.update({"summonghost" : folderTitleToSummon}, function(error){
-    handleError(error);
-  });
+    dataRef.update({"summonghost" : folderTitleToSummon}, function(error){
+      handleError(error);
+    });
 
-  dataRef.child("summonghost").on('value', function(snapshot) {
-    if (snapshot === undefined || snapshot === null || !snapshot.val() || snapshot.val() === "" || snapshot.val() === " "){
-      $("#ghost-info-modal").find(".fa-cog").addClass("fa-eye").removeClass("fa-cog fa-spin fa-fw");
-      $("#ghost-folder-input").val("");
-      $(".ghost-folder-info").html('<i class="fa fa-question"></i>');
-      $("#ghost-folder-summon-button").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
-      $("#ghost-folder-input").prop('disabled', false);
-      hideModal("ghost-info-modal");
-    }
+    dataRef.child("summonghost").on('value', function(snapshot) {
+      if (snapshot === undefined || snapshot === null || !snapshot.val() || snapshot.val() === "" || snapshot.val() === " "){
+        $("#ghost-info-modal").find(".fa-cog").addClass("fa-eye").removeClass("fa-cog fa-spin fa-fw");
+        $("#ghost-folder-input").val("");
+        $(".ghost-folder-info").html('<i class="fa fa-question"></i>');
+        $("#ghost-folder-summon-button").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
+        $("#ghost-folder-input").prop('disabled', false);
+        hideModal("ghost-info-modal");
+      }
+    });
+  }).catch(function(e){
+      handleError(e);
   });
 }
 
@@ -3975,7 +3977,7 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
 
   function useOfflineCopy (delta) {
     var offlineEncryptedDelta = JSON.parse(delta).data;
-    openpgp.decrypt({ message: openpgp.message.readArmored(offlineEncryptedDelta),   passwords: [keyToRemember],  format: 'utf8' }).then(function(offlineCopyPlaintext) {
+    decrypt(offlineEncryptedDelta, [keyToRemember]).then(function(offlineCopyPlaintext) {
       var offlineCopyDecryptedText = offlineCopyPlaintext.data;
       quill.setContents(JSON.parse(offlineCopyDecryptedText));
       currentGeneration = offlineGeneration;
@@ -3985,7 +3987,7 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
 
   function useOnlineCopy (delta) {
     var onlineEncryptedDelta = JSON.parse(delta).data;
-    openpgp.decrypt({ message: openpgp.message.readArmored(onlineEncryptedDelta),   passwords: [theKey],  format: 'utf8' }).then(function(onlineCopyPlaintext) {
+    decrypt(onlineEncryptedDelta, [theKey]).then(function(onlineCopyPlaintext) {
       var onlineCopyDecryptedText = onlineCopyPlaintext.data;
       quill.setContents(JSON.parse(onlineCopyDecryptedText));
       docLoaded();
@@ -4086,7 +4088,7 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
 
 function fileLoaded (did, dtitle, encryptedFileContents, preview, callback, callbackParam) {
   var theEncryptedFileContents = JSON.parse(encryptedFileContents).data;
-  openpgp.decrypt({ message: openpgp.message.readArmored(theEncryptedFileContents),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+  decrypt(theEncryptedFileContents, [theKey]).then(function(plaintext) {
       var decryptedContents = plaintext.data;
       if (isMobile) {
         hideDocProgress(hideMenu);
@@ -4648,7 +4650,7 @@ function encryptAndUploadDoc(did, fid, callback, callbackParam) {
   var docRef = rootRef.child(did + ".crypteedoc");
   var totalBytes;
   var plaintextDocDelta = JSON.stringify(quill.getContents());
-  openpgp.encrypt({ data: plaintextDocDelta, passwords: [theKey], armor: true }).then(function(ciphertext) {
+  encrypt(plaintextDocDelta, [theKey]).then(function(ciphertext) {
       var encryptedDocDelta = JSON.stringify(ciphertext);
       saveUpload = docRef.putString(encryptedDocDelta);
       saveUpload.on('state_changed', function(snapshot){
@@ -5663,7 +5665,7 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
   var docRef = rootRef.child(did + ".crypteefile");
   var totalBytes;
   var plaintextFileContents = fileContents;
-  openpgp.encrypt({ data: plaintextFileContents, passwords: [theKey], armor: true }).then(function(ciphertext) {
+  encrypt(plaintextFileContents, [theKey]).then(function(ciphertext) {
       var encryptedTextFile = JSON.stringify(ciphertext);
       var fileUpload = docRef.putString(encryptedTextFile);
       fileUpload.on('state_changed', function(snapshot){
@@ -6183,7 +6185,7 @@ function exportAsCrypteedoc(did) {
 
     var plaintextDocDelta = JSON.stringify(quill.getContents());
     var keyToUseForEncryption = $("#crypteedoc-export-key-input").val().trim();
-    openpgp.encrypt({ data: plaintextDocDelta, passwords: [keyToUseForEncryption], armor: true }).then(function(ciphertext) {
+    encrypt(plaintextDocDelta, [keyToUseForEncryption]).then(function(ciphertext) {
       var encryptedDocDelta = JSON.stringify(ciphertext);
 
       var title = activeDocTitle + ".ecd";
@@ -6610,7 +6612,7 @@ function downloadAttachment (attachmentTitle, did) {
 
 function attachmentLoaded (did, encryptedFileContents, attachmentTitle) {
   var theEncryptedFileContents = JSON.parse(encryptedFileContents).data;
-  openpgp.decrypt({ message: openpgp.message.readArmored(theEncryptedFileContents),   passwords: [theKey],  format: 'utf8' }).then(function(plaintext) {
+  decrypt(theEncryptedFileContents, [theKey]).then(function(plaintext) {
       var decryptedContents = plaintext.data;
       var ext = extensionFromFilename(attachmentTitle);
       if (ext.match(/^(jpg|jpeg|png|gif|svg|webp)$/i)) {
@@ -7105,7 +7107,7 @@ function processEncryptedCrypteedoc(retry) {
   }
 
   if (proceedWithDecrypt) {
-    openpgp.decrypt({ message: openpgp.message.readArmored(encryptedCrypteedocContents),   passwords: [theKey, $("#crypteedoc-key-input").val().trim()],  format: 'utf8' }).then(function(decryptedCrypteedoc) {
+    decrypt(encryptedCrypteedocContents, [theKey, $("#crypteedoc-key-input").val().trim()]).then(function(decryptedCrypteedoc) {
       var plaintextCrypteedoc = decryptedCrypteedoc.data;
       processPlaintextCrypteedoc(plaintextCrypteedoc);
     }).catch(function(error){
@@ -7494,7 +7496,7 @@ function alsoSaveDocOffline (did, callback) {
     tags.push(tagContent);
   });
 
-  openpgp.encrypt({ data: plaintextDocDelta, passwords: [keyToRemember], armor: true }).then(function(ciphertext) {
+  encrypt(plaintextDocDelta, [keyToRemember]).then(function(ciphertext) {
     var encryptedDocDelta = JSON.stringify(ciphertext);
     var offlineDocObject = {
       did : did, // "d-1234567890"
@@ -7563,7 +7565,7 @@ function saveOfflineDoc (callback, callbackParam) {
       tags.push(tagContent);
     });
 
-    openpgp.encrypt({ data: plaintextDocDelta, passwords: [keyToRemember], armor: true }).then(function(ciphertext) {
+    encrypt(plaintextDocDelta, [keyToRemember]).then(function(ciphertext) {
       var encryptedDocDelta = JSON.stringify(ciphertext);
 
       var offlineDocObject = {
@@ -7629,7 +7631,7 @@ function loadOfflineDoc (did, callback, callbackParam) {
   offlineStorage.getItem(did).then(function (doc) {
     showDocProgress("Loading " + doc.name);
     var theEncryptedDelta = JSON.parse(doc.content).data;
-    openpgp.decrypt({ message: openpgp.message.readArmored(theEncryptedDelta),   passwords: [keyToRemember],  format: 'utf8' }).then(function(plaintext) {
+    decrypt(theEncryptedDelta, [keyToRemember]).then(function(plaintext) {
       var decryptedText = plaintext.data;
       quill.setContents(JSON.parse(decryptedText));
       quill.history.clear();
@@ -7832,9 +7834,9 @@ function makeOfflineDoc(did) {
       $.ajax({ url: docURL, type: 'GET',
           success: function(encryptedDocDelta){
             var theStrongKeyEncryptedDelta = JSON.parse(encryptedDocDelta).data;
-            openpgp.decrypt({ message: openpgp.message.readArmored(theStrongKeyEncryptedDelta), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+            decrypt(theStrongKeyEncryptedDelta, [theKey]).then(function(plaintext) {
               plaintextDocDelta = plaintext.data;
-              openpgp.encrypt({ data: plaintextDocDelta, passwords: [keyToRemember], armor: true }).then(function(ciphertext) {
+              encrypt(plaintextDocDelta, [keyToRemember]).then(function(ciphertext) {
                 var hashKeyEncryptedDocDelta = JSON.stringify(ciphertext);
 
                 var offlineDocObject = {
@@ -7980,11 +7982,7 @@ function activateOfflineMode () {
 function offlineInitComplete (){
   if (!initialLoadComplete) {
     setTimeout(function () {
-      if (!isMobile) {
-        arrangeTools();
-      } else {
-        $("#hamburger").fadeIn(100);
-      }
+      arrangeTools();
     }, 1000);
   }
 }
@@ -8021,7 +8019,7 @@ function prepareForSync(numberOfOfflineDocs, callback, callbackParam) {
   showSyncingProgress(0, numberOfOfflineDocs);
   offlineStorage.iterate(function(doc, did, docNo) {
     var theEncryptedDelta = JSON.parse(doc.content).data;
-    openpgp.decrypt({ message: openpgp.message.readArmored(theEncryptedDelta), passwords: [keyToRemember],  format: 'utf8' }).then(function(plaintext) {
+    decrypt(theEncryptedDelta, [keyToRemember]).then(function(plaintext) {
       var decryptedDelta = plaintext.data;
       doc.content = decryptedDelta;
       offlineDocObjectsReadyToSync[did] = doc;
@@ -8100,7 +8098,7 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
   var plaintextDocDelta = doc.content;
   var dtitle = doc.name;
   var dtags = doc.tags || [];
-  openpgp.encrypt({ data: plaintextDocDelta, passwords: [theKey], armor: true }).then(function(ciphertext) {
+  encrypt(plaintextDocDelta, [theKey]).then(function(ciphertext) {
       var encryptedDocDelta = JSON.stringify(ciphertext);
       var syncUpload = docRef.putString(encryptedDocDelta);
       syncUpload.on('state_changed', function(snapshot){
@@ -8271,9 +8269,9 @@ function downSyncOnlineDoc (doc, docRef, onlineGen, callback, callbackParam) {
     $.ajax({ url: docURL, type: 'GET',
         success: function(encryptedDocDelta){
           var theStrongKeyEncryptedDelta = JSON.parse(encryptedDocDelta).data;
-          openpgp.decrypt({ message: openpgp.message.readArmored(theStrongKeyEncryptedDelta), passwords: [theKey], format: 'utf8' }).then(function(plaintext) {
+          decrypt(theStrongKeyEncryptedDelta, [theKey]).then(function(plaintext) {
             plaintextDocDelta = plaintext.data;
-            openpgp.encrypt({ data: plaintextDocDelta, passwords: [keyToRemember], armor: true }).then(function(ciphertext) {
+            encrypt(plaintextDocDelta, [keyToRemember]).then(function(ciphertext) {
               var hashKeyEncryptedDocDelta = JSON.stringify(ciphertext);
 
               var offlineDocObject = {
