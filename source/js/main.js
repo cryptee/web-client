@@ -957,16 +957,21 @@ try {
   openpgp.config.aead_protect_version = true;
   openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.1.min.js' }); // set the relative web worker path
 } catch (e) {
-  breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
-  handleError(e);
+  if (pgpCrossCheck) {
+    breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
+    handleError(e);
+  }
 }
 
-if (openpgp) {
-  breadcrumb("OpenPGP Initialized");
-} else {
-  breadcrumb("Problem initializing openpgp in main js.");
-  handleError(new Error("Problem initializing openpgp in main js, openpgp is undefined."));
+if (pgpCrossCheck) {
+  if (openpgp) {
+    breadcrumb("OpenPGP Initialized");
+  } else {
+    breadcrumb("Problem initializing openpgp in main js.");
+    handleError(new Error("Problem initializing openpgp in main js, openpgp is undefined."));
+  }
 }
+
 
 /////////////////////////////////////////
 // ENCRYPT PLAINTEXT USING KEYS
