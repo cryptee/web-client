@@ -1286,14 +1286,6 @@ function startUserSockets () {
     }
   });
 
-  dataRef.child("orderComplete").on('value', function(snapshot) {
-    orderCompleteBool = snapshot.val();
-    if (orderCompleteBool) {
-      orderComplete();
-      dataRef.update({"orderComplete" : ""});
-    }
-  });
-
   dataRef.child("preferences").on('value', function(snapshot) {
     gotPreferences(snapshot.val());
   });

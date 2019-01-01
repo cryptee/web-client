@@ -26,18 +26,25 @@ function isCanvasBlocked () {
 		// set this to canvas
 		ctx.putImageData(imageData,1,1); 
 		
-		// now get the data back from canvas.
-		var checkData = ctx.getImageData(1,1,1,1).data;
+		try {
+			// now get the data back from canvas.
+			var checkData = ctx.getImageData(1, 1, 1, 1).data;
 
-		// If this is firefox, and privacy.resistFingerprinting is enabled,
-		// OR a browser extension blocking the canvas, 
-		// This will return RGB all white (255,255,255) instead of the (0,0,0) we put.
+			// If this is firefox, and privacy.resistFingerprinting is enabled,
+			// OR a browser extension blocking the canvas, 
+			// This will return RGB all white (255,255,255) instead of the (0,0,0) we put.
 
-		// so let's check the R and G to see if they're 255 or 0 (matching what we've initially set)
-		if (originalImageData[0] !== checkData[0] && originalImageData[1] !== checkData[1]) {
+			// so let's check the R and G to see if they're 255 or 0 (matching what we've initially set)
+			if (originalImageData[0] !== checkData[0] && originalImageData[1] !== checkData[1]) {
+				blocked = true;
+				console.log("Canvas is blocked. Will display warning.");
+			}
+		} catch (error) {
+			// some extensions will return getImageData null. this is to account for that.
 			blocked = true;
 			console.log("Canvas is blocked. Will display warning.");
 		}
+		
 	} else {
 		blocked = true;
 		console.log("Canvas is blocked. Will display warning.");

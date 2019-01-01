@@ -18,12 +18,15 @@ $("#bumpdown-window > .notification > .delete").on('click', function(event) {
 });
 
 function orderComplete () {
-  loadTab("account");
-  closeUpgrade();
-  $("#upgrade-thanks").addClass("showUpgradeThanks");
-  // REMOVE UPGRADE FROM URL
-  history.pushState("upgrade-complete", null, '/account');
-
+  
+  if (location.pathname.indexOf("account") > -1) {
+    // REMOVE UPGRADE FROM URL
+    history.pushState("upgrade-complete", null, '/account');
+    loadTab("account");
+    closeUpgrade();
+    $("#upgrade-thanks").addClass("showUpgradeThanks");
+  }
+  
   // currentPlan = meta.plan;
   // console.log("Order Complete. New Plan is : ", meta.plan);
   // console.log("Order Complete. New Subscription D is : ", meta.subscriptionid);

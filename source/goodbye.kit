@@ -152,15 +152,18 @@
   function submitForm () {
     var feedback = $("#feedback-input").val().trim();
     if (feedback !== "") {
-      collectFeedback("Goodbye", $("#feedback-input").val().trim());
-      formSubmitted();
+      collectFeedback({"type" : "goodbye", "description" : feedback});
+      $(".submit-button .button").addClass("is-loading").attr('disabled', 'disabled').prop( "disabled", true );
+      setTimeout(function () {
+        formSubmitted();
+      }, 1000);
     } else {
       $("#feedback-input").attr("placeholder", "Your account is already deleted. This is just a feedback form!");
     }
   }
 
   function formSubmitted() {
-    $(".submit-button .button").html("Submitted").addClass("is-success").attr('disabled', 'disabled').prop( "disabled", true );
+    $(".submit-button .button").html("Submitted").removeClass("is-loading").addClass("is-success").attr('disabled', 'disabled').prop( "disabled", true );
     $("#feedback-input").val("Thank you for helping us improve!").attr('disabled', 'disabled').prop( "disabled", true );
   }
 

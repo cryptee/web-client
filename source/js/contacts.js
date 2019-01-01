@@ -256,14 +256,6 @@ function signInComplete(){
 
     saveUserDetailsToLS(theUsername, usedStorage, allowedStorage);
   });
-
-  db.ref().child('/users/' + theUserID + "/data/").child("orderComplete").on('value', function(snapshot) {
-    orderCompleteBool = snapshot.val();
-    if (orderCompleteBool) {
-      orderComplete();
-      db.ref().child('/users/' + theUserID + "/data/").update({"orderComplete" : ""});
-    }
-  });
 }
 
 function isAPIAvailable() {

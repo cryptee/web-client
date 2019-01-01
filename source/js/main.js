@@ -833,21 +833,17 @@ try {
 ////////////////////////////////////////////////
 
 // callback ( result )
-var feedbackURL = "https://crypt.ee/api/feedback";
-function collectFeedback (form, msg, uid, callback) {
-  callback = callback || noop;
-  uid = uid || null;
-  msg = msg || null;
-  form = form || null;
+var feedbackURL = "https://crypt.ee/api/feedbackform";
 
-  if (form !== null && msg !== null && msg.trim() !== "") {
-    var dataToSubmit = { msg : msg, form : form };
-    if (uid !== null && uid !== "undefined") {  dataToSubmit.uid = uid; }
-
-    $.ajax({ url: feedbackURL, method: "POST", data: dataToSubmit, dataType: "json", success: function(){
-      callback();
-    }}).done(function(data) {
-      callback(data);
+function collectFeedback(feedbackObject) {
+  feedbackObject = feedbackObject || null;
+  if (feedbackObject) {
+    $.ajax({
+      url: feedbackURL,
+      method: "POST",
+      data: feedbackObject,
+      dataType: "json",
+      success: function () { console.log("feedback submitted."); }
     });
   }
 }
@@ -960,8 +956,17 @@ try {
   openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
   openpgp.config.aead_protect_version = true;
   openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.1.min.js' }); // set the relative web worker path
-} catch (e) {}
+} catch (e) {
+  breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
+  handleError(e);
+}
 
+if (openpgp) {
+  breadcrumb("OpenPGP Initialized");
+} else {
+  breadcrumb("Problem initializing openpgp in main js.");
+  handleError(new Error("Problem initializing openpgp in main js, openpgp is undefined."));
+}
 
 /////////////////////////////////////////
 // ENCRYPT PLAINTEXT USING KEYS

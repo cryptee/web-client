@@ -76,13 +76,13 @@
       <p>Please write your feedback / describe the bug below, and include what <b>device, model, operating system &amp; browser</b> you were using (and their versions too if you know them). This will help us reproduce the error better and quicker.</p>
       <br><br>
 
-      <p><b>Please describe the bug / write your feedback</b></p>
+      <p><b>Please describe the bug / write your feedback:</b></p>
       <textarea name="bug-description" rows="5" cols="80" placeholder="... I was writing my journal using Cryptee Docs on Windows 10 with Google Chrome v69, then my cat jumped onto my laptop and finished the journal for me ..."></textarea>
 
       <br><br>
 
-      <p><b>Provide a contact method (Optional)</b></p>
-      <input type="text" name="" placeholder="Email, WhatsApp, Telegram etc.">
+      <p><b>Please provide an email address we can use to contact you:</b></p>
+      <input id="email-input" type="email" name="" placeholder="awesome@email.com">
       <br><br>
       <button type="button" name="button" class="button is-dark" onclick="submitReport();">Submit</button>
       <br><br><br><br><br>
@@ -106,38 +106,55 @@
     }
   });
 
-  function gotUser() {
+  function gotUser () {
     var unameToShow = " " + (theUsername || theEmail);
     $('.username').html(unameToShow);
   }
 
   function submitReport () {
     var description = $("textarea").val().trim();
-    var contact = $("input").val().trim() || theUserID;
-
+    var contact = $("#email-input").val().trim();
+    
     if (isInWebAppiOS || isInWebAppChrome) {
       typeOfApp = "PWA";
     } else {
       typeOfApp = "WEB";
     }
 
-    if (description !== "") {
-      description = description +
-      "\n\n -----------" +
-      "\n\n UID: " + (theUserID || "(Unknown)") +
-      "\n\n -----------" +
-      "\n\n UA: " + (navigator.userAgent || "(Unknown)") +
-      "\n\n -----------" +
-      "\n\n TYPE: " + typeOfApp +
-      "\n\n -----------" +
-      "\n\n RES: " + $(window).width().toString() + "x" + $(window).height().toString();
-      collectFeedback ("Bug Report", description, contact);
-      formSubmitted();
+    var crypteeUID = theUserID || "(Unknown)";
+    var crypteeEmail = theEmail;
+    var crypteeUsername = theUsername;
+
+    var appType = typeOfApp;
+    var ua = (navigator.userAgent || "(Unknown)");
+    var resolution = $(window).width().toString() + "x" + $(window).height().toString();
+    
+    var feedbackObject = {
+      "type" : "bugreport",
+      "description" : description,
+      "contact" : contact,
+      "crypteeUID" : crypteeUID,
+      "crypteeEmail" : crypteeEmail,
+      "crypteeUsername" : crypteeUsername,
+      "appType" : appType,
+      "ua" : ua,
+      "resolution" : resolution
+    };
+
+    if (description !== "" && contact !== "") {
+      collectFeedback(feedbackObject);
+
+      $("button").addClass("is-loading").attr('disabled', 'disabled').prop( "disabled", true );
+
+      setTimeout(function () {
+        formSubmitted();
+      }, 2000);
     }
   }
 
-  function formSubmitted() {
-    $("button").html("Thank you!").addClass("is-success").attr('disabled', 'disabled').prop( "disabled", true );
+  function formSubmitted () {
+$("button").html("Thank you!").addClass("is-success").removeClass("is-loading").attr('disabled', 'disabled').prop(
+"disabled", true );
   }
 
   </script>
