@@ -1159,6 +1159,18 @@ function setSentryLocale(locale) {
   });
 }
 
+function setSentryNumberOfTitles(num) {
+  Sentry.configureScope(function (scope) {
+    scope.setTag("titles-count", num + "");
+  });
+}
+
+function setSentrySpeed(speed) {
+  Sentry.configureScope(function (scope) {
+    scope.setTag("titles-decryption-speed", speed);
+  });
+}
+
 // level takes "info" or "warning"
 function breadcrumb (message, level) {
   level = level || "info";

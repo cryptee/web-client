@@ -2019,6 +2019,7 @@ function gotPlaintextDocTitle (did, plaintextTitle, callback) {
   dtitle = dtitle + "";// this is to make sure if it's a number, it becomes a string.
 
   // add title, filetype, ext to catalog
+  catalog.docs[did] = catalog.docs[did] || {};
   catalog.docs[did].name = dtitle;
   catalog.docs[did].ftype = extractFromFilename(dtitle, "filetype");
   catalog.docs[did].icon = extractFromFilename(dtitle, "icon");
@@ -2184,7 +2185,10 @@ function gotEncryptedDocTitle(did, encryptedTitle) {
     decryptTitle(did, encryptedTitle, function(plaintextTitle, fordid) {
       totalTTInDecryptionQueue--;
       checkIfTTDecryptionQueueComplete();
-      try { catalog.docs[did].fname = titleOf(fid); } catch (e) {}
+      try {
+        catalog.docs[did] = catalog.docs[did] || {};
+        catalog.docs[did].fname = titleOf(fid); 
+      } catch (e) {}
       gotPlaintextDocTitle(fordid, plaintextTitle);
       refreshOnlineDocs();
     });
@@ -2202,6 +2206,7 @@ function gotEncryptedDocTags(did, encryptedTags) {
     decryptTags(did, encryptedTags, function(plaintextTags, fordid) {
       totalTTInDecryptionQueue--;
       checkIfTTDecryptionQueueComplete();
+      catalog.docs[did] = catalog.docs[did] || {};
       catalog.docs[did].tags = plaintextTags;
       refreshOnlineDocs();
     });
@@ -2297,6 +2302,7 @@ function addedOperationToTTDecryptionQueue() {
     // in finalTTFDecryptionQueue. so run that one.
     
     if (!initialLoadComplete) {
+      setSentryNumberOfTitles(totalTTInDecryptionQueue);
       breadcrumb("TT Decryption Queue : READY.");
       initialTTQueueReady = true;
     } else {
@@ -2324,6 +2330,7 @@ function checkIfTTDecryptionQueueComplete() {
 
 function ttQueueCompleted() {
   // ALL TITLES IN QUEUE DECRYPTED
+  setSentrySpeed((completedTTQueue - startedTTQueue) + "ms");
   breadcrumb("TT Decryption Queue : DONE. Decrypted in " + (completedTTQueue - startedTTQueue) + "ms");
   checkCatalogIntegrity();
   // if this is first boot, load last open doc now.
