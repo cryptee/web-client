@@ -164,19 +164,16 @@
 #fileLoadingStatus::after {
   position: absolute !important;
   z-index: 9;
-  top: 0.5rem;
-  right: 0;
-  -webkit-animation: spinAround 500ms infinite linear;
-  animation: spinAround 500ms infinite linear;
-  border: 3px solid #000;
-  border-radius: 290486px;
-  border-right-color: transparent;
-  border-top-color: transparent;
-  content: "";
+  top: calc(0.5rem + 2px);
+  right: 0.5rem;
+  content: " ";
   display: block;
-  height: 100px;
-  width: 100px;
+  height: 40px;
+  width: 40px;
   margin: -27px calc(-100px - 2rem) 2rem auto;
+  background-image: url("../assets/loading-f5f5f5.gif");
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 #fileLoadingStatus {
@@ -196,6 +193,9 @@
   text-transform: uppercase;
   font-size: 1.5rem;
   letter-spacing: 2px;
+
+  margin-right: -4rem;
+  margin-top: -1.875rem;
 }
 
 #docs-center-wrap.is-loading #fileLoadingStatus {
@@ -271,11 +271,11 @@
 }
 
 .left-views-container {
-  max-height: calc(100% - 14.75rem);
+  max-height: calc(100% - 13.75rem + 1px)
 }
 
 #docs-left-bottom.itsMobile .left-views-container {
-  max-height: calc(100% - 16.75rem - 1px);
+  max-height: calc(100% - 15.75rem - 1px);
 }
 
 #docs-left-bottom.itsMobile .left-views-container.offline {
@@ -345,7 +345,10 @@
   pointer-events: none;
 }
 
-
+#help-button.shown, #hotkeys-button.shown {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
 
 #hotkeys-button {
   right: 2.5rem;
@@ -359,11 +362,6 @@
 
 #hotkeys-button.itsMobile {
   right: 3rem;
-}
-
-#help-button.shown, #hotkeys-button.shown {
-  opacity: 1 !important;
-  pointer-events: all !important;
 }
 
 #docs-sections-wrapper {
@@ -485,14 +483,11 @@
   pointer-events: none !important;
 }
 
-
-#docs-left-center {
-  margin-bottom: 2.5rem;
-}
-
 #docs-left-bottom {
   opacity: 1;
   transition: 1s opacity ease;
+  margin-top: 0rem;
+  margin-left: 0.5rem;
 }
 
 #docs-left-center {
@@ -500,11 +495,6 @@
   margin-left: 0rem;
   opacity: 1;
   transition: 0.5s opacity ease;
-}
-
-#docs-left-bottom {
-  margin-top: 0.5rem;
-  margin-left: 0.5rem;
 }
 
 #search-bar {
@@ -585,13 +575,41 @@
   margin-left: 0.25rem !important;
 }
 
-.recent-doctitle,
-.recent-docdeet,
-.recent-doc .recenticon,
-.recent-doc i {
+.docctx {
+  position: absolute;
+  right: 0;
+  top: 0.5rem;
+  background-color: transparent !important;
+  color: rgba(0,0,0,0.3);
+}
+
+.docctx i {
+  background-color: transparent !important;
+}
+
+.doctitle,
+.docdeet,
+.docctx,
+.doc:not(.search-result) .docicon,
+.doc:not(.search-result) i
+{
   pointer-events: all;
-  transition: 0.5s color ease;
+  transition: 0.3s all ease !important;
   opacity: 1;
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select: none;
+}
+
+.search-result,
+.result-title,
+.result-tag,
+.result-icon {
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select: none;
 }
 
 .left-button, .left-button .button {
@@ -602,7 +620,7 @@
   transition: 0.5s opacity ease;
 }
 
-.left-button i, .left-nav-field, .recenticon i {
+.left-button i, .left-nav-field, .docicon i {
   opacity: 1;
   font-size: 1rem !important;
   color : #888;
@@ -612,18 +630,20 @@
   color : #000;
 }
 
-.activerecentdoc {
+.activedoc, .highlightedDoc {
+  transition: 0.5s background-color ease;
   background-color: #f5f5f5;
   color: #000;
-  width: calc(100% - 1px);
+  width: 100%;
 }
 
-.activerecentdoc i, .activerecentdoc .recent-doctitle {
+.activedoc i, .activedoc .doctitle, .highlightedDoc i, .highlightedDoc .doctitle {
   color:#000;
 }
 
-.recent-doctitle {
+.doctitle {
   color: #888;
+  max-width: calc(100% - 1.5rem);
 }
 
 .left-nav-buttons, .left-nav-buttons span {
@@ -645,35 +665,31 @@
   display: none;
 }
 
-.recenticon {
+.docicon {
   color: #888;
   margin-right: 1.5rem;
   margin-top: -1px;
   padding-bottom: 1px;
 }
 
-.recenticon.is-loading * {
+.docicon.is-loading * {
   color:transparent;
 }
 
-.recenticon.is-loading::after {
+.docicon.is-loading::after {
   left: 1px;
 }
 
-.recent-docdeet {
+.docdeet {
   margin-left: 3rem;
 }
 
-.folder, .folder a, .folder input {
-  background-color: #f5f5f5;
-}
-
-.recent-doc .offline-badge {
+.doc .offline-badge {
   top: 0;
   left: 8px;
 }
 
-.recent-doc .is-loading > .offline-badge {
+.doc .is-loading > .offline-badge {
   width: 17px !important;
   height: 17px !important;
   margin-top: 2px;
@@ -710,6 +726,24 @@
   pointer-events: all !important;
 }
 
+#new-folder-card {
+  transition: width ease 0.5s !important;
+  width: calc(100% - 1rem);
+  margin-left: 0.5rem;
+  box-shadow:none;
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+}
+
+#new-folder-button {
+  transition: 0.3s ease color;
+}
+
+#new-folder-button.is-armed {
+  color: #4BBF73;
+}
+
+
 .hiddenNewFolderCard {
   box-shadow: none;
   border: none;
@@ -722,6 +756,433 @@
 #selection-actions-card > .icon:first-of-type {
   margin-left: 0;
 }
+
+/*///////////////////////////////////////////////////
+////////////////////  FOLDERS  //////////////////////
+///////////////////////////////////////////////////*/
+
+.folders-new-folder.is-loading {
+  pointer-events: none;
+}
+
+.folders-new-folder.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 1px solid #000;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 2rem;
+  width: 2rem;
+  left: 0.25rem;
+  top: 7px;
+  position: absolute !important;
+}
+
+.afolder {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.folderlogo {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  box-shadow: 0px 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  position: absolute;
+  z-index: 3;
+  right: 1rem;
+  margin-top: 0.25rem;
+}
+
+.foldertab {
+  display: block !important;
+  z-index: 3;
+  position: relative;
+  height: 26px;
+  margin-left: 0.5rem;
+  padding-bottom: 0;
+  width: auto;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.foldercolor {
+  height: 5px;
+  width: calc(100% - 2.5rem);
+  background-color: currentColor;
+  position: absolute;
+  z-index: 1;
+  display: block;
+  margin-left: 1rem;
+  margin-top: -5px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+  opacity: 0.7;
+  cursor: pointer;
+
+  transform: translateY(0);
+  transition: 0.25s transform ease, 0.5s color ease, 0.5s background-color ease;
+}
+
+.folderactions {
+  display: block;
+  z-index: 3;
+  position: absolute;
+  margin-left: 1rem;
+  margin-top: -0.75rem;
+  transition: 0.75s opacity ease;
+}
+
+.folderactions i {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.folder-card {
+  cursor: pointer;
+  background-color: #FFF;
+  width: calc(100% - 1rem);
+  margin-left: 0.5rem;
+  box-shadow: 0px 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  border-top-left-radius: 0;
+  z-index: 2;
+  position: relative;
+  padding: 1rem;
+
+  transition: 0.25s box-shadow ease;
+}
+
+.afolder.withlogo .folder-card h2 {
+  padding-right: 2.25rem;
+}
+
+.folderrecent {
+  transition: 0.3s opacity ease;
+  opacity: 0.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+.folderrecent .icon {
+  transition: 2s opacity ease-out;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.folderrecent.active {
+  opacity:1 !important;
+}
+
+.folderrecent.active .icon {
+  opacity:1 !important;
+}
+
+.folder-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.5rem;
+  letter-spacing: 1px;
+  margin-left: 1px;
+  cursor: pointer;
+  max-width: calc(100% - 2rem); 
+}
+
+.folder-title::after {
+  font-family: FontAwesome;
+  margin-left: 0.5rem;
+  content: "\f0da";
+  opacity: 0;
+  transition: all 0.25s ease;
+}
+
+.folderDraggingActive:not(.draggingFolder) {
+  opacity: 0.3;
+  transition: all 0.15s ease 0.15s;
+}
+
+.afolder.is-active .foldercolor {
+  transform: translateY(5px);
+}
+
+.afolder.fileDropFolder .foldercolor {
+  transform: translateY(5px);
+}
+
+.afolder.fileDropFolder .folder-card {
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+.afolder.archived, .afolder.archived .folder-title {
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.afolder.archived .folderrecents,
+.afolder.archived .foldertab {
+  display: none !important;
+}
+
+.afolder.archived .folder-card {
+  border-radius: 10px !important;
+}
+
+.afolder.archived .foldercolor {
+  pointer-events: none !important;
+}
+
+.afolder.archived .folderactions {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.afolder.archived .folder-title::after {
+  transition: 0.35s all ease !important;
+  content: "\f1b8";
+  font-family: FontAwesome;
+  display: inline-block;
+  margin-right: calc(0.75rem + 3px);
+  margin-left: 1rem;
+  color:#363636;
+  position: absolute;
+  right: 0px;
+  pointer-events:auto;
+  cursor: pointer;
+  font-size: 1.25rem;
+  opacity: 1;
+}
+
+.active-folder.foldertab {
+  margin-top: 3rem;
+  height: 2.5rem;
+  cursor: pointer;
+  user-select: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+}
+
+#all-active-folder-docs .doc {
+  margin-bottom: 2px !important;
+}
+
+#active-folder-back {
+  position: absolute;
+  height: 2rem;
+  width: 100px;
+  top: 3.5rem;
+  left: 0.5rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#active-folder-back::before {
+  transition: 0.35s opacity ease !important;
+  content: "\f0d9";
+  font-family: FontAwesome;
+  display: block;
+  z-index: 10;
+  margin-top: calc(0.5rem + 2px);
+  margin-left: 1.5rem;
+  color:#363636;
+  position: absolute;
+  left: 0px;
+  pointer-events:none;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+#active-folder-back::after {
+  transition: 0.35s opacity ease !important;
+  content: "BACK";
+  font-family: Montserrat;
+  display: block;
+  z-index: 10;
+  margin-top: 0.75rem;
+  margin-left: 3rem;
+  color: #363636;
+  position: absolute;
+  top: 0px;
+  pointer-events: none;
+  letter-spacing: 1px;
+  font-weight: 700;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+#all-active-folder-docs {
+  background: #FFF;
+  padding: 0.5rem;
+  width: calc(100% - 1rem);
+  height: calc(100% - 6.5rem);
+  margin-left: 0.5rem;
+  border-top-left-radius: 0px;
+  margin-top: 0;
+}
+
+#all-active-folder-docs .doc {
+  border-radius: 10px;
+}
+
+#all-active-folder-docs .doc .icon:not(.docctx) {
+  margin-right: calc(0.5rem + 1px);
+}
+
+#sort-active-folder-button {
+  position: absolute;
+  right: 0;
+  margin-top: 4.25rem;
+  margin-right: 1.25rem;
+  font-size: 0.9rem;
+  color:#000;
+  opacity: 0.6;
+  transition: 0.3s opacity ease;
+  cursor: pointer;
+}
+
+#active-folder-upload-button i {
+  font-size: 1.1rem;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+#sort-active-folder-button.fa-sort-amount-asc::after,
+#sort-active-folder-button.fa-sort-amount-desc::after {
+  content: "\f017";
+  font-size: 10px;
+  position: absolute;
+  top: -2px;
+  right: 14px;
+}
+
+/*///////////////////////////////////////////////////
+//////////  DROPDOWNS & RIGHT CLICK MENUS  //////////
+///////////////////////////////////////////////////*/
+
+/* THEY ALL INHERIT .crypteedropdown */
+/* THEY ALL INHERIT .crypteedropdown.shown */
+
+
+
+/*///////////////////////////////////////////////////
+//////////  DOC SELECTIONS & DOC ICONS  /////////////
+///////////////////////////////////////////////////*/
+
+
+.doc.selected:not(.activedoc) .docicon i:before {
+  content: "\f14a" !important;
+}
+
+.doc.selected .offline-badge.visible {
+  margin-left: 12px;
+  margin-top: 7.5px;
+} 
+
+#selections-wrapper {
+  position: absolute;
+  z-index: 10;
+  margin-top: 0.25rem;
+  margin-left: 0;
+  background-color: #FFF;
+  width: calc(100% - 2rem);
+  padding: 0.5rem 0.75rem;
+  height: 2.5rem;
+  border-radius: 3.5rem;
+  font-size: 0.9rem;
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  cursor: pointer;
+  text-align: center;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-1rem);
+  transition: 0.5s ease all;
+}
+
+#selections-wrapper i {
+  font-size: 1rem;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+  margin-top: -1px;
+}
+
+#selections-wrapper span {
+  vertical-align: middle;
+}
+
+#selections-wrapper.shown {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*///////////////////////////////////////////////////
+/////////////////  MOVE MODAL  //////////////////////
+///////////////////////////////////////////////////*/
+
+
+.docs-move-folders-list-item {
+	border: 0;
+	box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+	transition: 0.5s all ease;
+	height: auto;
+	min-height: 2.5rem;
+  border-radius: 10px;
+}
+
+.docs-move-folders-list-item span {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	width: calc(100% - 1.5rem);
+	white-space: normal;
+}
+
+.docs-move-folders-list-item.is-active  {
+	background-color: #363636;
+    color: #FFF;
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+}
+
+.docs-move-folders-list-item.is-current {
+	color: #999;
+    box-shadow: none !important;
+}
+
+#move-folders-list-new {
+	/* box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1); */
+	border: 1px dashed #999;
+	min-height: 2.5rem;
+}
+
+#move-folders-list-new span:not(.icon) {
+	width: calc(100% - 1.5rem);
+}
+
+#docs-move-folders-list {
+  min-height: 40px;
+  max-height: initial;
+}
+
+
 
 /*///////////////////////////////////////////////////
 ////////////////  BREAKPOINTS  //////////////////////
@@ -779,12 +1240,14 @@
   #fileLoadingStatus .message {
     font-size: 1.2rem;
     letter-spacing: 1px;
+    margin-right: 0;
+    margin-top: 0;
   }
 
   #fileLoadingStatus::after {
-    top: calc(12vh + 80px);
-    height: 50px;
-    width: 50px;
+    top: calc(12vh + 83px);
+    height: 40px;
+    width: 40px;
     margin: -27px calc(-50px - 1rem) 2rem auto;
   }
 
@@ -864,6 +1327,60 @@
     background-color: #F5F5F5 !important;
   }
 
+  .docctx {
+    color: #363636;
+    height: 2.5rem;
+    width:2.5rem;
+  }
+
+  .doctitle {
+    max-width: calc(100% - 2rem);
+  }
+  
+  .folder-dropdown-button {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .folderactions {
+    margin-top: -1.5rem;
+    margin-left: 0.5rem;
+  }
+
+  #all-active-folder-docs .doc {
+    height: 2.75rem;
+  }
+  
+  #all-active-folder-docs .doc .docctx {
+    margin-top : -0.25rem;
+  }
+  
+  #all-active-folder-docs .doc .docicon {
+    margin-top: 0.125rem;
+  }
+  #all-active-folder-docs .doc .doctitle  {
+    margin-top: 0.25rem;
+  }
+
+  #sort-active-folder-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.5rem;
+    margin-top: 3.5rem;
+  } 
+  
+  #active-folder-upload-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-left: 0;
+    padding: 0rem 1rem 0.5rem 0.25rem;
+  }
+
+  #sort-active-folder-button.fa-sort-amount-asc::after,
+  #sort-active-folder-button.fa-sort-amount-desc::after {
+    top: 4px;
+    right: 24px;
+  }
 }
 
 
@@ -889,17 +1406,46 @@
     color: #000;
   }
 
-  .recent-doc:hover .recenticon,
-  .recent-doc:hover .recent-doctitle,
-  .recent-doc:hover,
-  .recent-doc:hover i,
-  .activerecentdoc:hover {
+  .doc:not(.search-result):hover .docicon,
+  .doc:not(.search-result):hover .doctitle,
+  .doc:not(.search-result):hover .docctx {
+    color:#000 !important;
+  }
+  
+  .doc:not(.search-result):hover,
+  .doc:not(.search-result):hover .docicon i,
+  .activedoc:hover {
     background-color: #F5F5F5 !important;
     color:#000 !important;
   }
 
-  .recent-doc:hover .recenticon.is-loading * {
+  .doc:not(.search-result):hover .docicon.is-loading * {
     color:transparent !important;
+  }
+
+  .folderactions {
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .afolder:hover .folderactions {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: all;
+  }
+
+  .folderrecent:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  .folderrecent:hover .icon {
+    transition: 0.5s opacity ease;
+    opacity: 0.5;
+  }
+
+  .folder-title:hover::after {
+    opacity: 1;
   }
 
   #docs-right-wrap:hover .docsection {
@@ -922,4 +1468,27 @@
   #help-button:hover, #hotkeys-button:hover {
     color : #000;
   }
+
+  #sort-active-folder-button:hover {
+    opacity: 1;
+  }
+
+  .active-folder.foldertab:hover + #all-active-folder-docs::before,
+  .active-folder.foldertab:hover+#all-active-folder-docs::after {
+    opacity: 1;
+  }
+
+  /*///////////////////////////////////////////////////
+  //////////  DOC SELECTIONS & DOC ICONS  /////////////
+  ///////////////////////////////////////////////////*/
+
+  .doc:not(.selected):not(.activedoc) .docicon:hover i:before {
+    content: "\f0fe";
+  }
+
+  #selections-wrapper:hover {
+    background-color: #363636;
+    color:#FFF;
+  }
+
 }

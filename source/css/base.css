@@ -144,7 +144,7 @@ code, pre {
 
 .onoffswitch {
     position: relative; width: 50px;
-    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+    user-select:none; -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
     vertical-align: middle;
     display: inline-block;
     margin: 0 3px;
@@ -416,6 +416,145 @@ crypteetag {
 
 .crypteecard .progress-gif {
   height: 30px;
+}
+
+.crypteedropdown {
+  background-color: #363636;
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 0.25rem 0.5rem rgba(0,0,0,0.1);
+  position: absolute;
+  top:0;
+  left:0;
+  display: block;
+  z-index: 20; /* should be before modals, but above everything else */
+  overflow: hidden;
+
+  min-width: 100px;
+  max-width: 280px;
+
+  pointer-events: none;
+  opacity: 0;
+  transition : 0.3s opacity ease;
+}
+
+.crypteedropdown p {
+  color: #fff;
+  padding: 0.3rem 0.75rem;
+  cursor:pointer;
+
+  background-color:transparent;
+  transition : 0.5s background-color ease;
+}
+
+.crypteedropdown p:first-of-type {
+  padding-top: 0.5rem;
+}
+
+.crypteedropdown p:last-of-type {
+  padding-bottom: 0.5rem;
+}
+
+.crypteedropdown.shown {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.crypteedropdown .icon {
+  margin-right:0.5rem;
+}
+
+.crypteedropdown hr {
+  margin:0.25rem 0rem;
+  background-color: #888;
+}
+
+.crypteedropdown.shown .icon[color] i {
+  transform: translateY(0);
+  transition: 0.2s all ease;
+}
+
+.crypteedropdown p {
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select: none;
+}
+
+.crypteedropdown p.disabled {
+  color:#888;
+  cursor: not-allowed;
+  pointer-events:none;
+}
+
+.crypteedropdown .checkbox {
+  vertical-align:top;
+  margin-left:0.5rem;
+  margin-top:2px;
+}
+
+.crypteedropdown .crypteecheckbox {
+  float: right;
+  background-color: #363636;
+  color: #777;
+  margin:0;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  border: 1px solid #777 !important;
+  border-radius:2rem !important;
+  transition: 0.5s all ease;
+}
+
+.crypteedropdown .crypteecheckbox:checked {
+  background-color: #1f9bcf !important;
+  border: none !important;
+}
+
+.crypteedropdown .crypteecheckbox:before {
+  font-size:11px !important;
+  margin-top:1px;
+  line-height:13px;
+  color: #777;
+}
+
+.crypteecheckbox {
+  background-color: #f5f5f5;
+  width: 2rem;
+  height: 2rem;
+  float: left;
+  margin-right: 1rem;
+  margin-top: 2px;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.crypteecheckbox::before {
+  font-family: FontAwesome;
+  content: '\f00c';
+  font-size: 16px;
+  color:#DDD;
+}
+
+.crypteecheckbox:checked {
+  background-color: #4BBF73;
+}
+
+.crypteecheckbox:checked::before {
+  font-family: FontAwesome;
+  content: '\f00c';
+  font-size: 16px;
+  color:#FFF;
+}
+
+.crypteecheckbox:focus {
+  border-width: 1px;
+  border-color: #FFF;
+}
+
+.crypteedropdown p.disabled .crypteecheckbox {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events:none;
 }
 
 .imageResizeOverlay .ql-stroke {
@@ -1743,7 +1882,7 @@ html {
 
 .hero-button {
   background-color: rgb(50,50,50);
-  color:#FFF;
+  color:#FFF !important;
   border:0;
 }
 
@@ -1821,7 +1960,7 @@ html {
 }
 
 .footer * {
-  color:#FFF;
+  color:#FFF !important;
 }
 
 .footer-logo img {
@@ -2066,12 +2205,6 @@ html {
   margin:1rem 0;
 }
 
-.activefile {
-  background-color: #f5f5f5;
-  margin-left: auto !important;
-  overflow: hidden;
-}
-
 #doc-top {
   width: 100%;
   margin-left: auto;
@@ -2278,18 +2411,6 @@ html {
   transition: ease 0.35s transform;
 }
 
-.folder {
-  border: 1px solid #DEDEDE;
-  box-shadow: 0 2px 3px rgba(10,10,10,0.05);
-  margin-bottom: 1rem;
-  width: 100%;
-  opacity: 1;
-}
-
-.folder, #ghost-folder {
-  border-radius: 0;
-}
-
 .folder:last-child {
   margin-bottom: 0.5rem;
 }
@@ -2315,44 +2436,18 @@ html {
   pointer-events: none;
 }
 
-.folder.archived .card-header-title::before {
-  transition: 0.35s all ease !important;
-  content: "\f114";
-  font-family: FontAwesome;
-  display: block;
-  margin-left: calc(1rem + 2px);
-  margin-right: 1rem;
-  color:#999;
-  pointer-events: none;
-}
-
-.folder.archived .card-header-title::after {
-  transition: 0.35s all ease !important;
-  content: "\f1b8";
-  font-family: FontAwesome;
-  display: inline-block;
-  margin-right: calc(0.75rem + 3px);
-  margin-left: 1rem;
-  color:#363636;
-  position: absolute;
-  right: 0px;
-  pointer-events:auto;
-  cursor: pointer;
-  font-size: 1.25rem;
-}
-
-.folder.archived:last-of-type {
-  border-bottom: 1px solid #ccc;
-}
-
 #archiveDivider, #summonDividerButton {
   text-align: center;
   width: 100%;
   line-height: 3rem;
   padding-bottom: 0;
   border-bottom: 1px solid transparent;
-  margin-bottom: 0.25rem;
+  margin-bottom: 1.5rem;
   cursor: pointer;
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select: none;
 }
 
 #archiveDivider::after {
@@ -2419,22 +2514,6 @@ html {
   overflow: hidden;
 } */
 
-.aboutToDragFolder {
-  border: 1px solid #c8cdd0;
-  box-shadow: 0 0 30px 0px rgba(0,0,0,0.1);
-}
-
-.draggingFolder {
-  border: 1px solid #c8cdd0;
-  box-shadow: 0 0 30px 0px rgba(0,0,0,0.1);
-  z-index: 2;
-}
-
-.folderDraggingActive:not(.draggingFolder) {
-  opacity: 0.3;
-  transition: all 0.15s ease 0.15s;
-}
-
 .draggingDoc {
   overflow: hidden;
   opacity: 1 !important;
@@ -2443,11 +2522,6 @@ html {
 
 .sortable-ghost {
   opacity: 0 !important;
-}
-
-.fileDropFolder {
-  border: 1px dashed #000 !important;
-  box-shadow: none;
 }
 
 .docs-list {
@@ -2481,7 +2555,7 @@ html {
   padding-left: 10px;
 }
 
-#ghost-folder-input, #new-folder-title {
+#ghost-folder-input {
   background-color: transparent;
   border: none;
   margin-left: 0;
@@ -2490,14 +2564,6 @@ html {
 
 .whatisaghost {
   display: none;
-}
-
-#new-folder-button {
-  transition: 0.3s ease color;
-}
-
-#new-folder-button.is-armed {
-  color: #4BBF73;
 }
 
 #f-exists {
@@ -2525,12 +2591,15 @@ html {
 
 #all-folders {
   height: 100%;
-  max-height: calc(100% - 3.2rem);
+  /* max-height: calc(100% - 3.2rem); */
   padding-top: 1rem;
   /* padding-bottom: 0.5rem; */
 }
 
-#all-recent, #all-offline {
+#all-recent,
+#all-offline,
+#all-folders,
+#all-active-folder-docs {
   padding-top:3rem;
   height: 100%;
   z-index: 1;
@@ -2552,7 +2621,7 @@ html {
   left: 0;
   border-radius: 10px;
   margin-left: 4px;
-  margin-top: 2px;
+  margin-top: 3px;
   cursor: pointer !important;
   transition: 0.3s all ease;
   opacity: 0;
@@ -2560,21 +2629,6 @@ html {
 
 .offline-badge.visible {
   opacity: 1;
-}
-
-.adoc > .offline-badge {
-  top: auto;
-  left: 0;
-  position: absolute;
-  display: block;
-  height: 2.5rem;
-  width: 4px;
-  border-radius: 0;
-  margin-left: 0px;
-  margin-top: 0px;
-  transform: translateX(-86px);
-  transition: 0.5s all ease;
-  z-index: 4;
 }
 
 .is-loading > .offline-badge {
@@ -2602,14 +2656,6 @@ html {
   transition: 0.3s all ease;
   pointer-events: none;
   z-index: 4;
-}
-
-.adoc > .offline-badge::after {
-  left: 0;
-  height: 2.5rem;
-  line-height: 2.5rem;
-  opacity: 1;
-  pointer-events: all !important;
 }
 
 .is-loading > .offline-badge::after {
@@ -2670,7 +2716,7 @@ html {
   position: relative;
   left: 0;
   /* float: left; */
-  width: calc((100% / 3) - 3px);
+  width: calc((100% / 4) - 4px);
   height: 100%;
   overflow: hidden;
   display: inline-block;
@@ -2695,7 +2741,7 @@ html {
 
 .left-views-scroller {
   position:absolute;
-  width: 300%;
+  width: calc(100% * 4);
   height: 100%;
   transition: 0.75s transform ease;
 }
@@ -2705,11 +2751,16 @@ html {
 }
 
 .left-views-scroller.pos-1 {
-  transform: translateX(calc(0px - (100% / 3)));
+  transform: translateX(calc(0px - (100% / 4)));
 }
 
 .left-views-scroller.pos-2 {
-  transform: translateX(calc(0px - (2 * (100% / 3))));
+  transform: translateX(calc(0px - (2 * (100% / 4))));
+}
+
+
+.left-views-scroller.pos-3 {
+  transform: translateX(calc(0px - (3 * (100% / 4))));
 }
 
 .left-views-scroller.pos-0 .left-view:nth-of-type(1) {
@@ -2727,12 +2778,18 @@ html {
   pointer-events: auto;
 }
 
-.recent-doc, .offline-doc {
-  padding: 0.5rem;
-  cursor: pointer;
+.left-views-scroller.pos-3 .left-view:nth-of-type(4) {
+  opacity: 1 !important;
+  pointer-events: auto;
 }
 
-.recent-doc .details, .offline-doc .details {
+.doc {
+  padding: 0.5rem;
+  cursor: pointer;
+  position:relative;
+}
+
+.doc .details {
   font-size: 0.7rem;
   margin-left: 0.25rem;
   margin-top: 0rem;
@@ -2742,32 +2799,53 @@ html {
   transition: 0.5s all ease 1s;
 }
 
-.recent-doc .details .icon, .offline-doc .details .icon {
+.doc .details .icon{
   margin-right: 1rem;
 }
 
 
-.recent-new-doc, .offline-new-doc {
+.recent-new-doc,
+.offline-new-doc,
+.folders-new-folder,
+.active-folder-new-doc {
   cursor: pointer;
   position: absolute;
-  z-index: 2;
+  z-index: 4;
   width: 100%;
   padding: 0.5rem;
   background: rgb(255,255,255);
   background: linear-gradient(180deg, rgba(255,255,255,1) 80%, rgba(255,255,255,0) 100%);
 }
 
-.recenticon, .recent-new-doc .icon, .offline-new-doc .icon {
+.docicon, 
+.recent-new-doc .icon, 
+.offline-new-doc .icon, 
+.folders-new-folder .icon, 
+.active-folder-new-doc .icon.left-button {
   float: left;
   margin-right:1rem;
 }
 
-.recent-new-doc i, .offline-new-doc i {
+.active-folder-new-doc .icon.right-button {
+  float: right;
+  margin-left: 0.875rem;
+  margin-right:0.125rem;
+  opacity: 0.6;
+  cursor: pointer;
+  transition : 0.35s opacity ease;
+}
+
+.recent-new-doc i, 
+.offline-new-doc i, 
+.folders-new-folder i, 
+.active-folder-new-doc i {
   transition: 0.3s color ease;
   color : #363636;
 }
 
-.recent-new-doc i.is-armed {
+.recent-new-doc i.is-armed, 
+.folders-new-folder .is-armed i, 
+.active-folder-new-doc i.is-armed {
   color : #4BBF73;
 }
 
@@ -2775,7 +2853,10 @@ html {
   color: #1F9BCF;
 }
 
-#recent-new-doc-input, #offline-new-doc-input {
+#recent-new-doc-input,
+#offline-new-doc-input,
+#new-folder-title,
+#active-folder-new-doc-input {
   padding: 0.5rem 0;
   border: 0;
   font-size: 0.9rem;
@@ -2783,6 +2864,10 @@ html {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
   background-color: transparent;
+}
+
+#active-folder-new-doc-input {
+  width: calc(100% - 6rem);
 }
 
 #all-folders.draggingStuff, body.draggingStuff, html.draggingStuff, #active-doc-contents.draggingStuff, .ql-editor.draggingStuff {
@@ -3206,7 +3291,7 @@ body.draggingStuff {
 }
 
 .left-view-controller-buttons {
-  margin-bottom: 1rem !important;
+  margin-bottom: 0rem !important;
 }
 
 .left-view-controller-buttons button {
@@ -3262,23 +3347,6 @@ body.draggingStuff {
   height: 2.5rem;
 }
 
-.adoc > a {
-  color:#000;
-  transition: 0.25s all ease-in-out !important;
-  display: inline-block;
-  width: 100%;
-  min-height: 2.5rem;
-  padding: .5em 2.5em .5em .75em;
-}
-
-.adoc * {
-  vertical-align: middle;
-}
-
-.adoc {
-  width: 100%;
-  opacity: 1;
-}
 
 .docs-float-context {
   float: right;
@@ -3312,15 +3380,6 @@ body.draggingStuff {
   pointer-events:all !important;
   transition: 0.25s all ease-in-out !important;
   cursor: pointer;
-}
-
-.activedoc {
-  overflow: hidden;
-}
-
-.activedoc ~ .tags .tag {
-  color: rgba(255,255,255,1) !important;
-  transition: 0.25s all ease-in-out !important;
 }
 
 .folder-dropdown {
@@ -3373,6 +3432,7 @@ body.draggingStuff {
   cursor: pointer;
   margin-bottom: 0.5rem !important;
   transition: all ease 0.25s !important;
+  background-color: transparent;
 }
 
 .search-result b {
@@ -3390,7 +3450,7 @@ body.draggingStuff {
   right: 0;
   width: calc(50% - 2rem);
   min-width: calc(320px - 2rem);
-  transform: translateY(180px);
+  transform: translateY(240px);
   margin:0 1rem 1rem 0 !important;
   height: 150px;
   transition: all ease 1s;
@@ -3691,13 +3751,6 @@ body.draggingStuff {
 
 .doctitle {
   word-wrap: break-word;
-  width: calc(280px - 5rem);
-  height: 1.75rem;
-  line-height: 1.75rem;
-  overflow: hidden;
-  position: absolute;
-  opacity: 1;
-  transition: 0.3s opacity ease;
   -webkit-touch-callout: none;
     -webkit-user-select: none;
      -khtml-user-select: none;
@@ -3715,16 +3768,12 @@ body.draggingStuff {
             user-select: none;
 }
 
-.recent-doctitle {
-  word-wrap: break-word;
-}
-
-
-.docs-body.direction-pref-rtl .recent-doctitle,
+.docs-body.direction-pref-rtl .doctitle,
 .docs-body.direction-pref-rtl #recent-new-doc-input,
 .docs-body.direction-pref-rtl .new-doc-input,
 .docs-body.direction-pref-rtl .folder-title,
 .docs-body.direction-pref-rtl #new-folder-title,
+.docs-body.direction-pref-rtl #active-folder-new-doc-input,
 .docs-body.direction-pref-rtl #ghost-folder-input,
 .docs-body.direction-pref-rtl #search-input,
 .docs-body.direction-pref-rtl .search-result
@@ -3733,8 +3782,7 @@ body.draggingStuff {
   text-align: right;
 }
 
-.docs-body.direction-pref-rtl .doctitle,
-.docs-body.direction-pref-rtl .recent-docdeet,
+.docs-body.direction-pref-rtl .docdeet,
 .docs-body.direction-pref-rtl .rename-status,
 .docs-body.direction-pref-rtl .rename-doc-status,
 .docs-body.direction-pref-rtl #ghost-folder-confirm-input,
@@ -3745,12 +3793,13 @@ body.draggingStuff {
 }
 
 .docs-body.direction-pref-rtl .new-doc-input,
-.docs-body.direction-pref-rtl .folder-title,
 .docs-body.direction-pref-rtl #ghost-folder-input {
   padding-right: 0.25rem;
 }
 
-.docs-body.direction-pref-rtl #new-folder-title {
+.docs-body.direction-pref-rtl #new-folder-title,
+.docs-body.direction-pref-rtl #active-folder-new-doc-input
+{
   padding-right: 3rem;
 }
 
@@ -3767,23 +3816,58 @@ body.draggingStuff {
   padding-right: 1.5rem;
 }
 
+.docs-body.direction-pref-rtl .left-nav-field {
+  float: right;
+  margin-right: 2rem;
+  direction: rtl;
+}
+
+.docs-body.direction-pref-rtl #active-folder-new-doc-input,
+.docs-body.direction-pref-rtl #new-folder-title,
+.docs-body.direction-pref-rtl #recent-new-doc-input {
+  padding-right: 0 !important;
+  margin-right: 0.25rem !important;
+  margin-left:0 !important;
+}
+
+.docs-body.direction-pref-rtl .active-folder-new-doc .icon.right-button {
+  float: left;
+  margin-left: 0;
+}
+
+.docs-body.direction-pref-rtl #search-input {
+  padding-right: 0 !important;
+}
+
+.docs-body.direction-pref-rtl .folder-title {
+  margin-right:0;
+  margin-left: auto;
+  text-align:right;
+  direction : rtl;
+}
+
+.docs-body.direction-pref-rtl .folderrecent {
+  margin-right:1rem;
+  margin-left: auto;
+  text-align:right;
+  direction : rtl;
+}
+
+.docs-body.direction-pref-rtl .result-title {
+  margin-right:2rem;
+  margin-left:0;
+}
+
+.docs-body.direction-pref-rtl .result-tag .tag{
+  padding:0.5rem 0.5rem 0.5rem 1rem;
+}
 
 
 
-.recent-docdeet {
+
+.docdeet {
   color: #aaa;
   margin-left: 3rem;
-}
-
-.activerecentdoc {
-  transition: 0.5s background-color ease;
-  background-color: #363636;
-  color:#f1f1f1;
-  width: calc(100% - 1px);
-}
-
-.activerecentdoc i {
-  color:#f1f1f1;
 }
 
 .card-header {
@@ -3824,22 +3908,22 @@ body.draggingStuff {
   position: absolute !important;
 }
 
-.recenticon {
+.docicon {
   transition: 0.5s color ease;
   color:#363636;
   position: relative;
 }
 
-.recenticon i, .recent-new-doc i {
+.docicon i, .recent-new-doc i {
   font-size: 18px !important;
 }
 
-.recenticon.is-loading {
+.docicon.is-loading {
   color:transparent;
 }
 
 
-.recenticon.is-loading::after {
+.docicon.is-loading::after {
   transition: 0.5s border ease;
   -webkit-animation: spinAround 500ms infinite linear;
   animation: spinAround 500ms infinite linear;
@@ -3857,13 +3941,14 @@ body.draggingStuff {
 
 .docprogress {
   transition: 0.3s ease all;
-  margin-left: -0.75rem;
-  width: calc(100% + 3.5rem);
-  height: 2.5rem !important;
-  margin-top: -2rem;
-  margin-bottom: -1rem;
+  margin-left: -0.5rem;
+  width: 100%;
+  height: 100% !important;
   opacity: 0;
   pointer-events: none;
+  position: absolute;
+  top:0;
+  border-radius: 10px;
 }
 
 .docprogress-visible { opacity: 0.15 !important;}
@@ -3920,13 +4005,6 @@ body.draggingStuff {
   margin-right: calc(0.625rem + 0.5px);
 }
 
-#new-folder-card {
-  transition: width ease 0.5s !important;
-  width: 100%;
-  margin-bottom: 1px;
-  height: 3.125rem;
-}
-
 .hiddenNewFolderCard {
   width: 3rem !important;
   transition: all ease 0.5s !important;
@@ -3962,10 +4040,6 @@ body.draggingStuff {
   padding: 1.25rem;
   border-radius: 3rem;
   box-shadow: 0 2px 3px rgba(10,10,10,0.1);
-}
-
-#selection-delete-button {
-  background-color: #d9534f !important;
 }
 
 .first-folder-hint {
@@ -5744,7 +5818,7 @@ body.draggingStuff {
 }
 
 #all-folders.itsMobile {
-  padding-top: 1rem;
+  padding-top: 3rem;
   touch-action: manipulation;
 }
 
@@ -5772,10 +5846,6 @@ body.draggingStuff {
   height: 40px;
   line-height: 40px;
   font-size: 1.25rem;
-}
-
-#left-stuff.itsMobile .doctitle {
-  width: calc(280px - 6.5rem);
 }
 
 .itsMobile .ql-editor ul>li.ql-direction-rtl {
@@ -6332,18 +6402,6 @@ body.draggingStuff {
     color: #000;
   }
 
-  .adoc:hover .docs-float-context {
-    opacity: 1;
-    pointer-events:all !important;
-    transition: 0.25s all ease-in-out !important;
-    cursor: pointer;
-  }
-
-  .adoc .tag:hover {
-    color: rgba(0,0,0,1);
-    transition: 0.25s all ease-in-out !important;
-  }
-
   .dropdowns > .upload-to-folder-button:hover > .icon,
   .dropdowns > .rename-folder-button:hover > .icon,
   .dropdowns > .archive-folder-button:hover > .icon,
@@ -6387,17 +6445,12 @@ body.draggingStuff {
     color:#000;
   }
 
-  .recent-doc:hover {
+  .doc:not(.search-result):hover {
     background-color: #F1F1F1;
     color:#000;
   }
 
-  .activerecentdoc:hover {
-    background-color: #000;
-    color:#FFF;
-  }
-
-  .recent-doc:hover .details {
+  .doc:not(.search-result):hover .details {
     margin-top: 0.5rem;
     opacity: 1;
     height: 2rem;
@@ -6423,12 +6476,6 @@ body.draggingStuff {
     height: 14px;
   }
 
-  .adoc > .offline-badge:hover {
-    background-color: #00b4ff;
-    height: 2.5rem;
-    transform: translateX(0px) !important;
-  }
-
   .offline-badge:hover::after {
     opacity: 1;
   }
@@ -6447,6 +6494,28 @@ body.draggingStuff {
   .press-item:hover {
     opacity: 1;
   }
+
+  .crypteedropdown p:not(.is-unhoverable):not(.disabled):not(.is-danger):hover {
+    background-color: #000;
+  }
+
+  .crypteedropdown p.is-danger:hover {
+    background-color: #d9534f;
+  }
+  
+  .crypteedropdown .icon[color]:hover i {
+    font-size : 20px;
+    transform: translateY(2px);
+  }
+
+  .crypteedropdown p:hover .crypteecheckbox {
+    border-color:#FFF !important;
+  }
+
+  .active-folder-new-doc .icon.right-button:hover {
+    opacity: 1;
+  }
+
 }
 
 @media (-moz-touch-enabled: 1), (pointer:coarse) {
@@ -6704,16 +6773,6 @@ body.draggingStuff {
   .docs-float-context .tag {
     width: 3rem;
     background-color: #FFF !important;
-  }
-
-  .activedoc + .docs-float-context .tag {
-    background-color: #222 !important;
-    border-top-right-radius: 3rem !important;
-    border-bottom-right-radius: 3rem !important;
-  }
-
-  .activefile .docs-float-context .tag {
-    background-color: #f5f5f5 !important;
   }
 
   .docDrop .adoc-float-context {

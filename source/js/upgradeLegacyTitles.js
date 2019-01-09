@@ -57,41 +57,30 @@ function upgradeLegacyTitles () {
     }
   });
 
-  function checkFolderCountIntegrity (allFolders, callback) {
-    callback = callback || noop;
-    if (allFolders) {
-      var allFoldersCount = Object.keys(allFolders).length;
-      var foldersCountOnServer;
-      dataRef.child("foldersCount").once('value', function(foldersCountSnap) {
-        foldersCountOnServer = foldersCountSnap.val();
-        if (foldersCountOnServer !== allFoldersCount) {
-          dataRef.update({"foldersCount" : allFoldersCount}, function(){
-            callback();
-          });
-        } else {
-          callback();
-        }
-      }).catch(function(error) {
-        console.log("Couldn't get foldersCount to check integrity - skipping for now");
-        handleError(error);
-        callback();
-      });
-    } else {
-      callback();
-    }
-  }
-
   function getLegacyTags (callback, callbackParam) {
     callback = callback || noop;
     dataRef.child("tags").once('value', function(snapshot) {
       var JSONifiedEncryptedTagsObject = snapshot.val();
       if (JSONifiedEncryptedTagsObject) {
         if (JSONifiedEncryptedTagsObject !== null && JSONifiedEncryptedTagsObject !== undefined) {
-          var encryptedTagsObject = JSON.parse(JSONifiedEncryptedTagsObject).data;
-          decrypt(encryptedTagsObject, [theKey]).then(function(plaintextTags) {
-            legacyTagsObject = JSON.parse(plaintextTags.data);
+          var encryptedTagsObject;
+          try {
+            encryptedTagsObject = JSON.parse(JSONifiedEncryptedTagsObject).data;
+          } catch (error) {
+            console.log("Corrupted tags object detected, skipping.");
+          }
+          if (encryptedTagsObject) {
+            decrypt(encryptedTagsObject, [theKey]).then(function (plaintextTags) {
+              legacyTagsObject = JSON.parse(plaintextTags.data);
+              callback(callbackParam);
+            }).catch(function (error) {
+              handleError(error);
+              callback(callbackParam);
+            });
+          } else {
+            // corrupted tags obj (likely super legacy acct), skipping.
             callback(callbackParam);
-          }).catch(function(error) { handleError(error); });
+          }
         } else {
           // no tags found.
           callback(callbackParam);
@@ -100,7 +89,10 @@ function upgradeLegacyTitles () {
         // no tags found.
         callback(callbackParam);
       }
-    }).catch(function(error) { handleError(error); callback(callbackParam); });
+    }).catch(function(error) { 
+      handleError(error); 
+      callback(callbackParam); 
+    });
   }
 
 
@@ -143,18 +135,15 @@ function upgradeLegacyTitles () {
           });
         }
 
-        // make sure foldercount matches the actual number of folders to ensure boot.
-        checkFolderCountIntegrity(rootObject, function(){
-          console.log("Folder count integrity check complete."); 
-          if (totalTitlesToWrite !== 0) {
-            console.log("Starting to write titles for", totalTitlesToWrite, "items.");  
-            writeFolderTitles ();
-            writeDocTitlesAndTags ();
-          } else {
-            console.log("No titles to write, wrapping things up.");  
-            upgradeSuccesful();
-          }          
-        });
+        if (totalTitlesToWrite !== 0) {
+          console.log("Starting to write titles for", totalTitlesToWrite, "items.");  
+          writeFolderTitles ();
+          writeDocTitlesAndTags ();
+        } else {
+          console.log("No titles to write, wrapping things up.");  
+          upgradeSuccesful();
+        }          
+        
       }).catch(function(error) { console.log("Couldn't get root directory"); handleError(error);  });
     });
   }
@@ -285,7 +274,10 @@ function upgradeLegacyTitles () {
         encrypt(plaintextTags, [theKey]).then(function(ciphertext) {
           var encryptedTags = JSON.stringify(ciphertext);
           callback(encryptedTags);
-        }).catch(function(error) { handleError(error); });
+        }).catch(function(error) { 
+          handleError(error);
+          callback(null);
+        });
       } else {
         callback(null);
       }

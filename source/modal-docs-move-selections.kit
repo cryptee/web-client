@@ -1,0 +1,27 @@
+<div class="modal" id="docs-move-selections-modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="notification is-dark">
+      <p class="title">Move Docs &amp; Files</p>
+      <p class="subtitle is-6">Select a folder below to move your docs &amp; files.</p>
+    </div>
+    <div class="notification scrollable-modal" style="min-height:10rem;">
+      <!-- <div class="columns is-mobile">
+        <div class="column">
+          <button class="button is-fullwidth docs-move-folders-list-item" fid="new" id="move-folders-list-new">
+            <span class="icon is-small">
+              <i class="fa fa-plus fa-fw"></i>
+            </span>
+            <span>New<span class="is-hidden-mobile"> Folder</span></span>
+          </button>
+        </div>
+      </div> -->
+      <div class="columns is-multiline" id="docs-move-folders-list"> 
+      
+      </div>
+    </div>
+    <a class="button is-success" onclick="moveFolderSelectionMade();">Move</a>
+    <a class="button is-danger" onclick="cancelModal();">Cancel</a>
+  </div>
+  <button class="modal-close"></button>
+</div>

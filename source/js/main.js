@@ -52,6 +52,20 @@ function isRetina() {
   return window.devicePixelRatio > 1;
 }
 
+function checkDOMRectBlocked() {
+  var isItBlocked = true;
+
+  try {
+    Element.prototype.getClientRects();
+  } catch(error) {
+    isItBlocked = false;
+  }
+
+  return isItBlocked;
+}
+
+var isDOMRectBlocked = checkDOMRectBlocked();
+
 ////////////////////////////////////////////////////
 ///////////////////   HELPERS    ///////////////////
 ////////////////////////////////////////////////////
@@ -784,38 +798,47 @@ function showUpdateAvailable () {
 }
 
 function reloadForNewVersion () {
-  $("#update-available").addClass("is-loading");
-  navigator.serviceWorker.getRegistration().then(function(reg) {
-    if (reg) {
-      reg.unregister().then(function() {
-        caches.keys().then(function(keyList) {
-          return Promise.all(keyList.map(function(key) {
-            return caches.delete(key);
-          }));
-        }).then(function(){
-          window.location.reload(true);
+  if (navigator.serviceWorker) {
+    $("#update-available").addClass("is-loading");
+    navigator.serviceWorker.getRegistration().then(function (reg) {
+      if (reg) {
+        reg.unregister().then(function () {
+          caches.keys().then(function (keyList) {
+            return Promise.all(keyList.map(function (key) {
+              return caches.delete(key);
+            }));
+          }).then(function () {
+            window.location.reload(true);
+          });
         });
-      });
-    } else {
-      window.location.reload(true);
-    }
-  });
+      } else {
+        window.location.reload(true);
+      }
+    });
+  } else {
+    // strangely sometimes serviceWorker passes as undefined 
+    // in some versions of FF Linux. This is here as a failsafe
+    // just in case if the update bubble covers the whole home screen.
+    window.location.reload(true);
+  }
 }
 
 function flushOldCaches() {
-  navigator.serviceWorker.getRegistration().then(function(reg) {
-    if (reg) {
-      reg.unregister().then(function() {
-        caches.keys().then(function(keyList) {
-          return Promise.all(keyList.map(function(key) {
-            if (key !== serverDeployVersion) {
-              return caches.delete(key);
-            }
-          }));
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.getRegistration().then(function (reg) {
+      if (reg) {
+        reg.unregister().then(function () {
+          caches.keys().then(function (keyList) {
+            return Promise.all(keyList.map(function (key) {
+              if (key !== serverDeployVersion) {
+                return caches.delete(key);
+              }
+            }));
+          });
         });
-      });
-    }
-  });
+      }
+    });
+  }
 }
 ////////////////////////////////////////////////
 ////////////////  SENTRY  SETUP  ////////////////
@@ -952,10 +975,16 @@ function checkConnection (callback) {
 //////////////// OPENPGPJS SETUP ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
+// CURRENTLY USING THE COMPAT VERSION, AND NOT THE REGULAR ONE.
+// NON-COMPAT VERSION CAUSED A CLUSTERFUCK. 
+// A DUMPSTER FIRE. 
+// INNOCENT KITTENS DIED.
+// THAT'S RIGHT. KITTENS. 
+
 try {
   openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
   openpgp.config.aead_protect_version = true;
-  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.1.min.js' }); // set the relative web worker path
+  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.2.min.js' }); // set the relative web worker path
 } catch (e) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
@@ -963,14 +992,17 @@ try {
   }
 }
 
-if (pgpCrossCheck) {
-  if (openpgp) {
-    breadcrumb("OpenPGP Initialized");
-  } else {
+
+if (!openpgp) {
+  if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js.");
     handleError(new Error("Problem initializing openpgp in main js, openpgp is undefined."));
   }
+} else {
+  breadcrumb("Initializing " + openpgp.config.versionstring);
 }
+
+
 
 
 /////////////////////////////////////////
