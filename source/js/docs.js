@@ -2194,7 +2194,8 @@ function decryptTitle (id, encryptedTitle, callback) {
     }
   } else {
     // encryptedTitle is undefined;
-    breadcrumb(id, "has undefined encryptedTitle");
+    breadcrumb(id + " has undefined encryptedTitle");
+    callback("Untitled", id);
   }
 }
 
