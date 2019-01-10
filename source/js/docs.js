@@ -1622,14 +1622,14 @@ function checkCatalogIntegrity () {
   var undefinedFolder = false;
   var undefinedDoc = false;
 
-  breadcrumb("catalog integrity check : STARTED");
+  breadcrumb("Catalog Integrity Check : STARTED");
 
   //check for undefined folders in the catalog
   Object.keys(catalog.folders).forEach(function(key){
     if (key === "undefined") {
       // there is an undefined folder.
       undefinedFolder = true;
-      breadcrumb("catalog integrity check : found undefined folder");
+      breadcrumb("Catalog Integrity Check : found undefined folder");
     }
   });
 
@@ -1638,7 +1638,7 @@ function checkCatalogIntegrity () {
     if (key === "undefined") {
       // there is an undefined doc.
       undefinedDoc = true;
-      breadcrumb("catalog integrity check : found undefined doc");
+      breadcrumb("Catalog Integrity Check : found undefined doc");
     }
   });
 
@@ -2159,6 +2159,10 @@ function decryptTitle (id, encryptedTitle, callback) {
             var plaintextTitle = JSON.parse(plaintext.data);
             callback(plaintextTitle, id);
           }).catch(function(error) {
+            if (!postLoadIntegrityChecksComplete) {
+              corruptTitlesToFix.push(id);
+            }
+            callback("Untitled", id);
             handleError(error);
           });
         } else {
@@ -2198,6 +2202,7 @@ function gotEncryptedDocTitle(did, encryptedTitle) {
     tempTTDecryptionQueue.docs[did] = decryptionOperation;
     addedOperationToTTDecryptionQueue();
   }
+
 }
 
 function gotEncryptedDocTags(did, encryptedTags) {
@@ -2302,7 +2307,7 @@ function addedOperationToTTDecryptionQueue() {
     // in finalTTFDecryptionQueue. so run that one.
     
     if (!initialLoadComplete) {
-      setSentryNumberOfTitles(totalTTInDecryptionQueue);
+      setSentryTag("titles-count", totalTTInDecryptionQueue);
       breadcrumb("TT Decryption Queue : READY.");
       initialTTQueueReady = true;
     } else {
@@ -2315,7 +2320,7 @@ function addedOperationToTTDecryptionQueue() {
 
 function startTTDecryptionQueue() {
   startedTTQueue = (new Date()).getTime();
-  breadcrumb("TT Decryption Queue : Decrypting " + totalTTInDecryptionQueue + "titles & tags");
+  breadcrumb("TT Decryption Queue : Decrypting " + totalTTInDecryptionQueue + " titles & tags");
   while (finalTTDecryptionQueue.length > 0) {
     (finalTTDecryptionQueue.shift())();   
   }
@@ -2330,7 +2335,7 @@ function checkIfTTDecryptionQueueComplete() {
 
 function ttQueueCompleted() {
   // ALL TITLES IN QUEUE DECRYPTED
-  setSentrySpeed((completedTTQueue - startedTTQueue) + "ms");
+  setSentryTag("titles-decryption-speed", (completedTTQueue - startedTTQueue) + "ms");
   breadcrumb("TT Decryption Queue : DONE. Decrypted in " + (completedTTQueue - startedTTQueue) + "ms");
   checkCatalogIntegrity();
   // if this is first boot, load last open doc now.

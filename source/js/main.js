@@ -570,15 +570,18 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(
     '../service-worker.js'
   ).then( function(serviceWorker) {
-    console.log('Successfully Registered Cryptee Service Worker');
+    setSentryTag("worker", "yes");
+    breadcrumb("Service Worker: Started");
   }).catch(function(error) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
       console.log("SWERR:", error);
+      setSentryTag("worker", "errored");
       handleError(error);
     }
   });
 } else {
-  console.log("NOSW");
+  setSentryTag("worker", "no");
+  breadcrumb("Service Worker: NO-SW");
 }
 
 function removeServiceWorker() {
@@ -975,12 +978,6 @@ function checkConnection (callback) {
 //////////////// OPENPGPJS SETUP ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-// CURRENTLY USING THE COMPAT VERSION, AND NOT THE REGULAR ONE.
-// NON-COMPAT VERSION CAUSED A CLUSTERFUCK. 
-// A DUMPSTER FIRE. 
-// INNOCENT KITTENS DIED.
-// THAT'S RIGHT. KITTENS. 
-
 try {
   openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
   openpgp.config.aead_protect_version = true;
@@ -1159,15 +1156,9 @@ function setSentryLocale(locale) {
   });
 }
 
-function setSentryNumberOfTitles(num) {
+function setSentryTag(key, val) {
   Sentry.configureScope(function (scope) {
-    scope.setTag("titles-count", num + "");
-  });
-}
-
-function setSentrySpeed(speed) {
-  Sentry.configureScope(function (scope) {
-    scope.setTag("titles-decryption-speed", speed);
+    scope.setTag(key, val);
   });
 }
 
@@ -1178,6 +1169,12 @@ function breadcrumb (message, level) {
     message: message,
     level: level
   });
+
+  if (location.origin.indexOf("crypt.ee") === -1) {
+    // we're on testing env. log to console.
+    console.log(message);
+    
+  }
 }
 
 ///////////////////////////////////////////
