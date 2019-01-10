@@ -23,6 +23,7 @@ var minuteTimer;
 var idleTime = 0;
 var lastActivityTime = (new Date()).getTime();
 var userPlan;
+var newAccount = false;
 
 var lastSaved = (new Date()).getTime();
 var lastScrollTop = 0;
@@ -1203,7 +1204,7 @@ firebase.auth().onAuthStateChanged(function(user) {
         
         //timeout so that on Auth State Changed promise doesn't wait for start user sockets.
         setTimeout(function () {
-           startUserSockets();
+          startUserSockets();
         }, 2);
 
       });
@@ -1286,7 +1287,12 @@ function signInComplete () {
   if (initialTTQueueReady) {
     breadcrumb("TT Decryption Queue : STARTING.");
 
-    startTTDecryptionQueue();
+    if (newAccount) {
+      ttQueueCompleted();
+    } else {
+      startTTDecryptionQueue();
+    }
+    
     // load last open doc will get called in tt decryption queue complete
 
     // GRAB THE TITLE DIRECTLY IF THERE'S A PENDING DOWNLOAD. 
@@ -1308,6 +1314,15 @@ function signInComplete () {
 
 
 function startUserSockets () {
+  /// CHECK IF IT'S A FRESH NEW ACOUNT WITH NO FOLDERS. 
+  // even if user has anything in INBOX they'll go to into a folder. so 0 folders = fresh.
+  foldersRef.orderByKey().limitToLast(1).once("value", function (snapshot) {
+    if (!snapshot.val()) {
+      // brand new account with nothing in it.
+      newAccount = true;
+      initialTTQueueReady = true;
+    }
+  });
 
   dataRef.child("lastOpenDocID").once('value', function(snapshot) {
     lastOpenDocID = snapshot.val();
