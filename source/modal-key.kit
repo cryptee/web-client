@@ -1,25 +1,14 @@
-<div class="modal" id="key-modal">
-  <div class="modal-background key-modal-background"></div>
-  <div class="modal-content">
-    <div class="notification is-dark">
-      <p class="title"><span id="key-status">Enter your encryption key</span></p>
-    </div>
-    <div class="notification is-white">
-      <div class="field has-addons">
-        <p class="control is-expanded keymodal-input-control">
-          <input type="password" id="prevent_autofill" autocomplete="off" style="display:none" tabindex="-1" />
-          <input id="key-input"  class="modal-input input" type="password" placeholder="••••••••" autocomplete="off">
-        </p>
-        <div class="control" style="margin-left: auto;">
-          <a id="key-modal-decrypt-button" class="button is-dark" onclick="keyModalApproved ();">
-            <span>decrypt</span>
-          </a>
-        </div>
-      </div>
-    </div>
-    <a class="is-hidden-webapp" id="key-modal-signout-button" onclick="signOut();"><b>not</b> <span class="username"></span> <b>?</b></a>
+<div id="key-modal" class="img-loading">
+  <img src="" class="back-image">
+  <div class="back-curtain"></div>
+
+  <div class="centerfold">
+    <input type="password" id="prevent_autofill" autocomplete="off" style="display:none" tabindex="-1" />
+    <input id="key-input"  class="modal-input input" type="password" placeholder="Encryption Key" autocomplete="off">
+    <p id="key-modal-decrypt-button" onclick="keyModalApproved ();"><i class="fa fa-lock fa-fw fa-sm" aria-hidden="true"></i></p>
+    <p id="key-status">Testing Key Status with a long thing</p>
   </div>
-  <div class="modal-img-credit">
-    <p class="has-text-centered"><a id="photo-credit" target="_blank">Checking Internet Connection / Offline</a></p>
-  </div>
+
+  <a class="is-hidden-webapp" id="key-modal-signout-button" onclick="signOut();"><b>not</b> <span class="username"></span>?</a>
+  <a id="photo-credit" class="openInSafari" target="_blank">Checking Internet Connection / Offline</a>
 </div>

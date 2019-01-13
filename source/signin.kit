@@ -60,6 +60,7 @@
 
     .hero-banner {
       padding: 0!important;
+      background-color: #363636;
     }
 
     li.is-active i { color: #000 !important; }
@@ -72,7 +73,7 @@
 <body>
   <div class="login-wrapper columns">
     <div class="column is-8 is-hidden-mobile hero-banner">
-      <section class="hero is-fullheight is-dark">
+      <section class="hero is-fullheight">
         <div class="hero-body">
           <div class="container section" style="padding:3rem">
             <div class="has-text-right">
@@ -111,6 +112,11 @@
                 <div class="notification is-warning" style="display:none;" id="other-error">
                   <div class="title is-5">Sorry.</div>
                   <p>There seems to be an error signing you in. Please try again shortly.</p>
+                </div>
+
+                <div class="notification is-warning" style="display:none;" id="thirdpartycookie-error">
+                  <div class="title is-5">Sorry.</div>
+                  <p>It seems your browser is blocking 3rd Party Cookies. Since Google is a third party, logging in using Google requires that you enable this feature for Cryptee.</p>
                 </div>
 
                 <div id="signin-info" class="notification is-info" style="display:none;">
@@ -226,25 +232,15 @@
     </div>
   </div>
 
-  <div class="modal login-key-modal" id="key-modal">
-    <div class="modal-background key-modal-background"></div>
-    <div class="modal-content">
-      <div class="notification is-dark">
-        <p class="title"><span id="key-status">Enter your encryption key</span></p>
-      </div>
-      <div class="notification is-white">
-        <div class="field has-addons">
-          <p class="control is-expanded">
-            <input type="password" id="prevent_autofill" autocomplete="off" style="display:none" tabindex="-1" />
-            <input id="key-input"  class="modal-input input" type="password" placeholder="••••••••" autocomplete="off">
-          </p>
-          <div class="control" style="margin-left: auto;">
-            <a id="key-modal-decrypt-button" class="button is-dark" onclick="keyModalApproved ();">decrypt</a>
-          </div>
-        </div>
-      </div>
-      <a class="is-hidden-webapp" id="key-modal-signout-button" onclick="signOut();"><b>not</b> <span class="username"></span> <b>?</b></a>
+  <div id="key-modal">
+    <div class="centerfold">
+      <input type="password" id="prevent_autofill" autocomplete="off" style="display:none" tabindex="-1" />
+      <input id="key-input"  class="modal-input input" type="password" placeholder="Encryption Key" autocomplete="off">
+      <p id="key-modal-decrypt-button" onclick="keyModalApproved ();"><i class="fa fa-lock fa-fw fa-sm" aria-hidden="true"></i></p>
+      <p id="key-status">Testing Key Status with a long thing</p>
     </div>
+
+    <a class="is-hidden-webapp" id="key-modal-signout-button" onclick="signOut();"><b>not</b> <span class="username"></span>?</a>
   </div>
 
   <iframe class="hidden" id="gauthFrame"></iframe>

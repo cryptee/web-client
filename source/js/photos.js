@@ -1,4 +1,4 @@
- ////////////////////////////////////////////////////
+////////////////////////////////////////////////////
 ////////////////// ALL GLOBAL VARS /////////////////
 ////////////////////////////////////////////////////
 var firestore = firebase.firestore();
@@ -30,7 +30,7 @@ var activeFID = "home";
 var activePID = "";
 var activePName = "";
 
-var bootOfflineTimer = setInterval(function() { if(!$("#key-modal").hasClass("is-active")) { showBootOffline(); } }, 4000);
+var bootOfflineTimer = setInterval(function() { if(!$("#key-modal").hasClass("shown")) { showBootOffline(); } }, 4000);
 var thumbnailGenerator;
 var homeLoaded = false;
 
@@ -440,6 +440,11 @@ function checkKey (key) {
 
 function rightKey (plaintext, hashedKey) {
   var theStrongKey = plaintext.data;
+
+  $("#key-modal-decrypt-button").removeClass("is-loading");
+  $("#key-status").removeClass("shown");
+  $("#key-modal-signout-button").removeClass("shown");
+  
   hideKeyModal();
   theKey = theStrongKey;
   keyToRemember = hashedKey;
@@ -452,12 +457,16 @@ function rightKey (plaintext, hashedKey) {
 }
 
 function wrongKey (error) {
+  setTimeout(function () {
+    $("#key-modal-decrypt-button").removeClass("is-loading");
+  }, 1000);
   console.log("wrong key or ", error);
   sessionStorage.removeItem('key');
   showKeyModal();
-  $('#key-status').html("Wrong key, please try again.");
+  $('#key-status').html('<span class="icon"><i class="fa fa-exclamation-triangle fa-fw fa-sm" aria-hidden="true"></i></span> Wrong key, please try again.');
+  $("#key-status").addClass("shown");
+  $("#key-modal-signout-button").addClass("shown");
 }
-
 
 function keyModalApproved () {
   $('#key-status').html("Checking key");

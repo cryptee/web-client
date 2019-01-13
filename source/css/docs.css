@@ -161,41 +161,51 @@
   background: transparent;
 }
 
-#fileLoadingStatus::after {
+#fileLoadingStatus::before {
   position: absolute !important;
   z-index: 9;
-  top: calc(0.5rem + 2px);
-  right: 0.5rem;
-  content: " ";
+  top: -60px;
+  left: calc(50% - 30px);
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid #000;
+  border-radius: 10rem;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
   display: block;
-  height: 40px;
-  width: 40px;
-  margin: -27px calc(-100px - 2rem) 2rem auto;
-  background-image: url("../assets/loading-f5f5f5.gif");
-  background-size: contain;
-  background-repeat: no-repeat;
+  height: 60px;
+  width: 60px;
+  margin-top:-2rem;
 }
 
 #fileLoadingStatus {
-  position: absolute !important;
   z-index: 9;
-  top: 0.5rem;
-  right: calc(100px + 4rem);
-  width: calc(100% - 420px - 4rem);
-  margin: calc(12vh + 200px) 0 0 0;
-  opacity: 0;
-  transition: 0.5s opacity ease;
+  position: absolute;
+  top: 6rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: calc(100% - 2rem);
+  max-width: calc(480px - 2rem);
+  height: 6rem;
+  margin: auto;
+  display: block;
+  transform: translateY(calc(-50% - 3rem));
+
   pointer-events: none;
+  opacity: 0;
+  transition: 0.35s opacity ease;
 }
 
 #fileLoadingStatus .message {
-  text-align: right;
+  text-align: center;
   text-transform: uppercase;
   font-size: 1.5rem;
   letter-spacing: 2px;
-
-  margin-right: -4rem;
-  margin-top: -1.875rem;
+  line-height: 2rem;
+  background-color: transparent;
+  padding: 1rem;
 }
 
 #docs-center-wrap.is-loading #fileLoadingStatus {
@@ -299,6 +309,28 @@
   pointer-events: all;
 }
 
+.docs-body.sideBySide #file-viewer {
+  max-height: calc(100% - 3px);
+}
+
+.docs-body.sideBySide .ql-editor {
+  padding:2rem calc(2rem + 20px) 2rem 2rem;
+}
+
+.docs-body.sideBySide #docs-page-wrap,
+.docs-body.sideBySide #editor-toolbar {
+  margin-left: 3.5rem;
+  max-width: calc(50% - 4rem);
+}
+
+.docs-body.sideBySide #docs-page-wrap.showLeft {
+  transform: translateX(263px);
+}
+
+.docs-body.sideBySide #mobile-topbar {
+  opacity: 0;
+  pointer-events: none;
+}
 
 /*///////////////////////////////////////////////////
 ////////////////////// NAV //////////////////////////
@@ -1227,34 +1259,23 @@
     padding: 3rem calc(3rem + 20px) 6rem 3rem;
   }
 
-  #fileLoadingStatus {
-    background-color: #f5f5f5;
-    text-align: center;
-    width: calc(100% - 100px - 2rem);
-    height: calc(100% - 0.5rem);
-    padding: calc(12vh + 50px) 0 0 0;
-    margin: 0;
-    right: calc(50px + 2rem);
-  }
-
-  #fileLoadingStatus .message {
-    font-size: 1.2rem;
-    letter-spacing: 1px;
-    margin-right: 0;
-    margin-top: 0;
-  }
-
-  #fileLoadingStatus::after {
-    top: calc(12vh + 83px);
-    height: 40px;
-    width: 40px;
-    margin: -27px calc(-50px - 1rem) 2rem auto;
-  }
-
   #hamburger {
     margin-left: 0.25rem;
   }
 
+  #docs-center-wrap:not(.itsMobile) .showLeft + #fileLoadingStatus {
+    left: initial;
+    width: calc(100% - 320px);
+  }
+
+  #docs-center-wrap:not(.itsMobile) .showLeft + #fileLoadingStatus::before {
+    left: initial;
+    right: 1rem;
+  }
+
+  #docs-center-wrap:not(.itsMobile) .showLeft + #fileLoadingStatus .message {
+    text-align: right;
+  }
 }
 
 @media (max-width:480px) {

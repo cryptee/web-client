@@ -31,7 +31,7 @@ $(document).ready(function() {
 
       setCurrencies (detectedCurrency);
       setSmartIDRadios (detectedLocale);
-      setSentryLocale(detectedLocale);
+      setSentryTag("locale", detectedLocale);
       if (detectedLocale !== "XX") {
         try {
           $("#upgrade-countries>option[value='"+ detectedLocale +"']").prop('selected', true);

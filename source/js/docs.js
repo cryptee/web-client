@@ -43,8 +43,7 @@ var connectivityMode = true; // true = online // false = offline
 var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
 var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
 var storageDriver = localforage.driver();
-breadcrumb("Offline Storage Driver: " + storageDriver);
-
+setSentryTag("offline-driver", storageDriver);
 
 var checkConnectionTimeout;
 var connectedRef = db.ref(".info/connected");
@@ -845,10 +844,15 @@ function prepareRightClickDocFunctions (id) {
   catalog.docs[id] = catalog.docs[id] || {};
   var isFile = catalog.docs[id].isfile || false;
 
+  var offlineDisabled = false;
+  var downloadDisabled = false;
+  var moveDisabled = false;
+  var renameDisabled = false;
+  
   if (isFile) {
-    dd.find(".offline-button").addClass("disabled");
+    offlineDisabled = offlineDisabled || true;
   } else {
-    dd.find(".download-button").addClass("disabled");
+    downloadDisabled = downloadDisabled || true;
     offlineStorage.getItem(id, function (err, offlineDoc) {
       if (err) { handleError(err); }
       if (offlineDoc) { 
@@ -859,21 +863,26 @@ function prepareRightClickDocFunctions (id) {
     });
   } 
 
-  if (id === activeDocID || activeFileID) {
-    dd.find(".move-button").addClass("disabled");
+  if (connectivityMode) {
+    moveDisabled = moveDisabled || false;
+    renameDisabled = renameDisabled || false;
+    offlineDisabled = offlineDisabled || false;
   } else {
-    dd.find(".move-button").removeClass("disabled");
+    moveDisabled = moveDisabled || true;
+    renameDisabled = renameDisabled || true;
+    offlineDisabled = offlineDisabled || true;
   }
 
-  if (connectivityMode) {
-    dd.find(".move-button").removeClass("disabled");
-    dd.find(".rename-button").removeClass("disabled");
-    dd.find(".offline-button").removeClass("disabled");
+  if (id === activeDocID || id === activeFileID) {
+    moveDisabled = moveDisabled || true;
   } else {
-    dd.find(".move-button").addClass("disabled");
-    dd.find(".rename-button").addClass("disabled");
-    dd.find(".offline-button").addClass("disabled");
+    moveDisabled = moveDisabled || false;
   }
+  
+  if (moveDisabled) { dd.find(".move-button").addClass("disabled"); }
+  if (renameDisabled) { dd.find(".rename-button").addClass("disabled"); }
+  if (offlineDisabled) { dd.find(".offline-button").addClass("disabled"); }
+  if (downloadDisabled) { dd.find(".download-button").addClass("disabled"); }
 }
 
 
@@ -883,13 +892,17 @@ function prepareRightClickFolderFunctions (id) {
   var howManyDocs = 0;
   fd.find(".upload-file-button").find("label").attr("for", 'upload-to-' + id);
   
+  var renameDisabled = false;
+  var ghostDisabled = false;
+  var archiveDisabled = false;
+  
   if (id === "f-uncat") {
-    fd.find(".rename-button").addClass("disabled");
-    fd.find(".ghost-button").addClass("disabled");
-    fd.find(".archive-button").addClass("disabled");
+    renameDisabled = renameDisabled || true;
+    ghostDisabled = ghostDisabled || true;
+    archiveDisabled = archiveDisabled || true;
   } else {
     if (id === activeFolderID) {
-      fd.find(".archive-button").addClass("disabled");
+      archiveDisabled = archiveDisabled || true;
     }
   }
   
@@ -909,30 +922,46 @@ function prepareRightClickFolderFunctions (id) {
   }
 
   if (howManyDocs === 0 || catalog.folders[id].archived) {
-    fd.find(".offline-button").addClass("disabled");
-    fd.find(".ghost-button").addClass("disabled");
-    fd.find(".archive-button").addClass("disabled");
+    renameDisabled = renameDisabled || true;
+    ghostDisabled = ghostDisabled || true;
+    archiveDisabled = archiveDisabled || true;
   }
+
+  if (renameDisabled)   { fd.find(".rename-button").addClass("disabled");  }
+  if (ghostDisabled)    { fd.find(".ghost-button").addClass("disabled");   }
+  if (archiveDisabled)  { fd.find(".archive-button").addClass("disabled"); }  
 }
 
 function prepareRightClickSelectionFunctions () {
   var sd = $("#selections-dropdown");
   sd.find(".number-of-selections").html(selectionArray.length);
+
+  var offlineDisabled = false;
+  var downloadDisabled = false;
+  var moveDisabled = false;
+  var renameDisabled = false;
+
   if (selectedDocs > 0) {
-    sd.find(".download-button").addClass("disabled");
+    downloadDisabled = downloadDisabled || true;
   } else {
-    sd.find(".download-button").removeClass("disabled");
+    downloadDisabled = downloadDisabled || false;
   }
 
   if (connectivityMode) {
-    sd.find(".move-button").removeClass("disabled");
-    sd.find(".rename-button").removeClass("disabled");
-    sd.find(".offline-button").removeClass("disabled");
+    moveDisabled = moveDisabled || false;
+    renameDisabled = renameDisabled || false;
+    offlineDisabled = offlineDisabled || false;
   } else {
-    sd.find(".move-button").addClass("disabled");
-    sd.find(".rename-button").addClass("disabled");
-    sd.find(".offline-button").addClass("disabled");
+    moveDisabled = moveDisabled || true;
+    renameDisabled = renameDisabled || true;
+    offlineDisabled = offlineDisabled || true;
   }
+
+  if (moveDisabled) { sd.find(".move-button").addClass("disabled"); }
+  if (renameDisabled) { sd.find(".rename-button").addClass("disabled"); }
+  if (offlineDisabled) { sd.find(".offline-button").addClass("disabled"); }
+  if (downloadDisabled) { sd.find(".download-button").addClass("disabled"); }
+
 }
 
 
@@ -999,10 +1028,8 @@ $(window).on("load", function(event) {
   }
 
   // 767 to accommodate ipads / other portrait tablets
-  if ($(window).width() > 767) {
-    loadKeyModalBackground();
-  } else {
-    $(".modal-img-credit").hide();
+  if ($(window).width() <= 767) {
+    $(".docs-body").removeClass("sideBySide");
   }
 });
 
@@ -1022,6 +1049,21 @@ function lazyLoadUncriticalAssets() {
   });
 }
 
+function newUserHints() {
+  if (Object.keys(catalog.folders).length > 0) {
+    $(".first-folder-hint").slideUp();
+  } else {
+    $(".first-folder-hint").slideDown();
+  }
+
+  // because homedoc is = 1
+  if (Object.keys(catalog.docs).length > 1) {
+    $(".first-doc-hint").slideUp();
+  } else {
+    $(".first-doc-hint").slideDown();
+  }
+}
+
 function firstLoadComplete() {
   // HERE WE HAVE TITLES, TAGS AND EVERYTHING BEING LOADED .
   // THIS IS THE LAST THING TO BE EXECUTED AFTER SIGN IN COMPLETE.
@@ -1033,6 +1075,7 @@ function firstLoadComplete() {
 
     postLoadIntegrityChecks();
     lazyLoadUncriticalAssets();
+    newUserHints();
 
     setTimeout(function () { // this is for UX
       $("#doc-contextual-buttons").show();
@@ -1094,16 +1137,6 @@ function showWindowProgress () {
 
 function hideWindowProgress () {
   $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
-}
-
-
-function showFoldersProgress(status){
-  $(".folders-status").html(status);
-  $(".folders-status").addClass("shown");
-}
-
-function hideFoldersProgress(){
-  $(".folders-status").removeClass("shown");
 }
 
 function showDocProgress (status){
@@ -1429,6 +1462,7 @@ function startUserSockets () {
       }
 
       saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot);
+      setSentryTag("availableStorage", formatBytes(allowedStorage - usedStorage));
     }
   });
 
@@ -1518,8 +1552,10 @@ function sortFolders () {
 }
 
 function checkKey (key) {
-  if (!$("#key-modal").hasClass("is-active")){
+  if (!$("#key-modal").hasClass("shown")){
     showDocProgress("Checking Key");
+  } else {
+    $("#key-modal-decrypt-button").addClass("is-loading");
   }
   
   if (key) {
@@ -1564,9 +1600,11 @@ function checkKey (key) {
 
 function rightKey (plaintext, hashedKey) {
   clearInterval(keyModalConnectionTimer);
-
-  showDocProgress("Decrypting Files &amp;<br> Folders");
-  showFoldersProgress("Decrypting Files &amp;<br> Folders");
+  $("#key-modal-decrypt-button").removeClass("is-loading");
+  $("#key-status").removeClass("shown");
+  $("#key-modal-signout-button").removeClass("shown");
+  showDocProgress("Decrypting Files &amp; Folders<p class='cancel-loading'>this may take a second.</p>");
+  
 
   hideKeyModal();
 
@@ -1605,10 +1643,15 @@ function rightKey (plaintext, hashedKey) {
 }
 
 function wrongKey (error) {
+  setTimeout(function () {
+    $("#key-modal-decrypt-button").removeClass("is-loading");
+  }, 1000);
   console.log("wrong key or ", error);
   sessionStorage.removeItem('key');
   showKeyModal();
-  $('#key-status').html("Wrong key, please try again.");
+  $('#key-status').html('<span class="icon"><i class="fa fa-exclamation-triangle fa-fw fa-sm" aria-hidden="true"></i></span> Wrong key, please try again.');
+  $("#key-status").addClass("shown");
+  $("#key-modal-signout-button").addClass("shown");
 }
 
 function keyModalApproved (){
@@ -1755,7 +1798,7 @@ function fixUndefinedFolder (did) {
         if (!error) {
           dataRef.child("foldersOrder").once('value', function(foldersOrder) {
             var fOrderObj = foldersOrder.val();
-
+            fOrderObj = fOrderObj || {};
             Object.keys(fOrderObj).forEach(function(index){
               if (fOrderObj[index] === "undefined" || fOrderObj[index] === undefined) {
                 fOrderObj[index] = newFID;
@@ -2086,6 +2129,7 @@ function gotPlaintextFolderTitle (fid, plaintextTitle, callback) {
 
   Object.values(catalog.docs).forEach(function(doc){
     if (doc.fid === fid) {
+      catalog.docs[doc.did] = catalog.docs[doc.did] || {};
       catalog.docs[doc.did].fname = ftitle;
     }
   });
@@ -2249,6 +2293,7 @@ function gotEncryptedFoldertitle(fid, encryptedTitle) {
       gotPlaintextFolderTitle(forfid, plaintextTitle, function(){
         Object.keys(catalog.docs).forEach(function(did) {
           if (catalog.docs[did].fid === fid) {
+            catalog.docs[did] = catalog.docs[did] || {};
             catalog.docs[did].fname = plaintextTitle;
           }
           refreshOnlineDocs();
@@ -2351,13 +2396,17 @@ function checkIfTTDecryptionQueueComplete() {
 
 function ttQueueCompleted() {
   // ALL TITLES IN QUEUE DECRYPTED
-  setSentryTag("titles-decryption-speed", (completedTTQueue - startedTTQueue) + "ms");
   breadcrumb("TT Decryption Queue : DONE. Decrypted in " + (completedTTQueue - startedTTQueue) + "ms");
   checkCatalogIntegrity();
+  
   // if this is first boot, load last open doc now.
   if (!initialLoadComplete) {
+    setSentryTag("titles-decryption-speed", (completedTTQueue - startedTTQueue) + "ms");
     loadLastOpenDoc();
   }
+
+  // since queue complete will get called even after adding a new doc / folder:
+  newUserHints();
 }
 
 
@@ -2945,12 +2994,7 @@ function newFolder (callback, newFTitle, uuid) {
     };
 
     foldersRef.child(fid).update(folderData , function(){
-
       $("#new-folder-title").val("");
-
-      $(".first-folder-hint").hide();
-      $(".first-doc-hint").hide();
-
       callback(fid);
     });
 
@@ -4581,6 +4625,7 @@ function minimizeFileViewer() {
       $("#file-viewer").addClass("minimized");
       $('#file-viewer-minimize-button').hide();
       $('#file-viewer-maximize-button').show();
+      $(".docs-body").removeClass("sideBySide");
     }, 10);
   }
 }
@@ -4591,6 +4636,7 @@ function maximizeFileViewer () {
     $("#file-viewer").removeClass("minimized");
     $('#file-viewer-maximize-button').hide();
     $('#file-viewer-minimize-button').show();
+    $(".docs-body").removeClass("sideBySide");
     checkAndSaveDocIfNecessary();
  }
 }
@@ -4603,6 +4649,10 @@ function hideFileViewer () {
   $("#file-viewer").hide();
   $("#doc-top, #docs-page-wrap").show();
   $(".activefile").removeClass("activefile");
+}
+
+function sideBySideFileViewer() {
+  $(".docs-body").toggleClass("sideBySide");
 }
 
 function displayImageFile (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
@@ -5282,11 +5332,13 @@ $("#docs-move-selections-modal").on('click', '.docs-move-folders-list-item', fun
   $("#docs-move-selections-modal").find(".is-success").attr("disabled", false).prop("disabled", false);
 });
 
+var numDocsToMove = 0;
+var numDocsMoved = 0
 function moveFolderSelectionMade () {
   var toFID = $(".docs-move-folders-list-item.is-active").attr("fid");
   progressModal("docs-move-selections-modal");
-  var numDocsToMove = selectionArray.length;
-  var numDocsMoved = 0;
+  numDocsToMove = selectionArray.length;
+  numDocsMoved = 0;
   setTimeout(function () {
     selectionArray.forEach(function(sel){
       var selID = sel.did;
@@ -6456,10 +6508,10 @@ $("export-currentdoc-as-crypteedoc").on('click', function(event) {
 });
 
 if (window.print) {
-  breadcrumb("Printing enabled.");
+  setSentryTag("printing", "yes");
   $('#print-currentdoc').show();
 } else {
-  breadcrumb("Printing disabled.");
+  setSentryTag("printing", "no");
   $('#print-currentdoc').hide();
 }
 
@@ -7675,8 +7727,6 @@ function refreshOnlineDocs () {
         }
       }
     });
-
-    hideFoldersProgress();
   }
   
 }
@@ -8120,9 +8170,7 @@ function refreshOfflineDocs(callback, callbackParam) {
           }
         }
       });
-      hideFoldersProgress();
       callback(callbackParam);
-
   }).catch(function(err) {
     showErrorBubble("Error getting offline documents", err);
     handleError(err);

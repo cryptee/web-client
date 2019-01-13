@@ -107,21 +107,8 @@ function checkForExistingUser (){
 
 }
 
-function showKeyModal() {
-  $("#key-modal").addClass("is-active");
-  $("#key-modal").delay(10).animate({opacity : 1 }, 250, function(){
-    setTimeout(function () {
-      $("#key-input").focus();
-    }, 250);
-  });
-}
-
-function hideKeyModal() {
-  $("#key-modal").removeClass("is-active");
-  $("#key-input").blur();
-}
-
 function checkKey(key){
+  $("#key-modal-decrypt-button").addClass("is-loading");
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     if (snapshot.val() === null) {
       window.location = "signup?status=newuser";
@@ -147,6 +134,10 @@ function checkKey(key){
 function rightKey (plaintext, hashedKey) {
   // var theStrongKey = plaintext.data;
   // var theKey = theStrongKey;
+  $("#key-modal-decrypt-button").removeClass("is-loading");
+  $("#key-status").removeClass("shown");
+  $("#key-modal-signout-button").removeClass("shown");
+  
   sessionStorage.setItem("key", JSON.stringify(hashedKey));
 
   newEncryptedKeycheck(hashedKey,function(newKeycheck){
@@ -157,10 +148,15 @@ function rightKey (plaintext, hashedKey) {
 }
 
 function wrongKey (error) {
+  setTimeout(function () {
+    $("#key-modal-decrypt-button").removeClass("is-loading");
+  }, 1000);
   console.log("wrong key or ", error);
   sessionStorage.removeItem('key');
   showKeyModal();
-  $('#key-status').html("Wrong key, please try again.");
+  $('#key-status').html('<span class="icon"><i class="fa fa-exclamation-triangle fa-fw fa-sm" aria-hidden="true"></i></span> Wrong key, please try again.');
+  $("#key-status").addClass("shown");
+  $("#key-modal-signout-button").addClass("shown");
 }
 
 
@@ -286,8 +282,13 @@ function signin(token){
 
     } else {
       firebase.auth().signInWithPopup(provider).catch(function(error) {
+        if (error.code === "auth/web-storage-unsupported") {
+          $("#thirdpartycookie-error").fadeIn(500);
+        } else {
+          $("#other-error").fadeIn(500);
+        }
         console.log(error);
-        $("#other-error").fadeIn(500);
+        
         $("#signin-button").removeClass('is-loading').prop('disabled', false);
       });
     }

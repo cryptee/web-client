@@ -1140,13 +1140,13 @@ html[dir="rtl"] .secondaryToolbarButton::before {
 
 html[dir='ltr'] .toolbarButton#sidebarToggle::before {
   font-family: FontAwesome;
-  content: '\f0db';
+  content: '\f009';
   font-size: 2rem;
   line-height: 2rem;
 }
 html[dir='rtl'] .toolbarButton#sidebarToggle::before {
   font-family: FontAwesome;
-  content: '\f0db';
+  content: '\f009';
   font-size: 2rem;
   line-height: 2rem;
 }
@@ -2014,13 +2014,13 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
 
   html[dir='ltr'] .toolbarButton#sidebarToggle::before {
     font-family: FontAwesome;
-    content: '\f0db';
+    content: '\f009';
     font-size: 3.5rem;
     line-height: 3.5rem;
   }
   html[dir='rtl'] .toolbarButton#sidebarToggle::before {
     font-family: FontAwesome;
-    content: '\f0db';
+    content: '\f009';
     font-size: 3.5rem;
     line-height: 3.5rem;
   }

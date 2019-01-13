@@ -130,7 +130,7 @@ function getUrlParameter(sParam) {
 // Format Bytes
 
 function formatBytes (bytes) {
-   if (bytes === 0) { return '0 Bytes'; }
+   if (bytes <= 0) { return '0 Bytes'; }
    var k = 1000,
        dm = 1,
        sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
@@ -571,7 +571,6 @@ if ('serviceWorker' in navigator) {
     '../service-worker.js'
   ).then( function(serviceWorker) {
     setSentryTag("worker", "yes");
-    breadcrumb("Service Worker: Started");
   }).catch(function(error) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
       console.log("SWERR:", error);
@@ -698,35 +697,41 @@ function loadKeyModalBackground () {
     unsplashObj = JSON.parse(data);
 
     $('<img/>').attr('src', photoURL).on('load', function() {
-       $(this).remove();
-       $('.key-modal-background').css('background-image', 'url('+photoURL+')').css("background-size", "cover");
-       $('#photo-credit').html("&copy; &nbsp;" + unsplashObj.author + " via Unsplash");
-       $('#photo-credit').attr("href", unsplashObj.author_url);
-       $('.key-modal-background').addClass("modalBackgroundLoaded");
+      $(this).remove();
+      $('#key-modal').find("img").attr('src', photoURL);
+      $('#photo-credit').html("&copy; &nbsp;" + unsplashObj.author + " via Unsplash");
+      $('#photo-credit').attr("href", unsplashObj.author_url); 
+      $('#key-modal').removeClass("img-loading");
     });
 
   });
 }
 
+$("#key-modal").on('click', function(event) {
+  $("#key-input").focus();
+}); 
 
 function showKeyModal () {
+  // 767 to accommodate ipads / other portrait tablets
+  if ($(window).width() > 767) {
+    loadKeyModalBackground();
+  } else {
+    $("#photo-credit").hide();
+  }
+
+  $("#key-modal").addClass("shown");
   setTimeout(function () {
     $("html, body").addClass("modal-is-active");
-    $("#key-modal").addClass("is-active");
-    $("#key-modal").css({opacity : 1});
-    setTimeout(function() {
-      $("#key-input").focus();
-    }, 500);
-  }, 300);
+    $("#key-input").focus();
+  }, 750);
 }
 
 function hideKeyModal () {
   $("html, body").removeClass("modal-is-active");
-  $("#key-modal").css({opacity : 0});
+  $("#key-modal").removeClass("shown");
   setTimeout(function () {
-    $("#key-modal").removeClass("is-active");
     $("#key-input").blur();
-  }, 300);
+  }, 100);
 }
 
 
@@ -996,7 +1001,8 @@ if (!openpgp) {
     handleError(new Error("Problem initializing openpgp in main js, openpgp is undefined."));
   }
 } else {
-  breadcrumb("Initializing " + openpgp.config.versionstring);
+  var openpgpversion = openpgp.config.versionstring.split("v")[1];
+  setSentryTag("openpgp-ver", openpgpversion);
 }
 
 
@@ -1147,12 +1153,6 @@ function handleError (error, connectivity) {
 function setSentryUser(userid) {
   Sentry.configureScope(function(scope) {
     scope.setUser({ id: userid });
-  });
-}
-
-function setSentryLocale(locale) {
-  Sentry.configureScope(function (scope) {
-    scope.setTag("locale", locale);
   });
 }
 

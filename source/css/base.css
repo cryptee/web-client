@@ -125,10 +125,17 @@ code, pre {
 }
 
 ::placeholder {  color: #aaa; }
+#key-input::placeholder {  color: #FFF !important; }
+
 :-ms-input-placeholder { color: #aaa; }
 ::-ms-input-placeholder { color: #aaa; }
+
+#key-input:-ms-input-placeholder {  color: #FFF !important; }
+#key-input::-ms-input-placeholder  {  color: #FFF !important; }
+
 @-moz-document url-prefix() {
   ::placeholder {  color: #555 !important; }
+  #key-input::placeholder {  color: #FFF !important; }
 }
 
 *:before, *:after {
@@ -895,21 +902,6 @@ html {
   text-align: left;
 }
 
-.login-key-modal .key-modal-background {
-  background-color: rgba(0,0,0,0.35);
-}
-
-#key-modal {
-  background-color: #000;
-}
-
-#key-modal.login-key-modal {
-  opacity: 0;
-  transition: ease-in-out 1s opacity;
-  background-color: transparent !important;
-}
-
-#key-modal-decrypt-button,
 #crypteedoc-modal-decrypt-button,
 #crypteedoc-export-modal-decrypt-button {
   height: 4rem;
@@ -959,32 +951,183 @@ html {
   font-size: 1.2rem;
 }
 
-
-#key-modal-signout-button {
-  color: #FFF;
+#key-modal {
+  z-index: 995;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-color:transparent;
+  transition: 0.5s opacity ease;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.key-modal-background {
+#key-modal img {
+  z-index: 995;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+#key-modal .back-curtain {
+  z-index: 996;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color:transparent;
+  transition: 0.5s background-color ease; 
+}
+
+#key-modal.img-loading .back-curtain {
+  background-color:#F5F5F5;
+}
+
+#key-modal #photo-credit {
+  z-index: 996;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 2rem;
+  color:#F5F5F5;
+  text-align:center;
+  transition: 0.5s color ease;
+}
+
+#key-modal #key-modal-signout-button {
+  z-index: 996;
+  position: absolute;
+  bottom: 1rem;
+  left:1rem;
+  height: 3rem;
+  color:#F5F5F5;
+  background-color: #000000;
+  box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.5);
+  padding: 0 1rem;
+  line-height: 3rem;
+  border-radius: 3rem;
+  transition: 1s transform ease;
+  transform: translateY(5rem);
+}
+
+
+
+#key-modal .centerfold {
+  z-index: 997;
+  position: relative;
+  top: 50%;
+  width: calc(100% - 2rem);
+  max-width: calc(480px - 2rem);
+  height: 6rem;
+  margin: auto;
+  transform: translateY(calc(-50% - 3rem));
+}
+
+#key-modal #key-input {
+  z-index: 998;
+  margin-top: 1rem;
+  margin-left: 1rem;
+  background-color: #000000;
+  height: 4rem;
+  border-radius: 10px;
+  width: calc(100% - 4rem);
+  padding:1rem 4rem 1rem 1rem;
+  color:#FFF;
+  box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.5);
+  overflow:hidden;
+  font-size:1.3rem;
+  transition: 0.7s opacity ease, 0.5s box-shadow ease; 
+}
+
+#key-modal #key-modal-decrypt-button {
+  z-index: 998;
+  background-color: #FFF;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 5rem;
+  padding-top:1.75rem;
+  text-align: center;
+  color:#000;
+  box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.25);
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
+  cursor: pointer;
+
+  transform: translateY(0);
+  transition: 0.75s color ease, 0.75s background-color ease, 0.5s box-shadow ease;
+}
+
+#key-modal #key-modal-decrypt-button.is-loading {
+  color:transparent;
+}
+
+#key-modal #key-modal-decrypt-button.is-loading:after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 1px solid #000;
+  border-radius: 10rem;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 4rem;
+  width: 4rem;
+  left: calc(50% - 2rem);
+  top: 0.5rem;
+  position: absolute !important;
+}
+
+#key-modal.img-loading #key-modal-decrypt-button,
+#key-modal.img-loading #key-input {
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+}
+
+#key-modal.img-loading #photo-credit {
+  color:#aaa;
+}
+
+#key-modal.shown {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+#key-modal #key-modal-signout-button.shown {
+  transform: translateY(0);
+}
+
+#key-modal #key-status {
+  z-index: 997;
+  position: relative;
+  width: calc(100% - 4rem);
+  margin: 1rem 0 0 1rem;
+  min-height: 2.5rem;
+  padding-left: 0.5rem;
+  color:#F5F5F5;
+  text-align:left;
+  background-color: #000;
+  line-height: 2.5rem;
+  border-radius: 10px;
+  pointer-events: none;
+  box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.25);
+
   opacity: 0;
+  transform: translateY(-4rem);
   transition: 0.5s all ease;
 }
 
-.modalBackgroundLoaded {
-  opacity: 0.75;
-}
-
-.modal-img-credit {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  z-index: 999;
-  color: #FFF;
-}
-
-.modal-img-credit p a {
-  color: #FFF;
+#key-status.shown {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 #hero .hero-body {
@@ -1459,6 +1602,12 @@ html {
   border-left: none;
   border-right: none;
   border-top: none;
+}
+
+.login-wrapper .hero-banner h1,
+.login-wrapper .hero-banner p,
+.login-wrapper .hero-banner a {
+  color:#FFF !important;
 }
 
 /*///////////////////////////////////////////////////
@@ -3080,12 +3229,6 @@ body.draggingStuff {
   position: absolute !important;
 }
 
-#fileLoadingStatus {
-  margin-top: calc(33vh + 100px);
-  width: 100%;
-  display: block;
-}
-
 #loading-sideways {
   font-size: 29.5vw;
   font-weight: 900;
@@ -4042,18 +4185,12 @@ body.draggingStuff {
   box-shadow: 0 2px 3px rgba(10,10,10,0.1);
 }
 
-.first-folder-hint {
-  padding: 0.75rem;
-  margin-top: 1rem;
-  margin-bottom: 0;
+.first-folder-hint, .first-doc-hint, .offline-hint {
+  padding: 1.25rem;
+  margin: 4rem 0.5rem 0 0.5rem !important;
   display: none;
-}
-
-.first-doc-hint, .offline-hint {
-  padding: 0.75rem;
-  margin-top: 4rem;
-  margin-bottom: 0;
-  display: none;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
 }
 
 #hotkeys-modal {
@@ -5960,20 +6097,6 @@ body.draggingStuff {
     font-size: 30px !important;
   }
 
-  #key-input{
-    font-size: 1rem;
-    width: 100%;
-  }
-
-  #key-modal-decrypt-button {
-    font-size: .7rem;
-    height: 4rem;
-  }
-
-  #key-modal-signout-button {
-    width: 100%;
-  }
-
   .signupterms {
     text-align:left !important;
   }
@@ -6226,6 +6349,18 @@ body.draggingStuff {
       padding: 1rem;
   }
 
+  #key-modal #key-input {
+    font-size: 1rem;
+  }
+
+  #key-modal-decrypt-button {
+    font-size: 0.8rem;
+    top:0.5rem !important;
+    width: 5rem !important;
+    height: 5rem !important;
+    border-radius: 5rem !important;
+    padding-top:1.75rem !important;
+  }
 }
 
 @media (max-width: 784px) {
