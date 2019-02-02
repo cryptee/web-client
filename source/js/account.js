@@ -1428,7 +1428,7 @@ function reflectDeviceSecuritySettings() {
   $("#device-security-status").removeClass("is-warning").removeClass("is-success");
   if (setting === "usenone") {
     $("#usenone").find(".crypteecheckbox").prop('checked', true).attr('checked', true).prop('disabled', true).attr('disabled', true);
-    $("#device-security-status").html('<span class="icon"><i class="fa fa-exclamation-triangle"></i></span>' + "<b>Risky</b><br><br>Optimized for convenience.<br>Not using Encryption Key or Emoji-Code. (Encryption key saved on device)");
+    $("#device-security-status").html('<span class="icon"><i class="fa fa-exclamation-triangle"></i></span>' + "<b>Risky</b><br><br>Optimized for convenience.<br>Not using Encryption Key. (Encryption key saved on device)");
     $("#device-security-status").addClass("is-warning");
   } else if (setting === "useemoji") {
     $("#useemoji").find(".crypteecheckbox").prop('checked', true).attr('checked', true).prop('disabled', true).attr('disabled', true);
