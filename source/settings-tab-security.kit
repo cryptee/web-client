@@ -1,0 +1,209 @@
+<div class="account-card crypteecard">
+  <p class="title is-4">Mobile Device Security Settings</p>
+
+  <div class="is-hidden-webapp">
+    <p>Navigate to this section in Cryptee's App on your mobile device to configure device-specific security
+      settings.</p>
+    <br>
+    <p>Such as the ability to always remember the Encryption Key, set an Emoji-Code and more.</p>
+    <br><br>
+  </div>
+
+  <div class="is-visible-webapp" style="display:none;">
+    <p>We know that it can be inconvenient to type your encryption key every time you launch Cryptee's App. If you
+      would like, you can set <b>this specific device</b> to always remember your encryption key or use an
+      Emoji-Code instead.</p>
+    <br>
+
+    <p><b>Current Device Security Status:</b></p>
+    <br>
+    <p id="device-security-status" class="notification"></p>
+  </div>
+</div>
+
+
+<div class="account-card crypteecard device-security-card is-visible-webapp" style="display:none;">
+  <p><b>How would you like to secure your data on this device?</b></p>
+
+  <label class="checkbox login-option-label" id="usekey">
+    <input type="checkbox" class="button crypteecheckbox">
+    <span>Use Encryption Key</span>
+  </label>
+  <p><span class="icon"><i class="fa fa-star"></i></span> <b>Safest</b>, but Least Convenient</p>
+
+  <hr>
+
+  <label class="checkbox login-option-label" id="useemoji">
+    <input type="checkbox" class="button crypteecheckbox">
+    <span>Use Emoji-Code</span>
+  </label>
+  <p><span class="icon"><i class="fa fa-check"></i></span> Safe &amp; Convenient</p>
+
+  <hr>
+
+  <label class="checkbox login-option-label" id="usenone">
+    <input type="checkbox" class="button crypteecheckbox">
+    <span>Don't use anything</span>
+  </label>
+  <p><span class="icon"><i class="fa fa-exclamation-triangle"></i></span> <b>Riskiest</b>, but Most Convenient</p>
+
+  <br>
+  <p class="deets">If you choose not to use anything, Cryptee will remember your encryption key on this device
+    forever. While it is quite convenient, we don't recommend using this option. – We may still occasionally ask
+    you to type your encryption key for your safety and to keep your memory fresh.</p>
+</div>
+
+
+<div class="modal warning-modal" id="device-setting-keypin-modal">
+  <div class="modal-background" onclick="hideActiveWarningModal();"></div>
+  <div class="modal-content">
+    <div class="crypteecard">
+      <div class="content">
+        <p class="title is-5">Confirm Device Security Setting</p>
+
+        <p>Type your Encryption Key to confirm the new device security preference:</p>
+        <p class="control has-icons-left">
+          <input class="input" id="device-setting-confirmkey" type="password" placeholder="Encryption Key">
+          <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+        </p>
+
+        <br>
+
+        <button class="button is-dark" id="cancel-sechange-button" onclick="hideActiveWarningModal();">CANCEL</button>
+        <button class="button is-success" id="setemoji-button" disabled>SET EMOJI CODE</button>
+        <button class="button is-success" id="rememberkey-button" disabled>SAVE ENCRYPTION KEY</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="account-card crypteecard" id="changepasscard">
+  <p class="title is-4">Change Password</p>
+
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="currentpass" type="password" placeholder="Current Password">
+      <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
+    </p>
+  </div>
+  <br>
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="newpass" type="password" placeholder="New Password">
+      <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
+    </p>
+    <progress id="pass-score" class="progress is-small" value="15" max="100">15%</progress>
+    <p></p>
+  </div>
+
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="newpassver" type="password" placeholder="Verify">
+      <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
+    </p>
+    <p class="help is-danger">Doesn't match</p>
+  </div>
+  <p class="deets"><b>If you forget this password, and if you have a recovery email on file, you can easily recover it.</b></p>
+  <br>
+  <p class="button is-dark is-small" id="change-pass-button">Change Password</p>
+</div>
+
+
+
+
+<div class="account-card crypteecard">
+  <p class="title is-4">Change Encryption Key</p>
+
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="currentkey" type="password" placeholder="Current Encryption Key">
+      <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+    </p>
+  </div>
+  <br>
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="newkey" type="password" placeholder="New Encryption Key">
+      <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+    </p>
+    <progress id="key-score" class="progress is-small" value="15" max="100">15%</progress>
+    <p class="help is-danger">Key contains a special character that isn't safe to use.</p>
+  </div>
+
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="newkeyver" type="password" placeholder="Verify">
+      <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+    </p>
+    <p class="help is-danger">Doesn't match</p>
+  </div>
+  <p class="deets">
+    <b>There is no way to recover this key. All your data will be forever inaccessible if you forget it.</b>
+  </p>
+  <br>
+  <p class="button is-dark is-small" id="change-key-button">Change Key</p>
+</div>
+
+
+
+
+<div class="account-card crypteecard" id="recoveryemailcard">
+  <p class="title is-4">Recovery Email</p>
+
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="currentpass-email" type="password" placeholder="Current Password">
+      <span class="icon is-small is-left">
+        <i class="fa fa-lock"></i>
+      </span>
+    </p>
+  </div>
+
+  <div class="field">
+    <p class="control is-expanded has-icons-left">
+      <input class="input" id="recoveryemail" type="text" placeholder="Recovery Email">
+      <span class="icon is-small is-left">
+        <i class="fa fa-envelope"></i>
+      </span>
+    </p>
+  </div>
+
+  <div class="field" id="nousername" style="display:none;">
+    <p class="control is-expanded has-icons-left">
+      <input class="input" id="newusername" type="text" placeholder="Pick a username if you'd like to remove your email">
+      <span class="icon is-small is-left">
+        <i class="fa fa-user"></i>
+      </span>
+    </p>
+  </div>
+
+  <p class="deets">If you have a recovery email set, you can only login using your email, and not your username.</p>
+  <br>
+  <p class="deets">While leaving this blank provides an added layer of anonymity, if you lose your account password
+    you won't be able to receive a password recovery email.</p>
+
+  <br>
+
+  <p class="button is-dark is-small" id="change-email-button">Update Email</p>
+</div>
+
+<div class="account-card crypteecard">
+  <p class="title is-4">Inactivity Timeout</p>
+
+  <div class="field is-horizontal">
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <input class="input is-static" type="number" placeholder="30" id="inactivityTimeoutInput">
+        </p>
+      </div>
+    </div>
+    <div class="field-label">
+      <label class="label">(minutes)</label>
+    </div>
+  </div>
+  <p>Your key will be automatically removed from your device's memory after 30 minutes of inactivity for your
+    safety. <br><br> You can turn this off by typing 0, or change this value. We recommend keeping this at 30
+    minutes or below for your safety.</p>
+</div>

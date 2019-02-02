@@ -1,4 +1,5 @@
-
+// for testing only
+// isInWebAppiOS = true;
 
 if (isInWebAppiOS || isInWebAppChrome) {
   $(".is-hidden-webapp").hide();

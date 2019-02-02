@@ -7,8 +7,19 @@ var cloudfunctions = firebase.functions();
 
 
 var theKey;
-var keyToRemember = JSON.parse(sessionStorage.getItem('key'));
+var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedKey
 sessionStorage.removeItem('key');
+
+if (localStorage.getItem('memorizedKey')) {
+  keyToRemember = JSON.parse(localStorage.getItem('memorizedKey')); // hashedKey
+}
+
+if (localStorage.getItem('emojiCryptedKey')) {
+  if(JSON.parse(localStorage.getItem('emojiCryptedKey')) && !keyToRemember) {
+    showEmojilock();
+  }
+}
+
 
 var theUser;
 var theUserID;

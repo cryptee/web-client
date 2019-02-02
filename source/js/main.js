@@ -653,7 +653,6 @@ function showWarningModal(id) {
   $("html, body").addClass("modal-is-active");
   $("#"+id).addClass("is-active");
   $("#"+id).find("input").val("");
-  $("#"+id).find("input").focus();
   setTimeout(function() {
     $("#"+id).addClass("is-shown");
   }, 100);
@@ -724,6 +723,12 @@ function showKeyModal () {
     $("html, body").addClass("modal-is-active");
     $("#key-input").focus();
   }, 750);
+
+  if (isInWebAppiOS || isInWebAppChrome) {
+    $('#photo-credit').html("Security Preferences <span class='icon'><i class='fa fa-cog'></i></span>");
+    $('#photo-credit').attr("href", "/account?action=security").removeClass("openInSafari").removeAttr("target"); 
+    $("#photo-credit").show();
+  }
 }
 
 function hideKeyModal () {
@@ -731,6 +736,7 @@ function hideKeyModal () {
   $("#key-modal").removeClass("shown");
   setTimeout(function () {
     $("#key-input").blur();
+    hideEmojilock();
   }, 100);
 }
 
@@ -775,7 +781,7 @@ function inactivityTimeout () {
 
 var latestDeployVersion = "local-beta-ver";
 function displayVersion() {
-  $(".cryptee-latest-deploy-version").html("VERSION: " + latestDeployVersion);
+  $(".cryptee-latest-deploy-version").html("" + latestDeployVersion);
 }
 
 displayVersion();

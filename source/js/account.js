@@ -41,6 +41,8 @@ var countryForPaddle;
 var zipForPaddle;
 var couponForPaddle = getUrlParameter("coupon") || "";
 
+var encryptedStrongKey;
+
 loadUserDetailsFromLS();
 checkLatestVersion();
 
@@ -74,7 +76,10 @@ function paddleInit() {
 		vendor: 28922,
     eventCallback: function(eventData) {
       updatePrices(eventData);
-    }
+    },
+    enableTracking: false,
+    poweredByBadge: false,
+    checkoutVariant: 'multipage-compact-payment'
 	});
 }
 
@@ -100,8 +105,25 @@ function checkIfPaddleIsLoaded () {
 //////////////////// HELPERS ////////////////////////
 /////////////////////////////////////////////////////
 
+$(".account-menu-collapse").on('click', function(event) {
+  $("#account-menu-left").toggleClass("collapsed");
+  $(".account-menu-collapse").find("i").toggleClass("fa-chevron-left").toggleClass("fa-bars");
+}); 
 
-$(".settings-tab").on('click', function(event) {
+
+$("body").on('click', function(event) {
+  if ($(window).width() < 768) { 
+    if (!$(event.target).parents(".account-menu-collapse").length > 0 && !$(event.target).is(".account-menu-collapse")) {
+      if (!$("#account-menu-left").hasClass("collapsed")) {
+        $("#account-menu-left").addClass("collapsed");
+        $(".account-menu-collapse").find("i").removeClass("fa-chevron-left").addClass("fa-bars");
+      }
+    }
+  }
+}); 
+
+
+$(".menu-list").on('click', 'li', function(event) {
   whichTab = $(this).attr("tab");
   loadTab(whichTab);
 });
@@ -120,8 +142,9 @@ function loadTab(whichTab) {
   $(".settings-tab-contents").removeClass('active');
   $("#" + whichTab + "-tab-contents").show();
   $("#" + whichTab + "-tab-contents").addClass("active");
-  $(".settings-tab.is-dark").removeClass('is-dark');
-  $(".settings-tab[tab="+whichTab+"]").addClass('is-dark');
+  
+  $(".menu-list").find("a").removeClass('is-active');
+  $("li[tab="+whichTab+"]").find("a").addClass('is-active');
 }
 
 $("#upgrade-button, .upgrade-card").on('click', function(event) {
@@ -172,7 +195,10 @@ $(window).on('load', function(event) {
   if (isInWebAppiOS || isInWebAppChrome) {
     $("#acct-signout").hide();
   }
-
+  if ($(window).width() < 768) { 
+   $("#account-menu-left").addClass("collapsed");
+        $(".account-menu-collapse").find("i").removeClass("fa-chevron-left").addClass("fa-bars");
+  }
   $("#upgrade-coupon-input").val(couponForPaddle);
 });
 
@@ -282,6 +308,9 @@ function gotUser() {
     }
   });
 
+  db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+    encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+  });
   checkForAction();
 }
 
@@ -303,10 +332,10 @@ function arrangeSettings() {
   if (loginMethod === "password") {
 
   } else if (loginMethod === "google.com") {
-    $("#changepassbutton, #recoveryemailbutton, #currentpass-delete-field").hide();
+    $("#changepasscard, #recoveryemailcard, #currentpass-delete-field").hide();
     $('#google-reauth-message').show();
   } else {
-    $("#changepassbutton, #recoveryemailbutton, #currentpass-delete-field").hide();
+    $("#changepasscard, #recoveryemailcard, #currentpass-delete-field").hide();
     $('#eid-reauth-message').show();
   }
 
@@ -416,8 +445,7 @@ function gotUserMeta (meta){
     if (meta.hasOwnProperty("plan") && meta.plan !== "") {
       userPlan = meta.plan;
 
-      $("#upgrade-button, #upgrade-setting, #donate-button").fadeOut();
-
+      $("#upgrade-button, .upgrade-setting-card, #donate-button").fadeOut();
       $(".paid-plan-only").show();
       $("#payment-method").show();
       populatePlanDetails(meta);
@@ -425,10 +453,10 @@ function gotUserMeta (meta){
       $(".paid-plan-only").hide();
 
       if (allowedStorage > paidUserThresholdInBytes) {
-        $("#upgrade-button, #upgrade-setting, #donate-button").fadeOut();
+        $("#upgrade-button, .upgrade-setting-card, #donate-button").fadeOut();
         paidOrNot = true;
       } else {
-        $("#upgrade-button, #upgrade-setting, #donate-button").fadeIn();
+        $("#upgrade-button, .upgrade-setting-card, #donate-button").fadeIn();
       }
     }
 
@@ -445,9 +473,9 @@ function gotUserMeta (meta){
 
 function gotUserOrders(orders) {
   if (orders !== null) {
-    $("#paymenthistorybutton").show();
+    $(".has-orders-only").show();
   } else {
-    $("#paymenthistorybutton").hide();
+    $(".has-orders-only").hide();
   }
 }
 
@@ -700,14 +728,14 @@ function emailInvoices() {
 
 
 function hideReauthPopup () {
-  $("#reauth-error").slideUp(500);
+  $("#reauth-error").fadeOut(500);
 }
 
 function showReauthPopup(color, message){
   $("#change-pass-button").removeClass('loading disabled');
   $("#change-key-button").removeClass('loading disabled');
   $("#reauth-error").html('<button class="delete" onclick="hideReauthPopup();"></button>' + message);
-  $("#reauth-error").removeClass("is-warning is-success is-info is-danger").addClass(color).slideDown(500);
+  $("#reauth-error").removeClass("is-warning is-success is-info is-danger").addClass(color).fadeIn(500);
 }
 
 function reauthForPass (){
@@ -944,43 +972,40 @@ function checkKeyStrength() {
 function tryChangingKey () {
   var currentkey = $("#currentkey").val().trim();
   var newKey = $("#newkey").val().trim();
-  db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-    var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
-    hashString(currentkey).then(function (hashedKey) {
-      decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
-        // RIGHT KEY
-        var theStrongKey = plaintext.data;
-        hashString(newKey).then(function (newHashedKey) {
-          encrypt(theStrongKey, [newHashedKey]).then(function (ciphertext) {
-            var newEncryptedStrongKey = JSON.stringify(ciphertext);
-            dataRef.update({
-              keycheck: newEncryptedStrongKey
-            }, function (error) {
-              if (error) {
-                showReauthPopup("is-warning", "Couldn't change your Encryption Key. Please try again.");
-              } else {
-                showReauthPopup("is-success", "Encryption Key successfully changed!");
-                $("#currentkey").val("");
-                $("#newkey").val("");
-                $("#newkeyver").val("");
-                $("#key-score").attr("value", 0);
-              }
-            });
+  hashString(currentkey).then(function (hashedKey) {
+    decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+      // RIGHT KEY
+      var theStrongKey = plaintext.data;
+      hashString(newKey).then(function (newHashedKey) {
+        encrypt(theStrongKey, [newHashedKey]).then(function (ciphertext) {
+          var newEncryptedStrongKey = JSON.stringify(ciphertext);
+          dataRef.update({
+            keycheck: newEncryptedStrongKey
+          }, function (error) {
+            if (error) {
+              showReauthPopup("is-warning", "Couldn't change your Encryption Key. Please try again.");
+            } else {
+              showReauthPopup("is-success", "Encryption Key successfully changed!");
+              $("#currentkey").val("");
+              $("#newkey").val("");
+              $("#newkeyver").val("");
+              $("#key-score").attr("value", 0);
+            }
           });
         });
-
-      }).catch(function (error) {
-        console.log(error);
-        setTimeout(function () {
-          showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your current Encryption Key. Please try again.");
-        }, 1000);
       });
-    }).catch(function(e){
+
+    }).catch(function (error) {
       console.log(error);
       setTimeout(function () {
-        showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your Encryption Key. Please try again.");
+        showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your current Encryption Key. Please try again.");
       }, 1000);
     });
+  }).catch(function(e){
+    console.log(error);
+    setTimeout(function () {
+      showReauthPopup("is-warning", "Whoops. Seems like you made a mistake with your Encryption Key. Please try again.");
+    }, 1000);
   });
 }
 
@@ -1046,119 +1071,121 @@ var ordersAdded = false;
 var exportData;
 
 function fillDataExporter (data, meta, orders) {
-  if (!isMobile) {
-    if (data && !dataAdded) {
-      var theData = data.toJSON();
-      delete theData.cryptmail;
-      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theData));
-      $("#account-data-json").append("<a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Account Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Account Data (JSON File)</a><br>");
-      $("#account-data-json").removeClass("is-loading");
-      exportData = data;
-      dataAdded = true;
-    }
+  if (data && !dataAdded) {
+    var theData = data.toJSON();
+    delete theData.cryptmail;
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theData));
+    $("#account-data-json").append("<a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Account Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Account Data (JSON File)</a><br>");
+    exportData = data;
+    dataAdded = true;
+  }
 
-    if (meta && !metaAdded) {
-      var theMeta = meta.toJSON();
-      var metaStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theMeta));
-      $("#account-data-json").append("<a style='text-decoration:none;' href='"+metaStr+"' download='Cryptee Meta Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Meta Data (JSON File)</a><br>");
-      $("#account-data-json").removeClass("is-loading");
-      metaAdded = true;
-    }
+  if (meta && !metaAdded) {
+    var theMeta = meta.toJSON();
+    var metaStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theMeta));
+    $("#account-data-json").append("<a style='text-decoration:none;' href='"+metaStr+"' download='Cryptee Meta Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Meta Data (JSON File)</a><br>");
+    metaAdded = true;
+  }
 
-    if (orders && !ordersAdded) {
-      var theOrders = orders.toJSON();
-      var ordersStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theOrders));
-      $("#account-data-json").append("<a style='text-decoration:none;' href='"+ordersStr+"' download='Cryptee Orders Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Orders Data (JSON File)</a><br>");
-      $("#account-data-json").removeClass("is-loading");
-      ordersAdded = true;
-    }
+  if (orders && !ordersAdded) {
+    var theOrders = orders.toJSON();
+    var ordersStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theOrders));
+    $("#account-data-json").append("<a style='text-decoration:none;' href='"+ordersStr+"' download='Cryptee Orders Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Orders Data (JSON File)</a><br>");
+    ordersAdded = true;
   }
 }
 
-var myDataPopulated = false;
-$("#settings-my-data-button").on("click", function(){
-  if (!myDataPopulated) {
-    myDataPopulated = true;
-    generateExportURLs(exportData);
-  }
-});
+/////////////////////////////////////////////////////////////////
+// THESE USE THE STRONGKEY, AND USELESS TO PRESENT TO USER     //
+// UNLESS USER IS PRESENTED WITH THE STRONGKEY.                //
+// NEEDS REDESIGN. – REMOVING UNTIL THERE'S A BETTER SOLUTION  //
+/////////////////////////////////////////////////////////////////
 
-function generateExportURLs (data) {
-  var fileRef = rootRef.child("home.crypteedoc");
-  fileRef.getDownloadURL().then(function(docURL) {
-    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>Home Document</a><br>");
-  });
 
-  if (data) {
-    var docsFolders = data.val().folders;
-    if (docsFolders) {
-      $.each(docsFolders, function(fid, folder){
-        var docsOfFolder = folder.docs;
-        $.each(docsOfFolder, function(did, doc){
-          if (doc.isfile) {
-            generateFileURLAndAppendToList(did);
-          } else {
-            generateDocURLAndAppendToList(did);
-          }
-        });
-      });
-    }
+// var myDataPopulated = false;
+// $("#settings-my-data-button").on("click", function(){
+//   if (!myDataPopulated) {
+//     myDataPopulated = true;
+//     generateExportURLs(exportData);
+//   }
+// });
 
-    generatePhotosURLs();
-  }
-}
+// function generateExportURLs (data) {
+//   var fileRef = rootRef.child("home.crypteedoc");
+//   fileRef.getDownloadURL().then(function(docURL) {
+//     $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>Home Document</a><br>");
+//   });
 
-function generateDocURLAndAppendToList(did) {
-  var fileRef = rootRef.child(did + ".crypteedoc");
-  fileRef.getDownloadURL().then(function(docURL) {
-    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
-  });
-}
+//   if (data) {
+//     var docsFolders = data.val().folders;
+//     if (docsFolders) {
+//       $.each(docsFolders, function(fid, folder){
+//         var docsOfFolder = folder.docs;
+//         $.each(docsOfFolder, function(did, doc){
+//           if (doc.isfile) {
+//             generateFileURLAndAppendToList(did);
+//           } else {
+//             generateDocURLAndAppendToList(did);
+//           }
+//         });
+//       });
+//     }
 
-function generateFileURLAndAppendToList(did) {
-  var fileRef = rootRef.child(did + ".crypteefile");
-  fileRef.getDownloadURL().then(function(docURL) {
-    $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
-  });
-}
+//     generatePhotosURLs();
+//   }
+// }
 
-function generatePhotosURLs () {
-  photosRef.get().then(function(photosHomeItems) {
-    photosHomeItems.docs.forEach(function(photosHomeItem){
-      var photosHomeItemId = photosHomeItem.data().id;
-      if (photosHomeItemId) {
-          if (photosHomeItemId.startsWith('p-')) {
-            var fileRef = rootRef.child(photosHomeItemId + ".crypteefile");
-            fileRef.getDownloadURL().then(function(docURL) {
-              $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+photosHomeItemId.replace("d-","").replace("p-","")+"</a><br>");
-            });
-          } else if (photosHomeItemId.startsWith('f-')) {
-            enumerateFolderForExport(photosHomeItemId);
-          }
-        }
-    });
-  });
-}
+// function generateDocURLAndAppendToList(did) {
+//   var fileRef = rootRef.child(did + ".crypteedoc");
+//   fileRef.getDownloadURL().then(function(docURL) {
+//     $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
+//   });
+// }
 
-function enumerateFolderForExport(fid){
-  photosRef.doc(fid).collection(fid).get().then(function(folderItems) {
+// function generateFileURLAndAppendToList(did) {
+//   var fileRef = rootRef.child(did + ".crypteefile");
+//   fileRef.getDownloadURL().then(function(docURL) {
+//     $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
+//   });
+// }
 
-    folderItems.docs.forEach(function(folderItem) {
-      var folderItemId = folderItem.id;
-      if (folderItemId) {
-        if (folderItemId.startsWith('p-')) {
-          var fileRef = rootRef.child(folderItemId + ".crypteefile");
-          fileRef.getDownloadURL().then(function(docURL) {
-            $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+folderItemId.replace("d-","").replace("p-","")+"</a><br>");
-          });
-        } else if (folderItemId.startsWith('f-')) {
-          enumerateFolderForExport(folderItemId);
-        }
-      }
-    });
+// function generatePhotosURLs () {
+//   photosRef.get().then(function(photosHomeItems) {
+//     photosHomeItems.docs.forEach(function(photosHomeItem){
+//       var photosHomeItemId = photosHomeItem.data().id;
+//       if (photosHomeItemId) {
+//           if (photosHomeItemId.startsWith('p-')) {
+//             var fileRef = rootRef.child(photosHomeItemId + ".crypteefile");
+//             fileRef.getDownloadURL().then(function(docURL) {
+//               $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+photosHomeItemId.replace("d-","").replace("p-","")+"</a><br>");
+//             });
+//           } else if (photosHomeItemId.startsWith('f-')) {
+//             enumerateFolderForExport(photosHomeItemId);
+//           }
+//         }
+//     });
+//   });
+// }
 
-  });
-}
+// function enumerateFolderForExport(fid){
+//   photosRef.doc(fid).collection(fid).get().then(function(folderItems) {
+
+//     folderItems.docs.forEach(function(folderItem) {
+//       var folderItemId = folderItem.id;
+//       if (folderItemId) {
+//         if (folderItemId.startsWith('p-')) {
+//           var fileRef = rootRef.child(folderItemId + ".crypteefile");
+//           fileRef.getDownloadURL().then(function(docURL) {
+//             $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+folderItemId.replace("d-","").replace("p-","")+"</a><br>");
+//           });
+//         } else if (folderItemId.startsWith('f-')) {
+//           enumerateFolderForExport(folderItemId);
+//         }
+//       }
+//     });
+
+//   });
+// }
 
 
 
@@ -1259,7 +1286,179 @@ function updateSpellchecker() {
   }, 500);
 }
 
+// //////////////////////////
+// REMEMBER ENCRYPTION KEY // 
+// //////////////////////////
 
+// 1) localStorage - memorizedKey
+// 2) localStorage - emojiCryptedKey
+
+var memorizedKey;
+var emojiCryptedKey;
+
+reflectDeviceSecuritySettings();
+
+
+
+function changedDeviceSecurityCheckbox(setting) {
+  
+  if (setting === "usekey") { userchoseUseKey(); } 
+  else {
+    if (setting === "usenone") {
+      userChoseUseNone();
+    }
+
+    if (setting === "useemoji") {
+      userChoseUseEmoji();
+    }
+    
+    // set to false in case if user cancels, then set to true, once user approves
+    $("#" + setting).find(".crypteecheckbox").prop('checked', false).attr('checked', false).prop('disabled', false).attr('disabled', false);
+
+    // buttons ready, show the modal
+    showWarningModal("device-setting-keypin-modal");
+  }
+}
+
+function userchoseUseKey() {
+  localStorage.removeItem('memorizedKey');
+  localStorage.removeItem('emojiCryptedKey');
+  memorizedKey, emojiCryptedKey = null;
+  reflectDeviceSecuritySettings();
+}
+
+function userChoseUseNone() {
+  localStorage.removeItem('emojiCryptedKey');
+  emojiCryptedKey = null;
+  $("#setemoji-button").hide();
+  $("#rememberkey-button").show();
+}
+
+function userChoseUseEmoji() {
+  localStorage.removeItem('memorizedKey');
+  memorizedKey = null;
+  $("#setemoji-button").show();
+  $("#rememberkey-button").hide();
+}
+
+
+$(".crypteecheckbox").on('change', function(event) {
+  var checkboxid = $(this).parents(".login-option-label").attr("id");
+  if ($(this).is(':checked')) {
+    changedDeviceSecurityCheckbox(checkboxid);
+  }
+}); 
+
+var confirmkeyTimeout;
+var confirmedHashedKey;
+$("#device-setting-confirmkey").on('keydown keypress paste change', function(event) {
+  clearTimeout(confirmkeyTimeout);
+  confirmkeyTimeout = setTimeout(function () {
+    var typedKey = $("#device-setting-confirmkey").val().trim();
+    checkCurrentKey(typedKey, function(isItTheRightKey, hashedKey){
+      if (isItTheRightKey) {
+        confirmedHashedKey = hashedKey;
+        $("#device-setting-confirmkey").removeClass("is-danger").addClass("is-success");
+        $("#setemoji-button").prop('disabled', false).attr('disabled', false);
+        $("#rememberkey-button").prop('disabled', false).attr('disabled', false);
+        $("#device-setting-keypin-modal").find(".fa-key").removeClass("fa-key").addClass("fa-check");
+      } else {
+        $("#device-setting-confirmkey").removeClass("is-success").addClass("is-danger");
+        $("#setemoji-button").prop('disabled', true).attr('disabled', true);
+        $("#rememberkey-button").prop('disabled', true).attr('disabled', true);
+        $("#device-setting-keypin-modal").find(".fa-check").addClass("fa-key").removeClass("fa-check");
+      }
+    });
+  }, 100);
+}); 
+
+$("#rememberkey-button").on('click', function(event) {
+  if (confirmedHashedKey){
+    localStorage.setItem("memorizedKey", JSON.stringify(confirmedHashedKey));
+    confirmedHashedKey = null;
+    reflectDeviceSecuritySettings();
+    setTimeout(function () {
+      hideActiveWarningModal();
+      $("#device-setting-keypin-modal").find(".fa-check").addClass("fa-key").removeClass("fa-check"); 
+      $("#setemoji-button").prop('disabled', true).attr('disabled', true);
+      $("#rememberkey-button").prop('disabled', true).attr('disabled', true);
+    }, 10);
+  }
+}); 
+
+
+
+
+
+// this is a mode toggle for the emojilock. 
+//so that all emojilock related code can sit in emojilock.js
+emojilockMode = "set"; 
+
+$("#setemoji-button").on('click', function(event) {
+  if (confirmedHashedKey) {
+    showEmojilock();
+  }
+}); 
+
+
+
+function reflectDeviceSecuritySettings() {
+  var setting;
+
+  if (localStorage.getItem('memorizedKey')) {
+    memorizedKey = JSON.parse(localStorage.getItem('memorizedKey'));
+    if (memorizedKey) {
+      setting = "usenone";
+    }
+  }
+  
+  if (localStorage.getItem('emojiCryptedKey')) {
+    emojiCryptedKey = JSON.parse(localStorage.getItem('emojiCryptedKey'));
+  }
+  
+  if (emojiCryptedKey) {
+    setting = "useemoji";
+  }
+  
+  if (!memorizedKey && !emojiCryptedKey) {
+    setting = "usekey";
+  }
+
+  $(".device-security-card").find(".crypteecheckbox").prop('checked', false).attr('checked', false).prop('disabled', false).attr('disabled', false);
+  $("#device-security-status").removeClass("is-warning").removeClass("is-success");
+  if (setting === "usenone") {
+    $("#usenone").find(".crypteecheckbox").prop('checked', true).attr('checked', true).prop('disabled', true).attr('disabled', true);
+    $("#device-security-status").html('<span class="icon"><i class="fa fa-exclamation-triangle"></i></span>' + "<b>Risky</b><br><br>Optimized for convenience.<br>Not using Encryption Key or Emoji-Code. (Encryption key saved on device)");
+    $("#device-security-status").addClass("is-warning");
+  } else if (setting === "useemoji") {
+    $("#useemoji").find(".crypteecheckbox").prop('checked', true).attr('checked', true).prop('disabled', true).attr('disabled', true);
+    $("#device-security-status").html('<span class="icon"><i class="fa fa-check"></i></span>' + "<b>Good</b><br><br>Optimized for safety &amp; convenience. (Using Emoji-Code)");
+    $("#device-security-status").addClass("is-success");
+  } else {
+    $("#usekey").find(".crypteecheckbox").prop('checked', true).attr('checked', true).prop('disabled', true).attr('disabled', true);
+    $("#device-security-status").html('<span class="icon"><i class="fa fa-star"></i></span>' + "<b>Excellent</b><br><br>Optimized for high-security. (Using Encryption Key)");
+    $("#device-security-status").addClass("is-success");
+  }
+}
+
+
+
+
+
+
+function checkCurrentKey (typedKey, callback) {
+  callback = callback || noop;
+  hashString(typedKey).then(function (hashedKey) {
+    decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+      // RIGHT KEY
+      callback(true, hashedKey);
+    }).catch(function (error) {
+      callback(false, null);
+    });
+  }).catch(function(e){
+    callback(false, null);
+  });
+}
 
 
 

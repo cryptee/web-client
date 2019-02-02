@@ -9,94 +9,68 @@
 
 </head>
 <body class="account-body is-loading">
-  <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
+    <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
 
-  <!-- @import "account-app-nav.kit" -->
-
-  <div class="columns account-columns is-multiline is-centered">
-
-    <div class="column is-4 settings-left-column">
-      <div class="left-center">
-        <p class="settings-tab is-fullwidth is-white paid-plan-only"  tab="planpayment" id="plan-setting">Plan &amp; Payment Settings</p>
-        <p id="changekeybutton" class="settings-tab is-fullwidth is-white"  tab="changekey">Change Encryption Key</p>
-        <p id="changepassbutton" class="settings-tab is-fullwidth is-white"  tab="changepass">Change Password</p>
-        <p id="paymenthistorybutton" class="settings-tab is-fullwidth is-white"  tab="history">Payment History</p>
-        <p id="settings-preferences-button" class="settings-tab is-fullwidth is-white"  tab="preferences">My Preferences</p>
-        <!-- <p class="button settings-tab is-fullwidth is-white"  tab="loginsettings">Login Settings</p> -->
-        <p id="recoveryemailbutton" class="settings-tab is-fullwidth is-white"  tab="recovery">Recovery Email</p>
-        <p id="settings-my-data-button" class="settings-tab is-fullwidth is-white is-hidden-webapp is-hidden-tiny"  tab="mydata">My Data</p>
-        <p id="settings-delete-acct-button" class="settings-tab is-fullwidth is-white is-hidden-webapp"  tab="delete">Delete Account</p>
-        <p class="vers"><span class="cryptee-latest-deploy-version"></span></p>
-      </div>
-    </div>
-
-    <div class="column is-4 is-hidden-tiny"></div>
+    <div class="notification is-danger crypteecard" id="reauth-error" style="display:none;"></div>
     
-    <div class="column is-4 settings-right-column">
+    <!-- @import "account-app-nav.kit" -->
+    <br>    
 
-      <div class="notification is-danger crypteecard"  id="noemail" style="display:none;">
-        <p class="title is-5" style="margin-bottom: 1rem"><b>VERIFY YOUR EMAIL</b></p>
-        <p>Your email is not verified. Please check your inbox to verify your email.<br>If you didn't get the verification email, you can try resending it.</p><br>
-        <p class="button is-white" onclick="verifyEmail()" id="verify-email-button">Resend Email</p>
-      </div>
+    <div class="columns is-centered is-mobile" id="account-columns">
+        <div class="column is-two-thirds-desktop is-full-tablet">
 
-      <div class="notification is-danger crypteecard" id="reauth-error" style="display:none;">
+            <div class="columns" id="account-main-columns">
+                <div class="column is-4">
+                    <!-- @import "account-menu.kit" -->
+                </div>
+                <div class="column" id="account-setting-contents">
+            
+                    <div class="settings-tab-contents active" id="overview-tab-contents">
+                        <!-- @import "settings-tab-overview.kit" -->
+                    </div>
+                    
+                    <div class="settings-tab-contents" id="security-tab-contents">
+                        <!-- @import "settings-tab-security.kit" -->
+                    </div>
+            
+                    <div class="settings-tab-contents mydata-setting" id="mydata-tab-contents">
+                        <!-- @import "settings-tab-mydata.kit" -->
+                    </div>
+            
+                    <div class="settings-tab-contents" id="payments-plan-tab-contents">
+                        <!-- @import "settings-tab-payments-plan.kit" -->
+                    </div>
+            
+                    <!-- SEPARATOR -->
+            
+                    <div class="settings-tab-contents preferences-setting" id="preferences-docs-tab-contents">
+                        <!-- @import "settings-tab-preferences-docs.kit" -->
+                    </div>
+                    
+                    <!-- SEPARATOR -->
+                
+                    <div class="settings-tab-contents" id="delete-account-tab-contents">
+                        <!-- @import "settings-tab-delete-account.kit" -->
+                    </div>
+            
+                </div>
+            </div>
 
-      </div>
-
-      <div class="settings-tab-contents notification active" id="account-tab-contents">
-        <!-- @import "settings-tab-account.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification" id="planpayment-tab-contents">
-        <!-- @import "settings-tab-planpayment.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification" id="history-tab-contents">
-        <!-- @import "settings-tab-history.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification" id="loginsettings-tab-contents">
-        <!-- @import "settings-tab-loginsettings.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification" id="changepass-tab-contents">
-        <!-- @import "settings-tab-changepass.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification" id="changekey-tab-contents">
-        <!-- @import "settings-tab-changekey.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification" id="recovery-tab-contents">
-        <!-- @import "settings-tab-recovery.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification" id="delete-tab-contents">
-        <!-- @import "settings-tab-delete.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification mydata-setting" id="mydata-tab-contents">
-        <!-- @import "settings-tab-mydata.kit" -->
-      </div>
-
-      <div class="settings-tab-contents notification preferences-setting" id="preferences-tab-contents">
-        <!-- @import "settings-tab-preferences.kit" -->
-      </div>
-
-      
-
+        </div>
     </div>
-  </div>
 
-  <!-- @import "modal-account-upgrade.kit" -->
-  <!-- @import "account-upgrade-thanks.kit" -->
 
-  <!-- @import "modal-help.kit" -->
-  <!-- @import "modal-bump.kit" -->
-  <!-- @import "modal-donate.html" -->
-  <!-- @import "modal-webapp.kit" -->
-  <!-- @import "footer-js.kit" -->
-  <script src="../js/account.js"></script>
-  <script src="../js/upgrade.js"></script>
+
+    <!-- @import "emojilock/emojilock.kit" -->
+
+    <!-- @import "modal-account-upgrade.kit" -->
+    <!-- @import "account-upgrade-thanks.kit" -->
+
+    <!-- @import "modal-help.kit" -->
+    <!-- @import "modal-bump.kit" -->
+    <!-- @import "modal-donate.html" -->
+    <!-- @import "modal-webapp.kit" -->
+    <!-- @import "footer-js.kit" -->
+    <script src="../js/account.js"></script>
+    <script src="../js/upgrade.js"></script>
 </body></html>

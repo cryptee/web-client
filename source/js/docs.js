@@ -3,6 +3,16 @@ var encryptedKeycheck; // a timestamp encrypted with hashedKey to verify the has
 
 var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedkey
 
+if (localStorage.getItem('memorizedKey')) {
+  keyToRemember = JSON.parse(localStorage.getItem('memorizedKey')); // hashedKey
+}
+
+if (localStorage.getItem('emojiCryptedKey')) {
+  if (JSON.parse(localStorage.getItem('emojiCryptedKey')) && !keyToRemember) {
+    showEmojilock();
+  }
+}
+
 var gotKey = false; // this prevents an early offline mode call from being made before key is typed.
 
 if (localStorage.getItem("encryptedKeycheck")) {
@@ -763,18 +773,15 @@ $(document).on("contextmenu", function (e) {
 
 // If the document is clicked somewhere
 $(document).on("mousedown", function (e) {
-  // If the clicked element is not the menu
-  if ($(e.target).parents("#doc-dropdown").length <= 0 && $("#doc-dropdown").hasClass("shown")) {
-    hideRightClickMenu("#doc-dropdown");
-  }
-
-  // If the clicked element is not the menu
-  if ($(e.target).parents("#folder-dropdown").length <= 0 && $("#folder-dropdown").hasClass("shown")) {
-    hideRightClickMenu("#folder-dropdown");
-  }
-
-  if ($(e.target).parents("#selections-dropdown").length <= 0 && $("#selections-dropdown").hasClass("shown")) {
-    hideRightClickMenu("#selections-dropdown");
+  // If the right click menu is visible, 
+  // clicked element is not the menu,
+  // and the button isn't the ctx button
+  if (
+    $(".crypteedropdown").hasClass("shown") &&
+    $(e.target).parents(".crypteedropdown").length <= 0 &&  
+    $(e.target).parents(".docctx").length <= 0
+  ) {
+    hideRightClickMenu();
   }
 });
 
@@ -1056,8 +1063,7 @@ function newUserHints() {
     $(".first-folder-hint").slideDown();
   }
 
-  // because homedoc is = 1
-  if (Object.keys(catalog.docs).length > 1) {
+  if (Object.keys(catalog.docs).length >= 1) {
     $(".first-doc-hint").slideUp();
   } else {
     $(".first-doc-hint").slideDown();
@@ -1388,7 +1394,7 @@ function startUserSockets () {
     
     appendFolder(folderObj);
     // this adds all the socket listeners for the folder.
-    startFolderSockets(folderObj);
+    startFolderSockets(folderObj.folderid);
 
     if (folderObj.ghosttitles) {
       // GOT LEGACY GHOST FOLDER!!
@@ -1477,8 +1483,7 @@ function startUserSockets () {
 // all folders and docs are in encrypted catalog now.
 // start sockets.
 
-function startFolderSockets (folder) {
-  var fid = folder.folderid;
+function startFolderSockets (fid) {
   foldersRef.child(fid + "/docs").on('child_added', function(doc) {
     // add docs to catalog one by one.
     updateDocInCatalog (doc.ref.parent.parent.key, doc.val());
@@ -4199,8 +4204,11 @@ $("#docs-left-wrap").on("click", ".doc, .folderrecent", function(e) {
       } else {
         eventToPass.pageX = 73;
       }
-      
-      showRightClickMenu("#doc-dropdown",eventToPass);
+      if (!$("#doc-dropdown[selectedid='"+did+"']").hasClass("shown")) {
+        showRightClickMenu("#doc-dropdown",eventToPass);
+      } else {
+        hideRightClickMenu();
+      }
     }
     
   }
@@ -4286,7 +4294,7 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
         }
       }).catch(function(error) {
           console.log("LOAD ERROR", error);
-          handleError(err);
+          handleError(error);
       });
 
     }).catch(function(error) {
@@ -5657,7 +5665,7 @@ $("#doc-dropdown").on('click touchend', '.delete-button', function(event) {
   var did = rightClickedID();
   if (activeDocID === did) { showDeleteDocModal(); }
   else {
-
+    catalog.docs[did] = catalog.docs[did] || {};
     var dtitle = titleOf(did);
     var itsAFile = catalog.docs[did].isfile || false;
     var itsADoc = !catalog.docs[did].isfile || true;
@@ -5682,7 +5690,7 @@ $("#doc-dropdown").on('click touchend', '.delete-button', function(event) {
 
 
 $("#doc-dropdown").on('click touchend', '.download-button', function(event) {
-  
+  catalog.docs[did] = catalog.docs[did] || {};
   var did = rightClickedID();
   var dtitle = titleOf(did);
   var itsAFile = catalog.docs[did].isfile || false;
@@ -7443,6 +7451,7 @@ function cancelImportingCrypteedoc (error) {
     }, 500);
   }
 
+  crypteeDocImportCallback = crypteeDocImportCallback || noop;
   crypteeDocImportCallback();
   crypteeDocImportCallback = null;
 }
@@ -7727,6 +7736,13 @@ function refreshOnlineDocs () {
         }
       }
     });
+
+    if (activeFolderID !== undefined && activeFolderID !== "root") {
+      var activeFolderSort = catalog.folders[activeFolderID].sortdocs;
+      if (activeFolderSort) {
+        sortDocsOfActiveFolder(activeFolderSort);
+      }
+    }
   }
   
 }
@@ -7762,7 +7778,7 @@ function renderDoc (doc, type) {
   if (doc.fid === "f-uncat") {
     recentFolder = '&bull; Inbox';
   } else {
-    recentFolder = '&bull; '+doc.fname;
+    recentFolder = '&bull; '+ (titleOf(doc.fid) || "");
   }
 
   var offlineBadge = '<span class="offline-badge"></span>';
@@ -8919,6 +8935,7 @@ $("#folder-dropdown").on('click', '.offline-button', function(event) {
 });
 
 function docMadeAvailableOffline(did) {
+  catalog.docs[did] = catalog.docs[did] || {};
   catalog.docs[did].isoffline = true;
   breadcrumb("Made " + did + " offline.");
   addOfflineBadgeToDoc(did);
@@ -8930,6 +8947,7 @@ function docMadeAvailableOffline(did) {
 }
 
 function docMadeOnlineOnly(did) {
+  catalog.docs[did] = catalog.docs[did] || {};
   catalog.docs[did].isoffline = false;
   breadcrumb("Made " + did + " online only.");
   removeOfflineBadgeOfDoc(did);

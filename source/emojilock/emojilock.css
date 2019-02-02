@@ -1,0 +1,152 @@
+.emojilock-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    background-color: #F5f5f5;
+    opacity: 0;
+    transition: 0.5s opacity ease;
+    pointer-events: none;
+}
+
+.emojilock-close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 0.75rem;
+    padding-right: 0.25rem;
+    font-size: 1.25rem;
+    width: 3rem;
+    height: 3rem;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.75s opacity ease;
+}
+
+.emojilock-wrapper .title {
+    width:100%;    
+    text-align: center;
+    height: 45px;
+    margin-bottom: 0;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding-top: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.75s opacity ease;
+}
+
+.emojilock-wrapper.is-active,
+.emojilock-wrapper.shown .title, 
+.emojilock-wrapper.shown .emojilock-close-button {
+    opacity: 1;
+    pointer-events: all !important;
+}
+
+.emojilock-code {
+    background-color: #FFF;
+    width: calc(100% - 2rem);
+    height: 90px;
+    text-align: center;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    border-radius: 10px;
+    margin: 0 1rem;
+    padding-top: 0.5rem;
+    transition: 1s ease all 0.25s;
+    transform: translateY(calc(50% + 45px));
+    opacity: 0;
+    position: absolute;
+    z-index: 100000;
+}
+
+.emojilock-wrapper.shown .emojilock-code {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.emojicode {
+    min-width: 50px;
+    height: 70px;
+    font-size: 48px;
+    margin: 0 10px 10px 10px;
+    display: inline-block;
+    color: rgba(0,0,0,1);
+    transition: 1s color ease;
+}
+
+.emojicode[code] {
+    text-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+    color: rgba(0,0,0,0) !important;
+}
+
+.emojicode.wrong {
+    color: rgb(255, 0, 0);
+}
+
+.emojilock-picker-wrapper {
+    height: calc(100% - 46px);
+    width: 100%;
+    position: relative;
+}
+
+.emojilock-wrapper.shown .emojilock-picker-wrapper {
+    pointer-events: all !important;
+}
+
+.emojitab a, .emojis i {
+    padding: 6px;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 30px;
+    margin: 0px;
+}
+
+.emojitab.is-active {
+    border-bottom:1px solid #363636;
+}
+
+.emojitabs ul {
+    border: none;
+}
+
+.emojitabs {
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+    margin-bottom: 0 !important;
+}
+
+.emojis {
+    position: absolute;
+    /* height: calc(100% - 42px) !important; */
+    height: 100% !important;
+    width: 100% !important;
+    opacity: 0;
+    overflow-y: scroll;
+    pointer-events: none;
+    transition: 1s all ease 0.25s;
+    padding-top: calc(2rem + 90px);
+    padding-bottom: 5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    transform: translateY(35%);
+}
+
+.emojilock-wrapper.shown .emojis {
+    opacity: 1;
+    pointer-events: all !important;
+    transform: translateY(0);
+}
+
+.emojis i {
+    font-style: normal!important;
+    display: inline-block;
+    user-select: none; 
+}
+
+.emojilock-wrapper.shown .emojis i {
+    pointer-events: all !important;
+}

@@ -35,10 +35,10 @@ html.is-loading::after {
 }
 
 .account-body, html {
-	background: url("../imgs/settings-coffee.jpg");
 	background-size: cover;
 	background-position: center;
 	min-height: 100%;
+	background-color: #f5f5f5;
 }
 
 #main-progress {
@@ -51,27 +51,36 @@ html.is-loading::after {
 	display: none;
 }
 
-.account-columns {
-	margin: auto !important;
-    max-height: calc(100% - 8rem);
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    transform: translateY(-50%);
+#account-columns {
+	margin-top:2rem !important;
+}
+
+#account-columns > .column {
+	padding: 0;
+}
+
+.menu-list a {
+	border-radius: 3rem;
+}
+
+.menu-delete-account.is-active {
+	background-color: #d9534f !important;
 }
 
 .settings-tab-contents {
-	padding-top: 0;
-	padding-left: 0;
+	display:none;
+	padding: 0rem 0 1rem 0;
 	background-color: transparent;
 	position: relative;
-	top: 50%;
-	transform: translateY(-50%);
 	max-height: 100%;
 }
 
-.settings-tab, .vers {
-	color: #f5f5f5;
+.settings-tab-contents.active {
+  display:block;
+}
+
+.settings-tab-contents .field {
+  max-width: 530px;
 }
 
 .settings-tab-contents input[type='text'], 
@@ -87,6 +96,10 @@ html.is-loading::after {
 	position: relative;
 	top: 50%;
 	transform: translateY(-50%);
+}
+
+.settings-tab-contents .columns .column {
+	padding-bottom: 0rem;
 }
 
 /*///////////////////////////////////////////////////
@@ -129,28 +142,12 @@ html.is-loading::after {
 	width: auto;
 }
 
-#upgrade-button {
-	border: 1px #4BBF73 solid;
-}
-
-#donate-button { 
-	border: 1px #1F9BCF solid;
-}
-
-
 #upgrade-button, #donate-button {
   padding: 0.5rem 1rem;
   border-radius: 6rem;
   box-shadow: 0 0.25rem 0.5rem rgba(10,10,10,0.1);
   text-decoration: none;
   cursor: pointer;
-
-  color : #FFF !important;
-  border-radius: 4rem;
-  
-  font-size: 10px;
-  line-height: 12px;
-  margin-left: 1rem;
 }
 
 #help-button, #signout-button {
@@ -178,10 +175,6 @@ html.is-loading::after {
 
 #signout-button {
 	right : 2.5rem;
-}
-
-#nav-logo-b {
-	display: none;
 }
 
 #nav-logo-w {
@@ -216,6 +209,109 @@ html.is-loading::after {
 	font-size: 1.5rem;
 }
 
+.account-menu-collapse {
+	position: absolute;
+	right: 0rem;
+	top: 0rem;
+	border-top-left-radius: 0;
+	border-top-right-radius: 1rem;
+	border-bottom-left-radius: 1rem;
+	border-bottom-right-radius: 0;
+	width: 2.5rem;
+	height: 2.5rem;
+	background-color: #363636;
+	color:#FFF;
+	padding-top:calc(0.5rem + 2px) !important;
+	text-align: center;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+	cursor: pointer;
+	transition: 0.5s all ease;
+	z-index: 6;
+}
+
+.cryptee-latest-deploy-version {
+	font-size: 11px;
+}
+
+.account-card {
+	background-color: #FFF;
+	color: #000;
+	padding: 2.5rem;
+}
+
+.account-card:first-of-type {
+	margin-top: 0;
+}
+
+.account-card .button.is-dark:not(.is-small) {
+	font-size: 12px;
+}
+
+.account-upgrade-card {
+	/* background-color: #4BBF73; */
+	/* color: #fff; */
+	border-radius: 1rem;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+
+#reauth-error {
+    position: fixed;
+    z-index: 98;
+    bottom: 0;
+	right: 0;
+	max-width: 600px;
+}
+
+.upgrade-setting-card:not(#upgrade-setting) {
+	background-image: url("../imgs/overview-coffee.jpg");
+	background-size: cover;
+	background-position: center;
+	min-height: 240px;
+}
+
+.overviewcard {
+	padding: 2.5rem;
+}
+
+.account-card hr {
+	margin-top: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.login-option-label {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.login-option-label:first-of-type {
+	margin-top: 1rem;
+}
+
+.login-option-label:last-of-type {
+	margin-bottom: 1rem;
+}
+
+.login-option-label span {
+	line-height: 3rem;
+}
+
+.login-option-label .crypteecheckbox {
+	margin:0 1rem 0 0;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 5px;
+}
+
+#device-security-status {
+	padding: 0.75rem;
+	border-radius: 10px;
+    margin-bottom: 2px;
+}
+
+#setpin-button, #rememberkey-button {
+	float: right;
+}
+
 /*///////////////////////////////////////////////////
 //////////////////////  USER  ///////////////////////
 ///////////////////////////////////////////////////*/
@@ -229,9 +325,6 @@ html.is-loading::after {
 	margin-bottom: 2rem;
 }
 
-.cryptee-latest-deploy-version {
-	font-size : 10px;
-}
 
 #user-card .progress {
 	height: 3px;
@@ -269,16 +362,6 @@ html.is-loading::after {
 	font-weight: 100;
 	font-size: 10px;
 	width: 100%;
-}
-
-#settings-delete-acct-button {
-	font-weight: 100;
-	color: #d9534f;
-	font-size: 10px;
-}
-
-#settings-delete-acct-button.is-dark {
-	border-bottom-color: #d9534f !important;
 }
 
 /*///////////////////////////////////////////////////
@@ -353,7 +436,7 @@ html.is-loading::after {
   border-radius: 1rem;
   overflow: hidden;
   position: relative;
-  z-index: 3;
+  z-index: 8;
   transform: translateX(160px);
 }
 
@@ -446,110 +529,66 @@ html.is-loading::after {
 		background-color: #FFF;
 	}
 
-	.account-upgrade-card {
-		background-color: #4BBF73;
-		color: #fff;
-		padding: 1rem;
-		border-radius: 1rem;
-		box-shadow: 0 1rem 2rem rgba(0,0,0,0.1);
-	}
-
 	#account-app-nav {
 		padding-top: 1rem;
 		margin-top: 0;
 		position: absolute;
-		z-index: 98;
+		z-index: 97;
 		width: 100%;
 		top: 0;
-	}
-
-	.account-body, html {
-		background: none;
-		background-size: cover;
-		background-position: center;
-		min-height: 100%;
-		background-color: #F5F5F5;
-	}
-
-	.account-columns {
-	    max-height: inherit;
-	    padding-top: 4rem;
-	    transform: translateX(0);
-        bottom: 0;
-        top: auto;
-        overflow: visible;
-	}
-
-	#upgrade-button, #donate-button, #right-nav * {
-		color : #363636 !important;
-	}
-
-	.settings-left-column {
-		max-width: calc(320px + 2rem);
-		min-height: auto;
-		padding-top: 1rem;
-		padding-bottom: 2rem;
-		margin: auto!important;
-		border-bottom: 1px solid #363636;
-	}
-
-	.settings-right-column {
-		min-height: auto;
-		max-height: initial;
-	    padding: 1rem;
-	    background-color: #F5F5F5;
-	    max-width: calc(320px + 2rem);
-	    width: 100%;
-	    margin: auto;
-	}
-
-	.left-center, .settings-tab-contents {
-		top: auto;
-		transform: translateY(0);
-		max-width: 320px;
-		margin: auto;
-		padding: 0;
-	}
-
-	.vers {
-		text-align: center;
-		color: #363636;
-	}
-
-	.settings-left-column p.is-white {
-		text-align: center;
-		color: #363636;
-	}
-
-	#nav-logo-w {
-		display: none;
-	}
-
-	#nav-logo-b {
-		display: block;
-	}
-
-	.settings-tab.is-dark {
-		border-color: #363636 !important;
 	}
 
 	#upgrade-view.upgradeOn {
 		overflow-y : scroll;
 	}
 
+	.settings-tab-contents .column {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	
+	.settings-tab-contents {
+		padding-top: 1rem
+	}
+
+	#account-menu-top {
+		margin-top: 3rem;
+	}
+
+	#overview-tab-contents {
+		margin-top: 0rem;
+	}
+
+	#account-menu-top ul {
+    	flex-direction: column;
+		padding-bottom: 1rem;
+	}
+
+	#account-menu-top ul li {
+		width: 100%;
+	}
+
+	#account-menu-top a {
+		justify-content:left;
+		padding-left: 0.55rem;
+	}
+
+	#account-menu-top a .icon {
+		margin-right: 1.25rem;
+	}
+
+	#account-setting-contents {
+		padding: 0;
+	}
+
+	.account-card {
+		padding: 1.5rem;
+		min-height: auto;
+	}
 }
 
 
 @media (max-width: 719px) { 
-	.settings-left-column {
-		min-width: auto;
-		max-width: auto;
-	}
-
-	.settings-left-column p.is-white {
-		text-align: center;
-	}
-
 	.upgrade-image-container { 
 		background: #FFF;
 	}

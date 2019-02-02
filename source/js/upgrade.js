@@ -22,7 +22,7 @@ function orderComplete () {
   if (location.pathname.indexOf("account") > -1) {
     // REMOVE UPGRADE FROM URL
     history.pushState("upgrade-complete", null, '/account');
-    loadTab("account");
+    loadTab("overview");
     closeUpgrade();
     $("#upgrade-thanks").addClass("showUpgradeThanks");
   }

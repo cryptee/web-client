@@ -57,8 +57,16 @@ function loadUserDetailsFromLS () {
       $('.username').html(uname);
       $('#settings-storage-used').html(formatBytes(usedStorage, 0));
       $('.settings-storage-total').html(formatBytes(allowedStorage, 0));
-      if (allowedStorage > freeUserQuotaInBytes) { $("#upgrade-button, #donate-button, #upgrade-setting").hide();  }
       $("html, body").removeClass("is-loading");
+      if (allowedStorage > paidUserThresholdInBytes) { 
+        $("#upgrade-button, #donate-button, #upgrade-setting").hide();  
+        $("#upgrade-button, .upgrade-setting-card, #donate-button").fadeOut();
+        $(".paid-plan-only, .is-paid-plan").show();
+      } else {
+        $("#upgrade-button, #donate-button, #upgrade-setting").show();  
+        $("#upgrade-button, .upgrade-setting-card, #donate-button").fadeIn();
+        $(".paid-plan-only, .is-paid-plan").hide();
+      }
     } else {
       console.log("no user found in localstorage");
     }
