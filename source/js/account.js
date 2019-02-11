@@ -17,8 +17,6 @@ var store = firebase.storage();
 var firestore = firebase.firestore();
 var cloudfunctions = firebase.functions();
 
-var firestoreSettings = {timestampsInSnapshots: true}; firestore.settings(firestoreSettings);
-
 var reauthenticated = false;
 var willLoseAuthForDeletion = false;
 var connected;
@@ -1441,11 +1439,6 @@ function reflectDeviceSecuritySettings() {
   }
 }
 
-
-
-
-
-
 function checkCurrentKey (typedKey, callback) {
   callback = callback || noop;
   hashString(typedKey).then(function (hashedKey) {
@@ -1461,6 +1454,19 @@ function checkCurrentKey (typedKey, callback) {
 }
 
 
+
+
+
+if (localStorage.getItem("encryptedCatalog")) {
+  $("#encrypted-local-cache-card").show();
+} else {
+  $("#encrypted-local-cache-card").hide();
+}
+
+function clearLocalCache() {
+  localStorage.removeItem("encryptedCatalog");
+  $("#clear-cache-button").html("Cleared").addClass("is-success").prop('disabled', true).attr('disabled', true);
+}
 
 
 

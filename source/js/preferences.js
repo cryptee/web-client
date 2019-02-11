@@ -94,7 +94,8 @@ var userPreferences = {
   },
   "docs" : {
     "direction" : "ltr",
-    "spellcheck" : "on"
+    "spellcheck" : "on",
+    "opentab" : "recents" // or can be "folders"
   },
   "photos" : {
 
@@ -121,6 +122,10 @@ function gotPreferences(pref) {
 
       if (pref.docs.spellcheck) {
         userPreferences.docs.spellcheck = pref.docs.spellcheck;
+      }
+
+      if (pref.docs.opentab) {
+        userPreferences.docs.opentab = pref.docs.opentab;
       }
 
     }
@@ -179,6 +184,18 @@ function applyPreferences () {
       if (quill) { quill.root.spellcheck = true; }
     } else {
       if (quill) { quill.root.spellcheck = false; }
+    }
+
+    if (userPreferences.docs.opentab === "folders") {
+      if (!startedOffline && connectivityMode) {
+        breadcrumb('Loading Tab: Folders');
+        $("#folders-button:not(.active)").click();
+      }
+    } else {
+      if (!startedOffline && connectivityMode) {
+        breadcrumb('Loading Tab: Recents');
+        $("#recents-button:not(.active)").click();
+      }
     }
   }
 }

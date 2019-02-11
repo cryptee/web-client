@@ -2,7 +2,6 @@
 ////////////////// ALL GLOBAL VARS /////////////////
 ////////////////////////////////////////////////////
 var firestore = firebase.firestore();
-var firestoreSettings = {timestampsInSnapshots: true}; firestore.settings(firestoreSettings);
 var cloudfunctions = firebase.functions();
 
 

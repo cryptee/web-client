@@ -947,13 +947,13 @@ function checkConnection (callback) {
     type: 'GET',
     dataType: 'json',
     success: function(data){
-      // callback(false); // for testing
+      // callback(false); // for testing offline mode
       retriedCheckConnection = 0;
       callback(true);
     },
     error: function(x) {
       if (x.status === 200) {
-        // callback(false); // for testing
+        // callback(false); // for testing offline mode
         retriedCheckConnection = 0;
         callback(true);
       } else {
@@ -992,7 +992,7 @@ function checkConnection (callback) {
 try {
   openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
   openpgp.config.aead_protect_version = true;
-  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.2.min.js' }); // set the relative web worker path
+  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.5.min.js' }); // set the relative web worker path
 } catch (e) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
@@ -1166,6 +1166,10 @@ function setSentryTag(key, val) {
   Sentry.configureScope(function (scope) {
     scope.setTag(key, val);
   });
+}
+
+if (firebaseVersion) {
+  setSentryTag("firebase-ver", firebaseVersion);
 }
 
 // level takes "info" or "warning"

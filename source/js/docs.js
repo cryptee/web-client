@@ -92,11 +92,6 @@ var activeFolderID;
 var catalog = {"docs" : {}, "folders" : {}};
 // catalog.docs , catalog.folders etc. this will carry ids, titles etc. former titles Obj and docs Array but better.
 
-var encryptedCatalog = {"docs" : {}, "folders" : {}};
-// this is what's loaded before the key's entered.
-// it's basically an encrypted titles and tags object.
-// these will be added the catalog once titles and tags in this are decrypted.
-
 var catalogReadyForDecryption = false;
 var bootCatalogDecrypted = false;
 var titlesIndividuallyEncrypted = false; // "tie" = false/true in database
@@ -114,6 +109,7 @@ var reauthenticated = false;
 var retokening = false;
 var initialLoadComplete = false;
 var initialSyncComplete = false;
+var initialDecryptComplete = false;
 var docIsBeingSorted = false;
 var numFilesLeftToBeUploaded = 0;
 var fileUploadError = false;
@@ -142,22 +138,6 @@ var sortableFoldersDesktopPreferences = {
     updateFolderIndexes();
   }
 };
-
-// var sortableFoldersMobilePreferences = {
-//   animation: 300, 
-//   delay:0,
-//   handle: ".foldertab",
-//   chosenClass: "draggingFolder",
-//   scroll : $("#all-folders")[0],
-//   filter : ".archived",
-//   onStart: function (evt) {
-//     $('.afolder').addClass("folderDraggingActive");
-// 	},
-//   onEnd: function (evt) {
-//     $('.folderDraggingActive').removeClass("folderDraggingActive");
-//     updateFolderIndexes();
-// 	}
-// };
 
 if (isMobile) {
   $('#all-folders').on('touchstart', '.folder-clicker-icon', function(event) {
@@ -1063,7 +1043,7 @@ function newUserHints() {
     $(".first-folder-hint").slideDown();
   }
 
-  if (Object.keys(catalog.docs).length >= 1) {
+  if (Object.keys(catalog.docs).length > 1) {
     $(".first-doc-hint").slideUp();
   } else {
     $(".first-doc-hint").slideDown();
@@ -1075,19 +1055,22 @@ function firstLoadComplete() {
   // THIS IS THE LAST THING TO BE EXECUTED AFTER SIGN IN COMPLETE.
   if (!initialLoadComplete) {
     initialLoadComplete = true;
-    ttDecryptionQueueTimeout = 500;
 
     $(".firstLoad").removeClass("firstLoad");
 
-    postLoadIntegrityChecks();
     lazyLoadUncriticalAssets();
     newUserHints();
 
     setTimeout(function () { // this is for UX
       $("#doc-contextual-buttons").show();
       arrangeTools();
-      // YOU CAN NOW START OFFLINE SYNC HERE
-      toSyncOrNotToSync();
+
+      if (localStorage.getItem("encryptedCatalog")) {
+        runTTQueueFromIndex(0);
+      } else {
+        updateLocalCatalog();
+      }
+      
     }, 1000);
   }
 }
@@ -1324,12 +1307,17 @@ function signInComplete () {
   
   // START DECRYPTING HERE.
   if (initialTTQueueReady) {
-    breadcrumb("TT Decryption Queue : STARTING.");
-
     if (newAccount) {
       ttQueueCompleted();
     } else {
-      startTTDecryptionQueue();
+      if (localStorage.getItem("encryptedCatalog")) {
+        loadLocalCatalog(function(){
+          loadLastOpenDoc();
+        });
+      } else {
+        breadcrumb("Local Catalog : CREATING.");
+        runTTQueueFromIndex(0);
+      }
     }
     
     // load last open doc will get called in tt decryption queue complete
@@ -1351,7 +1339,6 @@ function signInComplete () {
 }
 
 
-
 function startUserSockets () {
   /// CHECK IF IT'S A FRESH NEW ACOUNT WITH NO FOLDERS. 
   // even if user has anything in INBOX they'll go to into a folder. so 0 folders = fresh.
@@ -1366,16 +1353,69 @@ function startUserSockets () {
   dataRef.child("lastOpenDocID").once('value', function(snapshot) {
     lastOpenDocID = snapshot.val();
 
-    if (lastOpenDocID) {
+    if (lastOpenDocID && !startedOffline) {
       var docRef = rootRef.child(lastOpenDocID + ".crypteedoc");
-      docRef.getDownloadURL().then(function(docURL) {
-        $.ajax({ url: docURL, type: 'GET',
-          success: function(encryptedDocDelta) {
-            console.log("Preloaded last open doc");
-            lastOpenDocPreloadedDelta = encryptedDocDelta;
-          },
-          error:function (xhr, ajaxOptions, thrownError){
-            console.log("Couldn't preload last open doc:", thrownError);
+      breadcrumb("PRELOAD: Fetching Generation");
+      docRef.getMetadata().then(function(preloadMeta) {
+        var preloadGeneration = preloadMeta.generation;
+        breadcrumb("PRELOAD: Got Server Generation");
+        breadcrumb("PRELOAD: Checking For Offline Copy");
+        offlineStorage.getItem(lastOpenDocID).then(function (offlineDoc) {
+          if (offlineDoc) {
+            var offlineGeneration = offlineDoc.gen;
+            if (offlineGeneration > preloadGeneration) {
+              // decrypt offline copy and use that instead. it's newer.
+              breadcrumb("PRELOAD: Found Up-To Date Offline Copy.");
+              breadcrumb("PRELOAD: Will Use Offline Copy to Preload.");
+
+              lastOpenDocPreloadedDelta = offlineDoc.content;
+
+            } else if (offlineGeneration === preloadGeneration) {
+              // decrypt offline copy and use that instead to save time. it's the same.
+              breadcrumb("PRELOAD: Found Up-To Date Offline Copy.");
+              breadcrumb("PRELOAD: Will Use Offline Copy to Preload.");
+
+              lastOpenDocPreloadedDelta = offlineDoc.content;
+
+            } else {
+              // preload online copy, it's newer.
+              breadcrumb("PRELOAD: Offline Copy Out Of Date.");
+              breadcrumb("PRELOAD: Fetching Online Copy.");
+              docRef.getDownloadURL().then(function(docURL) {
+                $.ajax({ url: docURL, type: 'GET',
+                  success: function(encryptedDocDelta) {
+                    breadcrumb("PRELOAD: Loaded Online Copy.");
+                    lastOpenDocPreloadedDelta = encryptedDocDelta;
+                  },
+                  error:function (xhr, ajaxOptions, thrownError){
+                    console.log("Couldn't preload last open doc:", thrownError);
+                    if (loadLastOpenDocWaiting) {
+                      loadDoc("home", firstLoadComplete, "home");
+                    }
+                  }
+                });
+              });
+            }
+
+          } else {
+
+            breadcrumb("PRELOAD: No Offline Copy Found");
+
+            docRef.getDownloadURL().then(function(docURL) {
+              $.ajax({ url: docURL, type: 'GET',
+                success: function(encryptedDocDelta) {
+                  breadcrumb("Preloaded last open doc");
+                  lastOpenDocPreloadedDelta = encryptedDocDelta;
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                  console.log("Couldn't preload last open doc:", thrownError);
+                  if (loadLastOpenDocWaiting) {
+                    loadDoc("home", firstLoadComplete, "home");
+                  }
+                }
+              });
+            });
+
           }
         });
       });
@@ -1514,16 +1554,37 @@ function startFolderSockets (fid) {
 
 }
 
-function loadLastOpenDoc () {
+var loadLastOpenDocWaiting = false;
+function loadLastOpenDoc (waitingPreloadToDownload) {
+  if (!waitingPreloadToDownload) {
+    breadcrumb('Loading Last Open Document...');
+  } else {
+    if (!loadLastOpenDocWaiting) {
+      loadLastOpenDocWaiting = true;
+      breadcrumb('Waiting Last Open Document preload to complete...');
+    }
+  }
   $("#main-progress, .progressButtons, .document-contextual-button, .filesize-button, .mobile-floating-tools, #doc-contextual-buttons, #toolbar-container").show();
 
   if (lastOpenDocID) {
     if (activeDocID) {
       if (activeDocID !== lastOpenDocID) {
-        loadDoc(lastOpenDocID, firstLoadComplete, lastOpenDocID, lastOpenDocPreloadedDelta);
+        if (lastOpenDocPreloadedDelta) {
+          loadDoc(lastOpenDocID, firstLoadComplete, lastOpenDocID, lastOpenDocPreloadedDelta);
+        } else {
+          setTimeout(function () {
+            loadLastOpenDoc(true);
+          }, 100);
+        }
       }
     } else {
-      loadDoc(lastOpenDocID, firstLoadComplete, lastOpenDocID, lastOpenDocPreloadedDelta);
+      if (lastOpenDocPreloadedDelta) {
+        loadDoc(lastOpenDocID, firstLoadComplete, lastOpenDocID, lastOpenDocPreloadedDelta);
+      } else {
+        setTimeout(function () {
+          loadLastOpenDoc(true); 
+        }, 100);
+      }
     }
   } else {
     if (activeDocID) {
@@ -1608,7 +1669,7 @@ function rightKey (plaintext, hashedKey) {
   $("#key-modal-decrypt-button").removeClass("is-loading");
   $("#key-status").removeClass("shown");
   $("#key-modal-signout-button").removeClass("shown");
-  showDocProgress("Decrypting Files &amp; Folders<p class='cancel-loading'>this may take a second.</p>");
+  showDocProgress("Decrypting Files &amp; Folders<p class='cancel-loading'>this may take a few seconds.</p>");
   
 
   hideKeyModal();
@@ -1685,14 +1746,14 @@ function checkCatalogIntegrity () {
   var undefinedFolder = false;
   var undefinedDoc = false;
 
-  breadcrumb("Catalog Integrity Check : STARTED");
+  breadcrumb("Catalog Integrity Check (PRE): STARTED");
 
   //check for undefined folders in the catalog
   Object.keys(catalog.folders).forEach(function(key){
     if (key === "undefined") {
       // there is an undefined folder.
       undefinedFolder = true;
-      breadcrumb("Catalog Integrity Check : found undefined folder");
+      breadcrumb("Catalog Integrity Check (PRE): found undefined folder");
     }
   });
 
@@ -1701,7 +1762,7 @@ function checkCatalogIntegrity () {
     if (key === "undefined") {
       // there is an undefined doc.
       undefinedDoc = true;
-      breadcrumb("Catalog Integrity Check : found undefined doc");
+      breadcrumb("Catalog Integrity Check (PRE): found undefined doc");
     }
   });
 
@@ -1716,9 +1777,9 @@ function checkCatalogIntegrity () {
   } 
 
   if (!undefinedDoc && !undefinedFolder) {
-    breadcrumb("catalog integrity check : PASSED");
+    breadcrumb("Catalog Integrity Check (PRE): PASSED");
   } else {
-    breadcrumb("catalog integrity check : FAILED");
+    breadcrumb("Catalog Integrity Check (PRE): FAILED");
   }
 }
 
@@ -1897,6 +1958,7 @@ function verifyDocExistsOrDelete(did) {
       breadcrumb("Fixed " + did + " and it's now a Doc.");
       catalog.docs[did] = catalog.docs[did] || {};
       catalog.docs[did].isfile = false;
+      updateLocalCatalog();
       loadDoc(did);
     });
 
@@ -1913,6 +1975,7 @@ function verifyDocExistsOrDelete(did) {
           breadcrumb("Fixed " + did + " and it's now a File.");
           catalog.docs[did] = catalog.docs[did] || {};
           catalog.docs[did].isfile = true;
+          updateLocalCatalog();
           loadDoc(did);
         });
       }).catch(function(error) {
@@ -1920,6 +1983,7 @@ function verifyDocExistsOrDelete(did) {
           // file doesn't exist either. uh oh.
           handleError(new Error('did: ' + did + " in fid: " + fid + ' was not found by uid: ' + theUserID + " not found in storage - so deleted references."));
           foldersRef.child(fid + "/docs/" + did).remove();
+          refreshOnlineDocs(true);
         }
       });
     }
@@ -1928,14 +1992,14 @@ function verifyDocExistsOrDelete(did) {
 
 var postLoadIntegrityChecksComplete = false;
 function postLoadIntegrityChecks () {
-  breadcrumb("Post Load Catalog Integrity Check : STARTING");
+  breadcrumb("Catalog Integrity Check (POST) : STARTED");
   if (corruptTitlesToFix.length > 0) {
     corruptTitlesToFix.forEach(function(id){
       fixCorruptedTitle(id);
     });
   } else {
     postLoadIntegrityChecksComplete = true;
-    breadcrumb("Post Load Catalog Integrity Check : PASSED");
+    breadcrumb("Catalog Integrity Check (POST) : PASSED");
   }
 }
 
@@ -1951,8 +2015,12 @@ function fixCorruptedTitle(id) {
       updateDocTitle(id, JSON.stringify("Untitled Document"));
     } else {
       // it's a folder title to fix.
-      breadcrumb("Found Corrupted Title for fid: " + id + ", will re-encrypt as Untitled.");
-      updateFolderTitle (id, JSON.stringify("Untitled Folder"));
+      if (id === "f-uncat"){
+        updateFolderTitle (id, JSON.stringify("Inbox"));
+      } else {
+        breadcrumb("Found Corrupted Title for fid: " + id + ", will re-encrypt as Untitled.");
+        updateFolderTitle (id, JSON.stringify("Untitled Folder"));
+      }
     }
   }
 }
@@ -1993,7 +2061,7 @@ function checkDocGeneration (changedDoc) {
 
   // reflect isfile changes to catalog
   catalog.docs[changedDocumentID].isfile = isFile;
-
+  updateLocalCatalog();
   offlineStorage.getItem(changedDocumentID).then(function (offlineDoc) {
     if (offlineDoc && changedDocumentID !== activeDocID) {
       toSyncOrNotToSync();
@@ -2086,8 +2154,7 @@ function gotPlaintextDocTitle (did, plaintextTitle, callback) {
   catalog.docs[did].name = dtitle;
   catalog.docs[did].ftype = extractFromFilename(dtitle, "filetype");
   catalog.docs[did].icon = extractFromFilename(dtitle, "icon");
-  delete catalog.docs[did].encryptedTitle;
-
+  updateLocalCatalog();
   // reflect changes to dom (which means doc must be in dom before gotPlaintextDocTitle is called)
 
   updateDocTitleInDOM(did, dtitle);
@@ -2130,7 +2197,6 @@ function gotPlaintextFolderTitle (fid, plaintextTitle, callback) {
   // add title to catalog
   catalog.folders[fid] = catalog.folders[fid] || {};
   catalog.folders[fid].name = ftitle;
-  delete catalog.folders[fid].encryptedTitle;
 
   Object.values(catalog.docs).forEach(function(doc){
     if (doc.fid === fid) {
@@ -2138,7 +2204,7 @@ function gotPlaintextFolderTitle (fid, plaintextTitle, callback) {
       catalog.docs[doc.did].fname = ftitle;
     }
   });
-
+  updateLocalCatalog();
   // reflect changes to dom (which means folder must be in dom before got FolderTitle is called)
   var titleToUse = ftitle;
   try {titleToUse = JSON.parse(ftitle); } catch (e) {}
@@ -2250,17 +2316,31 @@ function decryptTitle (id, encryptedTitle, callback) {
 
 function gotEncryptedDocTitle(did, encryptedTitle) {
   
-  var decryptionOperation = function() {
-    decryptTitle(did, encryptedTitle, function(plaintextTitle, fordid) {
-      totalTTInDecryptionQueue--;
-      checkIfTTDecryptionQueueComplete();
-      try {
+  var decryptionOperation = function(index) {
+    if (decryptedTitleExistsInLocalCatalog(did, encryptedTitle)) {
+        // title exists in local catalog. skip decrypting again.
         catalog.docs[did] = catalog.docs[did] || {};
-        catalog.docs[did].fname = titleOf(fid); 
-      } catch (e) {}
-      gotPlaintextDocTitle(fordid, plaintextTitle);
-      refreshOnlineDocs();
-    });
+        var plaintextTitle = catalog.docs[did].name;
+        totalTTInDecryptionQueue--;
+        runTTQueueFromIndex(index);
+        try {
+          catalog.docs[did] = catalog.docs[did] || {};
+          catalog.docs[did].fname = titleOf(catalog.docs[did].fid); 
+        } catch (e) {}
+        gotPlaintextDocTitle(did, plaintextTitle);
+        refreshOnlineDocs();
+    } else {
+      decryptTitle(did, encryptedTitle, function(plaintextTitle, fordid) {
+        totalTTInDecryptionQueue--;
+        runTTQueueFromIndex(index);
+        try {
+          catalog.docs[did] = catalog.docs[did] || {};
+          catalog.docs[did].fname = titleOf(catalog.docs[did].fid); 
+        } catch (e) {}
+        gotPlaintextDocTitle(fordid, plaintextTitle);
+        refreshOnlineDocs();
+      });
+    }
   };
   
   if (!tempTTDecryptionQueue.docs[did] && decryptionOperation) {
@@ -2272,14 +2352,24 @@ function gotEncryptedDocTitle(did, encryptedTitle) {
 
 function gotEncryptedDocTags(did, encryptedTags) {
     
-  var decryptionOperation = function() {
-    decryptTags(did, encryptedTags, function(plaintextTags, fordid) {
+  var decryptionOperation = function(index) {
+    if (decryptedTagsExistInLocalCatalog(did, encryptedTags)) {
+      catalog.docs[did] = catalog.docs[did] || {};
+      var plaintextTags = catalog.docs[did].tags;
       totalTTInDecryptionQueue--;
-      checkIfTTDecryptionQueueComplete();
+      runTTQueueFromIndex(index);
       catalog.docs[did] = catalog.docs[did] || {};
       catalog.docs[did].tags = plaintextTags;
       refreshOnlineDocs();
-    });
+    } else {
+      decryptTags(did, encryptedTags, function(plaintextTags, fordid) {
+        totalTTInDecryptionQueue--;
+        runTTQueueFromIndex(index);
+        catalog.docs[did] = catalog.docs[did] || {};
+        catalog.docs[did].tags = plaintextTags;
+        refreshOnlineDocs();
+      });
+    }
   };  
   
   if (!tempTTDecryptionQueue.tags[did] && decryptionOperation) {
@@ -2291,11 +2381,12 @@ function gotEncryptedDocTags(did, encryptedTags) {
 
 function gotEncryptedFoldertitle(fid, encryptedTitle) {
   
-  var decryptionOperation = function() {
-    decryptTitle(fid, encryptedTitle, function(plaintextTitle, forfid) {
+  var decryptionOperation = function(index) {
+    if (decryptedTitleExistsInLocalCatalog(fid, encryptedTitle)) {
       totalTTInDecryptionQueue--;
-      checkIfTTDecryptionQueueComplete();
-      gotPlaintextFolderTitle(forfid, plaintextTitle, function(){
+      runTTQueueFromIndex(index);
+      var plaintextTitle = catalog.folders[fid].name;
+      gotPlaintextFolderTitle(fid, plaintextTitle, function(){
         Object.keys(catalog.docs).forEach(function(did) {
           if (catalog.docs[did].fid === fid) {
             catalog.docs[did] = catalog.docs[did] || {};
@@ -2304,7 +2395,21 @@ function gotEncryptedFoldertitle(fid, encryptedTitle) {
           refreshOnlineDocs();
         });
       });
-    });
+    } else {
+      decryptTitle(fid, encryptedTitle, function(plaintextTitle, forfid) {
+        totalTTInDecryptionQueue--;
+        runTTQueueFromIndex(index);
+        gotPlaintextFolderTitle(forfid, plaintextTitle, function(){
+          Object.keys(catalog.docs).forEach(function(did) {
+            if (catalog.docs[did].fid === fid) {
+              catalog.docs[did] = catalog.docs[did] || {};
+              catalog.docs[did].fname = plaintextTitle;
+            }
+            refreshOnlineDocs();
+          });
+        });
+      });
+    }
   };
 
   if (!tempTTDecryptionQueue.folders[fid] && decryptionOperation) {
@@ -2313,6 +2418,80 @@ function gotEncryptedFoldertitle(fid, encryptedTitle) {
   }
 }
 
+var stringifiedUntitledDocument = JSON.stringify("Untitled Document");
+var stringifiedUntitledFolder = JSON.stringify("Untitled Folder");
+function decryptedTitleExistsInLocalCatalog(id, encryptedTitle) {
+  var exists = false;
+  
+  if (id) {
+    if (id.startsWith('d-')) {
+      // doc
+      // ughhh if either one of these are undefined or null it'll throw a tantrum.
+      // hence the nested IFs.
+      if (catalog.docs[id]) {
+        if (catalog.docs[id].name) {
+          if (catalog.docs[id].encryptedTitle) {
+            if (catalog.docs[id].encryptedTitle === encryptedTitle && 
+                catalog.docs[id].name !== "" && 
+                catalog.docs[id].name !== "Untitled Document" && 
+                catalog.docs[id].name !== stringifiedUntitledDocument
+                ) {
+              exists = true;
+            }
+          }
+        }
+      }
+    } else {
+      // folder
+      // ughhh if either one of these are undefined or null it'll throw a tantrum.
+      // hence the nested IFs.
+      if (catalog.folders[id]) {
+        if (catalog.folders[id].name) {
+          if (catalog.folders[id].encryptedTitle){
+            if (catalog.folders[id].encryptedTitle === encryptedTitle && 
+                catalog.folders[id].name !== "" && 
+                catalog.folders[id].name !== "Untitled Folder" &&
+                catalog.folders[id].name !== stringifiedUntitledFolder
+                ) {
+              exists = true;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return exists;
+}
+
+function decryptedTagsExistInLocalCatalog(did, encryptedTags) {
+  var exists = false;
+  
+  // ughhh if either one of these are undefined or null it'll throw a tantrum.
+  // hence the nested IFs.
+  if (did) {
+    if (catalog.docs[did]) {
+      if (catalog.docs[did].tags) {
+        if (catalog.docs[did].encryptedTags) {
+          if (catalog.docs[did].encryptedTags === encryptedTags &&
+              catalog.docs[did].tags !== [] &&
+              catalog.docs[did].tags.length !== 0 &&
+              catalog.docs[did].tags !== undefined &&
+              catalog.docs[did].tags !== null
+              ) {
+            exists = true;
+          }
+        }
+      }
+    }
+  }
+
+  return exists;
+}
+
+/////////////////////////////////////////////////////
+// INIT DECRYPTION QUEUE
+/////////////////////////////////////////////////////
 
 // FIRST SET ALL OPERATIONS TO AN OBJECT, SINCE WE'RE GOING TO GET DOCS TWICE,
 // ONE FROM FOLDER ON VALUE, ANOTHER FROM FOLDER/DOC CHILD_ADDED, THIS WILL CUT DOWN
@@ -2343,9 +2522,9 @@ var startedTTQueue;
 var completedTTQueue;
 var initialTTQueueReady = false;
 
-// 100 ms for boot, 500 for later to make sure 
+// 500 ms for boot to make sure 
 // folder child change & doc title change can get added into queue intelligently.
-var ttDecryptionQueueTimeout = 100; 
+var ttDecryptionQueueTimeout = 500; 
 
 function addedOperationToTTDecryptionQueue() {
   clearTimeout(ttDecryptionQueueTimeout);
@@ -2372,42 +2551,74 @@ function addedOperationToTTDecryptionQueue() {
     // now we have a flat decryption queue at hand. 
     // in finalTTFDecryptionQueue. so run that one.
     
-    if (!initialLoadComplete) {
+    if (!initialDecryptComplete) {
       setSentryTag("titles-count", totalTTInDecryptionQueue);
       breadcrumb("TT Decryption Queue : READY.");
       initialTTQueueReady = true;
     } else {
       // we already have the key, keep moving
-      startTTDecryptionQueue();
+      runTTQueueFromIndex(0);
     }
     
   }, ttDecryptionQueueTimeout);
 }
 
-function startTTDecryptionQueue() {
-  startedTTQueue = (new Date()).getTime();
-  breadcrumb("TT Decryption Queue : Decrypting " + totalTTInDecryptionQueue + " titles & tags");
-  while (finalTTDecryptionQueue.length > 0) {
-    (finalTTDecryptionQueue.shift())();   
-  }
-}
+function runTTQueueFromIndex(index) {
+  index = index || 0;
+  var total = finalTTDecryptionQueue.length;
 
-function checkIfTTDecryptionQueueComplete() {
-  completedTTQueue = (new Date()).getTime();
-  if (totalTTInDecryptionQueue === 0) {
+  if (index === 0) {
+    startedTTQueue = (new Date()).getTime();
+    breadcrumb("TT Decryption Queue : DECRYPTING (" + totalTTInDecryptionQueue + " items)");
+  }
+
+  if (!initialDecryptComplete) {
+    showSyncingProgress((index+1), total);
+  }
+
+  if (finalTTDecryptionQueue[index]) {
+    finalTTDecryptionQueue[index](index+1);
+  }
+  
+  if ((index + 1) === finalTTDecryptionQueue.length) {
+    completedTTQueue = (new Date()).getTime();
     ttQueueCompleted();
+    totalTTInDecryptionQueue = 0;
   }
 }
 
 function ttQueueCompleted() {
+  finalTTDecryptionQueue = [];
+
   // ALL TITLES IN QUEUE DECRYPTED
   breadcrumb("TT Decryption Queue : DONE. Decrypted in " + (completedTTQueue - startedTTQueue) + "ms");
   checkCatalogIntegrity();
   
+  $("#sync-progress").addClass("done");
+  $(".sync-details").html("Sync Complete");
+  setTimeout(function () {
+    hideSyncingProgress();
+  }, 2500);
+  
   // if this is first boot, load last open doc now.
-  if (!initialLoadComplete) {
+  if (!initialDecryptComplete) {
+    initialDecryptComplete = true;
     setSentryTag("titles-decryption-speed", (completedTTQueue - startedTTQueue) + "ms");
-    loadLastOpenDoc();
+    if (!localStorage.getItem("encryptedCatalog")) {
+      loadLastOpenDoc();
+    } else {
+      if (Object.keys(catalog.docs).length <= 1) {
+        loadLastOpenDoc();
+      }
+    }
+    // YOU CAN NOW START OFFLINE SYNC HERE
+    toSyncOrNotToSync();
+
+    postLoadIntegrityChecks();
+  } else {
+    updateLocalCatalog(function(){
+      refreshOnlineDocs();
+    });
   }
 
   // since queue complete will get called even after adding a new doc / folder:
@@ -2577,6 +2788,7 @@ function updateActiveTags () {
   });
   catalog.docs[activeDocID] = catalog.docs[activeDocID] || {};
   catalog.docs[activeDocID].tags = activeDocTags;
+  updateLocalCatalog();
 }
 
 ////////////////////////////////////////////////////////////
@@ -2596,7 +2808,6 @@ function updateActiveTags () {
 //   }
 // }
 
-// populate encryptedCatalog.
 
 function updateFolderInCatalog (folder) {
   var fid = folder.folderid;
@@ -2607,6 +2818,7 @@ function updateFolderInCatalog (folder) {
   catalog.folders[fid].fid            = fid;
   catalog.folders[fid].archived       = farchived;
   catalog.folders[fid].name           = "";
+  catalog.folders[fid].encryptedTitle = folder.title;
   catalog.folders[fid].color          = fcolor;
   catalog.folders[fid].sortdocs       = folder.sortdocs;
 
@@ -2631,6 +2843,8 @@ function updateDocInCatalog (fid, doc) {
   catalog.folders[fid] = catalog.folders[fid] || {};
   catalog.docs[did] = catalog.docs[did] || {};
   catalog.docs[did].name            = doc.name || "";
+  catalog.docs[did].encryptedTitle	= doc.title;
+  catalog.docs[did].encryptedTags	  = tags;
   catalog.docs[did].tags            = [];
   catalog.docs[did].fid             = fid;
   catalog.docs[did].did             = did;
@@ -2653,6 +2867,103 @@ function updateDocTitleTagsAndGenInCatalog(doc) {
   gotEncryptedDocTitle(did, doc.title);
   gotEncryptedDocTags(did, tags);
 }
+
+/////////////////////////////////////////////////////
+// EXPERIMENTAL FAST BOOT & LOCAL CATALOG
+/////////////////////////////////////////////////////
+
+// if hundreds of docs are getting added to local catalog, 
+// timeout ensures we encrypt only once.
+var updateLocalCatalogTimeout;
+function updateLocalCatalog(callback) {
+  callback = callback || noop;
+  if (initialLoadComplete) {
+    clearTimeout(updateLocalCatalogTimeout);
+    updateLocalCatalogTimeout = setTimeout(function () {
+      breadcrumb("Local Catalog : STARTING UPDATE.");
+      var jsonCatalog = JSON.stringify(catalog);
+      encrypt(jsonCatalog, [theKey]).then(function(ciphertext) {
+        var encryptedCatalog = JSON.stringify(ciphertext);
+        localStorage.setItem("encryptedCatalog", encryptedCatalog);
+        breadcrumb("Local Catalog : FINISHED UPDATE.");
+        callback();
+      }).catch(function(error) {
+        console.log("error encrypting local catalog");
+        handleError(error);
+      });
+    }, 500);
+  } else {
+    callback();
+  }
+}
+
+
+// THIS WILL HAVE AN ASYNC DECRYPT OP. BEWARE. 
+// WHICH COULD CAUSE A FOOTRACE.
+// IF NOT HANDLED CORRECTLY, THIS IS ASKING FOR TROUBLE. BEWARE.
+// YOU COULD TECHNICALLY LOAD THIS BEFORE BOOT. 
+// THIS WOULD LOAD ALL TITLES, WHILE WAITING SERVER ONES TO BE DECRYPTED.
+// NOT SURE HOW BAD THE BACKLOG OF 10000+ DECRYPTION OPERATIONS WOULD BE THO.
+var localCatalogLoadStarted;
+
+function loadLocalCatalog(callback) {
+  callback = callback || noop;
+  breadcrumb("Local Catalog : LOADING...");
+  localCatalogLoadStarted = (new Date()).getTime();
+  var encryptedCatalog = localStorage.getItem("encryptedCatalog");
+  var parsedEncryptedCatalog = JSON.parse(encryptedCatalog).data;
+  decrypt(parsedEncryptedCatalog, [theKey]).then(function(plaintext) {
+    var plaintextCatalog = JSON.parse(plaintext.data);
+
+    // SO HERE COMES A SUPER EDGE CASE BUT VERY REAL PROBLEM THAT HAPPENED.
+
+    // IF DEVICE 1 WAS OFFLINE, AND DEVICE 2 DELETED A FOLDER / DOC ETC. 
+    // DEVICE 1 ENCRYPTED CATALOG WOULD NEVER GET THE "DELETE" ACTION REFLECTED
+    // SINCE WE ONLY DELETE STUFF FROM CATALOG WITH A "CHILD_REMOVED"
+    // SO ENCRYPTED CATALOG WOULD ADD THE ONCE DELETED ITEM TO IN MEMORY CATALOG
+    // AND SINCE IT'S NOT DELETED, IT'LL KEEP GETTING SAVED TO LOCAL CATALOG FOREVER. 
+    
+    // TO PREVENT THIS, WE'RE NOT RESTORING THE ENCRYPTED LOCAL CATALOG AS IS. 
+    // don't do     catalog = plaintextCatalog;     basically
+
+    // SINCE THIS FUNCTION IS ONLY CALLED AFTER THE INITIAL DECRYPT QUEUE IS READY,
+    // GO THROUGH THE FRESHLY-FETCHED-ONLINE-CATALOG ONE BY ONE, 
+    // AND MERELY TAKE TITLES FROM THE ENCRYPTED CATALOG AND ADD TO THE IN MEMORY CATALOG.
+    // THIS WAY YOU'RE GOING TO HAVE AN UP TO DATE CATALOG TREE FROM THE SERVER
+    // BUT ONLY REFLECT THE DECRYPTED TITLES ETC. FROM LOCAL ENCRYPTED CATALOG.
+
+    Object.keys(catalog.docs).forEach(function(did){
+      if (plaintextCatalog.docs[did]) {
+        catalog.docs[did] = plaintextCatalog.docs[did];
+      }
+    });
+    
+    Object.keys(catalog.folders).forEach(function(fid){
+      if (plaintextCatalog.folders[fid]) {
+        catalog.folders[fid] = plaintextCatalog.folders[fid];
+        var titleToUse = titleOf(fid);
+        try {titleToUse = JSON.parse(ftitle); } catch (e) {}
+        $("#" + fid).find(".folder-title").html(titleToUse);
+      }
+    });
+
+    var localCatalogLoadFinished = (new Date()).getTime();
+    var catalogSpeed = (localCatalogLoadFinished - localCatalogLoadStarted) + "ms";
+    var catalogSize = formatBytes(bytesize(localStorage.getItem("encryptedCatalog")));
+
+    setSentryTag("local-catalog-speed", catalogSpeed);
+    setSentryTag("local-catalog-size", catalogSize);
+
+    breadcrumb("Local Catalog : LOADED "+catalogSize+" in " + catalogSpeed);
+    refreshOnlineDocs(true); // force refresh online docs.
+
+    callback();
+  }).catch(function(error) {
+    console.log("error decrypting local catalog");
+    handleError(error);
+  });
+}
+
 
 
 
@@ -2711,7 +3022,7 @@ function appendFolder (folder){
         uploadButton +
     '</div>'+
     '<div class="folder-card">'+
-        '<h2 class="folder-title"></h2>'+
+        '<h2 class="folder-title"><span class="icon"><i class="fa fa-cog fa-spin fa-fw"></i></span> Decrypting...</h2>'+
         '<div class="folderrecents" style="' + hiddenClass +'"></div>'+
     '</div>'+
   '</div>';
@@ -2875,6 +3186,7 @@ function toggleActiveFolderSortButton() {
 
 function saveActiveFolderSort (sortType) {
   catalog.folders[activeFolderID].sortdocs = sortType;
+  updateLocalCatalog();
   foldersRef.child(activeFolderID).update({"sortdocs" : sortType});
 }
 
@@ -3110,7 +3422,8 @@ function removeFolder (fid){
           delete catalog.docs[doc.did];
         }
       });
-
+      
+      updateLocalCatalog();
       updateFolderIndexes();
     });
   }, 500);
@@ -3164,6 +3477,7 @@ var archiveSortTimer;
 function setArchivedFolder(fid, archiveBool) {
 
   catalog.folders[fid].archived = archiveBool || false;
+  updateLocalCatalog();
 
   if (archiveBool) {
     setTimeout(function () {
@@ -3427,6 +3741,7 @@ function makeGhostFolder () {
               });
             });
 
+            updateLocalCatalog();
             updateFolderIndexes();
           }
         });
@@ -5078,6 +5393,8 @@ function saveUploadComplete(did, dsize, callback, callbackParam) {
 
     if (did !== "home") {
       catalog.docs[did].gen = currentGeneration;
+      updateLocalCatalog();
+
       $(".doc[did='"+did+"']").attr("gen", currentGeneration / 1000);
       $(".doc[did='"+did+"']").find(".doctime").html("Seconds ago");
       $(".doc[did='"+did+"']").prependTo("#all-recent");
@@ -5222,6 +5539,10 @@ function deleteDoc (did){
   
   }).catch(function(error) {
     handleError(error);
+    if (error.code === "storage/object-not-found") {
+      delete catalog.docs[did];
+      updateLocalCatalog();
+    }
     $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
   });
 
@@ -5236,7 +5557,7 @@ function deleteDocComplete(fid, did, callback, callbackParam) {
     if (catalog.docs[did].fid === fid) {
       // if doc didn't move, and it's ONLY deleted.
       delete catalog.docs[did];
-
+      updateLocalCatalog();
       if ( did === activeFileID ) { hideFileViewer (); }
       if ( did === activeDocID ) { loadDoc("home"); }
     } else {
@@ -5781,6 +6102,7 @@ function areDeletionsComplete (did, fid) {
   if (selectionArray.length === completedDeletions) {
     hideDeleteSelectionsModal();
     clearSelections();
+    updateLocalCatalog();
   }
 }
 
@@ -7331,6 +7653,7 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
 
           catalog.docs[did] = catalog.docs[did] || {};
           catalog.docs[did].isfile = false;
+          updateLocalCatalog();
 
           // now that we've imported the file, and made it a crypteedoc, delete it.
           var fileRef = rootRef.child(did + ".crypteefile");
@@ -7399,6 +7722,7 @@ function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, 
           updateDocTitleInDOM(activeDocID, newDocName);
           catalog.docs[did] = catalog.docs[did] || {};
           catalog.docs[did].isfile = false;
+          updateLocalCatalog();
 
           // now that we've imported the file, and made it a crypteedoc, delete it.
           var fileRef = rootRef.child(did + ".crypteefile");
@@ -7603,7 +7927,8 @@ function processPlaintextCrypteedoc (plaintextCrypteedoc) {
         updateDocTitleInDOM(activeDocID, newDocName);
         catalog.docs[did] = catalog.docs[did] || {};
         catalog.docs[did].isfile = false;
-        
+        updateLocalCatalog();
+
         // now that we've imported the file, and made it a crypteedoc, delete it.
         breadcrumb('ECD Import : Title set, will delete old references');
         var fileRef = rootRef.child(did + ".crypteefile");
@@ -7661,6 +7986,16 @@ $(".left-view-controller-buttons").on('click', '.left-nav-buttons', function(eve
       showMenu();
     }
   }
+
+  if ($(this).attr("id") === "recents-button") {
+    userPreferences.docs.opentab = "recents";
+    dataRef.update({"preferences" : userPreferences});
+  }
+
+  if ($(this).attr("id") === "folders-button") {
+    userPreferences.docs.opentab = "folders";
+    dataRef.update({"preferences" : userPreferences});
+  }
 });
 
 function loadLeftViewPos (posToLoad) {
@@ -7678,11 +8013,16 @@ function gensort(a,b) {
 
 var refreshOnlineDocsTimer;
 
-function refreshOnlineDocs () {
+function refreshOnlineDocs (force) {
+  force = force || false;
+  if (force) {
+    refresh();
+  }
+
   clearTimeout(refreshOnlineDocsTimer);
   refreshOnlineDocsTimer = setTimeout(function () {
     refresh();
-  }, 100);
+  }, 1000);
 
   function refresh() {
     var allDocsArray = Object.values(catalog.docs);
@@ -8464,11 +8804,19 @@ function offlineInitComplete (){
   }
 }
 
-function showSyncingProgress(val, max) {
+function showSyncingProgress(val, max, msg) {
+  if (!localStorage.getItem("encryptedCatalog")) {
+    msg = msg || "Syncing Device..." 
+  } else {
+    msg = msg || "Syncing...";
+  }
+
   val = val || 100;
   max = max || 100;
+
   $('#sync-progress-bar').attr("value", val).attr("max", max);
   $("#sync-progress").addClass("syncing");
+  $(".sync-details").html(msg);
 }
 
 function hideSyncingProgress() {
@@ -8493,7 +8841,7 @@ function prepareForSync(numberOfOfflineDocs, callback, callbackParam) {
   callback = callback || noop;
   var offlineDocObjectsReadyToSync = {};
 
-  showSyncingProgress(0, numberOfOfflineDocs);
+  showSyncingProgress(0, numberOfOfflineDocs, "Syncing Offline Docs...");
   offlineStorage.iterate(function(doc, did, docNo) {
     var theEncryptedDelta = JSON.parse(doc.content).data;
     decrypt(theEncryptedDelta, [keyToRemember]).then(function(plaintext) {
@@ -8651,6 +8999,7 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
 
               catalog.docs.home.tags = dtags;
               catalog.docs.home.gen = genToSyncUp;
+              updateLocalCatalog();
             }
 
             doneSyncingDoc (callback, callbackParam);
@@ -8679,6 +9028,7 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
           catalog.docs[doc.did] = catalog.docs[doc.did] || {};
           catalog.docs[doc.did].tags = dtags;
           catalog.docs[doc.did].gen = genToSyncUp;
+          updateLocalCatalog();
 
           doneSyncingDoc (callback, callbackParam);
         }).catch(function(err) {
@@ -8819,7 +9169,7 @@ function syncCompleted (callback, callbackParam) {
   $(".sync-details").html("Sync Complete");
   setTimeout(function () {
     hideSyncingProgress();
-  }, 7500);
+  }, 5000);
   numberOfDocsToSync = 0;
   numberOfDocsCompletedSync = 0;
   initialSyncComplete = true;
@@ -8899,6 +9249,16 @@ $("#doc-dropdown").on('click touchend', '.offlinecheckbox', function(event) {
   hideRightClickMenu();
 });
 
+$(".dropdown-makeoffline-button").on('click touchend', function(event) {
+  makeOfflineDoc(activeDocID);
+  $(".document-contextual-dropdown").removeClass("open");
+});
+
+$(".dropdown-makeonline-button").on('click touchend', function(event) {
+  removeOfflineDoc(activeDocID);
+  $(".document-contextual-dropdown").removeClass("open");
+});
+
 $("#doc-dropdown").on('click', '.offline-button', function(event) {
   if (!$(event.target).is(".crypteecheckbox")) {
     $("#doc-dropdown").find(".offlinecheckbox").click();
@@ -8937,6 +9297,8 @@ $("#folder-dropdown").on('click', '.offline-button', function(event) {
 function docMadeAvailableOffline(did) {
   catalog.docs[did] = catalog.docs[did] || {};
   catalog.docs[did].isoffline = true;
+  updateLocalCatalog();
+
   breadcrumb("Made " + did + " offline.");
   addOfflineBadgeToDoc(did);
 
@@ -8949,6 +9311,8 @@ function docMadeAvailableOffline(did) {
 function docMadeOnlineOnly(did) {
   catalog.docs[did] = catalog.docs[did] || {};
   catalog.docs[did].isoffline = false;
+  updateLocalCatalog();
+
   breadcrumb("Made " + did + " online only.");
   removeOfflineBadgeOfDoc(did);
   
@@ -9048,8 +9412,6 @@ function updateCounts() {
   $("#word-count").html(wCountString);
   $("#char-count").html(cCountString);
 }
-
-
 
 
 

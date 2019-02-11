@@ -61,6 +61,7 @@ html.is-loading::after {
 
 .menu-list a {
 	border-radius: 3rem;
+	user-select: none;
 }
 
 .menu-delete-account.is-active {

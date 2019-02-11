@@ -686,6 +686,10 @@ crypteetag {
   /* margin-left: -0.4rem; */
 }
 
+.ql-editor ul li {
+  margin-bottom: 0.5rem !important;
+}
+
 .ql-editor ol {
   padding-left: 1rem;
   /* padding-left: 0.75rem; */
@@ -740,13 +744,13 @@ crypteetag {
 }
 
 .ql-editor ul[data-checked=true] li.ql-direction-rtl, .ql-editor ul[data-checked=false] li.ql-direction-rtl {
-  margin-right: 0.3rem;
+  margin-right: 0rem;
 }
 
 .ql-editor ul[data-checked="false"] > li::before {
   font-family: FontAwesome;
-  content: '\f10c';
-  font-size: 20px;
+  content: '\f096';
+  font-size: 19.5px;
   line-height: 1.5rem;
   color: #000;
   transition: color 0.3s ease;
@@ -760,8 +764,8 @@ crypteetag {
 
 .ql-editor ul[data-checked="true"] li::before {
   font-family: FontAwesome;
-  content: '\f05d';
-  font-size: 20px;
+  content: '\f046';
+  font-size: 19.5px;
   line-height: 1.5rem;
   transition: color 0.3s ease;
   vertical-align: middle;
@@ -6634,6 +6638,11 @@ body.draggingStuff {
     opacity: 1;
   }
 
+  .ql-editor ul[data-checked="false"] > li:not(.ql-direction-rtl):hover::before {
+    content: '\f046';
+    font-size:19.5px;
+  }
+
 }
 
 @media (-moz-touch-enabled: 1), (pointer:coarse) {
@@ -6867,7 +6876,6 @@ body.draggingStuff {
   }
 
   .ql-editor ul {
-    margin-left: 0;
     margin-bottom: 0.5rem !important;
   }
 
