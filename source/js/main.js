@@ -907,8 +907,7 @@ try {
 ////////////////////////////////////////////////
 
 // callback ( result )
-// var contactFormURL = "https://crypt.ee/api/contactform";
-var contactFormURL = "https://us-central1-cryptee-54307.cloudfunctions.net/contactform";
+var contactFormURL = "https://crypt.ee/api/contactform";
 
 function collectContactForm(contactFormObject) {
   contactFormObject = contactFormObject || null;
