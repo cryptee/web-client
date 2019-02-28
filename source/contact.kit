@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- @import "app-head.kit" -->
+  <title>Cryptee | Contact Us</title>
+
+  <style media="screen">
+    .contact-body {
+      background-color: #f5f5f5;
+      min-height: 100%;
+    }
+
+    .logo {
+      display: block;
+      width: 40px;
+      height: auto;
+      margin: auto auto 2rem auto;
+    }
+
+    .form {
+      max-width: 600px;
+      min-width: 320px;
+      width: 100%;
+      margin: auto;
+      padding: 1rem;
+    }
+    p {
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .form textarea, .form input {
+      font-size: 16px;
+      line-height: 24px;
+      margin-top: 1rem;
+      min-width: 100%;
+      max-width: 100%;
+      width: 100%;
+      border: none;
+      border-left: 3px solid #363636;
+      background: transparent;
+      padding: 1rem;
+      box-shadow: none;
+    	outline: none;
+    }
+
+  </style>
+</head>
+
+<body class="contact-body">
+
+  <div class="container">
+    <nav class="level is-mobile">
+      <div class="level-item level-left home-level-left">
+        <div class="settings-tabs tabs is-small">
+          <ul>
+            <li title="Dashboard" class="is-active"> <a class="top-left-icon" href="#"><i class="top-menu-icons fa fa-fw fa-th-large"></i></a></li>
+            <li title="Documents"><a class="top-left-icon" href="docs"><i class="top-menu-icons fa fa-fw fa-file"></i></a></li>
+            <li title="Photos"> <a class="top-left-icon" href="photos"><i class="top-menu-icons fa fa-fw fa-picture-o"></i></a></li>
+            <li title="Account Settings" class="hiddenForOffline"> <a class="top-left-icon" href="account"><i class="top-menu-icons fa fa-fw fa-cog"></i></a></li>
+            <li class="is-hidden-webapp" title="Sign Out"> <a class="top-left-icon" onclick="signOut();"><i class="top-menu-icons fa fa-fw fa-sign-out"></i></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <br><br>
+    <img class="logo" src="../assets/cryptee-logo-b.svg" alt="Cryptee | Dashboard">
+    <h1 class="title is-2 has-text-centered"><b>FEEDBACK &AMP; BUG REPORT</b></h1>
+
+    <div class="form">
+      <p><b>Hey there<span class="username"></span>!</b></p>
+      <p>Thank you so much for stopping by to make Cryptee better. Despite best efforts, mistakes and errors happen sometimes. If you're here for a bug report, let us know what went wrong, and we'll fix it right away.</p>
+      <br>
+      <p>Please write your feedback / describe the bug below, and include what <b>device, model, operating system &amp; browser</b> you were using (and their versions too if you know them). This will help us reproduce the error better and quicker.</p>
+      <br><br>
+
+      <p><b>Please describe the bug / write your feedback:</b></p>
+      <textarea name="bug-description" rows="5" cols="80" placeholder="... I was writing my journal using Cryptee Docs on Windows 10 with Google Chrome v69, then my cat jumped onto my laptop and finished the journal for me ..."></textarea>
+
+      <br><br>
+
+      <p><b>Please provide an email address we can use to contact you:</b></p>
+      <input id="email-input" type="email" name="" placeholder="awesome@email.com">
+      <br><br>
+      <button type="button" name="button" class="button is-dark" onclick="submitReport();">Submit</button>
+      <br><br><br><br><br>
+    </div>
+
+  </div>
+
+  <!-- @import "footer-js.kit" -->
+
+  <script type="text/javascript">
+  var theUser, theUsername, theEmail, metaRef, theUserID, typeOfApp;
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      //got user
+      theUser = user;
+      theUsername = theUser.displayName;
+      theEmail = theUser.email;
+      theUserID = theUser.uid;
+      gotUser();
+    }
+  });
+
+  function gotUser () {
+    var unameToShow = " " + (theUsername || theEmail);
+    $('.username').html(unameToShow);
+  }
+
+  function submitReport () {
+    var description = $("textarea").val().trim();
+    var contact = $("#email-input").val().trim();
+    
+    if (isInWebAppiOS || isInWebAppChrome) {
+      typeOfApp = "PWA";
+    } else {
+      typeOfApp = "WEB";
+    }
+
+    var crypteeUID = theUserID || "(Unknown)";
+    var crypteeEmail = theEmail;
+    var crypteeUsername = theUsername;
+
+    var appType = typeOfApp;
+    var ua = (navigator.userAgent || "(Unknown)");
+    var resolution = $(window).width().toString() + "x" + $(window).height().toString();
+    
+    var contactFormObject = {
+      "type" : "bugreport",
+      "description" : description,
+      "contact" : contact,
+      "crypteeUID" : crypteeUID,
+      "crypteeEmail" : crypteeEmail,
+      "crypteeUsername" : crypteeUsername,
+      "appType" : appType,
+      "ua" : ua,
+      "resolution" : resolution
+    };
+
+    if (description !== "" && contact !== "") {
+      collectContactForm(contactFormObject);
+
+      $("button").addClass("is-loading").attr('disabled', 'disabled').prop( "disabled", true );
+
+      setTimeout(function () {
+        formSubmitted();
+      }, 2000);
+    }
+  }
+
+  function formSubmitted () {
+$("button").html("Thank you!").addClass("is-success").removeClass("is-loading").attr('disabled', 'disabled').prop(
+"disabled", true );
+  }
+
+  </script>
+</body></html>

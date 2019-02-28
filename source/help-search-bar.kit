@@ -1,0 +1,27 @@
+<section id="help-search">
+    <div class="is-hidden-mobile help-desktop-spacer"></div>
+
+    <div class="help-column">
+        <div id="search-bar" class="help-search notification">
+            <div class="field is-grouped">
+                <p class="control is-expanded">
+                    <input id="search-input" class="input" type="text" placeholder="Search for help articles"
+                        autocomplete="off" spellcheck="false">
+                </p>
+                <p class="control">
+                    <a class="button is-dark is-loading" onclick="clearSearch();">
+                        <i id="search-button-icon" class="top-menu-icons fa fa-fw fa-search" style="font-size:1em; margin-right:2px;"></i>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="help-results">
+    <div class="help-column">
+        <div class="columns is-mobile is-multiline is-centered" id="search-results">
+
+        </div>
+    </div>
+</section>

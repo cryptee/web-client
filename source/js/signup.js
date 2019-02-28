@@ -265,10 +265,6 @@ $(window).on("load", function(event) {
     preloadImages();
   }
 
-  // if (isInWebAppiOS) {
-  //   $("#google-tab-contents").prepend('<p><b>(Only for iOS 11.2+)</b><b> For older versions of iOS:</b><br>In order to sign up to Cryptee using your Google account in an iOS Home Screen application, <a href="https://cryptee.kayako.com/article/24-how-to-sign-up-using-google-account-in-home-screen-application-using-an-older-version-of-ios" target="_blank"><b> please read this tutorial.</b></a></p><br><br>');
-  // }
-
   try {
     sessionStorage.setItem("sessionStorageTest", "test");
     sessionStorage.removeItem("sessionStorageTest");

@@ -1433,28 +1433,31 @@ function nextUpload(callback, callbackParam) {
 
     uploadList.forEach(function(upload, index) {
 
-      if ( !upload.processed && (numFilesUploading < 1) ) {
-        if ( upload.file.size < (memoryLimit / numFilesUploading) ) {
-          uploadList[index].processed = true;
-          numFilesUploading++;
-          processPhotoForUpload (upload.file, upload.fid, upload.pid, callback, callbackParam);
+      if (upload.file) {
+        if ( !upload.processed && (numFilesUploading < 1) ) {
+          if ( upload.file.size < (memoryLimit / numFilesUploading) ) {
+            uploadList[index].processed = true;
+            numFilesUploading++;
+            processPhotoForUpload (upload.file, upload.fid, upload.pid, callback, callbackParam);
+          }
         }
+  
+        if (upload.file.size >= memoryLimit) {
+          uploadList[index].processed = true;
+          numFilesLeftToBeUploaded--;
+          fileUploadError = true;
+          uploadElem =
+          '<div class="upload" id="upload-'+file.name+'-'+file.size+'">'+
+            '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
+            '<p class="deets fn">'+file.name+'</p>'+
+            '<p class="deets fs">Too Large (' + formatBytes(file.size) + ')</p>'+
+          '</div>';
+          $("#upload-status-contents").append(uploadElem);
+          document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
+        }
+        // if file is too large or too many files uploading skip and wait until next round.
       }
-
-      if (upload.file.size >= memoryLimit) {
-        uploadList[index].processed = true;
-        numFilesLeftToBeUploaded--;
-        fileUploadError = true;
-        uploadElem =
-        '<div class="upload" id="upload-'+file.name+'-'+file.size+'">'+
-          '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
-          '<p class="deets fn">'+file.name+'</p>'+
-          '<p class="deets fs">Too Large (' + formatBytes(file.size) + ')</p>'+
-        '</div>';
-        $("#upload-status-contents").append(uploadElem);
-        document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
-      }
-      // if file is too large or too many files uploading skip and wait until next round.
+      
     });
 
   }

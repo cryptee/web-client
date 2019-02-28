@@ -45,6 +45,8 @@ function saveUserDetailsToLS (theUsername, usedStorage, allowedStorage, paid) {
     "allowedStorage"  : allowedStorage,
     "paid" : paid
   }));
+  setSentryTag("availableStorage", formatBytes(allowedStorage - usedStorage));
+  setSentryTag("paid", paid);
 }
 
 function loadUserDetailsFromLS () {

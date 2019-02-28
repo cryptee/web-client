@@ -125,6 +125,41 @@ function getUrlParameter(sParam) {
     }
 }
 
+// CREATE URL SLUG FROM STRING
+
+function slugify(string) {
+  var a = 'àáäâãåăæçèéëêǵḧìíïîḿńǹñòóöôœṕŕßśșțùúüûǘẃẍÿź·/_,:;';
+  var b = 'aaaaaaaaceeeeghiiiimnnnoooooprssstuuuuuwxyz------';
+  var p = new RegExp(a.split('').join('|'), 'g');
+
+  return string.toString().toLowerCase()
+    .replace("</strong>","")
+    .replace("<strong>", "")
+    .replace(/\//g, "-")
+    .replace(/&nbsp;/g, "")
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(p, function(c) { b.charAt(a.indexOf(c))}) // Replace special characters
+    .replace(/&/g, '-and-') // Replace & with 'and'
+    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, ''); // Trim - from end of text
+}
+
+function parseSlug(string) {
+  return string.replace(/-/g, " ").replace(".html", "");
+}
+
+function stringToB64URL(str) {
+  return btoa(encodeURI(str)).replace("/", "_");
+}
+
+function b64URLToString(str) {
+  return decodeURI(atob(str.replace("_", "/")));
+}
+
+
+
 
 
 // Format Bytes
@@ -445,8 +480,10 @@ function popupLoadURL(url, title, w, h) {
     var newWindow = window.open(url, title, 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
 
     // Puts focus on the newWindow
-    if (window.focus) {
+    if (newWindow) {
+      if (window.focus) {
         newWindow.focus();
+      }
     }
 }
 
@@ -870,15 +907,16 @@ try {
 ////////////////////////////////////////////////
 
 // callback ( result )
-var feedbackURL = "https://crypt.ee/api/feedbackform";
+// var contactFormURL = "https://crypt.ee/api/contactform";
+var contactFormURL = "https://us-central1-cryptee-54307.cloudfunctions.net/contactform";
 
-function collectFeedback(feedbackObject) {
-  feedbackObject = feedbackObject || null;
-  if (feedbackObject) {
+function collectContactForm(contactFormObject) {
+  contactFormObject = contactFormObject || null;
+  if (contactFormObject) {
     $.ajax({
-      url: feedbackURL,
+      url: contactFormURL,
       method: "POST",
-      data: feedbackObject,
+      data: contactFormObject,
       dataType: "json",
       success: function () { console.log("feedback submitted."); }
     });
@@ -992,7 +1030,7 @@ function checkConnection (callback) {
 try {
   openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
   openpgp.config.aead_protect_version = true;
-  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.5.min.js' }); // set the relative web worker path
+  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.4.8.min.js' }); // set the relative web worker path
 } catch (e) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");

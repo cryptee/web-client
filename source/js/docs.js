@@ -638,6 +638,13 @@ key('command+s, ctrl+s', function(){
   }
   return false;
 });
+
+key('command+shift+s, ctrl+shift+s', function(){
+  exportAsHTML(null, true);
+  return false;
+});
+
+
 key('command+l, ctrl+l', function(){ showEmbed("formula"); return false; });
 key('command+shift+6, ctrl+shift+6', function(){
   if (isMobile) {
@@ -1508,7 +1515,6 @@ function startUserSockets () {
       }
 
       saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot);
-      setSentryTag("availableStorage", formatBytes(allowedStorage - usedStorage));
     }
   });
 
@@ -3506,6 +3512,8 @@ function setArchivedFolder(fid, archiveBool) {
     } else {
       sortFolders();
     }
+
+    refreshOnlineDocs();
     
   }, 500);
 }
@@ -6778,36 +6786,6 @@ $("#low-storage-warning > .notification > .delete").on('click', function(event) 
 });
 
 
-
-
-///////////////////////////////////////////////////////////
-////////////////// HELP BUTTON ///////////////////////
-//////////////////////////////////////////////////////////
-
-$('#help').on('click', function(event) {
-  event.preventDefault();
-  if (!isInWebAppiOS) {
-    var win = window.open("https://cryptee.kayako.com", '_blank');
-    if (win) { win.focus(); }
-  } else {
-    var urlToPass = "https://cryptee.kayako.com";
-    var downloadFrame = document.getElementById('downloadFrame');
-    var iframeDoc = downloadFrame.contentDocument || downloadFrame.contentWindow.document;
-    var a = iframeDoc.createElement('a');
-    a.setAttribute("href", urlToPass);
-    a.setAttribute("target", "_blank");
-    var dispatch = iframeDoc.createEvent("HTMLEvents");
-    dispatch.initEvent("click", true, true);
-    a.dispatchEvent(dispatch);
-  }
-});
-
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////
 ////////////////// EXPORT DOCUMENT  ///////////////////////
 ///////////////////////////////////////////////////////////
@@ -6830,7 +6808,11 @@ $('#export-currentdoc-as-pdf-USL').on('click', function(event) {
 });
 
 $('#export-currentdoc-as-html').on('click', function(event) {
-  exportAsHTML(activeDocID);
+  if (event.altKey) {
+    exportAsHTML(activeDocID, true);
+  } else {
+    exportAsHTML(activeDocID, false);
+  }
 });
 
 $("export-currentdoc-as-crypteedoc").on('click', function(event) {
@@ -6879,16 +6861,22 @@ function exportAsRTF(did) {
   }
 }
 
-function exportAsHTML(did) {
+function exportAsHTML(did, useSectionTitleForExport) {
+  did = did || activeDocID;
+  useSectionTitleForExport = useSectionTitleForExport || false;
   if (did === activeDocID) {
     var contents = $(".ql-editor").html();
-    var title = activeDocTitle + ".html";
+    var title;
+    if (useSectionTitleForExport) {
+      title = stringToB64URL(sectionsArray[0].html()) + ".html";
+    } else {
+      title = activeDocTitle + ".html";
+    }
     var blob = new Blob([contents], {type: "text/html;charset=utf-8"});
     saveAs(blob, title);
     hideExportDocModal();
   }
 }
-
 
 // currently android only due to how the saveAs mechanism works.
 // since we can't pass the encrypted file / Blob to a Safari browser

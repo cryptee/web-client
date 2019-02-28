@@ -152,7 +152,7 @@
   function submitForm () {
     var feedback = $("#feedback-input").val().trim();
     if (feedback !== "") {
-      collectFeedback({"type" : "goodbye", "description" : feedback});
+      collectContactForm({"reason" : "goodbye", "description" : feedback});
       $(".submit-button .button").addClass("is-loading").attr('disabled', 'disabled').prop( "disabled", true );
       setTimeout(function () {
         formSubmitted();

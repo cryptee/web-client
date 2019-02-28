@@ -579,7 +579,6 @@ function openPaddle () {
 
 function paymentSuccessful(data) {
   var checkoutid = data.checkout.id;
-  console.log("Payment Successful", data);
 
   var writeCheckoutID = cloudfunctions.httpsCallable('writecheckoutid');
   writeCheckoutID({checkoutid: checkoutid}).then(function(result) {

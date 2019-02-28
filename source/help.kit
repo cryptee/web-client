@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html data-loading="One moment please">
+
+<head>
+
+    <!-- @import "app-head.kit" -->
+    <title>Cryptee | Help</title>
+    <link rel="stylesheet" type="text/css" href="../css/help.css">
+
+</head>
+
+<body class="help-body">
+    <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
+
+    <section id="help-app-nav">
+        <div id="left-nav">
+            <a class="help-app-nav-item top-left-icon" href="home"><img src="../assets/cryptee-logo-b.svg" alt="Cryptee | Dashboard" id="nav-logo"></a>
+        </div>
+    </section>
+
+    <!-- @import "help-search-bar.kit" -->
+
+    <div class="columns help-column is-centered is-hidden-with-content">
+        <div class="column has-text-centered" style="padding:0; margin-top: 1rem;">
+            <p class="has-text-centered"><b>Common Topics</b></p><br>
+            
+            <div class="tags is-centered">
+                <span class="tag is-medium help-tag" onclick="loadTopic('account');">
+                    <span class="icon"><i class="fa fa-user"></i></span> &nbsp;
+                    <span class="topictitle">Account &amp; Security</span>
+                </span>
+                
+                <span class="tag is-medium help-tag" onclick="loadTopic('general');">
+                    <span class="icon"><i class="fa fa-lock"></i></span> &nbsp;
+                    <span class="topictitle">General</span>
+                </span>
+                
+                <span class="tag is-medium help-tag" onclick="loadTopic('payments');">
+                    <span class="icon"><i class="fa fa-credit-card"></i></span> &nbsp;
+                    <span class="topictitle">Payments</span>
+                </span>
+                
+                <span class="tag is-medium help-tag" onclick="loadTopic('docs');">
+                    <span class="icon"><i class="fa fa-file"></i></span> &nbsp;
+                    <span class="topictitle">Cryptee Documents</span>
+                </span>
+                
+                <span class="tag is-medium help-tag" onclick="loadTopic('photos');">
+                    <span class="icon"><i class="fa fa-photo"></i></span> &nbsp;
+                    <span class="topictitle">Cryptee Photos</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns help-column is-centered is-hidden-with-content">
+        <div class="help-img-card crypteecard">
+            <div class="columns">
+                <div class="column has-text-centered" style="padding:0;">
+                    <img src="/imgs/note-lock.jpg" alt="Cryptee Docs | Getting Started">
+                </div>
+                    
+                <div class="column" style="padding:0;">
+                    <div style="padding:2rem 2rem 1rem 2rem;">
+                        <h2 class="title is-5">Moving your notes?</h2>
+                        <p>We've prepared step-by-step guides for you to easily move your data from your old unencrypted apps to Cryptee in just a few minutes &amp; few clicks. Pick an app below to get started.</p>
+                        <br>
+                        <a onclick="loadArticle('migrate-from-evernote')" class="button hero-button www-action-button">Evernote</a> &nbsp;
+                        <a onclick="loadArticle('migrate-from-bear-notes')" class="button hero-button www-action-button">Bear Notes</a> &nbsp;
+                        <a onclick="loadArticle('migrate-from-apple-notes')" class="button hero-button www-action-button">Apple Notes</a> &nbsp;
+                        <a onclick="loadArticle('how-can-i-import-migrate-documents-notes-files-to-cryptee-from-other-applications')" class="button hero-button www-action-button">Other</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns help-column is-centered is-hidden-with-content">
+        <div class="help-img-card crypteecard">
+            <div class="columns">
+                <div class="column" style="padding:0;">
+                    <div style="padding:2rem 2rem 1rem 2rem;">
+                        <h2 class="title is-5">Moving your photos?</h2>
+                        <p>We have guides to help make your life easier and organize your photos better.</p>
+                        <br>
+                        <a onclick="loadArticle('how-can-i-bulk-import-my-photos-into-cryptee')" class="button hero-button www-action-button">Import &amp; Organize Photos</a> &nbsp;
+                        <a onclick="loadArticle('convenience-trade-offs-you-need-to-make-while-using-cryptee-photos')" class="button hero-button www-action-button">Convenience Trade-offs</a> &nbsp;
+                    </div>
+                </div>
+
+                <div class="column has-text-centered" style="padding:0;">
+                    <img src="/imgs/photos-started.jpg" alt="Cryptee Photos | Getting Started">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns help-column is-centered is-hidden-with-content">
+        <div class="column has-text-centered" style="padding:0;">
+            <div class="help-card crypteecard">
+                <span class="icon is-medium">
+                    <i class="fa fa-support"></i>
+                </span><br><br>
+                <p class="question"><b>Can't find what you're looking for?</b></p>
+                <p class="subquestion">We're always here to help and listen to your feedback.</p>
+                <div class="button hero-button www-action-button" onclick="showContactForm('contactform')">Contact Us</div>
+            </div>
+        </div>
+
+        <div class="column has-text-centered" style="padding:0;">
+            <div class="help-card crypteecard">
+                <span class="icon is-medium">
+                    <i class="fa fa-bug"></i>
+                </span><br><br>
+                <p class="question"><b>Found a bug?</b></p>
+                <p class="subquestion">Everybody makes mistakes. Let us
+                    know what went wrong, and we'll fix it right away.</p>
+                <div class="button hero-button www-action-button" onclick="showContactForm('bugreport')">Report a bug</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns help-column is-centered" id="contact-form" formtype="bugreport">
+        <div class="column" style="padding:0;">
+            <div class="help-card crypteecard">
+                <div class="contact-form">
+                    <p class="title is-5" id="form-text">How can we help you?</p>
+                    
+    
+                    <p id="form-description-title"><b>Please describe the bug:</b></p>
+                    <textarea id="form-description" name="form-description" rows="5" cols="80" placeholder="... I was writing my journal using Cryptee Docs on Windows 10 with Google Chrome v69, then my cat jumped onto my laptop and finished the journal for me ..."></textarea>
+    
+                    <br><br><br>
+    
+                    <p class="title is-5"><b>What's an email we can use to contact you?</b></p>
+                    <input id="email-input" type="email" name="" placeholder="awesome@email.com">
+                    <br><br><br>
+                    <button type="button" name="button" class="button is-dark hero-button www-action-button" onclick="submitReport();">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns help-column is-centered is-visible-with-content" id="article-wrapper">
+        <div class="column" style="padding:0;">
+            
+            <a onclick="closeArticle();" style="margin-left:1rem;"><b><span class="icon"><i class="fa fa-caret-left"></i></span> Back to Helpdesk</b></a>
+
+            <div class="help-card crypteecard" id="article-contents">
+                
+            </div>
+
+            <div class="has-text-centered" id="cant-find">
+                <br><p><a onclick="closeArticle();"><b><span class="icon"><i class="fa fa-caret-left"></i></span> back to helpdesk</b></a> &nbsp; &bull; &nbsp; <a onclick="closeArticle('contact')">contact us!</a></p>
+                <br><p class="deets" style="text-align:center;">Fun Fact : This help article was written &amp; made with Cryptee Docs.</p>
+                <br><br>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- @import "modal-webapp.kit" -->
+    <!-- @import "footer-js.kit" -->
+    <script src="../js/lib/xml2json.js"></script>
+    <script src="../js/help.js"></script>
+</body>
+
+</html>
