@@ -249,6 +249,10 @@
   z-index: 12;
 }
 
+.document-contextual-dropdown hr {
+  margin: 0.25rem 0;
+}
+
 #close-menu-button {
   opacity: 0;
   position: absolute;
@@ -377,7 +381,8 @@
   pointer-events: none;
 }
 
-#help-button.shown, #hotkeys-button.shown {
+body:not(.viewing-mode) #help-button.shown, 
+body:not(.viewing-mode) #hotkeys-button.shown {
   opacity: 1 !important;
   pointer-events: all !important;
 }
@@ -1214,6 +1219,37 @@
   max-height: initial;
 }
 
+
+
+/*///////////////////////////////////////////////////
+//////////////////  VIEWING MODE  //////////////////////
+///////////////////////////////////////////////////*/
+
+body.viewing-mode .no-print,
+body.viewing-mode .filesize-button,
+body.viewing-mode .save-doc-button ,
+body.viewing-mode .mobile-floating-tools 
+{
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.viewing-mode #mobile-topbar {
+  opacity: 1 !important;
+}
+
+body.viewing-mode .top-left-icon {
+  pointer-events: none !important;
+}
+
+body.viewing-mode .document-contextual-dropdown .disabled-while-viewing, {
+  opacity: 0.2 !important;
+  pointer-events: none !important;
+}
+
+body.viewing-mode #doc-contextual-button {
+  pointer-events: all !important;
+}
 
 
 /*///////////////////////////////////////////////////

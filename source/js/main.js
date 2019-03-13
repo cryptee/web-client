@@ -1,5 +1,6 @@
 //
 var noop = function(){}; // do nothing.
+var pageLoadedTime = (new Date()).getTime();
 var isMobile = false; //initiate as false
 var freeUserQuotaInBytes = 100000000;
 var paidUserThresholdInBytes = 9999999999;
@@ -553,7 +554,13 @@ function cancelDuplicates(fn, threshhold, scope) {
 // SCROLLED INTO VIEW
 function isScrolledIntoView(el) {
   if (el !== undefined) {
-    var rect = el.getBoundingClientRect();
+    var rect;
+    try {
+      rect = el.getBoundingClientRect();
+    } catch (error) {
+      return false;
+    }
+    
     var elemTop = rect.top;
     var elemBottom = rect.bottom;
 
@@ -612,7 +619,7 @@ if ('serviceWorker' in navigator) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
       console.log("SWERR:", error);
       setSentryTag("worker", "errored");
-      handleError(error);
+      handleError("Error Registering Service Worker",error);
     }
   });
 } else {
@@ -747,7 +754,9 @@ $("#key-modal").on('click', function(event) {
   $("#key-input").focus();
 }); 
 
+logTimeStart('Time Until KeyModal');
 function showKeyModal () {
+  logTimeEnd('Time Until KeyModal');
   // 767 to accommodate ipads / other portrait tablets
   if ($(window).width() > 767) {
     loadKeyModalBackground();
@@ -895,10 +904,16 @@ function flushOldCaches() {
 ////////////////  SENTRY  SETUP  ////////////////
 ////////////////////////////////////////////////
 
+var sentryEnv;
+if (location.origin.indexOf("crypt.ee") === -1) { sentryEnv = "alpha"; }
+if (location.origin.indexOf("crypt.ee") !== -1) { sentryEnv = "prod"; }
+if (location.origin.indexOf("beta.crypt.ee") !== -1) { sentryEnv = "beta"; }
+
 try {
   Sentry.init({
     dsn: 'https://bbfa9a3a54234070bc0899a821e613b8@sentry.io/149319',
     release: latestDeployVersion,
+    environment: sentryEnv
   });
 } catch (e) { }
 
@@ -946,6 +961,11 @@ function ping (type, obj, callback) {
     obj.geoid = "XX";
   }
 
+  var sessionID;
+  try {
+    sessionID = sessionStorage.getItem("sessionID");
+  } catch (error) {}
+  
   if (sessionID) { obj.cid = sessionID; }
   if (isInWebAppiOS || isInWebAppChrome) {
     obj.ds = "app";
@@ -963,8 +983,8 @@ function ping (type, obj, callback) {
       callback();
     }
   }).fail(function(resp){
-    if (resp.status !== 200 && resp.status !== 0) {
-      handleError("ping error:" + JSON.stringify(resp));
+    if (resp.status !== 200 && resp.status !== 0 && resp.status !== 502) {
+      handleError("Ping Error", resp);
       callback();
     }
   });
@@ -978,30 +998,29 @@ var retriedCheckConnection = 0;
 function checkConnection (callback) {
   callback = callback || noop;
   var now = (new Date()).getTime(); // milliseconds
-  var checkConnectionURL = window.location.origin + "/v.json?cachebuster=" + now;
+  // t = cachebuster to make sure we don't get a cached result
+  var checkConnectionURL = "https://check.crypt.ee/1?t=" + now;
   $.ajax({
     url: checkConnectionURL,
     type: 'GET',
     dataType: 'json',
     success: function(data){
-      // callback(false); // for testing offline mode
       retriedCheckConnection = 0;
       callback(true);
     },
     error: function(x) {
       if (x.status === 200) {
-        // callback(false); // for testing offline mode
         retriedCheckConnection = 0;
         callback(true);
       } else {
-        if (retriedCheckConnection <= 3) {
-          console.log("Connection offline, trying again in 2sec...");
+        if (retriedCheckConnection < 2) {
+          console.log("Connection offline, trying again in 1sec...");
           setTimeout(function () {
             retriedCheckConnection++;
             checkConnection (callback);
-          }, 2000);
+          }, 1000);
         } else {
-          console.log("Connection offline, tried 3 times.");
+          console.log("Connection offline, tried 2 times.");
           retriedCheckConnection = 0;
           callback(false);
         }
@@ -1033,7 +1052,7 @@ try {
 } catch (e) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
-    handleError(e);
+    handleError("Problem initializing openpgp in main js, failed in try/catch.", e);
   }
 }
 
@@ -1041,7 +1060,7 @@ try {
 if (!openpgp) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js.");
-    handleError(new Error("Problem initializing openpgp in main js, openpgp is undefined."));
+    handleError("Problem initializing openpgp in main js, openpgp is undefined.", {});
   }
 } else {
   var openpgpversion = openpgp.config.versionstring.split("v")[1];
@@ -1178,8 +1197,7 @@ function newEncryptedKeycheck(hashedKey, callback) {
 
 // USING CUSTOM BUGREPORTING AT /BUGREPORT NOW
 
-function handleError (error, connectivity) {
-  connectivity = connectivity || "online";
+function handleOfflineError (error) {
   if (error) {
     console.log(error);  
     Sentry.withScope(function(scope) {
@@ -1187,9 +1205,55 @@ function handleError (error, connectivity) {
         scope.setFingerprint([error.code]);
       }
 
-      scope.setTag("connectivity", connectivity);
+      scope.setTag("connectivity", "offline");
       Sentry.captureException(error);
     });
+  }
+}
+
+// can take a title, a data obj, and level
+// level can be "debug", "info", "warning", "error" or "fatal"
+// defaults to "error"
+function handleError(errorTitle, data, level) {
+
+  if (typeof errorTitle !== "string") {
+    
+    // use old error reporting for backwards compatibility
+    // errorTitle = errorObj
+    // data = connectivity
+    var error = errorTitle;
+    var connectivity = data || "online";
+    
+    if (error) {
+      console.log(error);  
+      Sentry.withScope(function(scope) {
+        if (error.code) {
+          scope.setFingerprint([error.code]);
+        }
+
+        scope.setTag("connectivity", connectivity);
+        Sentry.captureException(error);
+      });
+    }
+
+  } else {
+
+    level = level || 'error';
+    data  = data  || {};
+    console.log(errorTitle);
+    Sentry.withScope(scope => {
+      Object.keys(data).forEach((key) => {
+        scope.setExtra(key, data[key]);
+      });
+      
+      if (data.code) {
+        scope.setFingerprint([data.code]);
+      }
+      
+      scope.setLevel(level);
+      Sentry.captureMessage(errorTitle);
+    });
+
   }
 }
 
@@ -1219,8 +1283,19 @@ function breadcrumb (message, level) {
 
   if (location.origin.indexOf("crypt.ee") === -1) {
     // we're on testing env. log to console.
-    console.log(message);
-    
+    console.log(message);    
+  }
+}
+
+function logTimeStart(name) {
+  if (location.origin.indexOf("crypt.ee") === -1) {
+    console.time(name);  
+  }
+}
+
+function logTimeEnd(name) {
+  if (location.origin.indexOf("crypt.ee") === -1) {
+    console.timeEnd(name);  
   }
 }
 

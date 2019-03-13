@@ -49,6 +49,7 @@ var everyFifteenSecondsInterval = setInterval(quarterMinutelyTimer, 15000);
 var connected = true;
 var startedOffline = false;
 var connectivityMode = true; // true = online // false = offline
+var viewingMode = false;
 
 var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
 var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
@@ -94,7 +95,7 @@ var catalog = {"docs" : {}, "folders" : {}};
 
 var catalogReadyForDecryption = false;
 var bootCatalogDecrypted = false;
-var titlesIndividuallyEncrypted = false; // "tie" = false/true in database
+var titlesIndividuallyEncrypted = false || JSON.parse(localStorage.getItem('tie')); // "tie" = false/true in database
 var lastOpenDocID;
 var lastOpenDocPreloadedDelta = null;
 
@@ -639,7 +640,7 @@ key('command+s, ctrl+s', function(){
   return false;
 });
 
-key('command+shift+s, ctrl+shift+s', function(){
+key('command+shift+alt+s, ctrl+shift+alt+s', function(){
   exportAsHTML(null, true);
   return false;
 });
@@ -848,7 +849,11 @@ function prepareRightClickDocFunctions (id) {
   } else {
     downloadDisabled = downloadDisabled || true;
     offlineStorage.getItem(id, function (err, offlineDoc) {
-      if (err) { handleError(err); }
+      if (err) { 
+        err.isFile = isFile;
+        err.did = did;
+        handleError("Error getting offline document from storage", err); 
+      }
       if (offlineDoc) { 
         dd.find(".offlinecheckbox").prop('checked', true);
       } else {
@@ -974,10 +979,14 @@ var wrappersToMove = $("#docs-page-wrap, #editor-toolbar, #docs-left-top, #docs-
 
 if (!isMobile) {
   $("#docs-left-wrap").hover(function() {
-    wrappersToMove.addClass("showLeft");
+    if (!viewingMode) {
+      wrappersToMove.addClass("showLeft");
+    }
   }, function () {
     if ( isItSafeToHideMenu() ) {
-      wrappersToMove.removeClass("showLeft");
+      if (!viewingMode) {
+        wrappersToMove.removeClass("showLeft");
+      }
     }
   });
 
@@ -987,10 +996,11 @@ if (!isMobile) {
       // this may change one day so account for file drops.
       updateCounts();
       // wrappersToMove.addClass("showRight");
-
     }
   }, function () {
-    wrappersToMove.removeClass("showRight");
+    if (!viewingMode) {
+      wrappersToMove.removeClass("showRight");
+    }
   });
 }
 
@@ -1067,6 +1077,7 @@ function firstLoadComplete() {
 
     lazyLoadUncriticalAssets();
     newUserHints();
+    logTimeEnd("Time Until UI"); // if key is not in memory this includes user typing time.
 
     setTimeout(function () { // this is for UX
       $("#doc-contextual-buttons").show();
@@ -1083,21 +1094,25 @@ function firstLoadComplete() {
 }
 
 function showMenu () {
-  if (isMobile) {
-    $("#help-button, #hotkeys-button").addClass("shown");
+  if (!viewingMode) {
+    if (isMobile) {
+      $("#help-button, #hotkeys-button").addClass("shown");
+    }
+    wrappersToMove.addClass("showLeft");
+    $(".document-contextual-dropdown").removeClass("open");
+    checkAndSaveDocIfNecessary();
   }
-  wrappersToMove.addClass("showLeft");
-  $(".document-contextual-dropdown").removeClass("open");
-  checkAndSaveDocIfNecessary();
 }
 
 function hideMenu () {
-  if (isMobile) {
-    $("#help-button, #hotkeys-button").removeClass("shown");
-    $(".filesize-button, .mobile-floating-tools").removeClass('menuOpen');
+  if (!viewingMode) {
+    if (isMobile) {
+      $("#help-button, #hotkeys-button").removeClass("shown");
+      $(".filesize-button, .mobile-floating-tools").removeClass('menuOpen');
+    }
+    wrappersToMove.removeClass("showLeft");
+    clearSearch();
   }
-  wrappersToMove.removeClass("showLeft");
-  clearSearch();
 }
 
 
@@ -1119,7 +1134,22 @@ $("#hamburger").on('click', function(event) {
   }
 });
 
-
+function toggleViewingMode() {
+  $("body").toggleClass("viewing-mode");
+  $(".document-contextual-dropdown").removeClass("open");
+  
+  if (viewingMode) {
+    viewingMode = false;
+    quill.enable();
+    $("#viewing-mode-label").html("Viewing Mode");
+  } else {
+    viewingMode = true;
+    quill.disable();
+    clearSearch();
+    clearSelections();
+    $("#viewing-mode-label").html("Editing Mode");
+  }
+}
 
 
 
@@ -1146,6 +1176,15 @@ function hideDocProgress (callback){
   callback();
 }
 
+function bootStepComplete(step) {
+  var numberOfSteps = 4;
+  $('#main-progress').attr("max", numberOfSteps).attr("value", step).removeClass("is-danger is-warning is-success");
+
+  if (step >= numberOfSteps) {
+    $('#main-progress').attr("max", "100").attr("value", "100").removeClass("is-danger is-warning is-success").addClass("is-success");
+  }
+}
+
 ////////////////////////////////////////////////////
 ///////////////// DOC CONTEXTUAL MENU   ////////////
 ////////////////////////////////////////////////////
@@ -1166,7 +1205,9 @@ function getToken() {
     retokening = true;
     firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
 
-      $.ajax({ url: tokenURL, type: 'POST',
+      //timing out to make sure promise doesn't wait for AJAX or whatever comes afterwards to resolve
+      setTimeout(function () {
+        $.ajax({ url: tokenURL, type: 'POST',
           headers: { "Authorization": "Bearer " + idToken },
           contentType:"application/json; charset=utf-8",
           success: function(data){ gotToken(data); },
@@ -1174,10 +1215,12 @@ function getToken() {
               console.log(thrownError);
               retokening = false;
           }
-      });
+        });
+      }, 2);
+
     }).catch(function(error) {
       if (error.code !== "auth/network-request-failed") {
-        handleError(error);
+        handleError("Error Getting Token", error);
       }
       console.log("error getting token");
       retokening = false;
@@ -1191,7 +1234,7 @@ function gotToken(tokenData) {
     retokening = false;
   }).catch(function(error) {
     if (error.code !== "auth/network-request-failed") {
-      handleError(error);
+      handleError("Error Signing In With Token", error);
     }
     // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
     setTimeout(function () {
@@ -1201,12 +1244,18 @@ function gotToken(tokenData) {
   });
 }
 
+// takes about 1000ms
+logTimeStart("Authenticating");
+logTimeStart("Time Until UI");
+
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user // if this is a reauth don't start process again.
     if (reauthenticated) {
       // console.log("reauthenticated");
     } else {
+      bootStepComplete(1);
+      logTimeEnd("Authenticating");
       reauthenticated = true;
       theUser = user;
       theUserID = theUser.uid;
@@ -1221,6 +1270,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
       $('.username').html(theUsername || theEmail);
 
+      logTimeStart("Checking User & Getting Keycheck");
       checkForExistingUser(function(){
         if (getUrlParameter("dlddid") && connected) {
           $("#key-status").html("Enter your encryption key to start the download");
@@ -1228,15 +1278,15 @@ firebase.auth().onAuthStateChanged(function(user) {
         if (keyToRemember) {
           checkKey();
         } else {
+          bootStepComplete(4);
           showKeyModal();
         }
-        
-        //timeout so that on Auth State Changed promise doesn't wait for start user sockets.
-        setTimeout(function () {
-          startUserSockets();
-        }, 2);
-
       });
+
+      //timeout so that on Auth State Changed promise doesn't wait for start user sockets.
+      setTimeout(function () {
+        startUserSockets();
+      }, 2);
     }
 
     getToken();
@@ -1252,7 +1302,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
-    handleError(error);
+    handleError("Error Authenticating", error);
   }
 });
 
@@ -1263,43 +1313,72 @@ var keyModalConnectionTimer;
 function checkForExistingUser (callback){
   callback = callback || noop;
 
-  checkConnection(function(status){
-    connected = status;
+  // USING NAVIGATOR ONLINE TO SAVE TIME ON BOOT. 
+  // NOT USING CHECK CONNECTION FIRST, BECAUSE IF MOBILE DEVICE IS OFFLINE,
+  // THIS IS GOING TO TAKE 2 - 3 SECONDS AND MULTIPLE TRIES TO BOOT.
 
-    if (connected){
-      db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-        if (snapshot.val() === null) {
-          window.location = "signup?status=newuser";
-        } else {
+  // IF DEVICE IS ONLINE, IT'LL TAKE 1.5 SECONDS TO CONFIRM CAUSING A ROUNDTRIP DELAY.
+  // INSTEAD WILL WAIT TILL THE DATABASE CALL FAILS. SHOULD SPEED UP ONLINE BOOT TIME.
 
-          // this is only here to upgrade the legacy titles system to the new one.
-          // Once all users have tie = true in their accounts, you can remove this upgrader.
-          // until then additional burden of this is only 200ms.
+  if (navigator.onLine){
+
+    // Takes about 500 - 750ms. DO NOT store this in localstorage to save time. 
+    // if user changes their encryption key, and this is in localstorage,
+    // old key would still allow access to the strongKey. 
+    // Effectively rendering changing encryption key useless 
+    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+      if (snapshot.val() === null) {
+        window.location = "signup?status=newuser";
+      } else {
+
+        // this is only here to upgrade the legacy titles system to the new one.
+        // Once all users have tie = true in their accounts, you can remove this upgrader.
+        // until then additional burden of this is only 200ms ONCE on each device.
+        // after checking this once, we store it in localStorage, 
+        // and should only be asked if localStorage is cleared
+        bootStepComplete(2);
+        logTimeEnd("Checking User & Getting Keycheck");
+        if (!titlesIndividuallyEncrypted) {
+          logTimeStart("Getting TIE");
           db.ref('/users/' + theUserID + "/data/tie").once('value').then(function(tieSnapshot) {
             if (tieSnapshot.val() === null) {
               titlesIndividuallyEncrypted = false;
             } else {
               titlesIndividuallyEncrypted = true;
+              localStorage.setItem("tie", titlesIndividuallyEncrypted);
             }
-
+            
             encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+            bootStepComplete(3);
+            logTimeEnd("Getting TIE");
             callback();
           });
-
+        } else {
+          encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+          callback();
         }
-      });
-    } else {
-      console.log("Starting Offline");
-      startedOffline = true;
 
-      keyModalConnectionTimer = setInterval(function () {
-        forceCheckConnection();
-      }, 1000);
+      }
+    }).catch(function(error){
+      if (error.code !== "auth/network-request-failed") {
+        noNetwork();
+      }
+    });
+  } else {
+    noNetwork();
+  }
+  
 
-      callback();
-    }
-  });
+  function noNetwork() {
+    console.log("Starting Offline");
+    startedOffline = true;
 
+    keyModalConnectionTimer = setInterval(function () {
+      forceCheckConnection();
+    }, 1000);
+
+    callback();
+  }
 }
 
 
@@ -1347,6 +1426,7 @@ function signInComplete () {
 
 
 function startUserSockets () {
+  logTimeStart('Loading User Data & Titles');
   /// CHECK IF IT'S A FRESH NEW ACOUNT WITH NO FOLDERS. 
   // even if user has anything in INBOX they'll go to into a folder. so 0 folders = fresh.
   foldersRef.orderByKey().limitToLast(1).once("value", function (snapshot) {
@@ -1395,12 +1475,17 @@ function startUserSockets () {
                     lastOpenDocPreloadedDelta = encryptedDocDelta;
                   },
                   error:function (xhr, ajaxOptions, thrownError){
-                    console.log("Couldn't preload last open doc:", thrownError);
+                    breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted.");
                     if (loadLastOpenDocWaiting) {
                       loadDoc("home", firstLoadComplete, "home");
                     }
                   }
                 });
+              }).catch(function(error){
+                if (loadLastOpenDocWaiting) {
+                  breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted.");
+                  loadDoc("home", firstLoadComplete, "home");
+                }
               });
             }
 
@@ -1415,7 +1500,7 @@ function startUserSockets () {
                   lastOpenDocPreloadedDelta = encryptedDocDelta;
                 },
                 error:function (xhr, ajaxOptions, thrownError){
-                  console.log("Couldn't preload last open doc:", thrownError);
+                  breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted.");
                   if (loadLastOpenDocWaiting) {
                     loadDoc("home", firstLoadComplete, "home");
                   }
@@ -1425,6 +1510,11 @@ function startUserSockets () {
 
           }
         });
+      }).catch(function(error){
+        breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted.");
+        if (loadLastOpenDocWaiting) {
+          loadDoc("home", firstLoadComplete, "home");
+        }
       });
     }
   
@@ -1439,9 +1529,9 @@ function startUserSockets () {
     var folderObj = folder.val();
     if (folderObj.ghosttitles) { folderObj.title = null; }
     
-    appendFolder(folderObj);
+    appendFolder(folderObj, folder.key);
     // this adds all the socket listeners for the folder.
-    startFolderSockets(folderObj.folderid);
+    startFolderSockets(folder.key); //folderid = folder.key (we're getting it from snapshot)
 
     if (folderObj.ghosttitles) {
       // GOT LEGACY GHOST FOLDER!!
@@ -1454,14 +1544,16 @@ function startUserSockets () {
         processLegacyGhostTitles(ghostTitlesObject, folderObj);
       });
     } else {
-      gotEncryptedFoldertitle(folderObj.folderid, folderObj.title); 
+      //folderid = folder.key (we're getting it from snapshot)
+      gotEncryptedFoldertitle(folder.key, folderObj.title); 
     }
 
   });
 
   foldersRef.on('child_removed', function(folder) {
     // remove folder and its docs from dom & catalog.
-    removeFolder(folder.val().folderid);
+    //folderid = folder.key (we're getting it from snapshot)
+    removeFolder(folder.key);
   });
 
   homeGenerationRef.on('value', function(gen) {
@@ -1624,6 +1716,8 @@ function sortFolders () {
 }
 
 function checkKey (key) {
+  bootStepComplete(4);
+  logTimeStart("Checking Key");
   if (!$("#key-modal").hasClass("shown")){
     showDocProgress("Checking Key");
   } else {
@@ -1671,6 +1765,7 @@ function checkKey (key) {
 }
 
 function rightKey (plaintext, hashedKey) {
+  logTimeEnd("Checking Key");
   clearInterval(keyModalConnectionTimer);
   $("#key-modal-decrypt-button").removeClass("is-loading");
   $("#key-status").removeClass("shown");
@@ -1715,6 +1810,7 @@ function rightKey (plaintext, hashedKey) {
 }
 
 function wrongKey (error) {
+  logTimeEnd("Checking Key");
   setTimeout(function () {
     $("#key-modal-decrypt-button").removeClass("is-loading");
   }, 1000);
@@ -1808,7 +1904,7 @@ function fixHomeDoc (callback, callbackParam){
               break;
           }
         }, function(error) {
-          handleError(error);
+          handleError("Error Re-Creating Homedoc", error);
           console.log("CREATE HOME FAILED. RETRYING IN 2 SECOND. Error: ", error);
           setTimeout(function(){ fixHomeDoc(); }, 2000);
         }, function() {
@@ -1891,8 +1987,7 @@ function fixUndefinedFolder (did) {
           });
         } else {
           breadcrumb("Couldn't fix undefined folder.");
-          handleError(new Error('uid: ' + theUserID + "had undefined folder, can't create replacement."));
-          console.log(error);
+          handleError("Couldn't fix/re-create/replace undefined folder.", error);
         }
       });
     } else {
@@ -1906,7 +2001,7 @@ function fixUndefinedFolder (did) {
 
   }, function(error) {
     breadcrumb('uid: ' + theUserID + "had undefined folder, can't read contents.");
-    handleError(error);
+    handleError("Found undefined folder, couldn't read contents", error);
   });
 }
 
@@ -1929,7 +2024,7 @@ function fixFiles(did, newFID) {
         fidWithUndefinedFile = newFID || "undefined";
       }
 
-      handleError(new Error('Undefined Doc/File by uid: ' + theUserID + " in fid: " + fidWithUndefinedFile));
+      handleError("Undefined Doc/File", {"uid" : theUserID, "fid" : fidWithUndefinedFile});
       showErrorBubble("An error occured while trying to open this file. Our team is informed. Sorry.", {});
 
       stopLoadingSpinnerOfDoc(did);
@@ -1985,11 +2080,16 @@ function verifyDocExistsOrDelete(did) {
           loadDoc(did);
         });
       }).catch(function(error) {
+        error.did = did;
+        error.fid = fid;
+
         if (error.code === 'storage/object-not-found') {
           // file doesn't exist either. uh oh.
-          handleError(new Error('did: ' + did + " in fid: " + fid + ' was not found by uid: ' + theUserID + " not found in storage - so deleted references."));
+          handleError("Doc/File not found, so deleted references", error);
           foldersRef.child(fid + "/docs/" + did).remove();
           refreshOnlineDocs(true);
+        } else {
+          handleError("Error while verifying doc/file exists", error);
         }
       });
     }
@@ -2074,7 +2174,8 @@ function checkDocGeneration (changedDoc) {
     }
   }).catch(function(error) {
     console.log("couldn't open offline file", error);
-    handleError(error);
+    error.did = changedDocumentID;
+    handleError("Error getting offline document from storage", error); 
   });
 }
 
@@ -2183,11 +2284,15 @@ function gotPlaintextDocTitle (did, plaintextTitle, callback) {
       var updatedDoc = offlineDoc;
       updatedDoc.name = dtitle;
       offlineStorage.setItem(did, updatedDoc).catch(function(err) {
-        handleError(err);
+        if (err) {
+          err.did = changedDocumentID;
+          handleError("Error setting offline document to storage", err); 
+        }
       });
     }
   }).catch(function(err) {
-    handleError(err);
+    err.did = changedDocumentID;
+    handleError("Error getting offline document from storage", err); 
   });
 
   callback();
@@ -2226,7 +2331,11 @@ function updateDocTitle (id, plaintextTitle, callback, callbackParam) {
   encryptTitle(id, plaintextTitle, function(encryptedTitle, did){
     var fid = fidOfDID(did);
     foldersRef.child(fid + "/docs/" + did).update({"title" : encryptedTitle}, function(error) {
-      if (error) { handleError(error); }
+      if (error) { 
+        error.did = did;
+        error.fid = fid;
+        handleError("Error updating doc/file title", error); 
+      }
       callback(callbackParam);
     });
   });
@@ -2238,7 +2347,10 @@ function updateFolderTitle (id, plaintextTitle, callback, callbackParam) {
   // encrypt plaintext, write to db
   encryptTitle(id, plaintextTitle, function(encryptedTitle, fid){
     foldersRef.child(fid).update({"title" : encryptedTitle}, function(error) {
-      if (error) { handleError(error); }
+      if (error) { 
+        error.fid = fid;
+        handleError("Error updating folder title", error); 
+      }
       callback(callbackParam);
     });
   });
@@ -2284,7 +2396,8 @@ function decryptTitle (id, encryptedTitle, callback) {
           parsedEncryptedTitle = JSON.parse(encryptedTitle).data;
         } catch (error) {
           if (!postLoadIntegrityChecksComplete) {
-            handleError(new Error("uid: " + theUserID + " has corrupted title in " + id));
+            error.titleID = id;
+            handleError("Caught corrupted title", error);
           } else {
             // chances are very high that this is a retrieved ghost thats title is trying to be read with every doc right now.
           }
@@ -2299,7 +2412,7 @@ function decryptTitle (id, encryptedTitle, callback) {
               corruptTitlesToFix.push(id);
             }
             callback("Untitled", id);
-            handleError(error);
+            handleError("Error decrypting title, passing Untitled", error);
           });
         } else {
           if (!postLoadIntegrityChecksComplete) {
@@ -2561,6 +2674,7 @@ function addedOperationToTTDecryptionQueue() {
       setSentryTag("titles-count", totalTTInDecryptionQueue);
       breadcrumb("TT Decryption Queue : READY.");
       initialTTQueueReady = true;
+      logTimeEnd('Loading User Data & Titles');
     } else {
       // we already have the key, keep moving
       runTTQueueFromIndex(0);
@@ -2576,6 +2690,7 @@ function runTTQueueFromIndex(index) {
   if (index === 0) {
     startedTTQueue = (new Date()).getTime();
     breadcrumb("TT Decryption Queue : DECRYPTING (" + totalTTInDecryptionQueue + " items)");
+    logTimeStart('Decrypting Online Catalog');
   }
 
   if (!initialDecryptComplete) {
@@ -2597,6 +2712,7 @@ function ttQueueCompleted() {
   finalTTDecryptionQueue = [];
 
   // ALL TITLES IN QUEUE DECRYPTED
+  logTimeEnd('Decrypting Online Catalog');
   breadcrumb("TT Decryption Queue : DONE. Decrypted in " + (completedTTQueue - startedTTQueue) + "ms");
   checkCatalogIntegrity();
   
@@ -2739,7 +2855,9 @@ function processLegacyGhostTitles(plaintextGhostTitlesObject, folder) {
 
             }
           }).catch(function(error) {
-            handleError(error);
+            error.did = did;
+            error.fid = fid;
+            handleError("Error setting legacy ghost titles to db", error);
           });
 
         });
@@ -2774,7 +2892,7 @@ function decryptTags (did, encryptedTagsArray, callback) {
         var plaintextTagsArray = JSON.parse(plaintext.data);
         callback(plaintextTagsArray, did);
       }).catch(function(error){
-        handleError(error);
+        handleError("Error decrypting tags",error);
         callback([], did);
       });
     } else {
@@ -2815,8 +2933,7 @@ function updateActiveTags () {
 // }
 
 
-function updateFolderInCatalog (folder) {
-  var fid = folder.folderid;
+function updateFolderInCatalog (folder, fid) {
   var farchived = folder.archived || false;
   var fcolor = folder.color;
 
@@ -2894,8 +3011,7 @@ function updateLocalCatalog(callback) {
         breadcrumb("Local Catalog : FINISHED UPDATE.");
         callback();
       }).catch(function(error) {
-        console.log("error encrypting local catalog");
-        handleError(error);
+        handleError("Error encrypting in updateLocalCatalog", error);
       });
     }, 500);
   } else {
@@ -2915,6 +3031,7 @@ var localCatalogLoadStarted;
 function loadLocalCatalog(callback) {
   callback = callback || noop;
   breadcrumb("Local Catalog : LOADING...");
+  logTimeStart('Decrypting Local Catalog');
   localCatalogLoadStarted = (new Date()).getTime();
   var encryptedCatalog = localStorage.getItem("encryptedCatalog");
   var parsedEncryptedCatalog = JSON.parse(encryptedCatalog).data;
@@ -2959,14 +3076,13 @@ function loadLocalCatalog(callback) {
 
     setSentryTag("local-catalog-speed", catalogSpeed);
     setSentryTag("local-catalog-size", catalogSize);
-
+    logTimeEnd('Decrypting Local Catalog');
     breadcrumb("Local Catalog : LOADED "+catalogSize+" in " + catalogSpeed);
     refreshOnlineDocs(true); // force refresh online docs.
 
     callback();
   }).catch(function(error) {
-    console.log("error decrypting local catalog");
-    handleError(error);
+    handleError("Error decrypting local catalog", error);
   });
 }
 
@@ -2981,14 +3097,13 @@ function loadLocalCatalog(callback) {
 // APPEND FOLDER //
 /////////////////////
 
-function appendFolder (folder){
+function appendFolder (folder, fid){
   // THIS SHOULD BE RESOLVED WITH DROPDOWNS, AND LATEST TITLE UPGRADE ---- LEAVING HERE FOR POSTERITY FOR A MONTH JUST IN CASE. ----
   // TODO IF YOU GET AN ERROR FOR TITLE NOT FOUND / OTHER SHIT NOT FOUND ETC. THERE ARE SOME FOLDERS IN FIREBASE THAT ONLY HAVE OPEN/CLOSE PROPERTIES.
   // IT COULD BE BECAUSE THE STATUS OF AN OPEN FOLDER IS BEING SAVED AFTER ITS DELETION. 
   // CHANCES ARE CLIENT WRITES OPEN/CLOSE STATUS AFTER CLOSURE. 
   // OR THERE is / was A FOOT RACE. COULD BE FIXED AFTER ADDING DROPDOWNS INSTEAD OF DELETE BUTTONS (WHICH FALSELY TRIGGERED OPEN / CLOSE OCCASIONALLY)
 
-  var fid = folder.folderid;
   var fopen = folder.open;
   var fcolor = folder.color;
   var farchived = folder.archived || false;
@@ -3061,7 +3176,7 @@ function appendFolder (folder){
     
   }
 
-  updateFolderInCatalog(folder);
+  updateFolderInCatalog(folder, fid);
 
   var sortableFolders;
   if (!isMobile && !isDOMRectBlocked) {
@@ -3376,11 +3491,20 @@ function deleteFolder (fid){
 
     removeDocFromDOM(did);
     offlineStorage.removeItem(did).catch(function(err) {
-      handleError(err);
+      if (err) {
+        err.did = did;
+        handleError("Error removing offline document from storage", err); 
+      }
     });
     if (deletionRef) {
       deletionRef.delete().then(function(){}).catch(function(error) {
-        handleError(error);
+        if (error.code === "storage/object-not-found") {
+          // file was already deleted.
+        } else {
+          error.did = did;
+          error.fid = fid;
+          handleError("Error deleting file while deleting folder", error);
+        }
       });
     }
 
@@ -3401,7 +3525,8 @@ function deleteFolder (fid){
     $("#delete-folder-modal").attr("fidToDelete", "");
     hideModal("delete-folder-modal");  
   }).catch(function(error) {
-    handleError(error);
+    error.fid = fid;
+    handleError("Error deleting folder", error);
     showDocProgress("Error deleting folder. Please reload page and try again.");
   });
 
@@ -3417,8 +3542,11 @@ function removeFolder (fid){
           removeOfflineDoc(doc.did);
         }
       }).catch(function(err) {
-        showErrorBubble("Error deleting offline document", err);
-        handleError(err);
+        showErrorBubble("Error deleting some offline documents", err);
+        if (err) {
+          err.fid = fid;
+          handleError("Error iterating offline documents", err); 
+        }
       });
 
       delete catalog.folders[fid];
@@ -3593,7 +3721,8 @@ function renameFolderConfirmed() {
           }
         }
       }).catch(function(err) {
-        handleError(err);
+        err.fid = fid;
+        handleError("Error iterating offline documents", err);
       });
 
       setTimeout(function(){ // more for UX
@@ -3640,7 +3769,7 @@ $('#folder-dropdown').on('click', 'span[color]', function(event) {
     if (!error) {
       $("#" + fid).find(".foldercolor").css("color", colorToAssign);
     } else {
-      handleError(error);
+      handleError("Error setting folder color", error);
     }
   });
   hideRightClickMenu();
@@ -3745,7 +3874,11 @@ function makeGhostFolder () {
               removeDocFromDOM(ghostedDID);
               delete catalog.docs[ghostedDID];
               offlineStorage.removeItem(ghostedDID).catch(function(err) {
-                handleError(err);
+                if (err) {
+                  err.fid = fidToGhost;
+                  err.did = ghostedDID;
+                  handleError("Error iterating offline documents", err);
+                }
               });
             });
 
@@ -3756,7 +3889,7 @@ function makeGhostFolder () {
       }
     });
   }).catch(function(e){
-    handleError(e);
+    handleError("Error hashing title in makeGhostFolder", e);
   });
 }
 
@@ -3770,7 +3903,9 @@ function summonGhostFolder () {
     $("#ghost-info-modal").find(".fa-eye").removeClass("fa-eye").addClass("fa-cog fa-spin fa-fw");
 
     dataRef.update({"summonghost" : folderTitleToSummon}, function(error){
-      handleError(error);
+      if (error) {
+        handleError("Error while requesting to summon ghost folder", error);
+      }
     });
 
     dataRef.child("summonghost").on('value', function(snapshot) {
@@ -3784,7 +3919,7 @@ function summonGhostFolder () {
       }
     });
   }).catch(function(e){
-      handleError(e);
+    handleError("Error hashing title in summonGhostFolder", e);
   });
 }
 
@@ -3832,7 +3967,8 @@ function whatisaghost() {
 ///////////////////////
 $("#all-folders").on('click', '.folder-card', function(e) {
   var fid = $(this).parents(".afolder").attr("id");
-  var archived = catalog.folders[fid].archived;
+  catalog.folders[fid] = catalog.folders[fid] || {};
+  var archived = catalog.folders[fid].archived || null;
   if (!$(e.target).is(".folderrecent") && $(e.target).parents(".folderrecent").length === 0) {
     if (!archived) {
       loadFolder(fid);
@@ -3844,7 +3980,8 @@ $("#all-folders").on('click', '.folder-card', function(e) {
 
 $("#all-folders").on('click', '.folder-title', function(e) {
   var fid = $(this).parents(".afolder").attr("id");
-  var archived = catalog.folders[fid].archived;
+  catalog.folders[fid] = catalog.folders[fid] || {};
+  var archived = catalog.folders[fid].archived || null;
   if (!archived) {
     loadFolder(fid);
   } else {
@@ -4442,17 +4579,17 @@ function downloadFile (did, dtitle, preview, callback, callbackParam) {
 
   }).catch(function(error) {
     var errorText;
-    handleError(error);
+    handleError("Error Downloading File", error);
     switch (error.code) {
       case 'storage/object-not-found':
-        errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. <br>We're not sure how this happened.<br> Please try again shortly, or contact our support. <br>We're terribly sorry about this.";
+        errorText = "Seems like this file doesn't exist or you don't have permission to open it. <br>We're not sure how this happened.<br> Please try again shortly, or contact our support. <br>We're terribly sorry about this.";
         // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
         // Chances are we've got a problem.
         showDocProgress(errorText);
         fixFilesAndFolders(did);
         break;
       case 'storage/unauthorized':
-        errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. <br>We're not sure how this happened.<br> Please try again shortly, or contact our support. <br>We're terribly sorry about this.";
+        errorText = "Seems like this file doesn't exist or you don't have permission to open it. <br>We're not sure how this happened.<br> Please try again shortly, or contact our support. <br>We're terribly sorry about this.";
         // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
         // Chances are we've got a problem.
         showDocProgress(errorText);
@@ -4616,8 +4753,8 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
           // SHOW THE DROPDOWN MAKE OFFLINE / HIDE make ONLINE BUTTON
         }
       }).catch(function(error) {
-          console.log("LOAD ERROR", error);
-          handleError(error);
+        error.did = did;
+        handleError("Error getting offline document from storage", error);
       });
 
     }).catch(function(error) {
@@ -4634,24 +4771,21 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
             showDocProgress("One moment please<br>Our system has detected an error<br>and it's self-repairing.");
             fixFilesAndFolders(did);
           }
-          handleError(error);
           break;
         case 'storage/unauthorized':
-          handleError(error);
-          errorText = "Seems like this doc doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
+          errorText = "Seems like this doc doesn't exist or you don't have permission to open it. We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
           showDocProgress(errorText);
           break;
         case 'storage/canceled':
-          handleError(error);
           errorText = "A strange error happened while trying to load this doc. It might be because you may have closed your browser while this doc was being saved";
           showDocProgress(errorText);
           break;
         case 'storage/unknown':
-          handleError(error);
           errorText = "We can't seem to load this doc. It's a mystery why. Somehow our servers are acting. Please try again shortly, or contact our support. We're terribly sorry about this.";
           showDocProgress(errorText);
           break;
       }
+      handleError("Error Loading Doc/File", error);
     });
 
   } else {
@@ -4874,8 +5008,7 @@ function previewController (dtitle, did, decryptedContents, callback, callbackPa
     if (resetFileViewer) {
       stopLoadingSpinnerOfDoc(did);
 
-      $("#file-viewer").removeClass("unsupported is-info");
-      $("#file-viewer").find(".is-info").removeClass("is-info").addClass("is-light");
+      $("#file-viewer").removeClass("unsupported");
     }
 
   });
@@ -5144,8 +5277,8 @@ function displayUnsupportedFile (dtitle, did, decryptedContents, callback, files
 
   setTimeout(function () {
 
-    $("#file-viewer").find(".is-light").addClass("is-info");
-    $("#file-viewer").addClass("unsupported is-info");
+    
+    $("#file-viewer").addClass("unsupported");
     $("#file-viewer-title").html(dtitle);
     $("#file-viewer-filesize").html(formatBytes(filesize));
 
@@ -5453,7 +5586,8 @@ function saveComplete(did, callback, callbackParam){
       callback(callbackParam);
     }
   }).catch(function(err) {
-    handleError(err);
+    err.did = did;
+    handleError("Error getting offline document from storage", err);
   });
 }
 
@@ -5546,12 +5680,13 @@ function deleteDoc (did){
     refreshFolderSort(fid);
   
   }).catch(function(error) {
-    handleError(error);
     if (error.code === "storage/object-not-found") {
       delete catalog.docs[did];
       updateLocalCatalog();
+    } else {
+      handleError("Error Deleting File", error);
+      $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
     }
-    $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
   });
 
 }
@@ -5589,37 +5724,46 @@ function moveDoc (fromFID, toFID, did, callback, callbackParam) {
     } else {
       foldersRef.child(fromFID + "/docs/" + did).once('value', function(snap)  {
         var theMovingDocsData = snap.val();
-        theMovingDocsData.fid = toFID;
+        if (theMovingDocsData) {
+          theMovingDocsData.fid = toFID;
 
-        foldersRef.child(toFID + "/docs/" + did).set( theMovingDocsData, function(error) {
-          if ( !error ) {
+          foldersRef.child(toFID + "/docs/" + did).set( theMovingDocsData, function(error) {
+            if ( !error ) {
 
-            foldersRef.child(fromFID + "/docs/" + did).remove();
+              foldersRef.child(fromFID + "/docs/" + did).remove();
 
-            refreshFolderSort(fromFID);
-            callback(callbackParam);
+              refreshFolderSort(fromFID);
+              callback(callbackParam);
 
-            offlineStorage.getItem(did).then(function (offlineDoc) {
-              if (offlineDoc) {
-                var updatedDoc = offlineDoc;
-                try {
-                  // in case if JSON parse fails
-                  updatedDoc.fname = JSON.parse(titleOf(toFID)) || "Inbox";
-                } catch(e) {
-                  updatedDoc.fname = titleOf(toFID) || "Inbox";
+              offlineStorage.getItem(did).then(function (offlineDoc) {
+                if (offlineDoc) {
+                  var updatedDoc = offlineDoc;
+                  try {
+                    // in case if JSON parse fails
+                    updatedDoc.fname = JSON.parse(titleOf(toFID)) || "Inbox";
+                  } catch(e) {
+                    updatedDoc.fname = titleOf(toFID) || "Inbox";
+                  }
+                  updatedDoc.fid = toFID;
+                  offlineStorage.setItem(did, updatedDoc).catch(function(err) {
+                    err.did = did;
+                    handleError("Error setting offline document to storage", err);
+                  });
                 }
-                updatedDoc.fid = toFID;
-                offlineStorage.setItem(did, updatedDoc).catch(function(err) {
-                  handleError(err);
-                });
-              }
-            }).catch(function(err) {
-              handleError(err);
-            });
+              }).catch(function(err) {
+                err.did = did;
+                handleError("Error getting offline document from storage", err);
+              });
 
-          }
-          else if( typeof(console) !== 'undefined' && console.error ) {  handleError(error); console.error(error); }
-        });
+            }
+            else if( typeof(console) !== 'undefined' && console.error ) {  
+              handleError("Error setting moving doc's data", error); console.error(error); 
+            }
+          });
+
+        } else {
+          callback(callbackParam);
+        }
       });
     } 
   }
@@ -5643,7 +5787,7 @@ function prepareMoveModal() {
   $("#docs-move-folders-list").find("div").remove();
   
   $.each(catalog.folders, function(fid, folder){
-    if (fid !== "f-uncat" && fid !== "undefined") {
+    if (fid !== "f-uncat" && fid !== "undefined" && !folder.archived) {
       var ftitle = folder.name;
       $("#docs-move-folders-list").append('<div class="column move-folder is-half" fname="'+ftitle+'"><button fid="'+fid+'" class="button is-fullwidth docs-move-folders-list-item"><span class="icon is-small"><i class="fa fa-folder"></i></span><span>'+ftitle+'</span></button></div>');
     }
@@ -5738,11 +5882,13 @@ function renameInactiveDoc () {
           var updatedDoc = offlineDoc;
           updatedDoc.name = newDocName;
           offlineStorage.setItem(inactiveDidToRename, updatedDoc).catch(function(err) {
-            handleError(err);
+            err.did = did;
+            handleError("Error setting offline document to storage", err);
           });
         }
       }).catch(function(err) {
-        handleError(err);
+        err.did = did;
+        handleError("Error getting offline document from storage", err);
       });
 
       updateDocTitleInDOM(inactiveDidToRename, newDocName);
@@ -5822,11 +5968,13 @@ function renameDoc () {
             var updatedDoc = offlineDoc;
             updatedDoc.name = newDocName;
             offlineStorage.setItem(activeDocID, updatedDoc).catch(function(err) {
-              handleError(err);
+              err.did = did;
+              handleError("Error setting offline document to storage", err);
             });
           }
         }).catch(function(err) {
-          handleError(err);
+          err.did = did;
+          handleError("Error getting offline document from storage", err);
         });
 
         updateDocTitleInDOM(activeDocID, newDocName);
@@ -6084,8 +6232,12 @@ function deleteSelections () {
         foldersRef.child(fid + "/docs/" + selection.did).remove();
         areDeletionsComplete(selection.did, fid);
       }).catch(function(error) {
-        handleError(error);
-        $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
+        if (error.code === "storage/object-not-found") {
+          areDeletionsComplete(selection.did, fid);
+        } else {
+          handleError("Error Deleting File", error);
+          $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
+        }
       });
       
     } else {
@@ -6105,7 +6257,10 @@ function areDeletionsComplete (did, fid) {
   delete catalog.docs[did];
   removeDocFromDOM(did);
   offlineStorage.removeItem(did).catch(function(err) {
-    handleError(err);
+    if (err) {
+      err.did = did;
+      handleError("Error removing offline document from storage", err);
+    }
   });
   if (selectionArray.length === completedDeletions) {
     hideDeleteSelectionsModal();
@@ -6394,7 +6549,7 @@ function processDroppedFile (file, fid, callback, callbackParam) {
   };
   reader.onerror = function(err){
     fileUploadError = true;
-    // handleError(err); // this is not helping anything and only causing anxiety disorder.
+    // handleError("", err); // this is not helping anything and only causing anxiety disorder.
     showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your file. This is most likely a problem we need to fix, and rest assured we will.");
   };
 }
@@ -6439,7 +6594,7 @@ function encryptAndUploadFile(fileContents, fid, filename, callback, callbackPar
           showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
           exceededStorage(callback, callbackParam);
         } else {
-          handleError(error);
+          handleError("Error Uploading File", error);
           var uploadElem =
           '<div class="upload" id="upload-'+did+'">'+
             '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -6864,11 +7019,19 @@ function exportAsRTF(did) {
 function exportAsHTML(did, useSectionTitleForExport) {
   did = did || activeDocID;
   useSectionTitleForExport = useSectionTitleForExport || false;
+  
+  var sectTitle;
+  if (sectionsArray[0]) {
+    sectTitle = stringToB64URL(sectionsArray[0].html()) + ".html";
+  } else {
+    sectTitle = activeDocTitle + ".html";
+  }
+
   if (did === activeDocID) {
     var contents = $(".ql-editor").html();
     var title;
     if (useSectionTitleForExport) {
-      title = stringToB64URL(sectionsArray[0].html()) + ".html";
+      title = sectTitle;
     } else {
       title = activeDocTitle + ".html";
     }
@@ -7024,7 +7187,7 @@ function attachmentSelectedFromDevice (event) {
     };
     reader.onerror = function(err){
       fileUploadError = true;
-      handleError(err);
+      handleError("Error reading selected attachment from device", err);
       $(".image-selection-preview").hide();
       showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your image. This is most likely a problem we need to fix, and rest assured we will.");
     };
@@ -7070,7 +7233,7 @@ function processEmbedImage (file) {
   };
   reader.onerror = function(err){
     fileUploadError = true;
-    handleError(err);
+    handleError("Error reading image in processEmbedImage", err);
     showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your image. This is most likely a problem we need to fix, and rest assured we will.");
   };
 }
@@ -7105,7 +7268,7 @@ function processDroppedAttachment (file) {
   };
   reader.onerror = function(err){
     fileUploadError = true;
-    handleError(err);
+    handleError("Error reading dropped attachment", err);
     showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your image. This is most likely a problem we need to fix, and rest assured we will.");
   };
 }
@@ -7289,17 +7452,16 @@ function downloadAttachment (attachmentTitle, did) {
 
   }).catch(function(error) {
     var errorText;
-    handleError(error);
     switch (error.code) {
       case 'storage/object-not-found':
-        errorText = "Seems like this file doesn't exist or you don't have permission to open this doc.<br> We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
+        errorText = "Seems like this file doesn't exist or you don't have permission to open it.<br> We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
         // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
         // Chances are we've got a problem.
         showDocProgress(errorText);
         fixFilesAndFolders(did);
         break;
       case 'storage/unauthorized':
-        errorText = "Seems like this file doesn't exist or you don't have permission to open this doc.<br> We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
+        errorText = "Seems like this file doesn't exist or you don't have permission to open it.<br> We're not sure how this happened.<br> Please try again shortly, or contact our support.<br> We're terribly sorry about this.";
         // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
         // Chances are we've got a problem.
         showDocProgress(errorText);
@@ -7314,6 +7476,7 @@ function downloadAttachment (attachmentTitle, did) {
         showDocProgress(errorText);
         break;
     }
+    handleError("Error Downloading Attachment", error);
   });
 }
 
@@ -7757,7 +7920,8 @@ function cancelImportingCrypteedoc (error) {
   // CANCEL LOAD DOC HERE IF YOU NEED TO DO MORE.
 
   if (error) {
-    handleError(error);
+    error.did = did;
+    handleError("Error importing ECD file", error);
     setTimeout(function () {
       showErrorBubble("Document seems corrupted.");
     }, 500);
@@ -7927,7 +8091,7 @@ function processPlaintextCrypteedoc (plaintextCrypteedoc) {
           breadcrumb('ECD Import : Completed.');
         }).catch(function(e){
           if (e.code !== "storage/object-not-found") {
-            handleError(e);
+            handleError("Error Importing ECD", e);
           }
         });
       });
@@ -8010,7 +8174,7 @@ function refreshOnlineDocs (force) {
   clearTimeout(refreshOnlineDocsTimer);
   refreshOnlineDocsTimer = setTimeout(function () {
     refresh();
-  }, 1000);
+  }, 500);
 
   function refresh() {
     var allDocsArray = Object.values(catalog.docs);
@@ -8326,7 +8490,8 @@ function alsoSaveDocOffline (did, callback) {
         breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
         showWarningModal("offline-storage-full-modal");
       }
-      handleError(err);
+      err.did = did;
+      handleError("Error setting offline document to storage", err);
     });
   });
 }
@@ -8412,17 +8577,20 @@ function saveOfflineDoc (callback, callbackParam) {
             showErrorBubble("Error saving document", err);
           }
           
-          handleError(err);
+          err.did = did;
+          handleError("Error setting offline document to storage", err);
         });
       }, 150);
 
     }).catch(function (err) {
-      showErrorBubble("Error encrypting while saving document", err);
-      handleError(err);
+      showErrorBubble("Error encrypting while saving offline document", err);
+      err.did = did;
+      handleError("Error encrypting while saving offline document", err);
     });
 
   }).catch(function(err) {
-    handleError(err);
+    err.did = did;
+    handleError("Error getting offline document from storage", err);
   });
 }
 
@@ -8488,12 +8656,14 @@ function loadOfflineDoc (did, callback, callbackParam) {
 
       callback(callbackParam);
     }).catch(function (err) {
-      showErrorBubble("Error decrypting while saving document", err);
-      handleError(err);
+      showErrorBubble("Error decrypting while loading offline document", err);
+      err.did = did;
+      handleError("Error decrypting while loading offline document", err);
     });
   }).catch(function (err) {
     showErrorBubble("Error loading document", err);
-    handleError(err);
+    err.did = did;
+    handleError("Error getting offline document from storage", err);
   });
 }
 
@@ -8516,8 +8686,9 @@ function refreshOfflineDocs(callback, callbackParam) {
       });
       callback(callbackParam);
   }).catch(function(err) {
-    showErrorBubble("Error getting offline documents", err);
-    handleError(err);
+    err.fid = fid;
+    showErrorBubble("Error refreshing offline documents", err);
+    handleError("Error iterating offline documents", err);
   });
 }
 
@@ -8610,14 +8781,16 @@ function deleteOfflineDoc(did) {
             document.title = "Cryptee | Offline Docs";
           }
       }).catch(function(err) {
+        err.fid = fid;
         showErrorBubble("Error deleting offline document", err);
-        handleError(err);
+        handleError("Error iterating offline documents", err);
       });
 
     });
   }).catch(function(err) {
-    showErrorBubble("Error deleting offline document", err);
-    handleError(err);
+    err.did = did;
+    showErrorBubble("Error removing offline document", err);
+    handleError("Error removing offline document from storage", err);
   });
 }
 
@@ -8662,26 +8835,33 @@ function makeOfflineDoc(did) {
                     breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
                     showWarningModal("offline-storage-full-modal");
                   }
-                  handleError(err);
+                  err.did = did;
+                  handleError("Error setting offline document to storage", err);
                 });
               }).catch(function(err) {
+                err.did = did;
+                err.fid = fid;
                 showErrorBubble("Error with encryption of "+dtitle+" during download", err);
-                handleError(err);
+                handleError("Error re-ncrypting doc during makeOffline dowload", err);
               });
             }).catch(function(err) {
+              err.did = did;
+              err.fid = fid;
               showErrorBubble("Error with encryption of "+dtitle+" during download", err);
-              handleError(err);
+              handleError("Error decrypting doc during makeOffline dowload", err);
             });
           },
           error:function (xhr, ajaxOptions, thrownError){
+            thrownError.did = did;
             showErrorBubble("Error getting "+dtitle+" for download", thrownError);
-            handleError(thrownError);
+            handleError("Error downloading document to make offline", thrownError);
           }
       });
 
     }).catch(function(err) {
+      err.did = did;
       showErrorBubble("Error getting "+dtitle+" for download", err);
-      handleError(err);
+      handleError("Error downloading document to make offline", err);
     });
   });
 }
@@ -8692,8 +8872,9 @@ function removeOfflineDoc(did) {
     refreshOfflineDocs();
     docMadeOnlineOnly(did);
   }).catch(function(err) {
-    showErrorBubble("Error deleting offline document", err);
-    handleError(err);
+    err.did = did;
+    showErrorBubble("Error deleting offline document");
+    handleError("Error removing offline document from storage", err);
   });
 }
 
@@ -8748,7 +8929,7 @@ function activateOfflineMode () {
         $(".offlineLeftButtons").removeClass("is-unavailable");
       }, 550);
 
-      $("#main-progress").removeClass('is-success is-warning').addClass('is-info');
+      $('#main-progress').attr("max", "0").attr("value", "100").removeClass('is-success is-warning').addClass('is-info');
       $(".filesize-button > .button").addClass("is-info");
       $("#filesize").html("Offline").css("color", "#fff");
 
@@ -8771,8 +8952,8 @@ function activateOfflineMode () {
               offlineInitComplete();
             }
         }).catch(function(err) {
-            showErrorBubble("Error getting offline documents", err);
-            handleError(err);
+          showErrorBubble("Error getting offline documents", err);
+          handleError("Error iterating offline documents", err);
         });
 
       } else {
@@ -8821,7 +9002,7 @@ function toSyncOrNotToSync (callback, callbackParam){
       callback(callbackParam);
     }
   }).catch(function(err) {
-    handleError(err);
+    handleError("Error getting length of offline documents from storage", err);
   });
 }
 
@@ -8841,14 +9022,15 @@ function prepareForSync(numberOfOfflineDocs, callback, callbackParam) {
         enumerateForSync(offlineDocObjectsReadyToSync, callback, callbackParam);
       }
     }).catch(function(err) {
+      err.did = did;
       offlineStorage.removeItem(did);
       showErrorBubble("Error decrypting offline doc(s), removed for security.", err);
-      handleError(err);
+      handleError("Error decrypting offline doc(s), removed for security.", err);
       syncCompleted(callback, callbackParam);
     });
   }).catch(function(err) {
     showErrorBubble("Error getting offline documents to sync", err);
-    handleError(err);
+    handleError("Error iterating offline documents", err);
     syncCompleted(callback, callbackParam);
   });
 
@@ -8895,9 +9077,10 @@ function compareDocGensForSync(doc, callback, callbackParam) {
       // online doc doesn't exist. upload and create it.
       upSyncOfflineDoc(doc, docRef, callback, callbackParam);
     } else {
+      err.did = did;
       skipSyncingDoc(callback, callbackParam);
       showErrorBubble("Error getting version of "+doc.name+" for sync", err);
-      handleError(err);
+      handleError("Error getting generation of doc to compare for offline sync", err);
     }
   });
 }
@@ -8992,17 +9175,21 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
 
             doneSyncingDoc (callback, callbackParam);
           }).catch(function(err) {
+            err.did = did;
+            err.fid = fid;
             skipSyncingDoc(callback, callbackParam);
             showErrorBubble("Error setting generation of "+doc.name+" during sync", err);
-            handleError(err);
+            handleError("Error setting generation of doc during offline upsync", err);
           });
         }
 
       });
   }).catch(function(err) {
+    err.did = did;
+    err.fid = fid;
     skipSyncingDoc(callback, callbackParam);
     showErrorBubble("Error encrypting "+doc.name+" during sync", err);
-    handleError(err);
+    handleError("Error encrypting doc during offline upsync", err);
   });
 
   function saveDocData () {
@@ -9020,9 +9207,11 @@ function upSyncOfflineDoc (doc, docRef, callback, callbackParam) {
 
           doneSyncingDoc (callback, callbackParam);
         }).catch(function(err) {
+          err.did = did;
+          err.fid = fid;
           skipSyncingDoc(callback, callbackParam);
           showErrorBubble("Error setting generation of "+doc.name+" during sync", err);
-          handleError(err);
+          handleError("Error setting generation of doc during offline upsync", err);
         });
       });
     });
@@ -9094,30 +9283,39 @@ function downSyncOnlineDoc (doc, docRef, onlineGen, callback, callbackParam) {
                 } else {
                   showErrorBubble("Error saving "+dtitle+" during sync", err);
                 }
-                handleError(err);
+                err.fid = fid;
+                err.did = did;
+                handleError("Error saving doc title during offline downsync", err);
               });
             }).catch(function(err) {
+              err.fid = fid;
+              err.did = did;
               skipSyncingDoc(callback, callbackParam);
               showErrorBubble("Error with encryption of "+dtitle+" during sync", err);
-              handleError(err);
+              handleError("Error re-encrypting doc during offline downsync", err);
             });
           }).catch(function(err) {
+            err.fid = fid;
+            err.did = did;
             skipSyncingDoc(callback, callbackParam);
             showErrorBubble("Error with encryption of "+dtitle+" during sync", err);
-            handleError(err);
+            handleError("Error decrypting doc during offline downsync", err);
           });
         },
         error:function (xhr, ajaxOptions, thrownError){
           skipSyncingDoc(callback, callbackParam);
+          thrownError.did = did;
           showErrorBubble("Error getting "+dtitle+" for sync", thrownError);
-          handleError(thrownError);
+          handleError("Error downloading document to make offline", thrownError);
         }
     });
 
   }).catch(function(err) {
+    err.fid = fid;
+    err.did = did;
     skipSyncingDoc(callback, callbackParam);
     showErrorBubble("Error getting "+dtitle+" for sync", err);
-    handleError(err);
+    handleError("Error downloading document to make offline", err);
   });
 
 }
@@ -9175,6 +9373,8 @@ function showErrorBubble(message, err) {
     errorObj = null;
   }
 
+  errorObj.errorTitle = message;
+
   error = errorObj || "";
   message = message || "Error";
 
@@ -9187,12 +9387,12 @@ function showErrorBubble(message, err) {
 
 function reportOfflineErrors () {
   offlineErrorStorage.iterate(function(syncerr, errtime, i) {
-    handleError(syncerr, "offline");
+    handleOfflineError(syncerr.errorTitle, syncerr);
   }).then(function() {
     // Reported all offline errors.
     try { offlineErrorStorage.clear(); } catch (e) {}
   }).catch(function(err) {
-    handleError(err);
+    handleError("Error iterating or reporting offline errors.", err);
   });
 }
 
@@ -9224,6 +9424,7 @@ function hideNoOfflineDocs () {
 
 $("#doc-dropdown").on('click touchend', '.offlinecheckbox', function(event) {
   var did = rightClickedID();
+  catalog.docs[did] = catalog.docs[did] || {};
   var offline = catalog.docs[did].isoffline;
   
   if (offline) {

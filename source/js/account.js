@@ -252,7 +252,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
-    handleError(error);
+    handleError("Error Authenticating", error);
   }
 });
 
@@ -585,7 +585,8 @@ function paymentSuccessful(data) {
     console.log("CheckoutId written successfully");
     orderComplete();
   }).catch(function(error) {
-    handleError("Successful Checkout but couldn't write checkoutid" + checkoutid);
+    error.crypteeCheckoutID = checkoutid;
+    handleError("Successful Checkout but couldn't write checkoutid", error);
   });
 }
 
@@ -1050,7 +1051,7 @@ function prepareToDeleteAccount() {
     // User deleted.
   }, function(error) {
     $("#cant-delete").html("Strangely, we can't seem to delete your account. This is likely a temporary issue. Please try again soon.");
-    handleError(error);
+    handleError("Error deleting account", error, "fatal");
     console.log("strangely. can't delete: ", error);
   });
 

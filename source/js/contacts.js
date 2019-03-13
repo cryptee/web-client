@@ -63,7 +63,7 @@ function getToken() {
       });
     }).catch(function(error) {
       if (error.code !== "auth/network-request-failed") {
-        handleError(error);
+        handleError("Contacts Error – replace this before going to production",error);
       }
       console.log("error getting token");
       retokening = false;
@@ -77,7 +77,7 @@ function gotToken(tokenData) {
     retokening = false;
   }).catch(function(error) {
     if (error.code !== "auth/network-request-failed") {
-      handleError(error);
+      handleError("Contacts Error – replace this before going to production",error);
     }
     setTimeout(function () {
       retokening = false;
@@ -125,7 +125,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
-    handleError(error);
+    handleError("Contacts Error – replace this before going to production",error);
   }
 });
 
@@ -411,7 +411,7 @@ function encryptAndUploadContacts(contactsObject, callback, callbackParam) {
         $("#import-status").removeClass("is-info is-danger is-warning is-success").addClass("is-danger");
         $("#import-status > .title").html("Error");
         $("#import-status").append("<p>Sorry, there seems to be a problem uploading your file. This is most likely a temporary problem on our end. Please try again shortly.</p>");
-        handleError(error);
+        handleError("Contacts Error – replace this before going to production",error);
       }, function() {
         db.ref('/users/' + theUserID + "/data").update({"contacts" : 1});
         $("#import-status").removeClass("is-info is-danger is-warning is-success").addClass("is-success");
@@ -450,13 +450,13 @@ function downloadContacts() {
           $("#download-status").removeClass("is-info is-danger is-warning is-success").addClass("is-danger");
           $("#download-status > .title").html("Error");
           $("#download-status").append("<p>Sorry, there seems to be a problem loading your contacts. This is most likely a temporary problem on our end. Please try again shortly.</p>");
-          handleError(thrownError);
+          handleError("Contacts Error – replace this before going to production",thrownError);
         }
     });
 
   }).catch(function(error) {
     console.log(error);
-    handleError(error);
+    handleError("Contacts Error – replace this before going to production",error);
     $("#download-status").removeClass("is-info is-danger is-warning is-success").addClass("is-danger");
     $("#download-status > .title").html("Error");
     $("#download-status").append("<p>Sorry, there seems to be a problem loading your contacts. This is most likely a temporary problem on our end. Please try again shortly.</p>");

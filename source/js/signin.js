@@ -50,7 +50,11 @@ $(window).on("load", function(event) {
     sessionStorage.removeItem("sessionStorageTest");
   } catch (e) {
     // SHOW MODAL ABOUT SESSION STORAGE ACCESS.
-    $("#signin-info").html("<i class='fa fa-exclamation-triangle'></i>&nbsp; It seems like your browser is blocking accesss to sessionStorage.<br><br> Cryptee needs access to sessionStorage to keep you in memory while you're logged in. This error usually happens because some browsers like Firefox is a bit heavy-handed, and if you have cookies disabled, it disables sessionStorage too. Without this Cryptee will not work. We're very sorry for the inconvenience. ").removeClass("is-info").addClass("is-danger").show();
+    $("#signin-info").html("<i class='fa fa-exclamation-triangle'></i><br><br>It seems like your browser is blocking accesss to sessionStorage.<br><br> Cryptee needs access to sessionStorage to keep you in memory while you're logged in. This error usually happens because some browsers like Firefox is a bit heavy-handed, and if you have cookies disabled, it disables sessionStorage too. Without this Cryptee will not work. We're very sorry for the inconvenience. Please enable access to sessionStorage for Cryptee and reload this page.").removeClass("is-info").addClass("is-danger").show();
+    $(".login-form").hide();
+    $(".tabs").hide();
+    $(".forgot-password").hide();
+    $("#other-error").hide();
   }
 
 });
@@ -83,7 +87,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
-    handleError(error);
+    handleError("Error Authenticating", error);
   }
 });
 

@@ -1,13 +1,29 @@
 var txt = {};
 var localeURL = "https://flare.crypt.ee/api/locale";
 var detectedLocale = "XX", detectedCurrency = "XX";
-var sessionID = sessionStorage.getItem("sessionID");
+var sessionID;
 
 ///////////////////////////////////////////////
 //////////////// I18N & CURRENCIES  ///////////
 ///////////////////////////////////////////////
 
 $(document).ready(function() {
+  try {
+    // CURRENTLY, PREFERENCES.JS IS THE FIRST POINT OF ENTRY.
+    // SO TEST FOR THE SESSION STORAGE HERE, AND SET THE SENTRY TAG HERE.
+    sessionStorage.setItem("sessionStorageTest", "test");
+    sessionStorage.removeItem("sessionStorageTest");
+    setSentryTag("sessionStorage", "enabled");
+  } catch (e) {    
+    setSentryTag("sessionStorage", "disabled");
+    // if not on signin / signup, redirect to signin to show sessionStorage error.
+    if (window.location.pathname !== "/signin" && window.location.pathname !== "/signup") {
+      window.location = "signin";
+    }
+  }
+
+  sessionID = sessionStorage.getItem("sessionID");
+
   $.ajax({ url: localeURL, type: 'GET',
     success: function(flareResponse){
       var detected = JSON.parse(flareResponse);
@@ -48,7 +64,7 @@ $(document).ready(function() {
       ping("pageview", { dr : document.referrer });
     },
     error:function (xhr, ajaxOptions, thrownError){
-      handleError(thrownError);
+      handleError("Error getting locale",thrownError);
     }
   });
 });

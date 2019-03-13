@@ -33,8 +33,7 @@ function signOut () {
       }
     }
   }, function(error) {
-    handleError(error);
-    console.error('Sign Out Error', error);
+    handleError("Error signing out", error);
   });
 }
 

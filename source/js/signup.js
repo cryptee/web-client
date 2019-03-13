@@ -20,7 +20,6 @@ var theCryptmail;
 var theEpoch;
 var signUpWithToken = false;
 var signUpWithEmail = false;
-var leftForGoogleRedirect = JSON.parse(sessionStorage.getItem('leftForGoogleRedirect')) || false;
 var requestsURL = 'https://crypt.ee/api/';
 var pathTaken;
 var images = {
@@ -270,6 +269,7 @@ $(window).on("load", function(event) {
     sessionStorage.removeItem("sessionStorageTest");
   } catch (e) {
     // SHOW MODAL ABOUT SESSION STORAGE ACCESS.
+    $("#sessionStorage-error").show();
     showSignupInfo("<i class='fa fa-exclamation-triangle'></i>&nbsp; Seems like your browser is blocking accesss to sessionStorage. Cryptee needs to use sessionStorage to keep you in memory while signed in.<br><br> Often this happens because some browsers like Firefox is a bit heavy-handed, and if you have cookies disabled, sessionStorage gets disabled too. Without this Cryptee will not work. We're very sorry for the inconvenience. Please make the necessary adjustments and try again.","is-danger");
   }
 
@@ -343,6 +343,8 @@ function generateNewUUIDForGoogleAuthOniOSPWA () {
     // now when the user clicks sign in with GAuth we'll open Safari with UUID in URL and generate ID token from Google Login.
   });
 }
+
+var leftForGoogleRedirect = JSON.parse(sessionStorage.getItem('leftForGoogleRedirect')) || false;
 
 if (localStorage) {
   if (leftForGoogleRedirect || localStorage.getItem("iosgauthsignupkey")) {
@@ -568,7 +570,7 @@ $(".fromSignInSignOut").on("click",function(){
         window.location = "/signin";
       }
     }, function(error) {
-      handleError(error);
+      handleError("Error Signing Out", error);
       console.error('Sign Out Error', error);
     });
   }
@@ -679,7 +681,7 @@ function createUser () {
         showSignupInfo("Our servers think you may have used an invalid character in your username. No @ symbols please.", "is-warning", true, "user");
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else {
-        handleError(error);
+        handleError("Error Creating User", error);
         showSignupInfo("Something went wrong... We're terribly sorry. Please try again soon.", "is-warning", true);
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       }
@@ -802,7 +804,7 @@ function gotToken(token) {
     var errorCode = error.code;
     var errorMessage = error.message;
     console.log("error signing in with token");
-    handleError(error);
+    handleError("Error Signing In With Token", error);
 
     if (!tokenRetry) {
       setTimeout(function () {
@@ -922,7 +924,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
-    handleError(error);
+    handleError("Error Authenticating", error);
   }
 });
 

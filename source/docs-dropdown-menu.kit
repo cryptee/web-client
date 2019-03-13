@@ -1,8 +1,8 @@
 <div class="document-contextual-dropdown">
-  <p class="dropdown-save-button" style="display:none;"           ><span class="icon is-small"><i class="fa fa-fw fa-save"></i></span> &nbsp; Save Document</p>
-  <p onclick="showExportDocModal();"                              ><span class="icon is-small"><i class="fa fa-fw fa-share-square"></i></span> &nbsp; Export Document</p>
-  <p onclick="showRenameDocModal();" class="is-hidden-offline"    ><span class="icon is-small"><i class="fa fa-fw fa-i-cursor"></i></span> &nbsp; Rename Document</p>
-  <p class="dropdown-makeoffline-button is-hidden-offline" style="display:none;">
+  <p class="dropdown-save-button disabled-while-viewing" style="display:none;"                               ><span class="icon is-small"><i class="fa fa-fw fa-save"></i></span> &nbsp; Save Document</p>
+  <p onclick="showExportDocModal();" class="disabled-while-viewing"                   ><span class="icon is-small"><i class="fa fa-fw fa-share-square"></i></span> &nbsp; Export Document</p>
+  <p onclick="showRenameDocModal();" class="is-hidden-offline disabled-while-viewing" ><span class="icon is-small"><i class="fa fa-fw fa-i-cursor"></i></span> &nbsp; Rename Document</p>
+  <p class="dropdown-makeoffline-button is-hidden-offline disabled-while-viewing" style="display:none;">
     <span class="icon is-small">
       <span class="fa-stack fa-lg" style="height: 1.5rem;">
         <i class="fa fa-cloud fa-stack-1x"></i>
@@ -18,6 +18,9 @@
       </span>
     </span> &nbsp; Make Doc Online Only
   </p>
-  <p onclick="closeDoc();" class="is-hidden-offline"              ><span class="icon is-small"><i class="fa fa-fw fa-close"></i></span> &nbsp; Close Document</p>
-  <p onclick="showDeleteDocModal();"                              ><span class="icon is-small"><i class="fa fa-fw fa-trash"></i></span> &nbsp; Delete Document</p>
+  <hr>
+  <p onclick="toggleViewingMode();"                                         ><span class="icon is-small"><i class="fa fa-fw fa-window-maximize"></i></span> &nbsp; <span id="viewing-mode-label">Viewing Mode</span></p>
+  <p onclick="closeDoc();" class="is-hidden-offline disabled-while-viewing" ><span class="icon is-small"><i class="fa fa-fw fa-close"></i></span> &nbsp; Close Document</p>
+  <hr>
+  <p onclick="showDeleteDocModal();" class="disabled-while-viewing"         ><span class="icon is-small"><i class="fa fa-fw fa-trash"></i></span> &nbsp; Delete Document</p>
 </div>

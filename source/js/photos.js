@@ -339,7 +339,7 @@ function getToken () {
       });
     }).catch(function(error) {
       if (error.code !== "auth/network-request-failed") {
-        handleError(error);
+        handleError("Error Getting Token", error);
       }
       console.log("error getting token");
       retokening = false;
@@ -353,7 +353,7 @@ function gotToken (tokenData) {
     retokening = false;
   }).catch(function(error) {
     if (error.code !== "auth/network-request-failed") {
-      handleError(error);
+      handleError("Error Signing In With Token", error);
     }
     // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
     setTimeout(function() {
@@ -402,7 +402,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
-    handleError(error);
+    handleError("Error Authenticating", error);
   }
 });
 
@@ -682,22 +682,22 @@ function fixFile (pidOrTid) {
 
   try {
     // leave in try catch in case if pid or tid is undefined for some reason.
-    handleError(new Error('Photo/Thumb with id: ' + pidOrTid + ' not found by uid: ' + theUserID));
+    handleError('Photo/Thumb not found, trying to fix', {"id":pidOrTid});
   } catch (e) {
-    handleError(new Error('Photo/Thumb with undefined id is not found, and trying to get fixed for uid: ' + theUserID));
+    handleError('Photo/Thumb with undefined id not found, trying to fix');
   }
 
   doesTheOriginalExist(pidOrTid, function(originalLost){
     if (originalLost) {
       // ORIGINAL FILE LOST. DELETE BOTH THUMB AND ORIGINAL.
-      handleError(new Error('Photo/Thumb with id: ' + pidOrTid + ' doesnt have original, by uid: ' + theUserID + " will sadly purge."));
-
+      handleError("Photo doesn't have original. Will sadly purge.", {"id":pidOrTid});
       sadlyPurgeFile(pidOrTid);
     } else {
       // ORIGINAL FILE EXISTS, LET'S CHECK IF THUMBNAIL IS MISSING.
       doesTheThumbnailExist(pidOrTid, function(thumbLost){
         if (thumbLost) {
-          handleError(new Error('Photo/Thumb with id: ' + pidOrTid + ' does have original will regenerate thumb, by uid: ' + theUserID));
+          handleError("Thumb was missing, but found the original. Will try to regenerate.", {"id":pidOrTid});
+
           // THUMB IS MISSING, REGENERATE THUMBNAIL.
           // mimic the upload phase, but first download original, use generateThumbnail and go through the whole spiel to make it work from scratch.
           // this will definitely be more extensive than the original uploader.
@@ -789,9 +789,10 @@ function sadlyPurgeFile(pidOrTid) {
         delete activeItemsObject[pid];
         updateTitles();
       } else {
-        handleError(error);
+        error.pid = pid;
+        handleError("Error purging photo",error);
         $("#photos-delete-selections-modal").find(".button.is-success").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
-        $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
+        $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Photo... Sorry.. Please Reload the page.</p>");
       }
     });
 
@@ -1514,10 +1515,7 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
         }
       }
     } catch (e) {
-      if (base64FileContents) {
-        handleError(e);
-      }
-      console.log(e);
+      if (base64FileContents) { handleError("Error reading photo in processPhotoForUpload",e); }
       fileUploadError = true;
       showFolderUploadError();
       uploadElem =
@@ -1538,7 +1536,7 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
     fileUploadError = true;
     document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
     if (!folderUploadError && canUploadFolders) {
-      handleError(err);
+      handleError("Error reading photo in processPhotoForUpload",err);
       uploadElem =
       '<div class="upload" id="upload-'+file.name+'-'+file.size+'">'+
         '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -1704,11 +1702,11 @@ function handleUploadError (pid, filename, error, callback, callbackParam) {
 
   } else {
     if (error.code === "storage/retry-limit-exceeded") {
-      handleError(error);
+      handleError("Retry limit exceeded while uploading photo",error);
       isUploading = false;
       uploadRetryFailed(pid, callback, callbackParam);
     } else {
-      handleError(error);
+      handleError("Error while uploading photo",error);
       var uploadElem =
       '<div class="upload" id="upload-'+pid+'">'+
         '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -1740,8 +1738,8 @@ function photoUploadComplete (fid, pid, dominant, thumbnail, filename, callback,
   }).then(function(response) {
     uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename, callback, callbackParam);
   }).catch(function(error) {
-    console.error("Error saving uploaded folder to firestore: ", error);
-    handleError(error);
+    console.error("Error saving uploaded photo: ", error);
+    handleError("Error setting uploaded photo to firestore in photoUploadComplete", error);
     var uploadElem =
     '<div class="upload" id="upload-'+pid+'">'+
       '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -1787,7 +1785,7 @@ function uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename,
       }
     });
   } else {
-    handleError("Upload completed to non-active FID");
+    handleError("Photo uploaded to inactive FID", {"targetFID":fid, "activeFID":activeFID});
   }
 }
 
@@ -1883,7 +1881,7 @@ function getThumbnail (pid, fid) {
     }).catch(function(error) {
       var errorText;
       if (tid.indexOf("l-") === -1) {
-        handleError(error);
+        handleError("Error getting photo URL", error);
       }
       switch (error.code) {
         case 'storage/object-not-found':
@@ -1932,7 +1930,7 @@ function getThumbnail (pid, fid) {
     if (fid) {
       generateFolderThumbnail(fid);
     } else {
-      handleError("Get Photo Thumbnail : Blank PID");
+      handleError("Error getting photo thumbnail, unkown PID ", {"fid" : fid, "pid" : "unkown"});
     }
   }
 }
@@ -2581,10 +2579,10 @@ function renderDOMElement (id){
       domElement = renderFolder(id, activeItemsObject[id].count, activeItemsObject[id].title, activeItemsObject[id].pinky, activeItemsObject[id].thumb);
     } else { 
       // wtf. neither photo nor folder.
-      handleError(new Error('uid: ' + theUserID + "has a non-folder non-photo item: " + id));
+      handleError("User has a non-photo/non-folder item", {"id": id});
     }
   } else {
-    handleError(new Error('uid: ' + theUserID + "has an item that's not in activeItemsObject: " + id));
+    handleError("User has an item that's not in activeItemsObject", {"id": id});
     // somehow item isn't in activeItemsObject. wtf. soooo not adding. since it's better than crashing. but wtf. 
   }
 
@@ -3587,9 +3585,10 @@ function deleteSelections() {
           lightRef.delete();
           areDeletionsComplete(pid, isFolderThumbDeleted);
         } else {
-          handleError(error);
+          error.pid = pid;
+          handleError("Error deleting photo", error);
           $("#photos-delete-selections-modal").find(".button.is-success").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
-          $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
+          areDeletionsComplete(pid, isFolderThumbDeleted);
         }
       });
     });
@@ -3756,7 +3755,7 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
     }
 
   } else {
-    handleError("Load Photo : Blank PID");
+    handleError("Error loading Photo. Blank PID.");
   }
 
   function useOriginal () {
@@ -3764,7 +3763,8 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
       gotMeta(originalDownloadURL);
     }).catch(function(error) {
       var errorText;
-      handleError(error);
+      error.pid = pid;
+      handleError("Error getting Photo URL.", error);
       switch (error.code) {
         case 'storage/object-not-found':
           // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
@@ -4190,7 +4190,7 @@ function initSearch () {
   }).catch(function(error) {
     doneSearchIndexing();
     console.log("Error getting titles of all folders");
-    handleError(error);
+    handleError("Error getting photo & album titles for search", error);
   });
 
 }
@@ -4416,13 +4416,13 @@ function downloadActiveLightboxPhotoToDisk () {
         },
         error:function (xhr, ajaxOptions, thrownError){
           $("#lightbox-download").removeClass("is-loading");
-          console.log(thrownError);
+          handleError("Error downloading original photo to save to disk", thrownError);
           var errorText = "A rather strange error happened! Please try reloading. Please try again shortly, or contact our support. We're terribly sorry about this.";
         }
       });
     }).catch(function(error) {
       var errorText;
-      handleError(error);
+      handleError("Error getting download URL for original photo", error);
       $("#lightbox-download").removeClass("is-loading");
       switch (error.code) {
         case 'storage/object-not-found':

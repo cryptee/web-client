@@ -38,7 +38,7 @@ function upgradeLegacyTitles () {
             decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
               legacyTitlesObject = JSON.parse(plaintext.data);
               gotLegacyTitles();
-            }).catch(function(error) { handleError(error); });
+            }).catch(function(error) { handleError("Error Decrypting Encrypted Titles @ Upgrade Legacy Titles", error); });
 
           } else {
             // ACCOUNT HAD NO TITLES? SO IT MUST BE A SUPER OLD ACCOUNT WITH NOTHING IN THERE, LOGGING IN NOW.
@@ -48,7 +48,7 @@ function upgradeLegacyTitles () {
           // ACCOUNT HAD NO TITLES? SO IT MUST BE A SUPER OLD ACCOUNT WITH NOTHING IN THERE, LOGGING IN NOW.
           upgradeSuccesful();
         }
-      }).catch(function(error) { handleError(error); });
+      }).catch(function(error) { handleError("Error Getting Encrypted Titles @ Upgrade Legacy Titles", error); });
 
     } else {
       displayUpgradeMessage("Cryptee needs to perform a performance update.<br>Please connect your device to the internet.<br><br>");
@@ -74,7 +74,7 @@ function upgradeLegacyTitles () {
               legacyTagsObject = JSON.parse(plaintextTags.data);
               callback(callbackParam);
             }).catch(function (error) {
-              handleError(error);
+              handleError("Error Decrypting Encrypted Tags @ Upgrade Legacy Titles", error);
               callback(callbackParam);
             });
           } else {
@@ -90,7 +90,7 @@ function upgradeLegacyTitles () {
         callback(callbackParam);
       }
     }).catch(function(error) { 
-      handleError(error); 
+      handleError("Error Getting Encrypted Tags @ Upgrade Legacy Titles", error);
       callback(callbackParam); 
     });
   }
@@ -144,7 +144,7 @@ function upgradeLegacyTitles () {
           upgradeSuccesful();
         }          
         
-      }).catch(function(error) { console.log("Couldn't get root directory"); handleError(error);  });
+      }).catch(function(error) { console.log("Couldn't get root directory"); handleError("Error Getting Root Directory @ Upgrade Legacy Titles", error);  });
     });
   }
 
@@ -160,7 +160,7 @@ function upgradeLegacyTitles () {
         // foldersRef.child(theFID).update({"title" : null}, function(error) { // for testing to erase
           if (error) {
             // The write failed...
-            handleError(error);
+            handleError("Error Writing Folder Titles @ Upgrade Legacy Titles", error);
             failedWrites.push({id:theFID, eTitle:encryptedTitle, what:"folder"});
             checkIfThisWasTheLastWrite();
           } else {
@@ -168,7 +168,7 @@ function upgradeLegacyTitles () {
             successfulWrites++;
             checkIfThisWasTheLastWrite();
           }
-        }).catch(function(error) { handleError(error); });
+        }).catch(function(error) { handleError("Error Encrypting Folder Titles @ Upgrade Legacy Titles", error); });
       });
     });
   }
@@ -181,7 +181,7 @@ function upgradeLegacyTitles () {
           // foldersRef.child(fidLookupObject[theDID] + "/docs/" + theDID).update({"title" : null, "tags" : null}, function(error) { // for testing to erase
             if (error) {
               // The write failed...
-              handleError(error);
+              handleError("Error Writing Titles & Tags @ Upgrade Legacy Titles", error);
               failedWrites.push({id:theDID, eTitle:encryptedTitle, eTags:encryptedTags, toFID: fidLookupObject[theDID], what:"doc"});
               checkIfThisWasTheLastWrite();
             } else {
@@ -189,7 +189,7 @@ function upgradeLegacyTitles () {
               successfulWrites++;
               checkIfThisWasTheLastWrite();
             }
-          }).catch(function(error) { handleError(error); });
+          }).catch(function(error) { handleError("Error Encrypting Titles & Tags @ Upgrade Legacy Titles", error); });
         });
       });
     });
@@ -227,14 +227,14 @@ function upgradeLegacyTitles () {
       writeRef.update(objectToWrite, function(error) {
         if (error) {
           // The write failed...
-          handleError(error);
+          handleError("Error Writing Titles & Tags (Second Try) @ Upgrade Legacy Titles", error);
           checkIfThisWasTheLastFailedWrite();
         } else {
           // titles saved successfully!
           successfulReattemptedWrites++;
           checkIfThisWasTheLastFailedWrite();
         }
-      }).catch(function(error) { handleError(error); });
+      }).catch(function(error) { handleError("Error Writing Titles & Tags (Second Try) @ Upgrade Legacy Titles", error); });
 
     });
   }
@@ -251,7 +251,7 @@ function upgradeLegacyTitles () {
         upgradeSuccesful();
       } else {
         // ALL FAILED. PROMPT USER TO CONTACT SUPPORT.
-        handleError(new Error('All title and tag upgrades failed for uid: ' + theUserID));
+        handleError("All title and tag upgrades failed", {}, "fatal");
         displayUpgradeMessage("Cryptee needed to perform a performance update, but it failed.<br>Please contact our helpdesk.<br><br>",true);
       }
     }
@@ -262,7 +262,7 @@ function upgradeLegacyTitles () {
     encrypt(title, [theKey]).then(function(ciphertext) {
       var encryptedTitle = JSON.stringify(ciphertext);
       callback(didOrFid, encryptedTitle);
-    }).catch(function(error) { handleError(error); });
+    }).catch(function(error) { handleError("Error Encrypting Titles @ Upgrade Legacy Titles", error); });
   }
 
   function encryptTagsForUpgrade (tags, callback) {
@@ -275,7 +275,7 @@ function upgradeLegacyTitles () {
           var encryptedTags = JSON.stringify(ciphertext);
           callback(encryptedTags);
         }).catch(function(error) { 
-          handleError(error);
+          handleError("Error Encrypting Tags @ Upgrade Legacy Titles", error);
           callback(null);
         });
       } else {

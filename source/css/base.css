@@ -1262,7 +1262,7 @@ html {
 
 .progress:indeterminate::-webkit-progress-bar { background: transparent !important; }
 .progress:indeterminate::-moz-progress-bar { background: transparent !important; }
-.progress::-webkit-progress-value { transition: ease 0.5s width; }
+.progress::-webkit-progress-value { transition: ease 2s width; }
 .progress::-webkit-progress-bar { transition: ease-in-out 1s background-color; }
 .progress:indeterminate {
   transform: translateZ(0);
@@ -1576,7 +1576,7 @@ html {
   min-height: calc(100%) !important;
   height: auto;
   border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
 }
 
 .fromSignInSignOut {
@@ -1618,6 +1618,11 @@ html {
 .login-wrapper .hero-banner p,
 .login-wrapper .hero-banner a {
   color:#FFF !important;
+}
+
+#signin-info {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
 }
 
 /*///////////////////////////////////////////////////
@@ -2269,6 +2274,7 @@ html {
 #file-viewer > .message-header {
   height: 3rem;
   padding: .5em;
+  background-color: #F5F5F5;
 }
 
 #file-viewer > .message-body {

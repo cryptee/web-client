@@ -19,6 +19,7 @@ function gotUser() {
 function submitReport() {
     var description = $("textarea").val().trim();
     var contact = $("#email-input").val().trim();
+    var reason = $("#contact-form").attr("formtype");
 
     if (isInWebAppiOS || isInWebAppChrome) {
         typeOfApp = "PWA";
@@ -35,7 +36,7 @@ function submitReport() {
     var resolution = $(window).width().toString() + "x" + $(window).height().toString();
 
     var contactFormObject = {
-        "reason": $("#contact-form").attr("formtype"),
+        "reason": reason,
         "description": description,
         "contact": contact,
         "crypteeUID": crypteeUID,
@@ -58,12 +59,11 @@ function submitReport() {
 }
 
 function formSubmitted() {
-    $("button").html("Thank you!").addClass("is-success").removeClass("is-loading").attr('disabled', 'disabled')
-        .prop(
-            "disabled", true);
+    $("button").html("Thank you!").addClass("is-success").removeClass("is-loading").attr('disabled', 'disabled').prop("disabled", true);
 }
 
 function showContactForm(type) {
+    hideSearch();
     if (type === "bugreport") {
         $("#form-text").html("Please describe the bug below, and include what <b>device, model, operating system &amp; browser</b> you were using (and their versions too if you know them). This will help us reproduce the error better and quicker.<br><br>");
         $("#form-description").attr("placeholder", "... I was writing my journal using Cryptee Docs on Windows 10 with Google Chrome v69, then my cat jumped onto my laptop and finished the journal for me ...");
@@ -146,24 +146,28 @@ function articlesCollectionReady() {
 }
 
 function loadArticle(articleSlug) {
-    clearSearch();
-    showWindowProgress();
-    var articleURL;
-    articlesCollection.forEach(function(article){
-        if (article.slug === articleSlug) {
-            articleURL = articlesRootURL + "/" + article.url;
-        }
-    });
-    $( "#article-contents" ).load(articleURL, function( response, status, xhr ) {
-        if ( status == "error" ) {
-            console.log("Sorry but there was an error loading this article.");
-        } else {
-            history.replaceState("article", null, '/help?article='+articleSlug);
-            $("html").scrollTop(0);
-            ping("event", {eventCategory: "help-article", eventAction : articleSlug});
-            showContent();
-        }
-    });
+    if (articleSlug) {
+        clearSearch();
+        showWindowProgress();
+        var articleURL;
+        articlesCollection.forEach(function(article){
+            if (article.slug === articleSlug) {
+                articleURL = articlesRootURL + "/" + article.url;
+            }
+        });
+        $( "#article-contents" ).load(articleURL, function( response, status, xhr ) {
+            if ( status == "error" ) {
+                console.log("Sorry but there was an error loading this article.");
+            } else {
+                history.replaceState("article", null, '/help?article='+articleSlug);
+                $("html").scrollTop(0);
+                ping("event", {eventCategory: "help-article", eventAction : articleSlug});
+                showContent();
+            }
+        });
+    } else {
+        closeArticle();
+    }
 }
 
 function closeArticle(then) {
@@ -190,7 +194,7 @@ function hideContent(then) {
         setTimeout(function () {
             $(".is-visible-with-content").hide();
             if (then === "contact") {
-                showContactForm('contact');
+                showContactForm('contactform');
             }
         }, 505);
     }, 505);
@@ -309,7 +313,7 @@ function displaySearchResults(results, term) {
         $("#search-results").append(resultsToAppend.join(""));
     } else {
         var noResults = "<div class='has-text-centered'><br><br><p>Looks like we don't have an answer for what you need help with. <br> Contact us and we'll get back to you shortly with an answer.</p>" +
-        '<br><br><div class="button hero-button www-action-button" onclick="showContactForm(\'contact\')">Contact Us</div><br><br><br><br></div>';
+        '<br><br><div class="button hero-button www-action-button" onclick="showContactForm(\'contactform\')">Contact Us</div><br><br><br><br></div>';
         
         $("#search-results").append(noResults);
     }
@@ -328,37 +332,42 @@ function hideSearch() {
 
 
 function loadTopic(topicID) {
-    showSearch();
-    $("#search-results").html("");
-    var once = false;
-    if (articlesReady) {
-        history.replaceState("topic", null, '/help?topic='+topicID);
-        ping("event", {eventCategory: "help-topic", eventAction : topicID});
-        $.each(articlesCollection, function(i,article) {
-            if (article.topic === topicID) {
-                var srCard =
-                '<div class="column is-full">'+
+    if (topicID) {
+
+        showSearch();
+        $("#search-results").html("");
+        var once = false;
+        if (articlesReady) {
+            history.replaceState("topic", null, '/help?topic='+topicID);
+            ping("event", {eventCategory: "help-topic", eventAction : topicID});
+            $.each(articlesCollection, function(i,article) {
+                if (article.topic === topicID) {
+                    var srCard =
+                    '<div class="column is-full">'+
                     '<a class="tag help-tag is-medium" onclick="loadArticle(\''+article.slug+'\')">'+
-                        '<span class="icon"><i class="fa fa-file-text-o"></i></span> &nbsp;'+
-                        '<span>'+article.title.trim()+'</span>'+
+                    '<span class="icon"><i class="fa fa-file-text-o"></i></span> &nbsp;'+
+                    '<span>'+article.title.trim()+'</span>'+
                     '</a>'+
-                '</div>';
-                
-                if (!once) {
-                    $("#search-results").append('<a onclick="closeTopic();" style="margin-right:auto; line-height:3rem;"><b><span class="icon"><i class="fa fa-caret-left"></i></span> Back<span class="is-hidden-mobile"> to Helpdesk</span></b></a>');
-                    $("#search-results").append("<h3>"+topics[topicID]+"</h3>");
-                    once = true;
-                }
-                
-                $("#search-results").append(srCard);
-            }  
-        });
+                    '</div>';
+                    
+                    if (!once) {
+                        $("#search-results").append('<a onclick="closeTopic();" style="margin-right:auto; line-height:3rem;"><b><span class="icon"><i class="fa fa-caret-left"></i></span> Back<span class="is-hidden-mobile"> to Helpdesk</span></b></a>');
+                        $("#search-results").append("<h3>"+topics[topicID]+"</h3>");
+                        once = true;
+                    }
+                    
+                    $("#search-results").append(srCard);
+                }  
+            });
+        } else {
+            setTimeout(function () {
+                loadTopic(topicID);
+            }, 100);
+        }
+        
     } else {
-        setTimeout(function () {
-            loadTopic(topicID);
-        }, 100);
+        closeTopic();
     }
-    
 }
 
 function closeTopic() {

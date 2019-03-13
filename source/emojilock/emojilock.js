@@ -64,7 +64,7 @@ function checkEmojiCode() {
         }
         
     }).catch(function(error){
-        handleError(error);
+        handleError("Error hashing typed emojicode", error);
         hideEmojilock();
     });
 }

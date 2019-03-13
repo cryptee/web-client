@@ -74,7 +74,7 @@
     }
   }, function(error){
     if (error.code !== "auth/network-request-failed") {
-      handleError(error);
+      handleError("Error Authenticating", error);
     }
   });
 
