@@ -4,7 +4,7 @@
 		
 		<br class="is-hidden-tiny-phone">
 
-		<nav class="level">
+		<nav class="level" id="app-buttons-level">
 		  <div class="level-item has-text-centered">
 		    <a href="docs" class="home-item firstHomeItem">
 		      <p class="heading"><span class="icon is-medium"><i class="top-menu-icons fa fa-fw fa-file"></i></span></p>
@@ -17,6 +17,14 @@
 
 		  </div>
 		</nav>
+		
+		<div id="exceeded-home">
+      <p><b>You have used all the storage space you can get for free.</b></p><br>
+      <p>For the price of a cup of coffee, you can get more storage and help us create a safe &amp; private place on the internet.</p>
+			<a class="button is-success" onclick="upgradeFromExceed()">Upgrade</a>
+			<a class="button is-dark" onclick="closeExceededAtHome()">Not now</a>
+		</div>
+
 		<div class="app-button"></div>
 
 	</div>

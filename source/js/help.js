@@ -65,7 +65,8 @@ function formSubmitted() {
 function showContactForm(type) {
     hideSearch();
     if (type === "bugreport") {
-        $("#form-text").html("Please describe the bug below, and include what <b>device, model, operating system &amp; browser</b> you were using (and their versions too if you know them). This will help us reproduce the error better and quicker.<br><br>");
+        $("#form-text").html("<b>What went wrong?</b>");
+        $("#form-description-title").show();
         $("#form-description").attr("placeholder", "... I was writing my journal using Cryptee Docs on Windows 10 with Google Chrome v69, then my cat jumped onto my laptop and finished the journal for me ...");
     } else {
         $("#form-text").html("<b>How can we help you?</b>");

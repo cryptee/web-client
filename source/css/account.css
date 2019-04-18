@@ -86,7 +86,8 @@ html.is-loading::after {
 
 .settings-tab-contents input[type='text'], 
 .settings-tab-contents input[type='password'],
-.settings-tab-contents input[type='number'] {
+.settings-tab-contents input[type='number'],
+#recoveryemail {
 	border-top: none;
 	border-right: none;
 	border-left: none;
@@ -306,11 +307,33 @@ html.is-loading::after {
 #device-security-status {
 	padding: 0.75rem;
 	border-radius: 10px;
-    margin-bottom: 2px;
+  margin-bottom: 2px;
 }
 
 #setpin-button, #rememberkey-button {
 	float: right;
+}
+
+#clippers-list {
+	margin-top: 1rem;
+}
+
+.clipper {
+	padding: 1rem 0 0 0;
+}
+
+.clipper:first-of-type {
+	border-top: 1px solid rgba(200,205,208,0.5);
+}
+
+.clipper .icon {
+	font-size: 30px;
+	margin:0.5rem;
+}
+
+.clipper .remove-clipper-button {
+	font-weight: 600;
+	cursor: pointer;
 }
 
 /*///////////////////////////////////////////////////

@@ -50,7 +50,8 @@ body {
   font-weight: 300;
 }
 
-body.is-loading {
+body.is-loading,
+body.pending {
   pointer-events: none;
   opacity: 0.1;
 }
@@ -59,7 +60,8 @@ body.modal-is-active, html.modal-is-active {
   overflow: hidden;
 }
 
-html.is-loading::before {
+html.is-loading::before,
+html.pending::before {
   content: attr(data-loading);
   white-space: pre;
   font-family: 'Montserrat', sans-serif;
@@ -73,7 +75,8 @@ html.is-loading::before {
   z-index: 9999999;
  }
 
-html.is-loading::after {
+html.is-loading::after,
+html.pending::after {
   -webkit-animation: spinAround 500ms infinite linear;
   animation: spinAround 500ms infinite linear;
   border: 3px solid #000;
@@ -249,7 +252,7 @@ code, pre {
 .ql-editor h2.highlighted *,
 .ql-editor h3.highlighted,
 .ql-editor h3.highlighted *
- {
+{
   color : rgb(31, 155, 207);
 }
 
@@ -269,9 +272,9 @@ code, pre {
 
 
 .ql-editor img {
-  max-width: 100%;
+  max-width: calc(100% - 20px) !important;
   height: auto;
-  border-radius: 1rem;
+  border-radius: 10px;
   margin: 1rem !important;
 }
 
@@ -437,7 +440,7 @@ crypteetag {
   z-index: 20; /* should be before modals, but above everything else */
   overflow: hidden;
 
-  min-width: 100px;
+  min-width: 190px;
   max-width: 280px;
 
   pointer-events: none;
@@ -1844,7 +1847,7 @@ html {
 }
 
 #www-docs-desktop-left img {
-  box-shadow: 0 0.25rem 2rem rgba(10,10,10,0.1);
+  box-shadow: 0 0.25rem 1rem rgba(10,10,10,0.1);
 }
 
 #www-docs-desktop-right {
@@ -1896,7 +1899,7 @@ html {
   margin-top: 2rem;
   margin-bottom: 2rem;
   border-radius: 0.5rem;
-  box-shadow: 0 1rem 2rem rgba(10,10,10,0.05);
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.05);
   max-width: 340px;
   width: 100%;
 }
@@ -1916,7 +1919,7 @@ html {
 
 .pricing-card {
   border-radius: 1rem;
-  box-shadow: 0rem 1rem 2rem rgba(10,10,10,0.1);
+  box-shadow: 0rem 1rem 1rem rgba(10,10,10,0.1);
   padding: 3.5rem;
   margin: 2rem auto 2rem auto;
   max-width: calc(320px + 6rem);
@@ -1959,7 +1962,7 @@ html {
 
 #www-photos-phone2 {
   border-radius: 1.5rem;
-  box-shadow: 0 1rem 2rem rgba(10,10,10,0.15);
+  box-shadow: 0 1rem 1rem rgba(10,10,10,0.15);
   margin-bottom: 2rem;
 }
 
@@ -2211,18 +2214,9 @@ html {
 .press-item {
   opacity: 0.7;
   width: 100%;
-  max-width: 33.3333%;
+  max-width: 25%;
   transition: 0.3s opacity ease;
   cursor: pointer;
-}
-
-/*///////////////////////////////////////////////////
-//////////////////  DASHBOARD  //////////////////////
-///////////////////////////////////////////////////*/
-
-.greeting {
-
-
 }
 
 /*///////////////////////////////////////////////////
@@ -3810,6 +3804,9 @@ body.draggingStuff {
     border-radius: 1.5rem;
 
     box-shadow: 0 1rem 2rem rgba(10,10,10,0.25);    
+    transform: translateY(3rem);
+    opacity: 0;
+    pointer-events: none;
     transition: 0.75s box-shadow ease, 0.75s transform ease, 0.5s opacity ease;
 }
 
@@ -3831,6 +3828,33 @@ body.draggingStuff {
   left: calc(50% - 25px);
   top: calc(50% - 25px);
   position: absolute !important;
+}
+
+#update-available.shown {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+#exceeded-modal .modal-background {
+  background-color: #F5F5F5;
+  pointer-events: none;
+}
+
+#exceeded-modal .notification {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#exceeded-home {
+  display: none;
+}
+
+#exceeded-home .button {
+  margin: 0.5rem 0.5rem;
+  border-radius: 3rem;
+  padding: 1rem;
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1); 
 }
 
 .showLowStorage, .showUpgradeThanks, .showBumpUp, .showBumpDown {
@@ -6490,6 +6514,10 @@ body.draggingStuff {
 
   .landing-sub-section-header {
     text-align: left;
+  }
+
+  .pricing-card {
+    padding: 1.75rem;
   }
 }
 

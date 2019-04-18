@@ -71,7 +71,7 @@
 
   transform: translateX(0);
   opacity: 1;
-  transition: 1s transform ease, 0.5s opacity ease;
+  transition: 1s transform ease, 0.5s opacity ease, 0.5s max-width ease, 0.5s height ease, 0.5s padding ease, 0.5s max-height ease;
   z-index: 11;
 }
 
@@ -143,11 +143,27 @@
   #mobile-topbar:not(.itsMobile) {
     top: 5.5rem;
   }
+
+  #docs-webclips-wrapper {
+    margin-top: calc(5.5rem - 1px) !important;
+  }
+
+  #close-webclips {
+    top: -4rem !important;
+  }
 }
 
 @media (max-width : 547px) {
   #mobile-topbar:not(.itsMobile) {
     top: 7.25rem;
+  }
+
+  #docs-webclips-wrapper {
+    margin-top: calc(7.25rem - 3px) !important;
+  }
+
+  #close-webclips {
+    top: -5.75rem !important;
   }
 }
 
@@ -231,6 +247,7 @@
   padding-bottom: 1rem;
   padding-right: 13px;
   padding-left: 13px;
+  max-height: 10rem;
 }
 
 #editor-toolbar.showLeft,
@@ -275,7 +292,7 @@
 #mobile-topbar {
   z-index: 12;
   transform: translateX(0);
-  transition: 1s transform ease, 0.25s opacity ease;
+  transition: 1s transform ease, 0.25s opacity ease, 0.5s max-width ease, 0.5s top ease;
   pointer-events: all;
   position: relative;
 }
@@ -403,7 +420,7 @@ body:not(.viewing-mode) #hotkeys-button.shown {
 
 #docs-sections-wrapper {
   position: relative;
-  height: calc(100% - 8rem);
+  height: calc(100% - 8.5rem);
   margin-top: 6rem;
   padding: 0 0rem 0 180px;
   opacity: 1;
@@ -428,10 +445,11 @@ body:not(.viewing-mode) #hotkeys-button.shown {
   right: 0;
   position: absolute;
   bottom: 0;
-  margin: 0;
+  margin: 0 0 0.725rem 0;
   padding-left: 180px;
   width: 100%;
   height: 2rem;
+  pointer-events: none;
 }
 
 .docsection.H1 {
@@ -498,7 +516,314 @@ body:not(.viewing-mode) #hotkeys-button.shown {
   text-align: left;
   transition: 0.5s color ease;
   font-weight:600;
+  pointer-events: none;
 }
+
+#countsWrapper {
+  pointer-events: none;
+}
+
+#docs-webclips-wrapper {
+  height: calc(100% - 7.5rem + 4px);
+  width: 100%;
+  position: absolute;
+  display: block;
+  top: 0;
+  right: 0;
+  padding: 0 0rem 0 0.5rem;
+  margin-top: calc(4rem - 4px);
+  opacity: 0;
+  transition: opacity ease;
+  pointer-events: none;
+  transition-duration: 0.6s !important;
+}
+
+#docs-webclips-wrapper.is-loading .wclipcard {
+  opacity: 0;
+}
+
+#docs-webclips-wrapper.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid #000;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 100px;
+  width: 100px;
+  left: 110px;
+  top: calc(50% - 50px);
+  position: absolute !important;
+}
+
+
+#docs-webclips-wrapper.is-active {
+  opacity: 1;
+  pointer-events: all;
+  transition-duration: 2s !important;
+}
+
+#webclips {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  padding-top: 1rem;
+}
+
+.wclipcard {
+  margin: 2rem 1.75rem;
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  background-color: #FFF;
+  user-drag:none;
+  -webkit-user-drag: none;
+  transition: 0.3s box-shadow ease, 1s opacity ease;
+  position: relative;
+  display: none;
+}
+
+.wclipcard:first-of-type {
+  margin-top: 0;
+}
+
+.wclip-summary {
+  position: relative;
+}
+
+.wc-content {
+  opacity: 1;
+  transition: 1s opacity ease 0.5s;
+}
+
+.wclip-content {
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  opacity: 1;
+  transition: 1s opacity ease 0.5s;
+}
+
+.wclip-content:after {
+  content: "";
+  height: 4rem;
+  width: 100%;
+  background: linear-gradient(0deg, #FFF 0%, rgba(255,255,255,0) 100%);
+  float: right;
+  position: absolute;
+  right: 0;
+  bottom: 0rem;
+  transition: 0.5s height ease 1s;
+}
+
+.wclip-title {
+  text-transform: uppercase;
+}
+
+.wclipcard img {
+  height: 100%;
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  display: block;
+  user-drag: none;
+  -webkit-user-drag: none;
+  opacity: 1;
+  transition: 0.5s opacity ease, 1s max-height ease;
+}
+
+
+.wclip-url {
+  -moz-osx-font-smoothing: auto !important;
+  -webkit-font-smoothing: auto !important;
+  font-family: monospace !important;
+  overflow: hidden;
+  width: 100%;
+  height: 0rem;
+  line-height: 2rem;
+  padding: 0 1rem;
+  margin: 0;
+  background-color: #F5F5F5;
+  color: #aaa;
+  cursor: default;
+  user-select: none;
+  display: block;
+  position: relative;
+  transition: 0.5s height ease 1s;
+}
+
+.wclip-url:after {
+  content: "";
+  height: 0rem;
+  width: 4rem;
+  background: linear-gradient(270deg, rgba(245,245,245,1) 0%, rgba(245,245,245,0) 100%);
+  float: right;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.5s height ease 1s;
+}
+
+.wclip-actions {
+  width: 100%;
+  display: flex;
+  border-top: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.wclip-action {
+  flex: 6;
+  text-align: center;
+  padding: 0.5rem;
+  background-color: rgba(255,255,255,0);
+  color: #000;
+  transition: 0.3s background-color ease, 0.3s color ease;
+  user-select: none;
+}
+
+.wclip-insert-button {
+  text-align: left;
+}
+
+.wclip-delete-button {
+  text-align: right;
+  background-color: rgba(255,255,255,0);
+  color: #000;
+  flex: 0.5;
+}
+
+#close-webclips {
+  position: absolute;
+  bottom: -2.5rem;
+  left: calc(1.75rem + 2px);
+  user-select: none;
+  cursor: pointer;
+  color: #888;
+  transition: 0.3s color ease;
+}
+
+#webclips-button {
+  position: absolute;
+  bottom: 0rem;
+  right: 0;
+  width: 2rem;
+  height: 3.5rem;
+  margin-right: 1rem;
+  font-size: 16px;
+  user-select: none;
+  cursor: pointer;
+  color: #888;
+  transition: 0.5s color ease, 1s opacity ease;
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+#webclips-button .fa-stack-2x {
+  font-size: 1.2em;
+  line-height: 1.2em;
+}
+
+#webclips-button .fa-stack-1x {
+  font-size: 0.7em;
+  line-height: 1.2em;
+}
+
+body:not(.viewing-mode) #webclips-button.shown {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+.wclipcard:before {
+  font-family: FontAwesome;
+  font-size: 14px;
+  position: absolute;
+  top: -1rem;
+  right: -1rem;
+  height: 2.5rem !important;
+  width: 2.5rem !important;
+  text-align: center;
+  line-height: 2.5rem;
+  border-radius: 2.5rem;
+  z-index: 1;
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  background-color: #363636;
+  transition: 0.3s opacity ease;
+  opacity: 1;
+}
+
+.wclipcard[type='selection']:before {
+  content: "\f246";
+  padding-left: 1.5px;
+  
+  color: #FFF;
+}
+
+.wclipcard[type='image']:before {
+  content: "\f03e";
+  padding-left: 1px;
+  color: #FFF;
+}
+
+.wclipcard[type='link']:before {
+  content: "\f0c1";
+  padding-left: 1px;
+  color: #FFF;
+}
+
+.wclipcard[type='page']:before {
+  content: "\f0ac";
+  padding-left: 1px;
+  color: #FFF;
+}
+
+.wclipcard.deleting:before,
+.wclipcard.deleting .wc-content,
+.wclipcard.deleting .wclip-content,
+.wclipcard.adding:before,
+.wclipcard.adding .wc-content,
+.wclipcard.adding .wclip-content {
+  opacity: 0;
+}
+
+.wclipcard.deleting img,
+.wclipcard.adding img {
+  opacity: 0;
+  max-height: 0px;
+}
+
+/* for new ones */
+/* background-color: #4BBF73; */
+
+
+
+
+
+
+.wclipcard[type='selection'] .wc-content
+{
+  padding: 1rem;
+}
+
+.wclipcard[type='link'] .wc-content 
+{
+  padding: 1rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  user-select: all;
+}
+
+.wclipcard[type='page'] .wclip-title,
+.wclipcard[type='page'] .wclip-content
+{
+  padding: 1rem;
+  max-height: 320px;
+}
+
+.wclipcard[type='page'] .wclip-content img
+{
+  margin-bottom: 1rem;
+}
+
 
 /* /////////////////////////////////////////////////
 ////////////////////// LEFT ///////////////////////
@@ -1234,21 +1559,47 @@ body.viewing-mode .mobile-floating-tools
   pointer-events: none !important;
 }
 
-body.viewing-mode #mobile-topbar {
-  opacity: 1 !important;
-}
-
 body.viewing-mode .top-left-icon {
   pointer-events: none !important;
 }
 
-body.viewing-mode .document-contextual-dropdown .disabled-while-viewing, {
+body.viewing-mode .document-contextual-dropdown .disabled-while-viewing {
   opacity: 0.2 !important;
   pointer-events: none !important;
 }
 
 body.viewing-mode #doc-contextual-button {
   pointer-events: all !important;
+}
+
+body.viewing-mode #editor-toolbar {
+  max-width: calc(100% - 2rem);
+  padding-bottom: 0rem;
+  max-height: 0rem;
+  transition: 1s transform ease, 0.5s opacity ease, 0.5s max-width ease 0.5s, 0.5s padding ease 0.5s, 0.5s max-height ease 0.5s !important;
+}
+
+body.viewing-mode #docs-page-wrap {
+  max-width: calc(100% - 2rem);
+  height: calc(100% - 1rem);
+  transition: 1s transform ease, 0.5s opacity ease, 0.5s max-width ease 0.5s, 0.5s height ease 0.5s, 0.5s padding ease 0.5s !important;
+}
+
+body.viewing-mode #mobile-topbar {
+  max-width: calc(100% - 2rem);
+  opacity: 1 !important;
+  top: 1.25rem;
+  transition: 1s transform ease, 0.25s opacity ease, 0.5s max-width ease 0.5s, 0.5s top ease 0.5s !important;
+}
+
+body.viewing-mode .ql-editor {
+  transition: 0.5s font-size ease 0.4s;
+  font-size: 138.5% !important;
+}
+
+body.viewing-mode .ql-editor * {
+  /* transition: 0.5s line-height ease; */
+  line-height: 160% !important;
 }
 
 
@@ -1258,7 +1609,7 @@ body.viewing-mode #doc-contextual-button {
 
 @media (max-width:1065px) {
 
-  #docs-right-wrap {
+  #docs-right-wrap:not(.showRight) {
     display: none;
   }
 
@@ -1403,10 +1754,6 @@ body.viewing-mode #doc-contextual-button {
     margin-top: -1.5rem;
     margin-left: 0.5rem;
   }
-
-  #all-active-folder-docs .doc {
-    height: 2.75rem;
-  }
   
   #all-active-folder-docs .doc .docctx {
     margin-top : -0.25rem;
@@ -1522,7 +1869,9 @@ body.viewing-mode #doc-contextual-button {
     color: transparent;
   }
 
-  #help-button:hover, #hotkeys-button:hover {
+  #help-button:hover, 
+  #hotkeys-button:hover, 
+  #webclips-button:hover {
     color : #000;
   }
 
@@ -1546,6 +1895,33 @@ body.viewing-mode #doc-contextual-button {
   #selections-wrapper:hover {
     background-color: #363636;
     color:#FFF;
+  }
+
+  .wclipcard:hover {
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+  }
+
+  .wclipcard:hover .wclip-url,
+  .wclipcard:hover .wclip-url:after
+  {
+    height: 2rem;
+  }
+
+  #noclips:hover {
+    box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  }
+
+  .wclip-action:hover {
+    background-color: #F5F5F5;
+  }
+
+  .wclip-delete-button:hover {
+    background-color: rgba(217,83,79,1);
+    color: #FFF;
+  }
+  
+  #close-webclips:hover {
+    color: #000;
   }
 
 }

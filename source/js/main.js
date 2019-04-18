@@ -67,6 +67,33 @@ function checkDOMRectBlocked() {
 
 var isDOMRectBlocked = checkDOMRectBlocked();
 
+
+function iosVersion() {
+  if (/iP(hone|od|ad)/.test(navigator.platform)) {
+    var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+    return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+  }
+}
+
+// If iOS is greater than 12.2
+// You can do a bunch of cool things with PWAs. 
+// State will be remembered between sessions, but more importantly google login will work, and won't need all the bullshit redirect anymore. 
+// So instead use the regular popup for iOS 12.2 and above.
+
+isIOSPWAAdvanced = false;
+if (iosVersion()) {
+
+  if (iosVersion()[0] >= 12) {
+    if (iosVersion()[1] >= 2) {
+      isIOSPWAAdvanced = true;
+    } else {
+      isIOSPWAAdvanced = false;
+    }
+  } else {
+    isIOSPWAAdvanced = false;
+  }
+  
+}
 ////////////////////////////////////////////////////
 ///////////////////   HELPERS    ///////////////////
 ////////////////////////////////////////////////////
@@ -619,7 +646,9 @@ if ('serviceWorker' in navigator) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
       console.log("SWERR:", error);
       setSentryTag("worker", "errored");
-      handleError("Error Registering Service Worker",error);
+      if (navigator.onLine) { // sometimes this could error out due to being offline or fetching scripts. hence the connectivity check.
+        handleError("Error Registering Service Worker",error);
+      }
     }
   });
 } else {
@@ -731,69 +760,6 @@ function hideNotification(deleteButton) {
   $(deleteButton).parents(".notification").fadeOut();
 }
 
-var latest = (new Date()).getTime();
-var photoJSON = "https://static.crypt.ee/signin-photo.json?cachebust=" + latest;
-var photoURL = "https://static.crypt.ee/signin-photo.jpg?cachebust=" + latest;
-var unsplashObject;
-function loadKeyModalBackground () {
-  $.ajax({ url: photoJSON }).done(function(data) {
-    unsplashObj = JSON.parse(data);
-
-    $('<img/>').attr('src', photoURL).on('load', function() {
-      $(this).remove();
-      $('#key-modal').find("img").attr('src', photoURL);
-      $('#photo-credit').html("&copy; &nbsp;" + unsplashObj.author + " via Unsplash");
-      $('#photo-credit').attr("href", unsplashObj.author_url); 
-      $('#key-modal').removeClass("img-loading");
-    });
-
-  });
-}
-
-$("#key-modal").on('click', function(event) {
-  $("#key-input").focus();
-}); 
-
-logTimeStart('Time Until KeyModal');
-function showKeyModal () {
-  logTimeEnd('Time Until KeyModal');
-  // 767 to accommodate ipads / other portrait tablets
-  if ($(window).width() > 767) {
-    loadKeyModalBackground();
-  } else {
-    $("#photo-credit").hide();
-  }
-
-  $("#key-modal").addClass("shown");
-  setTimeout(function () {
-    $("html, body").addClass("modal-is-active");
-    $("#key-input").focus();
-  }, 750);
-
-  if (isInWebAppiOS || isInWebAppChrome) {
-    $('#photo-credit').html("Security Preferences <span class='icon'><i class='fa fa-cog'></i></span>");
-    $('#photo-credit').attr("href", "/account?action=security").removeClass("openInSafari").removeAttr("target"); 
-    $("#photo-credit").show();
-  }
-}
-
-function hideKeyModal () {
-  $("html, body").removeClass("modal-is-active");
-  $("#key-modal").removeClass("shown");
-  setTimeout(function () {
-    $("#key-input").blur();
-    hideEmojilock();
-  }, 100);
-}
-
-
-
-
-
-
-
-
-
 
 ////////////////////////////////////////////////////
 ////////////// INACTIVITY TIMEOUT //////////////////
@@ -855,6 +821,9 @@ function checkLatestVersion() {
 
 function showUpdateAvailable () {
   $("body").append("<div id='update-available' onclick='reloadForNewVersion();'><img src='../assets/cryptee-logo-w.svg' alt='Cryptee Logo' id='update-logo'><b>New version available</b><br>Click here to reload and install</div>");
+  setTimeout(function () {
+    $("#update-available").addClass("shown");
+  }, 250);
 }
 
 function reloadForNewVersion () {
@@ -1241,8 +1210,8 @@ function handleError(errorTitle, data, level) {
     level = level || 'error';
     data  = data  || {};
     console.log(errorTitle);
-    Sentry.withScope(scope => {
-      Object.keys(data).forEach((key) => {
+    Sentry.withScope(function(scope) {
+      Object.keys(data).forEach(function(key) {
         scope.setExtra(key, data[key]);
       });
       

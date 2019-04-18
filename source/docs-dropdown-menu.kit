@@ -10,7 +10,7 @@
       </span>
     </span> &nbsp; Make Doc Available Offline
   </p>
-  <p class="dropdown-makeonline-button is-hidden-offline" style="display:none;">
+  <p class="dropdown-makeonline-button is-hidden-offline disabled-while-viewing" style="display:none;">
     <span class="icon is-small">
       <span class="fa-stack fa-lg" style="height: 1.5rem;">
         <i class="fa fa-cloud fa-stack-1x"></i>
@@ -19,7 +19,7 @@
     </span> &nbsp; Make Doc Online Only
   </p>
   <hr>
-  <p onclick="toggleViewingMode();"                                         ><span class="icon is-small"><i class="fa fa-fw fa-window-maximize"></i></span> &nbsp; <span id="viewing-mode-label">Viewing Mode</span></p>
+  <p onclick="toggleViewingMode();"   id="viewing-mode-button"              ><span class="icon is-small"><i class="fa fa-fw fa-window-maximize"></i></span> &nbsp; <span id="viewing-mode-label">Viewing Mode</span></p>
   <p onclick="closeDoc();" class="is-hidden-offline disabled-while-viewing" ><span class="icon is-small"><i class="fa fa-fw fa-close"></i></span> &nbsp; Close Document</p>
   <hr>
   <p onclick="showDeleteDocModal();" class="disabled-while-viewing"         ><span class="icon is-small"><i class="fa fa-fw fa-trash"></i></span> &nbsp; Delete Document</p>

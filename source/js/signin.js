@@ -1,9 +1,3 @@
-var theUser;
-var theUserID;
-var theUsername;
-var theToken;
-var theEmail;
-var dataRef;
 var signinURL = "https://crypt.ee/api/auth";
 var latest = (new Date()).getTime();
 var photoJSON = "https://static.crypt.ee/signin-photo.json?cachebust=" + latest;
@@ -36,12 +30,14 @@ $(window).on("load", function(event) {
   }
 
   if (isInWebAppiOS) {
-    var googleAuthUUID = localStorage.getItem('gauthUUID');
-    if (googleAuthUUID !== null) {
-      tryGettingIdTokenFromCrypteeGAuth(googleAuthUUID);
-    } else {
-      console.log("generating UUID for PWA Google Login");
-      generateNewUUIDForGoogleAuthOniOSPWA ();
+    if (!isIOSPWAAdvanced) {
+      var googleAuthUUID = localStorage.getItem('gauthUUID');
+      if (googleAuthUUID !== null) {
+        tryGettingIdTokenFromCrypteeGAuth(googleAuthUUID);
+      } else {
+        console.log("generating UUID for PWA Google Login");
+        generateNewUUIDForGoogleAuthOniOSPWA ();
+      }
     }
   }
 
@@ -62,14 +58,8 @@ $(window).on("load", function(event) {
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user
-    theUser = user;
-    theUserID = theUser.uid;
-    theEmail = theUser.email;
-    theUsername = theUser.displayName;
-    setSentryUser(theUserID);
-    dataRef = db.ref().child('/users/' + theUserID + "/data/");
-    $('.username').html(theUsername || theEmail);
-
+    createUserDBReferences(user);
+    
     $("html, body").removeClass("is-loading");
 
     if (!isMobile) {
@@ -151,24 +141,6 @@ function rightKey (plaintext, hashedKey) {
   });
 }
 
-function wrongKey (error) {
-  setTimeout(function () {
-    $("#key-modal-decrypt-button").removeClass("is-loading");
-  }, 1000);
-  console.log("wrong key or ", error);
-  sessionStorage.removeItem('key');
-  showKeyModal();
-  $('#key-status').html('<span class="icon"><i class="fa fa-exclamation-triangle fa-fw fa-sm" aria-hidden="true"></i></span> Wrong key, please try again.');
-  $("#key-status").addClass("shown");
-  $("#key-modal-signout-button").addClass("shown");
-}
-
-
-function keyModalApproved (){
-  $('#key-status').html("Checking key");
-  var key = $('#key-input').val();
-  checkKey(key);
-}
 
 function signInComplete () {
   if (getUrlParameter("redirect")) {
@@ -181,14 +153,6 @@ function signInComplete () {
     window.location = "home";
   }
 }
-
-$("#key-input").on('keydown', function (e) {
-  setTimeout(function(){
-    if (e.keyCode == 13) {
-        keyModalApproved ();
-    }
-  },50);
-});
 
 function checkSigninButton () {
 
@@ -268,34 +232,50 @@ function signin(token){
 
   }
 
-  if ($("li[tab='google']").hasClass("is-active")) {
+  function usePopup() {
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.addScope('email');
-    if (isInWebAppiOS) {
-      // firebase.auth().signInWithRedirect(provider);
-
-      var urlToPass = location.origin + "/gauth?uuid=" + localStorage.getItem("gauthUUID");
-      var gauthFrame = document.getElementById('gauthFrame');
-      var iframeDoc = gauthFrame.contentDocument || gauthFrame.contentWindow.document;
-      var a = iframeDoc.createElement('a');
-      a.setAttribute("href", urlToPass);
-      a.setAttribute("target", "_blank");
-      var dispatch = iframeDoc.createEvent("HTMLEvents");
-      dispatch.initEvent("click", true, true);
-      a.dispatchEvent(dispatch);
-
-    } else {
-      firebase.auth().signInWithPopup(provider).catch(function(error) {
-        if (error.code === "auth/web-storage-unsupported") {
-          $("#thirdpartycookie-error").fadeIn(500);
-        } else {
-          $("#other-error").fadeIn(500);
-        }
-        console.log(error);
-        
+    firebase.auth().signInWithPopup(provider).catch(function(error) {
+      if (error.code === "auth/web-storage-unsupported") {
+        $("#thirdpartycookie-error").fadeIn(500);
         $("#signin-button").removeClass('is-loading').prop('disabled', false);
-      });
+      } else if (error.code === "auth/missing-or-invalid-nonce") {
+        
+      } else {
+        $("#other-error").fadeIn(500);
+        $("#signin-button").removeClass('is-loading').prop('disabled', false);
+      }
+      console.log(error);
+    });
+  }
+
+  function useRedirect() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    // firebase.auth().signInWithRedirect(provider);
+    var urlToPass = location.origin + "/gauth?uuid=" + localStorage.getItem("gauthUUID");
+    var gauthFrame = document.getElementById('gauthFrame');
+    var iframeDoc = gauthFrame.contentDocument || gauthFrame.contentWindow.document;
+    var a = iframeDoc.createElement('a');
+    a.setAttribute("href", urlToPass);
+    a.setAttribute("target", "_blank");
+    var dispatch = iframeDoc.createEvent("HTMLEvents");
+    dispatch.initEvent("click", true, true);
+    a.dispatchEvent(dispatch);
+  }
+
+  if ($("li[tab='google']").hasClass("is-active")) {
+    
+    if (isInWebAppiOS) {
+      if (isIOSPWAAdvanced) {
+        usePopup(); 
+      } else {
+        useRedirect();
+      }
+    } else {
+      usePopup();
     }
+
   }
 
   if ($("li[tab='smartid']").hasClass("is-active")) {
@@ -355,7 +335,7 @@ function tryGettingIdTokenFromCrypteeGAuth(googleAuthUUID) {
         headers: { "Authorization": "Bearer " + response.gauth },
         contentType:"application/json; charset=utf-8",
         success: function(data){
-          gotToken(data);
+          gotAuthToken(data);
         },
         error:function (xhr, ajaxOptions, thrownError){
           console.log("no google token found on server");
@@ -411,7 +391,7 @@ function gotSIResponse (code, token) {
   }).done(function( response ) {
     if (response.crtoken) {
       // ping("message",{msg : "gotSidConfirmation"});
-      gotToken(response.crtoken);
+      gotAuthToken(response.crtoken);
     } else {
       console.log(response);
     }
@@ -432,7 +412,7 @@ function gotMIResponse (code, token) {
   }).done(function( response ) {
     if (response.crtoken) {
       // ping("message",{msg : "gotMidConfirmation"});
-      gotToken(response.crtoken);
+      gotAuthToken(response.crtoken);
     } else {
       console.log(response);
     }
@@ -447,7 +427,7 @@ function gotMIResponse (code, token) {
 function signinRequest() {
   $.ajax({ url: signinURL, type: 'POST',
       success: function(data){
-        gotToken(data);
+        gotAuthToken(data);
       },
       error:function (xhr, ajaxOptions, thrownError){
           console.log(thrownError);
@@ -456,7 +436,7 @@ function signinRequest() {
 }
 
 var tokenRetry = false;
-function gotToken(token) {
+function gotAuthToken(token) {
   firebase.auth().signInWithCustomToken(token).catch(function(error) {
     var errorCode = error.code;
     var errorMessage = error.message;
@@ -465,7 +445,7 @@ function gotToken(token) {
     if (!tokenRetry) {
       setTimeout(function () {
         tokenRetry = true;
-        gotToken(token);
+        gotAuthToken(token);
       }, 2000);
     } else {
       $("#signin-info").html("Something went wrong. It seems we can't process the signin at this moment. Please try again in a minute.").removeClass("is-info").addClass("is-warning");

@@ -1,0 +1,12 @@
+<section id="clipper-app-nav">
+    <div id="left-nav">
+        <a class="clipper-app-nav-item rememberKey top-left-icon" href="home"><img src="../assets/cryptee-logo-b.svg" alt="Cryptee | Dashboard" id="nav-logo"></a>
+        <a class="clipper-app-nav-item hiddenForOffline clickable tag is-success" href="account?action=upgrade" id="upgrade-button">UPGRADE</a>
+        <a class="clipper-app-nav-item hiddenForOffline clickable tag is-info is-hidden-phone" onclick="showModal('donate-modal');" id="donate-button">DONATE</a>
+    </div>
+    <div id="right-nav">
+        <a href="account" class="hiddenForOffline"><span class="icon clickable" id="settings-button" title="Settings"><i class="fa fa-fw fa-cog"></i></span></a>
+        <span class="icon clickable hiddenForOffline" id="help-button" onclick="showModal('help-modal')" title="Help"><i class="fa fa-fw fa-question"></i></span>
+        <span class="icon clickable is-hidden-webapp" id="signout-button" onclick="signOut();" title="Sign Out"><i class="fa fa-fw fa-sign-out"></i></span>
+    </div>
+</section>

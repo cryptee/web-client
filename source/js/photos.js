@@ -20,18 +20,11 @@ if (localStorage.getItem('emojiCryptedKey')) {
 }
 
 
-var theUser;
-var theUserID;
-var theUsername;
-var theEmail;
-var theToken;
 var userPlan;
 
-var rootRef, dataRef, metaRef, homeRef, titlesRef;
-var connectedRef = firebase.database().ref(".info/connected");
+var homeRef, titlesRef;
+var connectedRef = db.ref(".info/connected");
 
-var reauthenticated = false;
-var retokening = false;
 var connected = false;
 var upOrDownInProgress = false;
 
@@ -48,6 +41,8 @@ var numberOfItemsPerSection = 50;
 if (isMobile) {
   numberOfItemsPerSection = 25;
 }
+
+var usedStorage, allowedStorage;
 
 var lastActivityTime = (new Date()).getTime();
 var inactivityInterval = setInterval(inactiveTimer, 1000);
@@ -150,6 +145,29 @@ function hideProgress (callback) {
 ////////////////////////////////////////////////////////
 /////////////////// CONNECTION STATUS  /////////////////
 ////////////////////////////////////////////////////////
+
+var windowVisible;
+document.addEventListener('visibilityChange', handleVisibilityChange, false);
+
+$(window).on("focus", function () {
+  checkLatestVersion();
+  windowVisible = true;
+});
+
+$(window).on("blur", function () {
+  windowVisible = false;
+});
+
+function handleVisibilityChange() {
+  if (document[hidden]) {
+    // hidden
+    windowVisible = false;
+  } else {
+    // shown
+    checkLatestVersion();
+    windowVisible = true;
+  }
+}
 
 function connectionStatus (status) {
   connected = status; // boolean, true if connected
@@ -317,82 +335,21 @@ function sortByTitle (reverse){
 ////////////////// SIGN IN AND KEY /////////////////
 ////////////////////////////////////////////////////
 
-function getToken () {
-  if (!retokening) {
-    retokening = true;
-    firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
-
-      $.ajax({
-        url: tokenURL,
-        type: 'POST',
-        headers: {
-          "Authorization": "Bearer " + idToken
-        },
-        contentType: "application/json; charset=utf-8",
-        success: function(data) {
-          gotToken(data);
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-          console.log(thrownError);
-          retokening = false;
-        }
-      });
-    }).catch(function(error) {
-      if (error.code !== "auth/network-request-failed") {
-        handleError("Error Getting Token", error);
-      }
-      console.log("error getting token");
-      retokening = false;
-    });
-  }
-}
-
-function gotToken (tokenData) {
-  var token = tokenData;
-  firebase.auth().signInWithCustomToken(token).then(function(){
-    retokening = false;
-  }).catch(function(error) {
-    if (error.code !== "auth/network-request-failed") {
-      handleError("Error Signing In With Token", error);
-    }
-    // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
-    setTimeout(function() {
-      retokening = false;
-    }, 5000);
-    console.log("error signing in with token");
-  });
-}
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    //got user // if this is a reauth don't start process again.
-    if (reauthenticated) {
-      // console.log("reauthenticated");
-    } else {
-      reauthenticated = true;
-      theUser = user;
-      theUserID = theUser.uid;
-      theUsername = theUser.displayName;
-      theEmail = theUser.email;
+    //got user 
+    
+    createUserDBReferences(user);
 
-      rootRef = store.ref().child('/users/' + theUserID);
-      dataRef = db.ref().child('/users/' + theUserID + "/data/");
-      metaRef = db.ref().child('/users/' + theUserID + "/meta/");
-      homeRef = firestore.collection("users").doc(theUserID).collection("photos");
-      titlesRef = firestore.collection("users").doc(theUserID).collection("titles");
-
-      setSentryUser(theUserID);
-
-      $('.username').html(theUsername || theEmail);  
-
-      checkForExistingUser(function(){
-        if (keyToRemember) {
-          checkKey();
-        } else {
-          showKeyModal();
-        }
-      });
-    }
+    checkForExistingUser(function(){
+      if (keyToRemember) {
+        checkKey();
+      } else {
+        showKeyModal();
+      }
+    });
+    
 
     getToken();
     webAppURLController();
@@ -466,32 +423,6 @@ function rightKey (plaintext, hashedKey) {
   });
 }
 
-function wrongKey (error) {
-  setTimeout(function () {
-    $("#key-modal-decrypt-button").removeClass("is-loading");
-  }, 1000);
-  console.log("wrong key or ", error);
-  sessionStorage.removeItem('key');
-  showKeyModal();
-  $('#key-status').html('<span class="icon"><i class="fa fa-exclamation-triangle fa-fw fa-sm" aria-hidden="true"></i></span> Wrong key, please try again.');
-  $("#key-status").addClass("shown");
-  $("#key-modal-signout-button").addClass("shown");
-}
-
-function keyModalApproved () {
-  $('#key-status').html("Checking key");
-  var key = $('#key-input').val();
-  checkKey(key);
-}
-
-$("#key-input").on('keydown', function(e) {
-  setTimeout(function(){
-    lastActivityTime = (new Date()).getTime();
-    if (e.keyCode == 13) {
-      keyModalApproved();
-    }
-  },50);
-});
 
 
 
@@ -510,56 +441,9 @@ $("#key-input").on('keydown', function(e) {
 
 function signInComplete () {
 
-  connectedRef.on("value", function(snap) {
-    connectionStatus(snap.val());
-  });
-
-  metaRef.on('value', function(userMeta) {
-    if (userMeta.val() !== null) {
-      allowedStorage = userMeta.val().allowedStorage || freeUserQuotaInBytes;
-      usedStorage = userMeta.val().usedStorage || 0;
-      var paidOrNot = false;
-      if (userMeta.val().hasOwnProperty("plan") && userMeta.val().plan !== "") {
-        // paid user remove upgrade button
-        userPlan = userMeta.val().plan;
-        $("#upgrade-button").hide();
-        $("#low-storage-warning").removeClass('showLowStorage viaUpgradeButton');
-        closeExceededStorageModal();
-        if (usedStorage >= allowedStorage) {
-          showBumpUpThePlan(true);
-        } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
-          if (allowedStorage <= freeUserQuotaInBytes) {
-            showBumpUpThePlan(false);
-          } else {
-            if (usedStorage >= allowedStorage * 0.9) {
-              showBumpUpThePlan(false);
-            }
-          }
-        } else if (usedStorage <= (allowedStorage - 13000000000)) {
-          // this is 13GB because if user has 20GB, and using 7GB we'll downgrade to 10GB plan.
-          bumpDownThePlan();
-        }
-      } else {
-
-        if (usedStorage >= allowedStorage) {
-          $(".exceeded-storage").html(formatBytes(usedStorage + 100000 - allowedStorage));
-          exceededStorage();
-        } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage) {
-          $("#low-storage-warning").addClass('showLowStorage');
-        }
-        if (allowedStorage > paidUserThresholdInBytes) {
-          $("#upgrade-button").hide();
-          paidOrNot = true;
-        }
-      }
-
-      saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot);
-    }
-
-    dataRef.child("preferences").on('value', function(snapshot) {
-      gotPreferences(snapshot.val());
-    });
-  });
+  connectedRef.on("value", function(snap) { connectionStatus(snap.val()); });
+  metaRef.on('value', function(userMeta) { gotMeta(userMeta); });
+  dataRef.child("preferences").on('value', function(snapshot) { gotPreferences(snapshot.val()); });
 
   $(".photos-search").delay(750).animate({opacity: 1}, 500);
   $("#photos-top-nav").delay(750).animate({opacity: 1}, 500);    
@@ -1515,7 +1399,8 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
         }
       }
     } catch (e) {
-      if (base64FileContents) { handleError("Error reading photo in processPhotoForUpload",e); }
+      // commenting out this error since it just causes anxiety for corrupted files
+      // if (base64FileContents) { handleError("Error reading photo in processPhotoForUpload",e); }
       fileUploadError = true;
       showFolderUploadError();
       uploadElem =
@@ -2170,31 +2055,33 @@ function showMoveSelectionsModal() {
   showModal('photos-move-selections-modal');
 
   titlesRef.doc("home").get().then(function(titles) {
-    var encryptedTitlesObject = JSON.parse(titles.data().titles).data;
-    decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
-      $.each(JSON.parse(plaintext.data).folders, function(fid, ftitle) {
-        var parsedFilename = JSON.parse(ftitle);
-        var isCurrent = ""; if (fid === activeFID) { isCurrent = "is-current"; }
-        $("#photos-move-folders-list").append('<div class="column move-folder is-half" fname="'+parsedFilename+'"><button fid="'+fid+'" class="button is-fullwidth '+isCurrent+' photos-move-folders-list-item"><span class="icon is-small"><i class="fa fa-book"></i></span><span>'+parsedFilename+'</span></button></div>');
-      });
+    if (titles.data()) {
+      var encryptedTitlesObject = JSON.parse(titles.data().titles).data;
+      decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
+        $.each(JSON.parse(plaintext.data).folders, function(fid, ftitle) {
+          var parsedFilename = JSON.parse(ftitle);
+          var isCurrent = ""; if (fid === activeFID) { isCurrent = "is-current"; }
+          $("#photos-move-folders-list").append('<div class="column move-folder is-half" fname="'+parsedFilename+'"><button fid="'+fid+'" class="button is-fullwidth '+isCurrent+' photos-move-folders-list-item"><span class="icon is-small"><i class="fa fa-book"></i></span><span>'+parsedFilename+'</span></button></div>');
+        });
 
-      if (activeFID === "home") {
-        $("#move-folders-list-home").addClass("is-current");
-      } else {
-        $("#move-folders-list-home").removeClass("is-current");
-      }
-
-      $('.move-folder').sort(function(a, b) {
-        if ($(a).attr("fname") > $(b).attr("fname")) {
-          return -1;
+        if (activeFID === "home") {
+          $("#move-folders-list-home").addClass("is-current");
         } else {
-          return 1;
+          $("#move-folders-list-home").removeClass("is-current");
         }
-      }).appendTo('#photos-move-folders-list');
 
-      $("#move-folders-list-home").fadeIn(250);
-      $("#photos-move-folders-list").removeClass("is-loading");
-    });
+        $('.move-folder').sort(function(a, b) {
+          if ($(a).attr("fname") > $(b).attr("fname")) {
+            return -1;
+          } else {
+            return 1;
+          }
+        }).appendTo('#photos-move-folders-list');
+
+        $("#move-folders-list-home").fadeIn(250);
+        $("#photos-move-folders-list").removeClass("is-loading");
+      });
+    }
   });
 }
 
@@ -3760,7 +3647,7 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
 
   function useOriginal () {
     photoRef.getDownloadURL().then(function(originalDownloadURL) {
-      gotMeta(originalDownloadURL);
+      gotDownloadURL(originalDownloadURL);
     }).catch(function(error) {
       var errorText;
       error.pid = pid;
@@ -3781,7 +3668,7 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
 
   function useLightboxPrev () {
     lightRef.getDownloadURL().then(function(lightboxDownloadURL) {
-      gotMeta(lightboxDownloadURL);
+      gotDownloadURL(lightboxDownloadURL);
     }).catch(function(error) {
       if (error.code === 'storage/object-not-found') {
         // fallback for legacy photo without preview image. so load original.
@@ -3790,7 +3677,7 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
     });
   }
 
-  function gotMeta (downloadURL) {
+  function gotDownloadURL (downloadURL) {
 
     $.ajax({ url: downloadURL, type: 'GET',
         success: function(encryptedPhoto){
@@ -3836,7 +3723,7 @@ function loadNextFromPID (pid, callback, callbackParam) {
   nextPID = $("#sr-"+pid).next(".photos-search-result").attr("pid") || $(".photos-search-result").first().attr("pid") || $("#"+pid).nextUntil(".photoitem").last().next().attr("id") || $("#"+pid).next(".photoitem").attr("id") || $(".photoitem").first().attr("id");
   nextTitle = $("#sr-"+pid).next(".photos-search-result").attr("ptitle") || $(".photos-search-result").first().attr("ptitle") || $("#"+pid).nextUntil(".photoitem").last().next().find(".phototitle").val() || $("#"+pid).next(".photoitem").find(".phototitle").val() || $(".photoitem").first().find(".phototitle").val();
 
-  function gotMeta(photoURL) {
+  function gotDownloadURL(photoURL) {
     $.ajax({ url: photoURL, type: 'GET',
       success: function(encryptedPhoto){
         var encryptedB64 = JSON.parse(encryptedPhoto).data;
@@ -3861,12 +3748,12 @@ function loadNextFromPID (pid, callback, callbackParam) {
     $("#lightbox-next-photo-button").addClass("is-loading").show();
 
     nextLightboxRef.getDownloadURL().then(function(nextLightDownloadURL) {
-        gotMeta(nextLightDownloadURL);
+        gotDownloadURL(nextLightDownloadURL);
     }).catch(function(error) {
       if (error.code === 'storage/object-not-found') {
         // LEGACY PHOTO WITHOUT PREVIEW PHOTO, LOAD ORIGINAL INSTEAD.
         nextOriginalRef.getDownloadURL().then(function(nextOriginalDownloadURL) {
-          gotMeta(nextOriginalDownloadURL);
+          gotDownloadURL(nextOriginalDownloadURL);
         }).catch(function(error) {
           //
         });
@@ -3885,7 +3772,7 @@ function loadPrevFromPID (pid, callback, callbackParam) {
   prevPID = $("#sr-"+pid).prev(".photos-search-result").attr("pid") || $(".photos-search-result").last().attr("pid") || $("#"+pid).prevUntil(".photoitem").last().prev().attr("id") || $("#"+pid).prev(".photoitem").attr("id") || $(".photoitem").last().attr("id");
   prevTitle = $("#sr-"+pid).prev(".photos-search-result").attr("ptitle") || $(".photos-search-result").last().attr("ptitle") || $("#"+pid).prevUntil(".photoitem").last().prev().find(".phototitle").val() || $("#"+pid).prev(".photoitem").find(".phototitle").val() || $(".photoitem").last().find(".phototitle").val();
 
-  function gotMeta (photoURL) {
+  function gotDownloadURL (photoURL) {
     $.ajax({ url: photoURL, type: 'GET',
       success: function(encryptedPhoto){
         var encryptedB64 = JSON.parse(encryptedPhoto).data;
@@ -3910,12 +3797,12 @@ function loadPrevFromPID (pid, callback, callbackParam) {
     $("#lightbox-previous-photo-button").addClass("is-loading").show();
 
     prevLightboxRef.getDownloadURL().then(function(prevLightboxDownloadURL) {
-      gotMeta (prevLightboxDownloadURL);
+      gotDownloadURL (prevLightboxDownloadURL);
     }).catch(function(error) {
       if (error.code === 'storage/object-not-found') {
         prevOriginalRef.getDownloadURL().then(function(prevOriginalDownloadURL) {
           // LEGACY PHOTO WITHOUT PREVIEW PHOTO, LOAD ORIGINAL INSTEAD.
-          gotMeta (prevOriginalDownloadURL);
+          gotDownloadURL (prevOriginalDownloadURL);
         }).catch(function(error) {
           //
         });
@@ -4157,42 +4044,47 @@ $("#search-input").on('focus', function(event) {
 });
 
 function initSearch () {
-  //   get all titles.
-  searchArray = [];
-  $("#search-bar").find(".button").addClass("is-loading");
-  titlesRef.get().then(function(titles) {
-    var howManyFolders = titles.docs.length;
-    var currentFolderIndex = 0;
+  /// prevent an early click initiating initSearch – so check user id
+  /// I think some users have an issue with the initial animation
+  /// which exposes the search bar and people click quickly.
 
-    if (howManyFolders >= 1) {
-      titles.docs.forEach(function(titleObject){
-        var titlesOfFolder = titleObject.data().titles;
-        var fid = titleObject.id;
-        var encryptedTitlesObject = JSON.parse(titlesOfFolder).data;
-        decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
-          currentFolderIndex++;
-          titlesObject = JSON.parse(plaintext.data);
-          $.each(titlesObject.photos, function(pid, ptitle) {
-            var theParsedFilename = ptitle;
-            try { theParsedFilename = JSON.parse(ptitle); } catch (e) {}
-            var fname = titlesObject.self || 'Home';
-            searchArray.push({fid:fid, pid:pid, fname:fname, name:theParsedFilename});
+  if (theUserID) {
+    //   get all titles.
+    searchArray = [];
+    $("#search-bar").find(".button").addClass("is-loading");
+    titlesRef.get().then(function(titles) {
+      var howManyFolders = titles.docs.length;
+      var currentFolderIndex = 0;
+
+      if (howManyFolders >= 1) {
+        titles.docs.forEach(function(titleObject){
+          var titlesOfFolder = titleObject.data().titles;
+          var fid = titleObject.id;
+          var encryptedTitlesObject = JSON.parse(titlesOfFolder).data;
+          decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
+            currentFolderIndex++;
+            titlesObject = JSON.parse(plaintext.data);
+            $.each(titlesObject.photos, function(pid, ptitle) {
+              var theParsedFilename = ptitle;
+              try { theParsedFilename = JSON.parse(ptitle); } catch (e) {}
+              var fname = titlesObject.self || 'Home';
+              searchArray.push({fid:fid, pid:pid, fname:fname, name:theParsedFilename});
+            });
+            if(currentFolderIndex === howManyFolders) {
+              doneSearchIndexing();
+            }
           });
-          if(currentFolderIndex === howManyFolders) {
-            doneSearchIndexing();
-          }
         });
-      });
-    } else {
+      } else {
+        doneSearchIndexing();
+      }
+
+    }).catch(function(error) {
       doneSearchIndexing();
-    }
-
-  }).catch(function(error) {
-    doneSearchIndexing();
-    console.log("Error getting titles of all folders");
-    handleError("Error getting photo & album titles for search", error);
-  });
-
+      console.log("Error getting titles of all folders");
+      handleError("Error getting photo & album titles for search", error);
+    });
+  }
 }
 
 function doneSearchIndexing() {

@@ -281,12 +281,14 @@ $(window).on("load", function(event) {
   }
 
   if (isInWebAppiOS) {
-    var googleAuthUUID = localStorage.getItem('gauthUUID');
-    if (googleAuthUUID !== null) {
-      tryGettingIdTokenFromCrypteeGAuth(googleAuthUUID);
-    } else {
-      console.log("generating UUID for PWA Google Login");
-      generateNewUUIDForGoogleAuthOniOSPWA ();
+    if (!isIOSPWAAdvanced) {
+      var googleAuthUUID = localStorage.getItem('gauthUUID');
+      if (googleAuthUUID !== null) {
+        tryGettingIdTokenFromCrypteeGAuth(googleAuthUUID);
+      } else {
+        console.log("generating UUID for PWA Google Login");
+        generateNewUUIDForGoogleAuthOniOSPWA ();
+      }
     }
   }
 });
@@ -310,7 +312,7 @@ function tryGettingIdTokenFromCrypteeGAuth(googleAuthUUID) {
         headers: { "Authorization": "Bearer " + response.gauth },
         contentType:"application/json; charset=utf-8",
         success: function(data){
-          gotToken(data);
+          gotAuthToken(data);
         },
         error:function (xhr, ajaxOptions, thrownError){
           console.log("no google token found on server");
@@ -716,9 +718,41 @@ function logUser(newUser, username, key){
 
 function createUserWithGoogle () {
   signUpWithToken = true;
-  var provider = new firebase.auth.GoogleAuthProvider();
-  provider.addScope('email');
+  
   if (isInWebAppiOS) {
+    if (isIOSPWAAdvanced) {
+      usePopup(); 
+    } else {
+      useRedirect();
+    }
+  } else {
+    usePopup();
+  }
+
+  function usePopup() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    firebase.auth().signInWithPopup(provider).then(function(result) {
+      var token = result.credential.accessToken;
+      theUser = result.user;
+      theUserID = theUser.uid;
+      theEmail = theUser.email;
+      theEpoch = (new Date()).getTime();
+      $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
+    }).catch(function(error) {
+      if (error.code === "auth/missing-or-invalid-nonce") {
+        
+      } else {
+        console.log(error); // replacing this with a traditional console log because it only throws "user cancelled / closed popup error"
+        $("#signup-message > span").html("Something went wrong... We're terribly sorry. Please try again soon."); $("#signup-message").fadeIn(); $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+      }
+    });
+  }
+
+  function useRedirect() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+
     var leftForGoogleRedirect = true;
     sessionStorage.setItem('leftForGoogleRedirect', JSON.stringify(true));
     // firebase.auth().signInWithRedirect(provider);
@@ -734,18 +768,6 @@ function createUserWithGoogle () {
     dispatch.initEvent("click", true, true);
     a.dispatchEvent(dispatch);
 
-  } else {
-    firebase.auth().signInWithPopup(provider).then(function(result) {
-      var token = result.credential.accessToken;
-      theUser = result.user;
-      theUserID = theUser.uid;
-      theEmail = theUser.email;
-      theEpoch = (new Date()).getTime();
-      $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
-    }).catch(function(error) {
-      console.log(error); // replacing this with a traditional console log because it only throws "user cancelled / closed popup error"
-      $("#signup-message > span").html("Something went wrong... We're terribly sorry. Please try again soon."); $("#signup-message").fadeIn(); $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
-    });
   }
 }
 
@@ -798,7 +820,7 @@ function createUserWithSmartID () {
 }
 
 var tokenRetry = false;
-function gotToken(token) {
+function gotAuthToken(token) {
   $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
   firebase.auth().signInWithCustomToken(token).catch(function(error) {
     var errorCode = error.code;
@@ -809,10 +831,10 @@ function gotToken(token) {
     if (!tokenRetry) {
       setTimeout(function () {
         tokenRetry = true;
-        gotToken(token);
+        gotAuthToken(token);
       }, 2000);
     } else {
-      // ping("message",{msg : "gotTokenError"});
+      // ping("message",{msg : "gotAuthTokenError"});
       var goBackTo = "";
       if (pathTaken === "sid") {
         goBackTo = "sid";
@@ -837,7 +859,7 @@ function gotSIResponse (code, token) {
   }).done(function( response ) {
     if (response.crtoken) {
       // ping("message",{msg : "gotSidConfirmation"});
-      gotToken(response.crtoken);
+      gotAuthToken(response.crtoken);
     } else {
       console.log(response);
     }
@@ -858,7 +880,7 @@ function gotSIResponse (code, token) {
 //   }).done(function( response ) {
 //     if (response.crtoken) {
 //       // ping("message",{msg : "gotMidConfirmation"});
-//       gotToken(response.crtoken);
+//       gotAuthToken(response.crtoken);
 //     } else {
 //       console.log(response);
 //     }

@@ -40,6 +40,29 @@
     on/off here as you wish.</p>
 </div>
 
+<div class="account-card crypteecard" id="webclippers-card" style="display:none;">
+  <p><b>Webclippers</b></p>
+  <br>
+  <p style="clear:both;">Here is a list of all the webclippers you have authorized. If you don't use them anymore, or if you become aware of any suspicious activity, you can remove their authorization below.</p>
+  <div id="clippers-list">
+
+  </div>
+</div>
+
+<div class="account-card crypteecard" id="delete-webclips-card" style="display:none;">
+  <div class="field is-horizontal">
+    <div class="field-label">
+      <label class="label">Webclips</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control"><div type="button" class="button is-danger" id="delete-webclips-button" onclick="deleteWebclips();">Delete Webclips</div></p>
+      </div>
+    </div>
+  </div>
+  <p style="clear:both;">If you'd like to conveniently delete all your web clips, you can do this with one click here. <i>Please note that this action is irreversible.</i></p>
+</div>
+
 <div class="account-card crypteecard" id="encrypted-local-cache-card">
   <div class="field is-horizontal">
     <div class="field-label">
@@ -52,6 +75,20 @@
     </div>
   </div>
   <p style="clear:both;">Cryptee uses an encrypted, local cache on your device to speed things up a bit instead of downloading &amp; decrypting everything every single time. During bad network connectivity or frequent drop-outs, Cryptee falls back to this cache to keep running as expected, and reduce network dependency.<br><br>If you're experiencing issues that are <i>specific to this device</i>, like filenames not updating on this device or not sync'ing correctly to this device, you can try clearing your local cache here. If this doesn't help / solve your problem, please contact support using the "<b>?</b>" button on the top right corner of this page.</p>
+</div>
+
+<div class="account-card crypteecard" id="delete-offline-docs-card">
+  <div class="field is-horizontal">
+    <div class="field-label">
+      <label class="label">Offline Document Storage</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control"><div type="button" class="button is-dark" id="delete-offline-docs-button" onclick="deleteOfflineDocs();">Delete</div></p>
+      </div>
+    </div>
+  </div>
+  <p style="clear:both;">Cryptee uses an encrypted offline storage on your device to store all your offline documents. If you'd like to conveniently delete all your offline documents, you can do this with one click here.</p>
 </div>
 
 <div class="columns is-multiline">

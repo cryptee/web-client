@@ -3,12 +3,7 @@ var keyToRemember = JSON.parse(sessionStorage.getItem('key'));
 sessionStorage.removeItem('key');
 
 
-var theUser;
-var theUserID;
-var theUsername;
-var theEmail;
-var reauthenticated = false;
-var retokening = false;
+
 var rootRef;
 var contactsRef;
 var connectedRef = firebase.database().ref(".info/connected");
@@ -90,23 +85,9 @@ function gotToken(tokenData) {
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user // if this is a reauth don't start process again.
-    if (reauthenticated) {
-      // console.log("reauthenticated");
-    } else {
-      reauthenticated = true;
-      theUser = user;
-      theUserID = theUser.uid;
-      theUsername = theUser.displayName;
-      theEmail = theUser.email;
-
-      dataRef = db.ref().child('/users/' + theUserID + "/data/");
-      metaRef = db.ref().child('/users/' + theUserID + "/meta/");
-      rootRef = store.ref().child('/users/' + theUserID);
+          
+      createUserDBReferences(user);
       contactsRef = rootRef.child("contacts.crypteedoc");
-
-      setSentryUser(theUserID);
-
-      $('.username').html(theUsername || theEmail);
 
       checkForExistingUser(function(){
         if (keyToRemember) {
@@ -115,7 +96,7 @@ firebase.auth().onAuthStateChanged(function(user) {
           showKeyModal();
         }
       });
-    }
+    
 
     getToken();
 
@@ -186,29 +167,6 @@ function rightKey (plaintext, hashedKey) {
   });
 
 }
-
-function wrongKey (error) {
-  console.log("wrong key or ", error);
-  sessionStorage.removeItem('key');
-  showKeyModal();
-  $('#key-status').html("Wrong key, please try again.");
-}
-
-
-
-function keyModalApproved (){
-  $('#key-status').html("Checking key");
-  var key = $('#key-input').val();
-  checkKey(key);
-}
-
-$("#key-input").on('keydown', function (e) {
-  setTimeout(function(){
-    if (e.keyCode == 13) {
-        keyModalApproved ();
-    }
-  },50);
-});
 
 function signInComplete(){
   // check to see if user already has contacts. if so, then open contacts box.

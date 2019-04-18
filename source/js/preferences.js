@@ -64,7 +64,9 @@ $(document).ready(function() {
       ping("pageview", { dr : document.referrer });
     },
     error:function (xhr, ajaxOptions, thrownError){
-      handleError("Error getting locale",thrownError);
+      if (navigator.onLine) { // throw this error only if user is online.
+        handleError("Error getting locale",thrownError);
+      }
     }
   });
 });

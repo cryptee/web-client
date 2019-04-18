@@ -1,0 +1,127 @@
+@import url('https://static.crypt.ee/fonts/montserrat-regular.css');
+@import url('https://static.crypt.ee/fonts/montserrat-semibold.css');
+
+body, body * {
+    font-family: 'Montserrat', sans-serif !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+}
+
+h2:not(.post-title) {
+    font-size: 1.5em;
+    line-height: 2;
+}
+
+h2.post-title {
+    font-size: 2em;
+}
+
+body:before {
+    height: 3px;
+    width: 100%;
+    content: "";
+    background-color: #4bbf73;
+    display: block;
+}
+
+input[type="submit"] {
+    background-color: #363636;
+    text-transform: uppercase;
+    border: none;
+    padding: 9px 15px;
+    border-radius: 30px;
+    margin-left: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    font-size: 13px;
+    cursor:pointer;
+}
+
+input[type="submit"]:hover {
+    background-color:#000;
+}
+
+input[type="email"] {
+    border: 1px solid #999;
+    border-radius: 30px;
+    padding: 9px 20px;
+    font-size: 13px;
+}
+
+#blog-title {
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    box-shadow: none;
+	outline: none;
+}
+
+#blog-title a[href="/"] {
+    margin: auto;
+    display: block;
+    text-align: center;   
+    box-shadow: none;
+	outline: none;
+}
+
+#blog-title a[href="/"]:before {
+    content: "";
+    position: relative;
+    clear: both;
+    display: block;
+    margin: auto;
+    background-image: url(https://crypt.ee/assets/cryptee-logo-b.png);
+    width: 30px;
+    height: 40px;
+    background-size: 30px;
+    background-repeat: no-repeat;
+    margin-bottom: 15px;
+    box-shadow: none;
+	outline: none;
+}
+
+.e-content {
+    line-height: 1.4em;
+}
+
+.e-content p {
+    margin-bottom: 1rem !important;
+    display: inline-block !important;
+    font-size: 16px;
+}
+
+.e-content p a {
+    text-decoration: underline;
+    color: #000;
+    font-weight: 600;
+}
+
+.e-content hr {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+    font-size: 16px;
+}
+
+hr {
+    margin: 2em auto !important;
+}
+
+article:not(.post-body) {
+    padding-bottom: 4rem !important;
+    border-bottom: 1px #000 solid;
+}
+
+
+
+
+
+
+
+
+
+/* FOOTER */
+#subscribe {
+    margin-bottom: 2rem;
+}
+
+footer nav, footer hr {
+    display:none;
+}

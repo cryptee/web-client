@@ -1,0 +1,179 @@
+/*///////////////////////////////////////////////////
+////////////////////// GENERAL //////////////////////
+///////////////////////////////////////////////////*/
+
+.clipper-body, html {
+	background: #F5F5F5;
+	min-height: 100%;
+	scroll-snap-type: y mandatory;
+}
+
+.clipper-column {
+	/* same as docs page width for optical OCD's sake */
+	max-width: calc(100% - 320px + 1rem);
+	margin: auto auto 0.5rem auto !important;
+}
+
+#main-progress {
+	margin-top: 0;
+	margin-bottom: 0;
+	height: 3px !important;
+}
+
+.shownForOffline {
+  display: none;
+}
+
+.disabledForOffline.disabled {
+  pointer-events: none;
+  opacity: 0.3;
+  filter: blur(1px);
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// NAV //////////////////////////
+///////////////////////////////////////////////////*/
+
+#clipper-app-nav {
+	margin-top: 1rem;
+	height: 3rem;
+}
+
+#left-nav {
+	float: left;
+	text-align: left;
+	top: 0;
+	left: 0;
+}
+
+#right-nav {
+	float: right;
+	text-align: right;
+	top: 0;
+	right: 0;
+}
+
+.clipper-app-nav-item {
+  width: auto;
+  height: 2rem;
+  display: inline-block;
+  margin-left: 1rem;
+  vertical-align: middle;
+}
+
+.clipper-app-nav-item img {
+  width: auto;
+  height: 2rem;
+}
+
+#upgrade-button, #donate-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(10,10,10,0.1);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#help-button, #signout-button, #settings-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2rem;
+  height: 4rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  z-index: 12;
+  color : #999;
+  font-size: 16px;
+  transition: 0.5s color ease, 1s opacity ease;
+  opacity: 1;
+  pointer-events: all;
+}
+
+#help-button.itsMobile, #signout-button.itsMobile, #settings-button.itsMobile {
+  top: 3px;
+  width: 3rem !important;
+  height: 3rem !important;
+}
+
+#signout-button {
+	right : 2.5rem;
+}
+
+#settings-button {
+	right: 5.5rem;
+}
+
+#done {
+    opacity: 0;
+    pointer-events: none;
+    transition: 1s opacity ease;
+}
+
+#done.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.columns:not(#authenticating) {
+    text-align: center;
+}
+
+#already img, #done img {
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// VISUALS //////////////////////
+///////////////////////////////////////////////////*/
+
+.browser-bar {
+    height: 30px;
+    overflow: hidden;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.browser-bar img {
+    height:30px;
+    object-fit: cover; 
+    object-position: left;
+}
+
+.address-bar {
+    height: 30px;
+    background-color:rgb(38, 38, 38);
+    padding: 0 10px 5px 5px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.address-bar p {
+   width: calc(100% - 30px);
+   background-color: #363636;
+   padding-left:3px;
+   font-size: 10px;
+   line-height: 25px;
+   color: #f5f5f5; 
+   border-radius: 30px;
+   display: inline-block;
+}
+
+.address-bar img {
+    margin-top: 2.5px;
+    height: 20px;
+    display: inline-block;
+    float: right;
+}
+
+.clipper-icon-info {
+    width: calc(100% - 30px);
+    display: inline-block;
+}
+
+.clipper-icon-arrow {
+    display: inline-block;
+    float: right;
+}

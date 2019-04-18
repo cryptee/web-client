@@ -132,6 +132,7 @@ var MarkdownShortcuts = function () {
         setTimeout(function () {
           _this.quill.formatLine(selection.index, 0, 'header', size - 1);
           _this.quill.deleteText(selection.index - size, size);
+          try { tribute.hideMenu(); } catch (error) {}
         }, 0);
       }
     }, {
@@ -393,7 +394,10 @@ var MarkdownShortcuts = function () {
 
             var matchedText = text.match(match.pattern);
             if (matchedText) {
-              console.log('matched', match.name, text);
+              if (location.origin.indexOf("crypt.ee") === -1) {
+                // we're on testing env. log to console.
+                console.log('matched', match.name, text);    
+              }
               match.action(text, selection, match.pattern, lineStart);
               return;
             }

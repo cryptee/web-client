@@ -154,6 +154,7 @@
 	border-top-right-radius: 1.5rem;
 	font-size : 10px;
 	pointer-events: none;
+	transition: 0.5s color ease, 0.5s background-color ease;
 }
 
 .home-item {

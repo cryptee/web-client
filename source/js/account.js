@@ -1,19 +1,12 @@
-var theUser;
-var theUserID;
-var theUsername;
-var theEmail;
+
 var thePhone;
 var thePersonalCode;
 var theOrders, theReturns;
-var emailVerified;
 var connectedRef;
-var dataRef;
-var metaRef;
+
 var ordersRef;
 var foldersRef;
-var rootRef;
-var db = firebase.database();
-var store = firebase.storage();
+
 var firestore = firebase.firestore();
 var cloudfunctions = firebase.functions();
 
@@ -128,7 +121,7 @@ $(".menu-list").on('click', 'li', function(event) {
 
 function loadTab(whichTab) {
 
-  if (whichTab === "history") {
+  if (whichTab === "history" || whichTab === "payments-plan") {
     theKey = null;
     loadJS('https://cdn.paddle.com/paddle/paddle.js', function(){
       paddleInit();
@@ -203,7 +196,9 @@ $(window).on('load', function(event) {
 //////////////////////////////////////////////////////////
 //////////////////// AUTHENTICATION  /////////////////////
 //////////////////////////////////////////////////////////
+checkForAction();
 
+connectedRef = db.ref(".info/connected");
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (!user) {
@@ -219,20 +214,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   } else {
     //got user
     if (!reauthenticated) {
-      theUser = user;
-      theUserID = theUser.uid;
-      theUsername = theUser.displayName;
-      theEmail = theUser.email;
-      emailVerified = theUser.emailVerified;
-      connectedRef = firebase.database().ref(".info/connected");
-      dataRef = db.ref().child('/users/' + theUserID + "/data/");
-      metaRef = db.ref().child('/users/' + theUserID + "/meta/");
-      ordersRef = db.ref().child('/users/' + theUserID + "/orders/");
-      returnsRef = db.ref().child('/users/' + theUserID + "/returns/");
-      foldersRef = db.ref().child('/users/' + theUserID + "/data/folders/");
-      photosRef = firestore.collection("users").doc(theUserID).collection("photos");
-      rootRef = store.ref().child('/users/' + theUserID);
-      setSentryUser(theUserID);
+      createUserDBReferences(user);
 
       gotUser();
       reauthenticated = false;
@@ -274,7 +256,7 @@ function gotUser() {
       $("#navbar-card").show();
     }
 
-    $("#upgrade-email").show();
+    $("#upgrade-email").slideDown();
 
   } else {
     // if not anonymous email
@@ -284,7 +266,7 @@ function gotUser() {
     $("#upgrade-email-input").val(theEmail);
     if (!emailVerified) {
       $("#noemail").show();
-      $("#upgrade-email").show();
+      $("#upgrade-email").slideDown();
     }
   }
 
@@ -309,7 +291,7 @@ function gotUser() {
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
     encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
   });
-  checkForAction();
+  
 }
 
 function checkForAction() {
@@ -393,6 +375,19 @@ function gotUserData (data) {
       }
     }
 
+    if (data.clips) {
+      $("#delete-webclips-card").show();
+    } else {
+      $("#delete-webclips-card").hide();
+    }
+
+    if (data.clippers) {
+      $("#webclippers-card").show();
+      showClippers(data.clippers);
+    } else {
+      $("#webclippers-card").hide();
+    }
+    
     var deleteCanceledError = false;
     if (data.deletemecode) {
       if (data.deletemecode !== "") {
@@ -1455,7 +1450,7 @@ function checkCurrentKey (typedKey, callback) {
 
 
 
-
+// CLEAR LOCAL CACHE
 
 if (localStorage.getItem("encryptedCatalog")) {
   $("#encrypted-local-cache-card").show();
@@ -1470,12 +1465,119 @@ function clearLocalCache() {
 
 
 
+//  DELETE OFFLINE DOCUMENTS
+var offlineDocsStorage = localforage.createInstance({ name: "offlineStorage" });
+var hasOfflineDocs = false;
+offlineDocsStorage.iterate(function(doc, did, i) {
+  if (doc) {
+    hasOfflineDocs = true;
+  }
+}).then(function() {
+  if (hasOfflineDocs) {
+    $("#delete-offline-docs-card").show();
+  } else {
+    $("#delete-offline-docs-card").hide();
+  }
+});
+
+function deleteOfflineDocs() {
+  offlineDocsStorage.clear().then(function() {
+    $("#delete-offline-docs-button").html("Deleted").addClass("is-success").prop('disabled', true).attr('disabled', true);
+  });
+}
 
 
 
 
 
+//  DELETE ALL WEB CLIPS
 
+function deleteWebclips() {
+  var clipRefsArray = [];
+  var totalToDelete = 0;
+  
+  // ITERATE THROUGH ALL WEBCLIPS IN STORAGE AND DELETE THEM. 
+  dataRef.child("clips").once('value', function(snapshot) {
+    var snap = snapshot.val();
+    if (snap) {
+      $.each(snap, function(i, wcid){
+        var clipRef = rootRef.child("wc-" + wcid + ".crypteeclip");
+        clipRefsArray.push(clipRef);
+      });
+      
+      totalToDelete = clipRefsArray.length;
+
+      $.each(clipRefsArray, function(index, clipRef) {
+          clipRef.delete().then(function() {
+            totalToDelete--;
+            areAllClipsDeleted();
+          }).catch(function(error) {
+            totalToDelete--;
+            areAllClipsDeleted();
+            if (error.code !== "storage/object-not-found") {
+              handleError("Error Deleting Webclip", error);
+            }
+          });
+      });
+    }
+  });
+
+  function areAllClipsDeleted() {
+    if (totalToDelete <= 0) {
+      dataRef.child("clips").remove().then(function() {
+        $("#delete-webclips-button").html("Deleted").removeClass("is-danger").addClass("is-success").prop('disabled', true).attr('disabled', true);
+      });
+    }
+  }
+  
+}
+
+
+
+function showClippers(clippers) {
+  $.each(clippers, function(wcid, clipper){
+    if ($('.clipper[wcid="'+wcid+'"]').length === 0) {
+      $("#clippers-list").append(renderClipper(wcid, clipper));
+    }
+  });
+}
+
+function renderClipper(wcid, clipper) {
+  var clipperElement = '<div class="clipper media" wcid="'+wcid+'">'+
+    '<div class="media-left">'+
+      '<span class="clipper-icon icon"><i class="fa fa-'+resolveBrowserIcon(clipper.browser.name)+'"></i></span>'+
+    '</div>'+
+    '<div class="media-content">'+
+      '<p class="browser">'+clipper.browser.name+' on '+clipper.os+'</p>'+
+      '<div class="remove-clipper-button" wcid="'+wcid+'">Remove</div>'+
+    '</div>'+
+  '</div>';
+
+  return clipperElement;
+}
+
+$("#clippers-list").on('click', ".remove-clipper-button" ,function() {
+  var wcid = $(this).attr("wcid");
+
+  dataRef.child("clippers/" + wcid).remove().then(function() {
+    $('.clipper[wcid="'+wcid+'"]').remove();
+  });
+}); 
+
+function resolveBrowserIcon(browser) {
+  var icon = "laptop";  
+  
+  if (browser) {
+    //intentionally excluding first letter to not have to worry about uppercase letter
+    if (browser.indexOf("hrome") > -1) { icon = "chrome"; }
+    if (browser.indexOf("pera") > -1) { icon = "opera"; }
+    if (browser.indexOf("irefox") > -1) { icon = "firefox"; }
+    if (browser.indexOf("afari") > -1) { icon = "safari"; }
+    if (browser.indexOf("dge") > -1) { icon = "edge"; }
+  }  
+
+  return icon;
+}
 
 
 

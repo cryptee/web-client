@@ -64,6 +64,11 @@ function exceededStorage(callback, callbackParam) {
   getToken();
   if (!huaExceededStorage) {
     $("#exceeded-modal").addClass("is-active");
+    if (location.pathname.replace("/", "") === "home") {
+      showExceededAtHome();
+    } else {
+      breadcrumb('Displaying Exceeded Storage');
+    }
   }
 }
 
@@ -79,4 +84,19 @@ $("#low-storage-warning > .notification > .delete").on('click', function(event) 
 
 function upgradeFromExceed() {
   window.location = "account?action=upgrade";
+}
+
+function showExceededAtHome() {
+  breadcrumb('Displaying Exceeded Storage @ Home');
+  $(".usage-progress").removeClass("is-dark is-warning").addClass("is-danger");
+  $("#home-welcome-card").find(".usage").css({"backgroundColor" : "#d9534f", "color" : "#FFF"});
+  $("#app-buttons-level").fadeOut(500, function() {
+    $("#exceeded-home").fadeIn();
+  });
+}
+
+function closeExceededAtHome() {
+  $("#exceeded-home").fadeOut(500, function() {
+    $("#app-buttons-level").fadeIn();
+  });
 }

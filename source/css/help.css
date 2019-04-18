@@ -136,6 +136,7 @@ blockquote *:not(code) {
 }
 
 .help-card {
+  box-shadow: 0 0.25rem 0.5rem rgba(10, 10, 10, 0.1);
   background-color: #FFF;
   padding: 2rem;
 }
@@ -149,6 +150,7 @@ blockquote *:not(code) {
 .help-img-card {
   background-color: #FFF;
   overflow: hidden;
+  margin-bottom: 1.5rem;
 }
 
 .help-img-card img {
