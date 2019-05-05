@@ -2752,7 +2752,7 @@ function processTitles (titlesObject, contents, callback) {
         activeItemsObject[id].thumb = item.data().thumb;
       }
     } else {
-      breadcrumb("[Process Titles] Caught item without id in fstore : " + JSON.stringify(item));
+      breadcrumb("[Process Titles] Caught item without id in fstore : " + item.ref.path);
       if (!isMobile) { tryFixingFiles = true; }
     }
 
