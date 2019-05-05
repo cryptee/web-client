@@ -76,22 +76,6 @@ key('esc', function(){
   lastActivityTime = (new Date()).getTime();
 });
 
-key('right', function(){
-  if ($("#lightbox-modal").hasClass("is-active")) {
-    showNextPhoto();
-  }
-  lastActivityTime = (new Date()).getTime();
-});
-
-key('left', function(){
-  if ($("#lightbox-modal").hasClass("is-active")) {
-    showPrevPhoto();
-  }
-  lastActivityTime = (new Date()).getTime();
-});
-
-
-
 ////////////////////////////////////////////////////
 ////////////// FIRESTORE BATCH DELETE //////////////
 ////////////////////////////////////////////////////
@@ -449,7 +433,14 @@ function signInComplete () {
   $("#photos-top-nav").delay(750).animate({opacity: 1}, 500);    
 
   if (getUrlParameter("p")) {
-    loadPhoto(getUrlParameter("p"), "", "display");
+    var pidToLoad = getUrlParameter("p");
+    var slideIndex = getSlideIndex(pidToLoad);
+    
+    // don't load if it's not a photo in current folder
+    if (slideIndex !== undefined) { 
+      loadPhoto(getUrlParameter("p"), "", "display");
+    }
+
     getHomeFolder();
   } else if (getUrlParameter("f")) {
     getAllFilesOfFolder(getUrlParameter("f"));
@@ -463,6 +454,7 @@ function signInComplete () {
       showCanvasBlockedModal();
     }, 1000);
   }
+
 }
 
 
@@ -662,9 +654,9 @@ function sadlyPurgeFile(pidOrTid) {
       }).catch();
     }).catch(function(error) {
       if (error.code === "storage/object-not-found") {
-        thumbRef.delete();
-        whereFrom.delete();
-        lightRef.delete();
+        thumbRef.delete().catch();
+        whereFrom.delete().catch();
+        lightRef.delete().catch();
         if (activeFID !== "home") {
           var adjustmentCount = 0 - Object.keys(selectionsObject).length;
           adjustFolderCount (activeFID, adjustmentCount, isFolderThumbDeleted);
@@ -1421,7 +1413,7 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
     fileUploadError = true;
     document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
     if (!folderUploadError && canUploadFolders) {
-      handleError("Error reading photo in processPhotoForUpload",err);
+      handleError("Error reading photo in processPhotoForUpload", err, "warning");
       uploadElem =
       '<div class="upload" id="upload-'+file.name+'-'+file.size+'">'+
         '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -1591,7 +1583,7 @@ function handleUploadError (pid, filename, error, callback, callbackParam) {
       isUploading = false;
       uploadRetryFailed(pid, callback, callbackParam);
     } else {
-      handleError("Error while uploading photo",error);
+      handleError("Error while uploading photo", error, "warning");
       var uploadElem =
       '<div class="upload" id="upload-'+pid+'">'+
         '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -1974,6 +1966,9 @@ function adjustFolderCount (fid, adjustment, forceGenerateThumb, callback, callb
     });
   });
 }
+
+
+// MOVE PHOTOS (MOVE ITEMS OR MOVE SELECTIONS) 
 
 function moveSelectionsToFolder (arrayOfPIDsToMove, toFolderID, indexToMove, thumbnailIsMoving, callback, callbackParam) {
   callback = callback || noop;
@@ -2382,7 +2377,7 @@ function renderFolder (fid, fcount, fname, pinky, thumb, callback, callback2, ca
   var year = yearFromTitle(theParsedFoldername);
   var titleWithoutYear = yearOmittedTitle(theParsedFoldername);
 
-  var folderDivOpener = '<div name="'+theParsedFoldername+'" class="column is-full folder-content albumitem" id="'+fid+'" fcount="'+ (year || fcount) +'" style="'+dominant+'">';
+  var folderDivOpener = '<div photositemname="'+theParsedFoldername+'" class="column is-full folder-content albumitem" id="'+fid+'" fcount="'+ (year || fcount) +'" style="'+dominant+'">';
   var folderHTML =
     '<div class="album '+loadingColor+'" style="'+dominant+'">'+
       pinkyObj +
@@ -2437,7 +2432,7 @@ function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
     }
   }
 
-  var photoDivOpener = '<div name="'+theParsedFilename+'" class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem '+isItSelected+'" id="'+pid+'" style="'+dominant+'">';
+  var photoDivOpener = '<div photositemname="'+theParsedFilename+'" class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem '+isItSelected+'" id="'+pid+'" style="'+dominant+'">';
   var photoHTML =
     '<div class="photo '+isItLoading+' '+loadingColor+'" style="'+dominant+'">'+
       imgElem +
@@ -2482,34 +2477,36 @@ function renderDOMElement (id){
 
 
 
-function renderFolderShell(id, pinky, title, count) {
-  pinky = pinky || "246,246,246";
-  dominant = ""; // optional, removing could speed up painting & reflow
+function renderFolderShell(id, title, count) {
   var year = yearFromTitle(title);
-  var html = "<div photositemname='"+title+"' class='column is-full folder-content albumitem shell' id='"+id+"' style='"+dominant+"' fcount='"+ (year || count) +"'><progress class='progress is-small is-dark'></progress></div>";
+  var html = "<div photositemname='"+title+"' class='column is-full folder-content albumitem shell' id='"+id+"' fcount='"+ (year || count) +"'><progress class='progress is-small is-dark'></progress></div>";
   return html;
 }
 
-function renderPhotoShell (id, pinky, title) {
+function renderPhotoShell (id, title) {
   var theParsedFilename = "";
   try { theParsedFilename = JSON.parse(title); } catch (e) { theParsedFilename = title; }
-
   theParsedFilename = titleFromFilename(theParsedFilename);
-  // pinky = pinky || "246,246,246";
-  // dominant = "background-color:rgb(" + pinky + ");"; // optional, removing could speed up painting & reflow
-  dominant = "";
-  var html = "<div photositemname='"+theParsedFilename+"' class='column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem shell' id='"+id+"' style='"+dominant+"'></div>";
+  var html = "<div photositemname='"+theParsedFilename+"' class='column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem shell' id='"+id+"'></div>";
   return html;
 }
 
 function renderDOMShell (id) {
   var shellElement = "";
-  if (id.startsWith('p-')) {
-    shellElement = renderPhotoShell(id, activeItemsObject[id].pinky, activeItemsObject[id].title);
-  } else if (id.startsWith('f-')) {
-    shellElement = renderFolderShell(id, activeItemsObject[id].pinky, activeItemsObject[id].title, activeItemsObject[id].count);
-  } else { // wtf. neither photo nor folder.
+
+  if (activeItemsObject[id]) {
+    if (id.startsWith('p-')) {
+      shellElement = renderPhotoShell(id, activeItemsObject[id].title);
+    } else if (id.startsWith('f-')) {
+      shellElement = renderFolderShell(id, activeItemsObject[id].title, activeItemsObject[id].count);
+    } else { 
+      // wtf. neither photo nor folder.
+    }
+  } else {
+    handleError("User has an item that's not in activeItemsObject", {"id": id});
+    // somehow item isn't in activeItemsObject. wtf. soooo not adding. since it's better than crashing. but wtf. 
   }
+
   return shellElement;
 }
 
@@ -2738,6 +2735,8 @@ function processTitles (titlesObject, contents, callback) {
   // AND ADD TO active Items Object
   /////////////////////////////////////////
 
+  breadcrumb("[Process Titles] Adding all items from fstore to activeItemsObject.");
+
   var tryFixingFiles = false;
   contents.forEach(function(item) {
 
@@ -2753,6 +2752,7 @@ function processTitles (titlesObject, contents, callback) {
         activeItemsObject[id].thumb = item.data().thumb;
       }
     } else {
+      breadcrumb("[Process Titles] Caught item without id in fstore : " + JSON.stringify(item));
       if (!isMobile) { tryFixingFiles = true; }
     }
 
@@ -2763,12 +2763,14 @@ function processTitles (titlesObject, contents, callback) {
   // AND ADD TO active Items Object
   /////////////////////////////////////////////
 
+  breadcrumb("[Process Titles] Adding all folder titles from titlesObject to activeItemsObject.");
   $.each(titlesObject.folders, function(fid, ftitle) {
     var parsedFilename = JSON.parse(ftitle);
     activeItemsObject[fid] = activeItemsObject[fid] || {};
     activeItemsObject[fid].title = parsedFilename;
   });
 
+  breadcrumb("[Process Titles] Adding all photo titles from titlesObject to activeItemsObject.");
   $.each(titlesObject.photos, function(pid, ptitle) {
     var parsedFilename = "";
     try { parsedFilename = JSON.parse(ptitle); } catch (e) { parsedFilename = ptitle; }
@@ -2783,6 +2785,7 @@ function processTitles (titlesObject, contents, callback) {
 
   var ghostElement;
   if (somethingSummoned) {
+    breadcrumb("[Process Titles] Adding summoned folder title to activeItemsObject. (" + summonedFID + ")");
     activeItemsObject[summonedFID].title = summonedTitle;
     somethingSummoned = false;
     summonedFID = "";
@@ -2794,18 +2797,38 @@ function processTitles (titlesObject, contents, callback) {
   // IN active Items Object - SORT ALL TITLES
   /////////////////////////////////////////////////
 
+  breadcrumb("[Process Titles] activeItemsObject ready. Sorting titles.");
+
   // [[id, title], [id, title]]
   // item[0] is the id, item[1] is the filename
   var itemsArray = sortItemsObject();
   var sortedDOMArray = [];
-
+  
+  // remove all lightbox events to stop thousands of slideChange events from triggering.
+  // and remove all slides from lightbox 
+  try { lightbox.off('slideChange'); } catch (e) {}
+  lbox.removeAllSlides(); 
+  
+  breadcrumb("[Process Titles] Sorted. Rendering DOM Shells");
   // insert dom elements into the sortedDOMArray in correct order.
   itemsArray.forEach(function (item, index) {
     // item[0] is the id, item[1] is the filename
     var shellElement = renderDOMShell(item[0]);
     sortedDOMArray.push(shellElement);
 
+    // if it's a photo, add a shell div to lightbox slider
+    // you will then go to this slide, and fill this div with image later
+    // don't worry these are virtualized, and only the current, prev and next
+    // slides are in DOM. Others aren't. 
+
+    if (item[0].startsWith("p-")) {
+      lbox.appendSlide("<div pid='"+item[0]+"'></div>");
+    }
   });
+  
+  lbox.update();
+
+  breadcrumb("[Process Titles] Inserting DOM Shells");
 
   // now we have a pre-sorted sortedDOMArray which has all photo and album objects
   // add this and ghost element to dom in a single joint chunk
@@ -2815,11 +2838,17 @@ function processTitles (titlesObject, contents, callback) {
     addIntersectionObserver (this);
   });
 
+  // now that all slides are in the lightbox, start listening for slideChange again.
+  lightbox.on('slideChange', lightboxPhotoChanged);
+  
   callback();
 
   if (tryFixingFiles) {
+    breadcrumb("[Process Titles] Completed with errors. Will try fixing.");  
     tryFixingFiles = false;
     fixFilesAndFolders();
+  } else {
+    breadcrumb("[Process Titles] Completed."); 
   }
 }
 
@@ -3626,30 +3655,327 @@ $("#folder-contents").on("click", '.photoitem', function(event) {
 function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
   callback = callback || noop;
   if (pid !== "" && pid !== " " && pid !== undefined && pid !== null) {
-    preparingToDisplayPhoto = pid;
     $("#" + pid).find(".photo").addClass("is-loading");
-
-    var lid = pid.replace("p", "l");
-    var photoRef = rootRef.child(pid + ".crypteefile");
-    var lightRef = rootRef.child(lid + ".crypteefile");
 
     if (displayOrDownload === "download"){
       // use original
-      useOriginal();
+      getLightboxDownloadURL(pid, function(downloadURL){
+        gotDownloadURL(downloadURL);
+      }, true);
     } else {
       // TRY USING LIGHTBOX
-      useLightboxPrev();
+      preparingToDisplayPhoto = pid;
+      if (isImgInLightboxCache(pid)) {
+        // IMG ALREADY IN CACHE, DISPLAY RIGHT AWAY
+        displayPhoto(pid);
+      } else {
+        // not in cache, download instead
+        getLightboxDownloadURL(pid, function(downloadURL){
+          gotDownloadURL(downloadURL);
+        });
+      }
     }
-
   } else {
     handleError("Error loading Photo. Blank PID.");
   }
 
-  function useOriginal () {
-    photoRef.getDownloadURL().then(function(originalDownloadURL) {
-      gotDownloadURL(originalDownloadURL);
+  function gotDownloadURL (downloadURL) {
+    if (downloadURL) {
+      $.ajax({ url: downloadURL, type: 'GET',
+        success: function(encryptedPhoto){
+          photoLoaded(pid, ptitle, encryptedPhoto, displayOrDownload, callback, callbackParam);
+        },
+        error:function (xhr, ajaxOptions, thrownError){
+          console.log(thrownError);
+          setTimeout(function(){ window.location.reload(); }, 2500);
+        }
+      }).progress(function(e) {
+        $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
+      });
+    } else {
+      console.log(thrownError);
+      setTimeout(function(){ window.location.reload(); }, 2500);
+    }
+  }
+
+}
+
+
+
+
+var queuePhoto;
+function photoLoaded (pid, ptitle, encryptedPhoto, displayOrDownload, callback, callbackParam) {
+  callback = callback || noop;
+  displayOrDownload = displayOrDownload || "display";
+  var encryptedB64 = JSON.parse(encryptedPhoto).data;
+  $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
+  decrypt(encryptedB64, [theKey]).then(function(plaintext) {
+    $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
+    var decryptedPhoto = plaintext.data;
+    if (displayOrDownload === "download"){
+      downloadPhotoToDisk(pid, ptitle, decryptedPhoto, callback, callbackParam);
+    } else {
+      displayPhoto(pid, decryptedPhoto, callback, callbackParam);
+    }
+  });
+}
+
+function displayPhoto (pid, pb64, callback, callbackParam) {
+  callback = callback || noop;
+
+  var slideIndex = getSlideIndex(pid);
+
+  // this will make sure the div is now in DOM (and not just in virtual slider DOM) so that you can add the image into it
+  lightbox.slideTo(slideIndex, null, false);   
+  
+  // if photo is in cache, and in fact in the, no need to add again. 
+  addImgToDOMIfNotAlreadyInCache(pid, pb64);
+
+  setTimeout(function () {
+    // wait for the DOM to update on slow devices. we're injecting b664 inline here. ugh. sorry. 
+    showModal("lightbox-modal");
+    lightboxPhotoChanged(pid); 
+  }, 20);
+
+  callback(callbackParam);
+}
+
+
+
+function preloadNextSlide (nextPID, callback, callbackParam) {
+  callback = callback || noop;
+  // nextPID = nextPID || $("#sr-"+pid).next(".photos-search-result").attr("pid") || $(".photos-search-result").first().attr("pid") || $("#"+pid).nextUntil(".photoitem").last().next().attr("id") || $("#"+pid).next(".photoitem").attr("id") || $(".photoitem").first().attr("id");
+
+  if (nextPID !== undefined) {
+    $("#lightbox-spinner").addClass("wait");
+    getLightboxDownloadURL(nextPID, function(downloadURL){
+      gotNextOrPrevLightboxDownloadURL(downloadURL, nextPID, callback, callbackParam);
+    });
+  }
+}
+
+
+
+function preloadPrevSlide (prevPID, callback, callbackParam) {
+  callback = callback || noop;
+  // prevPID = prevPID || $("#sr-"+pid).prev(".photos-search-result").attr("pid") || $(".photos-search-result").last().attr("pid") || $("#"+pid).prevUntil(".photoitem").last().prev().attr("id") || $("#"+pid).prev(".photoitem").attr("id") || $(".photoitem").last().attr("id");  
+      
+  if (prevPID !== undefined) {
+    $("#lightbox-spinner").addClass("wait");
+    getLightboxDownloadURL(prevPID, function(downloadURL){
+      gotNextOrPrevLightboxDownloadURL(downloadURL, prevPID, callback, callbackParam);
+    });
+  }
+}
+
+function gotNextOrPrevLightboxDownloadURL(downloadURL, pid, callback, callbackParam) {
+  callback = callback || noop;
+  if (pid) {
+    if (downloadURL) {
+      $.ajax({ url: downloadURL, type: 'GET',
+        success: function(encryptedPhoto){
+          var encryptedB64 = JSON.parse(encryptedPhoto).data;
+          decrypt(encryptedB64, [theKey]).then(function(plaintext) {
+            var b64 = plaintext.data;
+
+            // if photo is in cache, and in fact in the, no need to add again. 
+            addImgToDOMIfNotAlreadyInCache(pid, b64);
+            callback(callbackParam);
+          });
+        }
+      });
+    }
+  }
+}
+
+
+$("#lightbox-close").on('click', function(event) {
+  event.preventDefault();
+  closeLightbox();
+});
+
+function closeLightbox() {
+  hideModal("lightbox-modal");
+  if (activeFID === "home") {
+    history.pushState("home", null, '/photos');
+  } else {
+    history.pushState(activeFID, null, '/photos?f='+activeFID);
+  }
+
+  if (!isMobile) {  // seems like some android phones have issues with the exit fullscreen call
+    try {
+      
+      if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+        var cancelFullScreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        if (cancelFullScreen) {
+          cancelFullScreen.call(document);
+        }
+      }
+      
+    } catch (e) {
+      // likely still a phone we didn't catch in isMobile or sth else happened.
+    }
+  }
+}
+
+if (isMobile) {
+  $("#lightbox-fullscreen").hide();
+}
+
+
+
+////////////////////////////////////////////////////
+///////////////     LIGHTBOX       /////////////////
+////////////////////////////////////////////////////
+
+var lightbox;
+var lbox;
+$(document).ready(function () {
+  lightbox = new Swiper ('#lightbox-swipe-container', {
+    // Optional parameters
+    virtual : true,
+    wrapperClass: "lightbox-wrapper",
+    keyboard: {enabled : true},
+    preloadImages: false,
+    lazy:false,
+    setWrapperSize:true,
+    slidesPerView:1,
+    slidesPerColumn:1,
+    addSlidesBefore:1,
+    addSlidesAfter:1
+  });
+
+  lbox = lightbox.virtual;
+});
+
+function lightboxPhotoChanged(pid) {
+  pid = pid || undefined;
+  
+  $("#lightbox-next-button").html("");
+  $("#lightbox-prev-button").html("");
+  $("#lightbox-next-button").off();
+  $("#lightbox-prev-button").off();
+
+  // wait 50ms to make sure virtual DOM is reflected correctly in real DOM
+  // all because injecting inline b64 takes time...
+  // then check if previous & next slides have image, if not, load them.
+
+  setTimeout(function () {
+
+    // new active slide's PID
+    pid = pid || $(".swiper-slide-active").find("div").attr("pid");
+    
+    if (pid) {  
+      history.pushState(pid, null, '/photos?p='+pid);
+      activePID = pid;
+      preparingToDisplayPhoto = false;
+      $("#" + pid).find(".photo").removeClass("is-loading");
+    }
+
+    var prevSlideDIV = $(".swiper-slide-prev").find("div");
+    var prevSlidePID = prevSlideDIV.attr("pid");
+
+    var nextSlideDIV = $(".swiper-slide-next").find("div");
+    var nextSlidePID = nextSlideDIV.attr("pid");
+    
+    if (nextSlideDIV.find("img").length <= 0) {
+      // doesn't have image
+      preloadNextSlide(nextSlidePID);
+    }
+
+    if (prevSlideDIV.find("img").length <= 0) {
+      // doesn't have image
+      preloadPrevSlide(prevSlidePID);
+    }
+
+    // add the prev / next button images 
+    var nextImgThumb = $("#" + nextSlidePID).find("img").attr("src");
+    var prevImgThumb = $("#" + prevSlidePID).find("img").attr("src");
+    
+    if (nextImgThumb) {
+      if (nextImgThumb !== "") {
+        $("#lightbox-next-button").html("<img src='"+nextImgThumb+"' draggable='false'>");
+        $("#lightbox-next-button").on('click', function(event) {
+          lightbox.slideNext();
+        }); 
+      }
+    }
+
+    if (prevImgThumb) {
+      if (prevImgThumb !== "") {
+        $("#lightbox-prev-button").html("<img src='"+prevImgThumb+"' draggable='false'>"); 
+        $("#lightbox-prev-button").on('click', function(event) {
+          lightbox.slidePrev();
+        }); 
+      }
+    }
+
+  }, 50);
+}
+
+function getSlideIndex(pid) {
+  var slideIndex;
+
+  // don't use indexOf "<div>" etc. here.
+  // if the div has img in it, string won't ever match. 
+  // instead check for each slide, and check to see if each slide element has a matching pid. 
+  // it takes more time, but it's guaranteed to be accurate. 
+
+  lbox.slides.forEach(function(slide, index) {
+    if ($(slide).attr("pid") === pid) {
+      slideIndex = index;
+    }
+  });
+
+  return slideIndex;
+}
+
+function isImgInLightboxCache(pid) {
+  var inCache; 
+  if (lbox.cache) {
+    var slideIndex = getSlideIndex(pid);
+    inCache = $(lbox.cache[slideIndex]).find("img").length > 0;
+  } else {
+    inCache = false;
+  }
+  return inCache;
+}
+
+function addImgToDOMIfNotAlreadyInCache (pid, b64) {
+  if (!isImgInLightboxCache(pid)) {
+    var slideShell = $(".swiper-slide").find("div[pid='"+pid+"']");
+    var lightboxPhotoElement = '<img class="lightbox-photo" draggable="false" src="'+b64+'">';
+    slideShell.html(lightboxPhotoElement);
+    setTimeout(function () { lbox.update(); }, 10);
+  }
+  $("#lightbox-spinner").removeClass("wait");
+}
+
+function getLightboxDownloadURL(pid, callback, forceOriginal) {
+  callback = callback || noop;
+  forceOriginal = forceOriginal || false;
+
+  if (pid) {
+    var lid = pid.replace("p", "l");
+    var origRef = rootRef.child(pid + ".crypteefile");
+    var lightRef = rootRef.child(lid + ".crypteefile");
+
+    if (forceOriginal) {
+      // force use original url
+      useOriginal();
+    } else {
+      // first try lightbox, otherwise fallback to original
+      useLightboxPreviewSize();
+    }
+  } else {
+    callback(null);
+  }
+
+
+  function useOriginal() {
+    origRef.getDownloadURL().then(function(originalDownloadURL) {
+      callback(originalDownloadURL);
     }).catch(function(error) {
-      var errorText;
       error.pid = pid;
       handleError("Error getting Photo URL.", error);
       switch (error.code) {
@@ -3666,9 +3992,9 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
     });
   }
 
-  function useLightboxPrev () {
+  function useLightboxPreviewSize () {
     lightRef.getDownloadURL().then(function(lightboxDownloadURL) {
-      gotDownloadURL(lightboxDownloadURL);
+      callback(lightboxDownloadURL);
     }).catch(function(error) {
       if (error.code === 'storage/object-not-found') {
         // fallback for legacy photo without preview image. so load original.
@@ -3676,165 +4002,11 @@ function loadPhoto (pid, ptitle, displayOrDownload, callback, callbackParam) {
       }
     });
   }
-
-  function gotDownloadURL (downloadURL) {
-
-    $.ajax({ url: downloadURL, type: 'GET',
-        success: function(encryptedPhoto){
-          photoLoaded(pid, ptitle, encryptedPhoto, null, displayOrDownload, callback, callbackParam);
-        },
-        error:function (xhr, ajaxOptions, thrownError){
-          console.log(thrownError);
-          var errorText = "A rather strange error happened! Please try reloading. Please try again shortly, or contact our support. We're terribly sorry about this.";
-          // showDocProgress(errorText);
-          setTimeout(function(){ window.location.reload(); }, 2500);
-        }
-    }).progress(function(e) {
-      $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
-    });
-  }
-
 }
 
 
 
-
-var queuePhoto;
-
-function photoLoaded (pid, ptitle, encryptedPhoto, psize, displayOrDownload, callback, callbackParam) {
-  callback = callback || noop;
-  displayOrDownload = displayOrDownload || "display";
-  var encryptedB64 = JSON.parse(encryptedPhoto).data;
-  $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
-  decrypt(encryptedB64, [theKey]).then(function(plaintext) {
-    $("#" + pid).find(".photo").addClass("is-loading"); // to make sure photo looks loading if user tapped on photo while it was still loading thumb, then loading indicator was removed.
-    var decryptedPhoto = plaintext.data;
-    if (displayOrDownload === "download"){
-      downloadPhotoToDisk(pid, ptitle, decryptedPhoto, callback, callbackParam);
-    } else {
-      displayPhoto(pid, ptitle, psize, decryptedPhoto, callback, callbackParam);
-    }
-  });
-}
-
-var nextB64, nextTitle, nextPID, nextSize;
-function loadNextFromPID (pid, callback, callbackParam) {
-  callback = callback || noop;
-  nextPID = $("#sr-"+pid).next(".photos-search-result").attr("pid") || $(".photos-search-result").first().attr("pid") || $("#"+pid).nextUntil(".photoitem").last().next().attr("id") || $("#"+pid).next(".photoitem").attr("id") || $(".photoitem").first().attr("id");
-  nextTitle = $("#sr-"+pid).next(".photos-search-result").attr("ptitle") || $(".photos-search-result").first().attr("ptitle") || $("#"+pid).nextUntil(".photoitem").last().next().find(".phototitle").val() || $("#"+pid).next(".photoitem").find(".phototitle").val() || $(".photoitem").first().find(".phototitle").val();
-
-  function gotDownloadURL(photoURL) {
-    $.ajax({ url: photoURL, type: 'GET',
-      success: function(encryptedPhoto){
-        var encryptedB64 = JSON.parse(encryptedPhoto).data;
-        decrypt(encryptedB64, [theKey]).then(function(plaintext) {
-          nextB64 = plaintext.data;
-          $("#lightbox-next-photo").attr("src", nextB64);
-          $("#nextPhotoTitle").val(nextTitle);
-          $("#lightbox-next-photo-button").removeClass("is-loading");
-          $("#lightbox-photo").removeClass("wait");
-          $("#lightbox-spinner").removeClass("wait");
-          if (queuePhoto === "next") { showNextPhoto(); queuePhoto = ""; }
-          callback(callbackParam);
-        });
-      }
-    });
-  }
-
-  if (nextPID !== undefined) {
-    var nextOriginalRef = rootRef.child(nextPID + ".crypteefile");
-    var nextLightboxRef = rootRef.child(nextPID.replace("p", "l") + ".crypteefile");
-
-    $("#lightbox-next-photo-button").addClass("is-loading").show();
-
-    nextLightboxRef.getDownloadURL().then(function(nextLightDownloadURL) {
-        gotDownloadURL(nextLightDownloadURL);
-    }).catch(function(error) {
-      if (error.code === 'storage/object-not-found') {
-        // LEGACY PHOTO WITHOUT PREVIEW PHOTO, LOAD ORIGINAL INSTEAD.
-        nextOriginalRef.getDownloadURL().then(function(nextOriginalDownloadURL) {
-          gotDownloadURL(nextOriginalDownloadURL);
-        }).catch(function(error) {
-          //
-        });
-      }
-    });
-
-  } else {
-    $("#lightbox-previous-photo-button").hide();
-    $("#lightbox-next-photo-button").hide();
-  }
-}
-
-var prevB64, prevTitle, prevPID, prevSize;
-function loadPrevFromPID (pid, callback, callbackParam) {
-  callback = callback || noop;
-  prevPID = $("#sr-"+pid).prev(".photos-search-result").attr("pid") || $(".photos-search-result").last().attr("pid") || $("#"+pid).prevUntil(".photoitem").last().prev().attr("id") || $("#"+pid).prev(".photoitem").attr("id") || $(".photoitem").last().attr("id");
-  prevTitle = $("#sr-"+pid).prev(".photos-search-result").attr("ptitle") || $(".photos-search-result").last().attr("ptitle") || $("#"+pid).prevUntil(".photoitem").last().prev().find(".phototitle").val() || $("#"+pid).prev(".photoitem").find(".phototitle").val() || $(".photoitem").last().find(".phototitle").val();
-
-  function gotDownloadURL (photoURL) {
-    $.ajax({ url: photoURL, type: 'GET',
-      success: function(encryptedPhoto){
-        var encryptedB64 = JSON.parse(encryptedPhoto).data;
-        decrypt(encryptedB64, [theKey]).then(function(plaintext) {
-          prevB64 = plaintext.data;
-          $("#lightbox-previous-photo").attr("src", prevB64);
-          $("#prevPhotoTitle").val(prevTitle);
-          $("#lightbox-previous-photo-button").removeClass("is-loading");
-          $("#lightbox-photo").removeClass("wait");
-          $("#lightbox-spinner").removeClass("wait");
-          if (queuePhoto === "prev") { showPrevPhoto(); queuePhoto = ""; }
-          callback(callbackParam);
-        });
-      }
-    });
-  }
-
-  if (prevPID !== undefined) {
-    var prevOriginalRef = rootRef.child(prevPID + ".crypteefile");
-    var prevLightboxRef = rootRef.child(prevPID.replace("p", "l") + ".crypteefile");
-
-    $("#lightbox-previous-photo-button").addClass("is-loading").show();
-
-    prevLightboxRef.getDownloadURL().then(function(prevLightboxDownloadURL) {
-      gotDownloadURL (prevLightboxDownloadURL);
-    }).catch(function(error) {
-      if (error.code === 'storage/object-not-found') {
-        prevOriginalRef.getDownloadURL().then(function(prevOriginalDownloadURL) {
-          // LEGACY PHOTO WITHOUT PREVIEW PHOTO, LOAD ORIGINAL INSTEAD.
-          gotDownloadURL (prevOriginalDownloadURL);
-        }).catch(function(error) {
-          //
-        });
-      }
-    });
-
-  } else {
-    $("#lightbox-previous-photo-button").hide();
-  }
-}
-
-
-function displayPhoto (pid, ptitle, psize, pb64, callback, callbackParam) {
-  callback = callback || noop;
-
-  $(".lightboxPhotoTitle").html(ptitle);
-
-  setTimeout(function(){
-    if (psize !== null && psize !== undefined && psize !== "") {
-      $("#lightboxPhotoDetails").html(formatBytes(psize));
-    } else {
-      var photoRef = rootRef.child(pid + ".crypteefile");
-      photoRef.getMetadata().then(function(originalMetadata) {
-        var gotSize = originalMetadata.size;
-        $("#lightboxPhotoDetails").html(formatBytes(gotSize));
-      });
-    }
-  }, 250);
-
-  history.pushState(pid, null, '/photos?p='+pid);
-
-  var photoOrientation = 1;
+// this was in displayPhoto 
 
   /// YOU JUST GOT A PREVIEW IMAGE GENERATED FROM CANVAS. DOESN'T HAVE EXIF.
   // IT'S ALREADY ORIENTATION CORRECTION WHILE CREATING PREVIEW.
@@ -3896,108 +4068,9 @@ function displayPhoto (pid, ptitle, psize, pb64, callback, callbackParam) {
   //       $(".exifButton").hide();
   //     }
   //   } else {
-      $(".exifButton").hide();
+      // $(".exifButton").hide();
     // }
-
-
-    $("#lightbox-photo").attr("src", pb64);
-    $("#lightbox-photo").removeClass("wait lightbox-photo-orientation-1 lightbox-photo-orientation-2 lightbox-photo-orientation-3 lightbox-photo-orientation-4 lightbox-photo-orientation-5 lightbox-photo-orientation-6 lightbox-photo-orientation-7 lightbox-photo-orientation-8");
-    // $("#lightbox-photo").addClass("lightbox-photo-orientation-" + photoOrientation);
-    $("#lightbox-spinner").removeClass("wait");
-    $(".lightboxPhotoMeta").fadeIn(250);
-
-    $("#lightbox-photo").removeClass("exif");
-    $(".lightboxExif").addClass("behind");
-
-    showModal("lightbox-modal");
-
-    activePID = pid;
-    activePName = ptitle + "." + $("#"+pid).find(".phototitle").attr("ext");
-    preparingToDisplayPhoto = false;
-    $("#" + pid).find(".photo").removeClass("is-loading");
-    callback(callbackParam);
-
-    // this gives some buffer time to show photo loading animation more smoothly.
-    setTimeout(function(){
-      loadNextFromPID(pid);
-      loadPrevFromPID(pid);
-    },500);
-
-  // });
-}
-
-function showPrevPhoto () {
-  if (!$("#lightbox-previous-photo-button").hasClass("is-loading")) {
-    displayPhoto(prevPID, prevTitle, prevSize, prevB64);
-  } else {
-    $("#lightbox-photo").addClass("wait");
-    $("#lightbox-spinner").addClass("wait");
-    $(".lightboxPhotoMeta").fadeOut(250);
-    queuePhoto = "prev";
-  }
-}
-
-function showNextPhoto () {
-  if (!$("#lightbox-next-photo-button").hasClass("is-loading")) {
-    displayPhoto(nextPID, nextTitle, nextSize, nextB64);
-  } else {
-    $("#lightbox-photo").addClass("wait");
-    $("#lightbox-spinner").addClass("wait");
-    $(".lightboxPhotoMeta").fadeOut(250);
-    queuePhoto = "next";
-  }
-}
-
-$("#lightbox-modal").on('swipeleft',  function(){
-  if (isMobile) { showNextPhoto(); }
-});
-
-$("#lightbox-modal").on('swiperight',  function(){
-  if (isMobile) { showPrevPhoto(); }
-});
-
-$("#lightbox-close").on('click', function(event) {
-  event.preventDefault();
-  closeLightbox();
-});
-
-function closeLightbox() {
-  hideModal("lightbox-modal");
-  if (activeFID === "home") {
-    history.pushState("home", null, '/photos');
-  } else {
-    history.pushState(activeFID, null, '/photos?f='+activeFID);
-  }
-
-  if (!isMobile) {  // seems like some android phones have issues with the exit fullscreen call
-    try {
-      
-      if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
-        var cancelFullScreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        if (cancelFullScreen) {
-          cancelFullScreen.call(document);
-        }
-      }
-      
-    } catch (e) {
-      // likely still a phone we didn't catch in isMobile or sth else happened.
-    }
-  }
-}
-
-function toggleExif() {
-  if (!$("#lightbox-photo").hasClass("exif")) {
-    $("#lightbox-photo").addClass("exif");
-    $(".lightboxExif").removeClass("behind");
-  } else {
-    $("#lightbox-photo").removeClass("exif");
-    $(".lightboxExif").addClass("behind");
-  }
-}
-
-if (isMobile) {
-  $("#lightbox-fullscreen").hide();
-}
+// });
 
 
 ////////////////////////////////////////////////////
@@ -4245,11 +4318,20 @@ function displaySearchResults (results, term) {
 }
 
 $('#photos-search-contents').on('click', '.photos-sr-photo', function(event) {
-  var image = $(this).parents(".photos-search-result").find(".image");
-  image.addClass("is-loading");
-  loadPhoto($(this).attr("pid"), $(this).attr("ptitle"), "display", function(){
-    image.removeClass("is-loading");
-  });
+  var fidToLoad = $(this).parents(".photos-search-result").find(".photos-sr-folder").attr("fid");
+  var pidToLoad = $(this).parents(".photos-search-result").attr("pid");
+  var titleToLoad = $(this).parents(".photos-search-result").find("title").text();
+  clearSearch ();
+  homeFolderLoaded = false; otherFolderLoaded = false;
+  if (fidToLoad === "home") {
+    getHomeFolder(function(){
+      loadPhoto(pidToLoad, titleToLoad, "display");
+    });
+  } else {
+    getAllFilesOfFolder (fidToLoad,function(){
+      loadPhoto(pidToLoad, titleToLoad, "display");
+    });
+  }
 });
 
 $('#photos-search-contents').on('click', '.photos-sr-folder', function(event) {

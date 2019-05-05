@@ -240,11 +240,11 @@ function timeSince(epoch) {
       intervalType += 's';
     }
 
-    if (interval <= 0) {
+    if (typeof epoch !== "number" || interval <= 0) {
       interval = 0;
       intervalType += 's';
     }
-
+    
     return interval + ' ' + intervalType;
 }
 
@@ -801,10 +801,17 @@ displayVersion();
 var serverDeployVersion;
 function checkLatestVersion() {
   // get latest deploy version from server. don't trust the current one you've in cache.
-
+  var updateOrigin;
+  if (location.origin.indexOf("crypt.ee") !== -1) {
+    // this allows for beta to get updates from beta, and prod from prod.
+    updateOrigin = location.origin; 
+  } else {
+    // and this allows for alpha to get from crypt.ee
+    updateOrigin = "https://crypt.ee";
+  }
   var now = (new Date()).getTime(); // milliseconds
   $.ajax({
-    url: "https://crypt.ee/v.json?cachebuster=" + now,
+    url: updateOrigin + "/v.json?cachebuster=" + now,
     type: 'GET'
   }).done(function( dep ) {
     // got server's latestDeployVersion.
@@ -852,23 +859,6 @@ function reloadForNewVersion () {
   }
 }
 
-function flushOldCaches() {
-  if (navigator.serviceWorker) {
-    navigator.serviceWorker.getRegistration().then(function (reg) {
-      if (reg) {
-        reg.unregister().then(function () {
-          caches.keys().then(function (keyList) {
-            return Promise.all(keyList.map(function (key) {
-              if (key !== serverDeployVersion) {
-                return caches.delete(key);
-              }
-            }));
-          });
-        });
-      }
-    });
-  }
-}
 ////////////////////////////////////////////////
 ////////////////  SENTRY  SETUP  ////////////////
 ////////////////////////////////////////////////
@@ -882,7 +872,8 @@ try {
   Sentry.init({
     dsn: 'https://bbfa9a3a54234070bc0899a821e613b8@sentry.io/149319',
     release: latestDeployVersion,
-    environment: sentryEnv
+    environment: sentryEnv,
+    ignoreErrors: ['KaTeX parse error', '[Parchment]', "'setEnd' on 'Range'", "MetaMask"]
   });
 } catch (e) { }
 

@@ -330,20 +330,24 @@ crypteefile::after {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
   content: attr(filetitle);
-  padding-left: 0.5rem;
+  padding-left: 1rem;
   font-size: 14px;
 }
 
 crypteefile {
+  display: block;
   font-family: FontAwesome;
+  font-size: 16px;
   padding: 0.5rem 1rem;
   border: 1px solid #ccc;
-  border-radius: 1rem;
+  /* background-color: #F5F5F5; */
+  box-shadow: 0px 0.125rem 0.25rem rgba(0,0,0,0.1); 
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.5s ease-in;
   opacity: 1;
-  line-height: 2.5rem;
-  margin-left: 0.4rem;
+  line-height: 2rem;
+  margin: 1rem 0;
 }
 
 crypteefile.error {
@@ -2219,6 +2223,10 @@ html {
   cursor: pointer;
 }
 
+.press-item.smaller img {
+  height: 25px !important;
+}
+
 /*///////////////////////////////////////////////////
 //////////////////////  DOCS  //////////////////////
 ///////////////////////////////////////////////////*/
@@ -2489,7 +2497,7 @@ html {
   padding:5px;
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.25);
   border-radius: 1rem;
-  background-color: #363636;
+  background-color: #000;
 }
 
 .ql-bubble.ql-toolbar button, .ql-bubble .ql-toolbar button {
@@ -3354,6 +3362,12 @@ body.draggingStuff {
 
 .attachment-result .doctitle {
   position: relative;
+  color: #FFF;
+}
+
+.attachment-result .docicon i {
+  transition: ease-in-out 0.25s color;
+  color: #FFF;
 }
 
 .attachment-result-folder {
@@ -5572,19 +5586,15 @@ body.draggingStuff {
   transition: 0.3s all ease;
 }
 
-#lightbox-photo, #lightbox-next-photo, #lightbox-previous-photo {
+.lightbox-photo {
   opacity: 1;
   transition: opacity 0.5s ease;
   object-fit: contain;
   border-radius: 1rem;
-  max-height: calc(100% - 8.250rem);
+  max-height: calc(100% - 2rem);
   max-width: calc(100% - 2rem);
-  margin-top: 1rem;
+  margin: 1rem;
   box-shadow: 0px 0px 1rem rgba(0,0,0,0.2);
-}
-
-#lightbox-photo.exif {
-  opacity: 0;
 }
 
 #lightbox-photo.wait {
@@ -5607,7 +5617,7 @@ body.draggingStuff {
   top: calc(50% - (50px/2));
   position: absolute !important;
   opacity: 0;
-  transition: 0.25s opacity ease;
+  transition: 0.1s opacity ease;
 }
 
 #lightbox-spinner.wait {
@@ -5624,48 +5634,11 @@ body.draggingStuff {
   background-color: transparent;
 }
 
-#lightbox-bottom-controls {
-  width: 100%;
-  height: 3.125rem;
-  background-color: transparent;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-}
-
-#lightbox-modal .button {
-  background-color: transparent;
-}
-
-#lightbox-download {
-  float: left;
-  box-shadow: none;
-  border: none;
-}
-
-#lightbox-exif {
-  float: left;
-}
-
-#lightboxPhotoDetails {
-  float: left;
-  font-size: 10px;
-  vertical-align: text-bottom;
-}
-
 #lightbox-fullscreen {
   float:right;
 }
 
 #lightbox-close {
-  float:right;
-}
-
-#lightbox-previous-photo-button {
-  float:left;
-}
-
-#lightbox-next-photo-button {
   float:right;
 }
 
@@ -5790,21 +5763,6 @@ body.draggingStuff {
   position: absolute !important;
 }
 
-.lightboxExif {
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin-top: 30vw;
-  width: 100%;
-  text-align: center;
-  transform: scale(1);
-  transition: 0.3s transform ease;
-}
-
-.lightboxExif.behind {
-  transform: scale(0);
-}
-
 .photos-column {
   opacity: 1;
   transition: opacity 0.3s ease;
@@ -5881,56 +5839,60 @@ body.draggingStuff {
   margin: -1.25rem 0.25rem 0.25rem 0 !important;
 }
 
+/* WE DON'T USE EXIF TO ROTATE PHOTO ANYMORE */
+/* SINCE LIGHTBOX USES A SPECIAL PREVIEW SIZED IMAGE, AND NOT THE ORIGINAL */
+/* LEAVING HERE FOR POSTERITY SINCE THE MATH WAS COMPLICATED AF. */
+/* THIS WILL BE STRIPPED AWAY ONCE MINIMIZED ANYWAY */
 
 /* HORIZONTAL FLIP */
-.lightbox-photo-orientation-2 {
+/* .lightbox-photo-orientation-2 {
   transform: scaleX(-1);
-}
+} */
 
 /* 180° ROTATE LEFT */
-.lightbox-photo-orientation-3 {
+/* .lightbox-photo-orientation-3 {
   transform: rotate(180deg);
   transform-origin: 50% 50%;
   position: relative;
   top: 100%;
-}
+} */
 
 /* VERTICAL FLIP */
-.lightbox-photo-orientation-4 {
+/* .lightbox-photo-orientation-4 {
   transform: scaleY(-1);
-}
+} */
 
 /* VERTICAL FLIP + 90° ROTATE RIGHT */
-.lightbox-photo-orientation-5 {
+/* .lightbox-photo-orientation-5 {
   transform: scaleY(1) rotate(90deg) scale(0.75);
   transform-origin: 50% 50%;
   position: relative;
   top: 100%;
-}
+} */
 
 /* 90° ROTATE RIGHT */
-.lightbox-photo-orientation-6 {
+/* .lightbox-photo-orientation-6 {
   transform: rotate(90deg) scale(0.75);
   transform-origin: 50% 50%;
   position: relative;
   top: 100%;
-}
+} */
 
 /* HORIZONTAL FLIP + 90° ROTATE RIGHT */
-.lightbox-photo-orientation-7 {
+/* .lightbox-photo-orientation-7 {
   transform: scaleY(-1) rotate(90deg) scale(0.75);
   transform-origin: 50% 50%;
   position: relative;
   top: 100%;
-}
+} */
 
 /* 90° ROTATE LEFT */
-.lightbox-photo-orientation-8 {
+/* .lightbox-photo-orientation-8 {
   transform: rotate(-90deg) scale(0.75);
   transform-origin: 50% 50%;
   position: relative;
   top: 100%;
-}
+} */
 
 /*///////////////////////////////////////////////////
 ////////////////////// EDGE FIXES ///////////////////
@@ -6555,6 +6517,15 @@ body.draggingStuff {
   .attachment-result:hover {
     transition: ease-in-out 0.25s all;
     background-color: #fff;
+    color: #000;
+  }
+
+  .attachment-result:hover .doctitle {
+    position: relative;
+    color: #000;
+  }
+  
+  .attachment-result:hover .docicon i {
     color: #000;
   }
 

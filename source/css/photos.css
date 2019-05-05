@@ -199,7 +199,90 @@
   max-height: initial;
 }
 
+#lightbox-top-controls .button {
+	background-color : transparent !important;
+}
 
+.lightbox-wrapper {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	display: flex;
+}
+
+#lightbox-swipe-container {
+	height: 100%;
+	width: 100%;
+	max-height: calc(100% - 6.25rem);
+	position: absolute;
+	top: 3.125rem;
+	z-index: 100;
+}
+
+.lightbox-photo {
+	user-select: none;
+}
+
+.swiper-slide div {
+	height: 100%;
+	opacity: 1;
+	transition: 0.3s opacity ease;
+}
+
+.swiper-slide div:empty {
+	opacity: 0;
+}
+
+#lightbox-nav {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 8rem;
+	overflow: hidden;
+}
+
+#lightbox-prev-button, #lightbox-next-button {
+	width: 6rem;
+	height: 6rem;
+	position: absolute;
+	bottom: 2rem;
+	transition: 1s transform ease 0.2s, 0.3s width ease, 0.3s height ease, 0.3s bottom ease;
+	transform: translateX(0);
+	background-color: #FFF;
+	overflow: hidden;
+	border-radius: 10px;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+	z-index: 101;
+	cursor: pointer;
+	pointer-events: all;
+	user-select: none;
+}
+
+#lightbox-prev-button {
+	left: 2rem;
+}
+
+#lightbox-next-button {
+	right: 2rem;
+}
+
+#lightbox-prev-button:empty {
+	transform: translateX(-10rem);
+	opacity: 0;
+	cursor: auto !important;
+}
+
+#lightbox-next-button:empty {
+	transform: translateX(10rem);
+	opacity: 0;
+	cursor: auto !important;
+}
+
+#lightbox-prev-button img, #lightbox-next-button img {
+	object-fit: cover;
+	width: 100%;
+	height: 100%;
+}
 
 /*////////////////////////////////////////////////////////
 ////////////////////// THE GRID //////////////////////////
@@ -417,6 +500,13 @@
 	.album .deletefoldericon:hover, .album .ghostfoldericon:hover {
 		opacity: 1;
 	}
+
+	#lightbox-prev-button:hover, #lightbox-next-button:hover {
+		bottom: 1rem;
+		width: 7rem;
+		height: 7rem;
+	}
+
 }
 
 @media (-moz-touch-enabled: 1), (pointer:coarse) {

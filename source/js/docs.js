@@ -265,6 +265,7 @@ var CrypteeFileBlot = function (_Inline) {
     var node = _Inline.create.call(this);
     node.setAttribute('did', value.did);
     node.setAttribute('filetitle', value.filetitle);
+    node.contentEditable = 'false';
     return node;
   };
 
@@ -293,6 +294,7 @@ var CrypteeTagBlot = function (_Inline2) {
 
   CrypteeTagBlot.create = function create(value) {
     var node = _Inline2.create.call(this);
+    node.contentEditable = 'false';
     return node;
   };
 
@@ -475,7 +477,7 @@ var tribute = new Tribute({
 tribute.attach(document.getElementsByClassName('ql-editor'));
 
 function checkOrAddTag(tag, callback) {
-  if (quill.getFormat()['code-block']) {
+  if (quill.getFormat()['code-block'] || quill.getFormat()['blockquote'] || quill.getFormat()['bold'] || quill.getFormat()['header'] === 1 || quill.getFormat()['header'] === 2) {
     tribute.hideMenu();
     callback([]);
     tribute.hideMenu();
@@ -1368,6 +1370,7 @@ function checkForExistingUser (callback){
 
 
 
+var localCatalogExists = false;
 
 // THIS IS ONLY GOING TO GET CALLED IF THE USER IS ONLINE ON BOOT.
 // SO IF "CONNECTED = TRUE"
@@ -1381,10 +1384,12 @@ function signInComplete () {
       ttQueueCompleted();
     } else {
       if (localStorage.getItem("encryptedCatalog")) {
+        localCatalogExists = true;
         loadLocalCatalog(function(){
           loadLastOpenDoc();
         });
       } else {
+        localCatalogExists = false;
         breadcrumb("Local Catalog : CREATING.");
         runTTQueueFromIndex(0);
       }
@@ -1669,8 +1674,11 @@ function checkKey (key) {
   }
 
   function checkHashedKey(hashedKey) {
-    if (connected) {
-      // USER ONLINE. CHECK KEY FROM ONLINE, AND UPDATE OFFLINE COPY.
+    if (connected && navigator.onLine && encryptedStrongKey) {
+      // BROWSER REPORTS USER IS ONLINE. 
+      // IF YOU GOT THE strongKey = you are actually online. 
+      
+      // FIRST CHECK KEY FROM ONLINE, AND UPDATE OFFLINE COPY.
       decrypt(encryptedStrongKey, [hashedKey]).then(function(plaintext) {
         rightKey(plaintext, hashedKey);
       }).catch(function(error) {
@@ -1680,17 +1688,26 @@ function checkKey (key) {
         });
       });
     } else {
-      // USER OFFLINE. CHECK KEY FROM OFFLINE, AND START OFFLINE MODE.
-      if (encryptedKeycheck) {
-        decrypt(encryptedKeycheck, [hashedKey]).then(function(plaintext) {
-          console.log("Used offline key.");
-          rightKey(plaintext, hashedKey);
-        }).catch(function(error) {
-          wrongKey (error);
-        });
+      // USER LIKELY OFFLINE. 
+      // FIRST CHECK IF MEMORIZE KEY EXISTS, AND USE THAT.
+      // OTHERWISE, 
+      // CHECK KEY FROM OFFLINE, AND START OFFLINE MODE.
+      
+      if (keyToRemember) {
+        console.log("Used memorized key.");
+        rightKey("", keyToRemember);
       } else {
-        showKeyModal();
-        $('#key-status').html("<p class='subtitle'>We can't seem to verify your identity because you seem to be offline. In order to start using offline mode, you need to enter your key at least once when online on this device.</p>");
+        if (encryptedKeycheck) {
+          decrypt(encryptedKeycheck, [hashedKey]).then(function(plaintext) {
+            console.log("Used offline key.");
+            rightKey(plaintext, hashedKey);
+          }).catch(function(error) {
+            wrongKey (error);
+          });
+        } else {
+          showKeyModal();
+          $('#key-status').html("<p class='subtitle'>We can't seem to verify your identity because you seem to be offline. In order to start using offline mode, you need to enter your key at least once when online on this device.</p>");
+        }
       }
     }
   }
@@ -1711,8 +1728,8 @@ function rightKey (plaintext, hashedKey) {
   keyToRemember = hashedKey;
 
   gotKey = true; // this prevents an early offline mode call from being made before key is typed.
-
-  if (connected) {
+    
+  if (connected && navigator.onLine) {
     var theStrongKey = plaintext.data;
     theKey = theStrongKey;
 
@@ -2314,6 +2331,7 @@ function decryptTitle (id, encryptedTitle, callback) {
               corruptTitlesToFix.push(id);
             }
             callback("Untitled", id);
+            error.itemid = id;
             handleError("Error decrypting title, passing Untitled", error);
           });
         } else {
@@ -2338,7 +2356,7 @@ function decryptTitle (id, encryptedTitle, callback) {
 function gotEncryptedDocTitle(did, encryptedTitle) {
   
   var decryptionOperation = function(index) {
-    if (decryptedTitleExistsInLocalCatalog(did, encryptedTitle)) {
+    if (localCatalogExists && decryptedTitleExistsInLocalCatalog(did, encryptedTitle)) {
         // title exists in local catalog. skip decrypting again.
         catalog.docs[did] = catalog.docs[did] || {};
         var plaintextTitle = catalog.docs[did].name;
@@ -2374,7 +2392,7 @@ function gotEncryptedDocTitle(did, encryptedTitle) {
 function gotEncryptedDocTags(did, encryptedTags) {
     
   var decryptionOperation = function(index) {
-    if (decryptedTagsExistInLocalCatalog(did, encryptedTags)) {
+    if (localCatalogExists && decryptedTagsExistInLocalCatalog(did, encryptedTags)) {
       catalog.docs[did] = catalog.docs[did] || {};
       var plaintextTags = catalog.docs[did].tags;
       totalTTInDecryptionQueue--;
@@ -2404,7 +2422,7 @@ function gotEncryptedDocTags(did, encryptedTags) {
 function gotEncryptedFoldertitle(fid, encryptedTitle) {
   
   var decryptionOperation = function(index) {
-    if (decryptedTitleExistsInLocalCatalog(fid, encryptedTitle)) {
+    if (localCatalogExists && decryptedTitleExistsInLocalCatalog(fid, encryptedTitle)) {
       totalTTInDecryptionQueue--;
       runTTQueueFromIndex(index);
       var plaintextTitle = catalog.folders[fid].name;
@@ -3775,6 +3793,7 @@ function makeGhostFolder () {
             $("#ghost-folder-confirm-input").blur();
 
             delete catalog.folders[fidToGhost];
+            ghostingTitle = "A Ghosting Folder Title"; // this is set to something weird so that in decrypt title something won't accidentally match.
 
             docsOfFID(fidToGhost).forEach(function(ghostedDID){
               removeDocFromDOM(ghostedDID);
@@ -3818,9 +3837,9 @@ function summonGhostFolder () {
       if (snapshot === undefined || snapshot === null || !snapshot.val() || snapshot.val() === "" || snapshot.val() === " "){
         $("#ghost-info-modal").find(".fa-cog").addClass("fa-eye").removeClass("fa-cog fa-spin fa-fw");
         $("#ghost-folder-input").val("");
-        $(".ghost-folder-info").html('<i class="fa fa-question"></i>');
         $("#ghost-folder-summon-button").removeClass("is-loading").prop("disabled", false).attr("disabled", false);
         $("#ghost-folder-input").prop('disabled', false);
+        summoning = false;
         hideModal("ghost-info-modal");
       }
     });
@@ -3829,20 +3848,22 @@ function summonGhostFolder () {
   });
 }
 
+var summoning = false; // otherwise this fires twice, causing the server to send permission denied.
 $("#ghost-folder-input").on('keydown keypress paste copy cut change', function(event) {
   setTimeout(function(){
     if (event.keyCode == 13 && $("#ghost-folder-input").val().trim() !== "") {
-      summonGhostFolder();
+      if(!summoning) {
+        summoning = true;
+        summonGhostFolder();
+      }
     }
     if ($("#ghost-folder-input").val().trim() !== "") {
       $("#ghost-folder-summon-button").prop("disabled", false).attr("disabled", false);
-      $(".ghost-folder-info").html('<i class="fa fa-magic" id="ghost-folder-summon-icon"></i>');
     } else {
       $("#ghost-folder-summon-button").prop("disabled", true).attr("disabled", true);
-      $(".ghost-folder-info").html('<i class="fa fa-question"></i>');
     }
     if (event.keyCode == 27) {
-      $("#ghost-folder-input").val(""); $(".ghost-folder-info").html('<i class="fa fa-question"></i>');
+      $("#ghost-folder-input").val("");
     }
   },50);
 });
@@ -5559,9 +5580,9 @@ function showDeleteDocModal() {
   $(".document-contextual-dropdown").removeClass("open");
   clearSelections();
   if (connectivityMode) {
-    $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-warning").html("<p class='title'>Delete Document</p><p class='subtitle is-6'>You're about to delete this document</p>");
+    $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-warning").html("<p class='title'>Delete Document</p><p class='subtitle is-6'>You're about to delete the currently open document</p>");
   } else {
-    $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-warning").html("<p class='title'>Delete Document</p><p class='subtitle is-6'>You're about to delete the offline copy of this document. This will <b>not</b> delete the online copy of this document if there is any. You will need to delete the online copy separately.</p>");
+    $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-warning").html("<p class='title'>Delete Document</p><p class='subtitle is-6'>You're about to delete the offline copy of the currently open document. This will <b>not</b> delete the online copy of this document if there is any. You will need to delete the online copy separately.</p>");
   }
   $("#delete-doc-modal").addClass("is-active");
 }
@@ -5625,6 +5646,171 @@ function deleteDocComplete(fid, did, callback, callbackParam) {
     if ( did === activeDocID ) { loadDoc("home"); }
   }
 }
+
+
+
+
+
+//////////////////////////////////
+//   COPY DOC /// DUPLICATE DOC //
+//////////////////////////////////
+// use "copy" for user facing terms
+// use "duplicate" in code. 
+// this is to ensure the term "copy" isn't misused in code in any way
+
+function duplicateDoc (did, callback, callbackParam) {
+  callback = callback || noop;
+  if (did) {
+    if (did !== "home") {
+      
+      showSyncingProgress(0, 1, "Copying Document...");
+      startLoadingSpinnerOfDoc(did);
+
+      // old doc meta. 
+      var fid = fidOfDID(did) || "f-uncat";
+      var docTitle = titleOf(did) || "Untitled Document";
+      
+      // new doc meta 
+      var dupDID = "d-" + newUUID();
+      var newGen = (new Date()).getTime() * 1000; // this will change anyway, but this allows for syncing devices to update this doc as recent.
+      
+      var newTitle;
+      var docRef;
+      var dupRef;
+      var docData = {};
+
+      catalog.docs[did] = catalog.docs[did] || {};
+
+      if (catalog.docs[did].isfile) {
+        docRef = rootRef.child(did + ".crypteefile");
+        dupRef = rootRef.child(dupDID + ".crypteefile");
+
+        var extension = docTitle.slice((docTitle.lastIndexOf(".") - 1 >>> 0) + 2);
+        
+        // remove extension
+        var fileTitle = docTitle.replace("." + extension, "");
+        
+        // now add it back
+        newTitle = fileTitle + " (Copy)." + extension;
+        docData.isfile = true;
+
+      } else {
+        docRef = rootRef.child(did + ".crypteedoc");
+        dupRef = rootRef.child(dupDID + ".crypteedoc");
+        newTitle = docTitle + " (Copy)";
+      }
+
+      breadcrumb("[DUPLICATE DOC] – Downloading Original " + did + " -> " + dupDID);
+
+      docRef.getDownloadURL().then(function(docURL) {
+        $.ajax({ url: docURL, type: 'GET',
+          success: function(encryptedDocDelta){
+            
+            breadcrumb("[DUPLICATE DOC] – Uploading Duplicate " + did + " -> " + dupDID);
+            
+            var dupUpload = dupRef.putString(encryptedDocDelta);
+            dupUpload.on('state_changed', function(snapshot){  
+            
+              lastActivityTime = (new Date()).getTime();
+              switch (snapshot.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
+              showSyncingProgress((snapshot.bytesTransferred * 2), (snapshot.totalBytes * 2), "Copying Document...");
+            }, function(error) {
+              if (usedStorage >= allowedStorage) {
+                exceededStorage(callback, callbackParam);
+              } else {      
+                checkConnection(function(status){
+                  if (status) {
+                    showErrorBubble("Error copying document");
+                    hideSyncingProgress();
+                    error.dupDID = dupDID;
+                    error.fid = fid;
+                    error.did = did;
+                    handleError("Error uploading duplicate doc", error);
+                    stopLoadingSpinnerOfDoc(did);
+                  }
+                });
+              }
+            }, function (){
+
+              breadcrumb("[DUPLICATE DOC] – Encrypting Duplicate Title " + did + " -> " + dupDID);
+              
+              encryptTitle(dupDID, JSON.stringify(newTitle), function(encryptedTitle){
+                docData.docid = dupDID;
+                docData.fid = fid;
+                docData.generation = newGen;
+                docData.title = encryptedTitle;
+                
+                foldersRef.child(fid + "/docs/" + dupDID).update(docData, function(){
+                  
+                  refreshFolderSort(fid);
+                  breadcrumb("[DUPLICATE DOC] – DONE. " + did + " -> " + dupDID);
+                  stopLoadingSpinnerOfDoc(did);
+                  
+                  showSyncingProgress(); // this will receive 100 / 100 since it's already complete.
+                  $("#sync-progress").addClass("done");
+                  setTimeout(function () {
+                    hideSyncingProgress();
+                  }, 5000);
+
+                  callback(callbackParam);
+
+                }).catch(function(error) {
+                  error.dupDID = dupDID;
+                  error.did = did;
+                  error.fid = fid;
+                  showErrorBubble("Error copying document");
+                  handleError("Error setting duplicate doc data in folder", error);
+                  hideSyncingProgress();
+                  stopLoadingSpinnerOfDoc(did);
+
+                });
+              });
+
+            });
+          },
+          error:function (xhr, ajaxOptions, error){
+            error.fid = fid;
+            error.did = did;
+            showErrorBubble("Error copying document");
+            handleError("Error downloading original doc for duplication", error);
+            hideSyncingProgress();
+            stopLoadingSpinnerOfDoc(did);
+          }
+        }).progress(function(e) {
+          showSyncingProgress(e.loaded, (e.total * 2), "Copying Document...");
+        });
+    
+      }).catch(function(error) {
+        error.fid = fid;
+        error.did = did;
+        showErrorBubble("Error copying document");
+        handleError("Error getting doc url to for duplication", error);
+        hideSyncingProgress();
+        stopLoadingSpinnerOfDoc(did);
+      });
+
+
+    } else {
+      showErrorBubble("You cannot copy your home document");
+      hideSyncingProgress();
+    }
+  } else {
+    showErrorBubble("Error copying document");
+    hideSyncingProgress();
+  }
+}
+
+
+$("#doc-dropdown").on('click', ".duplicate-button", function(event) {
+  var did = rightClickedID();
+  duplicateDoc(did);
+  hideRightClickMenu();
+}); 
+
+
+
+
+
 
 /////////////////////
 //   MOVE _DOC  //
@@ -7014,17 +7200,29 @@ function showEmbed(embed) {
 }
 
 function confirmEmbed() {
+  var erroredOut = false;
   if (activeEmbed === "formula"){
-    quill.insertEmbed(embedRange.index, 'formula', $("#embed-input").val());
+    try {
+      quill.insertEmbed(embedRange.index, 'formula', $("#embed-input").val());
+    } catch (error) {
+      erroredOut = true;
+      var errorMessage = error.message.replace("KaTeX parse error: ", "");
+      $("#embed-modal-error").html(errorMessage);
+      $("#embed-modal-status").removeClass("is-dark").addClass("is-danger");
+    }
   } else if (activeEmbed === "link") {
     quill.format('link', $("#embed-input").val());
   } else if (activeEmbed === "video") {
     quill.insertEmbed(embedRange.index, 'video', $("#embed-input").val());
   }
-  hideEmbed();
+  if (!erroredOut) {
+    hideEmbed();
+  }
 }
 
 function hideEmbed() {
+  $("#embed-modal-status").addClass("is-dark").removeClass("is-danger");
+  $("#embed-modal-error").html("");
   $("#embed-modal").removeClass("is-active");
   quill.focus();
 }
@@ -8308,6 +8506,8 @@ function connectionStatus(status) {
         checkConnection(function(secondCheck){
           if (secondCheck) {
             activateOnlineMode();
+          } else {
+            activateOfflineMode();
           }
         });
       }, 1000);
@@ -8906,6 +9106,9 @@ function showSyncingProgress(val, max, msg) {
 
 function hideSyncingProgress() {
   $("#sync-progress").removeClass("syncing done");
+  setTimeout(function () {
+    $('#sync-progress-bar').attr("value", 0).attr("max", 0);
+  }, 1000);
 }
 
 function toSyncOrNotToSync (callback, callbackParam){
