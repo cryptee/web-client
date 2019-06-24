@@ -1,0 +1,127 @@
+<div id="upgrade-view">
+
+  <button type="button" name="Close Upgrade" id="close-upgrade-button" onclick="closeUpgrade();">✕</button>
+
+  <h2 class="title" id="upgrade-container-title">UPGRADE</h2>
+  <p id="upgrade-container-subtitle">
+    <span>Have a safe &amp; private place on the internet.</span>
+    <!-- <span class="is-hidden-large-checkout"></span> -->
+  </p>
+
+  <!-- @import "modal-account-upgrade-desktop-pricetable.kit" -->
+
+  <!-- @import "modal-account-upgrade-mobile-pricetable.kit" -->
+
+  <!-- add is-checkout to show -->
+  <div class="upgrade-container" style="display:none;">
+    
+      <div id="upgrade-form">
+
+        <div class="upgrade-first-form">
+          <p><b>BILLING INFORMATION</b></p>
+          <br>
+          <div class="field">
+            <p class="control has-icons-left is-expanded" id="upgrade-email">
+              <input class="input" type="email" placeholder="Email for Invoices" id="upgrade-email-input">
+              <span class="icon is-small is-left" style="margin-top: 0;">
+                <i class="fa fa-envelope fa-fw"></i>
+              </span>
+            </p>
+          </div>
+
+          <div class="field is-grouped is-horizontal">
+            <div class="field" style="margin-right:1rem">
+              <p class="control upgradeFormControl has-icons-left">
+                <span class="select upgrade-countries-select">
+                  <select id="upgrade-countries">
+                    <!-- @import "country-options.kit" -->
+                  </select>
+                </span>
+                <span class="icon is-small is-left" style="margin-top: 0;">
+                  <i class="fa fa-globe fa-fw"></i>
+                </span>
+              </p>
+            </div>
+
+
+            <div class="field">
+              <p class="control upgradeFormControl has-icons-left" id="upgrade-zip">
+                <input class="input" type="text" placeholder="Zip Code" id="upgrade-zip-input">
+                <span class="icon is-small is-left" style="margin-top: 0;">
+                  <i class="fa fa-map-marker fa-fw"></i>
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div class="field is-grouped is-horizontal">
+            <div class="field" style="margin-right:1rem">
+              <p class="control upgradeFormControl has-icons-left">
+                <input class="input" type="text" placeholder="Coupon Code" id="upgrade-coupon-input">
+                <span class="icon is-small is-left" style="margin-top: 0;">
+                  <i class="fa fa-ticket fa-fw"></i>
+                </span>
+              </p>
+            </div>
+            <div class="field">
+              <button class="button is-success paymentButton" disabled>Upgrade</button>
+            </div>
+          </div>
+
+          <p class="deets"></p>
+        </div> <!-- .upgrade-first-form -->
+
+        <div class="checkout-container">
+          <div id="paddle-loading">
+            <h3 class="title is-2">Uh-oh.</h3>
+            <p>If you see this message, chances are your ad blocker / privacy extension is accidentally blocking access to our checkout provider &amp; payments processor <b>Paddle</b>.</p>
+            <br>
+            <p>You might be rightfully wondering, why Cryptee needs one of these externally hosted payment providers in the first place. We totally get it. We hate this situation as much as you do.</p>
+            <br>
+            <p>In short. It has to do with VAT and taxation in Europe. Believe it or not, this is actually better for your privacy. Search for "VATMOSS".</p>
+            <br>
+          </div>
+        </div>
+
+      </div> <!-- #upgrade-form -->
+
+
+
+
+    <div class="checkout-sum">
+      
+        <div class="initial-sum">
+          <div style="float:left;" id="back-to-plan-button">
+            <span class="icon" style="font-size: 0.9em; margin-left: -6px;"><i class="fa fa-chevron-left fa-fw"></i></span> Back 
+          </div>
+
+          <div style="float:right;">
+            <p><span class="cur">€</span><span id="checkout-price"></span></p>
+          </div>
+        </div>
+
+        <span class="the-totals" style="display:none;">
+          Sub: <span id="checkout-subtotal"></span>&nbsp; &nbsp; 
+          Tax: <span id="checkout-tax"></span>&nbsp; &nbsp; 
+          <span style="float:right;">Total: <span id="checkout-total"></span></span>
+        </span>
+      
+    </div>
+  </div>
+
+  <p id="upgrade-container-deets" class="deets">    
+    <span>
+      We need the above information to securely pass onto our payment processor Paddle to calculate tax and be compliant.<br class="is-hidden-mobile">We don't store any of it. Once you click "Upgrade", you'll be presented with a payment box provided by Paddle.com. In case if you're a GDPR-nerd, you can find links to Paddle's terms and conditions and privacy policy in our privacy policy.
+    </span>
+    
+    <br><br>
+
+    <span style="opacity: 0.4;">
+        <span class="icon is-small"><i class="fa fa-credit-card fa-fw"></i></span> &nbsp; <span class="icon is-small"><i class="fa fa-paypal fa-fw"></i></span> 
+    </span>
+
+    <br><br>
+  </p>
+
+
+</div>

@@ -1,0 +1,21 @@
+<div class="modal" id="crypteedoc-import-modal">
+  <div class="modal-background" onclick="cancelImportingCrypteedoc();"></div>
+  <div class="modal-content">
+    <div class="notification is-dark">
+      <p class="title"><span class="icon"><i class="fa fa-lock"></i></span>&nbsp; <span id="crypteedoc-key-status">Different Key Required</span></p>
+      <p>Seems like this Cryptee Document is encrypted using a different key.<br>Please enter the key used while encrypting this document.</p>
+      <br>
+      <div class="field has-addons">
+        <p class="control is-expanded keymodal-input-control">
+          <input type="password" id="crypteedoc-prevent_autofill" autocomplete="off" style="display:none" tabindex="-1" />
+          <input id="crypteedoc-key-input" class="modal-input input" type="password" placeholder="••••••••" autocomplete="off">
+        </p>
+        <div class="control" style="margin-left: auto;">
+          <a id="crypteedoc-modal-decrypt-button" class="button is-light">
+            <span class="icon"><i class="fa fa-unlock-alt"></i></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

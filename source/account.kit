@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html class="is-loading" data-loading="One moment please">
+<head>
+
+  <!-- @import "includes/app-head.kit" -->
+  <title>Cryptee | Account Settings</title>
+  <script src="../js/lib/zxcvbn.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../css/account.css">
+
+</head>
+<body class="account-body is-loading">
+    <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
+
+    <div class="notification is-danger crypteecard" id="reauth-error" style="display:none;"></div>
+    
+    <!-- @import "includes/account-app-nav.kit" -->
+    <br>    
+
+    <div class="columns is-centered is-mobile" id="account-columns">
+        <div class="column is-two-thirds-desktop is-full-tablet">
+
+            <div class="columns" id="account-main-columns">
+                <div class="column is-4">
+                    <!-- @import "includes/account-menu.kit" -->
+                </div>
+                <div class="column" id="account-setting-contents">
+            
+                    <div class="settings-tab-contents active" id="overview-tab-contents">
+                        <!-- @import "includes/settings-tab-overview.kit" -->
+                    </div>
+                    
+                    <div class="settings-tab-contents" id="security-tab-contents">
+                        <!-- @import "includes/settings-tab-security.kit" -->
+                    </div>
+            
+                    <div class="settings-tab-contents mydata-setting" id="mydata-tab-contents">
+                        <!-- @import "includes/settings-tab-mydata.kit" -->
+                    </div>
+            
+                    <div class="settings-tab-contents" id="payments-plan-tab-contents">
+                        <!-- @import "includes/settings-tab-payments-plan.kit" -->
+                    </div>
+            
+                    <!-- SEPARATOR -->
+            
+                    <div class="settings-tab-contents preferences-setting" id="preferences-docs-tab-contents">
+                        <!-- @import "includes/settings-tab-preferences-docs.kit" -->
+                    </div>
+                    
+                    <!-- SEPARATOR -->
+                
+                    <div class="settings-tab-contents" id="delete-account-tab-contents">
+                        <!-- @import "includes/settings-tab-delete-account.kit" -->
+                    </div>
+            
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- @import "includes/modal-account-upgrade.kit" -->
+    <!-- @import "includes/account-upgrade-thanks.kit" -->
+
+    <!-- @import "includes/modal-help.kit" -->
+    <!-- @import "includes/modal-webapp.kit" -->
+    <!-- @import "includes/footer-js.kit" -->
+    <script src="../js/account.js"></script>
+</body></html>

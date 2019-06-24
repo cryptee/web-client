@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+
+<head>
+  <!-- @import "includes/www-head.kit" -->
+  <title>Cryptee | Private, Secure, Encrypted Documents &amp; Photos</title>
+
+  <style media="screen">
+    img {
+    	opacity: 1;
+    	transition: opacity 0.3s ease;
+    }
+
+    img[lazy-src] {
+    	opacity: 0;
+    }
+  </style>
+</head>
+
+<body class="www-body">
+
+<!-- @import "includes/index-nav.kit" -->
+
+<!-- @import "includes/index-hero.kit" -->
+
+<!-- @import "includes/index-media.kit" -->
+
+<!-- @import "includes/index-docs.kit" -->
+
+<!-- @import "includes/index-photos.kit" -->
+
+<!-- @import "includes/index-features.kit" -->
+
+<!-- @import "includes/index-download.kit" -->
+
+<!-- @import "includes/index-encryption.kit" -->
+
+<!-- @import "includes/index-pricing.kit" -->
+
+<!-- @import "includes/index-security.kit" -->
+
+<!-- @import "includes/www-footer.kit" -->
+
+<script type="text/javascript">
+
+var loadTime = (new Date()).getTime();
+
+var navbar = document.getElementById("index-sticky-nav");
+$(window).on('scroll', function(event) {
+  $('h2:not(.is-scrolled)').each(function () {
+    if (isScrolledIntoView(this)) {
+      $(this).addClass('is-scrolled');
+      var scrolledSection = $(this).attr("id");
+      if (scrolledSection !== undefined) {
+        var timeSince = (new Date()).getTime() - loadTime;
+        ping("event", {eventCategory: "landing-scroll", eventAction : scrolledSection.replace("ping-", ""), eventValue : timeSince});
+      }
+    }
+  });
+
+  if (Math.max($(window).scrollTop(), $("body").scrollTop(), document.body.scrollTop) >= 600) {
+    navbar.classList.add("shown");
+  } else {
+    navbar.classList.remove("shown");
+  }
+});
+
+$("a[href='signup']").click(function (event) {
+  event.preventDefault();
+  var referrerButton = $(this).attr("id");
+  try {
+    sessionStorage.setItem('signup-referrer', referrerButton.replace("ping-signup-", ""));
+  } catch (e) {
+    console.log("cookies disabled.");
+  }
+  window.location = $(this).attr("href");
+});
+
+window.addEventListener('load', function(){
+  [].forEach.call(document.querySelectorAll('img[lazy-src]'), function(img) {
+  	img.setAttribute('src', img.getAttribute('lazy-src'));
+  	img.onload = function() {
+  		img.removeAttribute('lazy-src');
+  	};
+  });
+}, false)
+
+</script>
+</body></html>

@@ -1,0 +1,903 @@
+/*///////////////////////////////////////////////////
+////////////////////// GENERAL //////////////////////
+///////////////////////////////////////////////////*/
+html.is-loading::before {
+  content: attr(data-loading);
+  white-space: pre;
+  font-family: 'Montserrat', sans-serif;
+  display: block;
+  height: 24px;
+  width: 240px;
+  text-align: center;
+  left: calc(50% - (240px/2) + 0.5%);
+  top: calc(50% - (24px/2));
+  position: absolute !important;
+  z-index: 9999999;
+ }
+
+html.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 3px solid #000;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 240px;
+  width: 240px;
+  left: calc(50% - (240px/2) + 0.5%);
+  top: calc(50% - (240px/2));
+  position: absolute !important;
+  z-index: 9999998;
+  box-shadow: 0px 0px 200px #FFF, 0px 0px 200px #FFF, 0px 0px 200px #FFF;
+  background-color: #F5F5F5;
+}
+
+.account-body, html {
+	background-size: cover;
+	background-position: center;
+	min-height: 100%;
+	background-color: #f5f5f5;
+}
+
+#main-progress {
+	margin-top: 0;
+	margin-bottom: 0;
+	height: 3px !important;
+}
+
+#account-columns {
+	margin-top:2rem !important;
+}
+
+#account-columns > .column {
+	padding: 0;
+}
+
+.menu-list a {
+	border-radius: 3rem;
+	user-select: none;
+}
+
+.menu-delete-account.is-active {
+	background-color: #d9534f !important;
+}
+
+.settings-tab-contents {
+	display:none;
+	padding: 0rem 0 1rem 0;
+	background-color: transparent;
+	position: relative;
+	max-height: 100%;
+}
+
+.settings-tab-contents.active {
+  display:block;
+}
+
+.settings-tab-contents .field {
+  max-width: 530px;
+}
+
+.settings-tab-contents input[type='text'], 
+.settings-tab-contents input[type='password'],
+.settings-tab-contents input[type='number'],
+#recoveryemail {
+	border-top: none;
+	border-right: none;
+	border-left: none;
+	background-color: transparent;
+}
+
+.left-center {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.settings-tab-contents .columns .column {
+	padding-bottom: 0rem;
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// NAV //////////////////////////
+///////////////////////////////////////////////////*/
+
+#account-app-nav {
+	margin-top: 1rem;
+	height: 3rem;
+}
+
+#left-nav {
+	float: left;
+	text-align: left;
+	top: 0;
+	left: 0;
+}
+
+#right-nav {
+	float: right;
+	text-align: right;
+	top: 0;
+	right: 0;
+}
+
+.account-app-nav-item {
+  width: auto;
+  height: 2rem;
+  display: inline-block;
+  margin-left: 1rem;
+  vertical-align: middle;
+}
+
+.account-app-nav-item img {
+  width: auto;
+  height: 2rem;
+}
+
+#large-upgrade-button {
+	width: auto;
+}
+
+#upgrade-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(10,10,10,0.1);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#help-button, #signout-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2rem;
+  height: 4rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  z-index: 12;
+  color : #999;
+  font-size: 16px;
+  transition: 0.5s color ease, 1s opacity ease;
+  opacity: 1;
+  pointer-events: all;
+}
+
+#help-button.itsMobile, #signout-button.itsMobile {
+  top: 3px;
+  width: 3rem !important;
+  height: 3rem !important;
+}
+
+#signout-button {
+	right : 2.5rem;
+}
+
+#nav-logo-w {
+	display: block;
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// LAYOUT //////////////////////
+///////////////////////////////////////////////////*/
+
+.settings-left-column p.is-white {
+	text-align: right;
+	margin-bottom: 0.75rem;
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 1px;
+	cursor: pointer !important;
+	border-bottom: 1px solid transparent;
+	transition: 0.3s border-color ease;
+}
+
+.settings-right-column {
+	overflow-y: scroll;
+	padding-right: 4rem;
+	max-height: 100%;
+}
+
+.settings-right-column .title {
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 1px;
+	font-size: 1.5rem;
+}
+
+.account-menu-collapse {
+	position: absolute;
+	right: 0rem;
+	top: 0rem;
+	border-top-left-radius: 0;
+	border-top-right-radius: 1rem;
+	border-bottom-left-radius: 1rem;
+	border-bottom-right-radius: 0;
+	width: 2.5rem;
+	height: 2.5rem;
+	background-color: #363636;
+	color:#FFF;
+	padding-top:calc(0.5rem + 2px) !important;
+	text-align: center;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+	cursor: pointer;
+	transition: 0.5s all ease;
+	z-index: 6;
+}
+
+.cryptee-latest-deploy-version {
+	font-size: 11px;
+}
+
+.account-card {
+	background-color: #FFF;
+	color: #000;
+	padding: 2.5rem;
+}
+
+.account-card:first-of-type {
+	margin-top: 0;
+}
+
+.account-card .button.is-dark:not(.is-small) {
+	font-size: 12px;
+}
+
+.account-upgrade-card {
+	/* background-color: #4BBF73; */
+	/* color: #fff; */
+	border-radius: 1rem;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+
+#reauth-error {
+    position: fixed;
+    z-index: 98;
+    bottom: 0;
+	right: 0;
+	max-width: 600px;
+}
+
+.upgrade-setting-card:not(#upgrade-setting) {
+	background-image: url("../imgs/overview-coffee.jpg");
+	background-size: cover;
+	background-position: center;
+	min-height: 240px;
+}
+
+.overviewcard {
+	padding: 2.5rem;
+}
+
+.account-card hr {
+	margin-top: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.login-option-label {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.login-option-label:first-of-type {
+	margin-top: 1rem;
+}
+
+.login-option-label:last-of-type {
+	margin-bottom: 1rem;
+}
+
+.login-option-label span {
+	line-height: 3rem;
+}
+
+.login-option-label .crypteecheckbox {
+	margin:0 1rem 0 0;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 5px;
+}
+
+#device-security-status {
+	padding: 0.75rem;
+	border-radius: 10px;
+  margin-bottom: 2px;
+}
+
+#setpin-button, #rememberkey-button {
+	float: right;
+}
+
+#clippers-list {
+	margin-top: 1rem;
+}
+
+.clipper {
+	padding: 1rem 0 0 0;
+}
+
+.clipper:first-of-type {
+	border-top: 1px solid rgba(200,205,208,0.5);
+}
+
+.clipper .icon {
+	font-size: 30px;
+	margin:0.5rem;
+}
+
+.clipper .remove-clipper-button {
+	font-weight: 600;
+	cursor: pointer;
+}
+
+/*///////////////////////////////////////////////////
+//////////////////////  USER  ///////////////////////
+///////////////////////////////////////////////////*/
+
+#user-card {
+	height: 120px;
+	background-color: #FFF;
+	box-shadow: 0 1rem 2rem rgba(10,10,10,0.1);
+	border-radius: 1rem;
+	overflow: hidden;
+	margin-bottom: 2rem;
+}
+
+
+#user-card .progress {
+	height: 3px;
+}
+
+#user-card .usage {
+	display: inline-block;
+	width: 100%;
+	background-color: #f5f5f5;
+	padding: 0.25rem 1rem calc(0.5rem - 4px) 1rem;
+	color: #363636;
+	font-size : 10px;
+	pointer-events: none;
+}
+
+.user-card-container { 
+	height: 95px;
+	padding: 1rem;
+	font-size: 1.1em;
+	letter-spacing: 1px;
+}
+
+.user-card-container .icon {
+	vertical-align: top;
+}
+
+#account-username, #account-email, #account-phone, #account-personal-code {
+	max-width: calc(100% - 2rem);
+	display: inline-block;
+	overflow-wrap: break-word;
+}
+
+.vers {
+	text-align: right;
+	font-weight: 100;
+	font-size: 10px;
+	width: 100%;
+}
+
+/*///////////////////////////////////////////////////
+/////////////////////  UPGRADE  /////////////////////
+///////////////////////////////////////////////////*/
+
+#upgrade-view {
+	background-color: #f5f5f5;
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	z-index: 99;
+	pointer-events: none;
+	opacity: 0;
+	transition: 0.3s opacity ease;
+	overflow-y: scroll;
+}
+
+#upgrade-view.upgradeOn {
+	opacity: 1;
+	pointer-events: all;
+}
+
+#pricing {
+	user-select: none;
+}
+
+#pricing .column {
+  max-width: 300px;
+  padding: 0;
+  margin:auto;
+}
+
+#pricing .columns {
+	justify-content: center;
+}
+
+#pricing .storage {
+  font-size : 26px;
+  font-weight: 600;
+  letter-spacing: 3px;
+}
+
+#pricing .plan-name {
+  margin-bottom: 2rem;
+}
+
+.period-button {
+	cursor: pointer;
+	display: inline-block;
+	width: 135px;
+	margin: 15px;
+	user-select: none;
+}
+
+.period-button span:not(.icon) {
+	transition: 0.3s all ease;
+	border-bottom: 1px solid transparent;
+	padding-bottom: 0.5rem;
+}
+
+.period-button.selected span:not(.icon) {
+	border-bottom: 1px solid #000;
+}
+
+.pricing-card {
+	opacity: 0;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0);
+	transform: translateY(-2rem);
+  cursor: pointer;
+	transition: 0.5s all ease;
+	margin-bottom: 3rem;
+	padding: 3rem 1rem;
+	pointer-events: none;
+	user-select: none;
+}
+
+.pricing-card.visible {
+	opacity: 1;
+	pointer-events: all;
+	transform: translateY(0);
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+
+.pricing-card.selected {
+	opacity: 0;
+	pointer-events: none;
+	transform: translateY(2rem) !important;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0);
+}
+
+.plan-description {
+  font-size: 12px;
+}
+
+.alt-period {
+	font-size: 10px;
+	width: 210px;
+	margin-left: -1rem;
+	text-align: center;
+	margin-top: 3rem;
+	color: #000;
+}
+
+.alt-period .cur {
+	font-size: 10px;
+	vertical-align: baseline;
+}
+
+.mobile-price-cards {
+	margin-bottom: 1.5rem;
+}
+
+.mobile-pricecard {
+	opacity: 0;
+	transform: translateX(3rem);
+	transition: 0.5s all ease;
+	width: 245px;
+	min-height: 56px;
+	background-color: #FFF;
+	margin: 1rem auto;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+	border-radius: 10px;
+	padding: 1rem;
+	position: relative;
+	pointer-events: none;
+	user-select: none;
+}
+
+.mobile-pricecard.visible {
+	opacity: 1;
+	pointer-events: all;
+	transform: translateX(0);
+}
+
+.mobile-pricecard.selected {
+	opacity: 0;
+	pointer-events: none;
+	transform: translateX(-3rem) !important;
+}
+
+.mobile-pricecard .storage {
+	width: 50%;
+	position: absolute;
+	top: 1rem;
+	left:1.5rem;
+	font-weight: 600;
+	font-size:21px;
+}
+
+.mobile-pricecard .cost {
+	position: absolute;
+	top: 0;
+	right: 1.5rem;
+	margin-top: -10px;
+}
+
+.mobile-pricecard .cost .cur {
+	margin-right: -0.65rem;
+	font-size: 10px;
+	vertical-align: middle;
+}
+
+.mobile-pricecard .cost .price {
+	margin-right: -0.7rem;
+	font-size: 21px;
+}
+
+.mobile-pricecard .cost .per-period {
+	margin-right: 0rem;
+	font-size: 12px;
+	letter-spacing: 0;
+}
+
+.mobile-pricecard .alt-period {
+	margin: 40px auto 0 auto;
+	width: 100%;
+}
+
+.mobile-pricecard.is-black .alt-period {
+	color : #FFF;
+}
+
+.upgrade-card {
+	text-align: left;
+	height: auto;
+	box-shadow: 0 1rem 1rem rgba(10,10,10,0.1);
+	border-radius: 1rem;
+	overflow: hidden;
+	margin-bottom: 2rem;
+	cursor: pointer;
+	padding : 1rem;
+}
+
+.upgrade-card-img {
+	background: url("../imgs/coffee.jpg");
+	background-size: cover;
+	background-position: center;
+	box-shadow: 0 1rem 1rem rgba(10,10,10,0.1);
+	min-height: 131px;
+	border-radius: 1rem;
+	overflow: hidden;
+	margin-bottom: 2rem;
+	cursor: pointer;
+	padding : 1rem;
+}
+
+.upgrade-setting {
+  background-color: #F5F5F5;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-height: 100%;
+  height: auto;
+  width: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.upgrade-container {
+  max-width: calc(320px + 2rem);
+  width: calc(100% - 2rem);
+  min-height: 274px;
+  margin: 3rem auto !important;
+  background-color: #FFF;
+  padding: 0rem;
+  box-shadow: 0px 0px 3rem rgba(0,0,0,0.15);
+  transition: 0.5s all ease;
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+	z-index: 8;
+	opacity: 0;
+	pointer-events: none;
+  transform: translateY(-2rem);
+}
+
+#upgrade-countries, #upgrade-coupon-input, #upgrade-zip-input, #upgrade-email-input {
+	border-left: none;
+	border-right: none;
+	border-top: none;
+}
+
+#upgrade-zip-input, #upgrade-email-input {
+	border-color :  #363636;
+}
+
+#upgrade-countries {
+	color : #aaa;
+}
+
+.upgrade-container.is-checkout {
+	transform: translateY(0);
+	opacity: 1;
+	pointer-events: all;
+}
+
+#back-to-plan-button {
+	cursor: pointer;
+	user-select: none;
+}
+/*///////////////////////////////////////////////////
+////////////////  UPGRADE ANIMATION  ////////////////
+///////////////////////////////////////////////////*/
+
+.upgrade-setting.active .upgrade-container {
+	transform: translateY(160px);
+}
+
+
+/*///////////////////////////////////////////////////
+///////////////  CURRENT & CHANGE PLAN   ////////////
+///////////////////////////////////////////////////*/
+
+.prorate-plan {
+	background-color: #f5f5f5;
+	color: #FFF;
+	padding: 0.75rem 1rem;
+	height: 5.5rem;
+	border-radius: 10px;
+}
+
+.prorate-plan .storage,  #prorateView .storage {
+  font-size : 21px;
+  font-weight: 600;
+	letter-spacing: 3px;
+	margin-top: 0rem;
+	line-height: calc(2rem + 2px);
+	float: left;
+}
+
+.prorate-plan .price-wrap {
+	position: absolute;
+	font-size: 16px;
+	bottom: 10px;
+	left: 1rem;
+	text-align: center;
+}
+
+.prorate-plan .price-wrap * {
+	font-size: 14px;
+}
+
+#prorateView .cur, #prorateView .price {
+	font-size: 16px;
+}
+
+#prorateView .period {
+	font-size: 11px;
+}
+
+.prorate-plan .price-wrap .cur, #prorateView .cur {
+	vertical-align: baseline;
+}
+
+#prorateView .storage {
+	line-height: 80px;
+	margin-bottom: 1rem;
+	width: calc(100% - 80px - 1rem);
+	background-color:#363636;
+	border-radius: 10px;
+	height: 80px;
+	text-align: center;
+	letter-spacing: 1px;
+	font-size: 19px;
+}
+
+#prorateView .price-wrap {
+	width: 80px;
+	height: 80px;
+	padding: 1.25rem 0.5rem 0.5rem 0.5rem;
+	border-radius: 10px;
+	background-color:#363636;
+	color: #fff;
+	text-align: center;
+	float: left;
+	margin: 0rem 1rem 1rem 0rem;
+}
+
+#prorateView .notification {
+	padding:1rem;
+	border-radius: 10px;
+}
+
+#prorateView button {
+	border-radius: 5px;
+}
+
+.prorate-plan .button { 
+	float: right;
+	display: none;
+	height: 3.5rem;
+	margin-top: 0.25rem;
+	margin-right: 0rem;
+	border-radius: 10px;
+	line-height: calc(3.25rem);
+	width: 80px;
+}
+
+.prorate-plan .current-tag {
+	/* float: right;
+	line-height: calc(4rem + 2px);
+	display: none;
+	pointer-events: none;
+	margin-right: 5px;
+	font-size: 0.7rem;
+	text-transform: uppercase; */
+}
+
+.prorate-plan.current .current-tag {
+	display: block;
+}
+
+.prorate-plan:not(.current) .button:not(.current-tag) {
+	display: block;
+}
+
+.cancel-sub-button, .change-payment-button, .email-invoices-button {
+	border-radius: 2rem !important;
+	margin:1rem 0;
+}
+
+.prorate-period-button.selected {
+	font-weight: 600;
+	border-bottom: #000 1px solid;
+	padding-bottom: 0.25rem;
+}
+
+.prorate-period-button {
+	cursor: pointer;
+	user-select: none;
+}
+
+.prorate-plans:not(.selected) {
+	display: none;
+}
+
+.per-period-button {
+	cursor: pointer;
+	width: 135px;
+	user-select: none;
+}
+
+.per-period-button span:not(.icon) {
+	transition: 0.3s all ease;
+	border-bottom: 1px solid transparent;
+	padding-bottom: 0.5rem;
+}
+
+.per-period-button.selected span:not(.icon) {
+	border-bottom: 1px solid #000;
+}
+
+.is-shown-yearly {
+	display: none;
+}
+
+#yearlyToMonthlyButton {
+	cursor: pointer;
+	font-size:11px;
+}
+
+/*///////////////////////////////////////////////////
+///////////////////  MOBILE   ///////////////////
+///////////////////////////////////////////////////*/
+
+
+
+@media (max-width: 840px) { 
+	.account-columns {
+		max-width: 100%;
+		margin: 0px !important;
+	}
+}
+
+@media (max-width: 768px) { 
+
+	html.is-loading::after { 
+		background-color: #FFF;
+	}
+
+	#account-app-nav {
+		padding-top: 1rem;
+		margin-top: 0;
+		position: absolute;
+		z-index: 97;
+		width: 100%;
+		top: 0;
+	}
+
+	#upgrade-view.upgradeOn {
+		overflow-y : scroll;
+	}
+
+	.settings-tab-contents .column {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	
+	.settings-tab-contents {
+		padding-top: 1rem
+	}
+
+	#account-menu-top {
+		margin-top: 3rem;
+	}
+
+	#overview-tab-contents {
+		margin-top: 0rem;
+	}
+
+	#account-menu-top ul {
+    	flex-direction: column;
+		padding-bottom: 1rem;
+	}
+
+	#account-menu-top ul li {
+		width: 100%;
+	}
+
+	#account-menu-top a {
+		justify-content:left;
+		padding-left: 0.55rem;
+	}
+
+	#account-menu-top a .icon {
+		margin-right: 1.25rem;
+	}
+
+	#account-setting-contents {
+		padding: 0;
+	}
+
+	.account-card {
+		padding: 1.5rem;
+		min-height: auto;
+	}
+	
+}
+
+
+@media (max-width: 719px) { 
+	.upgrade-container {
+	  /* transform: translateX(0); */
+	  width: 100%;
+	  border-radius: 0;
+	}
+}
+
+
+@media (-moz-touch-enabled: 0), (pointer:fine) {
+	.pricing-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 1rem 2rem rgba(0,0,0,0.15);
+	}
+}

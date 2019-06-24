@@ -1,0 +1,42 @@
+<div class="modal" id="attachment-modal">
+  <div class="modal-background" style="background-color:rgba(255,255,255,0.9); filter: blur(5px); background-size: cover;" onclick="hideAttachmentSelector()"></div>
+  <div class="modal-content" style="max-height:calc(100% - 3rem);">
+    <div class="image-selection-preview">
+
+    </div>
+    <div id="attachment-source-box" class="notification is-dark">
+      <p class="title">Attach things</p>
+      <input class="folder-upload-input" type="file" id="attach-from-device-button" name="files[]" multiple />
+      <label id="attach-from-device-label" class="clickable" for="attach-from-device-button"><span class="icon"><i class="fa fa-upload fa-fw"></i></span> from Device &nbsp; &nbsp;</label>
+      <span class="clickable" id="attach-image-from-cryptee-button"><span class="icon is-small"><i class="fa fa-paperclip fa-fw"></i></span> from Cryptee</span>
+      <div class="field">
+        <p class="control">
+          <input id="attachment-url-input" class="modal-input input" type="text" placeholder="https://google.com/logos/google.jpg"  autocomplete="off">
+        </p>
+      </div>
+
+      <!-- @import "attachment-selector.kit" -->
+    </div>
+
+    <div id="attachment-target-box" class="notification" style="display:none;">
+      <div class="columns is-mobile">
+        <div class="column has-text-centered clickable" id="embed-attachment-inline-button">
+          <span class="icon is-medium"><i class="fa fa-indent fa-rotate-180 fa-fw"></i></span><br>
+          <p><strong id="atbox-inline-title">Embed<span class="is-hidden-touch"> Inline</span></strong></p>
+          <!-- <p class="deets is-hidden-touch" id="atbox-inline-deets">Only embed the image to the document inline.</p> -->
+        </div>
+        <div class="column has-text-centered clickable" id="embed-and-upload-attachment-button">
+          <span class="icon is-medium" style="width:5rem;"><i class="fa fa-indent fa-rotate-180 fa-fw"></i> &nbsp; &nbsp; + &nbsp; &nbsp; <i class="fa fa-cloud-upload fa-fw"></i></span><br>
+          <p><strong id="atbox-in-and-up-title">Embed &amp; Upload</strong></p>
+          <!-- <p class="deets is-hidden-touch" id="atbox-in-and-up-deets">Add image inline &amp; upload it to the same folder as the document to use it again later.</p> -->
+        </div>
+        <div class="column has-text-centered clickable" id="upload-attachment-button">
+          <span class="icon is-medium"><i class="fa fa-cloud-upload fa-fw"></i></span><br>
+          <p><strong id="atbox-up-title">Upload</strong></p>
+          <!-- <p class="deets is-hidden-touch" id="atbox-up-deets">Only upload to the same folder as the document.</p> -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

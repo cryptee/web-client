@@ -1,0 +1,14 @@
+<div class="folders-new-folder left-view-input-group">
+  <span class="icon is-medium left-button" id="new-folder-button"><i class="fa fa-fw fa-plus"></i></span>
+  <input class="left-nav-field" type="text" name="Type a new folder name" placeholder="Create New Folder" id="new-folder-title" autocomplete="off">
+</div>
+
+<div class="notification is-info first-folder-hint">
+  <button class="delete" onclick="hideNotification(this);"></button>
+  <p>Let's start by creating your <br> first folder.<br><br>All your new documents and files will go into folders here.</p>
+</div>
+
+<div id="all-folders">
+  <p id="archiveDivider"><span class="icon"><i class="fa fa-fw fa-archive"></i></span> Archived Folders</p>
+  <p id="summonDividerButton" onclick="showGhostFolderHelp();"><span class="icon"><i class="fa fa-fw fa-eye"></i></span> Summon Ghost Folder</p>
+</div> <!--all-folders -->

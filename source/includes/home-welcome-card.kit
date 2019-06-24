@@ -1,0 +1,47 @@
+<section id="home-welcome-card">
+	<div class="welcome-container">
+		
+		<p class="subtitle" style="margin-bottom: 0;">
+			<span style="font-weight:600;">Welcome home,</span><br>
+			<span class="username"></span>
+		</p>
+		
+		<br class="is-hidden-tiny-phone">
+
+		<nav class="level" id="app-buttons-level">
+		  <div class="level-item has-text-centered">
+		    <a href="docs" class="home-item">
+		      <img class="app-icon" src="./assets/icon-docs.png" alt="">
+		      <p class="subtitle">documents</p>
+		    </a>
+		    <a href="photos" class="home-item disabledForOffline">
+					<img class="app-icon" src="./assets/icon-photos.png" alt="">
+		      <p class="subtitle">photos</p>
+		    </a>
+
+		  </div>
+		</nav>
+		
+		<div id="exceeded-home">
+			<span class="is-hidden-paid-user">
+				<p><b>You have used all the storage space you can get for free.</b></p><br>
+				<p>For the price of a cup of coffee, you can get more storage and help us create a safe &amp; private place on the internet.</p>
+			</span>
+			
+			<span class="is-hidden-free-user">
+				<p><b>You have used all the storage space your plan allows.</b></p><br>
+				<p>You can switch to a larger plan and store even more of your files securely and privately.</p>
+			</span>
+
+			<a class="button is-success" onclick="showPlans()">Upgrade</a>
+			<a class="button is-dark" onclick="closeExceededAtHome()">Not now</a>
+		</div>
+
+		<div class="app-button"></div>
+
+	</div>
+	<!--  -->
+	<p class="usage hiddenForOffline"> <span id="settings-storage-used">0 KB</span> &nbsp; / &nbsp; <span class="settings-storage-total">100 MB</span> </p>
+
+	<progress class="hiddenForOffline usage-progress progress is-small is-dark" value="0" max="100"></progress>
+</section>

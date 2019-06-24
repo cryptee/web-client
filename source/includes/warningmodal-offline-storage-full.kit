@@ -1,0 +1,13 @@
+<div class="modal warning-modal" id="offline-storage-full-modal">
+  <div class="modal-background" onclick="hideActiveWarningModal();"></div>
+  <div class="modal-content">
+    <div class="crypteecard">
+      <img lazy-src="../imgs/storage-folders.jpg">
+      <div class="content">
+        <p class="title is-5">Offline Storage Full</p>
+        <p>Cryptee couldn't save an offline doc, because it looks like you ran out of offline storage space. This usually happens mistakenly when your browser is in private-mode, or you have an extension blocking access to IndexedDB or localStorage, leading Cryptee to think your device ran out of offline storage space. To fix this, try turning off your browser's private-mode, or add an exception for crypt.ee in your extension settings to allow IndexedDB. Needless to say, this could also mean that you've actually run out of offline storage.</p>
+        <button class="button is-dark" onclick="hideActiveWarningModal();">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

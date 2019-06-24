@@ -1,0 +1,167 @@
+
+
+<div class="account-card crypteecard paid-plan-only">
+  <p class="title is-4">Upgrade or Downgrade</p>
+  <p>Here you can switch to different storage plans. Thank you for supporting us and our mission to defend privacy.</p>
+  
+  
+  <div class="is-hidden-yearly">
+    
+    <br><br>
+      <span class="per-period-button" period='y' onclick="switchPeriod('y');">
+          <span class="icon is-small"><i class="fa fa-fw fa-calendar-o"></i></span> &nbsp;
+          <span>billed yearly</span>
+      </span>
+      &nbsp; &nbsp;
+      <span class="per-period-button selected" period='m' onclick="switchPeriod('m');">
+          <span class="icon is-small"><i class="fa fa-fw fa-calendar"></i></span> &nbsp;
+          <span>billed monthly</span>
+      </span>
+      
+  </div>
+
+  <br><br>
+
+  <div class="prorate-plans selected" period="m">
+    <div class="prorate-plan notification is-light" quota="10 GB">
+      <p class="storage">10 GB</p>
+      <p class="price-wrap" tier="a">
+        <span class="cur">€</span><span class="price">3</span><span class="period">/mo</span>
+      </p>
+      <p class="button is-small current-tag is-dark" disabled>Current</p>
+      <p class="button is-small switch-button is-dark" planid="523200">switch</p>
+    </div>
+
+    <div class="prorate-plan notification is-light" quota="400 GB">
+      <p class="storage">400 GB</p>
+      <p class="price-wrap" tier="b">
+        <span class="cur">€</span><span class="price">11</span><span class="period">/mo</span>
+      </p>
+      <p class="button is-small current-tag is-dark" disabled>Current</p>
+      <p class="button is-small switch-button is-dark" planid="523202">switch</p>
+    </div>
+
+    <div class="prorate-plan notification is-light" quota="2000 GB">
+      <p class="storage">2000 GB</p>
+      <p class="price-wrap" tier="c">
+        <span class="cur">€</span><span class="price">30</span><span class="period">/mo</span>
+      </p>
+      <p class="button is-small current-tag is-dark" disabled>Current</p>
+      <p class="button is-small switch-button is-dark" planid="560659">switch</p>
+    </div>
+  </div>
+
+  <div class="prorate-plans" period="y">
+    <div class="prorate-plan notification is-light" quota="10 GB">
+      <p class="storage">10 GB</p>
+      <p class="price-wrap" tier="a">
+        <span class="cur">€</span><span class="yt-price">36</span><span class="period">/yr</span>
+        (<span class="cur">€</span><span class="price">3</span><span class="period">/mo</span>)
+      </p>
+      <p class="button is-small current-tag is-dark" disabled>Current</p>
+      <p class="button is-small switch-button is-dark" planid="560664">switch</p>
+    </div>
+
+    <div class="prorate-plan notification is-light" quota="400 GB">
+      <p class="storage">400 GB</p>
+      <p class="price-wrap" tier="b">
+        <span class="cur">€</span><span class="yt-price">108</span><span class="period">/yr</span>
+        (<span class="cur">€</span><span class="price">9</span><span class="period">/mo</span>)
+      </p>
+      <p class="button is-small current-tag is-dark" disabled>Current</p>
+      <p class="button is-small switch-button is-dark" planid="560661">switch</p>
+    </div>
+
+    <div class="prorate-plan notification is-light" quota="2000 GB">
+      <p class="storage">2000 GB</p>
+      <p class="price-wrap" tier="c">
+        <span class="cur">€</span><span class="yt-price">324</span><span class="period">/yr</span>
+        (<span class="cur">€</span><span class="price">27</span><span class="period">/mo</span>)
+      </p>
+      <p class="button is-small current-tag is-dark" disabled>Current</p>
+      <p class="button is-small switch-button is-dark" planid="560663">switch</p>
+    </div>
+
+    <p class="deets" id="yearly-to-monthly-notice" style="display:none;">Our payment processor doesn't allow changing from yearly billed plans to monthly billed plans automatically. If you'd like to switch to a monthly billed plan, the easiest way to do it is to cancel your current subscription, then subscribe to a monthly plan and reach out to us. We'll happily refund you for the price difference. We're sorry for the inconvenience.</p>
+  </div>
+
+  
+
+  <div id="prorateView" style="display:none;">
+    <br>
+    <div class="notification is-black">
+      
+      <p class="price-wrap">
+        <span class="cur">€</span><span class="price">27</span>
+        <br>
+        <span class="period">/</span>
+      </p>
+      <p class="storage">2000 GB</p><br><br>
+
+      <p>
+        <span class="prorated-text" style="display:none;">The unused days of your current subscription will be prorated, and you will only pay for the price difference today.</span>
+        <span class="billed-later-text" style="display:none;">Your current plan is valid until <span class="next-payment-date"></span>. If you proceed your account storage capacity will be downgraded immediately, but you will be billed the new amount on your next billing date. (<span class="next-payment-date"></span>) Are you sure you wish to downgrade?</span>  
+        <span class="billed-immediately-text" style="display:none;">You will be billed immediately.</span>
+      </p>
+ 
+      <br>
+      <button class="button is-light" onclick="switchPlans();">Switch Plan</button>
+    </div>
+  </div> 
+  
+</div>
+
+
+<div class="account-card crypteecard paid-plan-only">
+
+  <p class="title is-4">Update Payment Method</p>
+  <p>Is your card about to expire, or got a new paypal account? You can update your payment method here.</p>
+  <br>
+
+  <button class="button is-dark is-small change-payment-button">Update Payment Method</button>
+
+</div>
+
+
+
+<div class="account-card crypteecard has-orders-only">
+
+  <p class="title is-4">Invoices &amp; Payment History</p>
+  <p>For your privacy and security, we can only email your invoices to the email address you used while making the
+    payments.</p>
+  <br>
+
+  <div class="field">
+    <input class="input" type="text" id="invoice-email" placeholder="Email used for payments">
+  </div>
+
+  <button class="button is-dark is-small email-invoices-button" onclick="emailInvoices()">Email Invoices</button>
+
+</div>
+
+
+
+
+
+<div class="account-card crypteecard paid-plan-only">
+
+  <p class="title is-4">Cancel Subscription</p>
+  <p>If you wish to cancel your subscription, it would make us very sad, but nevertheless you can do it here. Please let us know what we can do better and how we can improve.</p>
+  <br>
+
+  <button class="button is-warning is-small cancel-sub-button" onclick="showCancelSubsButton()">Cancel Subscription</button>
+
+  <div class="notification is-warning" id="cancelSubscriptionNotification" style="display:none;">
+    <button class="delete closeCancelSubs"></button>
+    <p>Your active subscription will be cancelled immediately, and you will not be refunded for the days left on
+      your subscription.<br><br> If you're already using more storage than what the free plan provides, upon
+      cancellation of your subscription your account will become read-only until you clear enough space.</p>
+    <br>
+    <button class="button is-dark is-small" onclick="cancelSubscription();">I understand, cancel subscription</button>
+  </div>
+
+  <div class="notification is-success" id="subscriptionCanceled" style="display:none;">
+    <p>Done. Your subscription will be cancelled in a minute.</p>
+  </div>
+
+</div>

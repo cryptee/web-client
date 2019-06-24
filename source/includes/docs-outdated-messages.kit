@@ -1,0 +1,16 @@
+<div class="outdated-message hero is-large is-light">
+  <br>
+  <p><i class="fa fa-exclamation-triangle fa-fw fa-3x"></i> &nbsp; Seems like you've edited this document on another device.<br>Would you like to load the latest version?</p>
+  <br>
+  <button class="button is-success is-small" onclick="loadNewest();">Load Newest Version</button>
+  <button class="button is-danger is-small" onclick="hideGenerationWarning();">Keep This Version</button>
+</div>
+
+<div class="outdated-save-message hero is-large is-light">
+  <br>
+  <p><i class="fa fa-exclamation-triangle fa-fw fa-3x"></i> &nbsp; Seems like you've edited this document on another device.<br>If you continue saving, the changes you've made on the other device will be gone.</p>
+  <br>
+  <button class="button is-success is-small" onclick="saveAnyway();">Save This Version</button>
+  <button class="button is-warning is-small" onclick="loadNewest();">Load Newest Version</button>
+  <button class="button is-danger is-small" onclick="dontSave();">Don't Save This Version Yet.</button>
+</div>

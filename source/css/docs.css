@@ -1,0 +1,1992 @@
+/* QUILL OVERRIDES */
+
+.ql-stroke, .ql-stroke-miter {
+  stroke: #000;
+  transition: 0.3s stroke ease;
+}
+
+.ql-fill {
+  fill: #000;
+  transition: 0.3s fill ease;
+}
+
+.ql-snow button, 
+.ql-snow .ql-picker-label,
+.ql-snow .ql-picker-item {
+  color:#000;
+  transition: 0.3s color ease;
+}
+
+.ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke, .ql-snow.ql-toolbar button:focus .ql-stroke, .ql-snow .ql-toolbar button:focus .ql-stroke, .ql-snow.ql-toolbar button.ql-active .ql-stroke, .ql-snow .ql-toolbar button.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow.ql-toolbar button:hover .ql-stroke-miter, .ql-snow .ql-toolbar button:hover .ql-stroke-miter, .ql-snow.ql-toolbar button:focus .ql-stroke-miter, .ql-snow .ql-toolbar button:focus .ql-stroke-miter, .ql-snow.ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
+  stroke: #4BBF73;
+} 
+
+.ql-snow.ql-toolbar button:hover .ql-fill, .ql-snow .ql-toolbar button:hover .ql-fill, .ql-snow.ql-toolbar button:focus .ql-fill, .ql-snow .ql-toolbar button:focus .ql-fill, .ql-snow.ql-toolbar button.ql-active .ql-fill, .ql-snow .ql-toolbar button.ql-active .ql-fill, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-fill, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-fill, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-fill, .ql-snow.ql-toolbar button:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar button:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar button:focus .ql-stroke.ql-fill, .ql-snow .ql-toolbar button:focus .ql-stroke.ql-fill, .ql-snow.ql-toolbar button.ql-active .ql-stroke.ql-fill, .ql-snow .ql-toolbar button.ql-active .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill {
+  fill: #4BBF73;
+}
+
+.ql-snow.ql-toolbar button:hover, .ql-snow .ql-toolbar button:hover, .ql-snow.ql-toolbar button:focus, .ql-snow .ql-toolbar button:focus, .ql-snow.ql-toolbar button.ql-active, .ql-snow .ql-toolbar button.ql-active, .ql-snow.ql-toolbar .ql-picker-label:hover, .ql-snow .ql-toolbar .ql-picker-label:hover, .ql-snow.ql-toolbar .ql-picker-label.ql-active, .ql-snow .ql-toolbar .ql-picker-label.ql-active, .ql-snow.ql-toolbar .ql-picker-item:hover, .ql-snow .ql-toolbar .ql-picker-item:hover, .ql-snow.ql-toolbar .ql-picker-item.ql-selected, .ql-snow .ql-toolbar .ql-picker-item.ql-selected {
+  color:#4BBF73;
+}
+
+.ql-bubble .ql-tooltip:not(.ql-flip) .ql-tooltip-arrow {
+  border-bottom-color: #000 !important;
+}
+
+.ql-bubble .ql-tooltip.ql-flip .ql-tooltip-arrow {
+  border-top-color: #000 !important;
+}
+
+.ql-editor *::selection {
+  background: #000 !important;
+  color: #FFF !important;
+}
+
+.ql-editor *::-moz-selection {
+  background: #000 !important;
+  color: #FFF !important;
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// LAYOUT //////////////////////
+///////////////////////////////////////////////////*/
+
+.docs-body {
+  overflow: hidden;
+}
+
+#docs-main-wrap {
+  background-color: #f5f5f5;
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#docs-left-wrap, #docs-right-wrap {
+  background-color: #f5f5f5;
+  position: absolute;
+  z-index: 1;
+  padding: 1rem 0;
+  opacity: 1;
+  transition: 2s opacity ease;
+
+  top:3px;
+  height: calc(100% - 3px);
+  /* accounts for the progress bar */
+}
+
+#docs-left-wrap {
+  left: 0;
+  width: 320px;
+}
+
+#docs-right-wrap {
+  right: 0;
+  width: 320px;
+}
+
+#docs-center-wrap {
+  overflow: hidden;
+  background-color: transparent;
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  height: calc(100% - 4px);
+
+  pointer-events:none;
+}
+
+#docs-page-wrap {
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+  background-color: #FFFFFF;
+  height: calc(100% - 4rem + 3px);
+  bottom: 0;
+  margin: 0 auto 0 auto;
+  overflow: hidden;
+}
+
+#docs-page-wrap, #editor-toolbar {
+  border: none;
+  pointer-events:all;
+
+  max-width: calc(100% - 320px + 1rem);
+  /* 320px - 40px left and 40px right */
+  width: 100%;
+
+  transform: translateX(0);
+  opacity: 1;
+  transition: 1s transform ease, 0.5s opacity ease, 0.5s max-width ease, 0.5s height ease, 0.5s padding ease, 0.5s max-height ease;
+  z-index: 11;
+}
+
+#docs-page-wrap.itsMobile {
+  margin-top: 0;
+  height: calc(100% - 3rem);
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+  transition: 0.75s transform ease, 0.5s opacity ease;
+}
+
+#docs-page-wrap.showLeft {
+  transform: translateX(160px);
+}
+
+#docs-left-wrap:not(.showLeft) #docs-left-bottom * {
+  pointer-events: none !important;
+}
+
+#docs-page-wrap.showRight {
+  transform: translateX(-160px);
+}
+
+#docs-center-wrap.is-loading #docs-page-wrap {
+  transform: translateX(240px);
+}
+
+#docs-center-wrap.is-loading #docs-page-wrap,
+#docs-center-wrap.is-loading #editor-toolbar,
+#docs-center-wrap.is-loading #mobile-topbar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobile-topbar:not(.itsMobile) {
+  position: absolute;
+  z-index: 12;
+  width: 100%;
+  height: auto;
+  max-width: calc(100% - 320px + 1rem);
+  margin-left: auto;
+  margin-right: auto;
+  top: 4rem;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+#mobile-topbar:not(.itsMobile).showLeft {
+  transform: translateX(160px);
+}
+
+#mobile-topbar:not(.itsMobile).showRight {
+  transform: translateX(-160px);
+}
+
+#docs-center-wrap.is-loading #mobile-topbar:not(.itsMobile) {
+  transform: translateX(240px);
+}
+
+#mobile-topbar:not(.itsMobile) .mobile-floating-tools,
+#mobile-topbar:not(.itsMobile) .control,
+#mobile-topbar:not(.itsMobile) .document-contextual-dropdown {
+  pointer-events: all;
+}
+
+@media (max-width : 870px) {
+  #mobile-topbar:not(.itsMobile) {
+    top: 5.5rem;
+  }
+
+  #docs-webclips-wrapper {
+    margin-top: calc(5.5rem - 1px) !important;
+  }
+
+  #close-webclips {
+    top: -4rem !important;
+  }
+}
+
+@media (max-width : 557px) {
+  #mobile-topbar:not(.itsMobile) {
+    top: 7.25rem;
+  }
+
+  #docs-webclips-wrapper {
+    margin-top: calc(7.25rem - 3px) !important;
+  }
+
+  #close-webclips {
+    top: -5.75rem !important;
+  }
+}
+
+#docs-right-wrap.itsMobile {
+  display: none;
+}
+
+#mobile-topbar:not(.itsMobile) #doc-contextual-buttons,
+#mobile-topbar:not(.itsMobile) button,
+#mobile-topbar:not(.itsMobile) .button {
+  background: transparent;
+}
+
+#fileLoadingStatus::before {
+  position: absolute !important;
+  z-index: 9;
+  top: -60px;
+  left: calc(50% - 30px);
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid #000;
+  border-radius: 10rem;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 60px;
+  width: 60px;
+  margin-top:-2rem;
+}
+
+#fileLoadingStatus {
+  z-index: 9;
+  position: absolute;
+  top: 6rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: calc(100% - 2rem);
+  max-width: calc(480px - 2rem);
+  height: 6rem;
+  margin: auto;
+  display: block;
+  transform: translateY(calc(-50% - 3rem));
+
+  pointer-events: none;
+  opacity: 0;
+  transition: 0.35s opacity ease;
+}
+
+#fileLoadingStatus .message {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  line-height: 2rem;
+  background-color: transparent;
+  padding: 1rem;
+}
+
+#docs-center-wrap.is-loading #fileLoadingStatus {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.ql-editor {
+  /* HIDES SCROLLBAR */
+  padding: 6rem calc(6rem + 20px) 12rem 6rem;
+  width: calc(100% + 20px);
+}
+
+#editor-toolbar {
+  opacity: 1;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  pointer-events: all;
+  z-index: 12;
+  position: relative;
+  margin: 1rem auto 0rem auto;
+  padding-bottom: 1rem;
+  padding-right: 13px;
+  padding-left: 13px;
+  max-height: 10rem;
+}
+
+#editor-toolbar.showLeft,
+#editor-toolbar.showRight,
+#mobile-topbar.showLeft,
+#mobile-topbar.showRight {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#editor-toolbar.itsMobile {
+  display: none !important;
+}
+
+.document-contextual-dropdown {
+  z-index: 12;
+}
+
+.document-contextual-dropdown hr {
+  margin: 0.25rem 0;
+}
+
+.document-contextual-dropdown p.homedoc:not(.is-visible-homedoc) ,
+.document-contextual-dropdown hr.homedoc:not(.is-visible-homedoc) {
+  /* technically everything else except display none is unnecessary but to make sure nothing else gets shown later or sth. */
+  display: none !important;
+  opacity: 0.2 !important;
+  pointer-events: none !important;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+#close-menu-button {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3rem;
+  width: 3.25rem;
+  pointer-events: none;
+}
+
+#close-menu-button.shown {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#docs-center-wrap.is-loading #close-menu-button {
+  opacity: 0 !important;
+}
+
+#mobile-topbar {
+  z-index: 12;
+  transform: translateX(0);
+  transition: 1s transform ease, 0.25s opacity ease, 0.5s max-width ease, 0.5s top ease;
+  pointer-events: all;
+  position: relative;
+}
+
+#docs-left-top.itsMobile {
+  margin-top: 2rem;
+}
+
+.left-views-container {
+  max-height: calc(100% - 13.75rem + 1px)
+}
+
+#docs-left-bottom.itsMobile .left-views-container {
+  max-height: calc(100% - 15.75rem - 1px);
+}
+
+#docs-left-bottom.itsMobile .left-views-container.offline {
+  max-height: calc(100% - 9.5rem - 1px);
+}
+
+.zen-mode-button {
+  display: none;
+}
+
+.outdated-message, .outdated-save-message {
+  pointer-events: all;
+  padding: 7px;
+}
+
+#no-offline-docs-to-show {
+  pointer-events: none;
+}
+
+#no-offline-docs-to-show.shown {
+  pointer-events: all;
+}
+
+.docs-body.sideBySide #file-viewer {
+  max-height: calc(100% - 3px);
+}
+
+.docs-body.sideBySide .ql-editor {
+  padding:2rem calc(2rem + 20px) 2rem 2rem;
+}
+
+.docs-body.sideBySide #docs-page-wrap,
+.docs-body.sideBySide #editor-toolbar {
+  margin-left: 3.5rem;
+  max-width: calc(50% - 4rem);
+}
+
+.docs-body.sideBySide #docs-page-wrap.showLeft {
+  transform: translateX(263px);
+}
+
+.docs-body.sideBySide #mobile-topbar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// NAV //////////////////////////
+///////////////////////////////////////////////////*/
+
+.docs-nav-item {
+  width: auto;
+  height: 2rem;
+  display: inline-block;
+  margin-left: 1rem;
+  vertical-align: middle;
+}
+
+.docs-nav-item img {
+  width: auto;
+  height: 2rem;
+}
+
+#main-progress {
+  margin-top: 0;
+  margin-bottom: 0;
+  height: 3px !important;
+}
+
+
+/* ////////////////////////////////////////////////
+///////////////////// RIGHT ///////////////////////
+/////////////////////////////////////////////////*/
+
+#help-button, #hotkeys-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2rem;
+  height: 4rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  z-index: 12;
+  color : #999;
+  font-size: 16px;
+  transition: 0.5s color ease, 1s opacity ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body:not(.viewing-mode) #help-button.shown, 
+body:not(.viewing-mode) #hotkeys-button.shown {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+#hotkeys-button {
+  right: 2.5rem;
+}
+
+#help-button.itsMobile, #hotkeys-button.itsMobile {
+  top: 3px;
+  width: 3rem !important;
+  height: 3rem !important;
+}
+
+#hotkeys-button.itsMobile {
+  right: 3rem;
+}
+
+#docs-sections-wrapper {
+  position: relative;
+  height: calc(100% - 8.5rem);
+  margin-top: 6rem;
+  padding: 0 0rem 0 180px;
+  opacity: 1;
+  text-transform: uppercase;
+  text-align: left;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+#doc-sections {
+  right: 0;
+  position: absolute;
+  margin: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-left: 180px;
+  width: 100%;
+  max-height: calc(100% - 2rem);
+}
+
+#doc-counts {
+  right: 0;
+  position: absolute;
+  bottom: 0;
+  margin: 0 0 0.725rem 0;
+  padding-left: 180px;
+  width: 100%;
+  height: 2rem;
+  pointer-events: none;
+}
+
+.docsection.H1 {
+  letter-spacing: 1px;
+  font-weight: bold;
+  font-size: 13px;
+  margin-top: 1.5rem;
+  border-right-width: 6px;
+}
+
+.docsection.H2 {
+  font-weight: bold;
+  font-size: 9px;
+  margin-top: 0.5rem;
+  border-right-width: 3px;
+}
+
+.docsection.H3 {
+  font-size: 9px;
+  padding-left: 1rem;
+  border-right-width: 0px;
+}
+
+/*  H2, H3 + H1 */
+.docsection:first-of-type {
+  margin-top: 0rem;
+}
+
+.docsection {
+  padding-right: 3px;
+  color : rgba(245,245,245,1);
+  border-color: rgba(0,0,0,0.3);
+  border-right-style: solid;
+  cursor: pointer;
+  opacity: 1;
+  transition: 1s color ease, 0.3s border ease;
+  user-select: none;
+}
+
+.docsection.inview {
+  border-color: rgba(0,0,0,1) !important;
+}
+
+#doc-sections:before {
+  font-family: FontAwesome;
+  font-size: 14px;
+  color: rgba(0,0,0,0.4);
+  pointer-events: none;
+  content: '\f1dc' !important;
+  top: calc(50% - 0.5rem);
+  right: 1.5rem;
+  position: absolute;
+  transition: 0.5s color ease;
+  line-height: 1rem;
+}
+
+#doc-sections:empty:before {
+  color: #f5f5f5;
+}
+
+#word-count, #char-count {
+  font-size: 9px;
+  color : #f5f5f5;
+  text-align: left;
+  transition: 0.5s color ease;
+  font-weight:600;
+  pointer-events: none;
+}
+
+#countsWrapper {
+  pointer-events: none;
+}
+
+#docs-webclips-wrapper {
+  height: calc(100% - 7.5rem + 4px);
+  width: 100%;
+  position: absolute;
+  display: block;
+  top: 0;
+  right: 0;
+  padding: 0 0rem 0 0.5rem;
+  margin-top: calc(4rem - 4px);
+  opacity: 0;
+  transition: opacity ease;
+  pointer-events: none;
+  transition-duration: 0.6s !important;
+}
+
+#docs-webclips-wrapper.is-loading .wclipcard {
+  opacity: 0;
+}
+
+#docs-webclips-wrapper.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid #000;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 100px;
+  width: 100px;
+  left: 110px;
+  top: calc(50% - 50px);
+  position: absolute !important;
+}
+
+
+#docs-webclips-wrapper.is-active {
+  opacity: 1;
+  pointer-events: all;
+  transition-duration: 2s !important;
+}
+
+#webclips {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  padding-top: 1rem;
+}
+
+.wclipcard {
+  margin: 2rem 1.75rem;
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  background-color: #FFF;
+  user-drag:none;
+  -webkit-user-drag: none;
+  transition: 0.3s box-shadow ease, 1s opacity ease;
+  position: relative;
+  display: none;
+}
+
+.wclipcard:first-of-type {
+  margin-top: 0;
+}
+
+.wclip-summary {
+  position: relative;
+}
+
+.wc-content {
+  opacity: 1;
+  transition: 1s opacity ease 0.5s;
+}
+
+.wclip-content {
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  opacity: 1;
+  transition: 1s opacity ease 0.5s;
+}
+
+.wclip-content:after {
+  content: "";
+  height: 4rem;
+  width: 100%;
+  background: linear-gradient(0deg, #FFF 0%, rgba(255,255,255,0) 100%);
+  float: right;
+  position: absolute;
+  right: 0;
+  bottom: 0rem;
+  transition: 0.5s height ease 1s;
+}
+
+.wclip-title {
+  text-transform: uppercase;
+}
+
+.wclipcard img {
+  height: 100%;
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  display: block;
+  user-drag: none;
+  -webkit-user-drag: none;
+  opacity: 1;
+  transition: 0.5s opacity ease, 1s max-height ease;
+}
+
+
+.wclip-url {
+  -moz-osx-font-smoothing: auto !important;
+  -webkit-font-smoothing: auto !important;
+  font-family: monospace !important;
+  overflow: hidden;
+  width: 100%;
+  height: 0rem;
+  line-height: 2rem;
+  padding: 0 1rem;
+  margin: 0;
+  background-color: #F5F5F5;
+  color: #aaa;
+  cursor: default;
+  user-select: none;
+  display: block;
+  position: relative;
+  transition: 0.5s height ease 1s;
+}
+
+.wclip-url:after {
+  content: "";
+  height: 0rem;
+  width: 4rem;
+  background: linear-gradient(270deg, rgba(245,245,245,1) 0%, rgba(245,245,245,0) 100%);
+  float: right;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.5s height ease 1s;
+}
+
+.wclip-actions {
+  width: 100%;
+  display: flex;
+  border-top: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.wclip-action {
+  flex: 6;
+  text-align: center;
+  padding: 0.5rem;
+  background-color: rgba(255,255,255,0);
+  color: #000;
+  transition: 0.3s background-color ease, 0.3s color ease;
+  user-select: none;
+}
+
+.wclip-insert-button {
+  text-align: left;
+}
+
+.wclip-delete-button {
+  text-align: right;
+  background-color: rgba(255,255,255,0);
+  color: #000;
+  flex: 0.5;
+}
+
+#close-webclips {
+  position: absolute;
+  bottom: -2.5rem;
+  left: calc(1.75rem + 2px);
+  user-select: none;
+  cursor: pointer;
+  color: #888;
+  transition: 0.3s color ease;
+}
+
+#webclips-button {
+  position: absolute;
+  bottom: 0rem;
+  right: 0;
+  width: 2rem;
+  height: 3.5rem;
+  margin-right: 1rem;
+  font-size: 16px;
+  user-select: none;
+  cursor: pointer;
+  color: #888;
+  transition: 0.5s color ease, 1s opacity ease;
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+#webclips-button .fa-stack-2x {
+  font-size: 1.2em;
+  line-height: 1.2em;
+}
+
+#webclips-button .fa-stack-1x {
+  font-size: 0.7em;
+  line-height: 1.2em;
+}
+
+body:not(.viewing-mode) #webclips-button.shown {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+.wclipcard:before {
+  font-family: FontAwesome;
+  font-size: 14px;
+  position: absolute;
+  top: -1rem;
+  right: -1rem;
+  height: 2.5rem !important;
+  width: 2.5rem !important;
+  text-align: center;
+  line-height: 2.5rem;
+  border-radius: 2.5rem;
+  z-index: 1;
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  background-color: #363636;
+  transition: 0.3s opacity ease;
+  opacity: 1;
+}
+
+.wclipcard[type='selection']:before {
+  content: "\f246";
+  padding-left: 1.5px;
+  
+  color: #FFF;
+}
+
+.wclipcard[type='image']:before {
+  content: "\f03e";
+  padding-left: 1px;
+  color: #FFF;
+}
+
+.wclipcard[type='link']:before {
+  content: "\f0c1";
+  padding-left: 1px;
+  color: #FFF;
+}
+
+.wclipcard[type='page']:before {
+  content: "\f0ac";
+  padding-left: 1px;
+  color: #FFF;
+}
+
+.wclipcard.deleting:before,
+.wclipcard.deleting .wc-content,
+.wclipcard.deleting .wclip-content,
+.wclipcard.adding:before,
+.wclipcard.adding .wc-content,
+.wclipcard.adding .wclip-content {
+  opacity: 0;
+}
+
+.wclipcard.deleting img,
+.wclipcard.adding img {
+  opacity: 0;
+  max-height: 0px;
+}
+
+/* for new ones */
+/* background-color: #4BBF73; */
+
+
+
+
+
+
+.wclipcard[type='selection'] .wc-content
+{
+  padding: 1rem;
+}
+
+.wclipcard[type='link'] .wc-content 
+{
+  padding: 1rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  user-select: all;
+}
+
+.wclipcard[type='page'] .wclip-title,
+.wclipcard[type='page'] .wclip-content
+{
+  padding: 1rem;
+  max-height: 320px;
+}
+
+.wclipcard[type='page'] .wclip-content img
+{
+  margin-bottom: 1rem;
+}
+
+
+/* /////////////////////////////////////////////////
+////////////////////// LEFT ///////////////////////
+/////////////////////////////////////////////////*/
+
+/* COMMENT THIS OUT FOR EASY TESTING ON LEFT SIDE */
+
+#docs-left-center:not(.showLeft) .left-nav-field,
+#docs-left-wrap:not(.showLeft) #docs-left-bottom,
+#docs-left-wrap.is-loading #docs-left-center.itsMobile,
+#docs-left-wrap.is-loading #docs-left-bottom.itsMobile,
+#docs-left-wrap.is-loading #docs-left-top.itsMobile,
+#docs-left-wrap.is-loading #docs-left-center.firstLoad,
+#docs-left-wrap.is-loading #docs-left-bottom.firstLoad,
+#docs-left-wrap.is-loading #docs-left-top.firstLoad,
+#docs-right-wrap.is-loading
+{
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#docs-left-bottom {
+  opacity: 1;
+  transition: 1s opacity ease;
+  margin-top: 0rem;
+  margin-left: 0.5rem;
+}
+
+#docs-left-center {
+  margin-top: 0.5rem;
+  margin-left: 0rem;
+  opacity: 1;
+  transition: 0.5s opacity ease;
+}
+
+#search-bar {
+  height: 2.5rem;
+  margin-bottom: 0rem;
+  margin-left: 0.5rem;
+}
+
+.left-button {
+  margin-right: 0.5rem !important;
+}
+
+.left-nav-field {
+  opacity: 1;
+  transition: 1s opacity ease, 0.5s color ease;
+  padding-left: 0.25rem !important;
+  padding-top: 0.3rem !important;
+  margin-left: 0.5rem !important;
+}
+
+.left-nav-field:not(input) {
+  user-select: none;
+}
+
+#search-input {
+  width: calc(100% - 2rem);
+  padding-left: 0 !important;
+}
+
+#results {
+  background-color: #f5f5f5;
+  max-height: calc(100% - 6rem);
+  position: absolute;
+  left: 0;
+  top: 6rem;
+  z-index: 9;
+  height: 100%;
+  width: 100%;
+}
+
+.itsMobile #results {
+  top: 8rem;
+}
+
+.search-result {
+  padding: 1rem;
+}
+
+/* .search-result .result-icon {
+  margin-right: 1.25rem;
+} */
+
+.result-title{
+  margin-left: 3rem;
+  margin-top: -1.35rem;
+}
+
+.left-view-input-group {
+  padding-left: 0.25rem !important;
+  background: linear-gradient(180deg, rgba(245,245,245,1) 80%, rgba(245,245,245,0) 100%);
+}
+
+.left-button i {
+  transition: 1s opacity ease, 0.5s color ease;
+}
+
+#homedoc {
+  float: none;
+  transition: ease-in-out 0.3s all;
+}
+
+#homedoc.is-dark * {
+  color:#000;
+}
+
+.left-nav-field:not(input) {
+  padding-left: 0 !important;
+  margin-left: 0.25rem !important;
+}
+
+.docctx {
+  position: absolute;
+  right: 0;
+  top: 0.5rem;
+  background-color: transparent !important;
+  color: rgba(0,0,0,0.3);
+}
+
+.docctx i {
+  background-color: transparent !important;
+}
+
+.doctitle,
+.docdeet,
+.docctx,
+.doc:not(.search-result) .docicon,
+.doc:not(.search-result) i
+{
+  pointer-events: all;
+  transition: 0.3s all ease !important;
+  opacity: 1;
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select: none;
+}
+
+.search-result,
+.result-title,
+.result-tag,
+.result-icon {
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select: none;
+}
+
+.left-button, .left-button .button {
+  opacity: 1;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 2.5rem;
+  transition: 0.5s opacity ease;
+}
+
+.left-button i, .left-nav-field, .docicon i {
+  opacity: 1;
+  font-size: 1rem !important;
+  color : #888;
+}
+
+.left-nav-buttons.active .left-button > i, .left-nav-buttons.active .left-nav-field {
+  color : #000;
+}
+
+.activedoc, .highlightedDoc {
+  transition: 0.5s background-color ease;
+  background-color: #f5f5f5;
+  color: #000;
+  width: 100%;
+}
+
+.activedoc i, .activedoc .doctitle, .highlightedDoc i, .highlightedDoc .doctitle {
+  color:#000;
+}
+
+.doctitle {
+  color: #888;
+  max-width: calc(100% - 1.5rem);
+}
+
+.left-nav-buttons, .left-nav-buttons span {
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.left-nav-buttons {
+  transition: 0.5s border ease;
+  border-left: 0.25rem solid transparent;
+  padding-left: 0.25rem;
+}
+
+.left-nav-buttons.active, .left-nav-buttons.is-dark {
+  border-left: 0.25rem solid #363636;
+}
+
+.left-nav-buttons.is-unavailable {
+  display: none;
+}
+
+.docicon {
+  color: #888;
+  margin-right: 1.5rem;
+  margin-top: -1px;
+  padding-bottom: 1px;
+}
+
+.docicon.is-loading * {
+  color:transparent;
+}
+
+.docicon.is-loading::after {
+  left: 1px;
+}
+
+.docdeet {
+  margin-left: 3rem;
+}
+
+.doc .offline-badge {
+  top: 0;
+  left: 8px;
+}
+
+.doc .is-loading > .offline-badge {
+  width: 17px !important;
+  height: 17px !important;
+  margin-top: 2px;
+  margin-left: -6px;
+  border-radius: 10px !important;
+}
+
+
+#hamburger {
+  text-align: center !important;
+  width: 3rem !important;
+}
+
+#upgrade-badge {
+  display: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(10,10,10,0.1);
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: 1s opacity ease;
+  cursor: pointer;
+}
+
+#docs-left-top {
+  opacity: 1;
+  pointer-events: all;
+  transition: 0.5s opacity ease;
+}
+
+#docs-left-top.showLeft #upgrade-badge {
+  opacity: 1;
+  pointer-events: all !important;
+}
+
+#new-folder-card {
+  transition: width ease 0.5s !important;
+  width: calc(100% - 1rem);
+  margin-left: 0.5rem;
+  box-shadow:none;
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+}
+
+#new-folder-button {
+  transition: 0.3s ease color;
+}
+
+#new-folder-button.is-armed {
+  color: #4BBF73;
+}
+
+
+.hiddenNewFolderCard {
+  box-shadow: none;
+  border: none;
+}
+
+.hiddenNewFolderCard header {
+  border-color: #F5F5F5;
+}
+
+#selection-actions-card > .icon:first-of-type {
+  margin-left: 0;
+}
+
+/*///////////////////////////////////////////////////
+////////////////////  FOLDERS  //////////////////////
+///////////////////////////////////////////////////*/
+
+.folders-new-folder.is-loading {
+  pointer-events: none;
+}
+
+.folders-new-folder.is-loading::after {
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 1px solid #000;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 2rem;
+  width: 2rem;
+  left: 0.25rem;
+  top: 7px;
+  position: absolute !important;
+}
+
+.afolder {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.folderlogo {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  box-shadow: 0px 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  position: absolute;
+  z-index: 3;
+  right: 1rem;
+  margin-top: 0.25rem;
+}
+
+.foldertab {
+  display: block !important;
+  z-index: 3;
+  position: relative;
+  height: 26px;
+  margin-left: 0.5rem;
+  padding-bottom: 0;
+  width: auto;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.foldercolor {
+  height: 5px;
+  width: calc(100% - 2.5rem);
+  background-color: currentColor;
+  position: absolute;
+  z-index: 1;
+  display: block;
+  margin-left: 1rem;
+  margin-top: -5px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+  opacity: 0.7;
+  cursor: pointer;
+
+  transform: translateY(0);
+  transition: 0.25s transform ease, 0.5s color ease, 0.5s background-color ease;
+}
+
+.folderactions {
+  display: block;
+  z-index: 3;
+  position: absolute;
+  margin-left: 1rem;
+  margin-top: -0.75rem;
+  transition: 0.75s opacity ease;
+}
+
+.folderactions i {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.folder-card {
+  cursor: pointer;
+  background-color: #FFF;
+  width: calc(100% - 1rem);
+  margin-left: 0.5rem;
+  box-shadow: 0px 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  border-top-left-radius: 0;
+  z-index: 2;
+  position: relative;
+  padding: 1rem;
+
+  transition: 0.25s box-shadow ease;
+}
+
+.afolder.withlogo .folder-card h2 {
+  padding-right: 2.25rem;
+}
+
+.folderrecent {
+  transition: 0.3s opacity ease;
+  opacity: 0.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+.folderrecent .icon {
+  transition: 2s opacity ease-out;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.folderrecent.active {
+  opacity:1 !important;
+}
+
+.folderrecent.active .icon {
+  opacity:1 !important;
+}
+
+.folder-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.5rem;
+  letter-spacing: 1px;
+  margin-left: 1px;
+  cursor: pointer;
+  max-width: calc(100% - 2rem); 
+}
+
+.folder-title::after {
+  font-family: FontAwesome;
+  margin-left: 0.5rem;
+  content: "\f0da";
+  opacity: 0;
+  transition: all 0.25s ease;
+}
+
+.folderDraggingActive:not(.draggingFolder) {
+  opacity: 0.3;
+  transition: all 0.15s ease 0.15s;
+}
+
+.afolder.is-active .foldercolor {
+  transform: translateY(5px);
+}
+
+.afolder.fileDropFolder .foldercolor {
+  transform: translateY(5px);
+}
+
+.afolder.fileDropFolder .folder-card {
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+.afolder.archived, .afolder.archived .folder-title {
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.afolder.archived .folderrecents,
+.afolder.archived .foldertab {
+  display: none !important;
+}
+
+.afolder.archived .folder-card {
+  border-radius: 10px !important;
+}
+
+.afolder.archived .foldercolor {
+  pointer-events: none !important;
+}
+
+.afolder.archived .folderactions {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.afolder.archived .folder-title::after {
+  transition: 0.35s all ease !important;
+  content: "\f1b8";
+  font-family: FontAwesome;
+  display: inline-block;
+  margin-right: calc(0.75rem + 3px);
+  margin-left: 1rem;
+  color:#363636;
+  position: absolute;
+  right: 0px;
+  pointer-events:auto;
+  cursor: pointer;
+  font-size: 1.25rem;
+  opacity: 1;
+}
+
+.active-folder.foldertab {
+  margin-top: 3rem;
+  height: 2.5rem;
+  cursor: pointer;
+  user-select: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+}
+
+#all-active-folder-docs .doc {
+  margin-bottom: 2px !important;
+}
+
+#active-folder-back {
+  position: absolute;
+  height: 2rem;
+  width: 100px;
+  top: 3.5rem;
+  left: 0.5rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#active-folder-back::before {
+  transition: 0.35s opacity ease !important;
+  content: "\f0d9";
+  font-family: FontAwesome;
+  display: block;
+  z-index: 10;
+  margin-top: calc(0.5rem + 2px);
+  margin-left: 1.5rem;
+  color:#363636;
+  position: absolute;
+  left: 0px;
+  pointer-events:none;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+#active-folder-back::after {
+  transition: 0.35s opacity ease !important;
+  content: "BACK";
+  font-family: Montserrat;
+  display: block;
+  z-index: 10;
+  margin-top: 0.75rem;
+  margin-left: 3rem;
+  color: #363636;
+  position: absolute;
+  top: 0px;
+  pointer-events: none;
+  letter-spacing: 1px;
+  font-weight: 700;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+#all-active-folder-docs {
+  background: #FFF;
+  padding: 0.5rem;
+  width: calc(100% - 1rem);
+  height: calc(100% - 6.5rem);
+  margin-left: 0.5rem;
+  border-top-left-radius: 0px;
+  margin-top: 0;
+}
+
+#all-active-folder-docs .doc {
+  border-radius: 10px;
+}
+
+#all-active-folder-docs .doc .icon:not(.docctx) {
+  margin-right: calc(0.5rem + 1px);
+}
+
+#sort-active-folder-button {
+  position: absolute;
+  right: 0;
+  margin-top: 4.25rem;
+  margin-right: 1.25rem;
+  font-size: 0.9rem;
+  color:#000;
+  opacity: 0.6;
+  transition: 0.3s opacity ease;
+  cursor: pointer;
+}
+
+#active-folder-upload-button i {
+  font-size: 1.1rem;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+#sort-active-folder-button.fa-sort-amount-asc::after,
+#sort-active-folder-button.fa-sort-amount-desc::after {
+  content: "\f017";
+  font-size: 10px;
+  position: absolute;
+  top: -2px;
+  right: 14px;
+}
+
+/*///////////////////////////////////////////////////
+//////////  DROPDOWNS & RIGHT CLICK MENUS  //////////
+///////////////////////////////////////////////////*/
+
+/* THEY ALL INHERIT .crypteedropdown */
+/* THEY ALL INHERIT .crypteedropdown.shown */
+
+
+
+/*///////////////////////////////////////////////////
+//////////  DOC SELECTIONS & DOC ICONS  /////////////
+///////////////////////////////////////////////////*/
+
+
+.doc.selected:not(.activedoc) .docicon i:before {
+  content: "\f14a" !important;
+}
+
+.doc.selected .offline-badge.visible {
+  margin-left: 12px;
+  margin-top: 7.5px;
+} 
+
+#selections-wrapper {
+  position: absolute;
+  z-index: 10;
+  margin-top: 0.25rem;
+  margin-left: 0;
+  background-color: #FFF;
+  width: calc(100% - 2rem);
+  padding: 0.5rem 0.75rem;
+  height: 2.5rem;
+  border-radius: 3.5rem;
+  font-size: 0.9rem;
+  box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  cursor: pointer;
+  text-align: center;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-1rem);
+  transition: 0.5s ease all;
+}
+
+#selections-wrapper i {
+  font-size: 1rem;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+  margin-top: -1px;
+}
+
+#selections-wrapper span {
+  vertical-align: middle;
+}
+
+#selections-wrapper.shown {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*///////////////////////////////////////////////////
+/////////////////  MOVE MODAL  //////////////////////
+///////////////////////////////////////////////////*/
+
+
+.docs-move-folders-list-item {
+	border: 0;
+	box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+	transition: 0.5s all ease;
+	height: auto;
+	min-height: 2.5rem;
+  border-radius: 10px;
+}
+
+.docs-move-folders-list-item span {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	width: calc(100% - 1.5rem);
+	white-space: normal;
+}
+
+.docs-move-folders-list-item.is-active  {
+	background-color: #363636;
+    color: #FFF;
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+}
+
+.docs-move-folders-list-item.is-current {
+	color: #999;
+    box-shadow: none !important;
+}
+
+#move-folders-list-new {
+	/* box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1); */
+	border: 1px dashed #999;
+	min-height: 2.5rem;
+}
+
+#move-folders-list-new span:not(.icon) {
+	width: calc(100% - 1.5rem);
+}
+
+#docs-move-folders-list {
+  min-height: 40px;
+  max-height: initial;
+}
+
+
+
+/*///////////////////////////////////////////////////
+//////////////////  VIEWING MODE  //////////////////////
+///////////////////////////////////////////////////*/
+
+body.viewing-mode .no-print,
+body.viewing-mode .filesize-button,
+body.viewing-mode .save-doc-button ,
+body.viewing-mode .mobile-floating-tools 
+{
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.viewing-mode .top-left-icon {
+  pointer-events: none !important;
+}
+
+body.viewing-mode .document-contextual-dropdown .disabled-while-viewing {
+  opacity: 0.2 !important;
+  pointer-events: none !important;
+}
+
+body.viewing-mode #doc-contextual-button {
+  pointer-events: all !important;
+}
+
+body.viewing-mode #editor-toolbar {
+  max-width: calc(100% - 2rem);
+  padding-bottom: 0rem;
+  max-height: 0rem;
+  transition: 1s transform ease, 0.5s opacity ease, 0.5s max-width ease 0.5s, 0.5s padding ease 0.5s, 0.5s max-height ease 0.5s !important;
+}
+
+body.viewing-mode #docs-page-wrap {
+  max-width: calc(100% - 2rem);
+  height: calc(100% - 1rem);
+  transition: 1s transform ease, 0.5s opacity ease, 0.5s max-width ease 0.5s, 0.5s height ease 0.5s, 0.5s padding ease 0.5s !important;
+}
+
+body.viewing-mode #mobile-topbar {
+  max-width: calc(100% - 2rem);
+  opacity: 1 !important;
+  top: 1.25rem;
+  transition: 1s transform ease, 0.25s opacity ease, 0.5s max-width ease 0.5s, 0.5s top ease 0.5s !important;
+}
+
+body.viewing-mode .ql-editor {
+  transition: 0.5s font-size ease 0.4s;
+  font-size: 138.5% !important;
+}
+
+body.viewing-mode .ql-editor * {
+  /* transition: 0.5s line-height ease; */
+  line-height: 160% !important;
+}
+
+
+/*///////////////////////////////////////////////////
+////////////////  BREAKPOINTS  //////////////////////
+///////////////////////////////////////////////////*/
+
+@media (max-width:1075px) {
+
+  #docs-right-wrap:not(.showRight) {
+    display: none;
+  }
+
+  #docs-page-wrap, #editor-toolbar, #mobile-topbar:not(.itsMobile) {
+    max-width: calc(100% - 7rem);
+  }
+
+  #docs-page-wrap.showLeft {
+    transform: translateX(263px);
+  }
+
+  #docs-page-wrap.showRight {
+    transform: translateX(-263px);
+  }
+
+  #mobile-topbar:not(.itsMobile).showLeft{
+    transform: translateX(263px);
+  }
+
+  #mobile-topbar:not(.itsMobile).showRight {
+    transform: translateX(-263px);
+  }
+
+  #docs-center-wrap.is-loading #docs-page-wrap {
+    transform: translateX(320px);
+  }
+
+  #docs-center-wrap.is-loading #mobile-topbar:not(.itsMobile){
+    transform: translateX(320px);
+  }
+
+  .ql-editor {
+    /* HIDES SCROLLBAR */
+    padding: 3rem calc(3rem + 20px) 6rem 3rem;
+  }
+
+  #hamburger {
+    margin-left: 0.25rem;
+  }
+
+  #docs-center-wrap:not(.itsMobile) .showLeft + #fileLoadingStatus {
+    left: initial;
+    width: calc(100% - 320px);
+  }
+
+  #docs-center-wrap:not(.itsMobile) .showLeft + #fileLoadingStatus::before {
+    left: initial;
+    right: 1rem;
+  }
+
+  #docs-center-wrap:not(.itsMobile) .showLeft + #fileLoadingStatus .message {
+    text-align: right;
+  }
+}
+
+@media (max-width:480px) {
+
+  #docs-page-wrap {
+    max-width: calc(100% - 1rem);
+  }
+
+  #editor-toolbar {
+    max-width: calc(100% - 6rem);
+  }
+
+  #docs-page-wrap.showLeft {
+    transform: translateX( calc(300px) );
+  }
+
+  /* #docs-center-wrap.is-loading #docs-page-wrap {
+    transform: translateX( calc(100% - 1rem) );
+  } */
+
+  #mobile-topbar:not(.itsMobile).showLeft{
+    transform: translateX(300px);
+  }
+
+  .ql-editor {
+    /* HIDES SCROLLBAR */
+    padding: 1rem calc(1rem + 20px) 3rem 1rem;
+  }
+
+  #docs-right-wrap {
+    display: none;
+  }
+
+  #docs-left-wrap .left-nav-field,
+  #docs-left-wrap #docs-left-bottom
+  {
+    opacity: 1 !important;
+    pointer-events: all !important;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+@media (-moz-touch-enabled: 1), (pointer:coarse) {
+
+  #search-bar .button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  #search-input {
+    height: 2.5rem !important;
+  }
+
+  #doc-contextual-buttons .control, #doc-contextual-buttons .button {
+    height: 3rem;
+    width: 40px;
+  }
+
+  .docs-float-context .tag {
+    background-color: #F5F5F5 !important;
+  }
+
+  .docctx {
+    color: #363636;
+    height: 2.5rem;
+    width:2.5rem;
+  }
+
+  .doctitle {
+    max-width: calc(100% - 2rem);
+  }
+  
+  .folder-dropdown-button {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .folderactions {
+    margin-top: -1.5rem;
+    margin-left: 0.5rem;
+  }
+  
+  #all-active-folder-docs .doc .docctx {
+    margin-top : -0.25rem;
+  }
+  
+  #all-active-folder-docs .doc .docicon {
+    margin-top: 0.125rem;
+  }
+  #all-active-folder-docs .doc .doctitle  {
+    margin-top: 0.25rem;
+  }
+
+  #sort-active-folder-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.5rem;
+    margin-top: 3.5rem;
+  } 
+  
+  #active-folder-upload-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-left: 0;
+    padding: 0rem 1rem 0.5rem 0.25rem;
+  }
+
+  #sort-active-folder-button.fa-sort-amount-asc::after,
+  #sort-active-folder-button.fa-sort-amount-desc::after {
+    top: 4px;
+    right: 24px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (-moz-touch-enabled: 0), (pointer:fine) {
+  /* IT'S A POINTER DEVICE */
+  /* ENABLE HOVERS */
+
+  .ql-hr.icon .fa-minus:hover, .ql-attachfile.icon .fa-paperclip:hover {
+    color:#4BBF73;
+  }
+
+  .left-nav-buttons:hover .left-button > i, .left-nav-buttons:hover .left-nav-field {
+    color: #000;
+  }
+
+  .doc:not(.search-result):hover .docicon,
+  .doc:not(.search-result):hover .doctitle,
+  .doc:not(.search-result):hover .docctx {
+    color:#000 !important;
+  }
+  
+  .doc:not(.search-result):hover,
+  .doc:not(.search-result):hover .docicon i,
+  .activedoc:hover {
+    background-color: #F5F5F5 !important;
+    color:#000 !important;
+  }
+
+  .doc:not(.search-result):hover .docicon.is-loading * {
+    color:transparent !important;
+  }
+
+  .folderactions {
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .afolder:hover .folderactions {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: all;
+  }
+
+  .folderrecent:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  .folderrecent:hover .icon {
+    transition: 0.5s opacity ease;
+    opacity: 0.5;
+  }
+
+  .folder-title:hover::after {
+    opacity: 1;
+  }
+
+  #docs-right-wrap:hover .docsection {
+    border-color: rgba(0,0,0,1);
+  }
+
+  #docs-right-wrap:hover .docsection,
+  #docs-right-wrap:hover #doc-counts * {
+    color: rgba(0,0,0,0.4);
+  }
+
+  #docs-right-wrap:hover .docsection:hover {
+    color: rgba(0,0,0,1);
+  }
+
+  #docs-right-wrap:hover #doc-sections:before {
+    color: transparent;
+  }
+
+  #help-button:hover, 
+  #hotkeys-button:hover, 
+  #webclips-button:hover {
+    color : #000;
+  }
+
+  #sort-active-folder-button:hover {
+    opacity: 1;
+  }
+
+  .active-folder.foldertab:hover + #all-active-folder-docs::before,
+  .active-folder.foldertab:hover+#all-active-folder-docs::after {
+    opacity: 1;
+  }
+
+  /*///////////////////////////////////////////////////
+  //////////  DOC SELECTIONS & DOC ICONS  /////////////
+  ///////////////////////////////////////////////////*/
+
+  .doc:not(.selected):not(.activedoc) .docicon:hover i:before {
+    content: "\f0fe";
+  }
+
+  #selections-wrapper:hover {
+    background-color: #363636;
+    color:#FFF;
+  }
+
+  .wclipcard:hover {
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+  }
+
+  .wclipcard:hover .wclip-url,
+  .wclipcard:hover .wclip-url:after
+  {
+    height: 2rem;
+  }
+
+  #noclips:hover {
+    box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
+  }
+
+  .wclip-action:hover {
+    background-color: #F5F5F5;
+  }
+
+  .wclip-delete-button:hover {
+    background-color: rgba(217,83,79,1);
+    color: #FFF;
+  }
+  
+  #close-webclips:hover {
+    color: #000;
+  }
+
+}

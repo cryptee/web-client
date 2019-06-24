@@ -1,0 +1,17 @@
+<div class="syncMessagesWrap">
+  <div id="got-connection" class="notification is-success no-print" onclick="restartToOnlineMode();">
+    <p>Connection Restored.<br />Click to switch to online mode.</p>
+  </div>
+
+  <div id="error-bubble" class="notification is-danger no-print">
+    <p class="error-bubble-details">Error</p>
+  </div>
+
+  <div id="sync-progress" class="no-print">
+    <div class="sync-left">
+
+    </div>
+    <p class="sync-details">Syncing...</p>
+    <progress id="sync-progress-bar" class="progress is-small" value="50" max="100"></progress>
+  </div>
+</div>

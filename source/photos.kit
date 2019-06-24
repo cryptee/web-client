@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html data-loading="One moment please">
+<head>
+
+  <!-- @import "includes/app-head.kit" -->
+  <title>Cryptee | Photos</title>
+
+  
+  <script src="../js/lib/color-thief.js"></script>
+  <script src="../js/lib/intersection-observer.js"></script>
+  <script src="../js/canvas-block-detector.js"></script>
+  <script src="../js/lib/swiper.min.js"></script>
+  
+  <link rel="stylesheet" type="text/css" href="../css/photos.css">
+  <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">
+
+  </script>
+</head>
+<body class="photos-body">
+  <progress id="main-progress" class="no-print progress is-small is-success"></progress>
+
+  <!-- @import "includes/photos-app-nav.kit" -->
+
+  <!-- @import "includes/photos-search-bar.kit" -->
+
+  <div class="photos-column" style="padding:0;">
+
+    <!-- @import "includes/photos-top-nav.kit" -->
+
+    <div class="photos-nav-spacer"></div>
+
+    <div class="photos-empty-folder">
+      <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo" style="height:100px; padding:1rem 3rem;">
+      <h2 class="title">Let's get started.</h2>
+      <p class="subtitle" style="margin-top:0.5rem;">Drag photos anywhere<br /> or click upload &nbsp;<span class="icon is-small"><i class="fa fa-fw fa-cloud-upload"></i></span></p>
+    </div>
+
+    <div class="photos-offline">
+      <!-- <img src="../assets/cryptee-logo-b.svg" alt="Cryptee logo" style="height:100px; padding:1rem 3rem;"> -->
+      <h2 class="title">OFFLINE</h2><br>
+      <h3 class="subtitle">You seem to be offline. Cryptee will start once you're online</h3>
+      <p><span style="font-size:10px;">You may also be seeing this message if you have a VPN, company firewall or content blocker that is blocking access to Cryptee's servers.</span></p>
+    </div>
+
+  </div>
+
+<!--   <div class="photos-column" style="margin-bottom: 0 !important;">
+    <p id="active-album-title"></p>
+  </div> -->
+
+  <div class="is-hidden-mobile photos-desktop-spacer"></div>
+  
+  <div id="folder-contents" class="photos-column columns is-mobile is-multiline is-centered is-loading">
+    
+  </div>
+  <div id="photos-search-contents" class="photos-column columns is-mobile is-multiline is-centered">
+
+  </div>
+
+  <!-- @import "includes/modal-photos-upload-status.kit" -->
+  <!-- @import "includes/modal-photos-drop-overlay.kit" -->
+
+  <!-- @import "includes/modal-photos-folder-upload-error.kit" -->
+  <!-- @import "includes/modal-photos-new-album.kit" -->
+  <!-- @import "includes/modal-photos-move-selections.kit" -->
+  <!-- @import "includes/modal-photos-delete-selections.kit" -->
+  <!-- @import "includes/modal-photos-delete-album.kit" -->
+
+  <!-- @import "includes/modal-photos-ghost.kit" -->
+  <!-- @import "includes/modal-photos-ghost-error.kit" -->
+  <!-- @import "includes/modal-photos-summon.kit" -->
+
+  <!-- @import "includes/modal-photos-lightbox.kit" -->
+  <!-- @import "includes/modal-photos-ios-download.kit" -->
+
+  <!-- @import "includes/modal-exceeded-storage.kit" -->
+  <!-- @import "includes/modal-low-storage.kit" -->
+  <!-- @import "includes/modal-webapp.kit" -->
+
+  <!-- @import "includes/modal-key.kit" -->
+  <!-- @import "includes/modal-help.kit" -->
+
+  <!-- @import "includes/footer-js.kit" -->
+
+  <!-- <script src="../js/lib/primitive.js"></script> -->
+  <script src="../js/photos.js"></script>
+</body></html>

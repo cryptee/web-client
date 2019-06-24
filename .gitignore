@@ -1,0 +1,29 @@
+/functions/node_modules
+.DS_Store
+/examples
+/functions
+/functions-cron
+/marketing
+/public
+/sketches
+/emails
+/email-html
+database.rules.json
+.tern-project
+.tags
+config.codekit3
+firebase.json
+.firebaserc
+firebase-debug.log
+24hcors.json
+.firebase
+.vscode
+/24hcors.json
+/email-html/email-changed.html
+/email-html/password-reset.html
+/email-html/verify-email.html
+/emails/Cryptee Email Template/index.mjml
+/emails/Email Changed/index.mjml
+/emails/Password Reset/index.mjml
+/emails/Verify Email/index.mjml
+/source/articles/30OCT2017.html

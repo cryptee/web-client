@@ -1,0 +1,77 @@
+
+<html>
+
+<head>
+  <!-- @import "includes/www-head.kit" -->
+  <meta id="pagehas" type="critical">
+  <title>Cryptee | Forgot Password</title>
+
+
+  </head>
+
+  <body class="forgot-body">
+
+    <div class="forgot-top">
+      <a href="/" class="forgot-logo"><img src="../assets/cryptee-logo-w.svg" alt="Cryptee logo"></a>
+      <h1 class="title is-2 forgot-title">FORGOT PASSWORD</h1>
+    </div>
+
+    <div class="forgot-notification notification is-light">
+      <p>You can only recover your account password, if you have an email associated to your account.</p><br />
+      <p>You can <b>not</b> recover your encryption key.<br><br>There's no way to recover your encryption key if you lost it.<br>Since we don't know your keys, we can not help you get it back either.</p>
+    </div>
+
+    <div class="forgot-notification notification is-light">
+      <p>Enter the email associated to your account below to start recovering your account password.</p><br>
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input class="input" type="text" placeholder="Type your email" id="forgot-input">
+        </div>
+        <div class="control">
+          <a class="button is-dark" id="forgot-button">
+            Reset Password
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="forgot-notification notification is-danger" id="forgot-error">
+      <p id="error-text"></p>
+    </div>
+
+    <!-- @import "includes/footer-js.kit" -->
+
+    <script type="text/javascript">
+      $("#forgot-button").on('click', function(event) {
+        if ($("#forgot-input").val().trim() !== "") {
+          sendEmail();
+        }
+      });
+
+      $("#forgot-input").on('keyup', function(event) {
+        if (event.keyCode == 13) {
+          if ($("#forgot-input").val().trim() !== "") {
+            sendEmail();
+          }
+        }
+      });
+
+      function sendEmail () {
+        firebase.auth().sendPasswordResetEmail($("#forgot-input").val().trim()).then(function() {
+          $("#forgot-button").addClass("is-success disable-clicks").html("Email sent");
+          $("#forgot-input").prop('disabled', true);
+          setTimeout(function () {
+            window.location = "/signin"
+          }, 3000);
+        }).catch(function(error) {
+          if (error.code === "auth/user-not-found") {
+            $("#error-text").html("Seems like there's no account associated with this email");
+          }
+
+          $("#forgot-error").addClass('show');
+        });
+      }
+    </script>
+  </body>
+
+  </html>

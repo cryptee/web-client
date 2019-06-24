@@ -1,0 +1,21 @@
+{
+  "short_name": "Cryptee",
+  "name": "Cryptee",
+  "description": "Cryptee is a zero-knowledge, secure, encrypted documents & encrypted photos service for all your private files that need to be safe.",
+  "icons": [
+    {
+      "src": "../assets/cryptee-icon-b.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "../assets/cryptee-icon-b.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "rgb(50,50,50)",
+  "theme_color" : "rgb(50,50,50)"
+}

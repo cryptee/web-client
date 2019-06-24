@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html style="overflow-y: hidden;" data-loading="One moment please">
+<head>
+
+  <link rel="stylesheet" href="../css/quill-1.3.6/quill.snow.min.css" />
+  <link rel="stylesheet" href="../css/quill-1.3.6/quill.bubble.min.css" />
+  <link rel="stylesheet" href="../css/atom-one-light.min-9.12.0.css" />
+  <link rel="stylesheet" href="../css/katex.min-0.10.2.css" />
+  <link rel="stylesheet" href="../css/tribute-3.1.3.css" />
+  
+  <!-- @import "includes/app-head.kit" -->
+  <title>Cryptee | Documents</title>
+
+  <script src="../js/lib/highlight.min-9.12.0.js"></script>
+  <script src="../js/lib/katex.min-0.10.2.js"></script>
+  <script src="../js/lib/quill-1.3.6/quill.min.js"></script>
+  <script src="../js/lib/tribute.min-3.3.2.js"></script>
+  <script src="../js/lib/sortable.min-1.6.0.js"></script>
+  <script src="../js/jq-detect-swipe.js"></script>
+
+  <script src="../js/lib/xml2json.js"></script>
+
+  <script src="../js/quill-image-resize.js"></script>
+  <script src="../js/lib/naturalSort.js"></script>
+  <script src="../js/lib/markdownShortcuts.js"></script>
+  <script src="../js/lib/showdown.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../css/docs.css">
+
+</head>
+<body class="docs-body">
+<div id="docs-main-wrap">
+  <progress id="main-progress" class="no-print progress is-small" value="0" max="100"></progress>
+
+  <div id="docs-left-wrap" class="no-print is-loading">
+    <div id="docs-left-top" class="firstLoad">
+      <a class="docs-nav-item rememberKey top-left-icon" href="home"><img id="nav-logo" src="../assets/cryptee-logo-b.svg" alt="Cryptee | Dashboard"></a>
+      <a class="docs-nav-item is-hidden-offline clickable tag is-success" id="upgrade-badge">UPGRADE</a>
+    </div>
+
+    <div id="docs-left-center" class="left-view-controller-buttons firstLoad">
+      <!-- @import "includes/docs-search.kit" -->
+
+      <div id="homedoc" class="onlineLeftButtons left-nav-buttons">
+        <span class="button is-light left-button">
+          <i class="fa fa-fw fa-home"></i>
+        </span>
+        <span class="left-nav-field">Home Document</span>
+      </div>
+
+      <div id="offline-button" class="offlineLeftButtons left-nav-buttons is-unavailable" pos="3">
+        <span class="button is-light left-button">
+          <span class="fa-stack fa-lg" style="margin-left:-1px;">
+            <i class="fa fa-fw fa-wifi fa-stack-1x"></i>
+            <i class="fa fa-fw fa-times fa-stack-1x text-danger" style="color: #363636; margin-top: 2.5px; font-size: 10px !important; margin-left:6px;"></i>
+          </span>
+        </span>
+        <span class="left-nav-field">Offline</span>
+      </div>
+
+      <div id="recents-button" class="onlineLeftButtons left-nav-buttons active" pos="0">
+        <span class="button is-light left-button">
+          <i class="fa fa-fw fa-clock-o"></i>
+        </span>
+        <span class="left-nav-field">Recent Documents</span>
+      </div>
+
+      <div id="folders-button" class="onlineLeftButtons left-nav-buttons" pos="1">
+        <span class="button is-light left-button">
+          <i class="fa fa-fw fa-folder"></i>
+        </span>
+        <span class="left-nav-field">All Folders</span>
+      </div>
+
+    </div>
+
+    <div id="docs-left-bottom" class="firstLoad">
+      <div id="selections-wrapper">
+        <p id="selections-action-button">
+          <i class="fa fa-files-o" aria-hidden="true"></i>
+          <span class="number-of-selections"></span> <span>Selection(s)</span>
+        </p>
+      </div>
+
+      <div id="results" style="display:none;">
+        <div class="notification">
+          <p>Test Note</p>
+        </div>
+      </div>
+
+      <div class="left-views-container">
+        <div class="left-views-scroller pos-0">
+          <div class="left-view">
+            <!-- @import "includes/docs-recent.kit" -->
+          </div>
+
+          <div class="left-view">
+            <!-- @import "includes/docs-folders.kit" -->
+          </div>
+
+          <div class="left-view">
+            <!-- @import "includes/docs-active-folder.kit" -->
+          </div>
+
+          <div class="left-view">
+            <!-- @import "includes/docs-offline.kit" -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="docs-center-wrap" class="is-loading">
+    <!-- TOOLS -->
+
+    <!-- @import "includes/docs-no-offline-docs.kit" -->
+    <!-- @import "includes/docs-outdated-messages.kit" -->
+
+    <div id="editor-toolbar" class="no-print">
+      <!-- @import "includes/docs-toolbar.kit" -->
+    </div>
+
+    <span id="close-menu-button" class="icon no-print"> <i class="fa fa-chevron-left" aria-hidden="true"></i> </span>
+
+    <div id="mobile-topbar" class="no-print">
+      <!-- @import "includes/docs-mobile-topbar.kit" -->
+    </div>
+
+    <div id="fileLoadingStatus" class="no-print">
+      <div class="message">
+        Starting Up<br>
+        <span class='cancel-loading'>One Moment Please</span>
+      </div>
+    </div>
+
+    <div id="docs-page-wrap">
+      <!-- QUILL EDITOR INJECTED HERE -->
+    </div>
+  </div>
+
+  <div id="docs-right-wrap" class="no-print is-loading">
+    <!-- @import "includes/docs-sections.kit" -->
+
+    <!-- <div id="doc-history"></div> -->
+    
+    <div id="doc-counts">
+      <div class="countsWrapper">
+        <p class="deets" id="word-count"></p>
+        <p class="deets" id="char-count"></p>
+      </div>
+    </div>
+
+    <!-- @import "includes/docs-webclips.kit" -->
+
+    <span class="icon no-print clickable fa-stack fa-lg" id="webclips-button" onclick="showWebClips();" title="Webclips">
+      <i class="fa fa-sticky-note-o fa-stack-2x"></i>
+      <i class="fa fa-scissors fa-stack-1x"></i>
+    </span>
+
+  </div>
+</div>
+
+<span class="icon no-print clickable" id="help-button" onclick="showModal('help-modal')" title="Help"><i class="fa fa-fw fa-question"></i></span>
+<span class="icon no-print clickable" id="hotkeys-button" onclick="toggleHotkeys();" title="Markdown & Shortcuts"><i class="fa fa-keyboard-o"></i></span>
+
+<!-- @import "includes/docs-file-viewer.kit" -->
+
+<!-- MODALS START HERE -->
+
+<!-- @import "includes/modal-docs-hotkeys.kit" -->
+<!-- @import "includes/modal-key.kit" -->
+<!-- @import "includes/modal-docs-rename-folder.kit" -->
+<!-- @import "includes/modal-docs-ghost.kit" -->
+<!-- @import "includes/modal-delete-doc.kit" -->
+<!-- @import "includes/modal-delete-folder.kit" -->
+<!-- @import "includes/modal-docs-delete-selections.kit" -->
+<!-- @import "includes/modal-docs-move-selections.kit" -->
+<!-- @import "includes/modal-rename-doc.kit" -->
+<!-- @import "includes/modal-rename-inactive-doc.kit" -->
+<!-- @import "includes/modal-export.kit" -->
+<!-- @import "includes/modal-webapp.kit" -->
+<!-- @import "includes/modal-docs-summon.kit" -->
+<!-- @import "includes/modal-embed.kit" -->
+<!-- @import "includes/modal-attachment.kit" -->
+<!-- @import "includes/modal-exceeded-storage.kit" -->
+<!-- @import "includes/modal-low-storage.kit" -->
+<!-- @import "includes/modal-enoteimport.kit" -->
+<!-- @import "includes/modal-crypteedoc-import.kit" -->
+<!-- @import "includes/modal-crypteedoc-export.kit" -->
+
+<!-- @import "includes/modal-help.kit" -->
+
+<!-- @import "includes/warningmodal-offline-storage-full.kit" -->
+
+<!-- MODALS END HERE -->
+
+
+
+
+<!-- OTHER FLOATERS AND MESSAGES START HERE -->
+
+<!-- @import "includes/docs-right-click-menus.kit" -->
+
+<!-- @import "includes/docs-url-box.kit" -->
+<!-- @import "includes/docs-sync-messages.kit" -->
+<!-- @import "includes/docs-upload-download-status.kit" -->
+<!-- @import "includes/docs-toolbar-mobile.kit" -->
+
+<!-- OTHER FLOATERS AND MESSAGES END HERE -->
+
+<iframe class="hidden" id="downloadFrame"></iframe>
+
+<!-- @import "includes/footer-js.kit" -->
+
+<script src="../js/lib/magicurl.js"></script>
+<script src="../js/upgradeLegacyTitles.js"></script>
+<script src="../js/docs.js"></script>
+</body></html>

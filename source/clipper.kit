@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html data-loading="Authenticating" class="pending">
+
+<head>
+  <!-- @import "includes/app-head.kit" -->
+  <title>Cryptee | Authenticate Web Clipper</title>
+  <link rel="stylesheet" type="text/css" href="../css/clipper.css">
+
+  <meta id="uid" content="">
+  <meta id="clipperKey" content="">
+  <meta id="clipperToken" content="">
+  <meta id="create">
+  <meta id="clipperAuthenticated" content="false">
+</head>
+
+<body class="clipper-body pending">
+    <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
+
+    <!-- @import "includes/clipper-app-nav.kit" -->
+
+    <div class="columns is-mobile is-centered hidden" id="authenticating">
+        <div class="column is-half-tablet is-full-mobile">
+            <div class="has-text-centered">
+                <br><br><br>
+                <h2 class="title is-3"><b>Authenticate Web Clipper</b></h2>
+                <br>
+            </div>
+
+            <div>                
+                <div class="browser-bar">
+                    <img src="../imgs/hero-browser-bar.png" alt="browser bar">  
+                </div>
+                <div class="address-bar">
+                    <p>
+                        <span class="icon"><i class="fa fa-lock"></i></span>
+                        https://crypt.ee/clipper
+                    </p>
+                    <img src="../assets/cryptee-logo-w.svg" alt="">
+                </div>
+            </div>
+
+            <div>
+                <br>
+                <div class="clipper-icon-info">
+                    <p>Press Cryptee's Web Clipper icon in your browser's toolbar, to authenticate the web clipper.</p>
+                    <p><i>Hint: It's usually on the right side of the address bar.</i></p>
+                    <br>
+                </div>
+                <span class="icon is-medium clipper-icon-arrow">
+                    <i class="fa fa-level-up"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns is-mobile is-centered hidden" id="already">
+        <div class="column is-half-tablet is-full-mobile">
+            <div>
+                <br><br><br>
+                <h2 class="title is-3"><b>Already Authenticated</b></h2>
+                <p>It seems like you've already authenticated the extension for this browser.</p>
+                <p>You can close this tab, go ahead and clip the internet away!</p>
+                <br>
+            </div>
+            
+            <div>
+                <img src="../imgs/scissors.jpg" alt="scissors">
+            </div>
+        </div>
+    </div>
+
+    <div class="columns is-mobile is-centered" id="done">
+        <div class="column is-half-tablet is-full-mobile">
+            <div>
+                <br><br><br>
+                <h2 class="title is-3"><b>Authenticated</b></h2>
+                <p>You can now close this tab, go ahead and clip the internet away!</p>
+                <br>
+                <!-- TEACH USER HOW TO CLIP ETC. HERE -->
+            </div>
+            
+            <div>
+                <img src="../imgs/scissors.jpg" alt="scissors">
+            </div>
+        </div>
+    </div>
+
+
+    
+
+
+    
+    <!-- @import "includes/modal-key.kit" -->
+    <!-- @import "includes/modal-help.kit" -->
+    <!-- @import "includes/modal-webapp.kit" -->
+    <!-- @import "includes/footer-js.kit" -->
+    <script src="../js/clipper.js"></script>
+</body>
+</html>

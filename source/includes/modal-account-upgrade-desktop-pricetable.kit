@@ -1,0 +1,87 @@
+<div class="container is-hidden-mobile" id="pricing">
+    <div class="columns">
+
+        <div class="column">
+            <div class="notification is-white pricing-card" plan="a">
+
+                <p class="storage">10GB</p>
+                <p class="plan-name">LIGHT PLAN</p>
+
+                <p class="plan-description">Great for light document editing &amp; attaching files.</p>
+
+                <div class="cost" tier="a">
+                    <p style="display:inline-block">
+                        <span class="cur">€</span>
+                        <span class="price">3</span>
+                        <span class="per-period"> / mo</span>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="column">
+            <div class="notification is-white is-black pricing-card" plan="b">
+
+                <p class="storage">400GB</p>
+                <p class="plan-name">IDEAL PLAN</p>
+
+                <p class="plan-description">Ideal for photo libraries &amp; documents.</p>
+
+                <div class="cost" tier="b">
+                    <p style="display:inline-block">
+                        <span class="cur">€</span>
+                        <span class="price">9</span>
+                        <span class="per-period"> / mo</span>
+                    </p>
+                </div>
+
+                <p class="alt-period"><span class="this-period">billed yearly</span>, or <span
+                        class="cur">€</span><span class="other-period-price">11</span>/mo <span
+                        class="other-period">billed monthly</span></p>
+            </div>
+        </div>
+
+
+        <div class="column">
+            <div class="notification is-white pricing-card" plan="c">
+
+                <p class="storage">2000GB</p>
+                <p class="plan-name">SPACE PLAN</p>
+
+                <p class="plan-description">Perfect for large photo libraries &amp; archives.</p>
+
+                <div class="cost" tier="c">
+                    <p style="display:inline-block">
+                        <span class="cur">€</span>
+                        <span class="price">27</span>
+                        <span class="per-period"> / mo</span>
+                    </p>
+                </div>
+
+                <p class="alt-period"><span class="this-period">billed yearly</span>, or <span
+                        class="cur">€</span><span class="other-period-price">30</span>/mo <span
+                        class="other-period">billed monthly</span></p>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="has-text-centered">
+        <br>
+        <p>
+            <span class="period-button selected" period='y' onclick="switchPeriod('y');">
+                <span class="icon is-small"><i class="fa fa-fw fa-calendar-o"></i></span> &nbsp;
+                <span>billed yearly</span>
+            </span><span class="period-button" period='m' onclick="switchPeriod('m');">
+                <span class="icon is-small"><i class="fa fa-fw fa-calendar"></i></span> &nbsp;
+                <span>billed monthly</span>
+            </span>
+        </p>
+        <br><br>
+        <p class="button www-action-button is-success selected-plan-desktop-button">NEXT</p>
+    </div>
+
+</div>

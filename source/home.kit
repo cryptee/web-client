@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html class="is-loading" data-loading="Authenticating">
+
+<head>
+  <!-- @import "includes/app-head.kit" -->
+  <title>Cryptee | Home</title>
+  <link rel="stylesheet" type="text/css" href="../css/home.css">
+</head>
+
+<body class="home-body is-loading">
+  <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
+
+  <!-- @import "includes/home-app-nav.kit" -->
+
+  <div id="home-center-scroller">
+    <!-- @import "includes/home-welcome-card.kit" -->
+    <!-- @import "includes/new-pricing-card.kit" -->
+    <!-- @import "includes/home-news-section.kit" -->
+  </div>
+
+  <!-- @import "includes/modal-help.kit" -->
+  <!-- @import "includes/modal-webapp.kit" -->
+  
+  <!-- @import "includes/footer-js.kit" -->
+
+  <script type="text/javascript">
+  var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedkey
+  var dismissedPriceBanner = localStorage.getItem('dismissedPriceBanner');
+  var userCreatedAt;
+
+  loadUserDetailsFromLS();
+  checkLatestVersion();
+
+  key('d', function(){
+    window.location = "docs";
+     return false;
+  });
+
+  key('p', function(){
+    window.location = "photos";
+     return false;
+  });
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (!user) {
+      webAppURLController("signin?redirect=home");
+    } else {
+      //got user
+
+      createUserDBReferences(user);
+
+      checkForExistingUser(function(){
+        gotUser();
+        webAppURLController();
+      });
+    }
+  }, function(error){
+    if (error.code !== "auth/network-request-failed") {
+      handleError("Error Authenticating", error);
+    }
+  });
+
+  function checkForExistingUser (callback){
+    callback = callback || noop;
+    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+      if (snapshot.val() === null) {
+        window.location = "signup?status=newuser";
+      } else {
+        callback();
+      }
+    });
+  }
+
+  function gotUser() {
+    metaRef.on('value', function(snapshot) {  gotMeta(snapshot);  });
+    dataRef.child("preferences").on('value', function(snapshot) { gotPreferences(snapshot.val()); });
+  }
+
+  $(".home-item").on('click', function(event) {
+    $(this).addClass('is-loading');
+  });
+
+  if (dismissedPriceBanner === "true") {
+    dismissPriceBanner();
+  } else {
+    if (!theUserPlan || theUserPlan === "523200" || theUserPlan === "523300" || theUserPlan === "523201" || theUserPlan === "free") {
+      if (userCreatedAt < 1561362535665) {
+        showPriceBanner();
+      } else {
+        dismissPriceBanner();
+      }
+    } else {
+      dismissPriceBanner();
+    }
+  }
+  
+  function dismissPriceBanner() {
+    localStorage.setItem("dismissedPriceBanner", true);
+    $("#new-pricing-card").removeClass("shown");
+    $("#new-pricing-card").removeClass("shown");
+  }
+
+  function showPriceBanner() {
+    $("#new-pricing-card").addClass("shown");
+  }
+
+  setTimeout(function () {
+    sessionStorage.removeItem('key');
+  }, 120000); // 2 minutes later if user still haven't made a choice, remove key from session storage
+
+  checkConnection (function(status){
+    if (!status) {
+      $(".hiddenForOffline").hide();
+      $(".shownForOffline").show();
+      $(".disabledForOffline").addClass('disabled');
+      $("#main-progress").removeClass('is-success is-warning').addClass('is-info');
+    }
+  });
+
+  if (isInWebAppiOS || isInWebAppChrome) {
+    $("#settings-button").css({"right" : "2.5rem"});
+  }
+  
+  </script>
+</body></html>

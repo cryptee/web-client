@@ -1,0 +1,18 @@
+<div class="modal warning-modal" id="low-storage-warning">
+    <div class="modal-background" onclick="hideActiveWarningModal();"></div>
+    <div class="modal-content">
+      <div class="crypteecard">
+        <img lazy-src="../imgs/storage-folders.jpg">
+        <div class="content">
+          <p class="title is-5">Storage Almost Full</p>
+          <p>You're about to run out of storage space.</p>
+          <p class="is-hidden-paid-user">For the price of a cup of coffee, you can upgrade to a paid plan and remove all storage space limitations.</p>
+          <p class="is-hidden-free-user">You can switch to a larger plan and store even more of your files securely and privately.</p>
+          <br>
+          <p class="button is-success upgrade-from-ls-button" onclick="showPlans();">Upgrade</p>
+          <button class="button is-dark" onclick="hideActiveWarningModal();">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

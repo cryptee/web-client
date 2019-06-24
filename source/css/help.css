@@ -1,0 +1,374 @@
+.help-body,
+html {
+  background-size: cover;
+  background-position: center;
+  min-height: 100%;
+  background-color: #f5f5f5;
+  scroll-behavior: smooth;
+}
+
+.help-body.resultsVisible, html.resultsVisible {
+  overflow: hidden !important;
+  height: 100%;
+}
+
+#main-progress {
+  margin-top: 0;
+  margin-bottom: 0;
+  height: 3px !important;
+}
+
+/*///////////////////////////////////////////////////
+////////////////// TYPOGRAPHY ///////////////////////
+///////////////////////////////////////////////////*/
+
+h1 { 
+  font-size: 30px;
+  margin:0 0 0.75rem 0;
+
+}
+
+h2 { 
+  font-size: 24px; 
+  margin:0 0 0.75rem 0;
+}
+
+h3 { 
+  font-size: 16px; 
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 3rem;
+}
+
+a {
+  color: #000;
+}
+
+hr {
+  margin: 2rem 0;
+}
+
+blockquote {
+  padding: 1rem;
+  margin: 1rem 0;
+  background-color: #363636;
+  color: #FFF !important;
+  border-radius: 10px;
+}
+
+blockquote *:not(code) {
+  color: #FFF !important;
+}
+
+#article-contents img { 
+  border-radius: 10px;
+  margin:1rem 0 !important;
+}
+
+#article-contents a {
+  text-decoration: underline;
+}
+
+#article-contents p {
+  margin:0.25rem 0;
+}
+
+#article-contents code {
+  color: rgb(199, 37, 78);
+    background-color: rgb(249, 242, 244);
+    border-radius: 5px;
+    padding: 0.25rem 0.5rem; 
+}
+
+.ql-indent-1 {
+  margin-left: 1.5rem !important;
+}
+
+.ql-indent-2 {
+  margin-left: 3rem !important;
+}
+
+/*///////////////////////////////////////////////////
+////////////////////// NAV //////////////////////////
+///////////////////////////////////////////////////*/
+
+#help-app-nav {
+  margin-top: 1rem;
+  height: 3rem;
+}
+
+#left-nav {
+  float: left;
+  text-align: left;
+  top: 0;
+  left: 0;
+}
+
+#right-nav {
+  float: right;
+  text-align: right;
+  top: 0;
+  right: 0;
+}
+
+.help-app-nav-item {
+  width: auto;
+  height: 2rem;
+  display: inline-block;
+  margin-left: 1rem;
+  vertical-align: middle;
+}
+
+.help-app-nav-item img {
+  width: auto;
+  height: 2rem;
+}
+
+.help-column {
+	/* same as docs page width for optical OCD's sake */
+	max-width: calc(100% - 320px + 1rem);
+	margin: auto auto 0.5rem auto !important;
+}
+
+.help-card .subquestion {
+  min-height: 110px;
+}
+
+.help-card {
+  box-shadow: 0 0.25rem 0.5rem rgba(10, 10, 10, 0.1);
+  background-color: #FFF;
+  padding: 2rem;
+}
+
+.help-card .question {
+  min-height: 50px;
+  font-size: 16px;
+  margin-bottom: 0.5rem;
+}
+
+.help-img-card {
+  background-color: #FFF;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.help-img-card img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.help-img-card .button {
+  margin-bottom: 1rem;
+}
+
+#contact-form {
+  display: none;
+  margin-bottom: 8rem !important;
+}
+
+.help-tag {
+  background-color: #FFF;
+  border-radius: 3rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(10, 10, 10, 0.1);
+  padding: 1.25rem;
+  cursor: pointer;
+}
+
+#search-results .tag {
+  width: 100%;
+  height: auto;
+  justify-content: left !important;
+  border-radius: 10px;
+}
+
+#search-results .tag span:not(.icon) {
+  width: calc(100% - 3rem);
+  height: auto;
+  overflow: hidden;
+  display: inline-block;
+  white-space: normal;
+}
+
+#search-results .matching-tag {
+  background-color: #f5f5f5;
+  padding:0.25rem;
+  width: auto !important;
+}
+
+#search-results {
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+#search-results .tag * {
+  justify-content: left !important;
+  text-align: left !important;
+}
+
+#search-results .column {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#search-results .tag span::first-letter {
+  text-transform: uppercase;
+}
+
+.tags {
+  justify-content: center;
+}
+
+.tags .tag {
+  margin-bottom: 1.5rem;
+}
+
+.tags .tag:not(:last-child) {
+  margin-right: 1.5rem;
+}
+
+.is-hidden-with-content {
+  opacity: 1;
+  transform: translateY(0);
+  transition: 0.5s opacity ease, 0.5s transform ease;
+}
+
+.is-hidden-with-content.is-invisible {
+  opacity: 0;
+  transform: translateY(0.75rem);
+}
+
+.is-visible-with-content {  
+  opacity: 0;
+  transform: translateY(-0.75rem);
+  transition: 0.5s opacity ease, 0.5s transform ease;
+}
+
+.is-visible-with-content.is-visible {
+  height: fit-content;
+  overflow-y:scroll;
+
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#help-results {
+  position: absolute;
+  top: 12.5rem;
+  height: calc(100% - 12.5rem);
+  width: 100%;
+  background-color: #F5F5F5 !important;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s all ease;
+  overflow-y: scroll;
+}
+
+#help-results.visible {
+  pointer-events: all;
+  opacity: 1;
+}
+
+#article-wrapper {
+  margin-top: 2rem !important;
+}
+
+#article-contents {
+  padding: 4rem;
+}
+
+/*//////////////////////////////////////////////////
+////////////////////// FORM ////////////////////////
+//////////////////////////////////////////////////*/
+
+.contact-form {
+  width: 100%;
+  margin: auto;
+}
+
+p {
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.contact-form textarea,
+.contact-form input {
+  font-size: 16px;
+  line-height: 24px;
+  margin-top: 1rem;
+  min-width: 100%;
+  max-width: 100%;
+  width: 100%;
+  border: none;
+  border-left: 3px solid #363636;
+  background: transparent;
+  padding: 1rem;
+  box-shadow: none;
+  outline: none;
+}
+
+.help-desktop-spacer {
+  height: 4rem;
+}
+
+#search-input,
+#search-bar {
+  height: 3rem;
+  background-color: #FFF;
+}
+
+#search-bar {
+  border-radius: 3rem;
+  overflow: hidden;
+  box-shadow: 0 0.5rem 1rem rgba(10, 10, 10, 0.1);
+}
+
+#search-bar .button {
+  width: 3.5rem;
+}
+
+#search-bar .button,
+#search-bar input {
+  height: 3rem;
+}
+
+#search-input {
+  padding-left: 1.5rem;
+}
+
+@media (max-width:1065px) {
+	.help-column {
+	  max-width: calc(100% - 7rem);
+  }
+  
+  .help-card .subquestion {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  #help-results {
+    top: 8.5rem;
+    height: calc(100% - 8.5rem);
+  }
+
+  #article-contents {
+    padding: 1rem;
+  }
+
+}
+
+@media (max-width: 508px) {
+	.help-column {
+	  max-width: calc(100% - 2rem);
+  }
+
+  .help-card {
+    padding: 2rem 1rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+}

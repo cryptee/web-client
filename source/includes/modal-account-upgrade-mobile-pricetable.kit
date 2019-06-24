@@ -1,0 +1,60 @@
+<div class="container is-hidden-tablet" id="mobile-pricing">
+
+    <!-- SWITCH -->
+
+    <div class="has-text-centered">
+        <p>
+            <span class="period-button selected" period='y' onclick="switchPeriod('y');">
+                <span class="icon is-small"><i class="fa fa-fw fa-calendar-o"></i></span> &nbsp;
+                <span>billed yearly</span>
+            </span><span class="period-button" period='m' onclick="switchPeriod('m');">
+                <span class="icon is-small"><i class="fa fa-fw fa-calendar"></i></span> &nbsp;
+                <span>billed monthly</span>
+            </span>
+        </p>
+    </div>
+
+    <div class="mobile-price-cards">
+        <div class="notification mobile-pricecard" plan="a">
+            <p class="storage">10GB</p>
+            <div class="cost" tier="a">
+                <div style="display:inline-block">
+                    <span class="cur">€</span>
+                    <span class="price">3</span>
+                    <span class="per-period"> / mo</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="notification mobile-pricecard is-black" plan="b">
+            <p class="storage">400GB</p>
+            <div class="cost" tier="b">
+                <div style="display:inline-block">
+                    <span class="cur">€</span>
+                    <span class="price">9</span>
+                    <span class="per-period"> / mo</span>
+                </div>
+            </div>
+
+            <p class="alt-period"><span class="this-period">billed yearly</span>, or <span class="cur">€</span><span class="other-period-price">11</span>/mo <span class="other-period">billed monthly</span></p>
+        </div>
+
+        <div class="notification mobile-pricecard" plan="c">
+            <p class="storage">2000GB</p>
+            <div class="cost" tier="c">
+                <div style="display:inline-block">
+                    <span class="cur">€</span>
+                    <span class="price">27</span>
+                    <span class="per-period"> / mo</span>
+                </div>
+            </div>
+
+            <p class="alt-period"><span class="this-period">billed yearly</span>, or <span class="cur">€</span><span class="other-period-price">30</span>/mo <span class="other-period">billed monthly</span></p>
+        </div>
+    </div>
+
+    <div class="has-text-centered">
+        <p class="button www-action-button is-success selected-plan-mobile-button">NEXT</p>
+    </div>
+    <br><br><br><br>
+</div>
