@@ -5,24 +5,18 @@
 var huaLowStorage, huaExceededStorage = false;
 
 $("#upgrade-thanks > .notification > .delete").on('click', function(event) {
-  $("#upgrade-thanks").removeClass('showUpgradeThanks');
+  // $("#upgrade-thanks").removeClass('showUpgradeThanks');
+  loadTab("overview");
+  closeUpgrade();
 });
 
 function orderComplete () {
-  
   if (location.pathname.indexOf("account") > -1) {
     // REMOVE UPGRADE FROM URL
     history.pushState("upgrade-complete", null, '/account');
-    loadTab("overview");
-    closeUpgrade();
     $("#upgrade-thanks").addClass("showUpgradeThanks");
     ping("event", {eventCategory: "upgrade", eventAction : "complete"});
   }
-  
-  // currentPlan = meta.plan;
-  // console.log("Order Complete. New Plan is : ", meta.plan);
-  // console.log("Order Complete. New Subscription D is : ", meta.subscriptionid);
-  // console.log("Order Complete. New Account ID is : ", meta.fsaccountid);
 }
 
 function exceededStorage(callback, callbackParam) {

@@ -64,6 +64,7 @@ function wrongKey (error) {
   }, 1000);
   console.log("wrong key or ", error);
   sessionStorage.removeItem('key');
+  localStorage.removeItem('memorizedKey');
   showKeyModal();
   $('#key-status').html('<span class="icon"><i class="fa fa-exclamation-triangle fa-fw fa-sm"></i></span> Wrong key, please try again.');
   $("#key-status").addClass("shown");
@@ -249,7 +250,13 @@ function gotMeta(userMeta) {
     } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage){
       try { quill.blur(); } catch (e){}
       if (location.pathname.indexOf("home") === -1) {
-        showLowStorageWarning();
+        if (!isPaidUser) { // show at 80% for unpaid users
+          showLowStorageWarning();
+        } else {
+          if (usedStorage >= allowedStorage * 0.95) { // show at 95% for paid users
+            showLowStorageWarning();
+          }
+        }
       }
     }
 

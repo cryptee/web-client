@@ -595,32 +595,36 @@ crypteetag {
 }
 
 #docs-url-box {
-  display: none;
   position: absolute;
   transition: 0.3s ease all;
+  transform: translateY(-1rem);
   opacity: 0;
   pointer-events: none;
   bottom: 0;
-  left: 0;
+  left: 1rem;
   z-index: 95;
-  width: 100%;
+  width: calc(100% - 2rem);
   height: auto;
   margin-bottom: 0;
   padding: 0.25rem !important;
   font-size: 0.75rem;
   line-height: 1.5rem;
+  box-shadow: 0px 0.5rem 1rem rgba(0,0,0,0.15);
+  background-color: #000;
+  color:#FFF;
+  border-radius: 10px;
 }
 
 #docs-url-box.isios {
-  top: 2.5rem;
+  top: 3.5rem;
   padding: 0.75rem 0.25rem !important;
   bottom: auto;
 }
 
 #docs-url-box.is-visible {
   opacity: 1;
-  pointer-events:auto;
-  display: block;
+  pointer-events:all;
+  transform: translateY(0);
 }
 
 
@@ -632,6 +636,7 @@ crypteetag {
   display: inline-block;
   width: calc(100% - 2rem);
   float: right;
+  color:#FFF;
 }
 
 .ql-editor a::before, .ql-editor a::after {
@@ -787,19 +792,6 @@ crypteetag {
   white-space: normal;
 }
 
-#active-doc-contents.zenMode ul {
-  padding-left: 6px;
-}
-
-#active-doc-contents.zenMode ul[data-checked=true],
-#active-doc-contents.zenMode ul[data-checked=false]{
-  padding-left: 2px;
-}
-
-#active-doc-contents.zenMode ul[data-checked=true] li,
-#active-doc-contents.zenMode ul[data-checked=false] li{
-  margin-bottom: 0.5rem;
-}
 
 html {
   height: 100%;
@@ -3957,27 +3949,6 @@ body.draggingStuff {
   height: auto !important;
 }
 
-#upgrade-thanks {
-  position: fixed;
-  top: 4rem;
-  width: 100%;
-  margin-top: -1028px;
-  transition: all ease 1s;
-  z-index: 98;
-  overflow: scroll;
-  padding: 0 1rem 2rem 1rem;
-  min-height: 250px;
-}
-
-#upgrade-thanks > .notification {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 600px;
-  width: 100%;
-  height: 100%;
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-}
-
 #enoteimport-modal .modal-content {
   box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
   border-radius: 0.5rem !important;
@@ -4348,165 +4319,8 @@ body.draggingStuff {
   transform: translateX(0px);
 }
 
-
-/* DOCS ZEN MODE  */
-
-#active-doc-contents.zenMode {
-  padding-top: 44px;
-}
-
-#active-doc-contents.zenMode .ql-editor {
-  padding: 1rem 2rem;
-  margin: auto;
-  font-size: 1.2rem;
-  max-width: calc(825px);
-}
-
-#doc-contextual-buttons.zenMode {
-  opacity: 0;
-  pointer-events: none;
-  height: 0;
-}
-
-#doc-top.zenMode #toolbar-container {
-  margin-left: auto;
-  margin-right: auto;
-  width: 785px;
-}
-
-#doc-top.zenMode #upload-progress {
-  height: 2px !important;
-}
-
-.zenMode .ql-editor p {
-  line-height: 1.75rem !important;
-  margin-bottom: 0.75rem !important;
-}
-
-.zenMode .ql-editor ul>li.ql-direction-rtl {
-  margin-right: 3px;
-}
-
-.zenMode .ql-editor ol li.ql-direction-rtl {
-  padding-right: calc(1.75rem + 6px) !important;
-  margin-right: calc(-0.3rem - 3px) !important;
-}
-
-/* #doc-top.zenMode {
-  padding: 0 15vw;
-  min-width: 1027px;
-} */
-
-/*///////////////////////////////////////////////////
-////////////////////// CONTACTS /////////////////////
-///////////////////////////////////////////////////*/
-
-#contacts-import-input, #contacts-import-input-two, .folder-upload-input {
+.folder-upload-input {
   display: none;
-}
-
-#contacts-welcome {
-
-}
-
-#import-status, #api-unsupported, #contacts-welcome, #download-status, #decrypting-status, #contacts-list, #delete-contact, #confirm-delete-contact, #add-contact-box {
-  display: none;
-}
-
-#contacts-wrap {
-  max-height: 60vh;
-  overflow: hidden;
-}
-
-#contacts, #contact-details {
-  overflow-y: scroll;
-  height: calc(60vh - 30px);
-}
-
-.contact-card {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-#contact-display {
-  display: none;
-  padding:1.25rem;
-}
-
-#contact-display > .field > label, #contact-display > .new-fields > .field > label, #add-contact-box > .field > label {
-  color: #fff;
-}
-
-.detail-input, .detail-area {
-  border: none;
-  background: rgba(255,255,255,0.03);
-  color: #fff;
-}
-
-.add-more-info {
-  width: 100%;
-}
-
-.new-fields {
-  display: none;
-}
-
-.contact-card.itsMobile, #contacts-list.itsMobile {
-  margin-bottom: 1rem !important;
-}
-
-#search-bar.itsMobile{
-  margin-bottom: 0rem;
-}
-
-#contacts-wrap.itsMobile{
-  height: calc(100% - 100px);
-  max-height: 100%;
-  border: 0;
-}
-
-#contacts.itsMobile, #contact-details.itsMobile {
-  padding: 0;
-  height: 100%;
-}
-
-#contacts-list.itsMobile, .contacts-hero-body.itsMobile{
-  height: calc(100% - 35px);
-}
-
-.contacts-action-buttons{
-  margin-left:auto;
-}
-
-.contacts-tabs {
-  margin-bottom: 0 !important;
-  padding: 0.5rem !important;
-}
-
-.contacts-tabs > ul, .contacts-tabs > ul > li > a, .settings-tabs > ul, .settings-tabs > ul > li > a {
-  border : 0 !important;
-}
-
-#modal-status {
-  color: #FFF;
-  margin-bottom: 10px;
-}
-
-.approveModal {
-  color: #FFF;
-  cursor: pointer;
-  display: inline-block;
-  vertical-align: top;
-  height: 40px;
-  position: fixed;
-  right: 20px;
-  top: 20px;
-  width: 40px;
-  z-index: 9999;
-  font-size: 21px !important;
-  background-color: transparent;
-  border: none
 }
 
 /*///////////////////////////////////////////////////
@@ -6403,14 +6217,6 @@ body.draggingStuff {
   }
   #active-doc-contents {
     padding-top: 98px;
-  }
-  #active-doc-contents.zenMode {
-    padding-top: 68px;
-  }
-  #doc-top.zenMode #toolbar-container {
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
   }
 }
 

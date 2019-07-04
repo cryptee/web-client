@@ -1580,7 +1580,7 @@ function gotUserPeriod(period) {
     userHasMonthlyPlan();
   }
   switchPeriod(period);
-  $(".prorate-plans[period='"+period+"']").find(".prorate-plan[quota='"+formatBytes(allowedStorage)+"']").addClass("current");
+  $(".prorate-plans[period='"+period+"']").find(".prorate-plan[quota='"+plansObject[theUserPlan].formattedQuota+"']").addClass("current");
 }
 
 if (theUserPlan) {
@@ -1706,33 +1706,6 @@ function prorateComplete() {
   }, 1000);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function emailInvoices() {
   var addressToUse = $("#invoice-email").val().trim();
   $(".email-invoices-button").addClass("is-loading").prop("disabled", true);
@@ -1747,23 +1720,6 @@ function emailInvoices() {
   });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function showCancelSubsButton() {
   $("#cancelSubscriptionNotification").slideDown();
   $("#prorateView").slideUp();
@@ -1777,12 +1733,6 @@ function cancelSubscription() {
   dataRef.update({"cancelsub" : "cancel"});
   $("#cancelSubscriptionNotification").find("button").addClass("is-loading").prop("disabled", true);
 }
-
-
-
-
-
-
 
 
 

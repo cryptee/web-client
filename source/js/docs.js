@@ -526,7 +526,7 @@ $("#docs-page-wrap").on('touchstart', 'ul[data-checked="false"] > li, ul[data-ch
   event.preventDefault();
 });
 
-$('.ql-editor').on('click touchend', function(event) {
+$('.ql-editor').on('click', function(event) {
   if (event.target.tagName.toLowerCase() === 'a') {
     // event.preventDefault();
     showURLBox(event.target.href);
@@ -553,9 +553,9 @@ function showURLBox(href) {
 }
 
 function hideURLBox() {
+  if (isMobile) { $("#docs-url-box").removeClass("is-visible"); }
   $("#docs-url-box").find("a").attr("href", "");
   $("#docs-url-box").find("a").html("");
-  if (isMobile) { $("#docs-url-box").removeClass("is-visible"); }
 }
 
 $("#mobile-floating-undo").on("click", function(){
@@ -611,11 +611,6 @@ key('command+shift+o, ctrl+shift+o', function(){
   return false;
 });
 
-key('command+\\, ctrl+\\', function(){
-  $("#hamburger").click();
-  return false;
-});
-
 key('command+], ctrl+]', function(){ quill.format('indent', '+1'); return false; });
 key('command+[, ctrl+[', function(){ quill.format('indent', '-1'); return false; });
 key('command+s, ctrl+s', function(){
@@ -635,7 +630,11 @@ key('command+shift+alt+s, ctrl+shift+alt+s', function(){
 });
 
 
-key('command+l, ctrl+l', function(){ showEmbed("formula"); return false; });
+key('command+l, ctrl+l', function(){ 
+  showEmbed("formula"); 
+  return false; 
+});
+
 key('command+shift+6, ctrl+shift+6', function(){
 
   var curFormat = quill.getFormat();
@@ -653,6 +652,7 @@ key('command+shift+6, ctrl+shift+6', function(){
 
   return false;
 });
+
 key('command+shift+7, ctrl+shift+7', function(){ 
   var curFormat = quill.getFormat();
   var range = quill.getSelection();
@@ -663,6 +663,7 @@ key('command+shift+7, ctrl+shift+7', function(){
   }
   return false; 
 });
+
 key('command+shift+8, ctrl+shift+8', function(){ 
   var curFormat = quill.getFormat();
   var range = quill.getSelection();
@@ -673,9 +674,26 @@ key('command+shift+8, ctrl+shift+8', function(){
   }
   return false; 
 });
-key('command+shift+s, ctrl+shift+s', function(){ $(".ql-strike").click(); return false; });
-key('command+., ctrl+.', function(){ showAttachmentSelector(" "); return false; });
-key('command+/, ctrl+/', function(){ toggleHotkeys(); return false; });
+
+key('command+shift+s, ctrl+shift+s', function(){ 
+  $(".ql-strike").click(); 
+  return false;
+});
+
+key('command+/, ctrl+/', function(){ 
+  toggleHotkeys(); 
+  return false; 
+});
+
+key('command+., ctrl+.', function(){
+  $("#hamburger").click();
+  return false;
+});
+
+key('command+\\, ctrl+\\', function(){
+  $(".ql-clean").click();
+  return false;
+});
 
 key('command+a, ctrl+a', function(){ 
   var toReturnOrNotTo = true;
@@ -2934,6 +2952,7 @@ function updateDocTitleTagsAndGenInCatalog(doc) {
   var did = doc.docid;
   var tags = doc.tags || [];
 
+  catalog.docs[did] = catalog.docs[did] || {};
   catalog.docs[did].gen = doc.generation || 0;
 
   gotEncryptedDocTitle(did, doc.title);
@@ -7750,7 +7769,12 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
       }
 
       var attachmentType = resObj.mime;
-      var attachmentContent = resObj.data.__text.replace(/\n/g, "");
+      var attachmentContent;
+      if (resObj.data.__text) {
+        attachmentContent = resObj.data.__text.replace(/\n/g, "");
+      } else {
+        attachmentContent = "";
+      }
       if (attachmentContent.indexOf("data:") === -1 ) {
         attachmentContent = "data:"+attachmentType+";base64," + attachmentContent;
       }
@@ -10117,6 +10141,7 @@ $("#webclips").on('click', ".wclip-insert-button", function(event) {
   } 
 
 }); 
+
 
 
 
