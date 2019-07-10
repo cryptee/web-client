@@ -16,6 +16,13 @@ $(".tabs").on('click', 'li', function(event) {
 });
 
 $(window).on("load", function(event) {
+  if (inIframe()){
+    $(".hero-banner").removeClass("is-8");
+    $(".column.is-4").remove();
+    $(".title.is-1").html("WARNING");
+    $(".title.is-3").html("This page is loaded in an iframe.<br>You are not on crypt.ee!");
+  }
+
   if ($(window).width() > 768) {
     $.ajax({url: photoJSON}).done(function(data) {
       var usObj = JSON.parse(data);

@@ -27,6 +27,14 @@ if (isIOSChrome) {
    isGoogleChrome = false;
 }
 
+function inIframe () {
+  try {
+      return window.self !== window.top;
+  } catch (e) {
+      return true;
+  }
+}
+
 var canUploadFolders = false;
 
 var availableDesktopMemory = 512 * 1000000; // 512MB

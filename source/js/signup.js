@@ -254,6 +254,12 @@ $(window).on("resize", function() {
 
 $(window).on("load", function(event) {
 
+  if (inIframe()){
+    $("#signup-auth-methods").remove();
+    $(".signup-title").html("This page is loaded in an iframe. You are not on CRYPT.EE!");
+    $(".title.is-3").html("WARNING");
+  }
+
   if (getUrlParameter("status") === "newuser") {
     // as soon as we get firebase auth, we'll take the user to the encryption key view, but on slow connections this could take a few seconds.
     // disable selections until then just to be safe.
