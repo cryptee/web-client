@@ -17,10 +17,10 @@ function isCanvasBlocked () {
 		var imageData = ctx.createImageData(1,1);
 		var originalImageData  = imageData.data;
 
-		// set pixels to RGB 0
-		originalImageData[0]=0; 
-		originalImageData[1]=0; 
-		originalImageData[2]=0; 
+		// set pixels to RGB 128
+		originalImageData[0]=128; 
+		originalImageData[1]=128; 
+		originalImageData[2]=128; 
 		originalImageData[3]=255;
 		
 		// set this to canvas
@@ -32,9 +32,9 @@ function isCanvasBlocked () {
 
 			// If this is firefox, and privacy.resistFingerprinting is enabled,
 			// OR a browser extension blocking the canvas, 
-			// This will return RGB all white (255,255,255) instead of the (0,0,0) we put.
+			// This will return RGB all white (255,255,255) instead of the (128,128,128) we put.
 
-			// so let's check the R and G to see if they're 255 or 0 (matching what we've initially set)
+			// so let's check the R and G to see if they're 255 or 128 (matching what we've initially set)
 			if (originalImageData[0] !== checkData[0] && originalImageData[1] !== checkData[1]) {
 				blocked = true;
 				console.log("Canvas is blocked. Will display warning.");

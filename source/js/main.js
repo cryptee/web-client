@@ -1309,3 +1309,28 @@ if (isAndroid) {
   $(".is-not-in-chrome").show();
   $(".is-in-chrome").hide();
 }
+
+
+///////////////////////////////////////////
+////// SEARCH RELATED HELPER FUNCTIONS ////
+///////////////////////////////////////////
+
+function underlineSearchResult(indices,string) {
+  var pair = indices.shift();
+  var formattedString = string;
+  var resultname = [];
+  // Build the formatted string
+  for (var j = 0; j < string.length; j++) {
+    var char = string.charAt(j);
+    if (pair && j == pair[0]) {
+      resultname.push('<u>');
+    }
+    resultname.push(char);
+    if (pair && j == pair[1]) {
+      resultname.push('</u>');
+      pair = indices.shift();
+    }
+  }
+  formattedString = resultname.join('');
+  return formattedString;
+}

@@ -1153,6 +1153,7 @@ function hideMenu () {
     }
     wrappersToMove.removeClass("showLeft");
     clearSearch();
+    hideRightClickMenu();
   }
 }
 
@@ -6985,21 +6986,7 @@ function displaySearchResults (results, term) {
         }
 
         if (mtch.key === "name") {
-          var pair = mtch.indices.shift();
-          var resultname = [];
-          // Build the formatted string
-          for (var j = 0; j < resultTitle.length; j++) {
-            var char = resultTitle.charAt(j);
-            if (pair && j == pair[0]) {
-              resultname.push('<u>');
-            }
-            resultname.push(char);
-            if (pair && j == pair[1]) {
-              resultname.push('</u>');
-              pair = mtch.indices.shift();
-            }
-          }
-          resultTitle = resultname.join('');
+          resultTitle = underlineSearchResult(mtch.indices,resultTitle);
         }
       });
       var resultCard = 

@@ -90,30 +90,6 @@ function deleteQueryBatch (query, resolve, reject) {
 
 
 
-////////////////////////////////////////////////////
-/////////////////// STATUS DISPLAY //////////////////
-////////////////////////////////////////////////////
-
-function showProgress (status) {
-  $("#status").html(status);
-  $(".loading-message").stop(true, true).fadeIn(100);
-}
-
-function hideProgress (callback) {
-  callback = callback || noop;
-  $(".loading-message").stop(true, true).fadeOut(100, function() {
-    callback();
-  });
-}
-
-
-
-
-
-
-
-
-
 
 ////////////////////////////////////////////////////////
 /////////////////// CONNECTION STATUS  /////////////////
@@ -167,24 +143,41 @@ function hideBootOffline () {
 /////////////////// LOADING STATUS  /////////////////
 ////////////////////////////////////////////////////////
 
-function showWindowProgress () {
+function showBackgroundProgress() {
   // $("#nav-logo").animate({opacity : 0}, 300, function(){
-     $("#nav-logo").attr("src", "../assets/loading-f5f5f5.gif");
-  //   $("#nav-logo").animate({opacity : 1}, 300);
+    $("#nav-logo").attr("src", "../assets/loading-f5f5f5.gif");
+    // $("#nav-logo").animate({opacity : 1}, 300);
   // });
-  $("#folder-contents").addClass("is-loading");
   $("#main-progress").removeAttr("value");
 }
 
-function hideWindowProgress () {
+function hideBackgroundProgress() {
   // $("#nav-logo").animate({opacity : 0}, 300, function(){
     $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
     // $("#nav-logo").animate({opacity : 1}, 300);
   // });
-  $("#folder-contents").removeClass("is-loading");
   $("#main-progress").attr("value", "100");
 }
 
+function showWindowProgress () {
+  showBackgroundProgress();
+  $("#folder-contents").addClass("is-loading");
+}
+
+function hideWindowProgress () {
+  hideBackgroundProgress();
+  $("#folder-contents").removeClass("is-loading");
+}
+
+function showLibraryUpdate (msg) {
+  showWindowProgress();
+  $("#folder-contents").addClass("is-updating").attr("update-status", msg);
+}
+
+function hideLibraryUpdate () {
+  hideWindowProgress();
+  $("#folder-contents").removeClass("is-updating");
+}
 
 
 
@@ -271,18 +264,35 @@ $(window).on('scroll', throttleScroll(function(event) {
 ////////////////////////////////////////////////////
 
 $("#photos-sort-button").on('click', function(event) {
-  if ($(this).find("i").hasClass("fa-sort-alpha-desc")) {
-    $(this).find("i").removeClass("fa-sort-alpha-desc").addClass("fa-sort-alpha-asc");
-    sortByTitle(true);
-  } else {
-    $(this).find("i").addClass("fa-sort-alpha-desc").removeClass("fa-sort-alpha-asc");
-    sortByTitle();
-  }
+  $("#photos-sort-nav").toggleClass("visible");
+});
+
+$(".sort-button").on('click', function(event) {
+  $(".sort-button").removeClass("selected");
+  $(this).addClass("selected");
+  var sorttype = $(this).attr("id");
+
+  setTimeout(function () {
+    if (sorttype === "sort-az-asc") {
+      sortByTitle();
+    }
+    if (sorttype === "sort-az-desc") {
+      sortByTitle(true);
+    }
+    if (sorttype === "sort-date-asc") {
+      sortByDate();
+    }
+    if (sorttype === "sort-date-desc") {
+      sortByDate(true);
+    }
+  }, 250);
 });
 
 function sortByTitle (reverse){
   reverse = reverse || false;
+  $(".sort-button").removeClass("selected");
   if (reverse) {
+    $("#sort-az-desc").addClass("selected");
     $('.folder-content').sort(function(a, b) {
       if ($(a).attr("photositemname") > $(b).attr("photositemname")) {
         return -1;
@@ -291,8 +301,37 @@ function sortByTitle (reverse){
       }
     }).appendTo('#folder-contents');
   } else {
+    $("#sort-az-asc").addClass("selected");
     $('.folder-content').sort(function(a, b) {
       if ($(a).attr("photositemname") < $(b).attr("photositemname")) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }).appendTo('#folder-contents');
+  }
+
+  hideWindowProgress();
+}
+
+function sortByDate (reverse){
+  reverse = reverse || false;
+  $(".sort-button").removeClass("selected");
+  if (reverse) {
+    // up -> down = newest -> oldest
+    $("#sort-date-desc").addClass("selected");
+    $('.folder-content').sort(function(a, b) {
+      if ($(a).attr("datesort") > $(b).attr("datesort")) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }).appendTo('#folder-contents');
+  } else {
+    // up -> down = oldest -> newest
+    $("#sort-date-asc").addClass("selected");
+    $('.folder-content').sort(function(a, b) {
+      if ($(a).attr("datesort") < $(b).attr("datesort")) {
         return -1;
       } else {
         return 1;
@@ -605,7 +644,7 @@ function doesTheThumbnailExist(tid, callback) {
 
 function sadlyPurgeFile(pidOrTid) {
 
-  getFolderThumbnail(activeFID, function(thumb){
+  getFolderThumbnailID(activeFID, function(thumb){
     var isFolderThumbDeleted = false;
     var pid = pidOrTid.replace("t", "p");
 
@@ -743,7 +782,8 @@ function processItemsFromFirestore (fid, items, callback, callbackParam) {
         hideWindowProgress();
       } else {
         getTitles(fid, contents, function(){
-          $("#photos-sort-button").find("i").addClass("fa-sort-alpha-desc").removeClass("fa-sort-alpha-asc");
+          $(".sort-button").removeClass("selected");
+          $("#sort-az-asc").addClass("selected");
           hideWindowProgress();
           callback(callbackParam);
         });
@@ -779,7 +819,7 @@ function newFolder (newFTitle, preassignedFID, callback, callbackParam) {
     progressModal("photos-new-folder-modal");
     var uuid = newUUID();
     var fid = preassignedFID || "f-" + uuid;
-    var folderObject = {"count" : 0, "id" : fid };
+    var folderObject = {"count" : 0, "id" : fid, "date" : "" };
     homeRef.doc(fid).set(folderObject, {
       merge: true
     }).then(function(response) {
@@ -795,7 +835,7 @@ function newFolder (newFTitle, preassignedFID, callback, callbackParam) {
         }
 
         hideEmptyFolderDialog();
-        folderCreated(fid, 0, newFTitle, function(){
+        folderCreated(fid, newFTitle, function(){
           callback(callbackParam);
           sortByTitle();
         });
@@ -805,6 +845,180 @@ function newFolder (newFTitle, preassignedFID, callback, callbackParam) {
     });
   }
 }
+
+
+
+////////////////////////////////////////////////////
+/////////      HELPERS & ABSTRACTIONS       ////////
+////////////////////////////////////////////////////
+
+// THIS DOWNLOADS THE ORIGINAL, DECRYPTS, RETURNS B64 OR ERROR
+// HEAVY OPERATION. BE CAREFUL WITH THIS. 
+
+function getB64OfPhotoID (id, callback, errorCallback) {
+  callback = callback || noop;
+  errorCallback = errorCallback || noop;
+  if (id) {     
+    var fileRef = rootRef.child(id + ".crypteefile");
+    fileRef.getDownloadURL().then(function(fileURL) {
+      $.ajax({ url: fileURL, type: 'GET',
+        success: function(encryptedFileContents){
+          var theEncryptedFileContents = JSON.parse(encryptedFileContents).data;
+          decrypt(theEncryptedFileContents, [theKey]).then(function(plaintext) {
+            var decryptedContents = plaintext.data;
+            callback(decryptedContents);
+          }).catch(function(error) {
+            errorCallback(error);
+          });
+        },
+        error:function (xhr, ajaxOptions, thrownError){
+          errorCallback(thrownError);
+        }
+      });
+    }).catch(function(error) {
+      
+      error.pidOrTid = id;
+      handleError("Error getting download URL for photo", error);
+      errorCallback(error);
+
+      switch (error.code) {
+        case 'storage/object-not-found':
+          fixFile(id);
+          break;
+        case 'storage/unauthorized':
+          fixFilesAndFolders();
+          break;
+        case 'storage/canceled':
+          break;
+        case 'storage/unknown':
+          break;
+      }
+
+    });
+  } else {
+    errorCallback(null);
+  }
+}
+
+
+
+// THIS DOWNLOADS THE ORIGINAL, DECRYPTS, GETS B64 AND EXTRACTS DATE.
+// SUPER HEAVY OPERATION. BE CAREFUL WITH THIS. 
+
+function getEXIFDateStringOfPhotoID(pidOrTid, fid, callback, callbackParam) {
+  callback = callback || noop;
+  fid = fid || null;
+  var date;
+  var pid = pidOrTid.replace("t-", "p-").replace("l-", "p-");
+
+  if (fid) {
+    breadcrumb('[EXIF] – GETTING EXIF DATE OF: ' + pid);
+    homeRef.doc(fid).collection(fid).doc(pid).get().then(function(item) {
+      var photoObject = item.data();
+      date = photoObject.date;
+      if (date) {
+        // if photo has date, use it
+        breadcrumb('[EXIF] – GOT EXIF DATE OF: ' + pid);
+        callback(date);
+      } else {
+        // photo doesn't have date, so extract from original
+        breadcrumb('[EXIF] – COULDNT FIND EXIF DATE. MUST BE A LEGACY PHOTO. WILL EXTRACT FROM ORIGINAL: ' + pid);
+        extractEXIFFromOriginalPhoto();
+      }
+    }).catch(function(error) {
+      //photo doesn't exist!? try extracting from original
+      breadcrumb('[EXIF] – COULDNT FIND EXIF DATE. MUST BE A LEGACY PHOTO. WILL EXTRACT FROM ORIGINAL: ' + pid);
+      extractEXIFFromOriginalPhoto();
+    });
+  } else {
+    // didn't get folder id reference, so can't use photo date even if there's any, extract from original
+    breadcrumb('[EXIF] – COULDNT FIND EXIF DATE. MUST BE A LEGACY PHOTO. WILL EXTRACT FROM ORIGINAL: ' + pid);
+    extractEXIFFromOriginalPhoto(); 
+  }
+
+  function extractEXIFFromOriginalPhoto() {
+    breadcrumb('[EXIF] – DOWNLOADING ORIGINAL OF: ' + pid);
+    getB64OfPhotoID(pid, function(origB64){
+      if (origB64) {
+        
+        getEXIF(origB64, function (exif) {
+          if (exif) {
+            if (exif.DateTime) { 
+              var date = exif.DateTime;
+              callback(date);
+            } else {
+              // no date found in exif
+              callback(null);
+            }
+          } else {
+            // no exif found
+            callback(null);
+          }
+        });
+      
+      } else {
+        // couldn't get b64 of original. 
+        callback(null);
+      }
+    }, function(error){
+      // couldn't get b64 of original. 
+      callback(null);
+    });
+  }
+
+}
+
+
+
+function timeFromEXIF (exifDateString) {
+  var result = "";
+  try {
+    if (exifDateString.split(' ')[1]) {
+      result = exifDateString.split(' ')[1];
+    }   
+  } catch (e) {}
+  
+  return result;
+}
+
+
+
+function dateFromEXIF (exifDateString) {
+  var result = "";
+  try {
+    if (exifDateString.split(' ')[0]) {
+      result = exifDateString.split(' ')[0];
+    }   
+  } catch (e) {}
+  
+  return result;
+}
+
+
+
+function fancyDate (dateString) {
+  var result = null;
+  if (dateString) {
+    var months = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    var year = dateString.split(":")[0].slice(2,4);
+    var month = dateString.split(":")[1];
+    var monthName = months[parseInt(month)];
+    result = (monthName + " " + "&#39;" + year);
+  }
+  return result;
+}
+
+function sortableExifDate (dateString) {
+  var result = "00000000";
+  if (dateString) {
+    var year = dateString.split(":")[0];
+    var month = dateString.split(":")[1];
+    var day = dateString.split(":")[2].split(" ")[0];
+    result = year + "" + month + "" + day;
+  }
+  return result;
+}
+
 
 
 ///////////////////////////////////////////////////
@@ -1460,12 +1674,13 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
   var lightRef = rootRef.child(lid + ".crypteefile");
 
   var plaintextFileContents = fileContents;
-  var dominant, thumbnail, lightboxPreview;
+  var dominant, thumbnail, lightboxPreview, exifDate;
 
-  generateThumbnails(plaintextFileContents, function(resizedB64sObject){
+  generateThumbnailsAndNecessaryMeta(plaintextFileContents, function(uploadObject){
   // generatePrimitive(plaintextFileContents, function(pn){
-    thumbnail = resizedB64sObject.thumbnail;
-    lightboxPreview = resizedB64sObject.lightbox;
+    thumbnail = uploadObject.thumbnail;
+    lightboxPreview = uploadObject.lightbox;
+    exifDate = uploadObject.date;
 
     generateDominant(function(dmnt){
       dominant = dmnt;  
@@ -1543,7 +1758,7 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
                             // LIGHTBOX PREVIEW UPLOADED.
 
                             $("#upload-"+pid).remove();
-                            photoUploadComplete(fid, pid, dominant, thumbnail, filename, callback, callbackParam);
+                            photoUploadComplete(fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam);
 
                           }
                         }, function(error) {
@@ -1602,10 +1817,11 @@ function handleUploadError (pid, filename, error, callback, callbackParam) {
   }
 }
 
-function photoUploadComplete (fid, pid, dominant, thumbnail, filename, callback, callbackParam) {
+function photoUploadComplete (fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam) {
   callback = callback || noop;
   callbackParam = callbackParam || pid;
-  var photoObject = {"id" : pid, "pinky" : dominant};
+  var photoObject = { "id" : pid, "pinky" : dominant };
+  if (exifDate) { if (exifDate !== "") { photoObject.date = exifDate; } } // "YYYY:MM:DD HH:MM:SS" 
   var whereTo;
 
   if (fid === "home") {
@@ -1723,6 +1939,7 @@ function getThumbnail (pid, fid) {
               tmpImg.onload = function(){
                 $("#" + id).find("img").replaceWith(tmpImg);
                 $("#sr-" + id).find("img").replaceWith(tmpImg);
+                $(".sr-folder-photo[pid="+id+"]").find("img").replaceWith(tmpImg);
                 setTimeout(function(){
                   $("img[tid="+tid+"]").addClass("is-loaded");
 
@@ -1733,7 +1950,9 @@ function getThumbnail (pid, fid) {
                   } else {
                     $("#" + id).find(".album").removeClass("is-loading");
                   }
+                  
                   $("#sr-" + id).find(".image").removeClass("is-loading");
+                  $(".sr-folder-photo[pid="+id+"]").removeClass("is-loading");
 
                   setTimeout(function(){
                     $("#" + id).find(".photo").css("background-color", "transparent");
@@ -1871,6 +2090,7 @@ function generateFolderThumbnail(fid) {
         merge: true
       }).then(function(response) {
         getThumbnail(thumb, fid);
+        setFolderDateFromThumbnailEXIF(fid);
       }).catch(function(error) {
        console.error("Error saving folder's generated thumbnail:", error);
       });
@@ -1896,8 +2116,10 @@ function setFolderThumbnail() {
         homeRef.doc(activeFID).set(folderObject, {
           merge: true
         }).then(function(response) {
-          $("#" + pid).find(".photo").removeClass("is-loading");
-          clearSelections();
+          setFolderDateFromThumbnailEXIF(activeFID, function() {
+            clearSelections();
+            $("#" + pid).find(".photo").removeClass("is-loading");
+          });
         }).catch(function(error) {
          console.error("Error saving folder's thumbnail:", error);
         });
@@ -1906,7 +2128,7 @@ function setFolderThumbnail() {
   });
 }
 
-function getFolderThumbnail(fid, callback) {
+function getFolderThumbnailID(fid, callback) {
   callback = callback || noop;
   if(fid !== "home") {
     homeRef.doc(fid).get().then(function(item) {
@@ -2122,7 +2344,7 @@ function moveFolderSelectionMade () {
 
   function moveThem (fidToMoveTo) {
     var thumbnailIsMoving = false;
-    getFolderThumbnail(activeFID, function(thumb){
+    getFolderThumbnailID(activeFID, function(thumb){
       var selectionsArray = Object.keys(selectionsObject);
       selectionsArray.forEach(function(pid) {
         if (thumb) {
@@ -2175,18 +2397,18 @@ function generatePinkynail (imgB64, callback) {
 var resizedCanvas, originalCanvas, orientationCanvas;
 var resizedContext, originalContext, orientationContext;
 
-function generateThumbnails(imgB64, callback) {
+function generateThumbnailsAndNecessaryMeta(imgB64, callback) {
     // image sizes in max pixels – for the longest dimension of image 
 
     var sizes = { "lightbox" : 1920, "thumbnail" : 768 };
     var qualities = { "lightbox": 0.5, "thumbnail": 0.3 };
-    var b64OfImages = { "lightbox" : "", "thumbnail" : "" };
+    var uploadObject = { "lightbox" : "", "thumbnail" : "", "date" : "" };
 
     getEXIF(imgB64, function (exif) {
         var orientation;
         if (exif.Orientation) { orientation = exif.Orientation; }
-
-        // reuse these globally in the interest of saving memory if garbage collection is shittier / slower than expected.
+        if (exif.DateTime) { uploadObject.date = exif.DateTime; } 
+        // reuse these canvases globally in the interest of saving memory if garbage collection is shittier / slower than expected.
 
         resizedCanvas = resizedCanvas || document.createElement("canvas");
         resizedContext = resizedContext || resizedCanvas.getContext("2d");
@@ -2270,10 +2492,10 @@ function generateThumbnails(imgB64, callback) {
                 resizedCanvas.height = originalCanvas.height * ratio;
 
                 resizedContext.drawImage(originalCanvas, 0, 0, originalCanvas.width, originalCanvas.height, 0, 0, resizedCanvas.width, resizedCanvas.height);
-                b64OfImages[size] = resizedCanvas.toDataURL("image/jpeg", qualities[size]);
+                uploadObject[size] = resizedCanvas.toDataURL("image/jpeg", qualities[size]);
             }
 
-            callback(b64OfImages);
+            callback(uploadObject);
         };
     });
 }
@@ -2343,20 +2565,20 @@ function hideEmptyFolderDialog (callback) {
   });
 }
 
-function folderCreated (fid, fcount, fname, callback, callbackParam) {
+function folderCreated (fid, fname, callback, callbackParam) {
   callback = callback || noop;
   if (activeFID === "home") {
     activeItemsObject[fid].title = fname;
-    renderFolder(fid, fcount, fname, "", "", updateTitles, callback, callbackParam);
+    renderFolder(fid, fname, "", "", "",updateTitles, callback, callbackParam);
   } else {
     callback(callbackParam);
   }
 }
 
-function renderFolder (fid, fcount, fname, pinky, thumb, callback, callback2, callbackParam2) {
+function renderFolder (fid, fname, pinky, thumb, exifDate, callback, callback2, callbackParam2) {
   callback = callback || noop;
   callback2 = callback2 || noop;
-  fcount = fcount || 0;
+  
   fname = fname || "Untitled";
   pinky = pinky || '<img draggable="false" src="../assets/nothumb.jpg" style="opacity:1;" class="is-loaded">';
 
@@ -2382,10 +2604,17 @@ function renderFolder (fid, fcount, fname, pinky, thumb, callback, callback2, ca
 
   var theParsedFoldername = "";
   try { theParsedFoldername = JSON.parse(fname); } catch (e) { theParsedFoldername = fname; }
-  var year = yearFromTitle(theParsedFoldername);
+  
+  var date = yearFromTitle(theParsedFoldername) || fancyDate(exifDate) || "";
   var titleWithoutYear = yearOmittedTitle(theParsedFoldername);
+  var sortableDate;
+  if (yearFromTitle(theParsedFoldername)) {
+    sortableDate = yearFromTitle(theParsedFoldername) + "0000";
+  } else {
+    sortableDate = sortableExifDate(exifDate) || "";
+  }
 
-  var folderDivOpener = '<div photositemname="'+theParsedFoldername+'" class="column is-full folder-content albumitem" id="'+fid+'" fcount="'+ (year || fcount) +'" style="'+dominant+'">';
+  var folderDivOpener = '<div photositemname="'+theParsedFoldername+'" class="column is-full folder-content albumitem" id="'+fid+'" date="'+ date +'" datesort="'+sortableDate+'" style="'+dominant+'">';
   var folderHTML =
     '<div class="album '+loadingColor+'" style="'+dominant+'">'+
       pinkyObj +
@@ -2407,11 +2636,12 @@ function renderFolder (fid, fcount, fname, pinky, thumb, callback, callback2, ca
   }
 }
 
-function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
+function renderPhoto (pid, nail, pname, exifDate, callback, callbackParam) {
   callback = callback || noop;
   pname = pname || "Untitled.jpg";
   nail = nail || "";
-
+  var sortableDate = sortableExifDate(exifDate) || "";
+  var date = fancyDate(exifDate) || "";
   // PINKY IS A PINKYNAIL. IT'S A 35X35 PIXEL VERSION OF THE IMAGE, THAT HOPEFULLY ISN'T TOO INVASIVE FOR PRIVACY.
   // IT ALLOWS TO DISPLAY A BLURRED VERSION OF THE IMAGE, WHILE THE ACTUAL THUMBNAIL IS LOADING. WE STORE THIS UNENCRYPTED
   // TO SAVE TIME. IF WE REALIZE THAT THIS IS UNNECESSARY, WE CAN SKIP THIS TOO LATER. BUT FOR NOW I'M ADDING IT JUST IN CASE.
@@ -2419,8 +2649,6 @@ function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
   var isItLoading = "";
   var isLoaded = "";
   var loadingColor = "is-black-loader";
-  // if (!justUploaded) { isItLoading = "is-loading"; } else { isLoaded = 'opacity : 1'; }
-  if (justUploaded) { isLoaded = 'opacity : 1'; }
   if (pid in selectionsObject) { isItSelected = " selected"; }
 
   var theParsedFilename = "";
@@ -2440,7 +2668,7 @@ function renderPhoto (pid, nail, pname, justUploaded, callback, callbackParam) {
     }
   }
 
-  var photoDivOpener = '<div photositemname="'+theParsedFilename+'" class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem '+isItSelected+'" id="'+pid+'" style="'+dominant+'">';
+  var photoDivOpener = '<div photositemname="'+theParsedFilename+'" class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem '+isItSelected+'" id="'+pid+'" date="'+ date +'" datesort="'+sortableDate+'" style="'+dominant+'">';
   var photoHTML =
     '<div class="photo '+isItLoading+' '+loadingColor+'" style="'+dominant+'">'+
       imgElem +
@@ -2464,9 +2692,9 @@ function renderDOMElement (id){
 
   if (activeItemsObject[id]) {
     if (id.startsWith('p-')) {
-      domElement = renderPhoto(id, activeItemsObject[id].pinky, activeItemsObject[id].title);
+      domElement = renderPhoto(id, activeItemsObject[id].pinky, activeItemsObject[id].title, activeItemsObject[id].date);
     } else if (id.startsWith('f-')) {
-      domElement = renderFolder(id, activeItemsObject[id].count, activeItemsObject[id].title, activeItemsObject[id].pinky, activeItemsObject[id].thumb);
+      domElement = renderFolder(id, activeItemsObject[id].title, activeItemsObject[id].pinky, activeItemsObject[id].thumb, activeItemsObject[id].date);
     } else { 
       // wtf. neither photo nor folder.
       handleError("User has a non-photo/non-folder item", {"id": id});
@@ -2485,17 +2713,27 @@ function renderDOMElement (id){
 
 
 
-function renderFolderShell(id, title, count) {
-  var year = yearFromTitle(title);
-  var html = "<div photositemname='"+title+"' class='column is-full folder-content albumitem shell' id='"+id+"' fcount='"+ (year || count) +"'><progress class='progress is-small is-dark'></progress></div>";
+function renderFolderShell(id, title, exifDate) {
+  var date = yearFromTitle(title) || fancyDate(exifDate) || "";
+  var sortableDate;
+  if (yearFromTitle(title)) {
+    sortableDate = yearFromTitle(title) + "0000";
+  } else {
+    sortableDate = sortableExifDate(exifDate) || "";
+  }
+  var html = "<div photositemname='"+title+"' class='column is-full folder-content albumitem shell' id='"+id+"' date='"+ date +"' datesort='"+sortableDate+"'><progress class='progress is-small is-dark'></progress></div>";
   return html;
 }
 
-function renderPhotoShell (id, title) {
+function renderPhotoShell (id, title, exifDate) {
   var theParsedFilename = "";
   try { theParsedFilename = JSON.parse(title); } catch (e) { theParsedFilename = title; }
   theParsedFilename = titleFromFilename(theParsedFilename);
-  var html = "<div photositemname='"+theParsedFilename+"' class='column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem shell' id='"+id+"'></div>";
+  
+  var sortableDate = sortableExifDate(exifDate) || "";
+  var date = fancyDate(exifDate) || "";
+
+  var html = "<div photositemname='"+theParsedFilename+"' class='column is-one-quarter-desktop is-one-third-tablet is-half-mobile folder-content photoitem shell' id='"+id+"' date='"+ date +"' datesort='"+sortableDate+"'></div>";
   return html;
 }
 
@@ -2504,9 +2742,9 @@ function renderDOMShell (id) {
 
   if (activeItemsObject[id]) {
     if (id.startsWith('p-')) {
-      shellElement = renderPhotoShell(id, activeItemsObject[id].title);
+      shellElement = renderPhotoShell(id, activeItemsObject[id].title, activeItemsObject[id].date);
     } else if (id.startsWith('f-')) {
-      shellElement = renderFolderShell(id, activeItemsObject[id].title, activeItemsObject[id].count);
+      shellElement = renderFolderShell(id, activeItemsObject[id].title, activeItemsObject[id].date);
     } else { 
       // wtf. neither photo nor folder.
     }
@@ -2754,10 +2992,20 @@ function processTitles (titlesObject, contents, callback) {
 
       activeItemsObject[id].pinky = item.data().pinky;
       activeItemsObject[id].title = "Untitled"; // as a placeholder
+      if (item.data().date) {
+        activeItemsObject[id].date = item.data().date;
+      } else {
+        activeItemsObject[id].date = "";
+      }
 
       if (id.startsWith('f-')) {
         activeItemsObject[id].count = item.data().count;
         activeItemsObject[id].thumb = item.data().thumb;
+        if (!item.data().date) {
+          if (item.data().date !== "") {
+            foldersWithoutDates.push(id);
+          }
+        }
       }
     } else {
       breadcrumb("[Process Titles] Caught item without id in fstore : " + item.ref.path);
@@ -2858,6 +3106,18 @@ function processTitles (titlesObject, contents, callback) {
   } else {
     breadcrumb("[Process Titles] Completed."); 
   }
+
+  // if there's albums without dates, use the date from the thumbnail photo,
+  // and add a date to these albums
+
+  if (!isMobile) {
+    if (foldersWithoutDates.length > 0) {
+      updateFoldersWithoutDates();
+    } else {
+      hideLibraryUpdate();
+    }
+  }
+
 }
 
 
@@ -2913,6 +3173,9 @@ function updateTitles (callback, callbackParam) {
 
 
 function encryptAndUploadTitles (titlesObjectToEncrypt, fid, callback, callbackParam) {
+  callback = callback || noop;
+  
+  
   var plaintextTitles = JSON.stringify(titlesObjectToEncrypt);
   lastActivityTime = (new Date()).getTime();
   encrypt(plaintextTitles, [theKey]).then(function(ciphertext) {
@@ -3044,9 +3307,11 @@ $("#folder-contents").on("keydown", '.phototitle, .albumtitle', function(event) 
         var tempTitle = theinput.val();
         var year = yearFromTitle(tempTitle);
         if (year) { 
-          theinput.parents(".folder-content").attr("fcount", year); 
+          theinput.parents(".folder-content").attr("date", year); 
+          theinput.parents(".folder-content").attr("datesort", year + "0000"); 
         } else {
-          theinput.parents(".folder-content").attr("fcount", "");
+          theinput.parents(".folder-content").attr("date", "");
+          theinput.parents(".folder-content").attr("datesort", "");
         }
       }
     }
@@ -3079,6 +3344,15 @@ $("#folder-contents").on("blur", '.phototitle, .albumtitle', function(event) {
           input.parents(".folder-content").find(".album").removeClass("is-loading");
           input.attr("placeholder", trimmedTitle);
           input.val(yearOmittedTitle(trimmedTitle));
+
+          var year = yearFromTitle(trimmedTitle);
+          if (!year) {
+            var date = activeItemsObject[fidOrPid].date;
+            year = (fancyDate(date) || "").replace("&#39;", "'") || "";
+          }
+          input.parents(".folder-content").attr("date", year);
+          input.parents(".folder-content").attr("datesort", year + "0000");
+
           console.log("folder title updated.");
         });
       } else {
@@ -3475,7 +3749,7 @@ function deleteSelections() {
   completedDeletions = 0;
   numOfSelectionsToDelete = Object.keys(selectionsObject).length;
   $("#photos-delete-selections-modal").find(".subtitle").html("Deleting (0 / " + numOfSelectionsToDelete + ")");
-  getFolderThumbnail(activeFID, function(thumb){
+  getFolderThumbnailID(activeFID, function(thumb){
     var isFolderThumbDeleted = false;
     $.each(selectionsObject, function(pid) {
 
@@ -3534,7 +3808,7 @@ function areDeletionsComplete(pid, isFolderThumbDeleted) {
       delete activeItemsObject[pid];
     });
 
-    $(".selected").remove();
+    $(".photoitem.selected").remove();
     selectionsObject = {};
 
     updateTitles(function(){
@@ -3579,7 +3853,7 @@ $("#folder-contents").on('click', '.photo-selection', function(event) {
       var foldercontent = $(this).parents(".folder-content");
       selectionsObject[foldercontent.attr("id")] = activeItemsObject[foldercontent.attr("id")].title;
 
-      var shiftSel = foldercontent.prevUntil(".selected", ".photoitem");
+      var shiftSel = foldercontent.prevUntil(".photoitem.selected", ".photoitem");
       shiftSel.each(function(i, selection) {
         var selpid = $(selection).attr("id");
         selectionsObject[selpid] = activeItemsObject[selpid].title;
@@ -3626,7 +3900,7 @@ $("#folder-contents").on("click", '.photoitem', function(event) {
 
         selectionsObject[pid] = activeItemsObject[pid].title;
 
-        var shiftSel = selPhoto.prevUntil(".selected", ".photoitem");
+        var shiftSel = selPhoto.prevUntil(".photoitem.selected", ".photoitem");
         shiftSel.each(function(i, selection) {
           var selpid = $(selection).attr("id");
           selectionsObject[selpid] = activeItemsObject[selpid].title;
@@ -3901,7 +4175,7 @@ function lightboxPhotoChanged(pid) {
     var prevImgThumb = $("#" + prevSlidePID).find("img").attr("src");
     
     if (nextImgThumb) {
-      if (nextImgThumb !== "") {
+      if (nextImgThumb !== "" && nextImgThumb !== "//:0") {
         $("#lightbox-next-button").html("<img src='"+nextImgThumb+"' draggable='false'>");
         $("#lightbox-next-button").on('click', function(event) {
           lightbox.slideNext();
@@ -3910,7 +4184,7 @@ function lightboxPhotoChanged(pid) {
     }
 
     if (prevImgThumb) {
-      if (prevImgThumb !== "") {
+      if (prevImgThumb !== "" && prevImgThumb !== "//:0") {
         $("#lightbox-prev-button").html("<img src='"+prevImgThumb+"' draggable='false'>"); 
         $("#lightbox-prev-button").on('click', function(event) {
           lightbox.slidePrev();
@@ -4096,8 +4370,9 @@ var searchOptions = {
   location: 0,
   distance: 100,
   maxPatternLength: 32,
-  minMatchCharLength: 1,
+  minMatchCharLength: 2,
   includeMatches: true,
+  includeScore: true,
   keys: [ "name", "fname" ]
 };
 
@@ -4239,112 +4514,177 @@ function clearSearch () {
 
   setTimeout(function () {
     $("#photos-search-contents").html("");
-    $(".photos-top-nav, .photos-nav-spacer, #folder-contents").removeClass("search-active");
+    $("html, body").removeClass("search-active");
   }, 500);
 
   currentResultSelection = 0;
 }
 
+function showSearch (callback) {
+  callback = callback || noop;
 
-function displaySearchResults (results, term) {
-  $("#photos-search-contents").html("");
-  var resultsToAppend = [];
-  $.each(results, function(i, rslt) {
-    if (i <= 48) { // limits search results to max 48 so that it's divisible by 6
-      var result = rslt.item;
-      var resultTitle = result.name;
-      var resultFTitle = result.fname;
-      var resultFID = result.fid;
-
-      $.each(rslt.matches, function(i, mtch) {
-        if (mtch.key === "name") {
-          var pair = mtch.indices.shift();
-          var resultname = [];
-          // Build the formatted string
-          for (var j = 0; j < resultTitle.length; j++) {
-            var char = resultTitle.charAt(j);
-            if (pair && j == pair[0]) {
-              resultname.push('<u>');
-            }
-            resultname.push(char);
-            if (pair && j == pair[1]) {
-              resultname.push('</u>');
-              pair = mtch.indices.shift();
-            }
-          }
-          resultTitle = resultname.join('');
-        }
-
-        if (mtch.key === "fname") {
-          var fpair = mtch.indices.shift();
-          var resultfname = [];
-          // Build the formatted string
-          for (var k = 0; k < resultFTitle.length; k++) {
-            var fchar = resultFTitle.charAt(k);
-            if (fpair && k == fpair[0]) {
-              resultfname.push('<u>');
-            }
-            resultfname.push(fchar);
-            if (fpair && k == fpair[1]) {
-              resultfname.push('</u>');
-              fpair = mtch.indices.shift();
-            }
-          }
-          resultFTitle = resultfname.join('');
-        }
-      });
-
-      var srCard =
-      '<div class="column card photos-search-result sr-'+result.pid+'" pid="'+result.pid+'" ptitle="'+result.name+'" id="sr-'+result.pid+'">'+
-      '  <div class="card-image photos-sr-photo" pid="'+result.pid+'">'+
-      '    <figure class="image is-loading">'+
-      '      <img src="" id="">'+
-      '    </figure>'+
-      '  </div>'+
-      '  <div class="card-content">'+
-      '     <p class="title is-5 photos-sr-photo"  pid="'+result.pid+'">'+resultTitle+'</p>'+
-      '     <p class="subtitle is-6 photos-sr-folder" fid="'+result.fid+'" fname="'+result.fname+'"><span class="icon"><i class="fa fa-book"></i></span> '+resultFTitle+'</p>'+
-      '  </div>'+
-      '</div>';
-
-      resultsToAppend.push(srCard);
-    }
-  });
-  $("#photos-search-contents").append(resultsToAppend.join(""));
-
-  $(".photos-top-nav, .photos-nav-spacer, #folder-contents").addClass("search-active");
+  $("html, body").addClass("search-active");
   setTimeout(function () {
     $("#photos-search-contents").addClass("search-active");
   }, 500);
 
+  callback();
+}
+
+var searchResultsPhotosToDownload = [];
+var searchResultsFolderPhotosToDownload = [];
+function displaySearchResults (results, term) {
+  $("#photos-search-contents").html("");
+  var resultsToAppend = [];
+  searchResultsPhotosToDownload = [];
+  searchResultsFolderPhotosToDownload = [];
+  var resultFolders = {};
+
+  $.each(results, function(i, rslt) {
+    
+    if (searchResultsPhotosToDownload.length <= 80) { // limits search results to max 80 so that it's divisible by 4, and it's 20 rows
+      var result = rslt.item;
+      var resultTitle = result.name;
+      var resultFTitle = result.fname;
+      var resultFID = result.fid;
+      var resultPID = result.pid;
+      var matchesAlbumName = false;
+      var matchesPhotoName = false;
+      $.each(rslt.matches, function(i, mtch) {
+        if (mtch.key === "name") {
+          resultTitle = underlineSearchResult(mtch.indices,resultTitle);
+          matchesPhotoName = true;
+        }
+
+        if (mtch.key === "fname") {
+          resultFTitle = underlineSearchResult(mtch.indices,resultFTitle);
+          resultFolders[resultFID] = resultFolders[resultFID] || {};
+          resultFolders[resultFID].photos = resultFolders[resultFID].photos || [];
+          resultFolders[resultFID].photos.push(resultPID);
+          resultFolders[resultFID].title = resultFTitle;
+          resultFolders[resultFID].fid = resultFID;
+          matchesAlbumName = true;
+        }
+      });
+
+      if (matchesPhotoName) {
+        resultsToAppend.push(searchResultPhoto(resultPID, resultFID, resultTitle, resultFTitle));
+        searchResultsPhotosToDownload.push(rslt);
+      }
+
+    } else {
+      return false;
+    }
+
+  });
+  
+  // photos first
+  $("#photos-search-contents").append(resultsToAppend.join(""));
+  
+  //folders first
+  var folderResultsHTML = prepareSearchResultFolders(resultFolders);
+  $("#photos-search-contents").append(folderResultsHTML);
+  
+
+  showSearch();
+
   searchTimer = setTimeout(function () {
-    $.each(results, function(i, rslt) {
-      var resultPID = rslt.item.pid;
-      getThumbnail (resultPID);
+    $.each(searchResultsPhotosToDownload, function(i, rslt) {
+      getThumbnail(rslt.item.pid);
     });
+
+    $.each(searchResultsFolderPhotosToDownload, function(i, pid) {
+      getThumbnail(pid);
+    });    
+
   }, 250);
+  
+  function searchResultPhoto(pid, fid, ptitle, ftitle) {
+    ptitle = ptitle.replace(".jpg", "").replace(".png", "").replace(".jpeg", "").replace(".JPG", "").replace(".PNG", "").replace(".JPEG", "");
+    var photo =
+    '<div class="column is-3 photos-search-result sr-'+pid+'" fid="'+fid+'" pid="'+pid+'" ptitle="'+ptitle+'" id="sr-'+pid+'">'+
+    '  <div class="photos-sr-photo image is-loading" pid="'+pid+'">'+
+    '     <img src="" id="">'+
+    '  </div>'+
+    '  <p class="title is-5 photos-sr-photo">'+ptitle+'</p>'+
+    '  <p class="subtitle is-6 photos-sr-folder">'+ftitle+'</p>'+
+    '</div>';
+  
+    return photo;
+  }
+  
+  function searchResultFolder(srfolder) {
+    var fid = srfolder.fid;
+    var ftitle = srfolder.title;
+    var photosText = "Photos";
+    var numPhotos = srfolder.photos.length;
+    if (numPhotos === 1) { photosText = "Photo"; }
+    var folder =
+    '<div class="column is-half-tablet is-full-mobile photos-search-result-folder sr-'+fid+'" fid="'+fid+'" ftitle="'+ftitle+'" id="sr-'+fid+'">'+
+      '<div class="sr-folder-images">'+
+        searchResultFolderPhotos(srfolder.photos) +
+      '</div>'+
+    '  <p class="title is-5 photos-sr-folder">'+ftitle+'</p>'+
+    '  <p class="subtitle is-6">('+numPhotos+' ' +photosText+')</p>'+
+    '</div>';
+  
+    return folder;
+  }
+  
+  function searchResultFolderPhotos(photos) {
+    var foldersPhotos = [];
+    $.each(photos, function(i, pid) {
+      if (i <= 3) { // 4 photos is good
+        var photo =
+        '  <div class="sr-folder-photo image is-loading" pid="'+pid+'">'+
+        '     <img src="" id="">'+
+        '  </div>';
+        foldersPhotos.push(photo);
+        searchResultsFolderPhotosToDownload.push(pid);
+      }
+    });
+  
+    return foldersPhotos.join("");
+  }
+
+  function prepareSearchResultFolders(folders) {
+    var folderResultsToAppend = [];
+    $.each(folders, function(i, folder) {
+      folderResultsToAppend.push(searchResultFolder(folder));
+    });
+    return folderResultsToAppend.join("");
+  }
+
 }
 
 $('#photos-search-contents').on('click', '.photos-sr-photo', function(event) {
-  var fidToLoad = $(this).parents(".photos-search-result").find(".photos-sr-folder").attr("fid");
-  var pidToLoad = $(this).parents(".photos-search-result").attr("pid");
-  var titleToLoad = $(this).parents(".photos-search-result").find("title").text();
+  var result = $(this).parents(".photos-search-result");
+  var fidToLoad = result.attr("fid");
+  var pidToLoad = result.attr("pid");
+  
   clearSearch ();
   homeFolderLoaded = false; otherFolderLoaded = false;
   if (fidToLoad === "home") {
     getHomeFolder(function(){
-      loadPhoto(pidToLoad, titleToLoad, "display");
+      setTimeout(function () {
+        // give it some time for the lightbox to initialize (takes milliseconds but nevertheless)
+        loadPhoto(pidToLoad, "", "display");
+      }, 100);
     });
   } else {
     getAllFilesOfFolder (fidToLoad,function(){
-      loadPhoto(pidToLoad, titleToLoad, "display");
+      setTimeout(function () {
+        // give it some time for the lightbox to initialize (takes milliseconds but nevertheless)
+        loadPhoto(pidToLoad, "", "display");
+      }, 100);
     });
   }
 });
 
-$('#photos-search-contents').on('click', '.photos-sr-folder', function(event) {
+$('#photos-search-contents').on('click', '.photos-sr-folder, .sr-folder-images', function(event) {
+  var fidToLoad = $(this).parents(".photos-search-result").attr("fid") || $(this).parents(".photos-search-result-folder").attr("fid");
+  
   clearSearch ();
-  var fidToLoad = $(this).attr("fid");
   homeFolderLoaded = false; otherFolderLoaded = false;
   if (fidToLoad === "home") {
     getHomeFolder();
@@ -4386,53 +4726,152 @@ function downloadActiveLightboxPhotoToDisk () {
   } else {
     // NOT IOS PROCEED DOWNLOADING THE ORIGINAL.
     $("#lightbox-download").addClass("is-loading");
-    var activePhotoOriginalRef = rootRef.child(activePID + ".crypteefile");
-    activePhotoOriginalRef.getDownloadURL().then(function(downloadURL) {
-      $.ajax({ url: downloadURL, type: 'GET',
-        success: function(encryptedPhoto){
-          var encryptedB64 = JSON.parse(encryptedPhoto).data;
-          decrypt(encryptedB64, [theKey]).then(function(plaintext) {
-            var decryptedPhoto = plaintext.data;
-            downloadPhotoToDisk(activePID, activePName, decryptedPhoto);
-          });
-        },
-        error:function (xhr, ajaxOptions, thrownError){
-          $("#lightbox-download").removeClass("is-loading");
-          handleError("Error downloading original photo to save to disk", thrownError);
-          var errorText = "A rather strange error happened! Please try reloading. Please try again shortly, or contact our support. We're terribly sorry about this.";
-        }
-      });
-    }).catch(function(error) {
-      var errorText;
-      handleError("Error getting download URL for original photo", error);
+
+    getB64OfPhotoID (activePID, function(decryptedPhoto){
+      downloadPhotoToDisk(activePID, activePName, decryptedPhoto);
+    }, function(error) {
       $("#lightbox-download").removeClass("is-loading");
-      switch (error.code) {
-        case 'storage/object-not-found':
-          errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support. We're terribly sorry about this.";
-          // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
-          // Chances are we've got a problem.
-          // showDocProgress(errorText);
-          fixFile(pid);
-          break;
-        case 'storage/unauthorized':
-          errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support. We're terribly sorry about this.";
-          // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
-          // Chances are we've got a problem.
-          // showDocProgress(errorText);
-          fixFilesAndFolders();
-          break;
-        case 'storage/canceled':
-          errorText = "A strange error happened while trying to load this file. It might be because you may have closed your browser while this doc was being saved";
-          // showDocProgress(errorText);
-          break;
-        case 'storage/unknown':
-          errorText = "We can't seem to load this file. It's a mystery why. Somehow our servers are acting. Please try again shortly, or contact our support. We're terribly sorry about this.";
-          // showDocProgress(errorText);
-          break;
-      }
+      handleError("Error downloading original photo to save to disk", error);    
     });
+
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////
+/////////        CREATE FOLDER DATES        ////////
+////////////////////////////////////////////////////
+
+var foldersWithoutDates = [];
+
+function setFolderDateFromThumbnailEXIF(fid, callback, callbackParam) {
+  callback = callback || noop;
+  var dateToSet = "";
+  breadcrumb('[EXIF] – SETTING FOLDER DATE FROM ITS THUMBNAIL EXIF:' + fid);
+  showBackgroundProgress(); 
+
+  if (fid) {
+
+    getFolderThumbnailID(fid, function(tid){
+      if (tid) {
+        breadcrumb('[EXIF] – GOT FOLDER THUMBNAIL ID: ' + tid);
+        getEXIFDateStringOfPhotoID(tid, fid, function(date) {
+          var dateToSet = dateFromEXIF(date) || ""; // "YYYY:MM"      –  i.e. "2019:07" 
+          breadcrumb('[EXIF] – GOT DATE FOR: ' + tid + " (" + dateToSet + ")");
+          setFolderDate(fid, dateToSet);
+        });
+      } else {
+        breadcrumb('[EXIF] – COULDNT GET FOLDER THUMB: ' + fid + " – SKIPPING");
+        setFolderDate(fid);
+      }
+    });
+  
+  } else {
+    console.error("Folder ID can't be undefined in setFolderDate");
+    callback(callbackParam);
+  }
+
+
+
+  function setFolderDate(fid, dateToSet) {
+    dateToSet = dateToSet || "";
+    homeRef.doc(fid).update({ "date" : dateToSet }).then(function(response) {
+      breadcrumb('[EXIF] – DONE SETTING DATE FOR: ' + fid);
+      try {
+        // if folder is in foldersWithoutDates, remove it.
+        foldersWithoutDates.splice( foldersWithoutDates.indexOf(fid) , 1 );
+      } catch (e) {}
+      hideBackgroundProgress();
+      callback(callbackParam);
+    }).catch(function(error) {
+      console.error("Error setting folder date from its thumbnail's EXIF:", error);
+    });
+  }
+
+
+}
+
+function updateFoldersWithoutDates() {
+  if (foldersWithoutDates.length > 0) {
+    breadcrumb('[EXIF UPDATE] – ADDING DATES TO FOLDERS IN ACTIVE DIRECTORY (' + foldersWithoutDates.length + " LEFT)");
+    showLibraryUpdate(foldersWithoutDates.length + " ITEMS LEFT");
+    
+    setFolderDateFromThumbnailEXIF(foldersWithoutDates[0], function(){
+      updateFoldersWithoutDates();
+    });
+
+  } else {
+    breadcrumb('[EXIF UPDATE] – COMPLETED. ADDED DATES TO FOLDERS IN ACTIVE DIRECTORY');
+    // done. restart
+    sessionStorage.setItem("key", JSON.stringify(keyToRemember));
+    window.location.reload();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

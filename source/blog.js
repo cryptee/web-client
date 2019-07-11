@@ -18,7 +18,8 @@ function insertEmailForm() {
             '<input type="hidden" name="web" value="1">'+
             '<p>Enter your email to subscribe to updates.</p>'+
             '<input type="email" name="email" placeholder="me@example.com">'+
-            '<input type="submit" value="Subscribe">'+
+            '<input type="submit" value="Subscribe"><br><br>'+
+            '<p>You can also subscribe via Mastodon, Pleroma,<br>or any ActivityPub-enabled service using <b>@read@blog.crypt.ee!</b></p>' +
         '</form>'+
     '</div>';
 

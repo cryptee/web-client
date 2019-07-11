@@ -1,6 +1,11 @@
 /*///////////////////////////////////////////////////
 ////////////////////// GENERAL //////////////////////
 ///////////////////////////////////////////////////*/
+
+html {
+	background-color: #f5f5f5;
+}
+
 .album progress.progress:indeterminate {
 	animation: progress-indeterminate-dark 3s ease infinite !important;
 	background: #ffffff linear-gradient(to right, #363636 50%, #ffffff 50%) top left/150% 150% no-repeat !important;
@@ -118,6 +123,97 @@
 .photos-top-nav .button * {
   color: #666 !important;
   transition: 0.3s color ease;
+}
+
+.photos-sub-nav {
+	width: 280px;
+	margin-left: auto;
+	height: 3.5rem;
+	background-color: #000;
+	padding: 0.25rem;
+	border-radius: 10px;
+	box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15);
+	text-align: right;
+	overflow: hidden;
+	pointer-events: none;
+	transform: translateY(-0.5rem);
+	opacity: 0;
+	transition: 0.5s transform ease, 0.5s opacity ease,  0.5s height ease, 0.5s padding ease;
+}
+
+.photos-sub-nav span {
+	color : #FFF;
+	background-color: transparent;
+	border: none;
+	height: 3rem;
+	line-height: 3rem;
+}
+
+.photos-sub-nav span:not(.button), .photos-sub-nav span:last-of-type {
+	margin-right: 0.25rem;
+}
+
+.photos-sub-nav .sep {
+	margin-right: 1rem !important;
+}
+
+*:not(.search-active) .photos-top-nav.sticky + .photos-nav-spacer + .photos-sub-nav {
+	position: fixed;
+	top: 4rem;
+	right: 1rem;
+	z-index: 98;
+	will-change: position;
+}
+
+.photos-sub-nav.visible {
+	transform: translateY(0rem);
+	opacity: 1;
+	pointer-events: all;
+}
+
+.photos-sub-nav .button {
+	width: 2.5rem;
+	height: 2.5rem;
+	margin: 0.25rem 0;
+	border-radius: 3rem;
+	padding:10px;
+	text-align:center;
+	background-color: transparent;
+	transition: 0.3s background-color ease;
+}
+
+.photos-sub-nav .button .icon {
+	font-size: 15px;
+	color: #fff;
+	transition: 0.3s color ease;
+}
+
+.photos-sub-nav .button.selected {
+	background-color: #FFF;
+}
+
+.photos-sub-nav .button.selected * {
+	color: #000;
+}
+
+.photos-sub-nav .sortby {
+	user-select: none;
+	color:#ccc;
+}
+
+*.search-active .photos-sub-nav {
+	transform: translateY(-0.5rem);
+	opacity: 0;
+	pointer-events: none;
+}
+
+html.search-active, body.search-active {
+	overflow: hidden;
+	height: 100vh;
+	max-height: 100vh;
+	min-height: 0 !important;
+	position: fixed;
+	width: 100%;
 }
 
 /*//////////////////////////////////////////////////////
@@ -323,12 +419,13 @@
 	box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
 }
 
-.albumitem[fcount]:after { 
-    content: attr(fcount);
+.albumitem[date]:after { 
+    content: attr(date);
     font-family: Montserrat;
-    font-size: 10rem;
+	font-size: 7rem;
+	line-height: 7rem;
     position: absolute;
-    bottom: -3rem;
+    bottom: 0rem;
     left: calc(50% + 1rem);
     opacity: 0.1;
     text-transform: uppercase;
@@ -445,14 +542,15 @@
 }
 
 @media (max-width: 708px) {
-	.albumitem[fcount]:after { 
+	.albumitem[date]:after { 
 		/* opacity: 0; */
 		font-size: 4rem;
-		bottom: 0;
+		line-height: 4rem;
+		bottom: 1.5rem;
 		z-index: 11;
 		margin-bottom: -1.5rem;
 		pointer-events: none;
-		left: 50%;
+		left: calc(50% - 0.25rem);
 		width: 50%;
 		text-align: right;
 	}

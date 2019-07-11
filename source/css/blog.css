@@ -120,6 +120,7 @@ article:not(.post-body) {
 /* FOOTER */
 #subscribe {
     margin-bottom: 2rem;
+    text-align: center;
 }
 
 footer nav, footer hr {
