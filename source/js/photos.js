@@ -1821,7 +1821,13 @@ function photoUploadComplete (fid, pid, dominant, thumbnail, filename, exifDate,
   callback = callback || noop;
   callbackParam = callbackParam || pid;
   var photoObject = { "id" : pid, "pinky" : dominant };
-  if (exifDate) { if (exifDate !== "") { photoObject.date = exifDate; } } // "YYYY:MM:DD HH:MM:SS" 
+  if (exifDate) { if (exifDate !== "") { 
+    photoObject.date  = exifDate;
+    try { photoObject.year  = exifDate.split(":")[0] || "";               } catch (error) {} 
+    try { photoObject.month = exifDate.split(":")[1] || "";               } catch (error) {} 
+    try { photoObject.day   = exifDate.split(":")[2].split(" ")[0] || ""; } catch (error) {} 
+    try { photoObject.time  = exifDate.split(' ')[1] || "";               } catch (error) {} 
+  } } // "YYYY:MM:DD HH:MM:SS" 
   var whereTo;
 
   if (fid === "home") {

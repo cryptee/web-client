@@ -6409,6 +6409,14 @@ body.draggingStuff {
   .feature-columns .column {
     margin: 2rem 0;
   }
+
+  .www-body #pricing .cost {
+    font-size: 2.5rem;
+  }
+  
+  .www-body #pricing .pricing-card {
+    padding:2rem 1rem;
+  }
 }
 
 @media (max-width: 500px) {
