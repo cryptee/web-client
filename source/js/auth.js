@@ -167,8 +167,8 @@ function createUserDBReferences(user) {
 
   theUser = user;
   theUserID = theUser.uid;
-  theUsername = theUser.displayName;
   theEmail = theUser.email;
+  theUsername = theUser.displayName || theEmail;
   emailVerified = theUser.emailVerified;
 
   rootRef = store.ref().child('/users/' + theUserID);
@@ -176,7 +176,7 @@ function createUserDBReferences(user) {
   metaRef = db.ref().child('/users/' + theUserID + "/meta/");
   
   setSentryUser(theUserID);
-  $('.username').html(theUsername || theEmail);
+  $('.username').html(theUsername);
 
   /////////////////////////////
   // APP SPECIFIC REFERENCES //
