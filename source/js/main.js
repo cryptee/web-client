@@ -37,19 +37,6 @@ function inIframe () {
 
 var canUploadFolders = false;
 
-var availableDesktopMemory = 512 * 1000000; // 512MB
-var availableMobileMemory  = 128 * 1000000; // 128MB
-var memoryLimit = 0;
-
-if (performance) {
-  if (performance.memory) {
-    if (performance.memory.jsHeapSizeLimit) {
-      availableDesktopMemory = (performance.memory.jsHeapSizeLimit / 1.5);
-      availableMobileMemory  = (performance.memory.jsHeapSizeLimit / 1.5);
-    }
-  }
-}
-
 var isMSFT = false;
 if (detectIE() !== false) {
   isMSFT = true;
@@ -316,13 +303,6 @@ function detectIE() {
   // other browser
   return false;
 }
-
-if (isMobile) {
-  memoryLimit = availableMobileMemory;
-} else {
-  memoryLimit = availableDesktopMemory;
-}
-
 
 
 
