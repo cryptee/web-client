@@ -32,6 +32,8 @@ var zipForPaddle;
 var couponForPaddle = getUrlParameter("coupon") || "";
 
 var encryptedStrongKey;
+var theKey;
+var keyToRemember;
 
 loadUserDetailsFromLS();
 checkLatestVersion();
@@ -706,7 +708,7 @@ function fillDataExporter (data, meta, orders) {
     var theData = data.toJSON();
     delete theData.cryptmail;
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theData));
-    $("#account-data-json").append("<a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Account Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Account Data (JSON File)</a><br>");
+    $("#account-data-json").append("<a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Docs & Preferences Metadata.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Docs & Preferences Metadata (JSON File)</a><br>");
     exportData = data;
     dataAdded = true;
   }
@@ -714,7 +716,7 @@ function fillDataExporter (data, meta, orders) {
   if (meta && !metaAdded) {
     var theMeta = meta.toJSON();
     var metaStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theMeta));
-    $("#account-data-json").append("<a style='text-decoration:none;' href='"+metaStr+"' download='Cryptee Meta Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Meta Data (JSON File)</a><br>");
+    $("#account-data-json").append("<a style='text-decoration:none;' href='"+metaStr+"' download='Cryptee Account Metadata.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Account Metadata (JSON File)</a><br>");
     metaAdded = true;
   }
 
@@ -724,6 +726,60 @@ function fillDataExporter (data, meta, orders) {
     $("#account-data-json").append("<a style='text-decoration:none;' href='"+ordersStr+"' download='Cryptee Orders Data.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Orders Data (JSON File)</a><br>");
     ordersAdded = true;
   }
+
+  var necessaryFreeStorage = formatBytes(usedStorage + (usedStorage * 0.25));
+  $("#necessary-storage").html(necessaryFreeStorage);
+}
+
+$("#prepare-downloads-button").on('click', function(event) {
+  if ($("#key-input-downloads").val().trim() !== "") {
+    checkKey($("#key-input-downloads").val().trim());
+  }
+});
+
+$("#key-input-downloads").on('keyup', function(event) {
+  if (event.keyCode == 13) {
+    if ($("#key-input-downloads").val().trim() !== "") {
+      checkKey($("#key-input-downloads").val().trim());
+    }
+  }
+});
+
+function checkKey (key) {
+  $("#prepare-downloads-button").addClass("is-loading disable-clicks").removeClass("is-danger");
+  db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+    var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+
+    if (key) {
+      hashString(key).then(function(hashedKey){
+        checkHashedKey(hashedKey);
+      }).catch(function(e){
+        $("#key-input-downloads").prop('disabled', true);
+        wrongKey ("Wide Character Error");
+      });
+    }
+
+    function checkHashedKey(hashedKey) {
+      decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+        rightKey(plaintext, hashedKey);
+      }).catch(function (error) {
+        checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
+          rightKey(plaintext, hashedKey);
+          // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+        });
+      });
+    }
+
+  });
+}
+
+function rightKey (plaintext, hashedKey) {
+  var theStrongKey = plaintext.data;
+  theKey = theStrongKey;
+  keyToRemember = hashedKey;
+  
+  $("#prepare-downloads-button").addClass("is-success").removeClass("is-danger");
+  generateExportURLs(exportData);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -732,96 +788,280 @@ function fillDataExporter (data, meta, orders) {
 // NEEDS REDESIGN. – REMOVING UNTIL THERE'S A BETTER SOLUTION  //
 /////////////////////////////////////////////////////////////////
 
+var allExportsObject = {};
+var docsLoadedTimeout, photosLoadedTimeout;
 
-// var myDataPopulated = false;
-// $("#settings-my-data-button").on("click", function(){
-//   if (!myDataPopulated) {
-//     myDataPopulated = true;
-//     generateExportURLs(exportData);
-//   }
-// });
+function numTotalDownloads() {
+  return Object.keys(allExportsObject).length || 1;
+}
 
-// function generateExportURLs (data) {
-//   var fileRef = rootRef.child("home.crypteedoc");
-//   fileRef.getDownloadURL().then(function(docURL) {
-//     $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>Home Document</a><br>");
-//   });
+function generateExportURLs (data) {
+  breadcrumb('Generating Export URLs for Docs');
+  var fileRef = rootRef.child("home.crypteedoc");
+  $("#mydata-downloads-key-field").slideUp();
+  $("#mydata-downloads-container").slideDown();
+  $("#mydata-downloads-container").addClass("is-loading");
+  
+  setTimeout(function () {
+    fileRef.getDownloadURL().then(function(docURL) {
+      allExportsObject["docs-home"] = {};
+      allExportsObject["docs-home"].url = docURL; 
+      $("#numTotalDownloads").html(numTotalDownloads());
+    });
 
-//   if (data) {
-//     var docsFolders = data.val().folders;
-//     if (docsFolders) {
-//       $.each(docsFolders, function(fid, folder){
-//         var docsOfFolder = folder.docs;
-//         $.each(docsOfFolder, function(did, doc){
-//           if (doc.isfile) {
-//             generateFileURLAndAppendToList(did);
-//           } else {
-//             generateDocURLAndAppendToList(did);
-//           }
-//         });
-//       });
-//     }
+    if (data) {
+      var docsFolders = data.val().folders;
+      if (docsFolders) {
+        $.each(docsFolders, function(fid, folder){
+          var docsOfFolder = folder.docs;
+          $.each(docsOfFolder, function(did, doc){
+            allExportsObject[did] = allExportsObject[did] || {};
+            
+            if (doc.isfile) {
+              generateFileURLAndAppendToList(did);
+              allExportsObject[did].isfile = true;
+            } else {
+              generateDocURLAndAppendToList(did);
+              allExportsObject[did].isdoc = true;
+            }
+            
+            allExportsObject[did].encryptedTitle = doc.title;
+          });
+        });
+      }
+      
+      generatePhotosURLs();
+    }
+  }, 500);
 
-//     generatePhotosURLs();
-//   }
-// }
+}
 
-// function generateDocURLAndAppendToList(did) {
-//   var fileRef = rootRef.child(did + ".crypteedoc");
-//   fileRef.getDownloadURL().then(function(docURL) {
-//     $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
-//   });
-// }
+function generateDocURLAndAppendToList(did) {
+  var fileRef = rootRef.child(did + ".crypteedoc");
+  fileRef.getDownloadURL().then(function(docURL) {
+    allExportsObject[did] = allExportsObject[did] || {};
+    allExportsObject[did].url = docURL;
+    $("#numTotalDownloads").html(numTotalDownloads());
+    clearTimeout(docsLoadedTimeout); docsLoadedTimeout = setTimeout(function () { allDocsLoaded(); }, 60000);
+  });
+}
 
-// function generateFileURLAndAppendToList(did) {
-//   var fileRef = rootRef.child(did + ".crypteefile");
-//   fileRef.getDownloadURL().then(function(docURL) {
-//     $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+did.replace("d-","").replace("p-","")+"</a><br>");
-//   });
-// }
+function generateFileURLAndAppendToList(did) {
+  var fileRef = rootRef.child(did + ".crypteefile");
+  fileRef.getDownloadURL().then(function(docURL) {
+    allExportsObject[did] = allExportsObject[did] || {};
+    allExportsObject[did].url = docURL;
+    $("#numTotalDownloads").html(numTotalDownloads());
+    clearTimeout(docsLoadedTimeout); docsLoadedTimeout = setTimeout(function () { allDocsLoaded(); }, 60000);
+  });
+}
 
-// function generatePhotosURLs () {
-//   photosRef.get().then(function(photosHomeItems) {
-//     photosHomeItems.docs.forEach(function(photosHomeItem){
-//       var photosHomeItemId = photosHomeItem.data().id;
-//       if (photosHomeItemId) {
-//           if (photosHomeItemId.startsWith('p-')) {
-//             var fileRef = rootRef.child(photosHomeItemId + ".crypteefile");
-//             fileRef.getDownloadURL().then(function(docURL) {
-//               $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+photosHomeItemId.replace("d-","").replace("p-","")+"</a><br>");
-//             });
-//           } else if (photosHomeItemId.startsWith('f-')) {
-//             enumerateFolderForExport(photosHomeItemId);
-//           }
-//         }
-//     });
-//   });
-// }
+function allDocsLoaded() {
+  breadcrumb('Generating Export URLs for Photos');
+  generatePhotosURLs();
+}
 
-// function enumerateFolderForExport(fid){
-//   photosRef.doc(fid).collection(fid).get().then(function(folderItems) {
+function generatePhotosURLs () {
+  clearTimeout(photosLoadedTimeout); photosLoadedTimeout = setTimeout(function () { allPhotosLoaded(); }, 60000);
+  photosRef.get().then(function(photosHomeItems) {
+    clearTimeout(photosLoadedTimeout); photosLoadedTimeout = setTimeout(function () { allPhotosLoaded(); }, 60000);
+    photosHomeItems.docs.forEach(function(photosHomeItem){
+      var photosHomeItemId = photosHomeItem.data().id;
+      if (photosHomeItemId) {
+          if (photosHomeItemId.startsWith('p-')) {
+            var fileRef = rootRef.child(photosHomeItemId + ".crypteefile");
+            fileRef.getDownloadURL().then(function(docURL) {
+              allExportsObject[photosHomeItemId] = allExportsObject[photosHomeItemId] || {};
+              allExportsObject[photosHomeItemId].url = docURL;
+              $("#numTotalDownloads").html(numTotalDownloads());
+              clearTimeout(photosLoadedTimeout); photosLoadedTimeout = setTimeout(function () { allPhotosLoaded(); }, 60000);
+            });
+          } else if (photosHomeItemId.startsWith('f-')) {
+            enumerateFolderForExport(photosHomeItemId);
+          }
+        }
+    });
+  });
+}
 
-//     folderItems.docs.forEach(function(folderItem) {
-//       var folderItemId = folderItem.id;
-//       if (folderItemId) {
-//         if (folderItemId.startsWith('p-')) {
-//           var fileRef = rootRef.child(folderItemId + ".crypteefile");
-//           fileRef.getDownloadURL().then(function(docURL) {
-//             $("#account-files-section").append("<a class='fileExportURL' href='"+docURL+"'><span class='icon'><i class='fa fa-download fa-fw'></i></span>"+folderItemId.replace("d-","").replace("p-","")+"</a><br>");
-//           });
-//         } else if (folderItemId.startsWith('f-')) {
-//           enumerateFolderForExport(folderItemId);
-//         }
-//       }
-//     });
+function enumerateFolderForExport(fid){
+  photosRef.doc(fid).collection("photos").get().then(function(folderItems) {
+    clearTimeout(photosLoadedTimeout); photosLoadedTimeout = setTimeout(function () { allPhotosLoaded(); }, 60000);
+    folderItems.docs.forEach(function(folderItem) {
+      var folderItemId = folderItem.id;
+      if (folderItemId) {
+        if (folderItemId.startsWith('p-')) {
+          var fileRef = rootRef.child(folderItemId + ".crypteefile");
+          fileRef.getDownloadURL().then(function(docURL) {
+            allExportsObject[folderItemId] = allExportsObject[folderItemId] || {};
+            allExportsObject[folderItemId].url = docURL;
+            $("#numTotalDownloads").html(numTotalDownloads());
+            clearTimeout(photosLoadedTimeout); photosLoadedTimeout = setTimeout(function () { allPhotosLoaded(); }, 60000);
+          });
+        } else if (folderItemId.startsWith('f-')) {
+          enumerateFolderForExport(folderItemId);
+        }
+      }
+    });
+  });
+}
 
-//   });
-// }
+function allPhotosLoaded() {
+  breadcrumb('Decrypting Photos Titles');
+  $("#downloadStatus").html("LABELING");
+  // start fetching titles and decrypt them.
+  
+  photosTitlesRef.get().then(function(titles) {
+    var howManyFolders = titles.docs.length;
+    var currentFolderIndex = 0;
+
+    if (howManyFolders >= 1) {
+      titles.docs.forEach(function(titleObject){
+        var titlesOfFolder = titleObject.data().titles;
+        var fid = titleObject.id;
+        var encryptedTitlesObject = JSON.parse(titlesOfFolder).data;
+        decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
+          currentFolderIndex++;
+          titlesObject = JSON.parse(plaintext.data);
+          $.each(titlesObject.photos, function(pid, ptitle) {
+            var theParsedFilename = ptitle;
+            try { theParsedFilename = JSON.parse(ptitle); } catch (e) {}
+            allExportsObject[pid] = allExportsObject[pid] || {};
+            allExportsObject[pid].title = theParsedFilename;        
+          });
+          if (currentFolderIndex === howManyFolders) {
+            gotPhotosTitles();
+          }
+        });
+      });
+    } else {
+      gotPhotosTitles();
+    }
+
+  }).catch(function(error) {
+    gotPhotosTitles();
+    handleError("Error getting photo & album titles for export", error);
+  });
+
+}
+
+function gotPhotosTitles() {
+  breadcrumb('Decrypted Photos Titles');
+  // now decrypt docs titles, because they're encrypted. 
+  decryptDocsTitles();
+}
+
+var docTitlesToDecrypt = [];
+function decryptDocsTitles() {
+  breadcrumb('Decrypted Docs Titles');
+  $.each(allExportsObject, function(did, doc){
+    if (doc.hasOwnProperty("encryptedTitle")) {
+      docTitlesToDecrypt.push({ did:did, et:doc.encryptedTitle, isfile:(doc.isfile || false), isdoc:(doc.isdoc || false) });
+    }
+  });
+  decryptDocTitle(0);
+}
+
+function decryptDocTitle(index) {
+  if (docTitlesToDecrypt[index]) {    
+    var nextIndex = index+1;
+    var parsedEncryptedTitle = JSON.parse(docTitlesToDecrypt[index].et).data;
+    var did = docTitlesToDecrypt[index].did;
+    var isfile = docTitlesToDecrypt[index].isfile;
+    decrypt(parsedEncryptedTitle, [theKey]).then(function(plaintext) {
+      var plaintextTitle = JSON.parse(plaintext.data);
+      allExportsObject[did] = allExportsObject[did] || {};
+      allExportsObject[did].title = plaintextTitle;
+      if (!isfile) { 
+        allExportsObject[did].title = plaintextTitle + ".uecd";
+      }
+      decryptDocTitle(nextIndex);
+    }).catch(function(error) {
+      error.itemid = did;
+      handleError("Error decrypting title, passing Untitled", error);
+      allExportsObject[did] = allExportsObject[did] || {};
+      allExportsObject[did].title = "Untitled.uecd";
+      decryptDocTitle(nextIndex);
+    });
+  } else {
+    allTitlesDecrypted();
+  }
+}
+
+function allTitlesDecrypted() {
+  breadcrumb("All Docs Titles Decrypted");
+  lastChecksBeforeDownloads();
+}
+
+var allDownloads = [];
+function lastChecksBeforeDownloads() {
+  breadcrumb("Running last checks before starting download");
+  $.each(allExportsObject, function(id, item){
+    allDownloads.push(item);
+  });
+runExportDownloads(0)
+}
+
+function runExportDownloads(index) {
+  $("#downloadStatus").html("EXPORTING");
+  $("#numDownloaded").html(index + " / ");
+  var file = allDownloads[index];
+  var nextIndex = index + 1;
+  if (file) {
+    downloadExport(file, function() {
+      runExportDownloads(nextIndex);
+    });
+  } else {
+    exportsComplete();
+  }
+}
+
+function downloadExport(file, callback, callbackParam) {
+  callback = callback || noop;
+  var downloadURL = file.url;
+  var filename = file.title;
+  var isdoc = file.isdoc || false;
+  var isfile = file.isfile || false;
+
+  $.ajax({ url: downloadURL, type: 'GET',
+    success: function(encryptedFile){ 
+      gotEncryptedFile(encryptedFile); 
+    },
+    error:function (xhr, ajaxOptions, thrownError){ 
+      err("Error downloading file during bulk download.", thrownError); 
+    }
+  });
+  
+  function gotEncryptedFile(encryptedFile) {
+    var encryptedB64 = JSON.parse(encryptedFile).data;
+    decrypt(encryptedB64, [theKey]).then(function(plaintext) {
+      var decryptedFile = plaintext.data;
+      if (!isdoc) {
+        saveAs(dataURIToBlob(decryptedFile), filename);
+      } else {
+        var blob = new Blob([decryptedFile], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, filename);
+      }
+      callback(callbackParam);
+    }).catch(function (error) {
+      err("Error decrypting file during bulk download.",error); 
+    });
+  }
+  
+  function err(msg, err) {
+    err = err || {};
+    console.error(msg,err);
+    handleError(msg, err);
+    callback(callbackParam); // something didn't work, sadly skip and continue. 
+  }  
+}
 
 
-
-
-
+function exportsComplete() {
+  $("#downloadStatus").html("ALL DOWNLOADS COMPLETE");
+  $("#numDownloaded, #numTotalDownloads, #exportFilesLabel").hide();
+  $("#mydata-downloads-container").removeClass("is-loading");
+}
 
 
 

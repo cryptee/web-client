@@ -380,6 +380,99 @@ html.search-active, body.search-active {
 	height: 100%;
 }
 
+#photos-download-modal {
+	z-index: 999;
+	pointer-events: none;
+	opacity: 0;
+	background-color: rgba(255,255,255,0.85);
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	transition: 0.5s opacity ease, 0.5s background-color ease;
+}
+
+#photos-download-modal.active {
+	z-index: 999;
+	pointer-events: all;
+	opacity: 1;
+}
+
+#photos-download-modal .crypteecard {
+	width: calc(320px - 2rem);
+	height: calc(320px - 2rem);
+	background-color: #FFF;
+	margin: auto;
+	position: absolute;
+	top: calc(50% - 160px);
+	left: 0;
+	right: 0;
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+	padding: 2rem;
+	opacity: 0;
+	transform: translateY(2rem) scale(1);
+	pointer-events: none;
+	transition: 0.5s opacity ease 0.5s, 0.5s transform ease, 1s top ease, 1s height ease;
+	overflow: hidden;
+}
+
+#photos-download-modal progress {
+	position: absolute;
+	top:0;
+	left: 0;
+	height: 100%;
+	opacity: 0;
+	z-index: 1;
+	transition: 1s opacity ease;
+	pointer-events: none;
+}
+
+#photos-download-modal.active .crypteecard {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: all;
+}
+
+#photos-download-modal .crypteecard p {
+	opacity: 1;
+	pointer-events: none;
+	transition: 0.5s opacity ease;
+}
+
+#photos-download-modal .crypteecard .title {
+	font-size:1rem;
+	z-index: 2;
+	position: relative;
+}
+
+#photos-download-modal .crypteecard button {
+	margin: 2.5rem auto 0 auto;
+	display: block;
+}
+
+#photos-download-modal.downloading {
+	pointer-events: none;
+	background-color: transparent;
+}
+
+#photos-download-modal.downloading .crypteecard {
+	top: calc(100% - 7rem);
+	height: 5rem;
+}
+
+#photos-download-modal.downloading p:not(.title){
+	opacity: 0;
+}
+
+#photos-download-modal.downloading progress {
+	opacity: 0.15;
+}
+
+#photos-download-modal.flash .crypteecard {
+	transform: translateY(0) scale(0.9);
+}
+
 /*////////////////////////////////////////////////////////
 ////////////////////// THE GRID //////////////////////////
 ////////////////////////////////////////////////////////*/

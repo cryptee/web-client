@@ -2,10 +2,44 @@
   <p class="title is-4">My Data</p>
   <p>Here you can find all the data linked to your account and download/export if you wish.</p>
   <br>
-  <p class="deets">Because your documents, files and photos are encrypted, and we don't have your key to decrypt them; we're mathematically unable package them in a nice and tidy way for you to download in a single, clean zip file like unencrypted services/apps can do. Therefore you can download your encrypted docs / files / photos via Cryptee Docs &amp; Photos, but not as a bulk-export.</p>
+  <p>Because your documents, files and photos are encrypted, and we don't have your key to decrypt them; we're mathematically unable package them in a nice and tidy way for you to download in a single, clean zip file like unencrypted services/apps can do. Therefore you can only export your files here slowly, or in groups of folders/albums using the Cryptee Docs or Cryptee Photos user interfaces.</p>
+  <br>
+  <p><span class="icon is-small"><i class="fa fa-info-circle"></i></span> Please note that if you have any ghost folders or albums, their contents won't be exported, because Cryptee is unable to determine whether if have any ghost folders or not. If you do have any ghost folders or albums, please summon them first to be able to export them.</p>
+  <br>
+  <p><span class="icon is-small"><i class="fa fa-info-circle"></i></span> Depending on how much data you have, the export and download process could take many hours, since it requires not just downloading, but also decrypting your data in this browser.</p>
 </div>
 
 
-<div class="account-card crypteecard" id="account-data-json">
+<div class="account-card crypteecard">
+  <p class="title is-4">My Metadata</p>
+  <div id="account-data-json">
+
+  </div>
+</div>
+
+
+<div class="account-card crypteecard is-hidden-mobile" id="mydata-downloads-card">
+  <p class="title is-4">My Files & Photos</p>
+  <p>Exporting all your data requires your encryption key. Preparing the export will take some time, please be patient. If your browser asks you to allow Cryptee to download multiple files, click allow, otherwise the exporter won't work.</p>
+  <br>
+  <p><span class="icon is-small"><i class="fa fa-exclamation-triangle"></i></span> <b>Please make sure your computer has at least <span id="necessary-storage"></span> of free space for the download operation and don't close this tab or the process will start all over again.</b></p>
+  <br>
+  <div class="field has-addons" id="mydata-downloads-key-field">
+    <div class="control is-expanded has-icons-left">
+      <span class="icon is-small is-left"><i class="fa fa-key"></i></span>
+      <input class="input" type="password" autocomplete="off" placeholder="Encryption Key" id="key-input-downloads">
+    </div>
+    <div class="control">
+      <a class="button is-dark" id="prepare-downloads-button">Export All Data</a>
+    </div>
+  </div>
   
+  <div id="mydata-downloads-container">
+    <p class="title is-5">
+      <span id="downloadStatus">PREPARING</span>
+      <span id="numDownloaded"></span> 
+      <span id="numTotalDownloads">0</span> 
+      <span id="exportFilesLabel">FILES</span>
+    </p>
+  </div>
 </div>

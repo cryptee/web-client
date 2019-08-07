@@ -65,10 +65,14 @@ function wrongKey (error) {
   console.log("wrong key or ", error);
   sessionStorage.removeItem('key');
   localStorage.removeItem('memorizedKey');
-  showKeyModal();
+  if ($("#key-modal")[0]) {  
+    showKeyModal();
+  }
   $('#key-status').html('<span class="icon"><i class="fa fa-exclamation-triangle fa-fw fa-sm"></i></span> Wrong key, please try again.');
   $("#key-status").addClass("shown");
   $("#key-modal-signout-button").addClass("shown");
+  $("#key-input-downloads").prop('disabled', false);
+  $("#prepare-downloads-button").removeClass("is-success is-dark is-loading disable-clicks").addClass("is-danger").html("Wrong Key");
 }
 
 function keyModalApproved (){
@@ -203,6 +207,7 @@ function createUserDBReferences(user) {
     returnsRef = db.ref().child('/users/' + theUserID + "/returns/");
     foldersRef = db.ref().child('/users/' + theUserID + "/data/folders/");
     photosRef = firestore.collection("users").doc(theUserID).collection("photos");
+    photosTitlesRef = firestore.collection("users").doc(theUserID).collection("titles");
   }
 
 }

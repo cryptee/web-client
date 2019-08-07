@@ -693,7 +693,7 @@ function createUser () {
         $("#username-help").fadeIn(500);
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else if (errorCode == 'auth/invalid-email') {
-        showSignupInfo("Our servers think you may have used an invalid character in your username. No @ symbols please.", "is-warning", true, "user");
+        showSignupInfo("Our servers think you may have used an invalid character in your username. No @ symbols or spaces please.", "is-warning", true, "user");
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else {
         handleError("Error Creating User", error);

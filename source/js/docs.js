@@ -750,14 +750,14 @@ key('esc', function(){
 //////// MENU SWIPE FOR MOBILE //////////
 
 $("body").on('swipeleft',  function(){
-    if (isMobile) {
+    if (isMobile || isipados) {
       // HIDE
       hideMenu();
     }
 });
 
 $("body").on('swiperight',  function(){
-    if (isMobile) {
+    if (isMobile || isipados) {
       // SHOW
       quill.blur();
       showMenu();
@@ -3150,7 +3150,7 @@ function appendFolder (folder, fid){
   updateFolderInCatalog(folder, fid);
 
   var sortableFolders;
-  if (!isMobile && !isDOMRectBlocked) {
+  if (!isMobile && !isDOMRectBlocked && !isipados) {
     sortableFolders = Sortable.create(document.getElementById('all-folders'), sortableFoldersDesktopPreferences);
   } 
 }
@@ -6280,21 +6280,31 @@ $('#selection-cancel-button').on('click', function(event) {
 
 var completedDownloads = 0;
 var completedDeletions = 0;
+var downloadQueue = [];
 function downloadSelections () {
   completedDownloads = 0;
   showFileDownloadStatus("is-light", '<span class="icon is-small"><i class="fa fa-fw fa-circle-o-notch fa-spin"></i></span> &nbsp; <b>Decrypting &amp; Downloading</b><br>Please <b>do not</b> close this window until all downloads are complete.');
   $("#selection-download-button > i").removeClass("fa-download").addClass("fa-circle-o-notch fa-spin");
   $.each(selectionArray, function(index, selection) {
     $("#file-download-status").append("<br><span id='dld-" + selection.did + "'>" + selection.dtitle + "</span>");
-    var preview = false;
-    downloadFile(selection.did, selection.dtitle, preview, areDownloadsComplete, selection.did);
+    downloadQueue.push({
+      "filename" : selection.dtitle,
+      "did" : selection.did
+    });
   });
+  runDownloadQueue(0);
 }
 
-function areDownloadsComplete (did) {
-  completedDownloads++;
-  $("#dld-"+did).remove();
-  if (selectionArray.length === completedDownloads) {
+function runDownloadQueue(index) {
+  if (downloadQueue[index]) {
+    var nextInLine = index + 1;
+    downloadFile(downloadQueue[index].did, downloadQueue[index].filename, false, function(){
+      completedDownloads++;
+      $("#dld-"+downloadQueue[index].did).remove();
+      runDownloadQueue(nextInLine);
+    });
+  } else {
+    downloadQueue = [];
     downloadsComplete();
   }
 }
@@ -6305,7 +6315,6 @@ function downloadsComplete () {
   $("#selection-download-button > i").removeClass("fa-circle-o-notch fa-spin").addClass("fa-download");
   clearSelections();
 }
-
 
 var floatDelete = false;
 $("#doc-dropdown").on('click touchend', '.delete-button', function(event) {

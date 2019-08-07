@@ -28,11 +28,6 @@ var bootOfflineTimer = setInterval(function() { if(!$("#key-modal").hasClass("sh
 var thumbnailGenerator;
 var homeLoaded = false;
 
-var numberOfItemsPerSection = 50;
-if (isMobile) {
-  numberOfItemsPerSection = 25;
-}
-
 var lastActivityTime = (new Date()).getTime();
 var inactivityInterval = setInterval(inactiveTimer, 1000);
 var ww = $(window).width();
@@ -235,10 +230,10 @@ window.onbeforeunload = function() {
 /////////////////////////////////////////////////////////////////
 var observer;
 
-if (isMobile) {
+if (isMobile || isipados) {
   observer = new IntersectionObserver(onEntryAndExit, { rootMargin: "200% 0% 200% 0%", threshold: [0.15] } );
 } else {
-  observer = new IntersectionObserver(onEntryAndExit, { rootMargin: "400% 0% 400% 0%", threshold: [0.15] } );
+  observer = new IntersectionObserver(onEntryAndExit, { rootMargin: "300% 0% 300% 0%", threshold: [0.15] } );
 }
 
 var navbar = document.getElementById("photos-top-nav");
@@ -246,7 +241,7 @@ var oneRem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 var sticky = navbar.offsetTop - ( oneRem / 4 );
 
 $(window).on('scroll', throttleScroll(function(event) {
-// $(window).on('scroll', function(event) {
+// $(window).on('scroll', function(event) {  
   if (Math.max($(window).scrollTop(), $("body").scrollTop(), document.body.scrollTop) >= sticky) {
     navbar.classList.add("sticky");
   } else {
@@ -290,9 +285,11 @@ $(".sort-button").on('click', function(event) {
 
 function sortByTitle (reverse){
   reverse = reverse || false;
+  var sorttype;
   $(".sort-button").removeClass("selected");
   if (reverse) {
     $("#sort-az-desc").addClass("selected");
+    sorttype = "az-desc";
     $('.folder-content').sort(function(a, b) {
       if ($(a).attr("photositemname") > $(b).attr("photositemname")) {
         return -1;
@@ -302,6 +299,7 @@ function sortByTitle (reverse){
     }).appendTo('#folder-contents');
   } else {
     $("#sort-az-asc").addClass("selected");
+    sorttype = "az-asc";
     $('.folder-content').sort(function(a, b) {
       if ($(a).attr("photositemname") < $(b).attr("photositemname")) {
         return -1;
@@ -312,14 +310,18 @@ function sortByTitle (reverse){
   }
 
   hideWindowProgress();
+  saveFolderSort(activeFID, sorttype);
+  updateLightboxSort(sorttype);
 }
 
 function sortByDate (reverse){
   reverse = reverse || false;
+  var sorttype;
   $(".sort-button").removeClass("selected");
   if (reverse) {
     // up -> down = newest -> oldest
     $("#sort-date-desc").addClass("selected");
+    sorttype = "date-desc";
     $('.folder-content').sort(function(a, b) {
       if ($(a).attr("datesort") > $(b).attr("datesort")) {
         return -1;
@@ -330,6 +332,7 @@ function sortByDate (reverse){
   } else {
     // up -> down = oldest -> newest
     $("#sort-date-asc").addClass("selected");
+    sorttype = "date-asc";
     $('.folder-content').sort(function(a, b) {
       if ($(a).attr("datesort") < $(b).attr("datesort")) {
         return -1;
@@ -340,9 +343,52 @@ function sortByDate (reverse){
   }
 
   hideWindowProgress();
+  saveFolderSort(activeFID, sorttype);
+  updateLightboxSort(sorttype);
 }
 
+function saveFolderSort(fid, sorttype, callback, callbackParam) {
+  callback = callback || noop;
+  fid = fid || activeFID;
+  sorttype = sorttype || "az-asc";
+  
+  if (fid) {
+    titlesRef.doc(fid).set({"sort" : sorttype}, {
+      merge: true
+    }).then(function(response) {
+      callback(callbackParam);
+    }).catch(function(error) {
+      error.fid = fid;
+      error.sorttype = sorttype;
+      console.error("Error saving sort of folder: ", error);
+    });
+  } else {
+    callback(callbackParam);
+  }
+}
 
+function updateLightboxSort(sorttype) {
+  sorttype = sorttype || "az-asc";
+  var itemsArray = sortItemsObject(sorttype);
+
+  // remove all lightbox events to stop thousands of slideChange events from triggering.
+  // and remove all slides from lightbox 
+  try { lightbox.off('slideChange'); } catch (e) {}
+  lbox.removeAllSlides(); 
+
+  itemsArray.forEach(function (item, index) {
+    if (item[0].startsWith("p-")) {
+      lbox.appendSlide("<div pid='"+item[0]+"'></div>");
+    }
+  });
+  
+  lbox.update();
+
+  setTimeout(function () {
+    // now that all slides are in the lightbox, start listening for slideChange again.
+    lightbox.on('slideChange', lightboxPhotoChanged); 
+  }, 10);
+}
 ////////////////////////////////////////////////////
 ////////////////// SIGN IN AND KEY /////////////////
 ////////////////////////////////////////////////////
@@ -652,7 +698,7 @@ function sadlyPurgeFile(pidOrTid) {
     if (activeFID === "home") {
       whereFrom = homeRef.doc(pid);
     } else {
-      whereFrom = homeRef.doc(activeFID).collection(activeFID).doc(pid);
+      whereFrom = homeRef.doc(activeFID).collection("photos").doc(pid);
     }
 
     try {
@@ -678,14 +724,14 @@ function sadlyPurgeFile(pidOrTid) {
             $("#"+pid).remove();
             delete activeItemsObject[pid];
             updateTitles();
-          });
-        });
-      });
+          }).catch(function(err){});
+        }).catch(function(err){});
+      }).catch(function(err){});
     }).catch(function(error) {
       if (error.code === "storage/object-not-found") {
-        thumbRef.delete().catch();
-        whereFrom.delete().catch();
-        lightRef.delete().catch();
+        thumbRef.delete().catch(function(err){});
+        whereFrom.delete().catch(function(err){});
+        lightRef.delete().catch(function(err){});
         if (activeFID !== "home") {
           var adjustmentCount = 0 - Object.keys(selectionsObject).length;
           adjustFolderCount (activeFID, adjustmentCount, isFolderThumbDeleted);
@@ -750,7 +796,7 @@ function getAllFilesOfFolder (fid, callback, callbackParam) {
   clearSelections();
   showWindowProgress();
   $("body, html").animate({ scrollTop: "0px" }, 1000);
-  homeRef.doc(fid).collection(fid).get().then(function(items) {
+  homeRef.doc(fid).collection("photos").get().then(function(items) {
     if (!otherFolderLoaded) {
       history.pushState(fid, null, '/photos?f='+fid);
       $("#get-home-folder-button").removeClass("unavailable");
@@ -782,8 +828,6 @@ function processItemsFromFirestore (fid, items, callback, callbackParam) {
         hideWindowProgress();
       } else {
         getTitles(fid, contents, function(){
-          $(".sort-button").removeClass("selected");
-          $("#sort-az-asc").addClass("selected");
           hideWindowProgress();
           callback(callbackParam);
         });
@@ -819,7 +863,8 @@ function newFolder (newFTitle, preassignedFID, callback, callbackParam) {
     progressModal("photos-new-folder-modal");
     var uuid = newUUID();
     var fid = preassignedFID || "f-" + uuid;
-    var folderObject = {"count" : 0, "id" : fid, "date" : "" };
+    var todaysEXIFDate = todaysEXIF();
+    var folderObject = {"count" : 0, "id" : fid, "date" : todaysEXIFDate };
     homeRef.doc(fid).set(folderObject, {
       merge: true
     }).then(function(response) {
@@ -835,9 +880,9 @@ function newFolder (newFTitle, preassignedFID, callback, callbackParam) {
         }
 
         hideEmptyFolderDialog();
-        folderCreated(fid, newFTitle, function(){
+        folderCreated(fid, newFTitle, todaysEXIFDate, function(){
           callback(callbackParam);
-          sortByTitle();
+          sortByDate(true);
         });
       });
     }).catch(function(error) {
@@ -913,7 +958,7 @@ function getEXIFDateStringOfPhotoID(pidOrTid, fid, callback, callbackParam) {
 
   if (fid) {
     breadcrumb('[EXIF] – GETTING EXIF DATE OF: ' + pid);
-    homeRef.doc(fid).collection(fid).doc(pid).get().then(function(item) {
+    homeRef.doc(fid).collection("photos").doc(pid).get().then(function(item) {
       var photoObject = item.data();
       date = photoObject.date;
       if (date) {
@@ -1019,14 +1064,20 @@ function sortableExifDate (dateString) {
   return result;
 }
 
-
+function todaysEXIF() {
+  var today = new Date();
+  var currentDay = today.getUTCDate();
+  var currentMonth = today.getUTCMonth() + 1; // it's 0 based. jesus.
+  var currentYear = today.getFullYear();
+  return currentYear + ":" + ("0" + currentMonth).slice(-2) + ":" + ("0" + currentDay).slice(-2);
+}
 
 ///////////////////////////////////////////////////
 ////////////////// FILE UPLOAD ////////////////////
 ///////////////////////////////////////////////////
 
 function showFileUploadStatus (color, message) {
-  if (!isMobile) {
+  if (!isMobile && !isipados) {
     // on desktops we're now uploading 3 at a time, so this will be fucked up and use lots of memory.
     $("#upload-preview").hide();
   }
@@ -1036,12 +1087,14 @@ function showFileUploadStatus (color, message) {
   $("#photos-upload-status").addClass("is-active");
 }
 
-function hideFileUploadStatus () {  
+function hideFileUploadStatus () { 
+  uploadCompleteResetUploaderState(); 
   $("body").removeClass("disable-clicks");
   $("#upload-status").removeClass("is-dark is-light is-white is-danger is-success").addClass("is-white");
   $("#photos-upload-status").removeClass("is-active");
   $("#upload-status-contents").html("");
   $("#upload-preview").css("backgroundImage", 'url("")');
+  $(".upload").remove();
 }
 
 window.addEventListener('dragenter', handleDragEnter, false);
@@ -1151,7 +1204,7 @@ function traverseFileTree(entry, path, entryname) {
 function addItemToFileTree (item) {
   var fileExt = extensionFromFilename(item.name);
   if (item.name !== ".DS_Store" && item.name !== "desktop.ini" && item.name !== "Icon") {
-    if (fileExt.match(/^(jpg|jpeg|png)$/i)) {
+    if (fileExt.match(/^(jpg|jpeg|png|gif)$/i)) {
       createFileTree(item.path, item.file);
     } else {
       fileUploadError = true;
@@ -1321,11 +1374,6 @@ function cycleThroughUploadedFoldersAndPIDs(moveOperations, i) {
 
 function batchUploadComplete(hasFolders) {
 
-  // all files moved into folders if there were any. we can now safely purge filetree
-  fileTreeToUpload = {};
-  fileTreeToUpload.thecrypteehomefolder = {};
-  fileTreeToUpload.thecrypteehomefolder.files = [];
-
   // and finally load the target folder once again to avoid double show up issues etc. and hide modal.
   if (hasFolders) {
     // means that we didn't call doneWithAllUploads in uploadCompleteAndFolderAdjusted, call it now.
@@ -1339,6 +1387,13 @@ function batchUploadComplete(hasFolders) {
 }
 
 function doneWithAllUploads(callback, callbackParam) {
+
+  // all files moved into folders if there were any. we can now safely purge filetree
+
+  fileTreeToUpload = {};
+  fileTreeToUpload.thecrypteehomefolder = {};
+  fileTreeToUpload.thecrypteehomefolder.files = [];
+
   callback = callback || noop;
 
   if (activeFID !== "home") {
@@ -1346,9 +1401,11 @@ function doneWithAllUploads(callback, callbackParam) {
     getAllFilesOfFolder(activeFID, function(){
       if (!fileUploadError) {
         hideFileUploadStatus();
+        uploadCompleteResetUploaderState();
         callback(callbackParam);
       } else {
         showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
+        uploadCompleteResetUploaderState();
       }
     });
   } else {
@@ -1356,9 +1413,11 @@ function doneWithAllUploads(callback, callbackParam) {
     getHomeFolder(function(){
       if (!fileUploadError) {
         hideFileUploadStatus();
+        uploadCompleteResetUploaderState();
         callback(callbackParam);
       } else {
         showFileUploadStatus("is-danger", "Done uploading, but some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
+        uploadCompleteResetUploaderState();
       }
     });
   }
@@ -1368,7 +1427,7 @@ function doneWithAllUploads(callback, callbackParam) {
 function handlePhotoSelect(evt) {
   evt.stopPropagation();
   evt.preventDefault();
-  if (theKey && theKey !== "") {
+  if (theKey && theKey !== "" && !isUploading) {
     dragCounter = 0;
     somethingDropped = true;
 
@@ -1404,7 +1463,7 @@ function handlePhotosDrop (evt) {
   evt.stopPropagation();
   evt.preventDefault();
 
-  if (theKey && theKey !== "") {
+  if (theKey && theKey !== "" && !isUploading) {
     $("#photos-drag-overlay").removeClass("shown");
     dragCounter = 0;
     somethingDropped = true;
@@ -1452,7 +1511,7 @@ function handlePhotosDrop (evt) {
 
 function handleDragEnter(evt) {
   if (dragCounter === 0) {
-    if (theKey && theKey !== "") {
+    if (theKey && theKey !== "" && !isUploading) {
       // DRAG ENTERING DO SOMETHING ONCE
       $("#photos-drag-overlay").addClass("shown");
     }
@@ -1467,7 +1526,7 @@ function handleDragEnter(evt) {
 function handleDragLeave(evt) {
   dragCounter--;
   if (dragCounter === 0) {
-    if (theKey && theKey !== "") {
+    if (theKey && theKey !== "" && !isUploading) {
       // DRAG LEFT DO SOMETHING ONCE
       $("#photos-drag-overlay").removeClass("shown");
     }
@@ -1490,12 +1549,6 @@ function handleDragOver(evt) {
 }
 
 var fileUploadError;
-var folderUploadError = false;
-function showFolderUploadError() {
-  folderUploadError = true;
-  showModal('folder-upload-error-modal');
-}
-
 
 var uploadList = [];
 var isUploading = false;
@@ -1520,26 +1573,37 @@ function queueUpload(file, fid, predefinedPID, callback, callbackParam) {
 
 var numFilesUploading = 0;
 var maxNumberOfSimultaneousUploads = 3;
-if (isMobile) {
+if (isMobile || isipados) {
   maxNumberOfSimultaneousUploads = 1;
 }
+var filesizeLimit = 32000000; 
+
+// currently 32mb (to ensure encryption and everything moves smoothly)
+// Derived from 32 x 3 = original file + b64 ver + encrypted = 32 * 3 = 96mb memory
+// if we assume an average computer's browser tab can use 128mb memory before crashing out, and app can grow to be 20mb,
+// this provides a safe limit.  
+
+var memoryLimit = filesizeLimit * maxNumberOfSimultaneousUploads; // 96mb on desktop, and 32mb on mobile (an amount that would reasonably contain crisis)
+
+
 function nextUpload(callback, callbackParam) {
   callback = callback || noop;
   callbackParam = callbackParam || null;
+  
   if (!isUploading) {
     isUploading = true; // stops next file / batch from going through right away.
 
     uploadList.forEach(function(upload, index) {
-
+      
       if (upload.file) {
         if ( !upload.processed && (numFilesUploading < maxNumberOfSimultaneousUploads) ) {
-          if ( upload.file.size < (memoryLimit / numFilesUploading) ) {
+          if (upload.file.size < (memoryLimit / (numFilesUploading || 1)) ) {
             uploadList[index].processed = true;
             numFilesUploading++;
             processPhotoForUpload (upload.file, upload.fid, upload.pid, callback, callbackParam);
           }
         }
-  
+        
         if (upload.file.size >= memoryLimit) {
           uploadList[index].processed = true;
           numFilesLeftToBeUploaded--;
@@ -1586,7 +1650,7 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
       //THIS LINE IS TO MAKE SURE FILE HAS SOME CONTENTS AND MAKE THIS "TRY" FAIL IF IT'S EMPTY, LIKE WHEN IT IS A FOLDER.
       var fileContents = base64FileContents.substr(base64FileContents.indexOf(',')+1);
 
-      if (fileExt.match(/^(jpg|jpeg|png)$/i)) {
+      if (fileExt.match(/^(jpg|jpeg|png|gif)$/i)) {
         var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos</b> left.";
         showFileUploadStatus("is-white", processingMessage);
         encryptAndUploadPhoto(base64FileContents, predefinedPID, fid, filename, callback, callbackParam);
@@ -1615,7 +1679,6 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
       // commenting out this error since it just causes anxiety for corrupted files
       // if (base64FileContents) { handleError("Error reading photo in processPhotoForUpload",e); }
       fileUploadError = true;
-      showFolderUploadError();
       uploadElem =
       '<div class="upload" id="upload-'+slugify(file.name)+'-'+file.size+'">'+
         '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -1633,7 +1696,7 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
     numFilesUploading--;
     fileUploadError = true;
     document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
-    if (!folderUploadError && canUploadFolders) {
+    if (canUploadFolders) {
       handleError("Error reading photo in processPhotoForUpload", err, "warning");
       uploadElem =
       '<div class="upload" id="upload-'+slugify(file.name)+'-'+file.size+'">'+
@@ -1654,12 +1717,13 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
     } else {
       setTimeout(function () {
         hideFileUploadStatus();
+        uploadCompleteResetUploaderState();
       }, 200);
     }
   };
 }
 
-
+var activeUploads = {};
 function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, callback, callbackParam) {
 
   callback = callback || noop;
@@ -1673,8 +1737,12 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
   var lid = pid.replace("p", "l");
   var lightRef = rootRef.child(lid + ".crypteefile");
 
+  var fileExt = extensionFromFilename(filename);
+
   var plaintextFileContents = fileContents;
   var dominant, thumbnail, lightboxPreview, exifDate;
+
+  activeUploads[pid] = {};
 
   generateThumbnailsAndNecessaryMeta(plaintextFileContents, function(uploadObject){
   // generatePrimitive(plaintextFileContents, function(pn){
@@ -1683,110 +1751,205 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
     exifDate = uploadObject.date;
 
     generateDominant(function(dmnt){
-      dominant = dmnt;  
+      dominant = dmnt; 
 
-      // CURRENTLY UNUSED, CAUSES ERRORS IN SOME BROWSERS 
-      // We don't need the contents of these canvases anymore.
-      // Before starting encryption clear them to save up memory.
-      // clearThumbnailCanvases();
-      
+      var uploadElem =
+      '<div class="upload" id="upload-'+pid+'">'+
+        '<progress class="progress is-small" value="0" max="100"></progress>' + '<p class="deets fn">'+filename+'</p>' + '<p class="deets fs">(Encrypting)</p>'+
+      '</div>';
+      $("#upload-status-contents").prepend(uploadElem);
+      $("#upload-status-contents").animate({ scrollTop: 0 }, 500);
+
       // ENCRYPT & UPLOAD THUMBNAIL FIRST.
-      encrypt(thumbnail, [theKey]).then(function(ciphertext) {
-        var encryptedTextFile = JSON.stringify(ciphertext);
+      breadcrumb('[Upload] (' + pid + ') Encrypting Original.');
+      encrypt(plaintextFileContents, [theKey]).then(function(originalCiphertext) {
+        breadcrumb('[Upload] (' + pid + ') Encrypted Original.');
+        activeUploads[pid].original = photoRef.putString(JSON.stringify(originalCiphertext));
+        activeUploads[pid].original.pause();
 
-        var saveUploadThumb = thumbRef.putString(encryptedTextFile);
-        saveUploadThumb.on('state_changed', function(thumbSnap){
-          if (!fileUploadError) {
-            var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
-            showFileUploadStatus("is-white", processingMessage);
-          }
-          
-          lastActivityTime = (new Date()).getTime();
+        breadcrumb('[Upload] (' + pid + ') Encrypting Thumbnail.');
+        encrypt(thumbnail, [theKey]).then(function(thumbnailCiphertext) {
+          breadcrumb('[Upload] (' + pid + ') Encrypted Thumbnail.');
+          activeUploads[pid].thumbnail = thumbRef.putString(JSON.stringify(thumbnailCiphertext));
+          activeUploads[pid].thumbnail.pause();
 
-          // switch (thumbSnap.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
-          if (thumbSnap.bytesTransferred === thumbSnap.totalBytes) {
-
-            // THUMBNAIL UPLOADED. MOVE ON TO ORIGINAL PHOTO.
-
-            encrypt(plaintextFileContents, [theKey]).then(function(ciphertext) {
-                var encryptedTextFile = JSON.stringify(ciphertext);
-                var saveUploadOriginal = photoRef.putString(encryptedTextFile);
-                saveUploadOriginal.on('state_changed', function(snapshot){
-
-
-                  if ($('#upload-' + pid).length === 0) {
-                    var uploadElem =
-                    '<div class="upload" id="upload-'+pid+'">'+
-                      '<progress class="progress is-small" value="'+snapshot.bytesTransferred+'" max="'+snapshot.totalBytes+'"></progress>'+
-                      '<p class="deets fn">'+filename+'</p>'+
-
-                      '<p class="deets fs">'+ Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +'%</p>'+
-                    '</div>';
-                    $("#upload-status-contents").prepend(uploadElem);
-                    $("#upload-status-contents").animate({ scrollTop: 0 }, 500);
-                    if (isMobile) {
-                      // on desktops we upload 3 at a time, so this will be fucked up and use lots of memory for no reason.
-                      $("#upload-preview").css("backgroundImage", 'url("'+lightboxPreview+'")');
-                    }
-                  } else {
-                    $("#upload-"+pid).find("progress").attr("value", snapshot.bytesTransferred);
-                    $("#upload-"+pid).find(".fs").html(Math.floor((snapshot.bytesTransferred * 100) / snapshot.totalBytes) +"%");
-                  }
-
-                  lastActivityTime = (new Date()).getTime();
-
-                  // switch (snapshot.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
-                  if (snapshot.bytesTransferred === snapshot.totalBytes) {
-
-                    // ORIGINAL PHOTO UPLOADED. MOVE ON TO LIGHTBOX PREVIEW
-
-                    // ENCRYPT & UPLOAD LIGHTBOX PREVIEW IMAGE
-                    encrypt(lightboxPreview, [theKey]).then(function(ciphertext) {
-                        var encryptedTextFile = JSON.stringify(ciphertext);
-
-                        var saveUploadLightboxPreview = lightRef.putString(encryptedTextFile);
-                        saveUploadLightboxPreview.on('state_changed', function(lightSnap){
-                          if (!fileUploadError) {
-                            var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
-                            showFileUploadStatus("is-white", processingMessage);
-                          }
-                          
-                          lastActivityTime = (new Date()).getTime();
-
-                          if (lightSnap.bytesTransferred === lightSnap.totalBytes) {
-
-                            // LIGHTBOX PREVIEW UPLOADED.
-
-                            $("#upload-"+pid).remove();
-                            photoUploadComplete(fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam);
-
-                          }
-                        }, function(error) {
-                          handleUploadError (pid, filename, error, callback, callbackParam);
-                        });
-                    });
-
-                  }
-                }, function(error) {
-                  handleUploadError (pid, filename, error, callback, callbackParam);
-                });
+          if (!fileExt.match(/^(gif)$/i)) {
+            breadcrumb('[Upload] (' + pid + ') Encrypting Lightbox.');
+            encrypt(lightboxPreview, [theKey]).then(function(lightboxCiphertext) {
+              breadcrumb('[Upload] (' + pid + ') Encrypted Lightbox.');
+              activeUploads[pid].lightbox = lightRef.putString(JSON.stringify(lightboxCiphertext));
+              activeUploads[pid].lightbox.pause();
+              photoEncryptedStartUploading();
             });
-
+          } else {
+            photoEncryptedStartUploading();
           }
-        }, function(error) {
-          handleUploadError (pid, filename, error, callback, callbackParam);
         });
       });
-      
+
     });
   });
 
+
+
+  
+  function photoEncryptedStartUploading() {
+    breadcrumb('[Upload] (' + pid + ') Encrypted Photo. Starting Uploads.');
+
+    var totalBytesForProgress = activeUploads[pid].original.snapshot.totalBytes + activeUploads[pid].thumbnail.snapshot.totalBytes;
+
+    if (!fileExt.match(/^(gif)$/i)) {
+      totalBytesForProgress += activeUploads[pid].lightbox.snapshot.totalBytes;
+    }
+
+    activeUploads[pid].total = totalBytesForProgress;
+    activeUploads[pid].progress = 0;
+    activeUploads[pid].originalProgress = 0;
+    activeUploads[pid].thumbnailProgress = 0;
+    activeUploads[pid].lightboxProgress = 0;
+
+    if (!fileUploadError) {
+      var processingMessage = "Encrypting and Uploading photo(s). <b>" + numFilesLeftToBeUploaded.toString() + " Photos </b> left.";
+      showFileUploadStatus("is-white", processingMessage);
+    }
+
+    //
+    // first prepare the callbacks for each upload
+    //
+
+    // ORIGINAL PHOTO UPLOAD
+    activeUploads[pid].original.on('state_changed', function(snapshot){
+      
+      // keep last activity timer up to date
+      lastActivityTime = (new Date()).getTime();
+
+      // check pulse for firefox, and defibrilate if dead (uggghhh...)
+      firefoxUploadTimer(pid, "original");
+
+      // update the byte progress
+      if (activeUploads[pid]) {
+        activeUploads[pid].originalProgress = snapshot.bytesTransferred;
+      }
+      displayUploadProgress(pid);
+      
+
+      // ORIGINAL PHOTO UPLOADED. MOVE ON TO THUMBNAIL
+      if (snapshot.bytesTransferred === snapshot.totalBytes) {
+        breadcrumb('[Upload] (' + pid + ') Uploaded Original.');
+        if (activeUploads[pid]) {
+          activeUploads[pid].thumbnail.resume();
+        }
+      }
+    }, function(error) { handleUploadError (pid, filename, error, callback, callbackParam); });
+
+
+
+
+    // THUMBNAIL PHOTO UPLOAD
+    activeUploads[pid].thumbnail.on('state_changed', function(thumbSnap){
+      
+      // keep last activity timer up to date
+      lastActivityTime = (new Date()).getTime();
+
+      // check pulse for firefox, and defibrilate if dead (uggghhh...)
+      firefoxUploadTimer(pid, "thumbnail");
+
+      // update the byte progress
+      if (activeUploads[pid]) {
+        activeUploads[pid].thumbnailProgress = thumbSnap.bytesTransferred;
+      }
+      displayUploadProgress(pid);
+
+      // THUMBNAIL UPLOADED. MOVE ON TO LIGHTBOX SIZE IF NEEDED.
+      if (thumbSnap.bytesTransferred === thumbSnap.totalBytes) {
+        breadcrumb('[Upload] (' + pid + ') Uploaded Thumbnail.');
+        if (!fileExt.match(/^(gif)$/i)) {
+          if (activeUploads[pid]) {
+            activeUploads[pid].lightbox.resume();
+          }
+        } else {
+          // it's a GIF, so no need to upload lightbox preview.
+          photoUploadComplete(fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam);
+        }
+      }
+    }, function(error) { handleUploadError (pid, filename, error, callback, callbackParam); });
+
+
+
+    // LIGHTBOX PHOTO UPLOAD (IF NOT GIF)
+    activeUploads[pid].lightbox.on('state_changed', function(lightSnap){
+
+      // keep last activity timer up to date
+      lastActivityTime = (new Date()).getTime();
+
+      // check pulse for firefox, and defibrilate if dead (uggghhh...)
+      firefoxUploadTimer(pid, "lightbox");
+
+      // update the byte progress
+      if (activeUploads[pid]) {
+        activeUploads[pid].lightboxProgress = lightSnap.bytesTransferred;
+      }
+      displayUploadProgress(pid);
+
+      // LIGHTBOX PREVIEW UPLOADED.
+      if (lightSnap.bytesTransferred === lightSnap.totalBytes) {
+        breadcrumb('[Upload] (' + pid + ') Uploaded Lightbox.');
+        photoUploadComplete(fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam);
+      }
+
+    }, function(error) { handleUploadError (pid, filename, error, callback, callbackParam); });
+      
+    // now start uploading with the original. 
+    activeUploads[pid].original.resume();
+
+  }
+
+  function displayUploadProgress(pid) {
+    if (activeUploads[pid]) {
+      activeUploads[pid].progress = activeUploads[pid].originalProgress + activeUploads[pid].thumbnailProgress + activeUploads[pid].lightboxProgress;
+      $("#upload-"+pid).find("progress").attr("value", activeUploads[pid].progress);
+      $("#upload-"+pid).find("progress").attr("max", activeUploads[pid].total);
+      $("#upload-"+pid).find(".fs").html(Math.floor((activeUploads[pid].progress * 100) / activeUploads[pid].total) +"%");
+    }
+  }
+
 }
 
+// this pauses & resumes the upload if the state doesn't change at all for 5 seconds.
+// It's to address a firefox upload timeout bug. For some reason XHR requests just stop, without any warning etc. 
+// they just just stop. yep. srsly. no idea why for now.
+// looks like some packets are getting lost, fucking up with the progress as well. 
+// like the percentage backs down / backs up etc. (or it's because when we pause some stuff is left out mid-upload)
+// so we have to artificially pause / resume the upload if nothing happens for 5 seconds.
+// kinda like a defibrilator 
+
+var firefoxUploadTimers = {};
+function firefoxUploadTimer(pid, whichSize) {
+  if (isFirefox) {
+    
+    firefoxUploadTimers[pid + whichSize] = firefoxUploadTimers[pid + whichSize] || {};
+
+    clearTimeout(firefoxUploadTimers[pid + whichSize].timer);
+    
+    firefoxUploadTimers[pid + whichSize].timer = setTimeout(function () {
+      
+      if (activeUploads[pid]) {
+        if (activeUploads[pid][whichSize]) {
+
+          activeUploads[pid][whichSize].pause();
+          activeUploads[pid][whichSize].resume(); 
+
+        }
+      }
+        
+    }, 5000);
+  }
+}
 
 function handleUploadError (pid, filename, error, callback, callbackParam) {
   if (usedStorage >= allowedStorage) {
     showFileUploadStatus("is-danger", "Error uploading your file(s). Looks like you've already ran out of storage. Please consider upgrading to a paid plan or deleting something else.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>" + ' &nbsp; <a class="button is-success" onclick="showPlans()">Upgrade Plan</a>');
+    uploadCompleteResetUploaderState();
 
     if (activeFID !== "home") {
       otherFolderLoaded = false;
@@ -1818,6 +1981,14 @@ function handleUploadError (pid, filename, error, callback, callbackParam) {
 }
 
 function photoUploadComplete (fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam) {
+  breadcrumb('[Upload] (' + pid + ') Photo & thumbs uploaded.');
+
+  $("#upload-"+pid).remove();
+  activeUploads[pid].original = null;
+  activeUploads[pid].thumbnail = null;
+  activeUploads[pid].lightbox = null;
+  activeUploads[pid] = null;
+
   callback = callback || noop;
   callbackParam = callbackParam || pid;
   var photoObject = { "id" : pid, "pinky" : dominant };
@@ -1833,9 +2004,10 @@ function photoUploadComplete (fid, pid, dominant, thumbnail, filename, exifDate,
   if (fid === "home") {
     whereTo = homeRef.doc(pid);
   } else {
-    whereTo = homeRef.doc(fid).collection(fid).doc(pid);
+    whereTo = homeRef.doc(fid).collection("photos").doc(pid);
   }
 
+  breadcrumb('[Upload] (' + pid + ') Saving to DB.');
   whereTo.set(photoObject, {
     merge: true
   }).then(function(response) {
@@ -1857,6 +2029,7 @@ function photoUploadComplete (fid, pid, dominant, thumbnail, filename, exifDate,
 }
 
 function uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename, callback, callbackParam) {
+  breadcrumb('[Upload] (' + pid + ') Saved to DB.');
   callback = callback || noop;
 
   numFilesLeftToBeUploaded--;
@@ -1919,6 +2092,8 @@ function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
 }
 
 function uploadCompleteResetUploaderState () {
+  breadcrumb('[Upload] - Resetting Uploader State');
+  
   document.title = "Cryptee | Photos";
   numFilesUploaded = 0;
   numFilesUploading = 0;
@@ -1926,6 +2101,10 @@ function uploadCompleteResetUploaderState () {
   somethingDropped = false;
   uploadList = [];
   isUploading = false;
+
+  fileTreeToUpload = {};
+  fileTreeToUpload.thecrypteehomefolder = {};
+  fileTreeToUpload.thecrypteehomefolder.files = [];
 }
 
 function getThumbnail (pid, fid) {
@@ -1936,10 +2115,16 @@ function getThumbnail (pid, fid) {
     fileRef.getDownloadURL().then(function(thumbURL) {
       var tidrequest = $.ajax({ url: thumbURL, type: 'GET',
           success: function(encryptedFileContents){
-            var theEncryptedFileContents = JSON.parse(encryptedFileContents).data;
-            decrypt(theEncryptedFileContents, [theKey]).then(function(plaintext) {
+            decrypt(JSON.parse(encryptedFileContents).data, [theKey]).then(function(plaintext) {
               var decryptedContents = plaintext.data;
               var id = fid || pid;
+              
+              // the request itself holds a .responseText which has 2x the encrypted string. 
+              if (activeItemsObject[id]) {
+                activeItemsObject[id].tidreq = null;
+              }
+              encryptedFileContents = null; 
+              // so removing these two saves up 2x memory
 
               var tmpImg = new Image();
               tmpImg.onload = function(){
@@ -2085,7 +2270,7 @@ if (doWeNeedHighResThumbs()) {
 
 function generateFolderThumbnail(fid) {
   $("#" + fid).find(".album").addClass("is-loading");
-  homeRef.doc(fid).collection(fid).get().then(function(item) {
+  homeRef.doc(fid).collection("photos").get().then(function(item) {
     if (item.docs[0]) {
       var firstPhoto = item.docs[0].data();
       var pinky = firstPhoto.pinky;
@@ -2113,7 +2298,7 @@ function setFolderThumbnail() {
   var thumb = pid.replace("p-", "t-");
   $("#" + pid).find(".photo").addClass("is-loading");
 
-  homeRef.doc(activeFID).collection(activeFID).get().then(function(item) {
+  homeRef.doc(activeFID).collection("photos").get().then(function(item) {
     item.docs.forEach(function(photo){
       if (photo.id === pid) {
         var pinky = photo.data().pinky;
@@ -2215,13 +2400,13 @@ function moveSelectionsToFolder (arrayOfPIDsToMove, toFolderID, indexToMove, thu
       if (activeFID === "home") {
         whereFrom = homeRef.doc(pid);
       } else {
-        whereFrom = homeRef.doc(activeFID).collection(activeFID).doc(pid);
+        whereFrom = homeRef.doc(activeFID).collection("photos").doc(pid);
       }
 
       if (toFolderID === "home") {
         whereTo = homeRef.doc(pid);
       } else {
-        whereTo = homeRef.doc(toFolderID).collection(toFolderID).doc(pid);
+        whereTo = homeRef.doc(toFolderID).collection("photos").doc(pid);
       }
 
       whereFrom.get().then(function(item) {
@@ -2365,6 +2550,8 @@ function moveFolderSelectionMade () {
       moveSelectionsToFolder(selectionsArray, fidToMoveTo, 0, thumbnailIsMoving, function(){
         hideModal("photos-move-selections-modal");
         hideFileUploadStatus();
+        uploadCompleteResetUploaderState();
+
       });
     });
   }
@@ -2514,12 +2701,6 @@ function generateDominant (callback) {
   callback (dominantColor.toString());
 }
 
-function clearThumbnailCanvases () {
-  originalCanvas = null;
-  resizedCanvas = null;
-  orientationCanvas = null;
-}
-
 // function generatePallette(imgEl, callback) {
 //   var canvas = document.createElement("canvas");
 //   var ctx = canvas.getContext("2d");
@@ -2571,11 +2752,11 @@ function hideEmptyFolderDialog (callback) {
   });
 }
 
-function folderCreated (fid, fname, callback, callbackParam) {
+function folderCreated (fid, fname, date, callback, callbackParam) {
   callback = callback || noop;
   if (activeFID === "home") {
     activeItemsObject[fid].title = fname;
-    renderFolder(fid, fname, "", "", "",updateTitles, callback, callbackParam);
+    renderFolder(fid, fname, "", "", date ,updateTitles, callback, callbackParam);
   } else {
     callback(callbackParam);
   }
@@ -2925,25 +3106,68 @@ var activeItemsObject = {};
 //   }
 // }
 
-function sortItemsObject () {
+function sortItemsObject (sorttype) {
   // CYCLES THROUGH active Items Object and returns a sorted titles array like :
-  // [[id, title], [id, title]]
-  // item[0] as the id, item[1] as the filename
+  // [[id, title, date], [id, title, date]]
+  // item[0] as the id, item[1] as the filename, item[2] as the date
+  sorttype = sorttype || "az-asc";
+  $(".sort-button").removeClass("selected");
 
   var titlesArray = [];
   var activeItemsObjectArray = Object.keys(activeItemsObject);
   activeItemsObjectArray.forEach(function(id){
     var title = activeItemsObject[id].title || "Untitled";
-    titlesArray.push([id, title]);
+    var date = activeItemsObject[id].date || "0000:00:00";
+    titlesArray.push([id, title, date]);
   });
 
-  titlesArray.sort(function(a, b) {
-    if (a[1] < b[1]) {
-      return -1;
-    } else {
-      return 1;
-    }
-  });
+  if (sorttype === "az-asc") {
+    $("#sort-az-asc").addClass("selected");
+    titlesArray.sort(function(a, b) {
+      if (a[1] < b[1]) { // [1] == title
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+  } else if (sorttype === "az-desc") {
+    $("#sort-az-desc").addClass("selected");
+    titlesArray.sort(function(a, b) {
+      if (a[1] > b[1]) { // [1] == title
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+  } else if (sorttype === "date-asc") {
+    $("#sort-date-asc").addClass("selected");
+    titlesArray.sort(function(a, b) {
+      if (a[2] < b[2]) { // [2] == date
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+  } else if (sorttype === "date-desc") {
+    $("#sort-date-desc").addClass("selected");
+    titlesArray.sort(function(a, b) {
+      if (a[2] > b[2]) { // [2] == date
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+  } else {
+    // UNKNOWN SORT, use az-asc instead
+    $("#sort-az-asc").addClass("selected");
+    titlesArray.sort(function(a, b) {
+      if (a[1] < b[1]) { // [1] == title
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+  }
 
   var sortedTitlesArray = [];
   sortedTitlesArray = titlesArray;
@@ -2964,24 +3188,24 @@ function titleFromFilename (filename) {
 
 function getTitles (fid, contents, callback) {
   titlesRef.doc(fid).get().then(function(titles) {
-    gotTitles(titles.data().titles, contents, callback);
+    gotTitles(titles.data().titles, titles.data().sort, contents, callback);
   }).catch(function(error) {
     console.log("Error getting titles of folder, likely empty");
   });
 }
 
-function gotTitles (JSONifiedEncryptedTitlesObject, contents, callback) {
+function gotTitles (JSONifiedEncryptedTitlesObject, sort, contents, callback) {
   callback = callback || noop;
   var encryptedTitlesObject = JSON.parse(JSONifiedEncryptedTitlesObject).data;
   decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
     var titlesObject = JSON.parse(plaintext.data);
-    processTitles(titlesObject, contents, callback);
+    processTitles(titlesObject, sort, contents, callback);
   });
 }
 
-function processTitles (titlesObject, contents, callback) {
+function processTitles (titlesObject, sort, contents, callback) {
   callback = callback || noop;
-
+  sort = sort || "az-asc";
   /////////////////////////////////////////
   // - 1 - CYCLE ALL ITEMS FROM FIRESTORE
   // AND ADD TO active Items Object
@@ -3063,7 +3287,7 @@ function processTitles (titlesObject, contents, callback) {
 
   // [[id, title], [id, title]]
   // item[0] is the id, item[1] is the filename
-  var itemsArray = sortItemsObject();
+  var itemsArray = sortItemsObject(sort);
   var sortedDOMArray = [];
   
   // remove all lightbox events to stop thousands of slideChange events from triggering.
@@ -3116,7 +3340,7 @@ function processTitles (titlesObject, contents, callback) {
   // if there's albums without dates, use the date from the thumbnail photo,
   // and add a date to these albums
 
-  if (!isMobile) {
+  if (!isMobile && !isipados) {
     if (foldersWithoutDates.length > 0) {
       updateFoldersWithoutDates();
     } else {
@@ -3472,7 +3696,7 @@ function confirmDeleteFolder () {
   if (fidToDelete !== activeFID) {
     $("#delete-album-modal").find(".subtitle").html("Deleting ...");
     var fid = fidToDelete;
-    homeRef.doc(fid).collection(fid).get().then(function(items) {
+    homeRef.doc(fid).collection("photos").get().then(function(items) {
 
       if (items.docs.length > 0) {
         noItemsLeftToDelete = items.docs.length;
@@ -3496,7 +3720,7 @@ function confirmDeleteFolder () {
 
                 if (noItemsLeftToDelete === 0) {
                   $("#delete-album-modal").find(".subtitle").html("Deleting (Finalizing)");
-                  var collectionRefToDelete = homeRef.doc(fid).collection(fid);
+                  var collectionRefToDelete = homeRef.doc(fid).collection("photos");
                   deleteCollection (collectionRefToDelete).then(function(){
                     homeRef.doc(fid).delete().then(function(){
                       titlesRef.doc(fid).delete().then(function(){
@@ -3506,9 +3730,9 @@ function confirmDeleteFolder () {
                   });
                 }
 
-              }).catch();
-            }).catch();
-          }).catch();
+              }).catch(function(err){});
+            }).catch(function(err){});
+          }).catch(function(err){});
         });
       } else {
         homeRef.doc(fid).delete().then(function(){
@@ -3599,7 +3823,7 @@ function makeGhostFolder () {
   progressModal("ghost-album-modal");
   fixFilesAndFolders(function(){
     hashString($("#ghost-folder-confirm-input").val().toUpperCase()).then(function(titleHashToGhost){
-      var makeGhostAlbum = cloudfunctions.httpsCallable('makeGhostAlbum');
+      var makeGhostAlbum = cloudfunctions.httpsCallable('makeGhostAlbumV2');
       makeGhostAlbum({ hash: titleHashToGhost, fid: fidToGhost }).then(function (result) {
 
         var functionResponse = result.data;
@@ -3648,7 +3872,7 @@ function summonGhostFolder () {
     hashString(titleToSummon).then(function(titleHashToSummon){
       // CLIENTSIDE ONCE GOT THE CONFIRMATION :
 
-      var summonGhostAlbum = cloudfunctions.httpsCallable('summonGhostAlbum');
+      var summonGhostAlbum = cloudfunctions.httpsCallable('summonGhostAlbumV2');
       summonGhostAlbum({ hash: titleHashToSummon }).then(function (result) {
         var functionResponse = result.data;
         if (functionResponse) {
@@ -3684,7 +3908,7 @@ function summonGhostFolder () {
         $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
         console.log(error);
       }); 
-    }).catch(function(e){
+    }).catch(function(error){
       unprogressModal("photos-summon-ghost-album-modal");
       $("#photos-summon-ghost-album-modal").find(".theStatus").html("<p>Something went wrong. Please try again.</p>").show();
       console.log(error);
@@ -3732,6 +3956,8 @@ function updateSelections () {
     }
 
     $("#photos-del-sel-modal-toggle-button").attr("disabled", false).prop("disabled", false);
+    $("#photos-move-sel-modal-toggle-button").attr("disabled", false).prop("disabled", false);
+    $("#photos-download-sel-modal-toggle-button").attr("disabled", false).prop("disabled", false);
   } else {
     if (!selectionmode) {
       $(".normal-nav-item").show();
@@ -3739,6 +3965,8 @@ function updateSelections () {
     }
     $("#photos-set-thumb-button").addClass("unavailable");
     $("#photos-del-sel-modal-toggle-button").attr("disabled", true).prop("disabled", true);
+    $("#photos-move-sel-modal-toggle-button").attr("disabled", true).prop("disabled", true);
+    $("#photos-download-sel-modal-toggle-button").attr("disabled", true).prop("disabled", true);
   }
   $("#photos-delete-selections-modal").find(".subtitle").html('Are you sure you want to delete your selections? (<span class="number-of-selections"></span>)?');
   if (numberOfSelections <= 1) {
@@ -3763,7 +3991,7 @@ function deleteSelections() {
       if (activeFID === "home") {
         whereFrom = homeRef.doc(pid);
       } else {
-        whereFrom = homeRef.doc(activeFID).collection(activeFID).doc(pid);
+        whereFrom = homeRef.doc(activeFID).collection("photos").doc(pid);
       }
 
       try { if (pid === thumb.replace("t-", "p-")) { isFolderThumbDeleted = true; } } catch (e) { }
@@ -3780,8 +4008,8 @@ function deleteSelections() {
             whereFrom.delete().then(function() {
               areDeletionsComplete(pid, isFolderThumbDeleted);
             });
-          }).catch();
-        }).catch();
+          }).catch(function(err){});
+        }).catch(function(err){});
       }).catch(function(error) {
         if (error.code === "storage/object-not-found") {
           thumbRef.delete();
@@ -4365,9 +4593,11 @@ function getLightboxDownloadURL(pid, callback, forceOriginal) {
 ////////////////     SEARCH       //////////////////
 ////////////////////////////////////////////////////
 
-var searchReady = false;
+var titlesIndexReady = false;
 var firstSearchInit = false;
 var searchArray = [];
+var titlesIndex = {};
+var allFoldersArray = [];
 var searchTimer;
 
 var searchOptions = {
@@ -4394,25 +4624,28 @@ $("#search-input").on('focus', function(event) {
 
   if (!firstSearchInit) {
     firstSearchInit = true;
-    initSearch();
+    prepareTitlesSearchIndex();
   } else {
     if (didAnyTitlesObjectChange) {
-      initSearch();
+      prepareTitlesSearchIndex();
     } else {
-      searchReady = true;
+      titlesIndexReady = true;
     }
   }
   lastActivityTime = (new Date()).getTime();
 });
 
-function initSearch () {
-  /// prevent an early click initiating initSearch – so check user id
+function prepareTitlesSearchIndex (callback,callbackParam) {
+  callback = callback || noop;
+
+  /// prevent an early click initiating prepareTitlesSearchIndex – so check user id
   /// I think some users have an issue with the initial animation
   /// which exposes the search bar and people click quickly.
 
   if (theUserID) {
     //   get all titles.
     searchArray = [];
+    titlesIndex = {};
     $("#search-bar").find(".button").addClass("is-loading");
     titlesRef.get().then(function(titles) {
       var howManyFolders = titles.docs.length;
@@ -4425,34 +4658,42 @@ function initSearch () {
           var encryptedTitlesObject = JSON.parse(titlesOfFolder).data;
           decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
             currentFolderIndex++;
-            titlesObject = JSON.parse(plaintext.data);
+            var titlesObject = JSON.parse(plaintext.data);
             $.each(titlesObject.photos, function(pid, ptitle) {
               var theParsedFilename = ptitle;
               try { theParsedFilename = JSON.parse(ptitle); } catch (e) {}
               var fname = titlesObject.self || 'Home';
               searchArray.push({fid:fid, pid:pid, fname:fname, name:theParsedFilename});
+              titlesIndex[pid] = theParsedFilename;
             });
-            if(currentFolderIndex === howManyFolders) {
-              doneSearchIndexing();
+            if (currentFolderIndex === howManyFolders) {
+              donePreparingTitlesSearchIndex(callback, callbackParam);
             }
           });
+          if (fid !== "home") {
+            allFoldersArray.push(fid);
+          }
         });
       } else {
-        doneSearchIndexing();
+        donePreparingTitlesSearchIndex(callback, callbackParam);
       }
 
     }).catch(function(error) {
-      doneSearchIndexing();
+      donePreparingTitlesSearchIndex(callback, callbackParam);
       console.log("Error getting titles of all folders");
       handleError("Error getting photo & album titles for search", error);
     });
+  } else {
+    callback(callbackParam);
   }
 }
 
-function doneSearchIndexing() {
+function donePreparingTitlesSearchIndex(callback, callbackParam) {
+  callback = callback || noop;
   $("#search-bar").find(".button").removeClass("is-loading");
   didAnyTitlesObjectChange = false;
-  searchReady = true;
+  titlesIndexReady = true;
+  callback(callbackParam);
 }
 
 var searchKeyDownTimer;
@@ -4497,7 +4738,7 @@ $("#search-input").on("keydown", function(event) {
 
 
 function search (term) {
-  if (searchReady) {
+  if (titlesIndexReady) {
     $("#search-button-icon").addClass("fa-close").removeClass("fa-search");
     var fuse = new Fuse(searchArray, searchOptions);
     var results = fuse.search(term);
@@ -4663,6 +4904,23 @@ function displaySearchResults (results, term) {
 
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 $('#photos-search-contents').on('click', '.photos-sr-photo', function(event) {
   var result = $(this).parents(".photos-search-result");
   var fidToLoad = result.attr("fid");
@@ -4706,13 +4964,101 @@ $('#photos-search-contents').on('click', '.photos-sr-folder, .sr-folder-images',
 /////////////     DOWNLOADS       //////////////////
 ////////////////////////////////////////////////////
 
+if (isInWebAppiOS) {
+  $("#photos-download-sel-modal-toggle-button").hide();
+} else {
+  $("#photos-download-sel-modal-toggle-button").show();
+}
 
+var downloadQueue = [];
 function downloadSelections () {
-  $.each(selectionsObject, function(pid) {
-    var photoRef = rootRef.child(pid + ".crypteefile");
-    var filename = $("#"+pid).find("input").val() + "." + $("#"+pid).find("input").attr("ext");
-    loadPhoto(pid, filename, "download");
+  if (didAnyTitlesObjectChange || !titlesIndexReady) {
+    prepareTitlesSearchIndex(function(){
+      prepareDownloadQueue();
+    });
+  } else {
+    prepareDownloadQueue();
+  }
+
+  function prepareDownloadQueue() {
+    $.each(selectionsObject, function(pid) {
+      downloadQueue.push({
+        "filename" : titlesIndex[pid],
+        "pid" : pid
+      });
+    });
+  
+    if (!$("#photos-download-modal").hasClass("active")){
+      $("#photos-downloading-status").html("DOWNLOAD PHOTOS");
+      $("#photos-download-modal").addClass("active");
+    } else {
+      $("#photos-download-modal").addClass("flash");
+      setTimeout(function () {
+        $("#photos-download-modal").removeClass("flash");
+      }, 501);
+    }
+  }
+  
+}
+
+function runDownloadQueue(index) {
+  if (index === 0) {
+    $("#photos-download-modal").addClass("downloading");
+  }
+  
+  if (downloadQueue[index]) {
+    $("#photos-downloading-status").html("DOWNLOADING (" + index + "/" + downloadQueue.length + ")");
+    $("#photos-download-modal").find("progress").attr("max", downloadQueue.length);
+    $("#photos-download-modal").find("progress").attr("value", index);
+    
+    var nextInLine = index + 1;
+    downloadPhotoForBulkDownload(downloadQueue[index].pid, downloadQueue[index].filename, function(){
+      runDownloadQueue(nextInLine);
+    });
+  } else {
+    // downloads complete, clear queue.
+    $("#photos-download-modal").removeClass("active downloading");
+    $("#photos-downloading-status").html("DOWNLOAD PHOTOS");
+    $("#photos-download-modal").find("progress").attr("value", 0);
+    downloadQueue = [];
+  }
+}
+
+function downloadPhotoForBulkDownload(pid, filename, callback, callbackParam) {
+  callback = callback || noop;
+  rootRef.child(pid + ".crypteefile").getDownloadURL().then(function(dldURL) {
+    gotURL(dldURL);
+  }).catch(function(error) { 
+    err("Error getting Photo URL for bulk download.", error); 
   });
+
+  function gotURL(downloadURL) {
+    $.ajax({ url: downloadURL, type: 'GET',
+      success: function(encryptedPhoto){ 
+        gotEncryptedPhoto(encryptedPhoto); 
+      },
+      error:function (xhr, ajaxOptions, thrownError){ 
+        err("Error downloading photo during bulk download.", thrownError); 
+      }
+    });
+  }
+
+  function gotEncryptedPhoto(encryptedPhoto) {
+    var encryptedB64 = JSON.parse(encryptedPhoto).data;
+    decrypt(encryptedB64, [theKey]).then(function(plaintext) {
+      var decryptedPhoto = plaintext.data;
+      downloadPhotoToDisk(pid, filename, decryptedPhoto, callback, callbackParam);
+    }).catch(function (error) {
+      err("Error decrypting photo during bulk download."); 
+    });
+  }
+
+  function err(msg, err) {
+    err = err || {};
+    err.pid = pid;
+    handleError(msg, err);
+    callback(callbackParam); // something didn't work, sadly skip and continue. 
+  } 
 }
 
 function downloadPhotoToDisk (pid, ptitle, decryptedPhoto, callback, callbackParam) {
@@ -4727,7 +5073,7 @@ function downloadPhotoToDisk (pid, ptitle, decryptedPhoto, callback, callbackPar
 }
 
 function downloadActiveLightboxPhotoToDisk () {
-  if (isios) {
+  if (isios || isipados) {
     showModal("ios-download-modal");
   } else {
     // NOT IOS PROCEED DOWNLOADING THE ORIGINAL.

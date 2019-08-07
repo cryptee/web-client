@@ -130,6 +130,12 @@ Array.prototype.unique = function() {
   return a;
 };
 
+function findOne (haystack, needles) {
+  return needles.some(function (v) {
+      return haystack.indexOf(v) >= 0;
+  });
+}
+
 // GET URL PARAMETERS
 
 function getUrlParameter(sParam) {
@@ -247,6 +253,7 @@ function timeSince(epoch) {
 var isInWebAppiOS = (window.navigator.standalone === true);
 var isInWebAppChrome = (window.matchMedia('(display-mode: standalone)').matches);
 var isios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+var isipados = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/) && (navigator.platform === "MacIntel") && (navigator.maxTouchPoints > 1);
 var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
 
 $("a").click(function (event) {
@@ -634,9 +641,7 @@ function loadJSON(url, callback) {
 
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(
-    '../service-worker.js'
-  ).then( function(serviceWorker) {
+  navigator.serviceWorker.register('../service-worker.js').then( function(serviceWorker) {
     setSentryTag("worker", "yes");
   }).catch(function(error) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
@@ -798,25 +803,24 @@ function checkLatestVersion() {
   if (location.origin.indexOf("crypt.ee") !== -1) {
     // this allows for beta to get updates from beta, and prod from prod.
     updateOrigin = location.origin; 
-  } else {
-    // and this allows for alpha to get from crypt.ee
-    updateOrigin = "https://crypt.ee";
-  }
-  var now = (new Date()).getTime(); // milliseconds
-  $.ajax({
-    url: updateOrigin + "/v.json?cachebuster=" + now,
-    type: 'GET'
-  }).done(function( dep ) {
-    // got server's latestDeployVersion.
-    // now compare to local.
-    if (dep) {
-      serverDeployVersion = dep.v;
-      if (serverDeployVersion !== latestDeployVersion) {
-        // update available
-        showUpdateAvailable();
+  
+    var now = (new Date()).getTime(); // milliseconds
+    $.ajax({
+      url: updateOrigin + "/v.json?cachebuster=" + now,
+      type: 'GET'
+    }).done(function( dep ) {
+      // got server's latestDeployVersion.
+      // now compare to local.
+      if (dep) {
+        serverDeployVersion = dep.v;
+        if (serverDeployVersion !== latestDeployVersion) {
+          // update available
+          showUpdateAvailable();
+        }
       }
-    }
-  });
+    });
+
+  }
 }
 
 function showUpdateAvailable () {
