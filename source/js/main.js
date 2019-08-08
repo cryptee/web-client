@@ -13,6 +13,14 @@ var vendorName = winNav.vendor;
 var isOpera = typeof window.opr !== "undefined";
 var isIEedge = winNav.userAgent.indexOf("Edge") > -1;
 var isIOSChrome = winNav.userAgent.match("CriOS");
+
+var isInWebAppiOS = (window.navigator.standalone === true);
+var isInWebAppChrome = (window.matchMedia('(display-mode: standalone)').matches);
+var isios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+var isipados = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/) && (navigator.platform === "MacIntel") && (navigator.maxTouchPoints > 1);
+var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
+
+
 var isGoogleChrome = false;
 if (isIOSChrome) {
    // is Google Chrome on IOS
@@ -77,17 +85,20 @@ function iosVersion() {
 isIOSPWAAdvanced = false;
 if (iosVersion()) {
 
-  if (iosVersion()[0] >= 12) {
-    if (iosVersion()[1] >= 2) {
-      isIOSPWAAdvanced = true;
-    } else {
-      isIOSPWAAdvanced = false;
-    }
+  if (iosVersion()[0] > 12) {
+    isIOSPWAAdvanced = true;
+  } else if (iosVersion()[0] === 12 && iosVersion()[1] >= 2) {
+    isIOSPWAAdvanced = true;
   } else {
     isIOSPWAAdvanced = false;
   }
   
 }
+
+if (isipados) {
+  isIOSPWAAdvanced = true;
+}
+
 ////////////////////////////////////////////////////
 ///////////////////   HELPERS    ///////////////////
 ////////////////////////////////////////////////////
@@ -250,11 +261,6 @@ function timeSince(epoch) {
 
 // FEATURE DETECTION
 
-var isInWebAppiOS = (window.navigator.standalone === true);
-var isInWebAppChrome = (window.matchMedia('(display-mode: standalone)').matches);
-var isios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-var isipados = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/) && (navigator.platform === "MacIntel") && (navigator.maxTouchPoints > 1);
-var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
 
 $("a").click(function (event) {
   var attr = $(this).attr('href');
