@@ -14,7 +14,6 @@
 
   <div id="home-center-scroller">
     <!-- @import "includes/home-welcome-card.kit" -->
-    <!-- @import "includes/new-pricing-card.kit" -->
     <!-- @import "includes/home-news-section.kit" -->
   </div>
 
@@ -25,7 +24,6 @@
 
   <script type="text/javascript">
   var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedkey
-  var dismissedPriceBanner = localStorage.getItem('dismissedPriceBanner');
   var userCreatedAt;
 
   loadUserDetailsFromLS();
@@ -79,30 +77,6 @@
   $(".home-item").on('click', function(event) {
     $(this).addClass('is-loading');
   });
-
-  if (dismissedPriceBanner === "true") {
-    dismissPriceBanner();
-  } else {
-    if (!theUserPlan || theUserPlan === "523200" || theUserPlan === "523300" || theUserPlan === "523201" || theUserPlan === "free") {
-      if (userCreatedAt < 1561362535665) {
-        showPriceBanner();
-      } else {
-        dismissPriceBanner();
-      }
-    } else {
-      dismissPriceBanner();
-    }
-  }
-  
-  function dismissPriceBanner() {
-    localStorage.setItem("dismissedPriceBanner", true);
-    $("#new-pricing-card").removeClass("shown");
-    $("#new-pricing-card").removeClass("shown");
-  }
-
-  function showPriceBanner() {
-    $("#new-pricing-card").addClass("shown");
-  }
 
   setTimeout(function () {
     sessionStorage.removeItem('key');
