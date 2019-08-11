@@ -1299,6 +1299,94 @@ html {
   text-align: center;
 }
 
+.provider-button {
+  height: 3rem;
+  line-height: 3rem;
+  padding-left: 0.5rem;
+  background-color: #FFF;
+  color: #000;
+  border:1px solid #CCC;
+  margin: 0rem;
+  border-radius: 5px;
+  opacity: 1;
+  transition: 0.5s opacity ease, 0.3s background-color ease;
+  pointer-events: all; 
+  cursor: pointer;
+}
+
+.finishSignupButton {
+  height: 3rem;
+  line-height: 3rem;
+  padding-left: 0.5rem;
+  background-color: #000;
+  color: #FFF;
+  margin: 0rem;
+  border-radius: 5px;
+  transition: 0.5s opacity ease;
+  pointer-events: all; 
+  cursor: pointer;
+}
+
+.provider-button .auth-label {
+  height: 3rem;
+  margin-left: 0.5rem;
+  display: inline-block;
+  font-size: 14px;
+  line-height: 3rem;
+}
+
+.provider-button .icon {
+  float:right;
+  height: calc(3rem - 2px);
+  line-height: 3rem;
+  margin-right: 0.75rem;
+  font-size: 16px;
+}
+
+.provider-button:disabled,
+.provider-button[disabled] {
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+.provider-button[provider=username] {
+  background-color: #000;
+  border:none;
+  color: #FFF;
+  opacity: 1;
+  pointer-events: all !important;
+}
+
+.auth-providers {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.auth-providers hr {
+  margin:1rem 0;
+}
+
+.waiting-google-img {
+  display: block;
+  margin: auto;
+}
+
+.auth-provider-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-provider-buttons .provider-button {
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.auth-provider-buttons .provider-button:last-child {
+  margin-right: 0rem;
+}
+
+
 #signup-message {
   display: none;
 }
@@ -1369,17 +1457,13 @@ html {
   min-height: 3rem;
 }
 
-#signup-auth-methods .title {
-  font-size: 16px;
-}
-
 #signup-progress {
   height: 3px;
 }
 
 #signup-body-wrapper {
   margin: 6% auto 2rem auto;
-  max-width: 1200px;
+  max-width: 720px;
   max-height: 550px;
   width: calc(100% - 4rem);
   height: auto;
@@ -1423,7 +1507,7 @@ html {
 }
 
 #signup-wrapper progress {
-  height: 4px;
+  height: 3px;
   margin-bottom: 0;
 }
 
@@ -1437,6 +1521,9 @@ html {
 
 #signup-wrapper .help {
   margin-top: 0.5rem;
+  position: absolute;
+  background-color: #FFF;
+  padding: 0 0 1.5rem 0;
 }
 
 #unique-key-error {
@@ -1461,7 +1548,7 @@ html {
 #signup-hero {
   background-image: url("/imgs/identify.jpg");
   background-size: cover;
-  background-position: left bottom;
+  background-position: center top;
   background-repeat: no-repeat;
   opacity: 1;
   transition: 0.475s opacity ease !important;
@@ -1473,6 +1560,8 @@ html {
 
 #signup-form-column {
   min-width: 290px;
+  max-width: 360px;
+  width: 100%;
 }
 
 #signup-sections-wrap {
@@ -1509,14 +1598,28 @@ html {
 }
 
 .signup-input {
+  padding: 1rem 0 1.75rem 0;
+}
+
+#signup-username {
   border-left: none;
   border-right: none;
   border-top: none;
   border-bottom-width: 3px;
-  padding: 1rem 0 1.75rem 0;
 }
 
+/* due to a safari bug, for some reason the progress appears as 2px in safari instead of 3. so to even things out on safari we'll use a safari-specific hack*/
+@media not all and (min-resolution:.001dpcm)
+{ @supports (-webkit-appearance:none) and (stroke-color:transparent) {
+  #signup-username {
+    border-bottom-width: 2px;
+  }
+}}
+
 .signup-section #signup-pass, .signup-section #signup-key {
+  border-left: none;
+  border-right: none;
+  border-top: none;
   border-bottom-width: 0px;
 }
 
@@ -1525,49 +1628,35 @@ html {
   height: 2rem !important;
 }
 
-.smartid-button {
-  margin-bottom: -5px;
-  margin-left: -1px;
-  margin-right: 0;
-  width:16px;
-  height: 16px;
-}
-
 .signup-next {
   position: absolute;
   bottom:0rem;
   right: 0rem;
-
-  border-radius: 3rem !important;
-  border: none;
-  padding: 1rem 1.5rem;
   text-align: center;
-  box-shadow: none !important;
+  padding: 1.5rem;
+  line-height: 3rem;
 }
 
 .signup-back {
   position: absolute;
   bottom:0rem;
   left: 0rem;
-  height: 1.75rem;
+  height: 3rem;
+  line-height: 3rem;
   color: #bbb;
-}
-
-.signup-next-button {
-  cursor: pointer;
 }
 
 .reveal-pass-input-button {
   cursor: pointer !important;
   pointer-events: all !important;
   color:#000 !important;
+  width: 3rem !important;
 }
 
 .signup-info-wrapper {
   position: absolute;
   width: 100%;
-  min-height: calc(100% - 3rem);
-  height: auto;
+  height: 100%;
   top: 0;
   background-color: #FFF;
   transition: all 0.5s ease;
@@ -1577,12 +1666,12 @@ html {
 
 #signup-info {
   position: relative !important;
-  padding-top: 2rem !important;
+  padding: 1.5rem !important;
   font-size: 13px !important;
   left: 0.5rem;
   top: 0;
   width: calc(100% - 1rem);
-  min-height: calc(100%) !important;
+  min-height: calc(100% - 1rem) !important;
   height: auto;
   border-radius: 0.5rem;
   box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
@@ -1668,21 +1757,33 @@ html {
 .forgot-body, .gauth-body {
   width: 100%;
   height: 100%;
-  background-image: url("../imgs/anandu-vinod-318126.jpg");
+  background-color:#FFF;
   background-size: cover;
   background-repeat: no-repeat;
 }
 
 .forgot-title, .gauth-title {
   width: 100%;
-  color : #f5f5f5;
+  color : #000;
   font-weight: bold;
   letter-spacing: 3px;
 }
 
 .forgot-logo img, .gauth-logo img {
-  width: 40px !important;
-  margin-bottom: 2rem;
+  height: 34px !important;
+  display: inline-block;
+}
+
+.gauth-logo {
+  vertical-align: middle;
+}
+
+.gauth-plus {
+  vertical-align: middle;
+  line-height: 36px;
+  height: 36px !important;
+  margin-top: -20px;
+  margin-right: 1px;
 }
 
 .forgot-top, .gauth-top {
@@ -1737,7 +1838,7 @@ html {
 #gauth-success.is-loading::after {
   -webkit-animation: spinAround 500ms infinite linear;
   animation: spinAround 500ms infinite linear;
-  border: 3px solid #FFF;
+  border: 3px solid #000;
   border-radius: 290486px;
   border-right-color: transparent;
   border-top-color: transparent;
@@ -5073,7 +5174,7 @@ body.draggingStuff {
 @media (max-width:768px) {
 
   #signup-body-wrapper {
-    max-width: 600px;
+    max-width: 360px;
   }
 
   #signup-info {

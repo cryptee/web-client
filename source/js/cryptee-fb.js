@@ -130,8 +130,6 @@ function authenticatediOSBrowser () {
     if (providerId !== "" && providerId !== " ") {
       loginMethod = providerId; //password //google.com //phone
     }
-  } else {
-    loginMethod = "eid"; // if none, smartid.
   }
 
   if (loginMethod === "google.com") {

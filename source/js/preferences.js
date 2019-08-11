@@ -54,7 +54,6 @@ $(document).ready(function() {
       }
 
       setCurrencies (detectedCurrency);
-      setSmartIDRadios (detectedLocale);
       setSentryTag("locale", detectedLocale);
       if (detectedLocale !== "XX") {
         try {
@@ -89,10 +88,6 @@ function setCurrencies (cur) {
     try { $('.additional-cur').html("€"); } catch (e) {}
     try { $('.cur').html("€"); } catch (e) {}
   }
-}
-
-function setSmartIDRadios (loc) {
-  $("input[type='radio'][value='"+loc+"']").prop("checked", true);
 }
 
 

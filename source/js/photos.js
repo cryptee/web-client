@@ -2466,35 +2466,40 @@ function showMoveSelectionsModal() {
   $("#photos-move-folders-list").find("div").remove();
   showModal('photos-move-selections-modal');
 
-  titlesRef.doc("home").get().then(function(titles) {
-    if (titles.data()) {
-      var encryptedTitlesObject = JSON.parse(titles.data().titles).data;
-      decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
-        $.each(JSON.parse(plaintext.data).folders, function(fid, ftitle) {
-          var parsedFilename = JSON.parse(ftitle);
-          var isCurrent = ""; if (fid === activeFID) { isCurrent = "is-current"; }
-          $("#photos-move-folders-list").append('<div class="column move-folder is-half" fname="'+parsedFilename+'"><button fid="'+fid+'" class="button is-fullwidth '+isCurrent+' photos-move-folders-list-item"><span class="icon is-small"><i class="fa fa-book"></i></span><span>'+parsedFilename+'</span></button></div>');
-        });
+  if (didAnyTitlesObjectChange || !titlesIndexReady) {
+    prepareTitlesSearchIndex(function(){
+      gotFolderTitlesForModal();
+    });
+  } else {
+    gotFolderTitlesForModal();
+  }
 
-        if (activeFID === "home") {
-          $("#move-folders-list-home").addClass("is-current");
-        } else {
-          $("#move-folders-list-home").removeClass("is-current");
-        }
+  function gotFolderTitlesForModal() {
+    $.each(titlesIndex.folders, function(fid, ftitle) {
+      var isCurrent = ""; if (fid === activeFID) { isCurrent = "is-current"; }
+      if (fid !== "home") {
+        $("#photos-move-folders-list").append('<div class="column move-folder is-half" fname="'+ftitle+'"><button fid="'+fid+'" class="button is-fullwidth '+isCurrent+' photos-move-folders-list-item"><span class="icon is-small"><i class="fa fa-book"></i></span><span>'+ftitle+'</span></button></div>');
+      }
+    });
 
-        $('.move-folder').sort(function(a, b) {
-          if ($(a).attr("fname") > $(b).attr("fname")) {
-            return -1;
-          } else {
-            return 1;
-          }
-        }).appendTo('#photos-move-folders-list');
-
-        $("#move-folders-list-home").fadeIn(250);
-        $("#photos-move-folders-list").removeClass("is-loading");
-      });
+    if (activeFID === "home") {
+      $("#move-folders-list-home").addClass("is-current");
+    } else {
+      $("#move-folders-list-home").removeClass("is-current");
     }
-  });
+
+    $('.move-folder').sort(function(a, b) {
+      if ($(a).attr("fname") > $(b).attr("fname")) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }).appendTo('#photos-move-folders-list');
+
+    $("#move-folders-list-home").fadeIn(250);
+    $("#photos-move-folders-list").removeClass("is-loading");
+
+  }
 }
 
 $("#photos-move-selections-modal").on('click', '.photos-move-folders-list-item', function(event) {
@@ -3026,6 +3031,8 @@ $("#folder-contents").on("click", ".albumitem", function(event){
   }
 });
 
+
+// THIS IS FOR ANDROID BACK BUTTON OR BROWSER BACK BUTTON
 window.addEventListener('popstate', function(e) {
   // this is to make sure we have a user before calling this function.
   // otherwise getAllFilesOfFolder will get called before auth is complete, and tons of shit will be undefined.
@@ -3033,7 +3040,7 @@ window.addEventListener('popstate', function(e) {
   if (theUser) { 
     var id = e.state;
     if ($("#lightbox-modal").hasClass("is-active")) {
-      $("#lightbox-modal").removeClass("is-active");
+      closeLightbox();
     } else {
       if (id) {
         if (id === "home") {
@@ -3054,14 +3061,6 @@ window.addEventListener('popstate', function(e) {
     }
   }
 });
-
-// $("body").on('swiperight',  function(){
-//   if (!$("#lightbox-modal").hasClass("is-active")) {
-//     if (activeFID !== "home") {
-//       getHomeFolder();
-//     }
-//   }
-// });
 
 
 
@@ -4646,6 +4645,8 @@ function prepareTitlesSearchIndex (callback,callbackParam) {
     //   get all titles.
     searchArray = [];
     titlesIndex = {};
+    titlesIndex.photos = {};
+    titlesIndex.folders = {};
     $("#search-bar").find(".button").addClass("is-loading");
     titlesRef.get().then(function(titles) {
       var howManyFolders = titles.docs.length;
@@ -4659,13 +4660,19 @@ function prepareTitlesSearchIndex (callback,callbackParam) {
           decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
             currentFolderIndex++;
             var titlesObject = JSON.parse(plaintext.data);
+
+            var fname = titlesObject.self || 'Home';
+            var parsedFoldername = fname;
+            try { parsedFoldername = JSON.parse(fname); } catch (e) {}
+            titlesIndex.folders[fid] = parsedFoldername;
+
             $.each(titlesObject.photos, function(pid, ptitle) {
               var theParsedFilename = ptitle;
               try { theParsedFilename = JSON.parse(ptitle); } catch (e) {}
-              var fname = titlesObject.self || 'Home';
               searchArray.push({fid:fid, pid:pid, fname:fname, name:theParsedFilename});
-              titlesIndex[pid] = theParsedFilename;
+              titlesIndex.photos[pid] = theParsedFilename;
             });
+
             if (currentFolderIndex === howManyFolders) {
               donePreparingTitlesSearchIndex(callback, callbackParam);
             }
@@ -4983,7 +4990,7 @@ function downloadSelections () {
   function prepareDownloadQueue() {
     $.each(selectionsObject, function(pid) {
       downloadQueue.push({
-        "filename" : titlesIndex[pid],
+        "filename" : titlesIndex.photos[pid],
         "pid" : pid
       });
     });

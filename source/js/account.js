@@ -138,8 +138,6 @@ firebase.auth().onAuthStateChanged(function(user) {
         if (providerId !== "" && providerId !== " ") {
           loginMethod = providerId; //password //google.com //phone
         }
-      } else {
-        loginMethod = "eid"; // if none, smartid.
       }
       arrangeSettings();
       webAppURLController();
@@ -156,6 +154,7 @@ function gotUser() {
   if (theEmail.indexOf("@users.crypt.ee") !== -1) {
     // if anonymous email
 
+    // keeping for legacy reasons
     if (theEmail.startsWith("mid-")) {
       thePersonalCode = theEmail.replace("mid-", "").replace("@users.crypt.ee", "");
       thePhone = theUser.phoneNumber;
@@ -202,7 +201,11 @@ function gotUser() {
   });
 
   db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-    encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+    if (snapshot.val() !== null) {
+      encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+    } else {
+      handleError("Incomplete Signup. Couldn't find user key in Account.");
+    }
   });
   
 }
@@ -704,13 +707,17 @@ var ordersAdded = false;
 var exportData;
 
 function fillDataExporter (data, meta, orders) {
-  if (data && !dataAdded) {
-    var theData = data.toJSON();
-    delete theData.cryptmail;
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theData));
-    $("#account-data-json").append("<a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Docs & Preferences Metadata.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Docs & Preferences Metadata (JSON File)</a><br>");
-    exportData = data;
-    dataAdded = true;
+  if (data) {
+    if (data.val() !== null) {
+      if (!dataAdded) {
+        var theData = data.toJSON();
+        delete theData.cryptmail;
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(theData));
+        $("#account-data-json").append("<a style='text-decoration:none;' href='"+dataStr+"' download='Cryptee Docs & Preferences Metadata.json'><span class='icon'><i class='fa fa-download fa-fw'></i></span> Download Docs & Preferences Metadata (JSON File)</a><br>");
+        exportData = data;
+        dataAdded = true;
+      }
+    }
   }
 
   if (meta && !metaAdded) {

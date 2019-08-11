@@ -86,7 +86,7 @@ isIOSPWAAdvanced = false;
 if (iosVersion()) {
 
   if (iosVersion()[0] > 12) {
-    isIOSPWAAdvanced = true;
+    isIOSPWAAdvanced = false;
   } else if (iosVersion()[0] === 12 && iosVersion()[1] >= 2) {
     isIOSPWAAdvanced = true;
   } else {

@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////
 var passScore;
 var keyScore;
+var usernameIsGood = false;
 var passVerified = false;
 var passIsGood = false;
 var keyVerified = false;
@@ -20,30 +21,19 @@ var theCryptmail;
 var theEpoch;
 var signUpWithToken = false;
 var signUpWithEmail = false;
+var theStrongKey = generateStrongKey();
 var requestsURL = 'https://crypt.ee/api/';
-var pathTaken;
+var providerUsed;
 var images = {
-  "intro" : {
-    "author" : "Mitch Lensink",
-    "profile" : "https://unsplash.com/@lensinkmitchel",
+  "auth" : {
     "url" : "/imgs/identify.jpg",
     "current" : true
   },
-  "sid" : {
-    "author" : "Lonely Planet",
-    "profile" : "https://unsplash.com/@lonely_planet",
-    "url" : "/imgs/baltic.jpg",
-    "current" : false
-  },
-  "pass" : {
-    "author" : "Paweł Czerwiński",
-    "profile" : "https://unsplash.com/@pawel_czerwinski",
+  "key" : {
     "url" : "/imgs/locks.jpg",
     "current" : false
   }
 };
-
-
 
 function showSignupInfo (message, color, closable, sectionToGoIfError) {
   closable = closable || false;
@@ -53,8 +43,10 @@ function showSignupInfo (message, color, closable, sectionToGoIfError) {
   $("#signup-info").html(closeButton + message).removeClass("is-info is-warning is-danger is-success").addClass(color);
   $(".signup-info-wrapper").fadeIn(500,function(){
     $("#signup-info").addClass("shown");
-    if (sectionToGoIfError) {
-      goToSection(sectionToGoIfError);
+    if (sectionToGoIfError === "auth") {
+      loadAuthSection();
+    } else {
+      loadKeySection();
     }
   });
 
@@ -76,114 +68,6 @@ $(".notification").on('click', '.delete', function(event) {
   $(this).parents(".notification").removeClass('shown');
 });
 
-$(".signup-next-button").on('click', function(event) {
-  var targetSection = $(this).attr("next");
-  if (targetSection !== "createacct") {
-    goToSection(targetSection);
-  }
-});
-
-function goToSection(targetSection) {
-  var curSection = $(".signup-section.active").attr("section");
-  if (curSection === "auth") { pathTaken = targetSection; }
-  if (targetSection === "google") { targetSection = "key"; }
-
-  // $(".signup-section.active").addClass("previous");
-  var cursecno = $(".signup-section.active").attr("secno");
-  var targetsecno = $(".signup-section[section='"+targetSection+"']").attr("secno");
-  $(".signup-section").each(function(section) {
-    var secno = $(this).attr("secno");
-    if (secno < targetsecno) {
-      $(this).addClass("previous");
-    } else {
-      $(this).removeClass("previous");
-    }
-  });
-
-
-  $(".signup-section.active").removeClass("active");
-  $(".signup-section[section='"+targetSection+"']").addClass('active');
-
-  if (targetSection === "key") {
-    if (pathTaken === "google") {
-      $(".signup-section.active[section='"+targetSection+"']").find(".signup-title").html("We just need an encryption key, and you're ready.");
-    } else {
-      $(".signup-section.active[section='"+targetSection+"']").find(".signup-title").html("Finally, type in an encryption key.");
-    }
-  }
-
-  if (pathTaken !== "user") {
-    $(".key-regular-desc").hide();
-  } else {
-    $(".key-regular-desc").show();
-  }
-
-  imageController (targetSection);
-
-  setTimeout(function () {
-    var firstNextInput = $(".signup-section[section='"+targetSection+"']").find("input")[0];
-    if (firstNextInput) {
-      firstNextInput.focus();
-    }
-  }, 150);
-}
-
-var enextTimeout; // this is in place in case if the keypress/change gets called multiple times, and "enter" calls next twice.
-function enableNext() {
-  $(".signup-section.active").find("button.signup-next-button").prop("disabled", false).attr("disabled", false);
-  clearTimeout(enextTimeout);
-  enextTimeout = setTimeout(function () {
-    if (userPressedEnterToMoveOn) {
-      userPressedEnterToMoveOn = false;
-      var targetSection = $(".signup-section.active").find("button.signup-next-button").attr("next");
-      if (targetSection !== "createacct") {
-        goToSection(targetSection);
-      }
-    }
-  }, 50);
-}
-
-function disableNext() {
-  $(".signup-section.active").find("button.signup-next-button").prop("disabled", true).attr("disabled", true);
-}
-
-$(".signup-back").on('click', function(event) {
-  var targetSection = $(this).attr("prev");
-  var curSection = $(".signup-section.active").attr("section");
-  if (curSection === "auth") { pathTaken = targetSection; }
-
-  var cursecno = $(".signup-section.active").attr("secno");
-  var targetsecno = $(".signup-section[section='"+targetSection+"']").attr("secno");
-
-  $(".signup-section.active").removeClass("active");
-  if (curSection !== "key") {
-    $(".signup-section[section='"+targetSection+"']").removeClass("previous").addClass('active');
-    targetsecno = $(".signup-section[section='"+targetSection+"']").attr("secno");
-  } else {
-    if (pathTaken === "user") {
-      $(".signup-section[section='pass']").removeClass("previous").addClass('active');
-      targetsecno = $(".signup-section[section='pass']").attr("secno");
-    } else if (pathTaken === "sid") {
-      $(".signup-section[section='sid']").removeClass("previous").addClass('active');
-      targetsecno = $(".signup-section[section='sid']").attr("secno");
-    } else {
-      $(".signup-section[section='auth']").removeClass("previous").addClass('active');
-      targetsecno = $(".signup-section[section='auth']").attr("secno");
-    }
-  }
-
-  $(".signup-section").each(function(section) {
-    var secno = $(this).attr("secno");
-    if (secno < targetsecno) {
-      $(this).addClass("previous");
-    } else {
-      $(this).removeClass("previous");
-    }
-  });
-
-  imageController (targetSection);
-});
-
 $(".reveal-pass-input-button").on('click', function(event) {
   var input = $(this).siblings('input');
   var icon = $(this).find("i");
@@ -199,27 +83,71 @@ $(".reveal-pass-input-button").on('click', function(event) {
   }
 });
 
-function imageController (targetSection) {
-  var imageToUse;
-
-  if (targetSection === "pass") {
-    // show dual padlock
-    imageToUse = images.pass;
-  } else if (targetSection === "sid") {
-    // show estonia photo
-    imageToUse = images.sid;
-  } else if (targetSection === "key") {
-    // show padlock
-    imageToUse = images.pass;
+$(".provider-button").on('click', function(event) {
+  providerUsed = $(this).attr("provider");
+  if (providerUsed !== "username") {
+    loadKeySection();
   } else {
-    // show intro image
-    imageToUse = images.intro;
+    if (usernameIsGood && passIsGood) {
+      loadKeySection();
+    } else {
+      if (!passIsGood) {
+        $("#signup-pass").focus();
+      }
+
+      if (!usernameIsGood) {
+        $("#signup-username").focus();
+      }
+    }
   }
+});
+
+$(".signup-back").on('click', function(event) {
+  loadAuthSection();
+});
+
+function loadKeySection() {
+  $(".signup-section[section='key']").show();
+  $(".signup-section[section='key']").addClass("active");
+  $(".signup-section[section='auth']").addClass("previous").removeClass("active");
+  setTimeout(function () {
+    $("#signup-key").focus();
+  }, 500);
+  // setTimeout(function () { $(".signup-section[section='auth']").hide(); }, 1000);  
+  imageController("key");
+}
+
+function loadAuthSection() {
+  $(".signup-section[section='auth']").show();
+  $(".signup-section[section='key']").removeClass("active");
+  $(".signup-section[section='auth']").removeClass("previous").addClass("active");
+  // setTimeout(function () { $(".signup-section[section='key']").hide(); }, 1000);  
+  imageController("auth");
+}
+
+var enextTimeout; // this is in place in case if the keypress/change gets called multiple times, and "enter" calls next twice.
+function checkNextButton() {
+  if (usernameIsGood && passIsGood) {
+    $(".provider-button[provider='username']").prop("disabled", false).attr("disabled", false);
+    clearTimeout(enextTimeout);
+    enextTimeout = setTimeout(function () {
+      if (userPressedEnterToMoveOn) {
+        userPressedEnterToMoveOn = false;
+        providerUsed = "username";
+        loadKeySection();
+      }
+    }, 50);
+  } else {
+    $(".provider-button[provider='username']").prop("disabled", true).attr("disabled", true);
+  }
+}
+
+function imageController (targetSection) {
+  var imageToUse = images[targetSection];
 
   if (!imageToUse.current) {
-    images.pass.current = false;
-    images.sid.current = false;
-    images.intro.current = false;
+    images.key.current = false;
+    images.auth.current = false;
     imageToUse.current = true;
     $("#signup-hero").addClass('changing');
     setTimeout(function () {
@@ -229,21 +157,21 @@ function imageController (targetSection) {
   }
 }
 
-
-
 var imagesPreloaded = false;
 function preloadImages () {
   // do it in order.
   if (!imagesPreloaded) {
     imagesPreloaded = true;
     setTimeout(function () {
-      sidImg = new Image();
-      passImg = new Image();
-
-      sidImg.src = images.sid.url;
-      passImg.src = images.pass.url;
+      keyImg = new Image();
+      keyImg.src = images.key.url;
     }, 500);
   }
+}
+
+function sessionStorageBlocked() {
+  showSignupInfo("Seems like your browser is blocking accesss to sessionStorage. This is usually caused by browsers like Firefox heavy-handedly blocking sessionStorage when they're configured to block all cookies.<br><br>"+
+  "Cryptee needs access to sessionStorage to keep you in memory while signed in, and can't work without it. We're very sorry for the inconvenience. Please make the necessary adjustments and try again.","is-danger");
 }
 
 $(window).on("resize", function() {
@@ -275,8 +203,7 @@ $(window).on("load", function(event) {
     sessionStorage.removeItem("sessionStorageTest");
   } catch (e) {
     // SHOW MODAL ABOUT SESSION STORAGE ACCESS.
-    $("#sessionStorage-error").show();
-    showSignupInfo("<i class='fa fa-exclamation-triangle'></i>&nbsp; Seems like your browser is blocking accesss to sessionStorage. Cryptee needs to use sessionStorage to keep you in memory while signed in.<br><br> Often this happens because some browsers like Firefox is a bit heavy-handed, and if you have cookies disabled, sessionStorage gets disabled too. Without this Cryptee will not work. We're very sorry for the inconvenience. Please make the necessary adjustments and try again.","is-danger");
+    sessionStorageBlocked(); 
   }
 
   var referrerButton;
@@ -360,13 +287,32 @@ try { leftForGoogleRedirect = JSON.parse(sessionStorage.getItem('leftForGoogleRe
 try { 
   if (localStorage) {
     if (leftForGoogleRedirect || localStorage.getItem("iosgauthsignupkey")) {
-      $(".signup-bottom-buttons").hide();
-      $(".signup-title").hide();
-      $("#signup-auth-methods").css("pointer-events", "none");
-      $("#signup-auth-methods").html("<img src='../assets/spinner.gif' class='small-logo'><br><br><h2 class='title is-2'>One moment,<br> we're waiting for Google.</h2>");
+      providerUsed = "google";
+      showWaitingForGoogle();
     }
   }
 } catch (e) {}
+
+function showWaitingForGoogle() {
+  $(".signup-bottom-buttons").hide();
+  $(".signup-title").hide();
+  $("#signup-auth-methods").css("pointer-events", "none");
+  $("#signup-auth-methods").html("<img src='../assets/loading-ffffff.gif' class='waiting-google-img small-logo'><br><br><h2 class='title is-5 has-text-centered'>One moment please,<br> we're waiting for Google.</h2>");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -384,12 +330,12 @@ function checkPass() {
     $("#signup-pass").addClass('is-danger');
     $("#pass-score").removeClass('is-success').addClass('is-danger');
     passIsGood = false;
-    disableNext();
+    checkNextButton();
   } else {
     $("#signup-pass").removeClass('is-danger');
     $("#pass-score").removeClass('is-danger').addClass('is-success');
     passIsGood = true;
-    enableNext();
+    checkNextButton();
   }
 
   checkKey();
@@ -433,7 +379,7 @@ function checkKey() {
     hashString(keyToTest).then(function (newHashedKey) {
 
       $("#signup-key").removeClass('is-danger');
-      $("#signup-key").parents(".signup-section").find(".help").fadeOut();
+      $("#invalid-char-error").fadeOut();
       keyIsGood = true;
 
       if (keyIsGood && userPressedEnterToMoveOn) { $(".signuptermsbutton").focus(); }
@@ -442,17 +388,24 @@ function checkKey() {
     }).catch(function(e){
 
       $("#signup-key").addClass('is-danger');
-      $("#signup-key").parents(".signup-section").find(".help").fadeIn();
+      $("#invalid-char-error").fadeIn();
       keyIsGood = false;
 
       if (keyIsGood && userPressedEnterToMoveOn) { $(".signuptermsbutton").focus(); }
       checkSignupButton();
 
     });
+  } else {
+    checkSignupButton();
   }
 }
 
 $("#signup-pass").on("keydown keypress paste copy cut change", function(e){
+  if (e.keyCode == 9) {  //tab pressed
+    e.preventDefault(); // this prevents a weird bug where pressing tab force loads next section
+    return false;
+  }
+
   setTimeout(function(){
     thePass = $("#signup-pass").val().trim();
 
@@ -488,42 +441,25 @@ $("#signup-key").on("keydown keypress paste copy cut change", function(e){
   },50);
 });
 
-$("#signup-si-personal-code").on("keydown keypress paste copy cut change", function(e){
-  setTimeout(function(){
-    var sidCode = $("#signup-si-personal-code").val().trim();
+$("#signup-username").on("keydown keypress paste copy cut change blur", function(e){
+  if (e) {
+    if (e.keyCode) {
+      if (e.keyCode == 13) {
+        userPressedEnterToMoveOn = true;
+      } else {
+        userPressedEnterToMoveOn = false;
+      }
 
-    if (e) {
-      if (e.keyCode) {
-        if (e.keyCode == 13) {
-          userPressedEnterToMoveOn = true;
-        } else {
-          userPressedEnterToMoveOn = false;
-        }
+      if (e.keyCode == 32) {
+        e.preventDefault();
+        return false;
       }
     }
+  }
 
-    if (sidCode !== "" && sidCode.match("^[0-9]+$")) {
-      enableNext();
-    } else {
-      disableNext();
-    }
-  },50);
-});
-
-$("#signup-username").on("keydown keypress paste copy cut change blur", function(e){
   setTimeout(function(){
     var input = $("#signup-username").val().trim();
     $("#username-help").fadeOut(500);
-
-    if (e) {
-      if (e.keyCode) {
-        if (e.keyCode == 13) {
-          userPressedEnterToMoveOn = true;
-        } else {
-          userPressedEnterToMoveOn = false;
-        }
-      }
-    }
 
     if (input.indexOf("@") > -1 && !isEmail(input)) {
       $("#email-help").fadeIn();
@@ -536,19 +472,20 @@ $("#signup-username").on("keydown keypress paste copy cut change blur", function
         if (isEmail(input)) {
           theEmail = input;
           theUsername = "";
-          enableNext();
+          usernameIsGood = true;
         } else {
-          disableNext();
+          usernameIsGood = false;
         }
       } else {
         theEmail = "";
         theUsername = input;
-        enableNext();
+        usernameIsGood = true;
       }
     } else {
-      disableNext();
+      usernameIsGood = false;
     }
-    checkSignupButton();
+
+    checkNextButton();
   },50);
 });
 
@@ -563,14 +500,7 @@ $(".signuptermsbutton").on("click touchend change", function() {
 
 $("#signup-button").on("click",function(){
   $("#signup-button").addClass('is-loading').prop('disabled', true).attr("disabled", true);
-  // ping("click", {
-  //   btn : "signUp",
-  //   keyStrength : $("#key-score").attr("value"),
-  //   method : $("li.is-active").attr("tab"),
-  //   unameOnly : ($("li[tab='userpass']").hasClass("is-active")&&$("#signup-email").val().trim()==="")
-  // },function(){
-    signupInitiate ();
-  // });
+  signupInitiate ();
 });
 
 $(".fromSignInSignOut").on("click",function(){
@@ -608,48 +538,21 @@ function checkSignupButton () {
     disableSignup();
   }
 
-  // if ($("li[tab='mobileid']").hasClass("is-active")) {
-  //   if (keyVerified && keyIsGood && privAgreed) {
-  //     if ($("#signup-mi-personal-code").val().trim().replace(" ", "") !== "" && $("#signup-mi-phone-number").val().trim().replace(" ", "") !== "") {
-  //       $("#signup-button").prop('disabled', false);
-  //     } else {
-  //       $("#signup-button").prop('disabled', true);
-  //     }
-  //   } else {
-  //     $("#signup-button").prop('disabled', true);
-  //   }
-  // }
-
-  // if (getUrlParameter("status") === "newuser") {
-  //   if (keyIsGood && privAgreed) {
-  //     enableSignup();
-  //   } else {
-  //     disableSignup();
-  //   }
-  // }
 }
 
 
 function signupInitiate () {
-  sessionStorage.setItem('key', JSON.stringify(theKey));
+  // sessionStorage.setItem('key', JSON.stringify(theKey));
   $("#signup-message").fadeOut();
 
   // sign up with username & pass
-  if (pathTaken === "user" && getUrlParameter("status") !== "newuser") {
+  if (providerUsed === "username" && getUrlParameter("status") !== "newuser") {
     createUser();
   }
 
-  if (pathTaken === "google" && getUrlParameter("status") !== "newuser") {
+  if (providerUsed === "google" && getUrlParameter("status") !== "newuser") {
     createUserWithGoogle();
   }
-
-  if (pathTaken === "sid" && getUrlParameter("status") !== "newuser") {
-    createUserWithSmartID();
-  }
-
-  // if ($("li[tab='mobileid']").hasClass("is-active")) {
-  //   createUserWithMobileID();
-  // }
 
   if (getUrlParameter("status") === "newuser") {
     sessionStorage.clear();
@@ -681,7 +584,8 @@ function createUser () {
       theUser = usercred.user;
       theUserID = theUser.uid;
       setSentryUser(theUserID);
-      logUser(theUser, theUsername, theKey);
+      console.log("created user profile");
+      
   }, function(error) {
       var errorCode = error.code;
       var errorMessage = error.message;
@@ -689,7 +593,7 @@ function createUser () {
         showSignupInfo("Our servers think something about your password seems too weak", "is-warning", true, "pass");
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else if (errorCode == 'auth/email-already-in-use') {
-        goToSection("user");
+        loadAuthSection();
         $("#username-help").fadeIn(500);
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else if (errorCode == 'auth/invalid-email') {
@@ -703,22 +607,6 @@ function createUser () {
   });
 }
 
-function logUser(newUser, username, key){
-  $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
-  newUser.updateProfile({
-      displayName : username
-  }).then(function() {
-      // Update successful.
-      if (theEmail !== "") {
-        newUser.sendEmailVerification();
-      }
-      sessionStorage.clear();
-      // try { sessionStorage.setItem("sessionID", sessionID); } catch (e) {}
-      saveKey(key);
-  }, function(error) {
-    $("#signup-message > span").html("Something went wrong... We're terribly sorry. Please try again soon."); $("#signup-message").fadeIn(); $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
-  });
-}
 
 
 
@@ -746,11 +634,12 @@ function createUserWithGoogle () {
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.addScope('email');
     firebase.auth().signInWithPopup(provider).then(function(result) {
-      var token = result.credential.accessToken;
+      // var token = result.credential.accessToken;
       theUser = result.user;
       theUserID = theUser.uid;
       theEmail = theUser.email;
       theEpoch = (new Date()).getTime();
+      setSentryUser(theUserID);
       $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
     }).catch(function(error) {
       if (error.code === "auth/missing-or-invalid-nonce") {
@@ -787,50 +676,16 @@ function createUserWithGoogle () {
 firebase.auth().getRedirectResult().then(function(result) {
   if (result.user !== null) {
     signUpWithToken = true;
-    var token = result.credential.accessToken;
+    // var token = result.credential.accessToken;
     theUser = result.user;
     theUserID = theUser.uid;
     theEmail = theUser.email;
+    theUsername = theUser.displayName;
     theEpoch = (new Date()).getTime();
+    setSentryUser(theUserID);
     $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
   }
 });
-
-// function createUserWithMobileID () {
-//   showSignupInfo("You will receive a notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'></b>", "is-info");
-//   signUpWithToken = true;
-//   $.ajax({
-//     url : requestsURL + 'midlogin',
-//     type: 'POST',
-//     dataType : "json",
-//     data: {personal: $("#signup-mi-personal-code").val().trim().replace(" ", ""), phone: $("#signup-mi-phone-number").val().trim().replace(" ", "")}
-//   }).done(function( response ) {
-//     // ping("message",{msg : "midCodeDisplayed"});
-//     gotMIResponse(response.code, response.istoken);
-//   }).fail(function(){
-//     // ping("message",{msg : "midIssueOrUserError"});
-//     showSignupInfo("Something went wrong. Please double check the information you've entered is correct and try again. If you are certain the information is correct, Mobile-ID must be experiencing issues, and it should start working again in a few minutes.", "is-warning", true);
-//     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
-//   });
-// }
-
-function createUserWithSmartID () {
-  showSignupInfo("You will receive a notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'></b>", "is-info", false);
-  signUpWithToken = true;
-  $.ajax({
-    url : requestsURL + 'sidlogin',
-    type: 'POST',
-    dataType : "json",
-    data: {personal: $("#signup-si-personal-code").val().trim(), country: $("input[type='radio']:checked").val()}
-  }).done(function( response ) {
-    // ping("message",{msg : "sidCodeDisplayed"});
-    gotSIResponse(response.code, response.istoken);
-  }).fail(function(){
-    // ping("message",{msg : "sidIssueOrUserError"});
-    showSignupInfo("Something went wrong. Please double check the information you've entered is correct and try again. If you are certain the information is correct, Smart-ID must be experiencing issues, and it should start working again in a few minutes.", "is-warning", true, "sid");
-    $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
-  });
-}
 
 var tokenRetry = false;
 function gotAuthToken(token) {
@@ -848,69 +703,37 @@ function gotAuthToken(token) {
       }, 2000);
     } else {
       // ping("message",{msg : "gotAuthTokenError"});
-      var goBackTo = "";
-      if (pathTaken === "sid") {
-        goBackTo = "sid";
-      }
-      if (pathTaken === "google") {
-        goBackTo = "key";
-      }
-      showSignupInfo("Something went wrong. It seems we can't process the signup token at this moment. Please try again in a minute.", "is-warning", true, goBackTo);
+      showSignupInfo("Something went wrong. It seems we can't process the signup token at this moment. Please try again in a minute.", "is-warning", true, "key");
       $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       tokenRetry = false;
     }
   });
 }
 
-function gotSIResponse (code, token) {
-  showSignupInfo("You will receive a notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'>"+code+"</b>", "is-info", false);
-  $.ajax({
-    url : requestsURL + 'sidstatus',
-    type: 'POST',
-    dataType : "json",
-    data: {personal: $("#signup-si-personal-code").val().trim(), istoken: token}
-  }).done(function( response ) {
-    if (response.crtoken) {
-      // ping("message",{msg : "gotSidConfirmation"});
-      gotAuthToken(response.crtoken);
-    } else {
-      console.log(response);
+function logUser(newUser, username, key){
+  $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
+  newUser.updateProfile({ displayName : username }).then(function() {
+    // Update successful.
+    if (theEmail !== "") {
+      newUser.sendEmailVerification();
     }
-  }).fail(function(){
-    // ping("message",{msg : "gotSidError"});
-    showSignupInfo("Something went wrong. Please double check the information you've entered is correct and try again.", "is-warning", true, "sid");
-    $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+    sessionStorage.clear();
+    saveKey(key);
+  }, function(error) {
+    $("#signup-message > span").html("Something went wrong... We're terribly sorry. Please try again soon."); $("#signup-message").fadeIn(); $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   });
 }
-
-// function gotMIResponse (code, token) {
-//   showSignupInfo("You will receive a notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'>"+code+"</b>", "is-info");
-//   $.ajax({
-//     url : requestsURL + 'midstatus',
-//     type: 'POST',
-//     dataType : "json",
-//     data: {personal: $("#signup-mi-personal-code").val().trim(), istoken: token}
-//   }).done(function( response ) {
-//     if (response.crtoken) {
-//       // ping("message",{msg : "gotMidConfirmation"});
-//       gotAuthToken(response.crtoken);
-//     } else {
-//       console.log(response);
-//     }
-//   }).fail(function(){
-//     // ping("message",{msg : "gotMidError"});
-//     showSignupInfo("Something went wrong. Please double check the information you've entered is correct and try again.", "is-warning", true, "mid");
-//     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
-//   });
-// }
-
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user // if this is just a logged in user, don't start process again.
-
+    
+    if (user.displayName) { theUsername = user.displayName; }
+    theUserID = user.uid;
+    setSentryUser(theUserID);
     $('.username').html(user.displayName || user.email);
-    if (signUpWithToken || signUpWithEmail) {
+    
+    if (signUpWithToken) {
       sessionStorage.clear();
       var iosGAuthSignupKey = JSON.parse(localStorage.getItem("iosgauthsignupkey"));
       if (iosGAuthSignupKey) {
@@ -919,7 +742,8 @@ firebase.auth().onAuthStateChanged(function(user) {
       } else {
         saveKey(theKey);
       }
-      // try { sessionStorage.setItem("sessionID", sessionID); } catch (e) {}
+    } else if (signUpWithEmail) {
+      logUser(user, theUsername, theKey); // this calls the saveKey
     } else {
       if (getUrlParameter("status") === "newuser") {
         // USER CAME FROM SIGNIN. DIDN'T HAVE ACCOUNT. CREATE KEY.
@@ -938,8 +762,6 @@ firebase.auth().onAuthStateChanged(function(user) {
           //     if (providerId !== "" && providerId !== " ") {
           //       loginMethod = providerId; //password //google.com //phone
           //     }
-          //   } else {
-          //     loginMethod = "eid"; // if none, smartid.
           //   }
           //
           //   ping("message",{msg : "newuserFromSignin", method : loginMethod});
@@ -947,32 +769,124 @@ firebase.auth().onAuthStateChanged(function(user) {
 
           $(".fromSignIn").fadeIn();
           $("#signinButton").fadeOut();
-          goToSection("key");
+          loadKeySection();
           $(".signup-section[section='key']").find(".signup-title").html("We just need an encryption key, and you're ready.");
           $(".signup-back").hide();
         }
       } else {
         signOut();
-        // try { sessionStorage.setItem("sessionID", sessionID); } catch (e) {}
       }
     }
   }
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
     handleError("Error Authenticating", error);
+    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+    $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   }
 });
 
 function saveKey(key){
   hashString(key).then(function (hashedKey) {
-    sessionStorage.setItem('key', JSON.stringify(hashedKey));
-    createAcctHome();
+    // sessionStorage.setItem('key', JSON.stringify(hashedKey));
+    // createAcctHome();
+    createFirstAuth(hashedKey);
   });
 }
 
 
-function createAcctHome(){
-  setTimeout(function () {
-    window.location = "createacct";
-  }, 2000);
+// function createAcctHome(){
+//   setTimeout(function () {
+//     window.location = "createacct";
+//   }, 2000);
+  
+// }
+
+function createFirstAuth(hashedKey) {
+  firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
+    $.ajax({ url: tokenURL, type: 'POST', headers: { "Authorization": "Bearer " + idToken }, contentType:"application/json; charset=utf-8",
+      success: function(data){ 
+        gotSignupToken(data, hashedKey); 
+      },
+      error:function (xhr, ajaxOptions, thrownError){ 
+        handleError("Couldn't get signup auth token", thrownError); 
+        showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+        $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+      }
+    });
+  });
+}
+
+function gotSignupToken(tokenData, hashedKey) {
+  var token = tokenData;
+  firebase.auth().signInWithCustomToken(token).then(function(){
+    createUserInDB(hashedKey);
+  }).catch(function(error) {
+    handleError("Couldn't use signup auth token", error);
+    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+    $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+  });
+}
+
+var createUserCounter = 0;
+function createUserInDB(hashedKey) {
+  if (theUserID && theUsername && hashedKey && theStrongKey) {   
+    encrypt(theStrongKey, [hashedKey]).then(function(ciphertext) {
+      var encryptedStrongKey = JSON.stringify(ciphertext);
+      var newUserData = {
+        username: theUsername,
+        keycheck : encryptedStrongKey,
+        lastOpenDocID : "home",
+        tie : true,
+        foldersCount : 0
+      };
+      db.ref().child('/users/' + theUserID + "/data/").set(newUserData, function(error){
+        if (error) {
+          if (createUserCounter < 3) {
+            createUserCounter++;
+            setTimeout(function () { createUserInDB(); }, 2000);
+          } else {
+            handleError("Couldn't set user data to dataref during signup", error);
+            showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+            $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+          }
+        } else {
+          createHomeDoc();
+        }
+      });
+    });
+  }
+}
+
+var createHomeCounter = 0;
+function createHomeDoc() {
+  //first, get authorized to write a file with the signup token
+
+  $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
+  loadJSON ("../js/homedoc.json", function(homeDelta){
+    encrypt(homeDelta, [theStrongKey]).then(function(ciphertext) {
+      encryptedDocDelta = JSON.stringify(ciphertext);
+
+      var homeUpload = store.ref().child('/users/' + theUserID).child("home.crypteedoc").putString(encryptedDocDelta);
+      homeUpload.on('state_changed', function(snapshot){}, function(error) {      
+        if (createHomeCounter < 3) {
+          createHomeCounter++;
+          setTimeout(function(){ createHomeDoc(); }, 2000);
+        } else {
+          handleError("Couldn't set user home to storage during signup", error);
+          showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+          $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+        }
+      }, function() {
+        signupComplete(); 
+      });
+
+    });
+  });
+}
+
+
+
+function signupComplete(){
+  window.location = "home";
 }

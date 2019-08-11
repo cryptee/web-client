@@ -179,24 +179,6 @@ function checkSigninButton () {
     $("#signin-button").prop('disabled', false);
   }
 
-  if ($("li[tab='smartid']").hasClass("is-active")) {
-    logintype = "smartid";
-    if ($("#signin-si-personal-code").val().trim() !== "") {
-      $("#signin-button").prop('disabled', false);
-    } else {
-      $("#signin-button").prop('disabled', true);
-    }
-  }
-
-  if ($("li[tab='mobileid']").hasClass("is-active")) {
-    logintype = "mobileid";
-    if ($("#signin-mi-personal-code").val().trim().replace(" ", "") !== "" && $("#signin-mi-phone-number").val().trim().replace(" ", "") !== "") {
-      $("#signin-button").prop('disabled', false);
-    } else {
-      $("#signin-button").prop('disabled', true);
-    }
-  }
-
   setTimeout(function () {
     checkSigninButton();
   }, 250);
@@ -291,43 +273,6 @@ function signin(token){
 
   }
 
-  if ($("li[tab='smartid']").hasClass("is-active")) {
-    $("#signin-info").html("If you are a Smart-ID user, you will receive a verification notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'></b>").removeClass("is-warning").addClass("is-info").show();
-    $("#signin-button").addClass('is-loading').prop('disabled', true);
-
-    $.ajax({
-      url : requestsURL + 'sidlogin',
-      type: 'POST',
-      dataType : "json",
-      data: {personal: $("#signin-si-personal-code").val().trim().replace(" ", ""), country: $("input[type='radio']:checked").val()}
-    }).done(function( response ) {
-      // ping("message",{msg : "sidCodeDisplayed"});
-      gotSIResponse(response.code, response.istoken);
-    }).fail(function(){
-      // ping("message",{msg : "sidIssueOrUserError"});
-      $("#signin-info").html("Something went wrong. Please double check the information you've entered is correct and try again. If you are certain the information is correct, Smart-ID must be experiencing issues, and it should start working again in a few minutes.").removeClass("is-info").addClass("is-warning");
-      $("#signin-button").removeClass('is-loading').prop('disabled', false);
-    });
-  }
-
-  if ($("li[tab='mobileid']").hasClass("is-active")) {
-    $("#signin-button").addClass('is-loading').prop('disabled', true);
-    $("#signin-info").html("If you are a Mobile-ID user, you will receive a Mobile-ID verification prompt on your phone shortly.").removeClass("is-warning").addClass("is-info").show();
-    $.ajax({
-      url : requestsURL + 'midlogin',
-      type: 'POST',
-      dataType : "json",
-      data: {personal: $("#signin-mi-personal-code").val().trim().replace(" ", ""), phone: $("#signin-mi-phone-number").val().trim().replace(" ", "")}
-    }).done(function( response ) {
-      // ping("message",{msg : "midCodeDisplayed"});
-      gotMIResponse(response.code, response.istoken);
-    }).fail(function(){
-      // ping("message",{msg : "midIssueOrUserError"});
-      $("#signin-info").html("Something went wrong. Please double check the information you've entered is correct and try again. If you are certain the information is correct, Mobile-ID must be experiencing issues, and it should start working again in a few minutes.").removeClass("is-info").addClass("is-warning");
-      $("#signin-button").removeClass('is-loading').prop('disabled', false);
-    });
-  }
-
 }
 
 function tryGettingIdTokenFromCrypteeGAuth(googleAuthUUID) {
@@ -393,49 +338,6 @@ firebase.auth().getRedirectResult().then(function(result) {
   $("#other-error").fadeIn(500);
   $("#signin-button").removeClass('is-loading').prop('disabled', false);
 });
-
-function gotSIResponse (code, token) {
-  $("#signin-info").html("If you are a Smart-ID user, you will receive a verification notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'>"+code+"</b>").removeClass("is-warning").addClass("is-info").show();
-  $.ajax({
-    url : requestsURL + 'sidstatus',
-    type: 'POST',
-    dataType : "json",
-    data: {personal: $("#signin-si-personal-code").val().trim(), istoken: token}
-  }).done(function( response ) {
-    if (response.crtoken) {
-      // ping("message",{msg : "gotSidConfirmation"});
-      gotAuthToken(response.crtoken);
-    } else {
-      console.log(response);
-    }
-  }).fail(function(){
-    // ping("message",{msg : "gotSidError"});
-    $("#signin-info").html("Something went wrong. Please double check the information you've entered is correct and try again.").removeClass("is-info").addClass("is-warning");
-    $("#signin-button").removeClass('is-loading').prop('disabled', false);
-  });
-}
-
-function gotMIResponse (code, token) {
-  $("#signin-info").html("You will receive a notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'>"+code+"</b>").show();
-  $.ajax({
-    url : requestsURL + 'midstatus',
-    type: 'POST',
-    dataType : "json",
-    data: {personal: $("#signin-mi-personal-code").val().trim(), istoken: token}
-  }).done(function( response ) {
-    if (response.crtoken) {
-      // ping("message",{msg : "gotMidConfirmation"});
-      gotAuthToken(response.crtoken);
-    } else {
-      console.log(response);
-    }
-  }).fail(function(){
-    // ping("message",{msg : "gotMidError"});
-    $("#signin-info").html("Something went wrong. Please double check the information you've entered is correct and try again.").removeClass("is-info").addClass("is-warning");
-    $("#signin-button").removeClass('is-loading').prop('disabled', false);
-  });
-}
-
 
 function signinRequest() {
   $.ajax({ url: signinURL, type: 'POST',
