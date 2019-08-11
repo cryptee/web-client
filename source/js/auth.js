@@ -218,7 +218,7 @@ function gotMeta(userMeta) {
     usedStorage = 0;
     
     if (userMeta.val().usedStorage) {
-      usedStorage = userMeta.val().usedStorage - 100000; // -100kb to pad for the first home doc
+      usedStorage = userMeta.val().usedStorage - 105000; // -105kb to pad for the first home doc
       // if it's less than 100kb or less than 0, show 0. otherwise show the true value.
       if (usedStorage <= 0) { usedStorage = 0; } else { usedStorage = userMeta.val().usedStorage; }
     }
