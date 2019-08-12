@@ -863,7 +863,7 @@ function createUserInDB(hashedKey) {
 var createHomeCounter = 0;
 function createHomeDoc() {
   $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
-  loadJSON ("../js/homedoc.json", function(homeDelta){
+  $.get({url:"../js/homedoc.json", dataType:"text"}, function(homeDelta){
     if (homeDelta) {    
       encrypt(homeDelta, [theStrongKey]).then(function(ciphertext) {
         encryptedDocDelta = JSON.stringify(ciphertext);
@@ -884,10 +884,14 @@ function createHomeDoc() {
 
       });
     } else {
-      handleError("Couldn't get homedoc JSON during signup", error);
+      handleError("Couldn't get homedoc JSON during signup");
       showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process.", "is-warning", true, "key");
       $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
     }
+  }).fail(function(error) {
+    handleError("Couldn't get homedoc JSON during signup", error);
+    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process.", "is-warning", true, "key");
+    $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   });
 }
 

@@ -1855,7 +1855,7 @@ function checkCatalogIntegrity () {
 }
 
 function fixHomeDoc (callback, callbackParam){
-  loadJSON ("../js/homedoc.json", function(jsonRes){
+  $.get({url:"../js/homedoc.json", dataType:"text"}, function(jsonRes){
     if (jsonRes) {  
       var homeDelta = JSON.parse(jsonRes);
       rootRef = store.ref().child('/users/' + theUserID);
@@ -1885,6 +1885,8 @@ function fixHomeDoc (callback, callbackParam){
     } else {
       handleError("Error getting homedoc JSON for re-creating homedoc", error);
     }
+  }).fail(function() {
+    handleError("Error getting homedoc JSON for re-creating homedoc", error);
   });
 }
 
