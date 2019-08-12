@@ -96,7 +96,7 @@ if (iosVersion()) {
 }
 
 if (isipados) {
-  isIOSPWAAdvanced = true;
+  isIOSPWAAdvanced = false;
 }
 
 ////////////////////////////////////////////////////

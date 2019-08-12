@@ -786,19 +786,9 @@ firebase.auth().onAuthStateChanged(function(user) {
 
 function saveKey(key){
   hashString(key).then(function (hashedKey) {
-    // sessionStorage.setItem('key', JSON.stringify(hashedKey));
-    // createAcctHome();
     createFirstAuth(hashedKey);
   });
 }
-
-
-// function createAcctHome(){
-//   setTimeout(function () {
-//     window.location = "createacct";
-//   }, 2000);
-  
-// }
 
 function createFirstAuth(hashedKey) {
   var curUser = firebase.auth().currentUser;
