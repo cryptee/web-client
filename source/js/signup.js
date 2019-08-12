@@ -726,10 +726,9 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user // if this is just a logged in user, don't start process again.
     
-    theUsername = user.displayName;
     theUserID = user.uid;
     setSentryUser(theUserID);
-    $('.username').html(theUsername);
+    $('.username').html(user.displayName || user.email);
     
     if (signUpWithToken) {
       sessionStorage.clear();
