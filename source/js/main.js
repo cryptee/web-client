@@ -635,6 +635,8 @@ function loadJSON(url, callback) {
    xobj.onreadystatechange = function () {
      if (xobj.readyState == 4 && xobj.status == "200") {
       callback(xobj.responseText);
+     } else {
+      callback(null);
      }
    };
    xobj.send(null);

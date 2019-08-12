@@ -616,7 +616,11 @@ function createUser () {
 
 
 function createUserWithGoogle () {
-  signUpWithToken = true;
+  // do not remove this from here. it's incredibly critical that this is here.
+  signUpWithToken = true; 
+  // shortly, getRedirectResult is redundant. In theory onAuthStateChanged can fire before getRedirectResult.
+  // this means that if you remove this line, if there's a foot-race, and onAuthStateChanged fires before getRedirectResult,
+  // onAuthStateChanged would see signUpWithToken = false => resulting in a non-token flow. So DO NOT REMOVE THIS LINE. BUT SIGN-UP DEFINITELY NEEDS RE-TOOLING. UGH.
   
   if (isInWebAppiOS) {
     if (isIOSPWAAdvanced) {
@@ -858,28 +862,32 @@ function createUserInDB(hashedKey) {
 
 var createHomeCounter = 0;
 function createHomeDoc() {
-  //first, get authorized to write a file with the signup token
-
   $("#signup-button").html("<i class='fa fa-check'></i>").addClass('is-success');
   loadJSON ("../js/homedoc.json", function(homeDelta){
-    encrypt(homeDelta, [theStrongKey]).then(function(ciphertext) {
-      encryptedDocDelta = JSON.stringify(ciphertext);
+    if (homeDelta) {    
+      encrypt(homeDelta, [theStrongKey]).then(function(ciphertext) {
+        encryptedDocDelta = JSON.stringify(ciphertext);
 
-      var homeUpload = store.ref().child('/users/' + theUserID).child("home.crypteedoc").putString(encryptedDocDelta);
-      homeUpload.on('state_changed', function(snapshot){}, function(error) {      
-        if (createHomeCounter < 3) {
-          createHomeCounter++;
-          setTimeout(function(){ createHomeDoc(); }, 2000);
-        } else {
-          handleError("Couldn't set user home to storage during signup", error);
-          showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
-          $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
-        }
-      }, function() {
-        signupComplete(); 
+        var homeUpload = store.ref().child('/users/' + theUserID).child("home.crypteedoc").putString(encryptedDocDelta);
+        homeUpload.on('state_changed', function(snapshot){}, function(error) {      
+          if (createHomeCounter < 3) {
+            createHomeCounter++;
+            setTimeout(function(){ createHomeDoc(); }, 2000);
+          } else {
+            handleError("Couldn't set user home to storage during signup", error);
+            showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+            $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+          }
+        }, function() {
+          signupComplete(); 
+        });
+
       });
-
-    });
+    } else {
+      handleError("Couldn't get homedoc JSON during signup", error);
+      showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process.", "is-warning", true, "key");
+      $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+    }
   });
 }
 

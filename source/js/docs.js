@@ -1856,31 +1856,35 @@ function checkCatalogIntegrity () {
 
 function fixHomeDoc (callback, callbackParam){
   loadJSON ("../js/homedoc.json", function(jsonRes){
-    var homeDelta = JSON.parse(jsonRes);
-    rootRef = store.ref().child('/users/' + theUserID);
-    var homeDocRef = rootRef.child("home.crypteedoc");
-    homeDelta = JSON.stringify(homeDelta);
+    if (jsonRes) {  
+      var homeDelta = JSON.parse(jsonRes);
+      rootRef = store.ref().child('/users/' + theUserID);
+      var homeDocRef = rootRef.child("home.crypteedoc");
+      homeDelta = JSON.stringify(homeDelta);
 
-    encrypt(homeDelta , [theKey]).then(function(ciphertext) {
-        var encryptedDocDelta = JSON.stringify(ciphertext);
+      encrypt(homeDelta , [theKey]).then(function(ciphertext) {
+          var encryptedDocDelta = JSON.stringify(ciphertext);
 
-        var homeUpload = homeDocRef.putString(encryptedDocDelta);
-        homeUpload.on('state_changed', function(snapshot){
-          switch (snapshot.state) {
-            case firebase.storage.TaskState.PAUSED: // or 'paused'
-              break;
-            case firebase.storage.TaskState.RUNNING: // or 'running'
-              break;
-          }
-        }, function(error) {
-          handleError("Error Re-Creating Homedoc", error);
-          console.log("CREATE HOME FAILED. RETRYING IN 2 SECOND. Error: ", error);
-          setTimeout(function(){ fixHomeDoc(); }, 2000);
-        }, function() {
-          breadcrumb("Home doc fixed. Continuing.");
-          setTimeout(function(){ callback(callbackParam); }, 2000);
-        });
-    });
+          var homeUpload = homeDocRef.putString(encryptedDocDelta);
+          homeUpload.on('state_changed', function(snapshot){
+            switch (snapshot.state) {
+              case firebase.storage.TaskState.PAUSED: // or 'paused'
+                break;
+              case firebase.storage.TaskState.RUNNING: // or 'running'
+                break;
+            }
+          }, function(error) {
+            handleError("Error Re-Creating Homedoc", error);
+            console.log("CREATE HOME FAILED. RETRYING IN 2 SECOND. Error: ", error);
+            setTimeout(function(){ fixHomeDoc(); }, 2000);
+          }, function() {
+            breadcrumb("Home doc fixed. Continuing.");
+            setTimeout(function(){ callback(callbackParam); }, 2000);
+          });
+      });
+    } else {
+      handleError("Error getting homedoc JSON for re-creating homedoc", error);
+    }
   });
 }
 
