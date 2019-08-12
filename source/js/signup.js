@@ -500,7 +500,7 @@ $(".signuptermsbutton").on("click touchend change", function() {
 
 $("#signup-button").on("click",function(){
   $("#signup-button").addClass('is-loading').prop('disabled', true).attr("disabled", true);
-  signupInitiate ();
+  signupInitiate();
 });
 
 $(".fromSignInSignOut").on("click",function(){
@@ -542,7 +542,6 @@ function checkSignupButton () {
 
 
 function signupInitiate () {
-  // sessionStorage.setItem('key', JSON.stringify(theKey));
   $("#signup-message").fadeOut();
 
   // sign up with username & pass
@@ -556,7 +555,6 @@ function signupInitiate () {
 
   if (getUrlParameter("status") === "newuser") {
     sessionStorage.clear();
-    // try { sessionStorage.setItem("sessionID", sessionID); } catch (e) {}
     saveKey(theKey);
   }
 }
@@ -728,10 +726,15 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user // if this is just a logged in user, don't start process again.
     
-    if (user.displayName) { theUsername = user.displayName; }
+    if (user.displayName) { 
+      theUsername = user.displayName; 
+    } else { 
+      theUsername = user.email; 
+    }
+
     theUserID = user.uid;
     setSentryUser(theUserID);
-    $('.username').html(user.displayName || user.email);
+    $('.username').html(theUsername);
     
     if (signUpWithToken) {
       sessionStorage.clear();
