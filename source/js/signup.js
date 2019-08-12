@@ -806,18 +806,25 @@ function saveKey(key){
 // }
 
 function createFirstAuth(hashedKey) {
-  firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
-    $.ajax({ url: tokenURL, type: 'POST', headers: { "Authorization": "Bearer " + idToken }, contentType:"application/json; charset=utf-8",
-      success: function(data){ 
-        gotSignupToken(data, hashedKey); 
-      },
-      error:function (xhr, ajaxOptions, thrownError){ 
-        handleError("Couldn't get signup auth token", thrownError); 
-        showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
-        $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
-      }
+  var curUser = firebase.auth().currentUser;
+  if (curUser) {
+    curUser.getIdToken(true).then(function(idToken) {
+      $.ajax({ url: tokenURL, type: 'POST', headers: { "Authorization": "Bearer " + idToken }, contentType:"application/json; charset=utf-8",
+        success: function(data){ 
+          gotSignupToken(data, hashedKey); 
+        },
+        error:function (xhr, ajaxOptions, thrownError){ 
+          handleError("Couldn't get signup auth token", thrownError); 
+          showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+          $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+        }
+      });
     });
-  });
+  } else {
+    handleError("Couldn't get current user to get signup auth token", thrownError); 
+    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a few seconds.", "is-warning", true, "key");
+    $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
+  }
 }
 
 function gotSignupToken(tokenData, hashedKey) {
