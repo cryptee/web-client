@@ -865,6 +865,10 @@ function createUserInDB(hashedKey) {
         }
       });
     });
+  } else {
+    handleError("Couldn't get all necessary user data set the key during signup", error);
+    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+    $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   }
 }
 
