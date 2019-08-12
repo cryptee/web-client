@@ -172,7 +172,7 @@ function createUserDBReferences(user) {
   theUser = user;
   theUserID = theUser.uid;
   theEmail = theUser.email;
-  theUsername = theUser.displayName || theEmail;
+  theUsername = theUser.displayName;
   emailVerified = theUser.emailVerified;
 
   rootRef = store.ref().child('/users/' + theUserID);
@@ -180,7 +180,7 @@ function createUserDBReferences(user) {
   metaRef = db.ref().child('/users/' + theUserID + "/meta/");
   
   setSentryUser(theUserID);
-  $('.username').html(theUsername);
+  $('.username').html(theUser.displayName || theEmail);
 
   /////////////////////////////
   // APP SPECIFIC REFERENCES //
@@ -265,6 +265,6 @@ function gotMeta(userMeta) {
       }
     }
 
-    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot, theUserPlan);
+    saveUserDetailsToLS(theUsername, theEmail, usedStorage, allowedStorage, paidOrNot, theUserPlan);
   }
 }

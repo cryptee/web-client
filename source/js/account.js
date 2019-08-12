@@ -352,7 +352,7 @@ function gotUserMeta (meta){
       $(".paid-plan-only").hide();
     }
 
-    saveUserDetailsToLS(theUsername, usedStorage, allowedStorage, paidOrNot, theUserPlan);
+    saveUserDetailsToLS(theUsername, theEmail, usedStorage, allowedStorage, paidOrNot, theUserPlan);
 
     setTimeout(function() {
       $("body, html").removeClass('is-loading');

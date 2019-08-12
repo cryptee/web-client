@@ -37,11 +37,12 @@ function signOut () {
   });
 }
 
-function saveUserDetailsToLS (theUsername, usedStorage, allowedStorage, paid, plan) {
+function saveUserDetailsToLS (theUsername, theEmail, usedStorage, allowedStorage, paid, plan) {
   plan = plan || "free";
   var createdAt = parseInt(theUser.toJSON().createdAt);
   localStorage.setItem('crypteeuser', JSON.stringify({
     "theUsername" : theUsername,
+    "theEmail" : theEmail,
     "usedStorage" : usedStorage,
     "allowedStorage"  : allowedStorage,
     "paid" : paid,
@@ -59,12 +60,13 @@ function loadUserDetailsFromLS () {
     var crypteeuser = JSON.parse(localStorage.getItem("crypteeuser"));
     if (crypteeuser !== null && crypteeuser !== undefined && crypteeuser !== "") {
       var uname = crypteeuser.theUsername;
+      var email = crypteeuser.theEmail;
       usedStorage = crypteeuser.usedStorage;
       allowedStorage = crypteeuser.allowedStorage;
       isPaidUser = crypteeuser.paid;
       theUserPlan = crypteeuser.plan;
       try { userCreatedAt = crypteeuser.createdAt; } catch (e) {}
-      $('.username').html(uname);
+      $('.username').html(uname || email);
       $('#settings-storage-used').html(formatBytes(usedStorage, 0));
       $('.settings-storage-total').html(formatBytes(allowedStorage, 0));
       $("html, body").removeClass("is-loading");

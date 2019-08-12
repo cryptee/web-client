@@ -726,12 +726,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     //got user // if this is just a logged in user, don't start process again.
     
-    if (user.displayName) { 
-      theUsername = user.displayName; 
-    } else { 
-      theUsername = user.email || "Anonymous User"; 
-    }
-
+    theUsername = user.displayName;
     theUserID = user.uid;
     setSentryUser(theUserID);
     $('.username').html(theUsername);
@@ -840,7 +835,7 @@ function gotSignupToken(tokenData, hashedKey) {
 
 var createUserCounter = 0;
 function createUserInDB(hashedKey) {
-  if (theUserID && theUsername && hashedKey && theStrongKey) {   
+  if (theUserID && hashedKey && theStrongKey) {   
     encrypt(theStrongKey, [hashedKey]).then(function(ciphertext) {
       var encryptedStrongKey = JSON.stringify(ciphertext);
       var newUserData = {

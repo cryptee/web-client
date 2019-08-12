@@ -83,7 +83,7 @@ html.is-loading::after {
 .settings-tab-contents input[type='text'], 
 .settings-tab-contents input[type='password'],
 .settings-tab-contents input[type='number'],
-#recoveryemail {
+#recoveryemail, #newusername {
 	border-top: none;
 	border-right: none;
 	border-left: none;
