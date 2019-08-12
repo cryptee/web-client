@@ -729,7 +729,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     if (user.displayName) { 
       theUsername = user.displayName; 
     } else { 
-      theUsername = user.email; 
+      theUsername = user.email || "Anonymous User"; 
     }
 
     theUserID = user.uid;
