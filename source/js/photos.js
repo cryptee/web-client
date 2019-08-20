@@ -1875,29 +1875,30 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
     }, function(error) { handleUploadError (pid, filename, error, callback, callbackParam); });
 
 
+    if (activeUploads[pid].lightbox) {  
+      // LIGHTBOX PHOTO UPLOAD (IF NOT GIF)
+      activeUploads[pid].lightbox.on('state_changed', function(lightSnap){
 
-    // LIGHTBOX PHOTO UPLOAD (IF NOT GIF)
-    activeUploads[pid].lightbox.on('state_changed', function(lightSnap){
+        // keep last activity timer up to date
+        lastActivityTime = (new Date()).getTime();
 
-      // keep last activity timer up to date
-      lastActivityTime = (new Date()).getTime();
+        // check pulse for firefox, and defibrilate if dead (uggghhh...)
+        firefoxUploadTimer(pid, "lightbox");
 
-      // check pulse for firefox, and defibrilate if dead (uggghhh...)
-      firefoxUploadTimer(pid, "lightbox");
+        // update the byte progress
+        if (activeUploads[pid]) {
+          activeUploads[pid].lightboxProgress = lightSnap.bytesTransferred;
+        }
+        displayUploadProgress(pid);
 
-      // update the byte progress
-      if (activeUploads[pid]) {
-        activeUploads[pid].lightboxProgress = lightSnap.bytesTransferred;
-      }
-      displayUploadProgress(pid);
+        // LIGHTBOX PREVIEW UPLOADED.
+        if (lightSnap.bytesTransferred === lightSnap.totalBytes) {
+          breadcrumb('[Upload] (' + pid + ') Uploaded Lightbox.');
+          photoUploadComplete(fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam);
+        }
 
-      // LIGHTBOX PREVIEW UPLOADED.
-      if (lightSnap.bytesTransferred === lightSnap.totalBytes) {
-        breadcrumb('[Upload] (' + pid + ') Uploaded Lightbox.');
-        photoUploadComplete(fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam);
-      }
-
-    }, function(error) { handleUploadError (pid, filename, error, callback, callbackParam); });
+      }, function(error) { handleUploadError (pid, filename, error, callback, callbackParam); });
+    }
       
     // now start uploading with the original. 
     activeUploads[pid].original.resume();

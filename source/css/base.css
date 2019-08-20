@@ -4808,7 +4808,7 @@ body.draggingStuff {
 #upgrade-form.is-white {
   background-color: #FFFFFF;
   padding: 0 !important;
-  height: 530px;
+  height: 575px;
   position: relative;
 }
 
@@ -7039,7 +7039,7 @@ body.draggingStuff {
   }
 
   #upgrade-form.is-white.paddleWillBeMobile {
-    height: 530px;
+    height: 575px;
   }
 
   .photo-selection:not(.selectionmode) {

@@ -1834,6 +1834,7 @@ function checkCatalogIntegrity () {
       // there is an undefined doc.
       undefinedDoc = true;
       breadcrumb("Catalog Integrity Check (PRE): found undefined doc");
+      handleError("Found Undefined Doc in Catalog PRE-CHECK");
     }
   });
 
@@ -3058,6 +3059,10 @@ function loadLocalCatalog(callback) {
     callback();
   }).catch(function(error) {
     handleError("Error decrypting local catalog", error);
+    // couldn't decrypt local catalog. shit. remove local catalog, and force restart.
+    localStorage.removeItem("encryptedCatalog");
+    sessionStorage.setItem("key", JSON.stringify(keyToRemember));
+    window.location.reload();
   });
 }
 
@@ -5103,10 +5108,17 @@ function sideBySideFileViewer() {
   $(".docs-body").toggleClass("sideBySide");
 }
 
-function displayImageFile (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
+function setActiveFile(decryptedContents, dtitle, did) {
   activeFileContents = decryptedContents;
   activeFileTitle = dtitle;
   activeFileID = did;
+
+  $(".activefile").removeClass("activefile");
+  $(".doc[did='"+did+"']").addClass("activefile");
+}
+
+function displayImageFile (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
+  setActiveFile(decryptedContents, dtitle, did);
 
   $('#file-viewer').addClass("loading-contents");
   setTimeout(function () {
@@ -5133,9 +5145,7 @@ function displayImageFile (dtitle, did, decryptedContents, callback, filesize, c
 
 function displayPDFNatively (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
   decryptedContents = sanitizeB64(decryptedContents);
-  activeFileContents = decryptedContents;
-  activeFileTitle = dtitle;
-  activeFileID = did;
+  setActiveFile(decryptedContents, dtitle, did);
 
   $('#file-viewer').addClass("loading-contents");
 
@@ -5159,9 +5169,7 @@ function displayPDFNatively (dtitle, did, decryptedContents, callback, filesize,
 
 function displayPDFWithPDFjs (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
   decryptedContents = sanitizeB64(decryptedContents);
-  activeFileContents = decryptedContents;
-  activeFileTitle = dtitle;
-  activeFileID = did;
+  setActiveFile(decryptedContents, dtitle, did);
 
   $('#file-viewer').addClass("loading-contents");
 
@@ -5194,9 +5202,7 @@ function displayPDFWithPDFjs (dtitle, did, decryptedContents, callback, filesize
 
 function displayAudioFile (dtitle, did, decryptedContents, callback, filesize, callbackParam, ext) {
   decryptedContents = sanitizeB64(decryptedContents);
-  activeFileContents = decryptedContents;
-  activeFileTitle = dtitle;
-  activeFileID = did;
+  setActiveFile(decryptedContents, dtitle, did);
 
   $('#file-viewer').addClass("loading-contents");
 
@@ -5223,9 +5229,7 @@ function displayAudioFile (dtitle, did, decryptedContents, callback, filesize, c
 
 function displayMP4File (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
   decryptedContents = sanitizeB64(decryptedContents);
-  activeFileContents = decryptedContents;
-  activeFileTitle = dtitle;
-  activeFileID = did;
+  setActiveFile(decryptedContents, dtitle, did);
 
   $('#file-viewer').addClass("loading-contents");
   setTimeout(function () {
@@ -5251,9 +5255,8 @@ function displayMP4File (dtitle, did, decryptedContents, callback, filesize, cal
 
 function displayUnsupportedFile (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
 
-  activeFileContents = decryptedContents;
-  activeFileTitle = dtitle;
-  activeFileID = did;
+  setActiveFile(decryptedContents, dtitle, did);
+
   var iconClass = extractFromFilename(dtitle, "icon");
   var b64OfFile = decryptedContents.replace("data:", "data:application/octet-stream");
 
@@ -7345,7 +7348,7 @@ function processEmbedImage (file) {
   reader.onerror = function(err){
     fileUploadError = true;
     handleError("Error reading image in processEmbedImage", err);
-    showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your image. This is most likely a problem we need to fix, and rest assured we will.");
+    showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading this file. This is most likely a problem we need to fix, and rest assured we will.");
   };
 }
 
@@ -7380,7 +7383,7 @@ function processDroppedAttachment (file) {
   reader.onerror = function(err){
     fileUploadError = true;
     handleError("Error reading dropped attachment", err);
-    showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your image. This is most likely a problem we need to fix, and rest assured we will.");
+    showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading this file. This is most likely a problem we need to fix, and rest assured we will.");
   };
 }
 
@@ -9199,7 +9202,7 @@ function compareDocGensForSync(doc, callback, callbackParam) {
     } else {
       err.did = did;
       skipSyncingDoc(callback, callbackParam);
-      showErrorBubble("Error getting version of "+doc.name+" for sync", err);
+      // showErrorBubble("Error getting version of "+doc.name+" for sync", err);
       handleError("Error getting generation of doc to compare for offline sync", err);
     }
   });

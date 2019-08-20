@@ -27,6 +27,7 @@ $("#key-modal").on('click', function(event) {
 
 logTimeStart('Time Until KeyModal');
 function showKeyModal () {
+  breadcrumb('Showing Key Modal');
   logTimeEnd('Time Until KeyModal');
   // 767 to accommodate ipads / other portrait tablets
   if ($(window).width() > 767) {
@@ -49,6 +50,7 @@ function showKeyModal () {
 }
 
 function hideKeyModal () {
+  breadcrumb('Hiding Key Modal');
   $("html, body").removeClass("modal-is-active");
   $("#key-modal").removeClass("shown");
   setTimeout(function () {

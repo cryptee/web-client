@@ -1006,7 +1006,7 @@ function lastChecksBeforeDownloads() {
   $.each(allExportsObject, function(id, item){
     allDownloads.push(item);
   });
-runExportDownloads(0)
+  runExportDownloads(0);
 }
 
 function runExportDownloads(index) {

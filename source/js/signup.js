@@ -599,7 +599,7 @@ function createUser () {
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else {
         handleError("Error Creating User", error);
-        showSignupInfo("Something went wrong... We're terribly sorry. Please try again soon.", "is-warning", true);
+        showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly.", "is-warning", true, "key");
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       }
   });
@@ -705,7 +705,7 @@ function gotAuthToken(token) {
       }, 2000);
     } else {
       // ping("message",{msg : "gotAuthTokenError"});
-      showSignupInfo("Something went wrong. It seems we can't process the signup token at this moment. Please try again in a minute.", "is-warning", true, "key");
+      showSignupInfo("Something went wrong. It seems we can't process the signup token at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly.", "is-warning", true, "key");
       $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       tokenRetry = false;
     }
@@ -881,6 +881,7 @@ function createHomeDoc() {
         homeUpload.on('state_changed', function(snapshot){}, function(error) {      
           if (createHomeCounter < 3) {
             createHomeCounter++;
+            handleError("Couldn't set user home to storage during signup. Will try a few more times.", error);
             setTimeout(function(){ createHomeDoc(); }, 2000);
           } else {
             handleError("Couldn't set user home to storage during signup", error);
@@ -894,12 +895,12 @@ function createHomeDoc() {
       });
     } else {
       handleError("Couldn't get homedoc JSON during signup");
-      showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process.", "is-warning", true, "key");
+      showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly.", "is-warning", true, "key");
       $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
     }
   }).fail(function(error) {
     handleError("Couldn't get homedoc JSON during signup", error);
-    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process.", "is-warning", true, "key");
+    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up proces and try again shortly..", "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   });
 }
