@@ -50,6 +50,8 @@ self.addEventListener('fetch', function(event) {
     ||  requrl.indexOf( '/heroes/' ) !== -1
     ||  requrl.indexOf( '/v.json' ) !== -1
     ||  requrl.indexOf( '/cors.json' ) !== -1
+    ||  requrl.indexOf( 'zxcvbn' ) !== -1
+    ||  requrl.indexOf( 'pdf.worker' ) !== -1
     ||  requrl.indexOf( '/cors-min.json' ) !== -1
   ) {
     // console.log('Fetching from network: ', event.request.url);
