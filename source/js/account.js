@@ -1288,15 +1288,28 @@ function checkCurrentKey (typedKey, callback) {
 
 // CLEAR LOCAL CACHE
 
-if (localStorage.getItem("encryptedCatalog")) {
-  $("#encrypted-local-cache-card").show();
-} else {
-  $("#encrypted-local-cache-card").hide();
-}
+encryptedIndexedCatalog.getItem('encat', function(err, cat) {
+  if (cat) {
+    $("#encrypted-local-cache-card").show();
+  } else {
+    if (localStorage.getItem("encryptedCatalog")) {
+      $("#encrypted-local-cache-card").show();
+    } else {
+      $("#encrypted-local-cache-card").hide();
+    }
+  }
+});
+
 
 function clearLocalCache() {
-  localStorage.removeItem("encryptedCatalog");
-  $("#clear-cache-button").html("Cleared").addClass("is-success").prop('disabled', true).attr('disabled', true);
+  var encryptedIndexedCatalog = localforage.createInstance({ name: "encryptedIndexedCatalog" });
+  encryptedIndexedCatalog.removeItem('encat').then(function() {
+    localStorage.removeItem("encryptedCatalog");
+    $("#clear-cache-button").html("Cleared").addClass("is-success").prop('disabled', true).attr('disabled', true);
+  }).catch(function(err) {
+    localStorage.removeItem("encryptedCatalog");
+    $("#clear-cache-button").html("Cleared").addClass("is-success").prop('disabled', true).attr('disabled', true);
+  });
 }
 
 

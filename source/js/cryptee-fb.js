@@ -17,6 +17,7 @@ var store = firebase.storage();
 var tokenURL = "https://crypt.ee/api/auth";
 var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
 var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
+var encryptedIndexedCatalog = localforage.createInstance({ name: "encryptedIndexedCatalog" });
 var firebaseVersion = firebase.SDK_VERSION;
 
 ////////////////////////////////////////////////////
@@ -50,6 +51,8 @@ function saveUserDetailsToLS (theUsername, theEmail, usedStorage, allowedStorage
     "createdAt" : createdAt
   }));
   setSentryTag("availableStorage", formatBytes(allowedStorage - usedStorage));
+  setSentryTag("usedStorage", formatBytes(usedStorage));
+  setSentryTag("plan", plan);
   setSentryTag("paid", paid);
 
   loadUserDetailsFromLS();
@@ -96,6 +99,7 @@ function purgeOfflineStorage () {
   try { sessionStorage.clear();} catch (e) {}
   try { offlineStorage.clear(); } catch (e) {}
   try { offlineErrorStorage.clear(); } catch (e) {}
+  try { encryptedIndexedCatalog.clear(); } catch (e) {}
 }
 
 ////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 var theKey, encryptedStrongKey;
-var encryptedKeycheck; // a timestamp encrypted with hashedKey to verify the hashedKey in offline mode.
+var gotKey = false; // this prevents an early offline mode call from being made before key is typed.
 
 var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedkey
 
@@ -7,12 +7,22 @@ if (localStorage.getItem('memorizedKey')) {
   keyToRemember = JSON.parse(localStorage.getItem('memorizedKey')); // hashedKey
 }
 
-var gotKey = false; // this prevents an early offline mode call from being made before key is typed.
-
+var encryptedKeycheck; // a timestamp encrypted with hashedKey to verify the hashedKey in offline mode.
 if (localStorage.getItem("encryptedKeycheck")) {
   encryptedKeycheck = JSON.parse(localStorage.getItem("encryptedKeycheck")).data;
 }
+
 sessionStorage.removeItem('key');
+
+var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
+var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
+var encryptedIndexedCatalog = localforage.createInstance({ name: "encryptedIndexedCatalog" });
+var storageDriver = localforage.driver();
+
+var thereIsALocalEncryptedCatalog = false;
+initalizeLocalCatalog();
+
+
 
 var foldersRef;
 var minuteTimer;
@@ -35,9 +45,6 @@ var startedOffline = false;
 var connectivityMode = true; // true = online // false = offline
 var viewingMode = false;
 
-var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
-var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
-var storageDriver = localforage.driver();
 setSentryTag("offline-driver", storageDriver);
 setSentryTag("quill-ver", Quill.version);
 
@@ -1123,7 +1130,7 @@ function firstLoadComplete() {
       $("#doc-contextual-buttons").show();
       arrangeTools();
 
-      if (localStorage.getItem("encryptedCatalog")) {
+      if (thereIsALocalEncryptedCatalog) {
         runTTQueueFromIndex(0);
       } else {
         updateLocalCatalog();
@@ -1407,7 +1414,7 @@ function signInComplete () {
     if (newAccount) {
       ttQueueCompleted();
     } else {
-      if (localStorage.getItem("encryptedCatalog")) {
+      if (thereIsALocalEncryptedCatalog) {
         localCatalogExists = true;
         loadLocalCatalog(function(){
           loadLastOpenDoc();
@@ -2617,9 +2624,12 @@ var startedTTQueue;
 var completedTTQueue;
 var initialTTQueueReady = false;
 
-// 500 ms for boot to make sure 
+// 1000 ms for boot to make sure 
 // folder child change & doc title change can get added into queue intelligently.
-var ttDecryptionQueueTimeoutValue = 500; 
+// used to be 500, there's a strange recursion problem with runTTQueueFromIndex
+// making this 1000 for now to figure out what's causing it.
+
+var ttDecryptionQueueTimeoutValue = 1000; 
 
 function addedOperationToTTDecryptionQueue() {
   clearTimeout(ttDecryptionQueueTimeout);
@@ -2701,7 +2711,7 @@ function ttQueueCompleted() {
   if (!initialDecryptComplete) {
     initialDecryptComplete = true;
     setSentryTag("titles-decryption-speed", (completedTTQueue - startedTTQueue) + "ms");
-    if (!localStorage.getItem("encryptedCatalog")) {
+    if (!thereIsALocalEncryptedCatalog) {
       loadLastOpenDoc();
     } else {
       if (Object.keys(catalog.docs).length <= 1) {
@@ -2972,7 +2982,7 @@ function updateDocTitleTagsAndGenInCatalog(doc) {
 /////////////////////////////////////////////////////
 
 // if hundreds of docs are getting added to local catalog, 
-// timeout ensures we encrypt only once.
+// timeout ensures we encrypt & write local catalog only once.
 var updateLocalCatalogTimeout;
 function updateLocalCatalog (callback) {
   callback = callback || noop;
@@ -2983,9 +2993,16 @@ function updateLocalCatalog (callback) {
       var jsonCatalog = JSON.stringify(catalog);
       encrypt(jsonCatalog, [theKey]).then(function(ciphertext) {
         var encryptedCatalog = JSON.stringify(ciphertext);
-        localStorage.setItem("encryptedCatalog", encryptedCatalog);
-        breadcrumb("Local Catalog : FINISHED UPDATE.");
-        callback();
+
+        encryptedIndexedCatalog.setItem("encat", encryptedCatalog).then(function(value) {
+          breadcrumb("Local Catalog : FINISHED UPDATE.");
+          callback();
+        }).catch(function(err) {
+          if (err) { 
+            handleError("Error saving to IDB in updateLocalCatalog", error);
+          }
+        });
+        
       }).catch(function(error) {
         handleError("Error encrypting in updateLocalCatalog", error);
       });
@@ -3007,65 +3024,111 @@ var localCatalogLoadStarted;
 function loadLocalCatalog(callback) {
   callback = callback || noop;
   breadcrumb("Local Catalog : LOADING...");
-  logTimeStart('Decrypting Local Catalog');
+  
   localCatalogLoadStarted = (new Date()).getTime();
-  var encryptedCatalog = localStorage.getItem("encryptedCatalog");
-  var parsedEncryptedCatalog = JSON.parse(encryptedCatalog).data;
-  decrypt(parsedEncryptedCatalog, [theKey]).then(function(plaintext) {
-    var plaintextCatalog = JSON.parse(plaintext.data);
 
-    // SO HERE COMES A SUPER EDGE CASE BUT VERY REAL PROBLEM THAT HAPPENED.
+  logTimeStart('Loading Local Catalog');
+  encryptedIndexedCatalog.getItem('encat').then(function(encryptedCatalog) {  
+    logTimeEnd('Loading Local Catalog');
 
-    // IF DEVICE 1 WAS OFFLINE, AND DEVICE 2 DELETED A FOLDER / DOC ETC. 
-    // DEVICE 1 ENCRYPTED CATALOG WOULD NEVER GET THE "DELETE" ACTION REFLECTED
-    // SINCE WE ONLY DELETE STUFF FROM CATALOG WITH A "CHILD_REMOVED"
-    // SO ENCRYPTED CATALOG WOULD ADD THE ONCE DELETED ITEM TO IN MEMORY CATALOG
-    // AND SINCE IT'S NOT DELETED, IT'LL KEEP GETTING SAVED TO LOCAL CATALOG FOREVER. 
-    
-    // TO PREVENT THIS, WE'RE NOT RESTORING THE ENCRYPTED LOCAL CATALOG AS IS. 
-    // don't do     catalog = plaintextCatalog;     basically
+    logTimeStart('Decrypting Local Catalog');
+    var parsedEncryptedCatalog = JSON.parse(encryptedCatalog).data;
+    decrypt(parsedEncryptedCatalog, [theKey]).then(function(plaintext) {
+      var plaintextCatalog = JSON.parse(plaintext.data);
 
-    // SINCE THIS FUNCTION IS ONLY CALLED AFTER THE INITIAL DECRYPT QUEUE IS READY,
-    // GO THROUGH THE FRESHLY-FETCHED-ONLINE-CATALOG ONE BY ONE, 
-    // AND MERELY TAKE TITLES FROM THE ENCRYPTED CATALOG AND ADD TO THE IN MEMORY CATALOG.
-    // THIS WAY YOU'RE GOING TO HAVE AN UP TO DATE CATALOG TREE FROM THE SERVER
-    // BUT ONLY REFLECT THE DECRYPTED TITLES ETC. FROM LOCAL ENCRYPTED CATALOG.
+      // SO HERE COMES A SUPER EDGE CASE BUT VERY REAL PROBLEM THAT HAPPENED.
 
-    Object.keys(catalog.docs).forEach(function(did){
-      if (plaintextCatalog.docs[did]) {
-        catalog.docs[did] = plaintextCatalog.docs[did];
-      }
+      // IF DEVICE 1 WAS OFFLINE, AND DEVICE 2 DELETED A FOLDER / DOC ETC. 
+      // DEVICE 1 ENCRYPTED CATALOG WOULD NEVER GET THE "DELETE" ACTION REFLECTED
+      // SINCE WE ONLY DELETE STUFF FROM CATALOG WITH A "CHILD_REMOVED"
+      // SO ENCRYPTED CATALOG WOULD ADD THE ONCE DELETED ITEM TO IN MEMORY CATALOG
+      // AND SINCE IT'S NOT DELETED, IT'LL KEEP GETTING SAVED TO LOCAL CATALOG FOREVER. 
+      
+      // TO PREVENT THIS, WE'RE NOT RESTORING THE ENCRYPTED LOCAL CATALOG AS IS. 
+      // don't do     catalog = plaintextCatalog;     basically
+
+      // SINCE THIS FUNCTION IS ONLY CALLED AFTER THE INITIAL DECRYPT QUEUE IS READY,
+      // GO THROUGH THE FRESHLY-FETCHED-ONLINE-CATALOG ONE BY ONE, 
+      // AND MERELY TAKE TITLES FROM THE ENCRYPTED CATALOG AND ADD TO THE IN MEMORY CATALOG.
+      // THIS WAY YOU'RE GOING TO HAVE AN UP TO DATE CATALOG TREE FROM THE SERVER
+      // BUT ONLY REFLECT THE DECRYPTED TITLES ETC. FROM LOCAL ENCRYPTED CATALOG.
+
+      Object.keys(catalog.docs).forEach(function(did){
+        if (plaintextCatalog.docs[did]) {
+          catalog.docs[did] = plaintextCatalog.docs[did];
+        }
+      });
+      
+      Object.keys(catalog.folders).forEach(function(fid){
+        if (plaintextCatalog.folders[fid]) {
+          catalog.folders[fid] = plaintextCatalog.folders[fid];
+          var titleToUse = titleOf(fid);
+          try {titleToUse = JSON.parse(ftitle); } catch (e) {}
+          $("#" + fid).find(".folder-title").html(titleToUse);
+        }
+      });
+
+      var localCatalogLoadFinished = (new Date()).getTime();
+      var catalogSpeed = (localCatalogLoadFinished - localCatalogLoadStarted) + "ms";
+      var catalogSize = formatBytes(bytesize(encryptedCatalog));
+
+      setSentryTag("local-catalog-speed", catalogSpeed);
+      setSentryTag("local-catalog-size", catalogSize);
+      logTimeEnd('Decrypting Local Catalog');
+      breadcrumb("Local Catalog : LOADED "+catalogSize+" in " + catalogSpeed);
+      refreshOnlineDocs(true); // force refresh online docs.
+
+      callback();
+    }).catch(function(error) {
+      handleError("Error decrypting local catalog", error);
+      // couldn't decrypt local catalog. shit. remove local catalog, and force restart.
+
+      // giving 5 seconds for sentry to send error
+      setTimeout(function () {
+         
+        // set key in preperation for restart
+        sessionStorage.setItem("key", JSON.stringify(keyToRemember));
+
+        // remove catalog, then restart
+        encryptedIndexedCatalog.removeItem('encat').then(function() {
+          window.location.reload();
+        }).catch(function(err) {
+          window.location.reload();  
+        });
+      
+      }, 5000);
+
     });
-    
-    Object.keys(catalog.folders).forEach(function(fid){
-      if (plaintextCatalog.folders[fid]) {
-        catalog.folders[fid] = plaintextCatalog.folders[fid];
-        var titleToUse = titleOf(fid);
-        try {titleToUse = JSON.parse(ftitle); } catch (e) {}
-        $("#" + fid).find(".folder-title").html(titleToUse);
-      }
-    });
 
-    var localCatalogLoadFinished = (new Date()).getTime();
-    var catalogSpeed = (localCatalogLoadFinished - localCatalogLoadStarted) + "ms";
-    var catalogSize = formatBytes(bytesize(localStorage.getItem("encryptedCatalog")));
-
-    setSentryTag("local-catalog-speed", catalogSpeed);
-    setSentryTag("local-catalog-size", catalogSize);
-    logTimeEnd('Decrypting Local Catalog');
-    breadcrumb("Local Catalog : LOADED "+catalogSize+" in " + catalogSpeed);
-    refreshOnlineDocs(true); // force refresh online docs.
-
-    callback();
-  }).catch(function(error) {
-    handleError("Error decrypting local catalog", error);
-    // couldn't decrypt local catalog. shit. remove local catalog, and force restart.
-    localStorage.removeItem("encryptedCatalog");
-    sessionStorage.setItem("key", JSON.stringify(keyToRemember));
-    window.location.reload();
+  }).catch(function(err) {
+    handleError("Couldn't load local catalog from IDB! Sign in halted!" , err);
   });
+
 }
 
+function initalizeLocalCatalog() {
+  encryptedIndexedCatalog.getItem('encat', function(err, cat) {
+    if (!cat || err) {
+      breadcrumb("[Local Catalog] Not found in IDB. Will check LS.");
+      var encryptedCatalogInLS = localStorage.getItem("encryptedCatalog");
+      if (encryptedCatalogInLS) {
+        breadcrumb("[Local Catalog] Found in LS. Moving to IDB.");
+        encryptedIndexedCatalog.setItem("encat", encryptedCatalogInLS).then(function(value) {
+          breadcrumb('[Local Catalog] Moved to IDB.');
+          localStorage.removeItem('encryptedCatalog');
+          breadcrumb('[Local Catalog] Removed from LS.');
+          thereIsALocalEncryptedCatalog = true;
+        }).catch(function(err) {
+          if (err) { 
+            handleError("Error porting ls offline catalog to idb", err); 
+          }
+        });
+      }
+    } else {
+      if (cat) { thereIsALocalEncryptedCatalog = true; }
+    }
+  });
+}
 
 
 
@@ -9094,7 +9157,7 @@ function offlineInitComplete (){
 }
 
 function showSyncingProgress(val, max, msg) {
-  if (!localStorage.getItem("encryptedCatalog")) {
+  if (!thereIsALocalEncryptedCatalog) {
     msg = msg || "Syncing Device...";
   } else {
     msg = msg || "Syncing...";
