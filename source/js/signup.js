@@ -35,6 +35,8 @@ var images = {
   }
 };
 
+var disableBlockerError = "Something went wrong. It seems we can't process the signup at this moment. <br><br>Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly..";
+
 function showSignupInfo (message, color, closable, sectionToGoIfError) {
   closable = closable || false;
   sectionToGoIfError = sectionToGoIfError || false;
@@ -599,7 +601,7 @@ function createUser () {
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else {
         handleError("Error Creating User", error);
-        showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly.", "is-warning", true, "key");
+        showSignupInfo(disableBlockerError, "is-warning", true, "key");
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       }
   });
@@ -705,7 +707,7 @@ function gotAuthToken(token) {
       }, 2000);
     } else {
       // ping("message",{msg : "gotAuthTokenError"});
-      showSignupInfo("Something went wrong. It seems we can't process the signup token at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly.", "is-warning", true, "key");
+      showSignupInfo(disableBlockerError, "is-warning", true, "key");
       $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       tokenRetry = false;
     }
@@ -783,7 +785,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 }, function(error){
   if (error.code !== "auth/network-request-failed") {
     handleError("Error Authenticating", error);
-    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+    showSignupInfo(disableBlockerError, "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   }
 });
@@ -804,14 +806,14 @@ function createFirstAuth(hashedKey) {
         },
         error:function (xhr, ajaxOptions, thrownError){ 
           handleError("Couldn't get signup auth token", thrownError); 
-          showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+          showSignupInfo(disableBlockerError, "is-warning", true, "key");
           $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
         }
       });
     });
   } else {
     handleError("Couldn't get current user to get signup auth token", thrownError); 
-    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a few seconds.", "is-warning", true, "key");
+    showSignupInfo(disableBlockerError, "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   }
 }
@@ -822,7 +824,7 @@ function gotSignupToken(tokenData, hashedKey) {
     createUserInDB(hashedKey);
   }).catch(function(error) {
     handleError("Couldn't use signup auth token", error);
-    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+    showSignupInfo(disableBlockerError, "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   });
 }
@@ -854,7 +856,7 @@ function createUserInDB(hashedKey) {
             setTimeout(function () { createUserInDB(); }, 2000);
           } else {
             handleError("Couldn't set user data to dataref during signup", error);
-            showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+            showSignupInfo(disableBlockerError, "is-warning", true, "key");
             $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
           }
         } else {
@@ -864,7 +866,7 @@ function createUserInDB(hashedKey) {
     });
   } else {
     handleError("Couldn't get all necessary user data set the key during signup", error);
-    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+    showSignupInfo(disableBlockerError, "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   }
 }
@@ -885,7 +887,7 @@ function createHomeDoc() {
             setTimeout(function(){ createHomeDoc(); }, 2000);
           } else {
             handleError("Couldn't set user home to storage during signup", error);
-            showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try again in a minute.", "is-warning", true, "key");
+            showSignupInfo(disableBlockerError, "is-warning", true, "key");
             $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
           }
         }, function() {
@@ -895,12 +897,12 @@ function createHomeDoc() {
       });
     } else {
       handleError("Couldn't get homedoc JSON during signup");
-      showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly.", "is-warning", true, "key");
+      showSignupInfo(disableBlockerError, "is-warning", true, "key");
       $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
     }
   }).fail(function(error) {
     handleError("Couldn't get homedoc JSON during signup", error);
-    showSignupInfo("Something went wrong. It seems we can't process the signup at this moment. Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up proces and try again shortly..", "is-warning", true, "key");
+    showSignupInfo(disableBlockerError, "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   });
 }
