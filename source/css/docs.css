@@ -37,12 +37,12 @@
   border-top-color: #000 !important;
 }
 
-.ql-editor *::selection {
+.ql-editor *:not(img)::selection {
   background: #000 !important;
   color: #FFF !important;
 }
 
-.ql-editor *::-moz-selection {
+.ql-editor *:not(img)::-moz-selection {
   background: #000 !important;
   color: #FFF !important;
 }
@@ -135,7 +135,8 @@
   transform: translateX(160px);
 }
 
-#docs-left-wrap:not(.showLeft) #docs-left-bottom * {
+#docs-left-wrap:not(.showLeft) #docs-left-bottom *,
+#docs-left-wrap.firstLoad {
   pointer-events: none !important;
 }
 

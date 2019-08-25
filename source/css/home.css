@@ -118,7 +118,7 @@
 	/* scroll-snap-align: start; */
 	/* overflow: scroll; */
 
-	top: 0;
+	top: 4rem;
 	left: 0;
 	right: 0;
 
@@ -141,7 +141,7 @@
 	margin-right: auto;
 	
 	margin-bottom: 3rem;
-	margin-top: calc(50vh - (325px / 2));
+	margin-top: calc(50vh - (325px / 2) - 4rem);
 }
 
 #home-welcome-card .welcome-container {
@@ -244,7 +244,7 @@
 	}
 
 	#home-welcome-card {
-		margin-top: calc(100% - (325px / 2) - 1rem);
+		margin-top: calc(100% - (325px / 2) - 5rem);
 		height: calc(325px - 3rem);
 		width : calc(320px - 2rem);
 		min-height: 286px;

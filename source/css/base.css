@@ -272,10 +272,11 @@ code, pre {
 
 
 .ql-editor img {
-  max-width: calc(100% - 20px) !important;
+  max-width: 100% !important;
   height: auto;
   border-radius: 10px;
-  margin: 1rem !important;
+  margin: 0 !important;
+  user-select: none;
 }
 
 .ql-editor img[style*="float:left"],
@@ -287,7 +288,6 @@ code, pre {
 .ql-editor img[style*="float: right"] {
   margin: 1rem 0rem 1rem 2rem !important;
 }
-
 
 .ql-snow .ql-editor pre {
   margin: 1rem 0;
@@ -2646,42 +2646,26 @@ html {
   right: 0;
   margin-top: 30px;
   min-width: 202px;
-  background-color: #f1f1f1;
+  background-color: #363636;
   box-shadow: 0 1rem 2rem rgba(10,10,10,0.2);
   transition: 0.5s transform ease;
   transform: translateX(320px);
   pointer-events: none;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.document-contextual-dropdown p, .docs-contextual-dropdown p {
+.document-contextual-dropdown p {
   background-color: transparent;
-  color : #000;
+  color : #fff;
   padding: 0.5rem 1rem;
   cursor: pointer;
   transition: 0.3s all ease;
 }
 
-.document-contextual-dropdown.open, .docs-contextual-dropdown.open {
-  transform: translateX(0);
+.document-contextual-dropdown.open{
+  transform: translateX(-0.5rem);
   pointer-events: auto;
-}
-
-.docs-contextual-dropdown {
-  display: none;
-  z-index: 10;
-  position: absolute;
-  right: 0;
-  min-width: 202px;
-  background-color: #f1f1f1;
-  box-shadow: 0 1rem 2rem rgba(10,10,10,0.2);
-}
-
-.docs-contextual-dropdown p {
-  line-height: 1.25rem;
-}
-
-.docs-contextual-dropdown .icon {
-  margin-top: -0.25rem !important;
 }
 
 .context-make-doc-offline .icon {
@@ -6672,12 +6656,12 @@ body.draggingStuff {
     margin-right: 0.75rem;
   }
 
-  .document-contextual-dropdown p:hover, .docs-contextual-dropdown p:hover {
-    background-color: #dedede;
+  .document-contextual-dropdown p:hover {
+    background-color: #000;
   }
 
-  .document-contextual-dropdown p:last-child:hover, .docs-contextual-dropdown p:last-child:hover, .delete-folder-button:hover {
-    background-color: #d9534f;
+  .document-contextual-dropdown p:last-child:hover, .delete-folder-button:hover {
+    background-color: #d9534f !important;
     color : #FFF;
   }
 
@@ -6871,7 +6855,7 @@ body.draggingStuff {
   }
 
   #doc-contextual-buttons i {
-    font-size: 1.25rem !important;
+    font-size: 1rem !important;
   }
 
   #doc-contextual-buttons .icon {
@@ -6899,8 +6883,8 @@ body.draggingStuff {
     margin-top: 12px !important;
   }
 
-  .document-contextual-dropdown p, .docs-contextual-dropdown p {
-    padding: 1rem 1.5rem;
+  .document-contextual-dropdown p {
+    padding: 0.75rem 1rem;
   }
 
   .progressButtons, #hamburger .button {

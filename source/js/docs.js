@@ -446,17 +446,9 @@ if (isMobile) {
   });
 }
 
-quill.clipboard.addMatcher('img', function(node, delta) {
-  return delta;
-});
-
-quill.clipboard.addMatcher('span', function(node, delta) {
-  return delta;
-});
-
-quill.clipboard.addMatcher('div', function(node, delta) {
-  return delta;
-});
+quill.clipboard.addMatcher('img', function(node, delta) { return delta; });
+quill.clipboard.addMatcher('span', function(node, delta) { return delta; });
+quill.clipboard.addMatcher('div', function(node, delta) { return delta; });
 
 var tribute = new Tribute({
   values: function (tag, callback) {
@@ -546,7 +538,18 @@ $('.ql-editor').on('click', function(event) {
     $(".ql-editor").append("<p></p>");
   }
   
-  quill.focus();
+  //////////////////
+  //
+  // removing this seems to fix the image resize bug (https://github.com/cryptee/web-client/issues/23) 
+  // where the image handles won't show up if the image is taller than the viewport height.
+  //
+  // I think this force focus was here to fix a bug where quill won't receive focus if it's empty, (height = 0) way back in the Docs V1 days.
+  // It seems okay now with the V2 layout, but leaving this note here just in case. 
+  
+  // quill.focus();
+  
+  //////////////////
+
   lastActivityTime = (new Date()).getTime();
 
   $(".document-contextual-dropdown").removeClass("open");
@@ -2686,7 +2689,7 @@ function runTTQueueFromIndex(index) {
     finalTTDecryptionQueue[index](index+1);
   }
   
-  if ((index + 1) === finalTTDecryptionQueue.length) {
+  if ((index + 1) === total) {
     completedTTQueue = (new Date()).getTime();
     ttQueueCompleted();
     totalTTInDecryptionQueue = 0;
@@ -9746,7 +9749,9 @@ $(".ql-editor").on('scroll', throttleScroll(function(event) {
         $(".docsection[index='"+i+"']").removeClass("inview");
       }
     });
-	}, 300);
+  }, 300);
+
+  $(".document-contextual-dropdown").removeClass("open");
 }, 100));
 
 ///////////////////////////////////////////////////////////
