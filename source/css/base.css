@@ -3251,12 +3251,48 @@ body.draggingStuff {
   width: 88px !important;
 }
 
+.ql.formats button {
+  box-shadow: none;
+  outline: none;
+}
+.ql-picker-label {
+  box-shadow: none;
+  outline: none;
+  overflow: hidden;
+  border: transparent !important;
+}
+
+.ql-picker-item[data-value=sans-serif]::after {
+  margin-top: 0.5rem;
+  content:"";
+  display: block;
+  width: 100%;
+  border-bottom: 1px #ccc solid;
+}
+
+.ql-picker-options {
+  margin-top: 0.25rem !important;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border:none;
+}
+
+.ql-picker.ql-font .ql-picker-options * {
+  font-size: 13px;
+}
+
 .ql-picker.ql-size {
+  padding-left: 0;
   width: 37px !important;
 }
 
-.ql-size .ql-picker-options{
+.ql-size .ql-picker-options {
   padding-left: 10px !important;
+}
+
+.ql-size .ql-picker-label::before {
+  margin-left: -5px;
+  margin-top: 1px;
 }
 
 .ql-snow.ql-toolbar button {

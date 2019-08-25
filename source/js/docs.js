@@ -395,6 +395,30 @@ var quillhandlers = {
   }
 };
 
+
+var fonts = ['Arial', 'Courier', 'Georgia', 'Montserrat', 'Tahoma', 'Times New Roman', 'Verdana'];
+var fontNames = [];
+var fontStyles = "";
+var fontOptions = "";
+
+fonts.forEach(function(font) {
+  var fontName = font.toLowerCase().replace(/\s/g, "-");
+  fontNames.push(fontName);
+  fontStyles += ".ql-snow .ql-picker.ql-font .ql-picker-label[data-value=" + fontName + "]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=" + fontName + "]::before { content: '" + font + "'; font-family: '" + font + "', sans-serif; } .ql-font-" + fontName + "{ font-family: '" + font + "', sans-serif; }";
+  fontOptions += "<option value='"+fontName+"'>"+ font +"</option>";
+});
+
+var node = document.createElement('style');
+node.innerHTML = fontStyles;
+document.body.appendChild(node);
+$(".ql-font").append("<option value='sans-serif' selected>Default</option>");
+$(".ql-font").append(fontOptions);
+
+// Add fonts to whitelist
+var Font = Quill.import('formats/font');
+Font.whitelist = fontNames;
+Quill.register(Font, true);
+
 if (isMobile) {
 
   var toolbarOptions = {
