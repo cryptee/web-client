@@ -3282,6 +3282,11 @@ body.draggingStuff {
   font-size: 13px;
 }
 
+
+.ql-picker.ql-font .ql-picker-options span[data-value=markazi]::before {
+  font-size: 16px;
+}
+
 .ql-picker.ql-size {
   padding-left: 0;
   width: 37px !important;

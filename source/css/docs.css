@@ -24,7 +24,7 @@
 
 /* markazi-text-regular - vietnamese_latin_latin-ext_arabic */
 @font-face {
-  font-family: 'Markazi Text';
+  font-family: 'Markazi';
   font-style: normal;
   font-weight: 400;
   src: local(''),
@@ -33,7 +33,7 @@
 }
 /* markazi-text-600 - vietnamese_latin_latin-ext_arabic */
 @font-face {
-  font-family: 'Markazi Text';
+  font-family: 'Markazi';
   font-style: normal;
   font-weight: 600;
   src: local(''),
