@@ -44,6 +44,7 @@ var connected = true;
 var startedOffline = false;
 var connectivityMode = true; // true = online // false = offline
 var viewingMode = false;
+var editLock = false;
 
 setSentryTag("offline-driver", storageDriver);
 setSentryTag("quill-ver", Quill.version);
@@ -1227,7 +1228,75 @@ function toggleViewingMode() {
   }
 }
 
+// lock document
+var editLock = false;
+function toggleEditLock() {
+  $(".document-contextual-dropdown").removeClass("open");
+  var did = activeDocID;
+  if (editLock) {
+    unlockEditor();
+    updateEditLock(did, false);
+  } else {
+    lockEditor();
+    updateEditLock(did, true);
+  }
+}
 
+function updateEditLock(did, lock, callback, callbackParam) {
+  if (did) {
+    lock = lock || false;
+    callback = callback || noop;
+    var fid = fidOfDID(did);
+    if (fid) {
+      foldersRef.child(fid + "/docs/" + did).update({"islocked" : lock}, function(error) {
+        if (error) { 
+          error.did = did;
+          error.fid = fid;
+          handleError("Error locking doc", error); 
+        } else {
+          catalog.docs[did] = catalog.docs[did] || {};
+          catalog.docs[did].islocked = lock;
+          updateLocalCatalog();
+        }
+        callback(callbackParam);
+      });
+    } else {
+      handleError("Can't lock doc without fid"); 
+      callback(callbackParam);
+    }
+  } else {
+    handleError("Can't lock doc without did"); 
+    callback(callbackParam);
+  }
+}
+
+function lockEditor() {
+  editLock = true;
+  quill.disable();
+  clearSearch();
+  clearSelections();
+  $("#edit-lock-label").html("Unlock Edits");
+  $(".docs-body").addClass("edits-locked");
+}
+
+function unlockEditor() {
+  editLock = false;
+  quill.enable();
+  $("#edit-lock-label").html("Lock Edits");
+  $(".docs-body").removeClass("edits-locked");
+}
+
+$("#editor-toolbar").on('click', function(event) {
+  if (editLock) {
+    unlockEditor(activeDocID);
+  }
+}); 
+
+$("#mobile-topbar").on('click', function(event) {
+  if (editLock && !$(event.target).is(".document-contextual-dropdown") && $(event.target).parents(".document-contextual-dropdown").length === 0 && !$(event.target).is("#doc-contextual-button") && $(event.target).parents("#doc-contextual-button").length === 0 && !$(event.target).is("#hamburger") && $(event.target).parents("#hamburger").length === 0) {
+    unlockEditor(activeDocID);
+  }
+}); 
 
 ////////////////////////////////////////////////////
 ///////////////// PROGRESS DIMMER   ////////////////
@@ -1552,7 +1621,7 @@ function startFolderSockets (fid) {
   foldersRef.child(fid + "/docs").on('child_changed', function(doc) {
     // update encrypted titles, tags and gen in catalog
     // update gen in dom
-    updateDocTitleTagsAndGenInCatalog(doc.val());
+    updateDocMetaInCatalog(doc.val());
     checkDocGeneration(doc.val());
   });
 
@@ -2970,6 +3039,7 @@ function updateFolderInCatalog (folder, fid) {
 function updateDocInCatalog (fid, doc) {
   var did = doc.docid;
   var isFile = doc.isfile || false;
+  var isLocked = doc.islocked || false;
   var isOffline = doc.isoffline || false;
 
   // either an encrypted string or a blank array, check for this when decrypting tags.
@@ -2986,19 +3056,21 @@ function updateDocInCatalog (fid, doc) {
   catalog.docs[did].gen             = doc.generation || 0;
   catalog.docs[did].fcolor          = catalog.folders[fid].color || "#363636";
   catalog.docs[did].isfile          = isFile;
+  catalog.docs[did].islocked        = isLocked;
   catalog.docs[did].isoffline       = isOffline;
-
+  
   gotEncryptedDocTitle(did, doc.title);
   gotEncryptedDocTags(did, tags);
 }
 
 
-function updateDocTitleTagsAndGenInCatalog(doc) {
+function updateDocMetaInCatalog(doc) {
   var did = doc.docid;
   var tags = doc.tags || [];
 
   catalog.docs[did] = catalog.docs[did] || {};
-  catalog.docs[did].gen = doc.generation || 0;
+  catalog.docs[did].gen       = doc.generation || 0;
+  catalog.docs[did].islocked  = doc.islocked   || false;
 
   gotEncryptedDocTitle(did, doc.title);
   gotEncryptedDocTags(did, tags);
@@ -3061,7 +3133,7 @@ function loadLocalCatalog(callback) {
     logTimeStart('Decrypting Local Catalog');
     var parsedEncryptedCatalog = JSON.parse(encryptedCatalog).data;
     decrypt(parsedEncryptedCatalog, [theKey]).then(function(plaintext) {
-      var plaintextCatalog = JSON.parse(plaintext.data);
+      var plaintextLocalCatalog = JSON.parse(plaintext.data);
 
       // SO HERE COMES A SUPER EDGE CASE BUT VERY REAL PROBLEM THAT HAPPENED.
 
@@ -3081,14 +3153,14 @@ function loadLocalCatalog(callback) {
       // BUT ONLY REFLECT THE DECRYPTED TITLES ETC. FROM LOCAL ENCRYPTED CATALOG.
 
       Object.keys(catalog.docs).forEach(function(did){
-        if (plaintextCatalog.docs[did]) {
-          catalog.docs[did] = plaintextCatalog.docs[did];
+        if (plaintextLocalCatalog.docs[did]) {
+          catalog.docs[did] = plaintextLocalCatalog.docs[did];
         }
       });
       
       Object.keys(catalog.folders).forEach(function(fid){
-        if (plaintextCatalog.folders[fid]) {
-          catalog.folders[fid] = plaintextCatalog.folders[fid];
+        if (plaintextLocalCatalog.folders[fid]) {
+          catalog.folders[fid] = plaintextLocalCatalog.folders[fid];
           var titleToUse = titleOf(fid);
           try {titleToUse = JSON.parse(ftitle); } catch (e) {}
           $("#" + fid).find(".folder-title").html(titleToUse);
@@ -4952,6 +5024,12 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
       dtitle = "Home";
     }
 
+    if (catalog.docs[did].islocked) {
+      lockEditor();
+    } else {
+      unlockEditor();
+    }
+
     prepareDocContextualButton(did);
 
     //set new did active
@@ -6577,6 +6655,7 @@ window.addEventListener('dragend', handleDragEnd, false);
 window.addEventListener('dragleave', handleDragLeave, false);
 window.addEventListener('dragover', handleDragOver, false);
 document.getElementById('docs-page-wrap').addEventListener('drop', handleAttachmentDrop, false);
+document.getElementById('all-active-folder-docs').addEventListener('drop', handleFileDrop, false);
 
 function isAPIAvailable() {
   // Check for the various File API support.
@@ -6620,35 +6699,50 @@ function handleFileDrop(evt) {
 
   dragCounter = 0;
   somethingDropped = true;
+  
+  var targetFolder, targetfid;
+  
+  if ($(evt.target).parents(".afolder")) {
+    targetFolder = $(evt.target).parents(".afolder");
+    targetFolder.removeClass("fileDropFolder");
+    targetfid = targetFolder.attr("id");
+  } 
+  
+  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+    targetfid = activeFolderID;
+    $("#all-active-folder-docs").removeClass("fileDropFolder"); 
+  }
+  
+  if (targetfid) {   
 
-  var targetFolder = $(evt.target).parents(".afolder");
-  targetFolder.removeClass("fileDropFolder");
-  var targetfid = targetFolder.attr("id");
+    if (isAPIAvailable()) {
 
-  if (isAPIAvailable()) {
+      if (connectivityMode) {
 
-    if (connectivityMode) {
+        var files = evt.dataTransfer.files;
 
-      var files = evt.dataTransfer.files;
+        numFilesLeftToBeUploaded = 0;
+        fileUploadError = false;
 
-      numFilesLeftToBeUploaded = 0;
-      fileUploadError = false;
+        for (var i = 0; i < files.length; i++) {
+          processDroppedFile(files[i], targetfid);
+          numFilesLeftToBeUploaded++;
+        }
 
-      for (var i = 0; i < files.length; i++) {
-        processDroppedFile(files[i], targetfid);
-        numFilesLeftToBeUploaded++;
+        if (numFilesLeftToBeUploaded > 0) {
+          var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
+          showFileUploadStatus("is-light", processingMessage);
+        }
+
+      } else {
+        showFileUploadStatus("is-danger", "Unfortunately this feature is only available when you're online.");
       }
-
-      if (numFilesLeftToBeUploaded > 0) {
-        var processingMessage = "Processing <b>" + numFilesLeftToBeUploaded.toString() + "</b> file(s)";
-        showFileUploadStatus("is-light", processingMessage);
-      }
-
     } else {
-      showFileUploadStatus("is-danger", "Unfortunately this feature is only available when you're online.");
+      showFileUploadStatus("is-danger", "Unfortunately your browser or device does not support File API, which is what allows us to encrypt files on your device. Therefore we can't upload your file.");
     }
+
   } else {
-    showFileUploadStatus("is-danger", "Unfortunately your browser or device does not support File API, which is what allows us to encrypt files on your device. Therefore we can't upload your file.");
+    showFileUploadStatus("is-info", "You can drop files onto your folders to upload.");
   }
 
 }
@@ -6663,7 +6757,8 @@ function handleFileSelect(evt) {
   var targetFolder = $(evt.target).parents(".afolder");
   targetFolder.removeClass("fileDropFolder");
   var targetfid = targetFolder.attr("id");
-
+  $("#all-active-folder-docs").removeClass("fileDropFolder");
+  
   if (isAPIAvailable()) {
 
     if (connectivityMode) {
@@ -6709,7 +6804,10 @@ function handleDragEnter(evt) {
       } else {
         menuBeforeDrag = true;
       }
-      $("#folders-button").click();
+
+      if (activeFolderID === "root") {
+        $("#folders-button").click();
+      }
     }
   }
 
@@ -6721,6 +6819,10 @@ function handleDragEnter(evt) {
   if (afolder.has(evt.target).length !== 0) {
     var targetFolder = $(evt.target).parents(".afolder");
     targetFolder.removeClass("fileDropFolder");
+  }
+
+  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+    $("#all-active-folder-docs").removeClass("fileDropFolder"); 
   }
 }
 
@@ -6742,6 +6844,9 @@ function handleDragLeave(evt) {
     var targetFolder = $(evt.target).parents(".afolder");
     targetFolder.removeClass("fileDropFolder");
   }
+  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+    $("#all-active-folder-docs").removeClass("fileDropFolder"); 
+  }
 }
 
 
@@ -6752,6 +6857,9 @@ function handleDragEnd(evt) {
   if (afolder.has(evt.target).length !== 0) {
     var targetFolder = $(evt.target).parents(".afolder");
     targetFolder.removeClass("fileDropFolder");
+  }
+  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+    $("#all-active-folder-docs").removeClass("fileDropFolder"); 
   }
 }
 
@@ -6764,6 +6872,9 @@ function handleDragOver(evt) {
     var targetFolder = $(evt.target).parents(".afolder");
     targetFolder.addClass("fileDropFolder");
   }
+  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+    $("#all-active-folder-docs").addClass("fileDropFolder"); 
+  }
 }
 
 function showFileUploadInfo(evt) {
@@ -6775,6 +6886,7 @@ function showFileUploadInfo(evt) {
 
     if ($(".afolder").length > 0) {
       $('.afolder').addClass("fileDropFolder");
+      $("#all-active-folder-docs").addClass("fileDropFolder");
 
       showFileUploadStatus("is-info", "You can drop files onto your folders to upload.");
       setTimeout(function () {
@@ -6783,12 +6895,15 @@ function showFileUploadInfo(evt) {
 
       setTimeout(function () {
         $('.afolder').removeClass("fileDropFolder");
+        $("#all-active-folder-docs").removeClass("fileDropFolder");
       }, 250);
       setTimeout(function () {
         $('.afolder').addClass("fileDropFolder");
+        $("#all-active-folder-docs").addClass("fileDropFolder");
       }, 500);
       setTimeout(function () {
         $('.afolder').removeClass("fileDropFolder");
+        $("#all-active-folder-docs").removeClass("fileDropFolder");
       }, 750);
 
     } else {

@@ -3251,10 +3251,11 @@ body.draggingStuff {
   width: 88px !important;
 }
 
-.ql.formats button {
+.ql-formats button {
   box-shadow: none;
   outline: none;
 }
+
 .ql-picker-label {
   box-shadow: none;
   outline: none;
@@ -3624,6 +3625,7 @@ body.draggingStuff {
 }
 
 .mobile-floating-tools{
+  filter: blur(0);
   transition: ease-in-out 0.3s all;
   width: auto;
 }

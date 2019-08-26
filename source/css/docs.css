@@ -1454,6 +1454,7 @@ body:not(.viewing-mode) #webclips-button.shown {
   margin-left: 0.5rem;
   border-top-left-radius: 0px;
   margin-top: 0;
+  position: relative;
 }
 
 #all-active-folder-docs .doc {
@@ -1462,6 +1463,30 @@ body:not(.viewing-mode) #webclips-button.shown {
 
 #all-active-folder-docs .doc .icon:not(.docctx) {
   margin-right: calc(0.5rem + 1px);
+}
+
+#all-active-folder-docs::after {
+  content: "Drop your files here to upload them to this folder";
+  background-color: rgba(255,255,255,0.9);
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 1rem);
+  height: calc(100% - 1rem);
+  padding: 50% 1rem;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px #000 dashed;
+  border-radius: 10px;
+  margin: 0.5rem;
+  transition: 0.3s opacity ease;
+  opacity: 0;
+}
+
+#all-active-folder-docs.fileDropFolder::after {
+  opacity: 1;
 }
 
 #sort-active-folder-button {
@@ -1617,7 +1642,7 @@ body:not(.viewing-mode) #webclips-button.shown {
 
 
 /*///////////////////////////////////////////////////
-//////////////////  VIEWING MODE  //////////////////////
+//////////////////  VIEWING MODE  ///////////////////
 ///////////////////////////////////////////////////*/
 
 body.viewing-mode .no-print,
@@ -1672,6 +1697,55 @@ body.viewing-mode .ql-editor * {
   line-height: 160% !important;
 }
 
+/*///////////////////////////////////////////////////
+//////////////////  EDITS LOCKED  ///////////////////
+///////////////////////////////////////////////////*/
+
+#editor-toolbar .ql-formats {
+  filter: blur(0px);
+  transition: 1s filter ease;
+}
+
+body.edits-locked #editor-toolbar .ql-formats {
+  pointer-events: none !important;
+  filter: blur(4px);
+}
+
+#docs-center-wrap::before {
+  content: "locked";
+  font-family: "Montserrat";
+  letter-spacing: 1px;
+  font-size: 12px;
+  position: absolute;
+  top: 0.4rem;
+  right: 0;
+  left: 0;
+  width: 88px;
+  margin: auto;
+  background: #000;
+  padding: 0.5rem 1.5rem;
+  color:#FFF;
+  border-radius: 3rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  pointer-events: none;
+  transition: 0.5s opacity ease, 0.5s transform ease;
+}
+
+body.edits-locked #docs-center-wrap::before {
+  content: "locked";
+  opacity: 1;
+  transform: translateY(0);
+  cursor: pointer;
+  z-index: 99;
+}
+
+body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
+#docs-center-wrap.is-loading::before {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
 
 /*///////////////////////////////////////////////////
 ////////////////  BREAKPOINTS  //////////////////////
@@ -1855,6 +1929,12 @@ body.viewing-mode .ql-editor * {
     top: 4px;
     right: 24px;
   }
+
+  body.edits-locked .mobile-floating-tools {
+    pointer-events: none !important;
+    opacity: 0;
+  }
+
 }
 
 
