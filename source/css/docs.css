@@ -1,3 +1,50 @@
+/*///////////////////////////////////////////////////
+////////////////////// EDITOR FONTS /////////////////
+///////////////////////////////////////////////////*/
+
+/* alef-regular - latin_hebrew */
+@font-face {
+  font-family: 'Alef';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Alef Regular'), local('Alef-Regular'),
+  url('../fonts/alef-v11-latin_hebrew-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+  url('../fonts/alef-v11-latin_hebrew-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* alef-700 - latin_hebrew */
+@font-face {
+  font-family: 'Alef';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Alef Bold'), local('Alef-Bold'),
+  url('../fonts/alef-v11-latin_hebrew-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+  url('../fonts/alef-v11-latin_hebrew-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* markazi-text-regular - vietnamese_latin_latin-ext_arabic */
+@font-face {
+  font-family: 'Markazi Text';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''),
+       url('../fonts/markazi-text-v6-vietnamese_latin_latin-ext_arabic-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/markazi-text-v6-vietnamese_latin_latin-ext_arabic-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* markazi-text-600 - vietnamese_latin_latin-ext_arabic */
+@font-face {
+  font-family: 'Markazi Text';
+  font-style: normal;
+  font-weight: 600;
+  src: local(''),
+       url('../fonts/markazi-text-v6-vietnamese_latin_latin-ext_arabic-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('../fonts/markazi-text-v6-vietnamese_latin_latin-ext_arabic-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/*///////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+///////////////////////////////////////////////////*/
+
 /* QUILL OVERRIDES */
 
 .ql-stroke, .ql-stroke-miter {
@@ -2031,11 +2078,6 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
   }
 
   #sort-active-folder-button:hover {
-    opacity: 1;
-  }
-
-  .active-folder.foldertab:hover + #all-active-folder-docs::before,
-  .active-folder.foldertab:hover+#all-active-folder-docs::after {
     opacity: 1;
   }
 

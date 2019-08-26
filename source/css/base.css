@@ -3296,6 +3296,10 @@ body.draggingStuff {
   margin-top: 1px;
 }
 
+.ql-font .ql-picker-label::before {
+  margin-top: 1px;
+}
+
 .ql-snow.ql-toolbar button {
   height: 22px !important;
   width: 22px !important;

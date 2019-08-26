@@ -397,7 +397,7 @@ var quillhandlers = {
 };
 
 
-var fonts = ['Arial', 'Courier', 'Georgia', 'Montserrat', 'Tahoma', 'Times New Roman', 'Verdana'];
+var fonts = ['Alef', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Markazi', 'Montserrat', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
 var fontNames = [];
 var fontStyles = "";
 var fontOptions = "";
