@@ -858,7 +858,8 @@ if (location.origin.indexOf("beta.crypt.ee") !== -1) { sentryEnv = "beta"; }
 
 try {
   Sentry.init({
-    dsn: 'https://bbfa9a3a54234070bc0899a821e613b8@sentry.io/149319',
+    dsn: 'https://bbfa9a3a54234070bc0899a821e613b8@sentry.crypt.ee/149319',
+    maxBreadcrumbs: 250,
     release: latestDeployVersion,
     environment: sentryEnv,
     ignoreErrors: [

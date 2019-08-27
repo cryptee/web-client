@@ -3283,7 +3283,7 @@ body.draggingStuff {
 }
 
 
-.ql-picker.ql-font .ql-picker-options span[data-value=markazi]::before {
+.ql-picker.ql-font .ql-picker-options span[data-value=markazi]::before, .ql-picker-label[data-value=markazi] {
   font-size: 16px;
 }
 
