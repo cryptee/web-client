@@ -1007,7 +1007,7 @@ try {
 } catch (e) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
-    handleError("Problem initializing openpgp in main js, failed in try/catch.", e);
+    handleError("Problem initializing openpgp in main js, failed in try/catch.", e, "warning");
   }
 }
 
@@ -1015,7 +1015,7 @@ try {
 if (!openpgp) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js.");
-    handleError("Problem initializing openpgp in main js, openpgp is undefined.", {});
+    handleError("Problem initializing openpgp in main js, openpgp is undefined.", {}, "warning");
   }
 } else {
   var openpgpversion = openpgp.config.versionstring.split("v")[1];

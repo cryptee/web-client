@@ -638,34 +638,75 @@ function fixFile (pidOrTid) {
     handleError('Photo/Thumb with undefined id not found, trying to fix');
   }
 
-  doesTheOriginalExist(pidOrTid, function(originalLost){
+  doesTheOriginalExist(pidOrTid, function(originalLost, originalURL){
+    originalURL = originalURL || "";
     if (originalLost) {
       // ORIGINAL FILE LOST. DELETE BOTH THUMB AND ORIGINAL.
       handleError("Photo doesn't have original. Will sadly purge.", {"id":pidOrTid});
       sadlyPurgeFile(pidOrTid);
     } else {
       // ORIGINAL FILE EXISTS, LET'S CHECK IF THUMBNAIL IS MISSING.
-      doesTheThumbnailExist(pidOrTid, function(thumbLost){
+      doesTheThumbnailExist(pidOrTid, function(thumbLost, thumbURL){
+        thumbURL = thumbURL || "";
         if (thumbLost) {
           handleError("Thumb was missing, but found the original. Will try to regenerate.", {"id":pidOrTid});
-
+          
           // THUMB IS MISSING, REGENERATE THUMBNAIL.
           // mimic the upload phase, but first download original, use generateThumbnail and go through the whole spiel to make it work from scratch.
           // this will definitely be more extensive than the original uploader.
+
+          // gotURL(originalURL, function(decryptedOriginalsB64){
+
+              // YOU ALSO NEED TO CHECK IF THE PHOTO IS A GIF OR NOT. GIFS DONT HAVE LIGHTBOX IMAGES. 
+
+          // });
+
+          
         } else {
           // WTF. ALL IS GOOD. SOMETHING'S OFF.
         }
       });
     }
   });
+
+  function gotURL(downloadURL, callback, callbackParam) {
+    callback = callback || noop;
+    $.ajax({ url: downloadURL, type: 'GET',
+      success: function(encryptedPhoto){ 
+        gotEncryptedPhoto(encryptedPhoto, callback, callbackParam); 
+      },
+      error:function (xhr, ajaxOptions, thrownError){ 
+        err("Error downloading photo during bulk download.", thrownError); 
+      }
+    });
+  }
+
+  function gotEncryptedPhoto(encryptedPhoto, callback, callbackParam) {
+    callback = callback || noop;
+    var encryptedB64 = JSON.parse(encryptedPhoto).data;
+    decrypt(encryptedB64, [theKey]).then(function(plaintext) {
+      var decryptedPhoto = plaintext.data;
+      callback(decryptedPhoto, callbackParam);
+    }).catch(function (error) {
+      err("Error decrypting photo during bulk download."); 
+    });
+  }
+
+  function err(msg, err) {
+    err = err || {};
+    err.pid = pid;
+    handleError(msg, err);
+    callback(callbackParam); // something didn't work, sadly skip and continue. 
+  } 
+
 }
 
 function doesTheOriginalExist(pid, callback) {
-  var fileRef = rootRef.child(pid.replace("t","p") + ".crypteefile");
+  var fileRef = rootRef.child(pid.replace("t","p").replace("l","p") + ".crypteefile");
   fileRef.getDownloadURL().then(function(url) {
       // just to check if it exists. not really going to use it.
       originalLost = false;
-      callback(originalLost);
+      callback(originalLost, url);
   }).catch(function(error) {
     if (error.code === 'storage/object-not-found') {
       originalLost = true;
@@ -674,12 +715,26 @@ function doesTheOriginalExist(pid, callback) {
   });
 }
 
+function doesTheLightboxExist(pid, callback) {
+  var fileRef = rootRef.child(pid.replace("p","l").replace("t","l") + ".crypteefile");
+  fileRef.getDownloadURL().then(function(url) {
+      // just to check if it exists. not really going to use it.
+      lightboxLost = false;
+      callback(lightboxLost, url);
+  }).catch(function(error) {
+    if (error.code === 'storage/object-not-found') {
+      lightboxLost = true;
+      callback(lightboxLost);
+    }
+  });
+}
+
 function doesTheThumbnailExist(tid, callback) {
-  var fileRef = rootRef.child(tid.replace("p","t") + ".crypteefile");
+  var fileRef = rootRef.child(tid.replace("p","t").replace("l","t") + ".crypteefile");
   fileRef.getDownloadURL().then(function(url) {
       // just to check if it exists. not really going to use it.
       thumbLost = false;
-      callback(thumbLost);
+      callback(thumbLost, url);
   }).catch(function(error) {
     if (error.code === 'storage/object-not-found') {
       thumbLost = true;
@@ -2893,8 +2948,11 @@ function renderDOMElement (id){
       handleError("User has a non-photo/non-folder item", {"id": id});
     }
   } else {
-    handleError("User has an item that's not in activeItemsObject", {"id": id});
-    // somehow item isn't in activeItemsObject. wtf. soooo not adding. since it's better than crashing. but wtf. 
+    // if user has scrolled too far down, then goes back to home or to another folder, 
+    // and quickly scrolls up or down before the titles of the new folder are loaded, what will happen is that 
+    // while the new folder is loading, @ onEntryAndExit, we'll call renderDOMElement with an ID of a DOM shell from the DOM from the previous folder user navigated away from,
+    // and because we're loading the new folder this ID isn't in activeItemsObject anymore, so now we'll have a renderDOMElement with an ID that's not in activeItemsObject anymore.
+    // A mystery that is at least 6 months old. Case closed. boom.  
   }
 
   return domElement;
@@ -2942,7 +3000,7 @@ function renderDOMShell (id) {
       // wtf. neither photo nor folder.
     }
   } else {
-    handleError("User has an item that's not in activeItemsObject", {"id": id});
+    handleError("User has an item that's not in activeItemsObject @DOMShell", {"id": id});
     // somehow item isn't in activeItemsObject. wtf. soooo not adding. since it's better than crashing. but wtf. 
   }
 
