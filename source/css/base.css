@@ -6218,37 +6218,10 @@ body.draggingStuff {
     text-align:left !important;
   }
 
-  .contact-card, #contacts-list {
-    margin-bottom: 1rem !important;
-  }
-
   sr-folder {
     width: calc(100% - 2rem);
     margin-right: 1rem;
     margin-left: 1rem;
-  }
-
-  #contacts-wrap{
-    height: calc(100% - 95px);
-    max-height: 100%;
-    border: 0;
-  }
-
-  #contacts, #contact-details {
-    padding: 0;
-    height: 100%;
-  }
-
-  #contact-details {
-    display: none;
-  }
-
-  #contacts-list, .contacts-hero, .contacts-hero-body{
-    height: 100%;
-  }
-
-  .contacts-body {
-    height: 100vh;
   }
 
   .settings-top-right {
