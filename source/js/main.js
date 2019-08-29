@@ -1285,6 +1285,11 @@ if (isAndroid) {
   $(".is-in-chrome").hide();
 }
 
+if (isAndroid && isFirefox) {
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1456557
+  // seriously. yeah. seriously firefox. WTF. 
+  $('input[type="file"]').removeAttr("multiple");
+}
 
 ///////////////////////////////////////////
 ////// SEARCH RELATED HELPER FUNCTIONS ////

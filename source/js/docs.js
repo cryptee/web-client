@@ -3259,7 +3259,13 @@ function appendFolder (folder, fid){
 
   var uploadButton = '';
   if (isAPIAvailable()) {
-    uploadButton = '<input class="folder-upload-input" type="file" id="upload-to-'+fid+'" name="files[]" multiple />';
+    if (isAndroid && isFirefox) {
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1456557
+      // seriously. yeah. seriously firefox. WTF. 
+      uploadButton = '<input class="folder-upload-input" type="file" id="upload-to-'+fid+'" name="files[]" />';
+    } else {
+      uploadButton = '<input class="folder-upload-input" type="file" id="upload-to-'+fid+'" name="files[]" multiple />';
+    }
   }
 
   if (fopen) { openClass = ""; hiddenClass = "";} else { openClass = "collapsed"; hiddenClass = "display:none;";}

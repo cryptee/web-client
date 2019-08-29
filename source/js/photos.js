@@ -1621,7 +1621,7 @@ function queueUpload(file, fid, predefinedPID, callback, callbackParam) {
     // then check total size of uploadList, and calculate how much memory would be needed
     // then decide how many photos should be uploaded simultaneously. Currently it's 1. 
     // And they use a shared canvas for memory optimization while generating thumbnails.
-
+    breadcrumb('[Upload] – Starting upload with ' + uploadList.length + ' files');
     nextUpload(callback, callbackParam); // starts upload with first file
   }, 100);
 }
@@ -1663,14 +1663,16 @@ function nextUpload(callback, callbackParam) {
           uploadList[index].processed = true;
           numFilesLeftToBeUploaded--;
           fileUploadError = true;
+          var formattedSize = formatBytes(upload.file.size);
           uploadElem =
           '<div class="upload" id="upload-'+slugify(upload.file.name)+'-'+upload.file.size+'">'+
             '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
             '<p class="deets fn">'+upload.file.name+'</p>'+
-            '<p class="deets fs">Too Large (' + formatBytes(upload.file.size) + ')</p>'+
+            '<p class="deets fs">Too Large (' + formattedSize + ')</p>'+
           '</div>';
           $("#upload-status-contents").append(uploadElem);
           document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
+          breadcrumb('[Upload] – File too large (' + formattedSize +'). Skipping');
         }
         // if file is too large or too many files uploading skip and wait until next round.
       }
@@ -1717,11 +1719,12 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
         '<div class="upload" id="upload-'+slugify(file.name)+'-'+file.size+'">'+
           '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
           '<p class="deets fn">'+file.name+'</p>'+
-          '<p class="deets fs">(Error)</p>'+
+          '<p class="deets fs">(Unsupported)</p>'+
         '</div>';
         $("#upload-status-contents").append(uploadElem);
         isUploading = false; // allows next file to go through.
         // this allows users to quit the uploader if they only dragged a PDF or sth. that isn't supported.
+        breadcrumb('[Upload] – Unsupported Format (' + fileExt +'). Skipping');
         if (numFilesLeftToBeUploaded <= 0) {
           showFileUploadStatus("is-danger", "Some of your files were not uploaded.<br><br><a class='button is-light' onclick='hideFileUploadStatus();'>Close</a>");
           uploadCompleteResetUploaderState();
@@ -1731,8 +1734,13 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
         }
       }
     } catch (e) {
-      // commenting out this error since it just causes anxiety for corrupted files
-      // if (base64FileContents) { handleError("Error reading photo in processPhotoForUpload",e); }
+      if (base64FileContents === null) {
+        breadcrumb('[Upload] – Error Reading File. File is NULL. Skipping.');
+        // This seems to happen on Firefox Android if user selects multiple images to upload. WTF.
+      } else {
+        breadcrumb('[Upload] – Error Reading File. (' + e + ') Skipping.');
+      }
+      
       fileUploadError = true;
       uploadElem =
       '<div class="upload" id="upload-'+slugify(file.name)+'-'+file.size+'">'+
@@ -1750,6 +1758,7 @@ function processPhotoForUpload (file, fid, predefinedPID, callback, callbackPara
     numFilesLeftToBeUploaded--;
     numFilesUploading--;
     fileUploadError = true;
+    breadcrumb('[Upload] – Error Reading File. Skipping');
     document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
     if (canUploadFolders) {
       handleError("Error reading photo in processPhotoForUpload", err, "warning");
@@ -3234,7 +3243,7 @@ function sortItemsObject (sorttype) {
 }
 
 function extensionFromFilename (filename) {
-  return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+  return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
 }
 
 function titleFromFilename (filename) {
