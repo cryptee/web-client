@@ -1289,6 +1289,10 @@ if (isAndroid && isFirefox) {
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1456557
   // seriously. yeah. seriously firefox. WTF. 
   $('input[type="file"]').removeAttr("multiple");
+  breadcrumb('Detected Firefox on Android. Multiple file selections for input elements will be disabled.');
+  setSentryTag("input-multiple-upload", "disabled");
+} else {
+  setSentryTag("input-multiple-upload", "enabled");
 }
 
 ///////////////////////////////////////////
