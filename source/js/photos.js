@@ -1684,7 +1684,7 @@ function nextUpload(callback, callbackParam) {
 
 function uploadRetryFailed (pidOrTid, callback, callbackParam) {
   callback = callback || noop;
-  var pid = pidOrTid.replace("t","p");
+  var pid = pidOrTid.replace("t","p").replace("l","p");
   uploadList.forEach(function(upload, index) {
     if (upload.pid === pid) {
       uploadList[index].processed = false;
@@ -2046,40 +2046,55 @@ function handleUploadError (pid, filename, error, callback, callbackParam) {
 }
 
 function photoUploadComplete (fid, pid, dominant, thumbnail, filename, exifDate, callback, callbackParam) {
-  breadcrumb('[Upload] (' + pid + ') Photo & thumbs uploaded.');
+  if (pid) {    
+    breadcrumb('[Upload] (' + pid + ') Photo & thumbs uploaded.');
 
-  $("#upload-"+pid).remove();
-  activeUploads[pid].original = null;
-  activeUploads[pid].thumbnail = null;
-  activeUploads[pid].lightbox = null;
-  activeUploads[pid] = null;
+    $("#upload-"+pid).remove();
+    if (activeUploads[pid]) {
+      try { activeUploads[pid].original = null;   } catch (error) {} 
+      try { activeUploads[pid].thumbnail = null;  } catch (error) {} 
+      try { activeUploads[pid].lightbox = null;   } catch (error) {} 
+      activeUploads[pid] = null;
+    }
 
-  callback = callback || noop;
-  callbackParam = callbackParam || pid;
-  var photoObject = { "id" : pid, "pinky" : dominant };
-  if (exifDate) { if (exifDate !== "") { 
-    photoObject.date  = exifDate;
-    try { photoObject.year  = exifDate.split(":")[0] || "";               } catch (error) {} 
-    try { photoObject.month = exifDate.split(":")[1] || "";               } catch (error) {} 
-    try { photoObject.day   = exifDate.split(":")[2].split(" ")[0] || ""; } catch (error) {} 
-    try { photoObject.time  = exifDate.split(' ')[1] || "";               } catch (error) {} 
-  } } // "YYYY:MM:DD HH:MM:SS" 
-  var whereTo;
+    callback = callback || noop;
+    callbackParam = callbackParam || pid;
+    var photoObject = { "id" : pid, "pinky" : dominant };
+    if (exifDate) { if (exifDate !== "") { 
+      photoObject.date  = exifDate;
+      try { photoObject.year  = exifDate.split(":")[0] || "";               } catch (error) {} 
+      try { photoObject.month = exifDate.split(":")[1] || "";               } catch (error) {} 
+      try { photoObject.day   = exifDate.split(":")[2].split(" ")[0] || ""; } catch (error) {} 
+      try { photoObject.time  = exifDate.split(' ')[1] || "";               } catch (error) {} 
+    } } // "YYYY:MM:DD HH:MM:SS" 
+    var whereTo;
 
-  if (fid === "home") {
-    whereTo = homeRef.doc(pid);
+    if (fid === "home") {
+      whereTo = homeRef.doc(pid);
+    } else {
+      whereTo = homeRef.doc(fid).collection("photos").doc(pid);
+    }
+
+    breadcrumb('[Upload] (' + pid + ') Saving to DB.');
+    whereTo.set(photoObject, {
+      merge: true
+    }).then(function(response) {
+      uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename, callback, callbackParam);
+    }).catch(function(error) {
+      console.error("Error saving uploaded photo: ", error);
+      handleError("Error setting uploaded photo to firestore in photoUploadComplete", error);
+      var uploadElem =
+      '<div class="upload" id="upload-'+pid+'">'+
+        '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
+        '<p class="deets fn">'+filename+'</p>'+
+        '<p class="deets fs">(Error)</p>'+
+      '</div>';
+      $("#upload-status-contents").append(uploadElem);
+      isUploading = false; // allows next file to go through.
+      nextUpload(callback, callbackParam);
+    });
   } else {
-    whereTo = homeRef.doc(fid).collection("photos").doc(pid);
-  }
-
-  breadcrumb('[Upload] (' + pid + ') Saving to DB.');
-  whereTo.set(photoObject, {
-    merge: true
-  }).then(function(response) {
-    uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename, callback, callbackParam);
-  }).catch(function(error) {
-    console.error("Error saving uploaded photo: ", error);
-    handleError("Error setting uploaded photo to firestore in photoUploadComplete", error);
+    handleError("Missing PID @ photoUploadComplete", error);
     var uploadElem =
     '<div class="upload" id="upload-'+pid+'">'+
       '<progress class="progress is-small is-danger" value="100" max="100"></progress>'+
@@ -2089,8 +2104,7 @@ function photoUploadComplete (fid, pid, dominant, thumbnail, filename, exifDate,
     $("#upload-status-contents").append(uploadElem);
     isUploading = false; // allows next file to go through.
     nextUpload(callback, callbackParam);
-  });
-
+  }
 }
 
 function uploadCompleteUpdateFirestore (fid, pid, dominant, thumbnail, filename, callback, callbackParam) {
@@ -2235,17 +2249,15 @@ function getThumbnail (pid, fid) {
         activeItemsObject[id].tidreq = tidrequest;
       }
     }).catch(function(error) {
-      var errorText;
+      
       if (tid.indexOf("l-") === -1) {
-        handleError("Error getting photo URL", error);
+        error = error || {};
+        error.tid = tid;
+        handleError("Error getting thumbnail URL", error);
       }
+
       switch (error.code) {
         case 'storage/object-not-found':
-          errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support. We're terribly sorry about this.";
-          // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
-          // Chances are we've got a problem.
-          // TODO : ERROR DISPLAYING
-          // showDocProgress(errorText);
           if (tid.indexOf("l-") !== -1) {
             console.log("Tried loading a high-res thumbnail (lightbox size) for", pid ,", but there wasn't one. Falling back to regular size.");
             var regularSizeID = tid.replace("l-", "t-");
@@ -2255,12 +2267,6 @@ function getThumbnail (pid, fid) {
           }
           break;
         case 'storage/unauthorized':
-          errorText = "Seems like this file doesn't exist or you don't have permission to open this doc. We're not sure how this happened.<br> Please try again shortly, or contact our support. We're terribly sorry about this.";
-          // File or doc doesn't exist at all ~ shit. alright let's try to repair things.
-          // Chances are we've got a problem.
-          // TODO : ERROR DISPLAYING
-          // showDocProgress(errorText);
-
           if (tid.indexOf("l-") !== -1) {
             console.log("Tried loading a high-res thumbnail (lightbox size) for", pid ,", but there wasn't one. Falling back to regular size.");
             var regSizeID = tid.replace("l-", "t-"); // using regSizeID to make linter happy
@@ -2271,14 +2277,8 @@ function getThumbnail (pid, fid) {
           
           break;
         case 'storage/canceled':
-          // TODO : ERROR DISPLAYING
-          errorText = "A strange error happened while trying to load this file. It might be because you may have closed your browser while this doc was being saved";
-          // showDocProgress(errorText);
           break;
         case 'storage/unknown':
-          // TODO : ERROR DISPLAYING
-          errorText = "We can't seem to load this file. It's a mystery why. Somehow our servers are acting. Please try again shortly, or contact our support. We're terribly sorry about this.";
-          // showDocProgress(errorText);
           break;
       }
     });
@@ -3105,7 +3105,7 @@ window.addEventListener('popstate', function(e) {
   // this is to make sure we have a user before calling this function.
   // otherwise getAllFilesOfFolder will get called before auth is complete, and tons of shit will be undefined.
   
-  if (theUser) { 
+  if (theUser && theKey) { 
     var id = e.state;
     if ($("#lightbox-modal").hasClass("is-active")) {
       closeLightbox();
@@ -4079,9 +4079,9 @@ function deleteSelections() {
         }).catch(function(err){});
       }).catch(function(error) {
         if (error.code === "storage/object-not-found") {
-          thumbRef.delete();
-          whereFrom.delete();
-          lightRef.delete();
+          thumbRef.delete().catch(function(err){});
+          lightRef.delete().catch(function(err){});
+          whereFrom.delete().catch(function(err){});
           areDeletionsComplete(pid, isFolderThumbDeleted);
         } else {
           error.pid = pid;

@@ -6385,11 +6385,16 @@ body.draggingStuff {
     display: none !important;
   }
 
+  #error-bubble, .error-bubble-details {
+    height: auto;
+    max-height: 7rem;
+  }
+  
   #error-bubble.errored {
-    max-width: calc(100% - 2rem);
+    max-width: calc(100% - 3rem);
   }
   #got-connection.connected {
-    max-width: calc(100% - 2rem);
+    max-width: calc(100% - 3rem);
   }
 
   #no-offline-docs-to-show .notification {

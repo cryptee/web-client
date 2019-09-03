@@ -368,34 +368,34 @@ function hideReauthPopup () {
 }
 
 function showReauthPopup(color, message){
-  $("#change-pass-button").removeClass('loading disabled');
-  $("#change-key-button").removeClass('loading disabled');
+  $("#change-pass-button").removeClass('is-loading disable-clicks');
+  $("#change-key-button").removeClass('is-loading disable-clicks');
   $("#reauth-error").html('<button class="delete" onclick="hideReauthPopup();"></button>' + message);
   $("#reauth-error").removeClass("is-warning is-success is-info is-danger").addClass(color).fadeIn(500);
 }
 
 function reauthForPass (){
-  $("#change-pass-button").addClass('loading disabled');
+  $("#change-pass-button").addClass('is-loading disable-clicks');
   var currentPass = $("#currentpass").val();
   var credential = firebase.auth.EmailAuthProvider.credential(theUser.email, currentPass);
   reauthenticated = true;
   theUser.reauthenticateAndRetrieveDataWithCredential(credential).then(function() {
     changePassword();
   }, function(error) {
-    $("#change-pass-button").removeClass('loading disabled');
+    $("#change-pass-button").removeClass('is-loading disable-clicks');
     showReauthPopup("is-warning", "Please check your current password and try again.");
   });
 }
 
 function reauthForEmail (){
-  $("#change-email-button").addClass('loading disabled');
+  $("#change-email-button").addClass('is-loading disable-clicks');
   var currentPass = $("#currentpass-email").val();
   var credential = firebase.auth.EmailAuthProvider.credential(theUser.email, currentPass);
   reauthenticated = true;
   theUser.reauthenticateAndRetrieveDataWithCredential(credential).then(function() {
     changeEmail();
   }, function(error) {
-    $("#change-email-button").removeClass('loading disabled');
+    $("#change-email-button").removeClass('is-loading disable-clicks');
     showReauthPopup("is-warning", "Please check your current password and try again.");
   });
 }

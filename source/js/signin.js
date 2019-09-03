@@ -208,7 +208,6 @@ function signin(token){
     var password = $("#signin-pass").val();
     firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
       var errorCode = error.code;
-      var errorMessage = error.message;
       if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-email') {
         $("#wrong-password").fadeIn(500);
       } else if (errorCode === 'auth/user-disabled'){
@@ -240,7 +239,6 @@ function signin(token){
         $("#other-error").fadeIn(500);
         $("#signin-button").removeClass('is-loading').prop('disabled', false);
       }
-      console.log(error);
     });
   }
 

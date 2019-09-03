@@ -259,18 +259,20 @@ var MarkdownShortcuts = function () {
           _this.quill.setSelection(startIndex + 2, Quill.sources.SILENT);
         }, 0);
       }
-    }, {
-      name: 'asterisk-ul',
-      pattern: /^(\*|\+)\s$/g,
-      action: function action(text, selection, pattern) {
-        setTimeout(function () {
-          if (!_this.quill.getFormat()['code-block']) {
-            _this.quill.formatLine(selection.index, 1, 'list', 'unordered');
-            _this.quill.deleteText(selection.index - 2, 2);
-          }
-        }, 0);
-      }
-    }, {
+    }, 
+    // {
+    //   name: 'asterisk-ul',
+    //   pattern: /^(\*|\+)\s$/g,
+    //   action: function action(text, selection, pattern) {
+    //     setTimeout(function () {
+    //       if (!_this.quill.getFormat()['code-block']) {
+    //         _this.quill.formatLine(selection.index, 1, 'list', 'unordered');
+    //         _this.quill.deleteText(selection.index - 2, 2);
+    //       }
+    //     }, 0);
+    //   }
+    // }, 
+    {
       name: 'image',
       pattern: /(?:!\[(.+?)\])(?:\((.+?)\))/g,
       action: function action(text, selection, pattern) {

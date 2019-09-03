@@ -471,7 +471,17 @@ if (isMobile) {
   });
 }
 
-quill.clipboard.addMatcher('img', function(node, delta) { return delta; });
+quill.clipboard.addMatcher('img', function(node, delta) { 
+  var src = $(node).attr("src");
+  if (src.startsWith("http:")) {
+    // TODO : CONSIDER ADDING A "PASTE ANYWAY POPUP"
+    breadcrumb('[Clipboard] Detected insecure image element!');
+    showErrorBubble("Pasted image is from an insecure source. For your own safety, please copy paste the image itself.");
+    return {ops : [{insert:""}]};
+  } else {
+    return delta; 
+  }
+});
 quill.clipboard.addMatcher('span', function(node, delta) { return delta; });
 quill.clipboard.addMatcher('div', function(node, delta) { return delta; });
 
