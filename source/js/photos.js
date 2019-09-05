@@ -1098,24 +1098,39 @@ function dateFromEXIF (exifDateString) {
 
 function fancyDate (dateString) {
   var result = null;
+  var months = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  var year, month;
+
   if (dateString) {
-    var months = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-    var year = dateString.split(":")[0].slice(2,4);
-    var month = dateString.split(":")[1];
-    var monthName = months[parseInt(month)];
-    result = (monthName + " " + "&#39;" + year);
+    if (dateString.indexOf(":") !== -1) {
+      // Looks like not every camera manufacturer follows the standards. Some of these splits can throw undefined. [facepalm]
+      try { year = dateString.split(":")[0].slice(2,4); } catch (e) {}
+      try { month = dateString.split(":")[1]; } catch (e) {}
+      if (year && month) {
+        var monthName = months[parseInt(month)];
+        result = (monthName + " " + "&#39;" + year);
+      }
+    }
   }
+  
   return result;
 }
 
 function sortableExifDate (dateString) {
   var result = "00000000";
+  var year = "0000";
+  var month = "00";
+  var day = "00";
   if (dateString) {
-    var year = dateString.split(":")[0];
-    var month = dateString.split(":")[1];
-    var day = dateString.split(":")[2].split(" ")[0];
-    result = year + "" + month + "" + day;
+    if (dateString.indexOf(":") !== -1) {
+      // Looks like not every camera manufacturer follows the standards. Some of these splits can throw undefined. [facepalm]
+      try { year = dateString.split(":")[0] || "0000"; } catch (e) {}
+      try { month = dateString.split(":")[1] || "00"; } catch (e) {}
+      try { day = dateString.split(":")[2].split(" ")[0] || "00"; } catch (e) {}
+      result = year + "" + month + "" + day;
+    }
   }
+  
   return result;
 }
 

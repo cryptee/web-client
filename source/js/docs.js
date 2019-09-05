@@ -9193,14 +9193,14 @@ function makeOfflineDoc(did) {
             },
             error:function (xhr, ajaxOptions, thrownError){
               thrownError.did = did;
-              showErrorBubble("Error getting "+dtitle+" for download", thrownError);
+              showErrorBubble("Couldn't download "+dtitle+". Please try again.", thrownError);
               handleError("Error downloading document to make offline", thrownError);
             }
         });
 
       }).catch(function(err) {
         err.did = did;
-        showErrorBubble("Error getting "+dtitle+" for download", err);
+        showErrorBubble("Couldn't download "+dtitle+". Please try again.", err);
         handleError("Error downloading document to make offline", err);
       });
     });
@@ -9991,7 +9991,7 @@ function hideWebClips() {
       $("#webclips").html("");
     }, 500);
     
-    clearSearch();
+    // clearSearch();
   }
 }
 
