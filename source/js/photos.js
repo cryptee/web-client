@@ -2685,7 +2685,12 @@ function generateThumbnailsAndNecessaryMeta(imgB64, callback) {
     getEXIF(imgB64, function (exif) {
         var orientation;
         if (exif.Orientation) { orientation = exif.Orientation; }
-        if (exif.DateTime) { uploadObject.date = exif.DateTime; } 
+        if (exif.DateTime) { 
+          if (exif.DateTime.indexOf(":") !== -1) {
+            // just to make sure we're not writing something non exif looking here.
+            uploadObject.date = exif.DateTime; 
+          }
+        } 
         // reuse these canvases globally in the interest of saving memory if garbage collection is shittier / slower than expected.
 
         resizedCanvas = resizedCanvas || document.createElement("canvas");
