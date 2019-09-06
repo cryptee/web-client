@@ -473,11 +473,15 @@ if (isMobile) {
 
 quill.clipboard.addMatcher('img', function(node, delta) { 
   var src = $(node).attr("src");
-  if (src.startsWith("http:")) {
-    // TODO : CONSIDER ADDING A "PASTE ANYWAY POPUP"
-    breadcrumb('[Clipboard] Detected insecure image element!');
-    showErrorBubble("Pasted image is from an insecure source. For your own safety, please copy paste the image itself.");
-    return {ops : [{insert:""}]};
+  if (src) {
+    if (src.startsWith("http:")) {
+      // TODO : CONSIDER ADDING A "PASTE ANYWAY POPUP"
+      breadcrumb('[Clipboard] Detected insecure image element!');
+      showErrorBubble("Detected an image from an insecure source. For your own safety, please copy paste the image itself.");
+      return {ops : [{insert:""}]};
+    } else {
+      return delta; 
+    }
   } else {
     return delta; 
   }
@@ -2238,17 +2242,23 @@ function checkDocGeneration (changedDoc) {
   var changedDocumentID = changedDoc.docid;
   var isFile = changedDoc.isfile || false;
 
+  // just to be safe. 
+  catalog.docs[changedDocumentID] = catalog.docs[changedDocumentID] || {};
+
+  var imported = catalog.docs[changedDocumentID].imported;
+
   if (changedDocumentID === activeDocID) {
     if (changedGenerationOnServer !== currentGeneration) {
       // we have an outdated doc. show doc is outdated.
       isDocOutdated = true;
       breadcrumb("Displaying Outdated Doc Warning for " + activeDocID);
-      showGenerationWarning();
+      if (!imported) {
+        showGenerationWarning();
+      } else {
+        catalog.docs[changedDocumentID].imported = null;
+      }
     }
   }
-
-  // just to be safe. 
-  catalog.docs[changedDocumentID] = catalog.docs[changedDocumentID] || {};
 
   // reflect generation changes to dom & catalog
   $(".doc[did='"+changedDocumentID+"']").attr("gen", changedGenerationOnServer / 1000);
@@ -3108,7 +3118,7 @@ function updateLocalCatalog (callback) {
           callback();
         }).catch(function(err) {
           if (err) { 
-            handleError("Error saving to IDB in updateLocalCatalog", error);
+            handleError("Error saving to IDB in updateLocalCatalog", err);
           }
         });
         
@@ -5157,7 +5167,7 @@ function previewController (dtitle, did, decryptedContents, callback, callbackPa
       resetFileViewer = true;
     }
     else if (ext.match(/^(htm|html)$/i)) {
-      importHTMLDocument(dtitle, did, decryptedContents, callback, filesize, callbackParam, null);
+      importHTMLDocument(dtitle, did, decryptedContents, callback, filesize, callbackParam, null, null);
       resetFileViewer = false;
     }
     else if (ext.match(/^(enex)$/i)) {
@@ -5303,8 +5313,10 @@ function setActiveFile(decryptedContents, dtitle, did) {
 
 function displayImageFile (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
   setActiveFile(decryptedContents, dtitle, did);
-
+  
+  $("#file-viewer-sidebyside-button").show();
   $('#file-viewer').addClass("loading-contents");
+  
   setTimeout(function () {
     $("#file-viewer").width("9999");
     $("#file-viewer").height("9999");
@@ -5331,6 +5343,7 @@ function displayPDFNatively (dtitle, did, decryptedContents, callback, filesize,
   decryptedContents = sanitizeB64(decryptedContents);
   setActiveFile(decryptedContents, dtitle, did);
 
+  $("#file-viewer-sidebyside-button").show();
   $('#file-viewer').addClass("loading-contents");
 
   setTimeout(function () {
@@ -5355,6 +5368,7 @@ function displayPDFWithPDFjs (dtitle, did, decryptedContents, callback, filesize
   decryptedContents = sanitizeB64(decryptedContents);
   setActiveFile(decryptedContents, dtitle, did);
 
+  $("#file-viewer-sidebyside-button").show();
   $('#file-viewer').addClass("loading-contents");
 
   setTimeout(function () {
@@ -5388,6 +5402,7 @@ function displayAudioFile (dtitle, did, decryptedContents, callback, filesize, c
   decryptedContents = sanitizeB64(decryptedContents);
   setActiveFile(decryptedContents, dtitle, did);
 
+  $("#file-viewer-sidebyside-button").hide();
   $('#file-viewer').addClass("loading-contents");
 
   setTimeout(function () {
@@ -5414,8 +5429,10 @@ function displayAudioFile (dtitle, did, decryptedContents, callback, filesize, c
 function displayMP4File (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
   decryptedContents = sanitizeB64(decryptedContents);
   setActiveFile(decryptedContents, dtitle, did);
-
+  
+  $("#file-viewer-sidebyside-button").show();
   $('#file-viewer').addClass("loading-contents");
+
   setTimeout(function () {
     $("#file-viewer").width("9999");
     $("#file-viewer").height("9999");
@@ -5444,6 +5461,7 @@ function displayUnsupportedFile (dtitle, did, decryptedContents, callback, files
   var iconClass = extractFromFilename(dtitle, "icon");
   var b64OfFile = decryptedContents.replace("data:", "data:application/octet-stream");
 
+  $("#file-viewer-sidebyside-button").hide();
   $('#file-viewer').addClass("loading-contents");
 
   setTimeout(function () {
@@ -6724,13 +6742,13 @@ function handleFileDrop(evt) {
     targetfid = targetFolder.attr("id");
   } 
   
-  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+  if ($(evt.target).parents("#all-active-folder-docs").length > 0 || $(evt.target).attr("id") === "all-active-folder-docs") {
     targetfid = activeFolderID;
     $("#all-active-folder-docs").removeClass("fileDropFolder"); 
   }
   
   if (targetfid) {   
-
+    
     if (isAPIAvailable()) {
 
       if (connectivityMode) {
@@ -6837,7 +6855,7 @@ function handleDragEnter(evt) {
     targetFolder.removeClass("fileDropFolder");
   }
 
-  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+  if ($(evt.target).parents("#all-active-folder-docs").length > 0 || $(evt.target).attr("id") === "all-active-folder-docs") {
     $("#all-active-folder-docs").removeClass("fileDropFolder"); 
   }
 }
@@ -6860,7 +6878,7 @@ function handleDragLeave(evt) {
     var targetFolder = $(evt.target).parents(".afolder");
     targetFolder.removeClass("fileDropFolder");
   }
-  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+  if ($(evt.target).parents("#all-active-folder-docs").length > 0 || $(evt.target).attr("id") === "all-active-folder-docs") {
     $("#all-active-folder-docs").removeClass("fileDropFolder"); 
   }
 }
@@ -6874,7 +6892,7 @@ function handleDragEnd(evt) {
     var targetFolder = $(evt.target).parents(".afolder");
     targetFolder.removeClass("fileDropFolder");
   }
-  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+  if ($(evt.target).parents("#all-active-folder-docs").length > 0 || $(evt.target).attr("id") === "all-active-folder-docs") {
     $("#all-active-folder-docs").removeClass("fileDropFolder"); 
   }
 }
@@ -6888,7 +6906,7 @@ function handleDragOver(evt) {
     var targetFolder = $(evt.target).parents(".afolder");
     targetFolder.addClass("fileDropFolder");
   }
-  if ($(evt.target).parents("#all-active-folder-docs") || $(evt.target).attr("id") === "all-active-folder-docs") {
+  if ($(evt.target).parents("#all-active-folder-docs").length > 0 || $(evt.target).attr("id") === "all-active-folder-docs") {
     $("#all-active-folder-docs").addClass("fileDropFolder"); 
   }
 }
@@ -7952,6 +7970,9 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
     var enoteContent = enoteJSON['en-export'].note.content;
     var enoteTitle = enoteJSON['en-export'].note.title;
     var enoteResources = enoteJSON['en-export'].note.resource;
+    var enoteUpdated = enoteJSON['en-export'].note.updated;
+    var enoteUpdatedGeneration = enexTimeToGen(enoteUpdated) || null; // this is a js epoch
+
     var $html = $('<div />',{html:enoteContent});
     var contentsForHashes = [];
     var attachments = {};
@@ -7967,7 +7988,6 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
         // not an array so there's only one resource.
         prepareResource(enoteResources);
       }
-
 
       // attachments are in attachments object now. start uploading. then it'll call replace elements
       startUploadingAttachments();
@@ -8087,8 +8107,19 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
 
   function prepCompleteReadyToImport() {
     var rawHTML = $html.html();
-    importHTMLDocument(enoteTitle, did, decryptedContents, callback, docsize, callbackParam, rawHTML);
+    importHTMLDocument(enoteTitle, did, decryptedContents, callback, docsize, callbackParam, rawHTML, enoteUpdatedGeneration);
   }
+}
+
+function enexTimeToGen(enoteTime) {
+  var enoteUpdatedYear = enoteTime.substring(0,4);
+  var enoteUpdatedMonth = enoteTime.substring(4,6);
+  var enoteUpdatedDay = enoteTime.substring(6,8);
+  var enoteUpdatedHour = enoteTime.substring(9,11);
+  var enoteUpdatedMinute = enoteTime.substring(11,13);
+  var enoteUpdatedSecond = enoteTime.substring(13,15);
+  var enoteParsedDate = new Date(enoteUpdatedYear, enoteUpdatedMonth-1, enoteUpdatedDay, enoteUpdatedHour, enoteUpdatedMinute, enoteUpdatedSecond);
+  return enoteParsedDate.getTime();
 }
 
 ///////////////////////////////////////////////////////////
@@ -8097,10 +8128,17 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
 
 // Importer from HTML using (which can import from Bear & Evrnt or anything else HTML)
 
-function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, callbackParam, rawHTML) {
+function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, callbackParam, rawHTML, gen) {
   var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
+  var erroredDecoding = false;
   try {
     rawHTML = rawHTML || decodeBase64Unicode(spacelessDataURI.split(',')[1]);
+  } catch (e) {
+    erroredDecoding = true;
+    errImporting(e);
+  }
+  
+  if (!erroredDecoding) {
     var fid = fidOfDID(did);
 
     quill.setText('\n');
@@ -8125,8 +8163,14 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
     saveDoc(function (){
       // RENAME DOCUMENT AND REMOVE HTML NOW.
       var newDocName = dtitle.replace(/\.html/g, '');
+      var docObj = { "isfile" : false };
+      catalog.docs[did] = catalog.docs[did] || {};
+      catalog.docs[did].imported = true;
+
+      if (gen) { docObj.generation = gen; } // this is the original date from enex file if it exists
       encryptTitle(activeDocID, JSON.stringify(newDocName), function(encryptedTitle){
-        foldersRef.child(fid + "/docs/" + did).update({ "isfile" : false, title : encryptedTitle }, function(){
+        docObj.title = encryptedTitle;
+        foldersRef.child(fid + "/docs/" + did).update(docObj, function(){
           //set doc title in taskbar
           $("#active-doc-title").html(newDocName);
           $("#active-doc-title-input").val(newDocName);
@@ -8135,8 +8179,8 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
 
           updateDocTitleInDOM(activeDocID, newDocName);
 
-          catalog.docs[did] = catalog.docs[did] || {};
           catalog.docs[did].isfile = false;
+          if (gen) { catalog.docs[did].gen = gen; } // this is the original date from enex file if it exists
           updateLocalCatalog();
 
           // now that we've imported the file, and made it a crypteedoc, delete it.
@@ -8151,10 +8195,18 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
 
             callback(callbackParam);
           });
+        }).catch(function(error) {
+          stopLoadingSpinnerOfDoc(did);
+          showErrorBubble("Sorry, can't import file.", error);
+          callback(callbackParam);
         });
       });
     });
-  } catch (e) {
+  } else {
+    errImporting({});
+  }
+
+  function errImporting(e) {
     stopLoadingSpinnerOfDoc(did);
     showErrorBubble("Sorry, can't import file. Are you sure this is an html file?", e);
     callback(callbackParam);
@@ -8170,9 +8222,17 @@ function importHTMLDocument (dtitle, did, decryptedContents, callback, docsize, 
 
 function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, filesize, callbackParam) {
   var spacelessDataURI = decryptedContents.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
+  var erroredDecoding = false;
+  var rawHTML;
   try {
     var rawTXT = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
-    var rawHTML = markdownConverter.makeHtml(rawTXT).split("\n").join("<br>");
+    rawHTML = markdownConverter.makeHtml(rawTXT).split("\n").join("<br>");
+  } catch (e) {
+    erroredDecoding = true;
+    errImporting(e);
+  }
+
+  if (!erroredDecoding) {
     var fid = fidOfDID(did);
 
     quill.setText('\n');
@@ -8225,9 +8285,13 @@ function importTxtOrMarkdownDocument (dtitle, did, decryptedContents, callback, 
       });
     });
 
-  } catch (e) {
+  } else {
+    errImporting({});
+  }
+
+  function errImporting(e) {
     stopLoadingSpinnerOfDoc(did);
-    showErrorBubble("Sorry, can't import file. Are you sure this is a text/markdown file?", e);
+    showErrorBubble("Sorry, can't import file. Are you sure this is an html file?", e);
     callback(callbackParam);
   }
 }
