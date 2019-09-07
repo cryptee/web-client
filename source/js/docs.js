@@ -1635,8 +1635,8 @@ function startFolderSockets (fid) {
   foldersRef.child(fid + "/docs").on('child_changed', function(doc) {
     // update encrypted titles, tags and gen in catalog
     // update gen in dom
+    updateDocTitlesAndTagsInCatalog(doc.val());
     updateDocMetaInCatalog(doc.val());
-    checkDocGeneration(doc.val());
   });
 
   foldersRef.child(fid + "/archived").on('value', function(archiveBool) {
@@ -2237,12 +2237,12 @@ function fixCorruptedTitle(id) {
 /////////////////// CHECK GENERATION   /////////////////
 ////////////////////////////////////////////////////////
 
-function checkDocGeneration (changedDoc) {
-  var changedGenerationOnServer = changedDoc.generation;
+function updateDocMetaInCatalog (changedDoc) {
+  var changedGenerationOnServer = changedDoc.generation || 0;
   var changedDocumentID = changedDoc.docid;
   var isFile = changedDoc.isfile || false;
+  var isLocked = changedDoc.islocked || false;
 
-  // just to be safe. 
   catalog.docs[changedDocumentID] = catalog.docs[changedDocumentID] || {};
 
   var imported = catalog.docs[changedDocumentID].imported;
@@ -2266,6 +2266,11 @@ function checkDocGeneration (changedDoc) {
 
   // reflect isfile changes to catalog
   catalog.docs[changedDocumentID].isfile = isFile;
+
+  // reflect lock changes to catalog
+  catalog.docs[changedDocumentID].islocked = isLocked;
+
+
   updateLocalCatalog();
   offlineStorage.getItem(changedDocumentID).then(function (offlineDoc) {
     if (offlineDoc && changedDocumentID !== activeDocID) {
@@ -3084,14 +3089,9 @@ function updateDocInCatalog (fid, doc) {
 }
 
 
-function updateDocMetaInCatalog(doc) {
+function updateDocTitlesAndTagsInCatalog(doc) {
   var did = doc.docid;
   var tags = doc.tags || [];
-
-  catalog.docs[did] = catalog.docs[did] || {};
-  catalog.docs[did].gen       = doc.generation || 0;
-  catalog.docs[did].islocked  = doc.islocked   || false;
-
   gotEncryptedDocTitle(did, doc.title);
   gotEncryptedDocTags(did, tags);
 }
