@@ -1157,9 +1157,15 @@ function newUserHints() {
   }
 }
 
-function firstLoadComplete() {
-  // HERE WE HAVE TITLES, TAGS AND EVERYTHING BEING LOADED .
-  // THIS IS THE LAST THING TO BE EXECUTED AFTER SIGN IN COMPLETE.
+function firstDocLoaded() {
+  // FINISHED LOADING THE "LAST OPEN DOC"
+  // DISPLAYED UI. 
+
+  // IF WE STARTED WITH A LOCAL CATALOG, WE'LL NOW SHOW THE SYNC BANNER, AND START UPDATING LOCAL CATALOG WITH CHANGES. 
+  // IF WE STARTED WITHOUT A LOCAL CATALOG, WE ALREADY HAVE ALL TITLES IN THE CATALOG AND WE'RE READY. 
+
+  // THIS IS THE LAST STEP TO BE EXECUTED AFTER "SIGN IN COMPLETE".
+
   if (!initialLoadComplete) {
     initialLoadComplete = true;
 
@@ -1668,7 +1674,7 @@ function loadLastOpenDoc (waitingPreloadToDownload) {
     if (activeDocID) {
       if (activeDocID !== lastOpenDocID) {
         if (lastOpenDocPreloadedDelta) {
-          loadDoc(lastOpenDocID, firstLoadComplete, lastOpenDocID, lastOpenDocPreloadedDelta);
+          loadDoc(lastOpenDocID, firstDocLoaded, lastOpenDocID, lastOpenDocPreloadedDelta);
         } else {
           setTimeout(function () {
             loadLastOpenDoc(true);
@@ -1677,7 +1683,7 @@ function loadLastOpenDoc (waitingPreloadToDownload) {
       }
     } else {
       if (lastOpenDocPreloadedDelta) {
-        loadDoc(lastOpenDocID, firstLoadComplete, lastOpenDocID, lastOpenDocPreloadedDelta);
+        loadDoc(lastOpenDocID, firstDocLoaded, lastOpenDocID, lastOpenDocPreloadedDelta);
       } else {
         setTimeout(function () {
           loadLastOpenDoc(true); 
@@ -1687,10 +1693,10 @@ function loadLastOpenDoc (waitingPreloadToDownload) {
   } else {
     if (activeDocID) {
       if (activeDocID !== "home") {
-        loadDoc("home", firstLoadComplete, "home");
+        loadDoc("home", firstDocLoaded, "home");
       }
     } else {
-      loadDoc("home", firstLoadComplete, "home");
+      loadDoc("home", firstDocLoaded, "home");
     }
   }
 
@@ -1740,7 +1746,7 @@ function preloadLastOpenDoc() {
                   error:function (xhr, ajaxOptions, thrownError){
                     breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted. Will try Home Doc.");
                     if (loadLastOpenDocWaiting) {
-                      loadDoc("home", firstLoadComplete, "home");
+                      loadDoc("home", firstDocLoaded, "home");
                     } else {
                       lastOpenDocID = "home";
                       dataRef.update({"lastOpenDocID" : "home"});
@@ -1751,7 +1757,7 @@ function preloadLastOpenDoc() {
               }).catch(function(error){
                 breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted. Will try Home Doc.");
                 if (loadLastOpenDocWaiting) {
-                  loadDoc("home", firstLoadComplete, "home");
+                  loadDoc("home", firstDocLoaded, "home");
                 } else {
                   lastOpenDocID = "home";
                   dataRef.update({"lastOpenDocID" : "home"});
@@ -1773,7 +1779,7 @@ function preloadLastOpenDoc() {
                 error:function (xhr, ajaxOptions, thrownError){
                   breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted. Will try Home Doc.");
                   if (loadLastOpenDocWaiting) {
-                    loadDoc("home", firstLoadComplete, "home");
+                    loadDoc("home", firstDocLoaded, "home");
                   } else {
                     lastOpenDocID = "home";
                     dataRef.update({"lastOpenDocID" : "home"});
@@ -1788,7 +1794,7 @@ function preloadLastOpenDoc() {
       }).catch(function(error){
         breadcrumb("PRELOAD: Couldn't preload. Doc likely deleted. Will try Home Doc.");
         if (loadLastOpenDocWaiting) {
-          loadDoc("home", firstLoadComplete, "home");
+          loadDoc("home", firstDocLoaded, "home");
         } else {
           lastOpenDocID = "home";
           dataRef.update({"lastOpenDocID" : "home"});
@@ -2102,7 +2108,7 @@ function fixFiles(did, newFID) {
   newFID = newFID || null;
   
   dataRef.update({"lastOpenDocID" : "home"},function(){
-    loadDoc("home", firstLoadComplete);
+    loadDoc("home", firstDocLoaded);
   });
 
   if (did) {
@@ -2746,15 +2752,15 @@ var completedTTQueue;
 var initialTTQueueReady = false;
 
 // 1000 ms for boot to make sure 
-// folder child change & doc title change can get added into queue intelligently.
-// used to be 500, there's a strange recursion problem with runTTQueueFromIndex
-// making this 1000 for now to figure out what's causing it.
+// folder child change & doc title change can get added into queue intelligently,
+// without repetition and even under bad network conditions
 
 var ttDecryptionQueueTimeoutValue = 1000; 
 
 function addedOperationToTTDecryptionQueue() {
   clearTimeout(ttDecryptionQueueTimeout);
   ttDecryptionQueueTimeout = setTimeout(function () {
+
     Object.keys(tempTTDecryptionQueue.docs).forEach(function(did){
       finalTTDecryptionQueue.push(tempTTDecryptionQueue.docs[did]);
       delete tempTTDecryptionQueue.docs[did];
