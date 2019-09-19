@@ -7504,11 +7504,12 @@ $("#search-input").on("keydown", function(event) {
     } else {
       currentResultSelection = 0;
       search($("#search-input").val().trim());
+
+      if ($("#search-input").val().trim() === "") {
+        clearSearch();
+      }
     }
 
-    if ($("#search-input").val().trim() === "") {
-      clearSearch();
-    }
   }, 50);
 });
 
@@ -7636,7 +7637,7 @@ function displaySearchResults (results, term) {
 function moveSearchUp () {
 
   if (currentResultSelection === 0) {
-    $( ".search-result" ).first().removeClass('highlightedResult');
+    $( "#results" ).children().first().removeClass('highlightedResult');
   } else {
     $( ".highlightedResult" ).removeClass('highlightedResult').prev().addClass('highlightedResult');
     currentResultSelection--;
@@ -7650,11 +7651,18 @@ function moveSearchUp () {
 
 function moveSearchDown () {
   if (currentResultSelection === 0) {
-    $( ".search-result" ).first().addClass('highlightedResult');
+    $( "#results" ).children().first().addClass('highlightedResult');
     currentResultSelection++;
   } else {
-    $( ".highlightedResult" ).removeClass('highlightedResult').next().addClass('highlightedResult');
-    currentResultSelection++;
+    var highres = $( ".highlightedResult" ).removeClass('highlightedResult');
+    var nextres = highres.next();
+    if (nextres.length > 0) {
+      highres.next().addClass('highlightedResult');
+      currentResultSelection++;
+    } else {
+      currentResultSelection = 1;
+      $( "#results" ).children().first().addClass('highlightedResult');
+    }
   }
 
   // skip already open doc

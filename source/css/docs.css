@@ -2566,7 +2566,7 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 
 .dm #all-active-folder-docs,
 .dm #results .doc {
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255,255,255,0.1) !important;
 }
 
 .dm .afolder:not(.archived) .foldercolor {
@@ -2661,10 +2661,11 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 
 .dm .search-result .docicon,
 .dm .search-result .result-tag {
-  background-color: var(--bright);
+  background-color: var(--bright) !important;
 }
 
 .dm .search-result .docicon i,
-.dm .search-result .result-tag {
-  color: var(--dark);
+.dm .search-result .result-tag,
+.dm .search-result .result-tag i {
+  color: var(--dark) !important;
 }
