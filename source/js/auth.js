@@ -7,6 +7,11 @@ var photoJSON = "https://static.crypt.ee/signin-photo.json?cachebust=" + latest;
 var photoURL = "https://static.crypt.ee/signin-photo.jpg?cachebust=" + latest;
 var unsplashObject;
 function loadKeyModalBackground () {
+  if (darkMode) {
+    photoJSON = "https://static.crypt.ee/signin-photo-night.json?cachebust=" + latest;
+    photoURL = "https://static.crypt.ee/signin-photo-night.jpg?cachebust=" + latest;
+  }
+
   $.ajax({ url: photoJSON }).done(function(data) {
     unsplashObj = JSON.parse(data);
 

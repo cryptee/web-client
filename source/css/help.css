@@ -372,3 +372,35 @@ p {
     margin-right: 0.5rem;
   }
 }
+
+
+/*///////////////////////////////////////////////////
+//////////////// DARK MODE OVERRIDES ////////////////
+///////////////////////////////////////////////////*/
+
+.dm p, 
+.dm b, 
+.dm a, 
+.dm h1, 
+.dm h2, 
+.dm h3, 
+.dm .icon.is-medium i, 
+.dm strong,
+.dm textarea,
+.dm input,
+.dm #search-bar ::placeholder {
+  color : var(--bright) !important;
+}
+
+.dm .help-card, 
+.dm .help-img-card,
+.dm .help-tag,
+.dm #search-input,
+.dm #search-bar {
+	background-color: var(--darkest);
+	color:var(--bright);
+}
+
+.dm #help-results {
+  background-color: var(--darker) !important;
+}

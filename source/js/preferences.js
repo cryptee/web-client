@@ -2,10 +2,20 @@ var txt = {};
 var localeURL = "https://flare.crypt.ee/api/locale";
 var detectedLocale = "XX", detectedCurrency = "XX";
 var sessionID;
+var darkMode = false;
+var monthsOfRecentDocsPreference = 6;
 
 ///////////////////////////////////////////////
 //////////////// I18N & CURRENCIES  ///////////
 ///////////////////////////////////////////////
+try { darkMode = localStorage.getItem("darkMode"); } catch (e) {}  
+
+if (darkMode) {
+  activateDarkMode();
+  $(".darkmodeswitch").prop('checked', true).attr('checked', true);
+} else {
+  $(".darkmodeswitch").prop('checked', false).attr('checked', false);
+}
 
 $(document).ready(function() {
   try {
@@ -221,4 +231,84 @@ function applyPreferences () {
       }
     }
   }
+}
+
+
+try {
+  monthsOfRecentDocsPreference = localStorage.getItem("numRecentDocs") || 6;
+} catch (e) {}
+$("#num-recent-docs-input").val(monthsOfRecentDocsPreference);
+
+function activateDarkMode() {
+  if (window.location.pathname !== "/signin" && window.location.pathname !== "/signup") { 
+    $("html").addClass("dm");
+    $("#nav-logo").attr("src", "../assets/cryptee-logo-w.svg");
+
+    try {
+      breadcrumb('[COLOR SCHEME] Dark Mode');
+      setSentryTag("color-scheme", "dark");
+    } catch (e) {}
+  }
+  
+  if (window.location.pathname === "/home") {
+    $(".app-icon").each(function(){
+      var src = $(this).attr("src");
+      var whiteSrc = src.replace(".png", "-w.png");
+      $(this).attr("src", whiteSrc);
+    });
+  }
+
+  if (window.location.pathname === "/docs") {
+    $("#export-currentdoc-as-crypteedoc").find("img").attr("src", "../assets/cryptee-logo-w.svg");
+    $("#sync-progress-bar").addClass("is-success");
+  }
+}
+
+function deactivateDarkMode() {
+  if (window.location.pathname !== "/signin" && window.location.pathname !== "/signup") {
+    $("html").removeClass("dm");
+    $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
+    
+    try {
+      breadcrumb('[COLOR SCHEME] Light Mode');
+      setSentryTag("color-scheme", "light");
+    } catch (e) {}
+  }
+
+  if (window.location.pathname === "/home") {
+    $(".app-icon").each(function(){
+      var src = $(this).attr("src");
+      var whiteSrc = src.replace("-w.png", ".png");
+      $(this).attr("src", whiteSrc);
+    });
+  }
+
+  if (window.location.pathname === "/docs") {
+    $("#export-currentdoc-as-crypteedoc").find("img").attr("src", "../assets/cryptee-logo-b.svg");
+    $("#sync-progress-bar").removeClass("is-success");
+  }
+}
+
+try {
+  window.matchMedia("(prefers-color-scheme: dark)").addListener(function(e){
+    if (e.matches) {
+      try { localStorage.setItem("darkMode", 1); } catch (error) {}
+      darkMode = true;
+      activateDarkMode();
+    }
+  });
+} catch (error) {
+  handleError("Couldn't add matchMedia listener for dark mode");
+}
+
+try {
+  window.matchMedia("(prefers-color-scheme: light)").addListener(function(e){
+    if (e.matches) {
+      try { localStorage.removeItem("darkMode"); } catch (error) {}
+      darkMode = false;
+      deactivateDarkMode();
+    }
+  });
+} catch (error) {
+  handleError("Couldn't add matchMedia listener for dark mode");
 }

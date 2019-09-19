@@ -139,18 +139,20 @@ function hideBootOffline () {
 ////////////////////////////////////////////////////////
 
 function showBackgroundProgress() {
-  // $("#nav-logo").animate({opacity : 0}, 300, function(){
+  if (!darkMode) {
     $("#nav-logo").attr("src", "../assets/loading-f5f5f5.gif");
-    // $("#nav-logo").animate({opacity : 1}, 300);
-  // });
+  }
+  
   $("#main-progress").removeAttr("value");
 }
 
 function hideBackgroundProgress() {
-  // $("#nav-logo").animate({opacity : 0}, 300, function(){
+  if (!darkMode) {
     $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
-    // $("#nav-logo").animate({opacity : 1}, 300);
-  // });
+  } else {
+    $("#nav-logo").attr("src", "../assets/cryptee-logo-w.svg");
+  }
+
   $("#main-progress").attr("value", "100");
 }
 
@@ -4811,6 +4813,8 @@ $("#search-input").on("keydown", function(event) {
     } else if (event.keyCode === 18) {
       event.preventDefault();
     } else if (event.keyCode === 20) {
+      event.preventDefault();
+    } else if (event.keyCode === 9) {
       event.preventDefault();
     } else if (event.keyCode === 13) {
       $("#search-input").blur();

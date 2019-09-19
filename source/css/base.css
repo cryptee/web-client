@@ -1,3 +1,11 @@
+:root {
+  --darkest: #151515; /* cards background */
+  --darker: #222222; /* background */
+  --dark: #363636;
+  --bright:#e0e0e0; /* text in cards */
+  --brighter: #f5f5f5;
+  --brightest: #ffffff; /* links / highlights */
+}
 /*///////////////////////////////////////////////////
 //////////////////////  FONTS  //////////////////////
 ///////////////////////////////////////////////////*/
@@ -45,6 +53,7 @@ body {
   letter-spacing: 0.3px;
   -webkit-tap-highlight-color: transparent !important;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   transition: 1s ease opacity;
   opacity: 1;
   font-weight: 300;
@@ -633,7 +642,6 @@ crypteetag {
   word-wrap: break-word;
   max-height: 3rem;
   overflow: hidden;
-  display: inline-block;
   width: calc(100% - 2rem);
   float: right;
   color:#FFF;
@@ -1043,7 +1051,7 @@ html {
   z-index: 998;
   margin-top: 1rem;
   margin-left: 1rem;
-  background-color: #000000;
+  background-color:#000;
   height: 4rem;
   border-radius: 10px;
   width: calc(100% - 4rem);
@@ -2351,12 +2359,6 @@ html {
   display: inline-flex;
 }
 
-.www-period-selection {
-  vertical-align: super;
-  display: block;
-  height: 3.75rem;
-}
-
 .index-hero {
   margin:5rem 0;
 }
@@ -2475,15 +2477,16 @@ html {
   transition: 0.25s ease all;
   bottom: 0;
   position: fixed;
-  right: 0;
+  right: 1rem;
   box-shadow: 0px 0px 25px rgba(0,0,0,0.125);
   z-index: 99;
+  overflow: hidden;
 }
 
 #file-viewer > .message-header {
   height: 3rem;
   padding: .5em;
-  background-color: #F5F5F5;
+  background-color: #363636;
 }
 
 #file-viewer > .message-body {
@@ -2554,6 +2557,7 @@ html {
   width: calc(100% - 163px);
   max-height: 2.25rem;
   overflow: hidden;
+  padding: 0rem 0.5rem;
 }
 
 #file-viewer.minimized #file-viewer-title {
@@ -3151,6 +3155,9 @@ html {
   margin-right: 1rem;
 }
 
+.doc.decrypting {
+  cursor: wait;
+}
 
 .recent-new-doc,
 .offline-new-doc,
@@ -3229,18 +3236,6 @@ body.draggingStuff {
 
 #results {
   max-height: calc(100% - 75px);
-}
-
-.result-folder {
-  margin-top: 0.5rem;
-  padding-left: 0;
-  padding-right: 0.25rem;
-  margin-right: 0.5rem;
-}
-
-.result-folder.tag {
-  padding: 0.5rem 0.75em 0.5rem 0.25rem;
-  border-radius: 2rem;
 }
 
 .ql-picker {
@@ -3639,10 +3634,6 @@ body.draggingStuff {
   width: auto;
 }
 
-#checkbox-button {
-  /* display: none; */
-}
-
 .connection-button {
   cursor: default;
 }
@@ -3748,7 +3739,7 @@ body.draggingStuff {
   position: absolute;
   right: 0rem;
   width:3rem;
-  display: inline-block;
+  /* display: inline-block; */
   margin-bottom: 0px !important;
   opacity: 0;
   pointer-events: none;
@@ -3826,7 +3817,7 @@ body.draggingStuff {
 .search-result {
   cursor: pointer;
   margin-bottom: 0.5rem !important;
-  transition: all ease 0.25s !important;
+  transition: all ease 0.4s !important;
   background-color: transparent;
 }
 
@@ -4245,16 +4236,6 @@ body.draggingStuff {
   direction : rtl;
 }
 
-.docs-body.direction-pref-rtl .result-title {
-  margin-right:2rem;
-  margin-left:0;
-}
-
-.docs-body.direction-pref-rtl .result-tag .tag{
-  padding:0.5rem 0.5rem 0.5rem 1rem;
-}
-
-
 
 
 .docdeet {
@@ -4280,26 +4261,6 @@ body.draggingStuff {
   margin-right : 0.85rem;
 }
 
-.docicon.is-loading {
-  pointer-events: none;
-  color: transparent;
-}
-
-.docicon.is-loading::after {
-  -webkit-animation: spinAround 500ms infinite linear;
-  animation: spinAround 500ms infinite linear;
-  border: 1px solid #000;
-  border-radius: 1rem;
-  border-right-color: transparent;
-  border-top-color: transparent;
-  content: "";
-  display: block;
-  height: 1rem;
-  width: 1rem;
-  left: 1rem;
-  position: absolute !important;
-}
-
 .docicon {
   transition: 0.5s color ease;
   color:#363636;
@@ -4310,12 +4271,15 @@ body.draggingStuff {
   font-size: 18px !important;
 }
 
-.docicon.is-loading {
+.docicon.is-loading,
+.doc.decrypting .docicon {
+  pointer-events: none;
   color:transparent;
 }
 
 
-.docicon.is-loading::after {
+.docicon.is-loading::after,
+.doc.decrypting .docicon::after {
   transition: 0.5s border ease;
   -webkit-animation: spinAround 500ms infinite linear;
   animation: spinAround 500ms infinite linear;
@@ -4329,6 +4293,21 @@ body.draggingStuff {
   width: 20px;
   left: 0.25rem;
   position: absolute !important;
+}
+
+.doc .docicon::before {
+  font-family: FontAwesome;
+  transition: 0.5s opacity ease;
+  color: #000;
+  content: "\f023";
+  display: block;
+  height: 20.5px;
+  width: 20px;
+  left: calc(0.5rem - 1px);
+  font-size: 15px;
+  position: absolute !important;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .docprogress {
@@ -4469,6 +4448,12 @@ body.draggingStuff {
 
 #hotkeys-modal td, #hotkeys-modal th {
   padding-bottom: 0.5rem;
+  font-size:11px;
+}
+
+#hotkeys-modal table {
+  width: 100%;
+  display: table;
 }
 
 #hotkeys-modal.is-visible {
@@ -5836,8 +5821,10 @@ body.draggingStuff {
   transition: 0.5s box-shadow ease;
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
+  backface-visibility : hidden;
   -webkit-transform: translate3d(0, 0, 0);
   -moz-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .photos-search-result .image.is-loading,
@@ -5976,7 +5963,7 @@ body.draggingStuff {
   font-weight: 600;
   width: 70%;
   overflow: hidden;
-  display: inline-block;
+  /* display: inline-block; */
   height: 1rem;
 }
 
@@ -6354,9 +6341,10 @@ body.draggingStuff {
   }
 
   #file-viewer {
-    max-height: 100%;
+    max-height: calc(100% - 0.5rem);
     max-width: 100%;
     z-index: 96;
+    right: 0rem !important;
   }
 
   #toolbar-container {
@@ -6690,11 +6678,6 @@ body.draggingStuff {
     color : #FFF;
   }
 
-  .search-result:hover {
-    background-color: #363636;
-    color: #f5f5f5;
-  }
-
   #selection-actions-card > .icon:hover {
     background-color: #000;
   }
@@ -6877,6 +6860,10 @@ body.draggingStuff {
 
   #doc-contextual-buttons {
     background: #f5f5f5;
+  }
+
+  .dm #doc-contextual-buttons {
+    background: var(--darker);
   }
 
   #doc-contextual-buttons i {
@@ -7127,5 +7114,97 @@ body.draggingStuff {
 
 
 
+
+
+
+
+
+
+
+
+
+
+/*///////////////////////////////////////////////////
+//////////////// DARK MODE OVERRIDES ////////////////
+///////////////////////////////////////////////////*/
+/* background var(--darkest) */
+/* boxes #222222 */
+/* text #FFFFFF */
+
+html.dm,
+html.dm body:not(.www-body) {
+	background: var(--darker); 
+}
+
+html.dm.is-loading::after,
+html.dm.pending::after {
+  border: 3px solid var(--bright) !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+  box-shadow: none !important;
+  background-color: var(--darker) !important;
+}
+
+html.dm.is-loading::before,
+html.dm.pending::before {
+  color :var(--brightest);
+}
+
+.dm .progress:indeterminate {
+  animation: progress-indeterminate-dark 3s ease infinite;
+  background: var(--darker) linear-gradient(to right, #4BBF73 50%, var(--darker) 50%) top left/150% 150% no-repeat;
+}
+
+@keyframes progress-indeterminate-dark {
+  0% {
+    background-image: linear-gradient(to right, var(--darker) 50%, var(--darker) 50%);
+    background-position: 200% 0;
+  }
+  100% {
+    background-image: linear-gradient(to right, #4BBF73 50%, var(--darker) 50%);
+    background-position: -200% 0;
+  }
+}
+
+.dm #right-nav i {
+  color :var(--brightest);
+}
+
+.dm .modal-background {
+  background-color:rgba(10,10,10,0.86) !important;
+}
+
+.dm #update-available {
+	background-color: var(--brightest);
+	color : #000;
+}
+
+.dm #update-available.is-loading {
+  color: rgba(0,0,0,0) !important;
+}
+
+.dm #update-available.is-loading::after {
+  border: 3px solid #000;
+  border-right-color: transparent;
+  border-top-color: transparent;
+}
+
+.dm #key-modal.img-loading .back-curtain {
+  background-color: var(--darker);
+}
+
+.dm .crypteedropdown,
+.dm .crypteedropdown .crypteecheckbox,
+.dm .document-contextual-dropdown {
+  background-color: var(--darkest);
+}
+
+.dm .crypteedropdown .color-button .icon[color="#363636"] i {
+  color : var(--dark) !important;
+}
+
+.dm .crypteedropdown p.disabled {
+  color: #555;
+}
 
 /*  */

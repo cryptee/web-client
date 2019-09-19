@@ -216,6 +216,10 @@ html.search-active, body.search-active {
 	width: 100%;
 }
 
+#photos-move-sel-modal-toggle-button .fa-arrow-right {
+	color: #FFF!important;
+}
+
 /*//////////////////////////////////////////////////////
 ////////////////////// SEARCH //////////////////////////
 ////////////////////////////////////////////////////////*/
@@ -663,6 +667,10 @@ html.search-active, body.search-active {
 	    width : 75%;  
 	}
 
+	.dm .albumtitle {
+		background-color: var(--darkest); 
+	}
+
 	.albumitem:nth-child(even) .albumtitle {
 		width: 75%;
 	}
@@ -689,6 +697,10 @@ html.search-active, body.search-active {
 @media (-moz-touch-enabled: 0), (pointer:fine) {
 	/* ENABLE HOVERS */
 	.album .deletefoldericon:hover, .album .ghostfoldericon:hover {
+		opacity: 1;
+	}
+
+	.dm .album .deletefoldericon:hover, .dm .album .ghostfoldericon:hover {
 		opacity: 1;
 	}
 
@@ -725,4 +737,86 @@ html.search-active, body.search-active {
 		right: auto;
 		left: 3.125rem;
 	}
+}
+
+
+
+/*///////////////////////////////////////////////////
+//////////////// DARK MODE OVERRIDES ////////////////
+///////////////////////////////////////////////////*/
+
+.dm #search-input,
+.dm #search-bar,
+.dm .album,
+.dm #lightbox-modal {
+	background-color: var(--darkest);
+	color:var(--bright);
+}
+
+.dm #photos-search ::placeholder {
+	color :var(--bright) !important;
+}
+
+  
+*:not(.search-active) .photos-top-nav.sticky {
+	background-color: var(--darkest);
+	color:var(--bright);
+}
+
+.dm .photos-top-nav .button * {
+	color: var(--bright) !important; 
+}
+
+.dm .albumtitle,
+.dm .album i:not(.fa-trash),
+.dm .albumitem[date]:after,
+.dm #lightbox-modal i {
+	color :var(--bright);
+}
+
+.dm .album .deletefoldericon {
+	opacity: 0.4;
+}
+
+.dm #folder-contents.is-loading::before,
+.dm #folder-contents.is-loading.is-updating::before  {
+	color :var(--brightest);
+}
+  
+.dm #folder-contents.is-loading::after,
+.dm #lightbox-spinner {
+	border: 3px solid var(--brightest);
+	border-right-color: transparent;
+    border-top-color: transparent;
+}
+
+.dm .album progress.progress:indeterminate {
+	animation: album-progress-indeterminate-dark 3s ease infinite !important;
+	background: var(--bright) linear-gradient(to right, var(--darkest) 50%, var(--bright) 50%) top left/150% 150% no-repeat !important;
+}
+
+@keyframes album-progress-indeterminate-dark {
+  0% {
+    background-image: linear-gradient(to right, var(--darkest) 50%, var(--bright) 50%);
+    background-position: 200% 0;
+  }
+  100% {
+    background-image: linear-gradient(to right, var(--darkest) 50%, var(--bright) 50%);
+    background-position: -200% 0;
+  }
+}
+
+.dm #photos-upload-status .modal-background {
+    background: var(--darkest) !important;
+}
+
+.dm .photos-search-result .title u, 
+.dm .photos-search-result-folder .title u,
+.dm .photos-search-result .subtitle u {
+  color: var(--brightest) !important;
+  text-decoration: none;
+}
+
+.dm #photos-move-sel-modal-toggle-button .fa-arrow-right {
+	color: #000!important;
 }

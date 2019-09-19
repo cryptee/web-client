@@ -54,7 +54,7 @@ function submitReport() {
 
         setTimeout(function () {
             formSubmitted();
-        }, 2000);
+        }, 3000);
     }
 }
 
@@ -208,12 +208,20 @@ function hideContent(then) {
 
 
 function showWindowProgress () {
-    $("#nav-logo").attr("src", "../assets/loading-f5f5f5.gif");
+    if (!darkMode) {
+        $("#nav-logo").attr("src", "../assets/loading-f5f5f5.gif");
+    }
+      
     $("#main-progress").removeAttr("value");
 }
 
 function hideWindowProgress () {
-    $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
+    if (!darkMode) {
+        $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
+    } else {
+        $("#nav-logo").attr("src", "../assets/cryptee-logo-w.svg");
+    }
+    
     $("#main-progress").attr("value", "100");
 }
 

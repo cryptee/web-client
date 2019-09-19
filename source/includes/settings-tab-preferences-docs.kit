@@ -1,10 +1,14 @@
 <div class="account-card crypteecard">
   <p class="title is-4">Docs Preferences</p>
-  <p>Here you can customize Cryptee Docs to your liking! Your preferences are saved instantly, and they sync across all
-    your devices.</p>
+  <p>Here you can customize Cryptee Docs to your liking!</p>
 </div>
 
 <div class="account-card crypteecard">
+  <p class="title is-4">SYNCHRONIZED PREFERENCES</p>
+  <p><span class="icon"><i class="fa fa-info-circle"></i></span> These preferences are sync'ed across <b>all your devices</b>.</p>
+  
+  <br><br><hr><br><br>
+
   <div class="field is-horizontal">
     <div class="field-label">
       <label class="label">Text / Language Direction</label>
@@ -20,11 +24,10 @@
       </div>
     </div>
   </div>
-  <p style="clear:both;">Do you live in a different part of the world or use a right to left language? Don't worry. We
-    didn't forget about you! Here you can set your editor to always use right-to-left or left-to-right.</p>
-</div>
+  <p style="clear:both;">Do you live in a different part of the world or use a right to left language? Don't worry. We didn't forget about you! Here you can set your editor to always use right-to-left or left-to-right.</p>
 
-<div class="account-card crypteecard">
+  <br><br><hr><br><br>
+
   <div class="field is-horizontal">
     <div class="field-label">
       <label class="label">Spell-checker</label>
@@ -35,13 +38,90 @@
       </div>
     </div>
   </div>
-  <p style="clear:both;">If you often edit long documents with lots of spellchecker errors, they could slow down your
-    scroll speed. Or maybe you just hate spellcheckers. Whatever the reason may be, you can turn the spellchecker
-    on/off here as you wish.</p>
+  <p style="clear:both;">If you often edit long documents with lots of spellchecker errors, they could slow down your scroll speed. Or maybe you just hate spellcheckers. Whatever the reason may be, you can turn the spellchecker on/off here as you wish.</p>
+  <br>
 </div>
 
+
+<div class="account-card crypteecard">
+  <p class="title is-4">DEVICE PREFERENCES</p>
+  <p><span class="icon"><i class="fa fa-info-circle"></i></span> These preferences are <b>not synchronized</b>, and they are <b>only for this device</b>.</p>
+  
+  <br><br><hr><br><br>
+
+  <div id="recent-docs-preference">
+    <div class="field is-horizontal">
+      <div class="field-label is-expanded">
+        <label class="label">Don't show Recent Docs older than</label>
+      </div>
+
+      <div class="field-body is-small">
+        <div class="field">
+          <p class="control">
+            <input class="input is-static" type="number" placeholder="6" min="1" max="12" value="6" id="num-recent-docs-input">
+          </p>
+        </div>
+      </div>
+
+      <div class="field-label">
+        <label class="label">months</label>
+      </div>
+    </div>
+    
+    <br>
+    <p>By default, Cryptee considers documents newer than 6 months <i>"recent"</i>, and displays them under the "Recent Documents" section. You can increase or decrease the number of documents you see under "Recent Documents" by adjusting the timeframe here.</p>
+    
+    <br>
+    <p><span class="icon"><i class="fa fa-exclamation-triangle"></i></span> This also affects the start-up time. Having more recent documents mean more document names and tags will need to be decrypted when Cryptee Docs starts up. We recommend keeping this as low as possible if you'd like Cryptee Docs to start up quicker.</p>
+    <br>
+    <p><span class="icon"><i class="fa fa-info-circle"></i></span> For performance reasons, only up to 100 most recent documents will be displayed under the "Recent Documents" section.</p>
+  
+  </div>
+  
+  
+
+  <div id="delete-offline-docs-card">
+    <br><br><hr><br><br>
+
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <label class="label">Offline Document Storage</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <p class="control"><div type="button" class="button is-dark" id="delete-offline-docs-button" onclick="deleteOfflineDocs();">Delete</div></p>
+        </div>
+      </div>
+    </div>
+    <p style="clear:both;">Cryptee uses an encrypted offline storage on your device to store all your offline documents. If you'd like to conveniently delete all offline documents stored on this device, you can do this with one click here.</p>
+    <br>
+  </div>
+
+  
+
+  <div id="encrypted-local-cache-card">
+    <br><br><hr><br><br>
+
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <label class="label">Local Cache</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <p class="control"><div type="button" class="button is-dark" id="clear-cache-button" onclick="clearLocalCache();">Clear</div></p>
+        </div>
+      </div>
+    </div>
+    <p style="clear:both;">Cryptee uses an encrypted, local cache on your device to speed things up a bit instead of downloading &amp; decrypting everything every single time. During bad network connectivity or frequent drop-outs, Cryptee falls back to this cache to keep running as expected, and reduce network dependency.<br><br>If you're experiencing issues that are <i>specific to this device</i>, like filenames not updating on this device or not sync'ing correctly to/from this device, or your search results not returning everything you're looking for, you can try clearing your local cache here. If this doesn't help / solve your problem, please contact support using the "<b>?</b>" button on the top right corner of this page.</p>
+    <br>
+  </div>
+
+</div>
+
+
+
 <div class="account-card crypteecard" id="webclippers-card" style="display:none;">
-  <p><b>Webclippers</b></p>
+  <p class="title is-4">Webclippers</p>
   <br>
   <p style="clear:both;">Here is a list of all the webclippers you have authorized. If you don't use them anymore, or if you become aware of any suspicious activity, you can remove their authorization below.</p>
   <div id="clippers-list">
@@ -63,30 +143,14 @@
   <p style="clear:both;">If you'd like to conveniently delete all your web clips, you can do this with one click here. <i>Please note that this action is irreversible.</i></p>
 </div>
 
-<div class="account-card crypteecard" id="encrypted-local-cache-card">
-  <div class="field is-horizontal">
-    <div class="field-label">
-      <label class="label">Local Cache</label>
-    </div>
-    <div class="field-body">
-      <div class="field">
-        <p class="control"><div type="button" class="button is-dark" id="clear-cache-button" onclick="clearLocalCache();">Clear</div></p>
-      </div>
-    </div>
-  </div>
-  <p style="clear:both;">Cryptee uses an encrypted, local cache on your device to speed things up a bit instead of downloading &amp; decrypting everything every single time. During bad network connectivity or frequent drop-outs, Cryptee falls back to this cache to keep running as expected, and reduce network dependency.<br><br>If you're experiencing issues that are <i>specific to this device</i>, like filenames not updating on this device or not sync'ing correctly to this device, you can try clearing your local cache here. If this doesn't help / solve your problem, please contact support using the "<b>?</b>" button on the top right corner of this page.</p>
-</div>
 
-<div class="account-card crypteecard" id="delete-offline-docs-card">
-  <div class="field is-horizontal">
-    <div class="field-label">
-      <label class="label">Offline Document Storage</label>
-    </div>
-    <div class="field-body">
-      <div class="field">
-        <p class="control"><div type="button" class="button is-dark" id="delete-offline-docs-button" onclick="deleteOfflineDocs();">Delete</div></p>
-      </div>
-    </div>
-  </div>
-  <p style="clear:both;">Cryptee uses an encrypted offline storage on your device to store all your offline documents. If you'd like to conveniently delete all your offline documents, you can do this with one click here.</p>
-</div>
+
+
+
+
+
+
+
+
+
+

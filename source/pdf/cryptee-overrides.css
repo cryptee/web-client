@@ -1,0 +1,552 @@
+#toolbarContainer, .findbar, .secondaryToolbar, #toolbarSidebar {
+  background: var(--dark);
+  background-image: none;
+  color : #f5f5f5;
+}
+
+#toolbarContainer, #toolbarSidebar {
+  padding: 0 0.875rem;
+  width: calc(100% - 1.75rem);
+}
+
+.dropdownToolbarButton {
+  width: 120px;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  padding: 0;
+  overflow: hidden;
+  font-family: FontAwesome;
+  content: '\f0d7';
+  font-size: 2rem;
+  margin-right: 10px !important;
+  border: none;
+  box-shadow: none;
+  margin-top: 0.75rem !important;
+}
+
+.toolbarButton, .secondaryToolbarButton {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+}
+
+.toolbarButton::before,
+.secondaryToolbarButton::before {
+  font-family: FontAwesome;
+  font-size: 1.5rem;
+  line-height: 3rem;
+  color:#f5f5f5;
+  width: 100%;
+  text-align: center;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  display: block;
+  top: auto;
+  left: auto;
+}
+
+.secondaryToolbar.doorHangerRight .secondaryToolbarButton::before  {
+  font-size: 1.5rem;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 1.1), screen and (min-resolution: 1.1dppx) {
+  .toolbarButton::before,
+  .secondaryToolbarButton::before {
+    font-size: 2.5rem;
+  }
+}
+
+.secondaryToolbarButton::before {
+  display: inline;
+  margin-left: 0.25rem;
+}
+
+.secondaryToolbarButton {
+  padding: 0 !important;
+  height: 3rem;
+}
+
+.secondaryToolbarButton span {
+  line-height: 3rem;
+  margin-left: 1.25rem;
+}
+
+.toolbar .toolbarButton::before,
+.secondaryToolbarButton::before {
+  margin-top: 0.25rem !important;
+}
+
+.toolbarButtonSpacer {
+  width: 2.75rem;
+}
+
+.splitToolbarButton {
+  margin: 0 !important;
+}
+
+.toolbarButton.toggled,
+.secondaryToolbarButton.toggled {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#secondaryToolbar {
+  width: 200px;
+  background-color: var(--darkest);
+  border: none;
+  border-radius: 10px;
+}
+
+#sidebarContent {
+  background-color: var(--dark);
+}
+
+#secondaryToolbarButtonContainer {
+  margin-bottom: 0;
+  margin-top: -3px;
+}
+
+.horizontalToolbarSeparator {
+  background-color: #888;
+}
+
+.thumbnail { 
+  margin: 0.5rem 17px;
+}
+
+.thumbnailSelectionRing {
+  padding: 0;
+  border: none;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2) !important;
+}
+
+.thumbnailImage {
+  transition: 0.3s opacity ease;
+  opacity: 0.6;
+  box-shadow: none !important;
+}
+
+#findbar {
+  top: 3.5rem;
+  left: 3rem;
+  color : #f5f5f5;
+  background-color: var(--darkest);
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+.doorHanger:before,
+.doorHanger:after {
+  border-bottom-color: #000;
+  margin-left: 0px !important;
+  left: 4rem !important;
+}
+
+.findbar > div {
+  height: 3rem;
+}
+
+.findbar * {
+  color : #f5f5f5;
+}
+
+#findInput {
+  border-radius: 5px;
+  padding: 3px 1rem;
+  background-color: #f5f5f5;
+  color: #000;
+  box-shadow: none !important;
+  outline: none !important;
+  border: 1px solid transparent;
+}
+
+#pageNumber, #numPages {
+  margin: 6px 0 0 0;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+#pageNumber, #numPages {
+  color: #FFF;
+}
+
+#pageNumber {
+  background-color:var(--dark);
+  background-image: none;
+  border: 1px solid #999;
+}
+
+
+
+html[dir="ltr"] .secondaryToolbarButton::before {
+  left: 4px;
+}
+
+html[dir="rtl"] .secondaryToolbarButton::before {
+  right: 4px;
+}
+
+html[dir='ltr'] .toolbarButton#sidebarToggle::before,
+html[dir='rtl'] .toolbarButton#sidebarToggle::before {
+  content: '\f009';
+}
+
+
+
+html[dir='ltr'] .toolbarButton#secondaryToolbarToggle::before,
+html[dir='rtl'] .toolbarButton#secondaryToolbarToggle::before {
+  content: '\f0c9';
+  left: 0 !important;
+}
+
+html[dir='ltr'] .toolbarButton.findPrevious::before,
+html[dir='rtl'] .toolbarButton.findPrevious::before {
+  content: '\f060';
+  left: 0 !important;
+}
+
+html[dir='ltr'] .toolbarButton.findNext::before,
+html[dir='rtl'] .toolbarButton.findNext::before {
+  content: '\f061';
+  left: 0 !important;
+}
+
+html[dir='ltr'] .toolbarButton.pageUp::before,
+html[dir='rtl'] .toolbarButton.pageUp::before {
+  content: '\f062';
+}
+
+html[dir='ltr'] .toolbarButton.pageDown::before, 
+html[dir='rtl'] .toolbarButton.pageDown::before {
+  content: '\f063';
+}
+
+.toolbarButton.zoomOut::before {
+  content: '\f010';
+}
+
+.toolbarButton.zoomIn::before {
+  content: '\f00e';
+}
+
+.toolbarButton.presentationMode::before,
+.secondaryToolbarButton.presentationMode::before {
+  content: '\f0b2';
+}
+
+.toolbarButton.print::before,
+.secondaryToolbarButton.print::before {
+  content: '\f02f';
+  left: -3px !important;
+}
+
+.toolbarButton.bookmark::before,
+.secondaryToolbarButton.bookmark::before {
+  content: '\f02e';
+}
+
+#viewThumbnail.toolbarButton::before {
+  content: '\f009';
+}
+
+html[dir="ltr"] #viewOutline.toolbarButton::before {
+  content: '\f00b';
+}
+
+html[dir="rtl"] #viewOutline.toolbarButton::before {
+  content: '\f009';
+}
+
+#viewAttachments.toolbarButton::before {
+  content: '\f0c6';
+  left: 2px !important;
+}
+
+#viewFind.toolbarButton::before {
+  content: '\f002';
+}
+
+.secondaryToolbarButton.firstPage::before {
+  content: '\f0aa';
+}
+
+.secondaryToolbarButton.lastPage::before {
+  content: '\f0ab';
+}
+
+.secondaryToolbarButton.rotateCcw::before {
+  content: '\f0e2';
+}
+
+.secondaryToolbarButton.rotateCw::before {
+  content: '\f01e';
+}
+
+.secondaryToolbarButton.selectTool::before {
+  content: '\f246';
+  left: 3px !important;
+}
+
+.secondaryToolbarButton.handTool::before {
+  content: '\f256';
+  left: -5px !important;
+}
+
+.secondaryToolbarButton.documentProperties::before {
+  content: '\f05a';
+}
+
+
+
+
+html[dir='ltr'] .toolbarButton#secondaryToolbarToggle::before {
+  content: '\f0c9';
+  left: 0 !important;
+}
+
+html[dir='rtl'] .toolbarButton#secondaryToolbarToggle::before {
+  content: '\f0c9';
+  left: 0 !important;
+}
+
+html[dir='ltr'] .toolbarButton.findPrevious::before {
+  content: '\f060';
+  left: 0 !important;
+}
+
+html[dir='rtl'] .toolbarButton.findPrevious::before {
+  content: '\f060';
+  left: 0 !important;
+}
+
+html[dir='ltr'] .toolbarButton.findNext::before {
+  content: '\f061'; 
+  left: 0 !important;
+}
+
+html[dir='rtl'] .toolbarButton.findNext::before {
+  content: '\f061';
+  left: 0 !important;
+}
+
+html[dir='ltr'] .toolbarButton.pageUp::before {
+  content: '\f062';
+}
+
+html[dir='rtl'] .toolbarButton.pageUp::before {
+  content: '\f062';
+}
+
+html[dir='ltr'] .toolbarButton.pageDown::before {
+  content: '\f063';
+}
+
+html[dir='rtl'] .toolbarButton.pageDown::before {
+  content: '\f063';
+}
+
+.toolbarButton.zoomIn::before {
+  content: '\f00e';
+}
+
+.toolbarButton.zoomOut::before {
+  content: '\f010';
+}
+
+.toolbarButton.presentationMode::before,
+.secondaryToolbarButton.presentationMode::before {
+  content: '\f0b2';
+}
+
+.toolbarButton.print::before,
+.secondaryToolbarButton.print::before {
+  content: '\f02f';
+  left: 4px !important;
+}
+
+
+#viewThumbnail.toolbarButton::before {
+  content: '\f009';
+}
+
+html[dir="ltr"] #viewOutline.toolbarButton::before {
+  content: '\f00b';
+}
+
+html[dir="rtl"] #viewOutline.toolbarButton::before {
+  content: '\f00b';
+}
+
+#viewAttachments.toolbarButton::before {
+  content: '\f0c6';
+  left: 2px !important;
+}
+
+
+.secondaryToolbarButton.firstPage::before {
+  content: '\f0aa';
+}
+
+.secondaryToolbarButton.lastPage::before {
+  content: '\f0ab';
+}
+
+.secondaryToolbarButton.rotateCcw::before {
+  content: '\f0e2';
+}
+
+.secondaryToolbarButton.rotateCw::before {
+  content: '\f01e';
+}
+
+.secondaryToolbarButton.selectTool::before {
+  content: '\f246';
+  left: 6px !important;
+  margin-right: 4px;
+}
+
+.secondaryToolbarButton.handTool::before {
+  content: '\f256';
+  left: 3px !important;
+  margin-right: -3px;
+}
+
+.secondaryToolbarButton.documentProperties::before {
+  content: '\f05a';
+}
+
+.toolbarButton.bookmark::before,
+.secondaryToolbarButton.bookmark::before {
+  content: '\f02e';
+}
+
+
+/*
+
+  MODIFICATIONS
+
+*/
+
+#viewerContextMenu *,
+#errorWrapper * {
+  color: #000 !important;
+}
+
+#scaleSelectContainer {
+  margin-top: 6px;
+}
+
+#findbarOptionsContainer {
+  height: 26px;
+  padding-top: 1px;
+}
+
+#findbarOptionsContainer input {
+  margin-top: 9px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*  */
+
+@media all and (max-width: 900px) {
+  #toolbarViewerMiddle {
+    display: table;
+    margin: auto;
+    left: auto;
+    position: inherit;
+    transform: none;
+  }
+}
+
+@media all and (max-width: 840px) {
+
+  html[dir='ltr'] #outerContainer.sidebarOpen #viewerContainer {
+    left: 0px;
+  }
+
+  html[dir='rtl'] #outerContainer.sidebarOpen #viewerContainer {
+    right: 0px;
+  }
+
+  #outerContainer .hiddenLargeView,
+  #outerContainer .hiddenMediumView {
+    display: inherit;
+  }
+
+  #outerContainer .visibleLargeView,
+  #outerContainer .visibleMediumView {
+    display: none;
+  }
+}
+
+@media all and (max-width: 770px) {
+  #outerContainer .hiddenLargeView {
+    display: none;
+  }
+
+  #outerContainer .visibleLargeView {
+    display: inherit;
+  }
+
+  #findbar {
+    left: 1px;
+  }
+}
+
+@media all and (max-width: 700px) {
+  #outerContainer .hiddenMediumView {
+    display: none;
+  }
+
+  #outerContainer .visibleMediumView {
+    display: inherit;
+  }
+}
+
+@media all and (max-width: 640px) {
+
+  .hiddenSmallView,
+  .hiddenSmallView * {
+    display: none;
+  }
+
+  .visibleSmallView {
+    display: inherit;
+  }
+
+  .toolbarButtonSpacer {
+    width: 0;
+  }
+
+  html[dir='ltr'] .findbar {
+    left: 38px;
+  }
+
+  html[dir='rtl'] .findbar {
+    right: 38px;
+  }
+}
+
+@media all and (max-width: 535px) {
+  #scaleSelectContainer {
+    display: none;
+  }
+}

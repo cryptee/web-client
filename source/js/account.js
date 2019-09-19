@@ -274,6 +274,8 @@ function gotUserData (data) {
       $('#subscriptionCanceled').show();
       dataRef.update({"cancelsub" : null});
       $("#cancelSubscriptionNotification").find("button").removeClass("is-loading").prop("disabled", false);
+      $("#cancel-sub-area").slideUp();
+      $("#cancel-sub-area").removeClass("error");
     }
 
     if (data.orderComplete) {
@@ -1164,6 +1166,30 @@ function updateSpellchecker() {
   }, 500);
 }
 
+
+$(".darkmodeswitch").on("change", function(e){
+  toggleDarkMode();
+});
+
+function toggleDarkMode() {
+  if ($(".darkmodeswitch").is(':checked')) {
+    localStorage.setItem("darkMode", 1);
+    darkMode = true;
+    activateDarkMode();
+  } else {
+    localStorage.removeItem("darkMode");
+    darkMode = false;
+    deactivateDarkMode();
+  }
+}
+
+$("#num-recent-docs-input").on("keydown keypress paste copy cut change", function(e){
+    setTimeout(function () {
+      var numRecentDocs = parseInt($("#num-recent-docs-input").val().trim());
+      localStorage.setItem("numRecentDocs", numRecentDocs);
+    }, 50);
+});
+
 // //////////////////////////
 // REMEMBER ENCRYPTION KEY // 
 // //////////////////////////
@@ -1555,6 +1581,7 @@ function closeUpgrade() {
   } else {
     ping("event", {eventCategory: "upgrade", eventAction : "close"});
     console.log("Closing Upgrade");
+    $("#upgrade-thanks").removeClass('showUpgradeThanks');
     history.pushState("upgrade-complete", null, '/account');
     $(".upgrade-container").removeClass("is-checkout"); // 500ms
     $("#upgrade-container-deets").fadeOut();
@@ -1981,8 +2008,14 @@ function emailInvoices() {
 }
 
 function showCancelSubsButton() {
-  $("#cancelSubscriptionNotification").slideDown();
-  $("#prorateView").slideUp();
+  var feedback = $("#cancel-sub-area").val().trim();
+  if (feedback !== "") {
+    $("#cancelSubscriptionNotification").slideDown();
+    $("#prorateView").slideUp();
+  } else {
+    $("#cancel-sub-area").addClass("error");
+    $("#cancel-sub-area").focus();
+  }
 }
 
 $(".closeCancelSubs").on('click', function(){
@@ -1990,9 +2023,26 @@ $(".closeCancelSubs").on('click', function(){
 });
 
 function cancelSubscription() {
+  submitCancelForm();
   dataRef.update({"cancelsub" : "cancel"});
   $("#cancelSubscriptionNotification").find("button").addClass("is-loading").prop("disabled", true);
 }
+
+function submitCancelForm () {
+  var feedback = $("#cancel-sub-area").val().trim();
+  if (feedback !== "") { 
+    collectContactForm({
+      "reason" : "cancelled-sub", 
+      "description" : feedback, 
+      "crypteeUID": theUserID, 
+      "usedStorage": formatBytes(usedStorage), 
+      "allowedStorage": formatBytes(allowedStorage)
+    }); 
+  }
+}
+
+
+
 
 
 

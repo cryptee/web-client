@@ -5,7 +5,6 @@
 var huaLowStorage, huaExceededStorage = false;
 
 $("#upgrade-thanks > .notification > .delete").on('click', function(event) {
-  // $("#upgrade-thanks").removeClass('showUpgradeThanks');
   loadTab("overview");
   closeUpgrade();
 });

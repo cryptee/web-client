@@ -344,3 +344,27 @@
 #new-pricing-card:not(.shown) + #home-news-section {
 	transform: translateY(-320px);
 }
+
+
+/*///////////////////////////////////////////////////
+//////////////// DARK MODE OVERRIDES ////////////////
+///////////////////////////////////////////////////*/
+
+.dm #home-welcome-card,
+.dm #home-news-section {
+	background-color: rgba(255,255,255,0.055);
+	box-shadow: 0 1rem 2rem rgba(0,0,0,0.15);
+}
+
+.dm #home-welcome-card p,
+.dm #home-news-section * {
+	color: var(--bright) !important;
+}
+
+.dm #home-news-section a {
+	color: var(--brightest) !important;
+}
+
+.dm #home-welcome-card .usage {
+	background-color: transparent;
+}
