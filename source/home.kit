@@ -94,6 +94,18 @@
   if (isInWebAppiOS || isInWebAppChrome) {
     $("#settings-button").css({"right" : "2.5rem"});
   }
+
+  function darkModeFromHome() {
+    if (!darkMode) {
+      try { localStorage.setItem("darkMode", 1); } catch (error) {}
+      darkMode = true;
+      activateDarkMode();
+    } else {
+      try { localStorage.removeItem("darkMode"); } catch (error) {}
+      darkMode = false;
+      deactivateDarkMode();
+    }
+	}
   
   </script>
 </body></html>
