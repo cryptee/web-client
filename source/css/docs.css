@@ -2492,6 +2492,11 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
   color: #000 !important;
 }
 
+
+.dm .ql-snow .ql-picker-options .ql-stroke {
+  stroke: var(--dark) !important;
+}
+
 .dm .itsMobile .progressButtons i {
   color :#888 !important;
 }

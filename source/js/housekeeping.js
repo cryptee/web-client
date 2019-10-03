@@ -20,7 +20,6 @@ try {
     Sentry.init({
         dsn: 'https://bbfa9a3a54234070bc0899a821e613b8@sentry.crypt.ee/149319',
         maxBreadcrumbs: 250,
-        release: latestDeployVersion,
         environment: sentryEnv,
         ignoreErrors: [
             'KaTeX parse error', '[Parchment]',
@@ -30,7 +29,9 @@ try {
             "Cannot read property 'mutations' of undefined"
         ]
     });
-} catch (e) {}
+} catch (e) {
+    console.error("Error initializing Sentry.", e);
+}
 
 ////////////////////////////////////////////////
 //////////////// FEEDBACK SETUP ////////////////
@@ -193,6 +194,16 @@ function setSentryTag(key, val) {
     });
 }
 
+function setSentryRelease(release) {
+    Sentry.configureScope(function (scope) {
+        scope.addEventProcessor(function (event) {
+            return new Promise(function(resolve) {
+                event.release = release;
+                return resolve(event);
+            });
+        });
+    });
+}
 // level takes "info" or "warning"
 function breadcrumb(message, level) {
     level = level || "info";

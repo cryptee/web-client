@@ -871,7 +871,7 @@ function reloadForNewVersion () {
   }
 }
 
-
+setSentryRelease(latestDeployVersion);
 
 ////////////////////////////////////////////////
 ///////////// CHECK CONNECTION /////////////////

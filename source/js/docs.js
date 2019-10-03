@@ -1021,11 +1021,15 @@ function prepareRightClickFolderFunctions (id) {
   if (areThereAnyOnlineOnlyDocs) {
     fd.find(".offlinecheckbox").prop('checked', false);
   } else {
-    fd.find(".offlinecheckbox").prop('checked', true);
+    if (howManyDocs > 0) {
+      fd.find(".offlinecheckbox").prop('checked', true);
+    } else {
+      fd.find(".offlinecheckbox").prop('checked', false);
+    }
   }
 
   if (howManyDocs === 0 || catalog.folders[id].archived) {
-    renameDisabled = renameDisabled || true;
+    // renameDisabled = renameDisabled || true;
     ghostDisabled = ghostDisabled || true;
     archiveDisabled = archiveDisabled || true;
   }
@@ -5131,7 +5135,12 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
     itsADoc = true;
   }
 
-  var dtitle = titleOf(did) || "Document";
+  var dtitle; 
+  if (did === "home") {
+    dtitle = "Home Document";
+  } else {
+    dtitle = titleOf(did) || "Document";
+  }
 
   if (itsADoc) {
     //DOWNLOAD _DOC
