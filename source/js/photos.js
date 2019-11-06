@@ -5380,7 +5380,13 @@ function prepareTitlesSearchIndex (callback,callbackParam) {
               }
             });
 
-          } 
+          } else { 
+            currentFolderIndex++;
+            
+            if (currentFolderIndex === howManyFolders) {
+              donePreparingTitlesSearchIndex(callback, callbackParam);
+            }
+          }
 
           if (fid !== "home" && fid !== "favorites") {
             allFoldersArray.push(fid);
