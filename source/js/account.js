@@ -928,20 +928,27 @@ function allPhotosLoaded() {
       titles.docs.forEach(function(titleObject){
         var titlesOfFolder = titleObject.data().titles;
         var fid = titleObject.id;
-        var encryptedTitlesObject = JSON.parse(titlesOfFolder).data;
-        decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
-          currentFolderIndex++;
-          titlesObject = JSON.parse(plaintext.data);
-          $.each(titlesObject.photos, function(pid, ptitle) {
-            var theParsedFilename = ptitle;
-            try { theParsedFilename = JSON.parse(ptitle); } catch (e) {}
-            allExportsObject[pid] = allExportsObject[pid] || {};
-            allExportsObject[pid].title = theParsedFilename;        
+        if (fid !== "favorites") {
+          var encryptedTitlesObject = JSON.parse(titlesOfFolder).data;
+          decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
+            currentFolderIndex++;
+            titlesObject = JSON.parse(plaintext.data);
+            $.each(titlesObject.photos, function(pid, ptitle) {
+              var theParsedFilename = ptitle;
+              try { theParsedFilename = JSON.parse(ptitle); } catch (e) {}
+              allExportsObject[pid] = allExportsObject[pid] || {};
+              allExportsObject[pid].title = theParsedFilename;        
+            });
+            if (currentFolderIndex === howManyFolders) {
+              gotPhotosTitles();
+            }
           });
+        } else {
+          currentFolderIndex++;
           if (currentFolderIndex === howManyFolders) {
             gotPhotosTitles();
           }
-        });
+        }
       });
     } else {
       gotPhotosTitles();
