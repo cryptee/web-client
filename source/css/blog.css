@@ -104,10 +104,35 @@ hr {
     margin: 2em auto !important;
 }
 
-article:not(.post-body) {
-    padding-bottom: 4rem !important;
-    border-bottom: 1px #000 solid;
+#collection article {
+    padding: 0 1rem;
 }
+
+#collection article .post-title,
+#collection article .dt-published,
+#collection article .read-more {
+    text-align: center;
+    display: inline-block;
+    width: 100%;
+}
+
+#collection article .e-content,
+#collection article .p-summary {
+    max-height: 400px;
+    overflow: hidden;
+    background-color: #FFF;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+    border-radius: 1rem;
+    border-bottom-color: transparent !important;
+    padding: 2rem !important;
+    margin: 2rem auto;
+    max-width: 100%;
+    display: block;
+}
+
+
+
+
 
 
 

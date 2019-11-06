@@ -245,7 +245,7 @@ function activateDarkMode() {
     $("#nav-logo").attr("src", "../assets/cryptee-logo-w.svg");
 
     try {
-      breadcrumb('[COLOR SCHEME] Dark Mode');
+      breadcrumb('[Color Scheme] Dark Mode');
       setSentryTag("color-scheme", "dark");
     } catch (e) {}
   }
@@ -259,7 +259,6 @@ function activateDarkMode() {
   }
 
   if (window.location.pathname === "/docs") {
-    $("#export-currentdoc-as-crypteedoc").find("img").attr("src", "../assets/cryptee-logo-w.svg");
     $("#sync-progress-bar").addClass("is-success");
   }
 }
@@ -270,7 +269,7 @@ function deactivateDarkMode() {
     $("#nav-logo").attr("src", "../assets/cryptee-logo-b.svg");
     
     try {
-      breadcrumb('[COLOR SCHEME] Light Mode');
+      breadcrumb('[Color Scheme] Light Mode');
       setSentryTag("color-scheme", "light");
     } catch (e) {}
   }
@@ -284,7 +283,6 @@ function deactivateDarkMode() {
   }
 
   if (window.location.pathname === "/docs") {
-    $("#export-currentdoc-as-crypteedoc").find("img").attr("src", "../assets/cryptee-logo-b.svg");
     $("#sync-progress-bar").removeClass("is-success");
   }
 }

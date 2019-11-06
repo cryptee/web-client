@@ -860,10 +860,10 @@ function showRightClickMenu ( whichOne, event ) {
 
   var x = event.pageX;
   var y = event.pageY;
-  if (y > wh() - 250) {
+  if (y > wh() - 260) {
     // tallest dropdown will be cutoff, 
     // so display it at lowest position instead;
-    y = wh() - 250;
+    y = wh() - 260;
   }
 
   // IF IT'S NOT A SELECTIONS RIGHT CLICK MENU, CAPTURE THE ID OF THE DOCUMENT SELECTED
@@ -942,11 +942,14 @@ function prepareRightClickDocFunctions (id) {
   var dd = $("#doc-dropdown");
   catalog.docs[id] = catalog.docs[id] || {};
   var isFile = catalog.docs[id].isfile || false;
+  var title = catalog.docs[id].name || "Untitled Document";
+  var ext = (extensionFromFilename(title) || "").toLowerCase();
 
   var offlineDisabled = false;
   var downloadDisabled = false;
   var moveDisabled = false;
   var renameDisabled = false;
+  var attachDisabled = false;
   
   if (isFile) {
     offlineDisabled = offlineDisabled || true;
@@ -966,6 +969,8 @@ function prepareRightClickDocFunctions (id) {
     });
   } 
 
+
+
   if (connectivityMode) {
     moveDisabled = moveDisabled || false;
     renameDisabled = renameDisabled || false;
@@ -976,16 +981,33 @@ function prepareRightClickDocFunctions (id) {
     offlineDisabled = offlineDisabled || true;
   }
 
+
+
   if (id === activeDocID || id === activeFileID) {
-    moveDisabled = moveDisabled || true;
+    // moveDisabled = moveDisabled || true;
+    attachDisabled = attachDisabled || true;
   } else {
-    moveDisabled = moveDisabled || false;
+    attachDisabled = attachDisabled || false;
+    // moveDisabled = moveDisabled || false;
+  }
+
+  if (id === activeDocID) {
+    attachDisabled = attachDisabled || true;
+  } else {
+    attachDisabled = attachDisabled || false;
   }
   
-  if (moveDisabled) { dd.find(".move-button").addClass("disabled"); }
-  if (renameDisabled) { dd.find(".rename-button").addClass("disabled"); }
-  if (offlineDisabled) { dd.find(".offline-button").addClass("disabled"); }
+  if (["jpg", "jpeg", "png", "gif"].indexOf(ext) !== -1) {
+    dd.find(".embed-button").show();
+  } else {
+    dd.find(".embed-button").hide();
+  }
+
+  if (moveDisabled)     { dd.find(".move-button").addClass("disabled"); }
+  if (renameDisabled)   { dd.find(".rename-button").addClass("disabled"); }
+  if (offlineDisabled)  { dd.find(".offline-button").addClass("disabled"); }
   if (downloadDisabled) { dd.find(".download-button").addClass("disabled"); }
+  if (attachDisabled)   { dd.find(".attach-button").addClass("disabled"); }
 }
 
 
@@ -1976,6 +1998,7 @@ function checkCatalogIntegrity () {
 }
 
 function fixHomeDoc (callback, callbackParam){
+  callback = callback || noop;
   $.get({url:"../js/homedoc.json", dataType:"text"}, function(jsonRes){
     if (jsonRes) {  
       var homeDelta = JSON.parse(jsonRes);
@@ -1997,7 +2020,7 @@ function fixHomeDoc (callback, callbackParam){
           }, function(error) {
             handleError("Error Re-Creating Homedoc", error);
             console.log("CREATE HOME FAILED. RETRYING IN 2 SECOND. Error: ", error);
-            setTimeout(function(){ fixHomeDoc(); }, 2000);
+            setTimeout(function(){ fixHomeDoc(callback, callbackParam); }, 2000);
           }, function() {
             breadcrumb("Home doc fixed. Continuing.");
             setTimeout(function(){ callback(callbackParam); }, 2000);
@@ -3312,6 +3335,7 @@ function addedEncryptedItemsToInMemoryCatalog(callback) {
 // if hundreds of docs are getting added to local catalog, 
 // timeout ensures we encrypt & write local catalog only once.
 var updateLocalCatalogTimeout;
+var localForageIDBErrorTimeout;
 function updateLocalCatalog (callback) {
   callback = callback || noop;
   if (firstDocLoadComplete) {
@@ -3323,6 +3347,7 @@ function updateLocalCatalog (callback) {
         var encryptedCatalog = JSON.stringify(ciphertext);
 
         encryptedIndexedCatalog.setItem("encat", encryptedCatalog).then(function(value) {
+          clearTimeout(localForageIDBErrorTimeout);
           breadcrumb("Local Catalog : FINISHED UPDATE.");
           refreshOnlineDocs();
           callback();
@@ -3331,6 +3356,12 @@ function updateLocalCatalog (callback) {
             handleError("Error saving to IDB in updateLocalCatalog", err);
           }
         });
+
+        localForageIDBErrorTimeout = setTimeout(function () {
+          breadcrumb("Local Catalog : FINISHED WITH ERRORS. [IDB Request Not Finished]");
+          refreshOnlineDocs();
+          callback();
+        }, 1000);
         
       }).catch(function(error) {
         handleError("Error encrypting in updateLocalCatalog", error);
@@ -3409,31 +3440,34 @@ function loadLocalCatalog(callback) {
       refreshOnlineDocs(true); // force refresh online docs.
 
       callback();
-    }).catch(function(error) {
-      handleError("Error decrypting local catalog", error);
-      // couldn't decrypt local catalog. shit. remove local catalog, and force restart.
-
-      // giving 5 seconds for sentry to send error
-      setTimeout(function () {
-         
-        // set key in preperation for restart
-        sessionStorage.setItem("key", JSON.stringify(keyToRemember));
-
-        // remove catalog, then restart
-        encryptedIndexedCatalog.removeItem('encat').then(function() {
-          window.location.reload();
-        }).catch(function(err) {
-          window.location.reload();  
-        });
-      
-      }, 5000);
-
+    }).catch(function(err) {
+      // couldn't decrypt / load local catalog. shit. remove local catalog, and force restart.
+      loadLocalCatError("Error decrypting local catalog", err);
     });
 
   }).catch(function(err) {
-    handleError("Couldn't load local catalog from IDB! Sign in halted!" , err);
+    // couldn't decrypt / load local catalog. shit. remove local catalog, and force restart.
+    loadLocalCatError("Error loading local catalog.", err);
   });
 
+  function loadLocalCatError(msg, err) {
+    handleError(msg, err);
+
+    // giving 5 seconds for sentry to send error
+    setTimeout(function () {
+        
+      // set key in preperation for restart
+      sessionStorage.setItem("key", JSON.stringify(keyToRemember));
+
+      // remove catalog, then restart
+      encryptedIndexedCatalog.removeItem('encat').then(function() {
+        window.location.reload();
+      }).catch(function(err) {
+        window.location.reload();  
+      });
+    
+    }, 5000);
+  }
 }
 
 function initalizeLocalCatalog() {
@@ -4081,7 +4115,7 @@ $('#all-folders').on('click', '.afolder.archived', function(event) {
 /////////////////////
 
 $('#rename-folder-input').on('keydown', function(event) {
-  $(".rename-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-dark");
+  $(".rename-status").removeClass("is-danger is-warning is-white is-success").addClass("is-white");
   $(".rename-status > .title").html("Rename Folder");
 
   if (event.keyCode == 13) {
@@ -4098,7 +4132,7 @@ $('#rename-folder-input').on('keydown', function(event) {
 });
 
 function hideRenameFolderModal() {
-  $(".rename-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-dark");
+  $(".rename-status").removeClass("is-danger is-warning is-white is-success").addClass("is-white");
   $(".rename-status > .title").html("Rename Folder");
   $("#rename-folder-input").val("");
   $("#rename-folder-input").blur();
@@ -4110,12 +4144,12 @@ function renameFolderConfirmed() {
   var folderOldName = $('#rename-folder-input').attr("placeholder");
   var fid = $("#rename-folder-modal").attr("fid");
   if (folderNewName !== folderOldName) {
-    $(".rename-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-warning");
+    $(".rename-status").removeClass("is-danger is-warning is-white is-success").addClass("is-warning");
     $(".rename-status > .title").html("Renaming ... ");
 
     updateFolderTitle (fid, JSON.stringify(folderNewName), function(){
 
-      $(".rename-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-success");
+      $(".rename-status").removeClass("is-danger is-warning is-white is-success").addClass("is-success");
 
       offlineStorage.iterate(function(doc, did, i) {
         if (doc) {
@@ -4821,6 +4855,7 @@ function newDocCreated (did, fid, dtitle) {
   $("#active-doc-title-input").attr("placeholder", dtitle);
 
   updateDocTitleInDOM(did, dtitle);
+  prepareDocContextualButton(did);
   
   saveDoc(function(){
     dataRef.update({"lastOpenDocID" : did}, function(){
@@ -6094,9 +6129,9 @@ function showDeleteDocModal() {
   $(".document-contextual-dropdown").removeClass("open");
   clearSelections();
   if (connectivityMode) {
-    $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-warning").html("<p class='title'>Delete Document</p><p class='subtitle is-6'>You're about to delete the currently open document</p>");
+    $("#delete-doc-modal").find(".subtitle").html("You're about to delete the currently open document");
   } else {
-    $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-warning").html("<p class='title'>Delete Document</p><p class='subtitle is-6'>You're about to delete the offline copy of the currently open document. This will <b>not</b> delete the online copy of this document if there is any. You will need to delete the online copy separately.</p>");
+    $("#delete-doc-modal").find(".subtitle").html("You're about to delete the offline copy of the currently open document. This will <b>not</b> delete the online copy of this document if there is any. You will need to delete the online copy separately.");
   }
   $("#delete-doc-modal").addClass("is-active");
 }
@@ -6115,7 +6150,7 @@ $(".delete-doc-confirm").on('click', function(event) {
 });
 
 function deleteDoc (did){
-  $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-light").html("<p class='title'>Deleting ...</p>");
+  $("#delete-doc-modal").find(".subtitle").html("Deleting ...");
 
   var fid = fidOfDID(did);
   var docRef = rootRef.child(did + ".crypteedoc");
@@ -6134,7 +6169,7 @@ function deleteDoc (did){
       updateLocalCatalog();
     } else {
       handleError("Error Deleting File", error);
-      $("#delete-doc-modal").find(".delete-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
+      $("#delete-doc-modal").find(".title").html("Error Deleting Doc... Sorry.. Please Reload the page.");
     }
   });
 
@@ -6489,7 +6524,6 @@ function showRenameInactiveDocModal (did) {
 }
 
 function hideRenameInactiveDocModal () {
-  $(".rename-doc-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-dark");
   $(".rename-doc-status > .title").html("Type in a new name below");
   $("#rename-inactive-doc-modal").removeClass("is-active");
   $("#inactive-doc-title-input").blur();
@@ -6502,7 +6536,6 @@ function renameInactiveDoc () {
   var oldDocName = $('#inactive-doc-title-input').attr("placeholder");
   var fid = fidOfDID(inactiveDidToRename);
   if (newDocName !== oldDocName) {
-    $(".rename-doc-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-warning");
     $(".rename-doc-status > .title").html("Renaming ... ");
 
     updateDocTitleInDOM(inactiveDidToRename, newDocName);
@@ -6525,7 +6558,6 @@ function renameInactiveDoc () {
         handleError("Error getting offline document from storage", err);
       });
 
-      $(".rename-doc-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-success");
       $(".rename-doc-status > .title").html("Done");
       setTimeout(function(){ hideRenameInactiveDocModal(); }, 1000);
     });
@@ -6537,7 +6569,6 @@ function renameInactiveDoc () {
 }
 
 function hideRenameDocModal () {
-  $(".rename-doc-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-dark");
   $(".rename-doc-status > .title").html("Type in a new name below");
   $("#rename-doc-modal").removeClass("is-active");
   $("#active-doc-title-input").blur();
@@ -6583,7 +6614,6 @@ function renameDoc () {
   var oldDocName = theInput.attr("placeholder");
 
   if (newDocName !== oldDocName) {
-    $(".rename-doc-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-warning");
     $(".rename-doc-status > .title").html("Renaming ... ");
 
     // if (connectivityMode) {
@@ -6610,7 +6640,6 @@ function renameDoc () {
           handleError("Error getting offline document from storage", err);
         });
         
-        $(".rename-doc-status").removeClass("is-danger is-warning is-dark is-success").addClass("is-success");
         $(".rename-doc-status > .title").html("Done");
         setTimeout(function(){
           hideRenameDocModal();
@@ -6690,15 +6719,15 @@ function toggleDocSelection(did) {
   if (did) {
     var selected = isDocSelected(did);
     
-    if (did !== activeDocID) { 
-      if (!selected) {
-        // doc wasn't selected. now select it.
-        selectDoc(did);
-      } else {
-        // doc was selected. unselect it. 
-        unselectDoc(did);
-      }
+    
+    if (!selected) {
+      // doc wasn't selected. now select it.
+      selectDoc(did);
+    } else {
+      // doc was selected. unselect it. 
+      unselectDoc(did);
     }
+    
   }
 }
 
@@ -6706,7 +6735,7 @@ function selectDoc (did) {
   var dtitle = titleOf(did); // to see if it's being decrypted.
   var docElem = $(".doc[did='" + did + "']");
 
-  if (did !== activeDocID && dtitle && !docElem.hasClass("decrypting")) { 
+  if (dtitle && !docElem.hasClass("decrypting")) { 
     var doc = catalog.docs[did];
     var itsAFile = doc.isfile || false;
     var itsADoc = !doc.isfile || true;
@@ -6809,9 +6838,10 @@ $("#doc-dropdown").on('click', '.delete-button', function(event) {
 
 
 $("#doc-dropdown").on('click', '.download-button', function(event) {
-  catalog.docs[did] = catalog.docs[did] || {};
   var did = rightClickedID();
   var dtitle = titleOf(did);
+
+  catalog.docs[did] = catalog.docs[did] || {};
   var itsAFile = catalog.docs[did].isfile || false;
   var itsADoc = !catalog.docs[did].isfile || true;
 
@@ -6840,11 +6870,8 @@ $('#selection-delete-button').on('click', function(event) {
 function showDeleteSelectionsModal () {
   $(".documents-to-be-deleted").html("");
   $.each(selectionArray, function(index, selection) {
-    if (index < selectionArray.length - 1) {
-      $(".documents-to-be-deleted").append(selection.dtitle + ", ");
-    } else {
-      $(".documents-to-be-deleted").append(selection.dtitle);
-    }
+    var docElement = "<span class='docToBeDeleted'>"+selection.dtitle+"</span>"
+    $(".documents-to-be-deleted").append(docElement);
   });
   $('#delete-selections-modal').addClass("is-active");
 }
@@ -6878,7 +6905,8 @@ function deleteSelections () {
           areDeletionsComplete(selection.did, fid);
         } else {
           handleError("Error Deleting File", error);
-          $(".delete-selections-status").removeClass("is-light is-warning is-danger").addClass("is-danger").html("<p class='title'>Error Deleting Doc... Sorry.. Please Reload the page.</p>");
+          $(".delete-selections-status").find(".title").html("Error Deleting Doc(s)");
+          $(".delete-selections-status").find(".subtitle").html("Please reload the page and try again.");
         }
       });
       
@@ -7423,7 +7451,7 @@ var searchOptions = {
   maxPatternLength: 32,
   minMatchCharLength: 1,
   includeMatches: true,
-  keys: [ "ftype", "name", "fname", "ftype", "tags"  ]
+  keys: [ "ftype", "name", "fname", "tags"  ]
 };
 
 
@@ -7726,11 +7754,11 @@ $("#upgrade-badge").on('click', function(event) {
 
 function showExportDocModal() {
   $(".document-contextual-dropdown").removeClass("open");
-  $("#export-doc-modal").addClass("is-active");
+  showFlyingModal("export-doc-modal");
 }
 
 function hideExportDocModal() {
-  $("#export-doc-modal").removeClass("is-active");
+  hideActiveFlyingModal();
 }
 
 $('#export-currentdoc-as-html').on('click', function(event) {
@@ -7743,6 +7771,10 @@ $('#export-currentdoc-as-html').on('click', function(event) {
 
 $('#export-currentdoc-as-markdown').on('click', function(event) {
   exportAsMarkdown();
+});
+
+$('#export-currentdoc-as-docx').on('click', function(event) {
+  exportAsWord();
 });
 
 $("export-currentdoc-as-crypteedoc").on('click', function(event) {
@@ -7825,6 +7857,22 @@ function exportAsCrypteedoc(did) {
   }
 }
 
+function exportAsWord() {
+  var wordDoc = htmlToDocx($(".ql-editor").contents(), activeDocTitle);
+  var title = (activeDocTitle || "Document") + ".docx";
+
+  if (wordDoc) {
+    Packer.toBlob(wordDoc).then(function(blob) {
+      saveAs(blob, title);
+      hideExportDocModal();
+    });
+  } else {
+    handleError("Couldn't find a wordDoc to export");
+    showErrorBubble("Error Exporting to Word Document");
+    hideExportDocModal();
+  }
+}
+
 
 ///////////////////////////////////////////////////////////
 ////////////////// QUILL EMBED CONTROLLER  ////////////////
@@ -7871,7 +7919,7 @@ function confirmEmbed() {
       erroredOut = true;
       var errorMessage = error.message.replace("KaTeX parse error: ", "");
       $("#embed-modal-error").html(errorMessage);
-      $("#embed-modal-status").removeClass("is-dark").addClass("is-danger");
+      $("#embed-modal-status").removeClass("is-white").addClass("is-danger");
     }
   } else if (activeEmbed === "link") {
     quill.format('link', $("#embed-input").val());
@@ -7884,7 +7932,7 @@ function confirmEmbed() {
 }
 
 function hideEmbed() {
-  $("#embed-modal-status").addClass("is-dark").removeClass("is-danger");
+  $("#embed-modal-status").addClass("is-white").removeClass("is-danger");
   $("#embed-modal-error").html("");
   $("#embed-modal").removeClass("is-active");
   quill.focus();
@@ -7907,33 +7955,30 @@ $("#embed-input").on('keydown', function (e) {
 var selectedAttachmentFiles;
 document.getElementById('attach-from-device-button').addEventListener('change', attachmentSelectedFromDevice, false);
 
-$('#attach-image-from-cryptee-button').on('click', function(event) {
-  event.preventDefault();
-  showCrypteeSelector();
-});
-
 function showAttachmentSelector (filetype) {
-  $("#attachment-search-input").attr("filetype", filetype);
+  $("#attachment-source-box").show();
   if (filetype === "image") {
     $("#attachment-source-box").find(".title").html("Add Image");
     $("#attach-from-device-label").show();
-    $("#attach-image-from-cryptee-button").show();
+    $("#embed-how-to").show();
+    $("#attach-how-to").hide();
   } else {
     $("#attachment-source-box").find(".title").html("Attach File from Cryptee");
     $("#attach-from-device-label").hide();
-    $("#attach-image-from-cryptee-button").hide();
-    showCrypteeSelector();
+    $("#embed-how-to").hide();
+    $("#attach-how-to").show();
   }
 
   $("#attachment-modal").addClass("is-active");
-  $("#attachment-modal").find(".image-selection-preview").css("background-image", 'none');
+  $(".image-selection-preview").css("background-image", 'none');
   $(".image-selection-preview").hide();
 }
 
 function hideAttachmentSelector () {
   $("#attachment-modal").removeClass("is-active");
   $("#attachment-target-box").hide();
-  $("#attachment-modal").find(".image-selection-preview").css("background-image", 'none');
+  $("#attachment-target-box").removeClass("shown");
+  $(".image-selection-preview").css("background-image", 'none');
   $(".image-selection-preview").hide();
   $("#attach-from-device-button").val("");
   quill.focus();
@@ -7950,17 +7995,24 @@ function attachmentSelectedFromDevice (event) {
     reader.readAsDataURL(file);
     reader.onloadend = function(){
       var base64FileContents = reader.result;
-      $(".image-selection-preview").show();
-      $("#attachment-modal").find(".image-selection-preview").css("background-image", 'url(' + base64FileContents + ')');
+      $(".image-selection-preview").css("background-image", 'url(' + base64FileContents + ')');
+      $("#attachment-source-box").fadeOut(500,function(){
+        $(".image-selection-preview").fadeIn(500);
+        $("#attachment-target-box").show();
+        setTimeout(function () {
+          $("#attachment-target-box").addClass("shown");
+        }, 250);
+      });
     };
     reader.onerror = function(err){
       fileUploadError = true;
       handleError("Error reading selected attachment from device", err);
       $(".image-selection-preview").hide();
+      $("#attachment-source-box").show();
       showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading your image. This is most likely a problem we need to fix, and rest assured we will.");
     };
   }
-  showAttachmentTargetBox();
+  
 }
 
 function embedSelectedImages (selectedAttachmentFiles) {
@@ -8069,11 +8121,6 @@ function uploadSelectionsToCurrentFolder (selectedAttachmentFiles) {
 }
 
 
-function showAttachmentTargetBox () {
-  $("#attachment-target-box").show();
-}
-
-
 $('#embed-attachment-inline-button').on('click', function(event) {
   event.preventDefault();
   embedSelectedImages(selectedAttachmentFiles);
@@ -8108,99 +8155,28 @@ $('.ql-attachfile').on('click', function(event) {
 
 
 
-function hideCrypteeSelector () {
-  $('.attachment-selector').hide();
-}
-
-function showCrypteeSelector () {
-  clearAttachmentSearch();
-  $('.attachment-selector').show();
-  setTimeout(function () {
-    $("#attachment-search-input").focus();
-  }, 25);
-}
-
-$("#attachment-search-input").on('keydown', function (e) {
-  setTimeout(function(){
-    var filetype = $("#attachment-search-input").attr("filetype");
-    if (e.keyCode === 27) {
-      if ($("#attachment-search-input").val().trim() === "") {
-        hideCrypteeSelector ();
-      } else {
-        clearAttachmentSearch();
-      }
-    } else {
-      attachmentSearch($("#attachment-search-input").val().trim(), filetype);
-    }
-  },50);
+$("#doc-dropdown").on('click', '.attach-button', function(event) {
+  event.preventDefault();
+  var did = rightClickedID();
+  catalog.docs[did] = catalog.docs[did] || {};
+  var title = catalog.docs[did].name || "Untitled Document";
+ 
+  attachCrypteeFile(title, did);
+  
+  hideRightClickMenu();
+  showFileUploadStatus("is-info", "Attaching " + title + " to document.");
 });
 
-function attachmentSearch (term, filetype) {
-  var attachmentSearchOptions = {
-    shouldSort: true,
-    threshold: 0.1,
-    location: 0,
-    distance: 100,
-    maxPatternLength: 32,
-    minMatchCharLength: 1,
-    keys: [ "ftype", "name", "fname", "tags"  ]
-  };
-  var fuse = new Fuse(Object.values(catalog.docs), attachmentSearchOptions);
-  var results = fuse.search(term);
-  displayAttachmentSearchResults(results, filetype);
-}
-
-function displayAttachmentSearchResults (results, filetype) {
-  $("#attachment-results").html("");
-
-  $.each(results, function(i, result){
-    result.ftype = result.ftype || "";
-    if (result.ftype.indexOf(filetype) !== -1 || (filetype !== "image" && result.ftype === "")) {
-      var folderColor = result.fcolor;
-      if ( result.fcolor === " #363636" || result.fcolor === "#363636" ) { folderColor = "#000"; }
-      var folderCard = '<p class="attachment-result-folder column is-11" id="attachment-result-'+result.fid+'"><span class="icon"><i class="fa fa-folder" style="color:'+folderColor+'"></i></span> '+result.fname+'</p>';
-      var theResultFolder = $("#attachment-result-" + result.fid);
-      if (theResultFolder.length <= 0) {
-        $("#attachment-results").append(folderCard);
-      }
-    }
-  });
-
-  $.each(results, function(i, result){
-    result.ftype = result.ftype || "";
-    if (result.ftype.indexOf(filetype) !== -1 || (filetype !== "image" && result.ftype === "")) {
-      var theResultFolder = $("#attachment-result-" + result.fid);
-      var resultCard = '<div class="attachment-result column is-half" did="'+result.did+'"><span class="icon docicon exticon"><i class="'+result.icon+'"></i></span><span class="doctitle">'+result.name+'</span></div>';
-      theResultFolder.after(resultCard);
-    }
-  });
-
-}
-
-function clearAttachmentSearch () {
-  $("#attachment-search-input").val('');
-  $("#attachment-results").html("");
-}
-
-
-
-
-
-
-$("#attachment-results").on('click', '.attachment-result', function(event) {
+$("#doc-dropdown").on('click', '.embed-button', function(event) {
   event.preventDefault();
+  var did = rightClickedID();
+  catalog.docs[did] = catalog.docs[did] || {};
+  var title = catalog.docs[did].name || "Untitled Document";
 
-  var filetype = $("#attachment-search-input").attr("filetype");
-  var didToAttach = $(this).attr("did");
-  var attachmentTitle = $(this).find(".doctitle").text();
-
-  if (filetype === "image") {
-    downloadAttachment(attachmentTitle, didToAttach);
-  } else {
-    attachCrypteeFile(attachmentTitle, didToAttach);
-  }
-  hideAttachmentSelector();
-  showFileUploadStatus("is-info", "Attaching " + attachmentTitle + " to document.");
+  downloadAttachment(title, did);
+  
+  hideRightClickMenu();
+  showFileUploadStatus("is-info", "Embedding " + title + " to document.");
 });
 
 function downloadAttachment (attachmentTitle, did) {
@@ -8569,14 +8545,18 @@ function importEvrntDocument (dtitle, did, decryptedContents, callback, docsize,
 }
 
 function enexTimeToGen(enoteTime) {
-  var enoteUpdatedYear = enoteTime.substring(0,4);
-  var enoteUpdatedMonth = enoteTime.substring(4,6);
-  var enoteUpdatedDay = enoteTime.substring(6,8);
-  var enoteUpdatedHour = enoteTime.substring(9,11);
-  var enoteUpdatedMinute = enoteTime.substring(11,13);
-  var enoteUpdatedSecond = enoteTime.substring(13,15);
-  var enoteParsedDate = new Date(enoteUpdatedYear, enoteUpdatedMonth-1, enoteUpdatedDay, enoteUpdatedHour, enoteUpdatedMinute, enoteUpdatedSecond);
-  return enoteParsedDate.getTime();
+  if (enoteTime) {
+    var enoteUpdatedYear = enoteTime.substring(0,4);
+    var enoteUpdatedMonth = enoteTime.substring(4,6);
+    var enoteUpdatedDay = enoteTime.substring(6,8);
+    var enoteUpdatedHour = enoteTime.substring(9,11);
+    var enoteUpdatedMinute = enoteTime.substring(11,13);
+    var enoteUpdatedSecond = enoteTime.substring(13,15);
+    var enoteParsedDate = new Date(enoteUpdatedYear, enoteUpdatedMonth-1, enoteUpdatedDay, enoteUpdatedHour, enoteUpdatedMinute, enoteUpdatedSecond);
+    return enoteParsedDate.getTime();
+  } else {
+    return null;
+  }
 }
 
 ///////////////////////////////////////////////////////////
@@ -9394,7 +9374,7 @@ function alsoSaveDocOffline (did, callback) {
       if (err.code === 22) {
         // USER EXCEEDED STORAGE QUOTA. 
         breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
-        showWarningModal("offline-storage-full-modal");
+        showFlyingModal("offline-storage-full-modal");
       }
       err.did = did;
       handleError("Error setting offline document to storage", err);
@@ -9479,7 +9459,7 @@ function saveOfflineDoc (callback, callbackParam) {
           if (err.code === 22) {
             // USER EXCEEDED STORAGE QUOTA. 
             breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
-            showWarningModal("offline-storage-full-modal");
+            showFlyingModal("offline-storage-full-modal");
           } else {
             showErrorBubble("Error saving document", err);
           }
@@ -9732,7 +9712,7 @@ function makeOfflineDoc(did) {
                     if (err.code === 22) {
                       // USER EXCEEDED STORAGE QUOTA. 
                       breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
-                      showWarningModal("offline-storage-full-modal");
+                      showFlyingModal("offline-storage-full-modal");
                     }
                     err.did = did;
                     handleError("Error setting offline document to storage", err);
@@ -10191,7 +10171,7 @@ function downSyncOnlineDoc (doc, docRef, onlineGen, callback, callbackParam) {
                   if (err.code === 22) {
                     // USER EXCEEDED STORAGE QUOTA. 
                     breadcrumb("Exceeded Storage Quota. (" + storageDriver + ")");
-                    showWarningModal("offline-storage-full-modal");
+                    showFlyingModal("offline-storage-full-modal");
                   } else {
                     showErrorBubble("Error saving "+dtitle+" during sync", err);
                   }

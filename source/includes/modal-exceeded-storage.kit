@@ -1,28 +1,33 @@
 <div class="modal" id="exceeded-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-light is-hidden-paid-user">
-      <p class="title">Exceeded Storage Space</p>
+    <div class="notification crypteecard is-white is-hidden-paid-user">
+      <p class="title is-4 has-text-centered">Exceeded Storage Space</p>
       <p><b>You have used all the storage space you can get for free.</b></p><br>
       <p>For the price of a cup of coffee, you can get more storage and help us create a safe &amp; private place on the internet.</p>
       <br>
       <p>If you don't wish to upgrade, you can of course still open your documents &amp; files, but you won't be able to save your documents or upload new things until you clean up some space.</p>
       <br>
       <p><b>Please note that accounts that have exceeded their storage space will be deleted after 30 days. If you have an email address on file, you will receive a notification 15 days before we take action on your account.</b></p>
+      
+      <a class="button is-success www-action-button" onclick="showPlans()">Upgrade</a>
+      <a class="button is-danger www-action-button" onclick="closeExceededStorageModal()">Clean up&nbsp;<span class="exceeded-storage"></span></a>
+    
     </div>
 
-    <div class="notification is-light is-hidden-free-user">
-      <p class="title">Exceeded Storage Space</p>
+    <div class="notification crypteecard is-white is-hidden-free-user">
+      <p class="title is-4 has-text-centered">Exceeded Storage Space</p>
       <p><b>You have used all the storage space your plan allows.</b></p><br>
       <p>You can switch to a larger plan and store even more of your files securely and privately.</p>
       <br>
       <p>If you don't wish to upgrade to a larger plan, you can of course still open your documents &amp; files, but you won't be able to save your documents or upload new things until you clean up some space.</p>
       <br>
       <p><b>Please note that accounts that have exceeded their storage space will be deleted after 30 days. If you have an email address on file, you will receive a notification 15 days before we take action on your account.</b></p>
+      
+      <a class="button is-success www-action-button" onclick="showPlans()">Upgrade</a>
+      <a class="button is-danger www-action-button" onclick="closeExceededStorageModal()">Clean up&nbsp;<span class="exceeded-storage"></span></a>
+    
     </div>
-
-    <a class="button is-success" onclick="showPlans()">Upgrade</a>
-    <a class="button is-danger" onclick="closeExceededStorageModal()">Clean up&nbsp;<span class="exceeded-storage"></span></a>
     
   </div>
 </div>

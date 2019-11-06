@@ -1,12 +1,13 @@
 <div class="modal" id="photos-delete-selections-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-danger delete-selections-status">
-      <p class="title">Delete Photos</p>
+    <div class="notification crypteecard delete-selections-status">
+      <p class="title is-4 has-text-centered">Delete Photos</p>
       <p class="subtitle is-6">Are you sure you want to delete your selections? (<span class="number-of-selections"></span>)?</p>
+      
+      <a class="button is-success www-action-button" onclick="deleteSelections();">Delete</a>
+      <a class="button is-danger www-action-button" onclick="cancelModal();">Cancel</a>
     </div>
-    <a class="button is-success" onclick="deleteSelections();">Delete</a>
-    <a class="button is-danger" onclick="cancelModal();">Cancel</a>
   </div>
   <button class="modal-close"></button>
 </div>

@@ -1,24 +1,32 @@
 <div class="modal" id="attachment-modal">
-  <div class="modal-background" style="background-color:rgba(255,255,255,0.9); filter: blur(5px); background-size: cover;" onclick="hideAttachmentSelector()"></div>
-  <div class="modal-content" style="max-height:calc(100% - 3rem);">
+  <div class="modal-background" onclick="hideAttachmentSelector()"></div>
+  <div class="modal-content" style="max-height:calc(100% - 3rem); max-width: 480px;">
     <div class="image-selection-preview">
 
     </div>
-    <div id="attachment-source-box" class="notification is-dark">
-      <p class="title">Attach things</p>
-      <input class="folder-upload-input" type="file" id="attach-from-device-button" name="files[]" multiple />
-      <label id="attach-from-device-label" class="clickable" for="attach-from-device-button"><span class="icon"><i class="fa fa-upload fa-fw"></i></span> from Device &nbsp; &nbsp;</label>
-      <span class="clickable" id="attach-image-from-cryptee-button"><span class="icon is-small"><i class="fa fa-paperclip fa-fw"></i></span> from Cryptee</span>
-      <div class="field">
-        <p class="control">
-          <input id="attachment-url-input" class="modal-input input" type="text" placeholder="https://google.com/logos/google.jpg"  autocomplete="off">
-        </p>
-      </div>
 
-      <!-- @import "attachment-selector.kit" -->
+    <div id="attachment-source-box" class="notification crypteecard">
+      <p class="title is-4 has-text-centered">Attach things</p>
+      <input class="folder-upload-input" type="file" id="attach-from-device-button" name="files[]" multiple />
+      
+      <label id="attach-from-device-label" class="clickable" for="attach-from-device-button">
+        <span class="icon"><i class="fa fa-upload fa-fw"></i></span> Upload from Device &nbsp; &nbsp;
+      </label>
+
+      <div id="embed-how-to">
+        <p>If you have already uploaded the image to Cryptee Docs, you can right click on it (or tap <span class="icon"><i class="fa fa-ellipsis-v fa-fw"></i></span>), and select "Attach" or "Embed Inline" from the dropdown menu.</p>
+      </div>
+      
+      <div id="attach-how-to">
+        <p>1) From the menu on the left, find the file you'd like to attach to this document, either from its folder, or via search.</p>
+        <br>
+        <p>2) Right click on the file (or tap <span class="icon"><i class="fa fa-ellipsis-v fa-fw"></i></span>), and select "Attach" from the dropdown menu.</p>
+      </div>
+        
     </div>
 
-    <div id="attachment-target-box" class="notification" style="display:none;">
+    <!-- FOR IMAGES ONLY -->
+    <div id="attachment-target-box" class="notification crypteecard" style="display:none;">
       <div class="columns is-mobile">
         <div class="column has-text-centered clickable" id="embed-attachment-inline-button">
           <span class="icon is-medium"><i class="fa fa-indent fa-rotate-180 fa-fw"></i></span><br>

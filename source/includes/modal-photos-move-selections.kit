@@ -1,12 +1,12 @@
 <div class="modal" id="photos-move-selections-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-dark">
-      <p class="title">Move Photos</p>
+    <div class="notification crypteecard is-white" style="min-height:10rem;">
+      <p class="title is-4 has-text-centered">Move Photos</p>
       <p class="subtitle is-6">Select an album below to move your photos.</p>
-    </div>
-    <div class="notification scrollable-modal" style="min-height:10rem;">
+   
       <div class="columns is-mobile">
+
         <div class="column">
           <button class="button is-fullwidth photos-move-folders-list-item" fid="new" id="move-folders-list-new">
             <span class="icon is-small">
@@ -15,6 +15,7 @@
             <span>New<span class="is-hidden-mobile"> Album</span></span>
           </button>
         </div>
+
         <div class="column">
           <button class="button is-fullwidth photos-move-folders-list-item" fid="home" id="move-folders-list-home">
             <span class="icon is-small">
@@ -23,13 +24,17 @@
             <span>Home</span>
           </button>
         </div>
+
       </div>
-      <div class="columns is-multiline" id="photos-move-folders-list"> 
+
+      <div class="columns is-multiline scrollable-modal" id="photos-move-folders-list"> 
       
       </div>
+      
+      <a class="button is-success www-action-button" onclick="moveFolderSelectionMade();">Move</a>
+      <a class="button is-danger www-action-button" onclick="cancelModal();">Cancel</a>
     </div>
-    <a class="button is-success" onclick="moveFolderSelectionMade();">Move</a>
-    <a class="button is-danger" onclick="cancelModal();">Cancel</a>
+  
   </div>
   <button class="modal-close"></button>
 </div>

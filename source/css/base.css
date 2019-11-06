@@ -862,54 +862,54 @@ html {
 }
 
 .scrollable-modal {
-  overflow-y: scroll;
-  max-height: 220px;
+  overflow-y: scroll !important;
+  max-height: 240px !important;
 }
 
-.warning-modal .modal-background{
+.flying-modal .modal-background{
   background-color: rgba(245,245,245,0) !important;
   transition: 1s background-color ease !important;
 }
 
-.warning-modal.is-shown .modal-background{
+.flying-modal.is-shown .modal-background{
   background-color: rgba(245,245,245,0.9) !important;
 }
 
-.warning-modal .crypteecard {
+.flying-modal .crypteecard {
   overflow: hidden;
   box-shadow: rgba(10,10,10,0.2);
   background-color: #FFF;
 }
 
-.warning-modal .modal-content {
+.flying-modal .modal-content {
   max-width: 480px;
   transform: translateY(250%);
   transition: 1s transform ease;
   margin: 0;
 }
 
-.warning-modal.is-shown .modal-content {
+.flying-modal.is-shown .modal-content {
   max-width: 480px;
   transform: translateY(0);
   transition: 1s transform ease; 
 }
 
-.warning-modal img {
+.flying-modal img {
   width: 100%;
   height: 230px;
   object-fit: cover;
   object-position: center;
 }
 
-.warning-modal .content {
+.flying-modal .content {
   padding: 1.5rem;
 }
 
-.warning-modal .title {
+.flying-modal .title {
   text-align: center;
 }
 
-.warning-modal p:not(.title) {
+.flying-modal p:not(.title) {
   text-align: left;
 }
 
@@ -964,7 +964,7 @@ html {
 
 #key-modal {
   z-index: 995;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -978,7 +978,7 @@ html {
 
 #key-modal img {
   z-index: 995;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -989,7 +989,7 @@ html {
 
 #key-modal .back-curtain {
   z-index: 996;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -2724,17 +2724,46 @@ html {
 }
 
 #attachment-modal .image-selection-preview {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
+  width: calc(100% - 2rem);
+  height: calc(100% - 2rem);
   min-width: 280px;
   min-height: 280px;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  margin-bottom: 2rem;
+  margin: 1rem 1rem 2rem 1rem;
+  border-radius: 10px;
   display: none;
+}
+
+#attachment-target-box {
+  transform: translateY(0) scale(1);
+  opacity: 0;
+  transition: 0.7s transform ease, 0.7s opacity ease;
+  pointer-events: none;
+}
+
+#attachment-target-box.shown {
+  transform: translateY(-3rem) scale(0.9);
+  opacity: 1;
+  pointer-events: all;
+  padding-bottom: 1.25rem;
+}
+
+#attach-from-device-label {
+  width: 100%;
+  text-align: center;
+  display: block;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px #000 dashed;
+  border-radius: 10px;
+  background-color : transparent;
+  transition: 0.3s background-color ease;
+}
+
+#attach-how-to, #embed-how-to {
+  padding-bottom: 1.25rem;
 }
 
 #left-stuff {
@@ -2912,6 +2941,7 @@ html {
   border: none;
   margin-left: 0;
   padding-left: 0px;
+  font-size: 1rem;
 }
 
 .whatisaghost {
@@ -3504,6 +3534,23 @@ body.draggingStuff {
   width: 100%;
 }
 
+.modal .notification.crypteecard {
+  padding-bottom: 0rem;
+}
+
+.modal .notification.crypteecard .title {
+  margin-bottom: 2rem;
+}
+
+.modal .notification.crypteecard .modal-input {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.modal .notification.crypteecard .button:first-of-type {
+  margin: 1.25rem 0.5rem 1.25rem 0;
+}
+
 .modal, .rename-status, .rename-doc-status, .ghost-status {
   transition: ease-in-out 0.5s all;
 }
@@ -3545,62 +3592,6 @@ body.draggingStuff {
 .keymodal-input-control {
   margin-right: 1.25rem;
   width: calc(100% - 6rem);
-}
-
-#attachment-url-input {
-  color : #FFF;
-  display: none;
-}
-
-#attachment-search-input {
-  color : #FFF;
-  height: 2rem;
-  font-size: 1.5rem;
-}
-
-#attachment-results {
-  padding: 1rem 20px 0 0;
-  width: calc(100% + 20px);
-  overflow: scroll;
-  max-height: 400px;
-}
-
-.attachment-selector {
-  height: calc(100% - 5rem);
-  overflow: hidden;
-}
-
-.attachment-result {
-  /*border: 1px solid #FFF;*/
-  padding: 0.25rem;
-  margin: 0.25rem 0.25rem 0.25rem 0.5rem;
-  width: calc(100% - 0.5rem) !important;
-  cursor: pointer;
-  transition: ease-in-out 0.25s all;
-  background-color: transparent;
-  color: #FFF;
-  height: auto;
-}
-
-.attachment-result .doctitle {
-  position: relative;
-  color: #FFF;
-}
-
-.attachment-result .docicon i {
-  transition: ease-in-out 0.25s color;
-  color: #FFF;
-}
-
-.attachment-result-folder {
-  /*border-bottom: 1px solid;*/
-  margin: 0rem;
-  padding: 0rem;
-}
-
-.active-attachment-tab {
-  border-bottom: 1px solid;
-  padding-bottom: 5px;
 }
 
 #doc-contextual-buttons {
@@ -3856,7 +3847,7 @@ body.draggingStuff {
   overflow: scroll;
 }
 
-.upload-status-message {
+.docs-body .upload-status-message {
   padding: 0.5rem 1.25rem;
   width: 100%;
   display: block;
@@ -4074,11 +4065,6 @@ body.draggingStuff {
   pointer-events: none;
 }
 
-#exceeded-modal .notification {
-  padding-left: 0;
-  padding-right: 0;
-}
-
 #exceeded-home {
   display: none;
 }
@@ -4125,7 +4111,8 @@ body.draggingStuff {
 }
 
 .export-option {
-  padding: 1rem;
+  padding: 1rem 0;
+  margin-left: -5px;
 }
 
 .card-content {
@@ -4826,6 +4813,7 @@ body.draggingStuff {
   padding: 0 !important;
   height: 575px;
   position: relative;
+  overflow-y: scroll;
 }
 
 #upgrade-form.is-white.is-loading::after {
@@ -5168,7 +5156,7 @@ body.draggingStuff {
   opacity: 1 !important;
 }
 
-.album, .photo {
+.album, .media {
   cursor: pointer;
   max-height: 100%;
   max-width: 100%;
@@ -5186,6 +5174,20 @@ body.draggingStuff {
   overflow: hidden;
 }
 
+.folder-content.fav img,
+.folder-content.fav .media.is-loading {
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+.folder-content.fav .media {
+  max-width: calc(100% - 1rem);
+  max-height: calc(100% - 1rem);
+  border-radius: 10px;
+  margin: auto;
+  overflow: initial;
+}
 
 @media (max-width:768px) {
 
@@ -5270,12 +5272,12 @@ body.draggingStuff {
 
 }
 
-.album *, .photo * {
+.album *, .media * {
 	vertical-align: middle;
 	text-align: center;
 }
 
-.photo-selection {
+.media-selection{
   transition: 0.3s all ease;
   height: 3rem;
   width: 3rem;
@@ -5290,7 +5292,7 @@ body.draggingStuff {
   box-shadow: 0 2px 3px rgba(0,0,0,0.15);
 }
 
-.photo-selection.selectionmode {
+.media-selection.selectionmode{
   opacity: 1 !important;
   pointer-events: auto !important;
 }
@@ -5299,31 +5301,33 @@ body.draggingStuff {
   margin-right: -1px;
 }
 
-.photo-selection i {
+.media-selection i {
   font-size: 1.15rem !important;
   color: #ccc;
   transition: 0.3s color ease;
 }
 
-.photoitem.selected i {
+.mediaitem.selected i {
   color: #000 !important;
 }
 
-.photoitem.selected img {
+.mediaitem.selected img {
   transform: scale3d(0.88,0.88,0.88);
 }
 
-.folder-content.selected .icon, .folder-content.selected .photo-selection {
+.folder-content.selected .icon, 
+.folder-content.selected .media-selection {
   opacity: 1 !important;
 }
 
 
 
-.photo.is-loading, .album.is-loading {
+.media.is-loading, 
+.album.is-loading {
   pointer-events: none;
 }
 
-.photo.is-loading img {
+.media.is-loading img {
   will-change: opacity;
   pointer-events: none;
 }
@@ -5334,7 +5338,7 @@ body.draggingStuff {
 }
 
 
-.photo.is-loading::before {
+.media.is-loading::before {
   font-family: FontAwesome;
   content: "\f023";
   display: block;
@@ -5348,7 +5352,7 @@ body.draggingStuff {
   font-size: 25px;
 }
 
-.photo.is-loading::after {
+.media.is-loading::after {
   -webkit-animation: spinAround 500ms infinite linear;
   animation: spinAround 500ms infinite linear;
   border: 3px solid #000;
@@ -5364,21 +5368,23 @@ body.draggingStuff {
   position: absolute !important;
 }
 
-.photo.is-loading.is-black-loader::after, .photo.is-loading.is-black-loader::before {
+.media.is-loading.is-black-loader::after, 
+.media.is-loading.is-black-loader::before {
   color: #000;
   border-color : #000;
   border-right-color: transparent;
   border-top-color: transparent;
 }
 
-.photo.is-loading.is-white-loader::after, .photo.is-loading.is-white-loader::before {
+.media.is-loading.is-white-loader::after, 
+.media.is-loading.is-white-loader::before {
   color: #FFF;
   border-color : #FFF;
   border-right-color: transparent;
   border-top-color: transparent;
 }
 
-.phototitle {
+.mediatitle {
   opacity: 0;
   position: absolute;
   bottom: 0;
@@ -5444,37 +5450,33 @@ body.draggingStuff {
   z-index: 9;
 }
 
-.album .deletefoldericon {
-  position: absolute;
-  bottom: 0;
-  /* left: 0; */
-  width: 2rem;
-  height: 2rem;
-  padding: 1rem;
-  background-color: #d9534f;
-  color: #FFF;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-  border: 0;
-  z-index: 9;
-  opacity: 0;
-  /* pointer-events: none; */
-}
-
+.album .deletefoldericon,
+.album .downloadfoldericon,
 .album .ghostfoldericon {
   position: absolute;
   bottom: 0;
-  /* left: 2rem; */
   width: 2rem;
   height: 2rem;
   padding: 1rem;
-  background-color: #000;
   color: #FFF;
   transition: all 0.3s ease;
   border: 0;
-  z-index: 10;
   opacity: 0;
-  /* pointer-events: none; */
+}
+
+.album .deletefoldericon {
+  background-color: #d9534f;
+  z-index: 9;
+}
+
+.album .ghostfoldericon {
+  background-color: #000;
+  z-index: 10;
+}
+
+.album .downloadfoldericon {
+  background-color: #000;
+  z-index: 10;
 }
 
 .albumtitle.armed {
@@ -5483,21 +5485,25 @@ body.draggingStuff {
   left: 4rem;
 }
 
-.deletefoldericon.armed, .ghostfoldericon.armed {
+.deletefoldericon.armed, 
+.ghostfoldericon.armed,
+.downloadfoldericon.armed {
   opacity: 1;
   pointer-events: auto;
 }
 
-.photo.is-loading .phototitle, .photo.is-loading .photo-selection {
+.media.is-loading .mediatitle, 
+.media.is-loading .media-selection {
   opacity: 0 !important;
   pointer-events: none !important;
 }
 
-.phototitle:focus {
+.mediatitle:focus {
   opacity: 1 !important;
 }
 
-.albumitem .photoitem, #get-home-folder-button .photoitem {
+.albumitem .mediaitem, 
+#get-home-folder-button .mediatem {
   opacity: 0 !important;
   pointer-events: none;
   height: 0px;
@@ -5524,18 +5530,15 @@ body.draggingStuff {
   padding: 0;
 }
 
-#photos-set-thumb-button.unavailable {
+#photos-set-thumb-button.unavailable,
+#photos-select-all-button.unavailable,
+#photos-sort-button.unavailable,
+#get-favorites-folder-button.unavailable,
+#photos-upload-photo-button.unavailable,
+#photos-get-ghost-folder-button.unavailable {
   opacity: 0;
   pointer-events: none;
   height: 0px;
-}
-
-#photos-new-folder-button.unavailable, #photos-get-ghost-folder-button.unavailable {
-  opacity: 0;
-  pointer-events: none;
-  width: 0px;
-  margin: 0 0 0 -4px;
-  padding: 0;
 }
 
 #get-home-folder-button.dropzoneToHome {
@@ -5565,6 +5568,7 @@ body.draggingStuff {
   color: #000 !important;
   transition: all 0.3s ease;
   border: none;
+  box-shadow: none !important;
 }
 
 .photos-top-nav .button .icon {
@@ -5651,13 +5655,19 @@ body.draggingStuff {
   transition: opacity 0.5s ease;
   object-fit: contain;
   border-radius: 1rem;
-  max-height: calc(100% - 2rem);
+  max-height: calc(100% - 2rem) !important;
   max-width: calc(100% - 2rem);
-  margin: 1rem;
+  margin: auto;
   box-shadow: 0px 0px 1rem rgba(0,0,0,0.2);
+  user-select: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
 }
 
-#lightbox-photo.wait {
+.lightbox-photo.wait {
   opacity: 0;
   box-shadow: 0px 0px 0px rgba(255,255,255,1);
 }
@@ -5692,6 +5702,9 @@ body.draggingStuff {
   width: 100%;
   height: 3.125rem;
   background-color: transparent;
+  top: 0;
+  position: fixed;
+  z-index: 100;
 }
 
 #lightbox-fullscreen {
@@ -5908,15 +5921,6 @@ body.draggingStuff {
   pointer-events: none;
 }
 
-#photos-upload-status #upload-status {
-  padding: 1.25rem 1.5rem;
-  min-height: 205px;
-}
-
-#photos-upload-status .upload-status-message {
-  padding:0;
-}
-
 #upload-status-contents .progress {
   opacity: 0.15;
   height: 1.5rem;
@@ -5952,10 +5956,6 @@ body.draggingStuff {
 
 #upload-status-contents {
   max-height: 15.75rem;
-}
-
-#photos-upload-status .modal-background {
-  background: #f5f5f5 !important;
 }
 
 .fn {
@@ -6309,7 +6309,9 @@ body.draggingStuff {
     padding: 1rem;
   }
 
-  .photoitem .phototitle, .albumitem .albumtitle, .albumicon {
+  .mediaitem .mediatitle,
+  .albumitem .albumtitle, 
+  .albumicon {
     opacity: 1;
   }
 
@@ -6413,11 +6415,11 @@ body.draggingStuff {
     max-width: calc(100% - 3.75rem);
   }
 
-  .warning-modal img {
+  .flying-modal img {
     height: 100px;
   }
 
-  .warning-modal .content {
+  .flying-modal .content {
       padding: 1rem;
   }
 
@@ -6631,7 +6633,8 @@ body.draggingStuff {
     border:0;
   }
 
-  .photo:hover .icon, .photo:hover .photo-selection {
+  .media:hover .icon, 
+  .media:hover .media-selection {
     opacity: 1;
     pointer-events: auto;
   }
@@ -6682,11 +6685,15 @@ body.draggingStuff {
     background-color: #000;
   }
 
-  .album:hover, .photo:hover {
+  .album:hover, 
+  .media:hover {
     cursor: pointer;
   }
 
-  .photoitem:hover .phototitle, .albumitem:hover .albumtitle, .albumitem:hover .albumicon, .albumitem:hover .settingsicon {
+  .mediaitem:hover .mediatitle,
+  .albumitem:hover .albumtitle,
+  .albumitem:hover .albumicon,
+  .albumitem:hover .settingsicon {
     opacity: 1;
   }
 
@@ -6781,6 +6788,13 @@ body.draggingStuff {
     font-size:19.5px;
   }
 
+  #attach-from-device-label:hover {
+    background-color: #FFF;
+  }
+
+  .dm #attach-from-device-label:hover {
+    background-color: #000;
+  }
 }
 
 @media (-moz-touch-enabled: 1), (pointer:coarse) {
@@ -6956,11 +6970,14 @@ body.draggingStuff {
     font-size: 1.2rem !important;
   }
 
-  .album .settingsicon, .album .deletefoldericon, .ghostfoldericon {
+  .album .settingsicon, 
+  .album .deletefoldericon, 
+  .album .ghostfoldericon,
+  .album .downloadfoldericon {
     padding : 1.5rem 1.25rem;
   }
 
-  .phototitle {
+  .mediatitle {
     font-size: 10px;
     margin-bottom: -1.65rem;
     display: none;
@@ -6969,7 +6986,7 @@ body.draggingStuff {
   }
 
 
-  .photoitem.selected img {
+  .mediaitem.selected img {
     transform: scale3d(0.8,0.8,0.8);
   }
 
@@ -6990,7 +7007,10 @@ body.draggingStuff {
     padding-left: 3rem;
   }
 
-  .album .settingsicon, .album .deletefoldericon, .albumicon, .ghostfoldericon {
+  .album .settingsicon, 
+  .album .deletefoldericon, 
+  .album .downloadfoldericon, 
+  .albumicon, .ghostfoldericon {
     height: 3rem !important;
     width: 3rem !important;
     margin-bottom: -1px !important;
@@ -7038,7 +7058,7 @@ body.draggingStuff {
     height: 575px;
   }
 
-  .photo-selection:not(.selectionmode) {
+  .media-selection:not(.selectionmode) {
     pointer-events: none;
   }
 
@@ -7152,17 +7172,19 @@ html.dm.pending::before {
 
 .dm .progress:indeterminate {
   animation: progress-indeterminate-dark 3s ease infinite;
-  background: var(--darker) linear-gradient(to right, #4BBF73 50%, var(--darker) 50%) top left/150% 150% no-repeat;
+  background: var(--darker) linear-gradient(to right, var(--darker) 10%, #4BBF73 50%, var(--darker) 90%) top left/150% 150% no-repeat;
 }
 
 @keyframes progress-indeterminate-dark {
   0% {
-    background-image: linear-gradient(to right, var(--darker) 50%, var(--darker) 50%);
+    background-image: linear-gradient(to right, var(--darker) 10%, var(--bright) 50%, var(--darker) 90%);
     background-position: 200% 0;
+    background-color : var(--darker);
   }
   100% {
-    background-image: linear-gradient(to right, #4BBF73 50%, var(--darker) 50%);
+    background-image: linear-gradient(to right, var(--darker) 10%, #4BBF73 50%, var(--darker) 90%);
     background-position: -200% 0;
+    background-color : var(--darker);
   }
 }
 
@@ -7170,7 +7192,7 @@ html.dm.pending::before {
   color :var(--brightest);
 }
 
-.dm .modal-background {
+.dm .modal:not(#exceeded-modal).modal-background {
   background-color:rgba(10,10,10,0.86) !important;
 }
 
@@ -7207,4 +7229,7 @@ html.dm.pending::before {
   color: #555;
 }
 
+.dm #attach-from-device-label {
+  border-color: #FFF;
+}
 /*  */

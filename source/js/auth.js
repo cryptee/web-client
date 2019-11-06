@@ -207,6 +207,8 @@ function createUserDBReferences(user) {
   if (app === "photos") { 
     homeRef = firestore.collection("users").doc(theUserID).collection("photos");
     titlesRef = firestore.collection("users").doc(theUserID).collection("titles");
+    uploadsRef = firestore.collection("users").doc(theUserID).collection("uploads");
+    favRef = firestore.collection("users").doc(theUserID).collection("favorites");
   }
 
   if (app === "account") {

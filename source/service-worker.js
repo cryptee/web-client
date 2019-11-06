@@ -42,28 +42,30 @@ self.addEventListener('fetch', function(event) {
   // EXCLUDES ( _ RESERVED FOR FIREBASE )
 
   var requrl = event.request.url;
-  if (  requrl.indexOf( '__/' ) !== -1
-    ||  requrl.indexOf( '/__' ) !== -1
-    ||  requrl.indexOf( 'about:blank' ) !== -1
-    ||  requrl.indexOf( '/api/' ) !== -1
-    ||  requrl.indexOf( '/imgs/' ) !== -1
-    ||  requrl.indexOf( '/heroes/' ) !== -1
-    ||  requrl.indexOf( '/v.json' ) !== -1
-    ||  requrl.indexOf( '/cors.json' ) !== -1
-    ||  requrl.indexOf( 'zxcvbn' ) !== -1
-    ||  requrl.indexOf( 'pdf.worker' ) !== -1
-    ||  requrl.indexOf( '/cors-min.json' ) !== -1
+  if (  
+    requrl.indexOf( '__/' ) !== -1 ||  
+    requrl.indexOf( '/__' ) !== -1 ||  
+    requrl.indexOf( 'about:blank' ) !== -1 ||  
+    requrl.indexOf( '/api/' ) !== -1 ||  
+    requrl.indexOf( '/imgs/' ) !== -1 ||  
+    requrl.indexOf( '/heroes/' ) !== -1 ||  
+    requrl.indexOf( '/v.json' ) !== -1 ||  
+    requrl.indexOf( '/cors.json' ) !== -1 ||  
+    requrl.indexOf( 'zxcvbn' ) !== -1 ||  
+    requrl.indexOf( 'pdf.worker' ) !== -1 ||  
+    requrl.indexOf( '/cors-min.json' ) !== -1
   ) {
     // console.log('Fetching from network: ', event.request.url);
     return false;
   }
 
   // INCLUDES
-  if (  requrl.startsWith( 'https://crypt.ee' )
-    ||  requrl.startsWith( 'https://flare.crypt.ee' )
-    ||  requrl.startsWith( 'https://beta.crypt.ee' )
-    ||  requrl.startsWith( 'https://alfa.crypt.ee' )
-    ||  requrl.startsWith( 'https://sentry.io' )
+  if (  
+    requrl.startsWith( 'https://crypt.ee' ) ||  
+    requrl.startsWith( 'https://flare.crypt.ee' ) ||  
+    requrl.startsWith( 'https://beta.crypt.ee' ) ||  
+    requrl.startsWith( 'https://alfa.crypt.ee' ) ||  
+    requrl.startsWith( 'https://sentry.io' )
     // ||  event.request.url.startsWith( 'http://127.0.0.1' )
   ) {
     event.respondWith(

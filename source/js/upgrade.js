@@ -42,11 +42,11 @@ $("#low-storage-warning > .notification > .delete").on('click', function(event) 
 });
 
 function showLowStorageWarning() {
-  showWarningModal("low-storage-warning");
+  showFlyingModal("low-storage-warning");
 }
 
 function hideLowStorageWarning(userAcknowledged) {
-  hideActiveWarningModal();
+  hideActiveFlyingModal();
   if (userAcknowledged) { huaLowStorage = true; }
 }
 

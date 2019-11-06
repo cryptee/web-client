@@ -29,15 +29,8 @@
   loadUserDetailsFromLS();
   checkLatestVersion();
 
-  key('d', function(){
-    window.location = "docs";
-     return false;
-  });
-
-  key('p', function(){
-    window.location = "photos";
-     return false;
-  });
+  key('d', function(){ document.location.replace("docs"); return false; });
+  key('p', function(){ document.location.replace("photos"); return false; });
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (!user) {

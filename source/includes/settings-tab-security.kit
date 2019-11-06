@@ -45,8 +45,8 @@
 </div>
 
 
-<div class="modal warning-modal" id="device-setting-keypin-modal">
-  <div class="modal-background" onclick="hideActiveWarningModal();"></div>
+<div class="modal flying-modal" id="device-setting-keypin-modal">
+  <div class="modal-background" onclick="hideActiveFlyingModal();"></div>
   <div class="modal-content">
     <div class="crypteecard">
       <div class="content">
@@ -60,7 +60,7 @@
 
         <br>
 
-        <button class="button is-dark" id="cancel-sechange-button" onclick="hideActiveWarningModal();">CANCEL</button>
+        <button class="button is-dark" id="cancel-sechange-button" onclick="hideActiveFlyingModal();">CANCEL</button>
         <button class="button is-success" id="rememberkey-button" disabled>SAVE ENCRYPTION KEY</button>
 
       </div>
@@ -96,7 +96,7 @@
   </div>
   <p class="deets"><b>If you forget this password, and if you have a recovery email on file, you can easily recover it.</b></p>
   <br>
-  <p class="button is-dark is-small" id="change-pass-button">Change Password</p>
+  <p class="button is-dark www-action-button" id="change-pass-button">Change Password</p>
 </div>
 
 
@@ -132,7 +132,7 @@
     <b>There is no way to recover this key. All your data will be forever inaccessible if you forget it.</b>
   </p>
   <br>
-  <p class="button is-dark is-small" id="change-key-button">Change Key</p>
+  <p class="button is-dark www-action-button" id="change-key-button">Change Key</p>
 </div>
 
 
@@ -140,15 +140,6 @@
 
 <div class="account-card crypteecard" id="recoveryemailcard">
   <p class="title is-4">Recovery Email</p>
-
-  <div class="field">
-    <p class="control has-icons-left">
-      <input class="input" id="currentpass-email" type="password" placeholder="Current Password">
-      <span class="icon is-small is-left">
-        <i class="fa fa-lock"></i>
-      </span>
-    </p>
-  </div>
 
   <div class="field">
     <p class="control is-expanded has-icons-left">
@@ -159,6 +150,12 @@
     </p>
   </div>
 
+  <p class="deets">If you have a recovery email set, you can only login using your email, and not your username.</p>
+  <br>
+  <p class="deets">While leaving this blank provides an added layer of anonymity, if you lose your account password
+    you won't be able to receive a password recovery email.</p>
+  <br>
+
   <div class="field" id="nousername" style="display:none;">
     <p class="control is-expanded has-icons-left">
       <input class="input" id="newusername" type="text" placeholder="Pick a username if you'd like to remove your email">
@@ -168,14 +165,18 @@
     </p>
   </div>
 
-  <p class="deets">If you have a recovery email set, you can only login using your email, and not your username.</p>
-  <br>
-  <p class="deets">While leaving this blank provides an added layer of anonymity, if you lose your account password
-    you won't be able to receive a password recovery email.</p>
+  <div class="field">
+    <p class="control has-icons-left">
+      <input class="input" id="currentpass-email" type="password" placeholder="Current Password">
+      <span class="icon is-small is-left">
+        <i class="fa fa-lock"></i>
+      </span>
+    </p>
+  </div>
 
   <br>
 
-  <p class="button is-dark is-small" id="change-email-button">Update Email</p>
+  <p class="button is-dark www-action-button" id="change-email-button">Update Email</p>
 </div>
 
 <div class="account-card crypteecard">

@@ -59,15 +59,15 @@ function isCanvasBlocked () {
 
 
 function showCanvasBlockedModal () {
-	var canvasModalHTML = '<div class="modal is-active warning-modal" id="canvas-blocked-modal">'+
-	  '<div class="modal-background" onclick="hideActiveWarningModal();"></div>'+
+	var canvasModalHTML = '<div class="modal is-active flying-modal" id="canvas-blocked-modal">'+
+	  '<div class="modal-background" onclick="hideActiveFlyingModal();"></div>'+
 	  '<div class="modal-content">'+
 	    '<div class="crypteecard">'+
 	    	'<img src="../imgs/canvas-birds.jpg">'+
 	    	'<div class="content">'+
 	    		'<p class="title is-5">Canvas Blocker Detected</p>'+
 	    		"<p>Photos come in all shapes and sizes. And they need to be cropped and resized to generate thumbnails. Unencrypted services do this on their servers because they can see &amp; access your photos. With Cryptee, your photos are encrypted on your device using your encryption key so that even we can't access them. To achieve this level of zero-knowledge, thumbnails need to be generated using your browser's canvas on your device before they're encrypted.<br><br>Please disable your canvas blocker extension, or untoggle the <b><i>privacy.resistFingerprinting</i></b> flag of your browser (which blocks access to canvas) to start uploading photos.</p>"+
-	    		'<button class="button is-dark" onclick="hideActiveWarningModal();">Close</button>'+
+	    		'<button class="button is-dark" onclick="hideActiveFlyingModal();">Close</button>'+
 	    	'</div>'+
 	    '</div>'+
 	  '</div>'+

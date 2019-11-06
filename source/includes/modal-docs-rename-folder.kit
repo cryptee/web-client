@@ -1,19 +1,19 @@
 <div class="modal" id="rename-folder-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-dark rename-status">
-      <p class="title">Rename Folder</p>
+    <div class="notification is-white crypteecard rename-status">
+      <p class="title is-4 has-text-centered">Rename Folder</p>
       <p class="subtitle is-6">Type in a new name below</p>
-    </div>
-    <div class="notification">
+      
       <div class="field">
         <p class="control">
           <input id="rename-folder-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
         </p>
       </div>
+      
+      <a class="button is-success www-action-button" onclick="renameFolderConfirmed();">Rename</a>
+      <a class="button is-danger www-action-button" onclick="hideRenameFolderModal();">Cancel</a>
     </div>
-    <a class="button is-success" onclick="renameFolderConfirmed();">Rename</a>
-    <a class="button is-danger" onclick="hideRenameFolderModal();">Cancel</a>
   </div>
   <button class="modal-close"></button>
 </div>

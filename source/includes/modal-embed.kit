@@ -1,18 +1,18 @@
 <div class="modal" id="embed-modal">
-  <div class="modal-background" style="background-color:rgba(255,255,255,0.9)"></div>
+  <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-dark" id="embed-modal-status">
-      <p class="title">Add Formula</p>
+    <div class="notification crypteecard is-white" id="embed-modal-status">
+      <p class="title is-4 has-text-centered">Add Formula</p>
       <p id="embed-modal-error"></p>
-    </div>
-    <div class="notification">
+
       <div class="field">
         <p class="control">
           <input id="embed-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
         </p>
       </div>
+      
+      <a class="button is-success www-action-button" onclick="confirmEmbed();">Add</a>
     </div>
-    <a class="button is-success" onclick="confirmEmbed();">Add</a>
   </div>
   <button class="modal-close"></button>
 </div>

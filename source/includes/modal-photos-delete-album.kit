@@ -1,12 +1,13 @@
 <div class="modal" id="delete-album-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-danger delete-album-status">
-      <p class="title">Delete Album</p>
+    <div class="notification crypteecard delete-album-status">
+      <p class="title is-4 has-text-centered">Delete Album</p>
       <p class="subtitle is-6">Are you sure you want to delete <b class="delete-folder-name"></b> and all of its contents?</p>
+      
+      <a class="button is-success www-action-button" onclick="confirmDeleteFolder();">Delete</a>
+      <a class="button is-danger www-action-button" onclick="cancelModal();">Cancel</a>
     </div>
-    <a class="button is-success" onclick="confirmDeleteFolder();">Delete</a>
-    <a class="button is-danger" onclick="cancelModal();">Cancel</a>
   </div>
   <button class="modal-close"></button>
 </div>

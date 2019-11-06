@@ -1,19 +1,19 @@
 <div class="modal" id="rename-inactive-doc-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-dark rename-doc-status">
-      <p class="title">Rename Document</p>
+    <div class="notification is-white crypteecard rename-doc-status">
+      <p class="title is-4 has-text-centered">Rename Document</p>
       <p class="subtitle is-6">Type in a new name below</p>
-    </div>
-    <div class="notification">
+    
       <div class="field">
         <p class="control">
           <input id="inactive-doc-title-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
         </p>
       </div>
+
+      <a class="button is-success www-action-button" onclick="renameInactiveDoc();">Rename</a>
+      <a class="button is-danger www-action-button" onclick="hideRenameInactiveDocModal();">Cancel</a>
     </div>
-    <a class="button is-success" onclick="renameInactiveDoc();">Rename</a>
-    <a class="button is-danger" onclick="hideRenameInactiveDocModal();">Cancel</a>
   </div>
   <button class="modal-close"></button>
 </div>

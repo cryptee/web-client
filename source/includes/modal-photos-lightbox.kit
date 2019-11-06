@@ -1,5 +1,9 @@
 <div id="lightbox-modal">
 
+  <div id="lightbox-swipe-container">
+    <div class="lightbox-wrapper"></div>
+  </div> 
+
   <div id="lightbox-top-controls">
     <div class="button is-light is-medium" id="lightbox-close">
       <span class="icon">
@@ -12,11 +16,13 @@
         <i class="fa fa-window-maximize fa-fw"></i>
       </span>
     </div>
-  </div>
 
-  <div id="lightbox-swipe-container">
-    <div class="lightbox-wrapper"></div>
-  </div> 
+    <div class="button is-light is-medium is-pulled-left" onclick="toggleFav();" id="lightbox-fav">
+      <span class="icon">
+        <i class="fa fa-heart-o fa-fw"></i>
+      </span>
+    </div>
+  </div>
 
   <div id="lightbox-spinner"></div>
 

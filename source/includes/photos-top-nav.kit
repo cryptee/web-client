@@ -4,7 +4,7 @@
     <!-- LEFT -->
     <span class="button is-small is-white" id="get-home-folder-button"><span class="icon is-small"><i class="fa fa-home"></i></span></span>
 
-    <span class="button is-small is-white photos-nav-item">
+    <span class="button is-small is-white photos-nav-item" id="photos-upload-photo-button">
       <!-- the "accept" part may cause some android phones to load different pickers in diff browsers, but it's a sad shortcoming I have to accept -->
       <input class="folder-upload-input" type="file" id="upload-photo-to-folder" name="files[]" accept=".jpg, .jpeg, .png" multiple/>
       <label class="upload-photo-to-folder-button clickable" for="upload-photo-to-folder">
@@ -12,13 +12,16 @@
       </label>
     </span>
 
-    <span class="button is-small is-white unavailable photos-nav-item" id="photos-new-folder-button" onclick="showModal('photos-new-folder-modal');" ><span class="icon"><i class="fa fa-fw fa-book"></i></span><span>&nbsp; New Album</span></span>
     <span class="button is-small is-white unavailable photos-nav-item" id="photos-get-ghost-folder-button" onclick="showModal('photos-summon-ghost-album-modal');"><span class="icon"><i class="fa fa-fw fa-eye" ></i></span><span class="hiddenForFinger is-hidden-mobile"> &nbsp; Summon Ghost Album</span></span>
-
+    
+    <span class="button is-small is-white unavailable" id="get-favorites-folder-button"><span class="icon is-small">
+      <i class="fa fa-heart"></i></span>
+      <span class="hiddenForFinger">&nbsp; Favorites</span>
+    </span>
 
     <!-- RIGHT -->
     <span style="float:right;" id="photos-sort-button" class="button is-small is-white photos-nav-item"><span class="icon"><i class="fa fa-fw fa-sort-amount-desc"></i></span></span>
-    <span style="float:right;" onclick="selectAll();" class="button is-small is-white photos-nav-item hiddenForFinger"><span class="icon"><i class="fa fa-fw fa-check" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
+    <span style="float:right;" id="photos-select-all-button" onclick="selectAll();" class="button is-small is-white photos-nav-item hiddenForFinger unavailable"><span class="icon"><i class="fa fa-fw fa-check" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
     <span style="float:right;" onclick="selectionModeOn();" class="button is-small is-white photos-nav-item hidden visibleOnFinger"><span class="icon"><i class="fa fa-fw fa-check-circle-o" ></i></span><span class="hiddenForFinger"> &nbsp; Select All</span></span>
   </div>
 
@@ -50,7 +53,7 @@
 
 <div class="photos-sub-nav" id="photos-sort-nav">
 
-  <span class="sortby">Name</span>
+  <span class="sortby" id="photos-sortby-name">Name</span>
 
   <span class="button sort-button" id="sort-az-asc">
     <span class="icon is-small"><i class="fa fa-fw fa-sort-alpha-asc"></i></span>    
@@ -62,7 +65,7 @@
 
   <span class="sep"></span>
 
-  <span class="sortby">Date</span>
+  <span class="sortby" id="photos-sortby-date">Date</span>
 
   <span class="button sort-button" id="sort-date-desc">
     <span class="icon" style="margin-right: -10px;"><i class="fa fa-fw fa-clock-o"></i></span>    

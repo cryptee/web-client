@@ -1,20 +1,21 @@
 <div class="modal" id="photos-summon-ghost-album-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-dark summon-status">
-      <p class="title">Summon Ghost Album</p>
+    <div class="notification crypteecard summon-status">
+      <p class="title is-4 has-text-centered">Summon Ghost Album</p>
       <p>If you have any Ghost Albums, and if you'd like to bring one back, you can type its name below.</p>
-    </div>
-    <div class="notification is-danger theStatus" style="display:none;"></div>
-    <div class="notification">
+    
       <div class="field">
         <p class="control">
           <input id="ghost-folder-summon-input" class="modal-input input" type="text" placeholder="Album name to summon" autocomplete="off">
         </p>
       </div>
+
+      <p class="theStatus" style="display:none;"></p>
+      <a class="button is-success www-action-button" id="ghost-folder-summon-button" onclick="summonGhostFolder();">Summon Ghost Album</a>
+      <a class="button is-danger www-action-button" onclick="cancelModal();">Cancel</a>
+
     </div>
-    <a class="button is-success" id="ghost-folder-summon-button" onclick="summonGhostFolder();">Summon Ghost Album</a>
-    <a class="button is-danger" onclick="cancelModal();">Cancel</a>
   </div>
   <button class="modal-close"></button>
 </div>

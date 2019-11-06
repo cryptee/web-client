@@ -883,7 +883,6 @@ function createHomeDoc() {
         homeUpload.on('state_changed', function(snapshot){}, function(error) {      
           if (createHomeCounter < 3) {
             createHomeCounter++;
-            handleError("Couldn't set user home to storage during signup. Will try a few more times.", error);
             setTimeout(function(){ createHomeDoc(); }, 2000);
           } else {
             handleError("Couldn't set user home to storage during signup", error);

@@ -2,14 +2,15 @@
   <div class="modal-background"></div>
   <div class="modal-content">
 
-    <div class="notification is-warning delete-selections-status">
-      <p class='title'>Delete Item(s)</p>
+    <div class="notification is-white crypteecard delete-selections-status">
+      <p class='title is-4 has-text-centered'>Delete Item(s)</p>
       <p class='subtitle is-6'>You are about to delete the following item(s)</p>
       <p class="documents-to-be-deleted"></p>
+      <br>
+      <a class="button is-success www-action-button" onclick="deleteSelections();">Delete item(s)</a>
+      <a class="button is-danger www-action-button" onclick="hideDeleteSelectionsModal();">No, Wait.</a>
     </div>
 
-    <a class="button is-success" onclick="deleteSelections();">Delete item(s)</a>
-    <a class="button is-danger" onclick="hideDeleteSelectionsModal();">No, Wait.</a>
   </div>
   <button class="modal-close"></button>
 </div>

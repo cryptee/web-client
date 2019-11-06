@@ -1,18 +1,22 @@
 <div class="modal" id="ghost-folder-modal">
   <div class="modal-background"></div>
   <div class="modal-content">
-    <div class="notification is-warning ghost-status">
-      <p class="title">Verify the name of the folder</p>
-      <p>Once you turn this into a ghost folder, you will need to type the name of it exactly (case-sensitive) to bring it back. <br><br>If there's any file(s) in this folder, that are attached to a document outside of this folder, their shortcuts will remain in those document(s). This could potentially reveal that you have ghost (hidden) folders, or have deleted a folder with a file attached to a document outside of that folder. Since Cryptee can't see or access the contents of your encrypted documents, there is no way for us to automatically remove these. You will need to delete the links to these attachments (if you have any).</p>
-    </div>
-    <div class="notification">
+    <div class="notification crypteecard is-white ghost-status">
+      <p class="title is-4 has-text-centered">Ghost Folder</p>
+      <p style="font-size: 12px;"><span class="icon"><i class="fa fa-info-circle fa-fw"></i></span>&nbsp; Once you turn this folder into a ghost folder, you will need to type the name of it exactly (case-sensitive) to bring it back. </p>
+      <br>
+      <p style="font-size: 12px;"><span class="icon"><i class="fa fa-exclamation-triangle fa-fw"></i></span>&nbsp; If there are any file(s) in this folder, attached to a document outside of this folder, their shortcuts will remain in those document(s). This could potentially reveal that you have ghost (hidden) folders, or have deleted a folder with a file attached to a document outside of that folder. Since Cryptee can't see or access the contents of your encrypted documents, there is no way for us to automatically remove these. You will need to delete the links to these attachments (if you have any).</p>
+      <br>
+      <b>Verify folder name</b>
       <div class="field">
         <p class="control">
           <input id="ghost-folder-confirm-input" class="modal-input input" type="text" placeholder="" autocomplete="off">
         </p>
       </div>
+    
+      <button class="button is-success www-action-button" id="ghost-folder-confirm-button" disabled>Make it Ghost</button>
     </div>
-    <button class="button is-success" id="ghost-folder-confirm-button" disabled>Make it Ghost</button>
+
   </div>
   <button class="modal-close"></button>
 </div>

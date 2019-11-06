@@ -263,7 +263,7 @@ function timeSince(epoch) {
 
 
 $("a").click(function (event) {
-  var attr = $(this).attr('href');
+  var href = $(this).attr('href');
   if ($(this).hasClass("rememberKey")) {
     if (keyToRemember) {
       sessionStorage.setItem("key", JSON.stringify(keyToRemember));
@@ -271,9 +271,11 @@ $("a").click(function (event) {
   }
   if (isInWebAppiOS || isInWebAppChrome) {
     if (!$(this).hasClass("openInSafari")) {
-      if (typeof attr !== typeof undefined && attr !== false) {
+      if (typeof href !== typeof undefined && href !== false) {
         event.preventDefault();
-        window.location = attr;
+        // this is to ensure back swipe gesture is disabled in PWAs (especially on iOS)
+        // this makes sure there's no history = no back gesture.
+        document.location.replace(href);
       }
     }
   }
@@ -649,16 +651,18 @@ deleteAllCookies();
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('../service-worker.js').then( function(serviceWorker) {
+    breadcrumb('[Service Worker] Registered');
     setSentryTag("worker", "yes");
   }).catch(function(error) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
-      console.log("SWERR:", error);
+      breadcrumb('[Service Worker] Errored');
+      handleError("Couldn't register Service Worker", error);
       setSentryTag("worker", "errored");
     }
   });
 } else {
   setSentryTag("worker", "no");
-  breadcrumb("Service Worker: NO-SW");
+  breadcrumb("[Service Worker] No Support");
 }
 
 function removeServiceWorker() {
@@ -727,7 +731,7 @@ function hideActiveModal() {
   $("body").removeClass("disable-clicks");
 }
 
-function showWarningModal(id) {
+function showFlyingModal(id) {
   $("html, body").addClass("modal-is-active");
   $("#"+id).addClass("is-active");
   $("#"+id).find("input").val("");
@@ -736,8 +740,8 @@ function showWarningModal(id) {
   }, 100);
 }
 
-function hideActiveWarningModal() {
-  $(".warning-modal.is-active").removeClass("is-shown");
+function hideActiveFlyingModal() {
+  $(".flying-modal.is-active").removeClass("is-shown");
   setTimeout(function() {
     cancelModal();
   }, 1000);
@@ -757,7 +761,7 @@ $(".modal-close").on('click', function(event) {
   cancelModal ();
 });
 
-$(".modal:not(.warning-modal)").on('click', ".modal-background", function(event) {
+$(".modal:not(.flying-modal)").on('click', ".modal-background", function(event) {
   cancelModal();
 });
 
@@ -930,7 +934,7 @@ function checkConnection (callback) {
 
 try {
   openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
-  openpgp.config.aead_protect_version = true;
+  openpgp.config.aead_protect_version = 0;
   openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.5.3.min.js' }); // set the relative web worker path
 } catch (e) {
   if (pgpCrossCheck) {
@@ -962,18 +966,20 @@ if (!openpgp) {
 //////////////////////////////////////////
 
 function encrypt(plaintext, keys) {
-  var options = {
-    message: openpgp.message.fromText(plaintext),
-    passwords: keys,
-    armor: true
-  };
-
   return new Promise(function (resolve, reject) {
+
+    var options = {
+      message: openpgp.message.fromText(plaintext),
+      passwords: keys,
+      armor: true
+    };
+
     openpgp.encrypt(options).then(function (ciphertext) {
       resolve(ciphertext);
     }).catch(function (error) {
       reject(error);
     });
+
   });
 }
 
@@ -1001,6 +1007,53 @@ function decrypt(ciphertext, keys) {
         reject(error);
       });
 
+    });
+  });
+}
+
+/////////////////////////////////////////////////////////////
+// ENCRYPT ARRAY BUFFERS USING KEYS
+//
+// TAKES IN AN ARRAYBUFFER FROM FileReader readAsArrayBuffer
+// RETURNS A Uint8Array
+/////////////////////////////////////////////////////////////
+
+function encryptArray(plaintext, keys) {
+  return new Promise(function (resolve, reject) {
+    var options = {
+      message: openpgp.message.fromBinary(new Uint8Array(plaintext)),
+      passwords: keys,
+      armor: false
+    };
+
+    openpgp.encrypt(options).then(function(ciphertext) {
+      resolve(ciphertext.message.packets.write()); //ciphertext Uint8Array
+    }).catch(function (error) {
+      reject(error);
+    });
+  });
+}
+
+/////////////////////////////////////////////////////////////
+// ENCRYPT ARRAY BUFFERS USING KEYS (Uint8Array)
+//
+// TAKES IN AN Uint8Array & RETURNS A Uint8Array
+/////////////////////////////////////////////////////////////
+
+function decryptArray(ciphertext, keys) {
+  return new Promise(function (resolve, reject) {
+    openpgp.message.read(ciphertext).then(function (msg) {
+      var options = {
+        message: msg,
+        passwords: keys,
+        format: 'binary'
+      };
+      
+      openpgp.decrypt(options).then(function(plaintext) {
+        resolve(plaintext.data); // plaintext Uint8Array
+      }).catch(function (error) {
+        reject(error);
+      });
     });
   });
 }
@@ -1138,4 +1191,14 @@ function underlineSearchResult(indices,string) {
   }
   formattedString = resultname.join('');
   return formattedString;
+}
+
+///////////////////////////////////////////
+//////       FEATURE BREADCRUMBS       ////
+///////////////////////////////////////////
+
+if (window.MediaSource) {
+  setSentryTag("media-source-api", "supported");
+} else {
+  setSentryTag("media-source-api", "unsupported");
 }

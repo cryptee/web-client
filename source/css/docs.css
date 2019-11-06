@@ -1732,6 +1732,7 @@ body:not(.viewing-mode) #webclips-button.shown {
   margin: 0.5rem;
   transition: 0.3s opacity ease;
   opacity: 0;
+  overflow: hidden;
 }
 
 #all-active-folder-docs.fileDropFolder::after {
@@ -1779,11 +1780,11 @@ body:not(.viewing-mode) #webclips-button.shown {
 ///////////////////////////////////////////////////*/
 
 
-.doc.selected:not(.activefile):not(.activedoc) .docicon i:before {
+.doc.selected .docicon i:before {
   content: "\f14a" !important;
 }
 
-.search-result.selected:not(.activefile):not(.activedoc) .docicon i:before {
+.search-result.selected .docicon i:before {
   content: "\f00c" !important;
 }
 
@@ -1840,6 +1841,17 @@ body:not(.viewing-mode) #webclips-button.shown {
   overflow: scroll;
 }
 
+.docToBeDeleted {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #000;
+  color: #FFF;
+  line-height: 1rem;
+  border-radius: 7px;
+  display: inline-block;
+}
+
 #results:not(:empty) + #selections-wrapper {
   transform: translateY(-12rem);
   border-radius: 10px;
@@ -1866,6 +1878,7 @@ body:not(.viewing-mode) #webclips-button.shown {
 	height: auto;
 	min-height: 2.5rem;
   border-radius: 10px;
+  margin: 0 !important;
 }
 
 .docs-move-folders-list-item span {
@@ -1899,6 +1912,7 @@ body:not(.viewing-mode) #webclips-button.shown {
 #docs-move-folders-list {
   min-height: 40px;
   max-height: initial;
+  margin-bottom: 1.25rem !important;
 }
 
 
@@ -2356,15 +2370,15 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
   //////////  DOC SELECTIONS & DOC ICONS  /////////////
   ///////////////////////////////////////////////////*/
 
-  .doc:not(.selected):not(.activedoc):not(.activefile) .docicon:hover i::before {
+  .doc:not(.selected) .docicon:hover i::before {
     content: "\f0fe";
   }
 
-  .search-result:not(.selected):not(.activedoc):not(.activefile) .docicon:hover i:before {
+  .search-result:not(.selected) .docicon:hover i:before {
     content: "\f067";
   }
 
-  .search-result:not(.selected):not(.activedoc):not(.activefile) .docicon:hover i {
+  .search-result:not(.selected) .docicon:hover i {
     margin-top: 1px;
   }
 
@@ -2476,6 +2490,10 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 .dm #all-recent .doctitle,
 .dm #search-input {
   color:var(--bright);
+}
+
+.dm .export-option .deets {
+  color: var(--darker); 
 }
 
 .dm .folder-dropdown-button {

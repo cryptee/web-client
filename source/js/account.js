@@ -1042,25 +1042,29 @@ function downloadExport(file, callback, callbackParam) {
   });
   
   function gotEncryptedFile(encryptedFile) {
-    var encryptedB64 = JSON.parse(encryptedFile).data;
-    decrypt(encryptedB64, [theKey]).then(function(plaintext) {
-      var decryptedFile = plaintext.data;
-      if (!isdoc) {
-        saveAs(dataURIToBlob(decryptedFile), filename);
-      } else {
-        var blob = new Blob([decryptedFile], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, filename);
-      }
-      callback(callbackParam);
-    }).catch(function (error) {
-      err("Error decrypting file during bulk download.",error); 
-    });
+    try {
+      var encryptedB64 = JSON.parse(encryptedFile).data;
+      decrypt(encryptedB64, [theKey]).then(function(plaintext) {
+        var decryptedFile = plaintext.data;
+        if (!isdoc) {
+          saveAs(dataURIToBlob(decryptedFile), filename);
+        } else {
+          var blob = new Blob([decryptedFile], {type: "text/plain;charset=utf-8"});
+          saveAs(blob, filename);
+        }
+        callback(callbackParam);
+      }).catch(function (error) {
+        err("Error decrypting file during bulk download.",error); 
+      });
+    } catch (error) {
+      err("Error parsing json during bulk download.",error); 
+    }
   }
   
   function err(msg, err) {
     err = err || {};
     console.error(msg,err);
-    handleError(msg, err);
+    handleError(msg, err, "warning");
     callback(callbackParam); // something didn't work, sadly skip and continue. 
   }  
 }
@@ -1214,7 +1218,7 @@ function changedDeviceSecurityCheckbox(setting) {
     $("#" + setting).find(".crypteecheckbox").prop('checked', false).attr('checked', false).prop('disabled', false).attr('disabled', false);
 
     // buttons ready, show the modal
-    showWarningModal("device-setting-keypin-modal");
+    showFlyingModal("device-setting-keypin-modal");
   }
 }
 
@@ -1262,7 +1266,7 @@ $("#rememberkey-button").on('click', function(event) {
     confirmedHashedKey = null;
     reflectDeviceSecuritySettings();
     setTimeout(function () {
-      hideActiveWarningModal();
+      hideActiveFlyingModal();
       $("#device-setting-keypin-modal").find(".fa-check").addClass("fa-key").removeClass("fa-check"); 
       $("#rememberkey-button").prop('disabled', true).attr('disabled', true);
     }, 10);
@@ -1333,6 +1337,7 @@ function clearLocalCache() {
     localStorage.removeItem("encryptedCatalog");
     $("#clear-cache-button").html("Cleared").addClass("is-success").prop('disabled', true).attr('disabled', true);
   }).catch(function(err) {
+    handleError("Error Clearing Local Cache", err);
     localStorage.removeItem("encryptedCatalog");
     $("#clear-cache-button").html("Cleared").addClass("is-success").prop('disabled', true).attr('disabled', true);
   });
