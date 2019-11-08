@@ -543,12 +543,12 @@ html.search-active, body.search-active {
 
 #photos-uploading-title {
 	font-weight: 600;
-	letter-spacing: 2px;
+	letter-spacing: 4px;
 	position: absolute;
-	font-size: 44px;
-	height: 44px;
-	line-height: 44px;
-	bottom: -6px;
+	font-size: 36.5px;
+	height: 36.5px;
+	line-height: 36.5px;
+	bottom: 4px;
 	right:calc(1rem - 5px);
 }
 

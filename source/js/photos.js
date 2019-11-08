@@ -1589,6 +1589,8 @@ function startUploadQueue() {
 var folderCreationQueueTimeout;
 function processUploadTree (callback, callbackParam) {
   callback = callback || noop;
+  var numFoldersInTree = Object.keys(fileTreeToUpload).length;
+  breadcrumb('[Upload] – Processing Filetree. ('+numFoldersInTree+' Folders)');
   $.each(fileTreeToUpload, function(folderPath, folderItem) {
     if (folderItem.files !== undefined) {
       folderItem.files.forEach(function(fileItem) {
@@ -1603,10 +1605,11 @@ function processUploadTree (callback, callbackParam) {
           // ALL THE FILES UPLOADED TO HOME.
           // UPDATETITLES AUTO CALLED ONCE ALL UPDATES ARE COMPLETE.
 
-
+          
           // if there are folders in the file tree uploaded,
           // create those albums now, and move things into them.
           if (Object.keys(fileTreeToUpload).length > 1) {
+            breadcrumb('[Upload] - Creating albums ('+Object.keys(fileTreeToUpload).length+')');
             showFileUploadStatus("is-info", "Creating albums");
             var tempFoldersArray = Object.keys(fileTreeToUpload);
             tempFoldersArray.forEach(function(fname) {
@@ -1615,6 +1618,7 @@ function processUploadTree (callback, callbackParam) {
                   clearTimeout(folderCreationQueueTimeout);
                   folderCreationQueueTimeout = setTimeout(function () {
                     // ALL FOLDERS CREATED.
+                    breadcrumb('[Upload] - Organizing albums ('+Object.keys(fileTreeToUpload).length+')');
                     showFileUploadStatus("is-info", "Organizing albums");
                     prepareToMoveUploadsToWhereTheyBelong();
                   }, 3000);
@@ -1685,9 +1689,11 @@ function cycleThroughUploadedFoldersAndPIDs(moveOperations, i) {
 function batchUploadComplete(hasFolders) {
 
   // and finally load the target folder once again to avoid double show up issues etc. and hide modal.
+
   if (hasFolders) {
     // means that we didn't call doneWithAllUploads in uploadCompleteAndFolderAdjusted, call it now.
     // a.k.a reload home / target folder
+    breadcrumb('[Upload] - Done.');
     doneWithAllUploads();
   } else {
     // doneWithAllUploads is already called in uploadCompleteAndFolderAdjusted so we're all good.
@@ -1700,36 +1706,29 @@ function doneWithAllUploads(callback, callbackParam) {
 
   // all files moved into folders if there were any. we can now safely purge filetree
 
-  fileTreeToUpload = {};
-  fileTreeToUpload.thecrypteehomefolder = {};
-  fileTreeToUpload.thecrypteehomefolder.files = [];
+  uploadCompleteResetUploaderState();
 
   callback = callback || noop;
 
   if (activeFID !== "home" && activeFID !== "favorites") {
     otherFolderLoaded = false;
     getAllFilesOfFolder(activeFID, function(){
-      if (!fileUploadError) {
-        hideFileUploadStatus();
-        uploadCompleteResetUploaderState();
-        callback(callbackParam);
-      } else {
-        showFileUploadStatus("is-danger", "Finished uploading, but some of your files were not uploaded." + uploaderCloseButton);
-        uploadCompleteResetUploaderState();
-      }
+      targetFolderReloaded();
     });
   } else {
     homeFolderLoaded = false;
     getHomeFolder(function(){
-      if (!fileUploadError) {
-        hideFileUploadStatus();
-        uploadCompleteResetUploaderState();
-        callback(callbackParam);
-      } else {
-        showFileUploadStatus("is-danger", "Finished uploading, but some of your files were not uploaded." + uploaderCloseButton);
-        uploadCompleteResetUploaderState();
-      }
+      targetFolderReloaded();
     });
+  }
+
+  function targetFolderReloaded() {
+    if (!fileUploadError) {
+      hideFileUploadStatus();
+      callback(callbackParam);
+    } else {
+      showFileUploadStatus("is-danger", "Finished uploading, but some of your files were not uploaded." + uploaderCloseButton);
+    }
   }
 }
 
@@ -2073,6 +2072,7 @@ function encryptAndUploadPhoto (fileContents, predefinedPID, fid, filename, call
   $("#photos-upload-status-contents").animate({ scrollTop: 0 }, 700);
   setTimeout(function () { $("#upload-"+pid).addClass("visible"); }, 10);
 
+  breadcrumb('[Upload] (' + pid + ') Generating Thumbnails & Necessary Meta.');
   generateThumbnailsAndNecessaryMeta(plaintextFileContents, function(uploadObject){
   // generatePrimitive(plaintextFileContents, function(pn){
     thumbnail = uploadObject.thumbnail;
@@ -2424,7 +2424,7 @@ function uploadCompleteUpdateFirestore (fid, id, dominant, filename, callback, c
 function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
   callback = callback || noop;
 
-  uploadCompleteResetUploaderState ();
+  // uploadCompleteResetUploaderState ();
 
  // SO BECAUSE THIS GETS CALLED AT THE END OF ALL TYPES OF UPLOADS,
  // BUT WE WANT TO FIRST MOVE FILES BEFORE HIDING THE UPLOAD MODALS
@@ -2434,6 +2434,7 @@ function uploadCompleteAndFolderAdjusted (callback, callbackParam) {
   if (Object.keys(fileTreeToUpload).length <= 1) {
     // so if there are no folders to move photos into, done with uploads.
     // a.k.a. load home / target folder and hide upload modals.
+    breadcrumb('[Upload] - Done. There were no folders.');
     doneWithAllUploads(callback, callbackParam);
   } else {
     // if there are photos to move into folders, we'll deal with these guys in queueUpload's callback in processUploadTree.
@@ -2631,7 +2632,7 @@ function generateFolderThumbnail(fid) {
         merge: true
       }).then(function(response) {
         var forceHighRes = false;
-        if (doWeNeedHighResThumbs() && tid) {
+        if (doWeNeedHighResThumbs() && thumb) {
           forceHighRes = true;
         }
         getThumbnail(thumb, fid, forceHighRes);
@@ -5920,6 +5921,7 @@ function setFolderDateFromThumbnailEXIF(fid, callback, callbackParam) {
     dateToSet = dateToSet || "";
     homeRef.doc(fid).update({ "date" : dateToSet }).then(function(response) {
       breadcrumb('[EXIF] – DONE SETTING DATE FOR: ' + fid);
+      reflectFolderDateChange(fid, dateToSet);
       try {
         // if folder is in foldersWithoutDates, remove it.
         foldersWithoutDates.splice( foldersWithoutDates.indexOf(fid) , 1 );
@@ -5951,7 +5953,18 @@ function updateFoldersWithoutDates() {
   }
 }
 
+function reflectFolderDateChange(fid, exifDate) {
+  var date = fancyDate(exifDate) || "";
+  var sortableDate = sortableExifDate(exifDate) || "";
+  if (date) {
+    date = date.replace("&#39;", "'");
+    $("#" + fid).attr("date", date);
+  }
 
+  if (sortableDate) {
+    $("#" + fid).attr("datesort", sortableDate);
+  }
+}
 
 
 
