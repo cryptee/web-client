@@ -1507,16 +1507,25 @@ function traverseFileTree(entry, path, entryname) {
 }
 
 function addItemToFileTree (item) {
-  if (item.name !== ".DS_Store" && item.name !== "desktop.ini" && item.name !== "Icon") {
-    var fileExt = extensionFromFilename(item.name);
-    var format = checkFormatSupport(fileExt);
+  if (item.name) {  
+    var itemLowercaseName = item.name.trim().toLowerCase();
+    if (itemLowercaseName !== ".ds_store" && itemLowercaseName !== "desktop.ini" && itemLowercaseName !== "icon") {
+      var fileExt = extensionFromFilename(itemLowercaseName);
+      var format = checkFormatSupport(fileExt);
 
-    if (format !== "unsupported-format") {
-      createFileTree(item.path, item.file);
-    } else {
-      fileUploadError = true;
-      showFileUploadError(item.name, item.size, "Unsupported", null);
+      if (format !== "unsupported-format") {
+        createFileTree(item.path, item.file);
+      } else {
+        unsupported();
+      }
     }
+  }
+
+  function unsupported() {
+    fileUploadError = true;
+    handleError('[UPLOAD] – Unsupported Format (' + item.type + ")", {}, "warning");
+    showFileUploadStatus("is-danger", "Error" + uploaderCloseButton);
+    showFileUploadError(item.name, item.size, "Unsupported", null);
   }
 }
 
@@ -1821,7 +1830,6 @@ function handlePhotosDrop (evt) {
               document.title = "Cryptee | Uploading " + numFilesLeftToBeUploaded + " photo(s)";
             }
           }
-          
         }
 
         if (numFilesLeftToBeUploaded > 0) {
@@ -1834,9 +1842,7 @@ function handlePhotosDrop (evt) {
       }
 
     } else {
-      setTimeout(function () {
-        showFileUploadStatus("is-danger", "Unfortunately your browser or device does not support File API, which is what allows us to encrypt files on your device. Therefore we can't upload your file." + uploaderCloseButton);
-      }, 10000);
+      showFileUploadStatus("is-danger", "Unfortunately your browser or device does not support File API, which is what allows us to encrypt files on your device. Therefore we can't upload your file." + uploaderCloseButton);
     }
   }
 
