@@ -2104,6 +2104,30 @@ html {
   font-size: 3rem;
 }
 
+#features img, .www-illustration {
+  max-height: 130px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#features .column b {
+  text-align: center;
+  width: 100%;
+  display: block;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+  font-size: 1.05rem;
+}
+
+.story-illustration {
+  max-height: 200px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .pricing-card {
   border-radius: 10px;
   box-shadow: 0rem 1rem 1rem rgba(10,10,10,0.15);
