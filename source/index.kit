@@ -3,7 +3,10 @@
 
 <head>
   <!-- @import "includes/www-head.kit" -->
-  <title>Cryptee | Private, Secure, Encrypted Documents &amp; Photos</title>
+  <script src="../js/lib/swiper.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">
+
+  <title>Cryptee | Private, Secure, Encrypted Photos and Encrypted Documents</title>
 
   <style media="screen">
     img {
@@ -23,19 +26,19 @@
 
 <!-- @import "includes/index-hero.kit" -->
 
-<!-- @import "includes/index-media.kit" -->
+<!-- @import "includes/index-photos.kit" -->
 
 <!-- @import "includes/index-docs.kit" -->
 
-<!-- @import "includes/index-photos.kit" -->
+<!-- @import "includes/index-media.kit" -->
 
 <!-- @import "includes/index-features.kit" -->
 
 <!-- @import "includes/index-download.kit" -->
 
-<!-- @import "includes/index-encryption.kit" -->
-
 <!-- @import "includes/index-pricing.kit" -->
+
+<!-- @import "includes/index-encryption.kit" -->
 
 <!-- @import "includes/index-security.kit" -->
 
@@ -84,6 +87,53 @@ window.addEventListener('load', function(){
   	};
   });
 }, false)
+
+$(document).ready(function () {
+  //initialize swiper when document ready
+  var photosSwiper = new Swiper ('#www-photos-slider', {
+      mousewheel : { forceToAxis : true, invert : true },
+      speed: 500,
+      slidesPerView: 3,
+      spaceBetween: 20,
+      breakpoints: {
+        // when window width is >= 320px
+        320: { slidesPerView: 1 },
+        740: { slidesPerView: 2 },
+        970: { slidesPerView: 3 }
+      },
+      // loopFillGroupWithBlank: true,
+      pagination: {
+        el: '#www-photos-slider-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      }
+  });
+
+  var docsSwiper = new Swiper ('#www-docs-slider', {
+      mousewheel : { forceToAxis : true, invert : true },
+      speed: 500,
+      slidesPerView: 3,
+      spaceBetween: 20,
+      breakpoints: {
+        // when window width is >= 320px
+        320: { slidesPerView: 1 },
+        740: { slidesPerView: 2 },
+        970: { slidesPerView: 3 }
+      },
+      pagination: {
+        el: '#www-docs-slider-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      }
+  });
+  
+});
 
 </script>
 </body></html>

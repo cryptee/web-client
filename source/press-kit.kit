@@ -13,13 +13,17 @@
       padding: 3rem;
     }
 
-
     .videoWrapper {
     	position: relative;
     	padding-bottom: 56.25%; /* 16:9 */
     	padding-top: 25px;
-    	height: 0;
+      height: 0;
+      border-radius: 1rem;
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin: 1.25rem;
     }
+
     .videoWrapper iframe {
     	position: absolute;
     	top: 0;
@@ -28,6 +32,14 @@
     	height: 100%;
     }
 
+    .screenshot-img {
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    section { 
+      padding-right: 2rem !important;
+      padding-left: 2rem !important;
+    }
   </style>
 </head>
 
@@ -59,11 +71,11 @@
         <p>We want to make your life easier as a writer / blogger / influencer / human.</p>
         <p>Below you can find all sorts of information, visual assets, and media about Cryptee.</p>
         <br><br>
-        <a style="margin-bottom:1rem;" href="#links" class="button is-dark">Links</a> &nbsp;
-        <a style="margin-bottom:1rem;" href="#branding" class="button is-dark">Branding &amp; Logos</a> &nbsp;
-        <a style="margin-bottom:1rem;" href="#about" class="button is-dark">About Cryptee</a> &nbsp;
-        <a style="margin-bottom:1rem;" href="#promo" class="button is-dark">Promo Video</a> &nbsp;
-        <a style="margin-bottom:1rem;" href="#screenshots" class="button is-dark">Screenshots</a> &nbsp;
+        <a style="margin-bottom:1rem;" href="#about" class="button www-action-button">About Cryptee</a> &nbsp;
+        <a style="margin-bottom:1rem;" href="#screenshots" class="button www-action-button">Screenshots</a> &nbsp;
+        <a style="margin-bottom:1rem;" href="#links" class="button www-action-button">Links</a> &nbsp;
+        <a style="margin-bottom:1rem;" href="#branding" class="button www-action-button">Branding &amp; Logos</a> &nbsp;
+        <a style="margin-bottom:1rem;" href="#promo" class="button www-action-button">Promo Video</a> &nbsp;
 
         <br><br>
 
@@ -72,6 +84,96 @@
 
 
         <br><br>
+
+        <h2 id="about">About Cryptee</h2><br>
+        <p>Below you can find some examples of how we describe Cryptee to our friends in different lengths.</p>
+        <p>We thought these could help you save 5 extra minutes for your precious coffee break.</p>
+        <br><br>
+
+        <b>One liners ( &lt; 140 characters )</b><br><br>
+        <p>&bull; Cryptee is a cross platform, encrypted home for your private documents and photos.</p>
+        <p>&bull; Cryptee is an encrypted and secure home for your private documents, notes, journals, files and photos.</p>
+        <p>&bull; Cryptee is a privacy focused, encrypted and secure home for your photos, documents, files, notes and journals.</p>
+        <p>&bull; Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos.</p>
+        <br><br>
+
+        <b>Short Paragraph ( 57 words / 359 characters )</b><br><br>
+        <p>Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos.<br>
+          It works on all your devices and provides a zero-knowledge place to keep all your sensitive digital belongings. <br>
+          With a strong encryption, security and deniability at its core, Cryptee is a unified platform for all your personal privacy needs.
+        </p><br><br>
+
+        <b>Alt Short Paragraph ( 69 words / 452 characters )</b><br><br>
+        <p>Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos.<br>
+          It uses a strong AES256 zero-knowledge encryption and of course has all the features you'd expect like live sync with unlimited devices,<br>
+          rich document editing, todos, markdowns, hotkeys, code highlighting, latex, embeds, attachments, support for PDFs etc. <br>
+          And for those rare moments you might need, it has deniability features built in.
+        </p><br><br>
+
+        <b>Paragraph with focus on Estonia ( 83 words / 550 characters )</b><br><br>
+        <p>Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos. <br>
+          Based in Tallinn, Estonia, where the government runs on blockchain. Cryptee uses a strong AES256 zero-knowledge encryption and has deniability features for when you need it.<br>
+          And it has all the features you'd expect like live sync with unlimited devices, rich document editing, todos, markdowns,<br>
+          hotkeys, code highlighting, latex math, embeds, attachments, support for PDFs, offline mode and an easy migration system from other apps.
+        </p><br><br>
+
+        <br><br>
+
+        <h2 id="screenshots">Screenshots</h2><br>
+        <p>Here are some good looking screenshots of Cryptee highlighting some of the fancy features that are also visually striking.</p>
+        <br><br>
+
+        <div class="columns">
+          <div class="column">
+            <img class="screenshot-img" src="../imgs/screenshots/photos.png" alt="Cryptee Photos"><br><br>
+          </div>
+          <div class="column">
+            <img class="screenshot-img" src="../imgs/screenshots/docs.png" alt="Cryptee Docs"><br><br>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <p style="width:100%;">
+              <b> Cryptee Photos</b><br>
+              Full Size: <a href="../imgs/screenshots/photos.png" target="_blank">https://crypt.ee/imgs/screenshots/photos.png</a> 
+            </p>
+          </div>
+          <div class="column">
+            <p style="width:100%;">
+              <b>Cryptee Docs</b><br>
+              Full Size: <a href="../imgs/screenshots/docs.png" target="_blank">https://crypt.ee/imgs/screenshots/docs.png</a> 
+            </p>
+          </div>
+        </div>
+
+        <br>
+
+        <div class="columns">
+          <div class="column">
+            <img class="screenshot-img" src="../imgs/screenshots/docs-pdf.png" alt="Cryptee Docs Preview PDF"><br><br>
+          </div>
+          <div class="column">
+            <img class="screenshot-img" src="../imgs/screenshots/docs-folders.png" alt="Cryptee Docs Folders"><br><br>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <p style="width:100%;">
+              <b>Cryptee Docs – PDF Viewer</b><br>
+              Full Size: <a href="../imgs/screenshots/docs-pdf.png" target="_blank">https://crypt.ee/imgs/screenshots/docs-pdf.png</a> 
+            </p>
+          </div>
+          <div class="column">
+            <p style="width:100%;">
+              <b>Cryptee Docs – Folders</b><br>
+              Full Size: <a href="../imgs/screenshots/docs-folders.png" target="_blank">https://crypt.ee/imgs/screenshots/docs-folders.png</a> 
+            </p>
+          </div>
+        </div>
+
+        <br><br><br><br>
 
         <h2 id="links">Links</h2><br>
         <p>Please only use the <b>https</b> forms of the url when linking to anything related to Cryptee.</p>
@@ -188,45 +290,11 @@
 
         <br><br>
 
-        <h2 id="about">About Cryptee</h2><br>
-        <p>Below you can find some examples of how we describe Cryptee to our friends in different lengths.</p>
-        <p>We thought these could help you save 5 extra minutes for your precious coffee break.</p>
-        <br><br>
-
-        <b>One liners ( &lt; 140 characters )</b><br><br>
-        <p>&bull; Cryptee is a cross platform, encrypted home for your private documents and photos.</p>
-        <p>&bull; Cryptee is an encrypted and secure home for your private documents, notes, journals, files and photos.</p>
-        <p>&bull; Cryptee is a privacy focused, encrypted and secure home for your photos, documents, files, notes and journals.</p>
-        <p>&bull; Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos.</p>
-        <br><br>
-
-        <b>Short Paragraph ( 57 words / 359 characters )</b><br><br>
-        <p>Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos.<br>
-          It works on all your devices and provides a zero-knowledge place to keep all your sensitive digital belongings. <br>
-          With a strong encryption, security and deniability at its core, Cryptee is a unified platform for all your personal privacy needs.
-        </p><br><br>
-
-        <b>Alt Short Paragraph ( 69 words / 452 characters )</b><br><br>
-        <p>Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos.<br>
-          It uses a strong AES256 zero-knowledge encryption and of course has all the features you'd expect like live sync with unlimited devices,<br>
-          rich document editing, todos, markdowns, hotkeys, code highlighting, latex, embeds, attachments, support for PDFs etc. <br>
-          And for those rare moments you might need, it has deniability features built in.
-        </p><br><br>
-
-        <b>Paragraph with focus on Estonia ( 83 words / 550 characters )</b><br><br>
-        <p>Cryptee is a cross platform, encrypted and secure home for your private documents, notes, journals, files and photos. <br>
-          Based in Tallinn, Estonia, where the government runs on blockchain. Cryptee uses a strong AES256 zero-knowledge encryption and has deniability features for when you need it.<br>
-          And it has all the features you'd expect like live sync with unlimited devices, rich document editing, todos, markdowns,<br>
-          hotkeys, code highlighting, latex math, embeds, attachments, support for PDFs, offline mode and an easy migration system from other apps.
-        </p><br><br>
-
-        <br><br>
-
         <h2 id="promo">Promo Video</h2><br>
 
 
         <div class="columns">
-          <div class="column is-4" style="padding: 3rem; background-color: #FFF; border-radius: 1rem; box-shadow: 0 1rem 2rem rgba(0,0,0,0.1); margin: 2rem;">
+          <div class="column is-4" style="padding: 3rem; background-color: #FFF; border-radius: 1rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1); margin: 2rem;">
             <p>Here is our shiny launch video!</p>
             <b>Direct Youtube Link:</b><br>
             <a href="https://www.youtube.com/watch?v=-VpM6eT5bPE" target="_blank">https://www.youtube.com/watch?v=-VpM6eT5bPE</a>
@@ -243,36 +311,6 @@
         </div>
 
         <br><br>
-
-        <h2 id="screenshots">Screenshots</h2><br>
-        <p>Here are some good looking screenshots of Cryptee highlighting some of the fancy features that are also visually striking.</p>
-        <br><br>
-
-        <img src="../imgs/screenshots/photos.png" alt="Cryptee Photos"><br><br>
-        <p style="text-align:center; width:100%;"> <a href="../imgs/screenshots/photos.png" target="_blank">https://crypt.ee/imgs/screenshots/photos.png</a> </p>
-        <br><br>
-
-        <br><br><hr><br><br>
-        <img src="../imgs/screenshots/docs.png" alt="Cryptee Docs"><br><br>
-        <p style="text-align:center; width:100%;"> <a href="../imgs/screenshots/docs.png" target="_blank">https://crypt.ee/imgs/screenshots/docs.png</a> </p>
-        <br><br>
-
-        <br><br><hr><br><br>
-        <img src="../imgs/screenshots/docs-pdf.png" alt="Cryptee Docs Preview PDF"><br><br>
-        <p style="text-align:center; width:100%;"> <a href="../imgs/screenshots/docs-pdf.png" target="_blank">https://crypt.ee/imgs/screenshots/docs-pdf.png</a> </p>
-        <br><br>
-
-        <br><br><hr><br><br>
-        <img src="../imgs/screenshots/docs-folders.png" alt="Cryptee Docs Folders"><br><br>
-        <p style="text-align:center; width:100%;"> <a href="../imgs/screenshots/docs-folders.png" target="_blank">https://crypt.ee/imgs/screenshots/docs-folders.png</a> </p>
-        <br><br>
-
-        <br><br><hr><br><br>
-        <img src="../imgs/screenshots/upgrade.png" alt="Cryptee Upgrade Screen"><br><br>
-        <p style="text-align:center; width:100%;"> <a href="../imgs/screenshots/upgrade.png" target="_blank">https://crypt.ee/imgs/screenshots/upgrade.png</a> </p>
-        <br><br>
-
-
 
 
 

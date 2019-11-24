@@ -92,7 +92,7 @@ function chunkAndEncryptFile(file, chunkReadAndEncryptedCallback, successCallbac
         }
 
         function chunkRead(result) {
-            encryptArray(result, theKey).then(function (encryptedArrayBuffer) {
+            encryptUint8Array(new Uint8Array(result), theKey).then(function (encryptedArrayBuffer) {
                 console.log("" + chunkNo + " done");
                 chunkReadAndEncryptedCallback(chunkNo, offset, encryptedArrayBuffer, fileMeta, function () {
                     chunkNo++;

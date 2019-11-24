@@ -236,7 +236,7 @@
   pointer-events: all;
 }
 
-@media (max-width : 870px) {
+@media (max-width : 892px) {
   #mobile-topbar:not(.itsMobile) {
     top: 5.5rem;
   }
@@ -250,7 +250,7 @@
   }
 }
 
-@media (max-width : 557px) {
+@media (max-width : 579px) {
   #mobile-topbar:not(.itsMobile) {
     top: 7.25rem;
   }
@@ -449,8 +449,6 @@
 #file-viewer {
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
-  mask-image: radial-gradient(white, black);
 }
 
 #file-viewer-contents iframe {
@@ -586,14 +584,14 @@ body:not(.viewing-mode) #hotkeys-button.shown {
 
 .docsection.H1 {
   letter-spacing: 1px;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 13px;
   margin-top: 1.5rem;
   border-right-width: 6px;
 }
 
 .docsection.H2 {
-  font-weight: bold;
+  font-weight: 600;
   font-size: 9px;
   margin-top: 0.5rem;
   border-right-width: 3px;
@@ -1192,6 +1190,10 @@ body:not(.viewing-mode) #webclips-button.shown {
   transform: translateX(-0.75rem);
 }
 
+.result-tag .icon i {
+  color :#FFF;
+}
+
 #results .afolder {
   margin: 1rem 0.5rem;
   width: calc(100% - 1rem);
@@ -1224,6 +1226,11 @@ body:not(.viewing-mode) #webclips-button.shown {
 
 .left-button i {
   transition: 1s opacity ease, 0.5s color ease;
+}
+
+#all-folder-upload-inputs,
+#all-folder-upload-inputs input {
+  display: none !important;
 }
 
 #homedoc {
@@ -1639,15 +1646,16 @@ body:not(.viewing-mode) #webclips-button.shown {
 }
 
 .active-folder.foldertab {
-  margin-top: 3rem;
+  /* margin-left: calc(0.5rem - 1px); */
   height: 2.5rem;
   cursor: pointer;
   user-select: none;
   user-drag: none;
   -webkit-user-drag: none;
+  pointer-events: none;
 }
 
-#all-active-folder-docs .doc {
+#all-active-folder-contents .doc {
   margin-bottom: 2px !important;
 }
 
@@ -1655,10 +1663,13 @@ body:not(.viewing-mode) #webclips-button.shown {
   position: absolute;
   height: 2rem;
   width: 100px;
-  top: 3.5rem;
+  top: 0.5rem;
   left: 0.5rem;
   z-index: 10;
-  pointer-events: none;
+  cursor: pointer;
+  background-color: #FFF;
+  border-top-right-radius: 2rem;
+  border-top-left-radius: 2rem;
 }
 
 #active-folder-back::before {
@@ -1667,7 +1678,7 @@ body:not(.viewing-mode) #webclips-button.shown {
   font-family: FontAwesome;
   display: block;
   z-index: 10;
-  margin-top: calc(0.5rem + 2px);
+  margin-top: calc(0.25rem + 2px);
   margin-left: 1.5rem;
   color:#363636;
   position: absolute;
@@ -1683,38 +1694,61 @@ body:not(.viewing-mode) #webclips-button.shown {
   font-family: Montserrat;
   display: block;
   z-index: 10;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   margin-left: 3rem;
   color: #363636;
   position: absolute;
   top: 0px;
   pointer-events: none;
   letter-spacing: 1px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 10px;
   opacity: 0.6;
 }
 
-#all-active-folder-docs {
+#all-active-folder-contents {
   background: #FFF;
   padding: 0.5rem;
   width: calc(100% - 1rem);
-  height: calc(100% - 6.5rem);
+  height: calc(100% - 3.25rem);
   margin-left: 0.5rem;
   border-top-left-radius: 0px;
   margin-top: 0;
   position: relative;
 }
 
-#all-active-folder-docs .doc {
+#all-active-folder-contents::before {
+  content: "";
+  background-image: url('../../imgs/docs-empty-folder.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top center;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 2rem);
+  height: calc(100% - 2rem);
+  margin: 1rem;
+  transition: 0.25s opacity ease;
+  opacity: 0;
+  overflow: hidden;
+}
+
+#all-active-folder-contents:empty::before {
+  opacity: 1;
+}
+
+#all-active-folder-contents .doc,
+#all-active-folder-contents .subfolder {
   border-radius: 10px;
 }
 
-#all-active-folder-docs .doc .icon:not(.docctx) {
+#all-active-folder-contents .doc .icon:not(.docctx) {
   margin-right: calc(0.5rem + 1px);
 }
 
-#all-active-folder-docs::after {
+#all-active-folder-contents::after {
   content: "Drop your files here to upload them to this folder";
   background-color: rgba(255,255,255,0.9);
   pointer-events: none;
@@ -1735,26 +1769,12 @@ body:not(.viewing-mode) #webclips-button.shown {
   overflow: hidden;
 }
 
-#all-active-folder-docs.fileDropFolder::after {
+#all-active-folder-contents.fileDropFolder::after {
   opacity: 1;
 }
 
-#sort-active-folder-button {
-  position: absolute;
-  right: 0;
-  margin-top: 4.25rem;
-  margin-right: 1.25rem;
-  font-size: 0.9rem;
-  color:#000;
-  opacity: 0.6;
-  transition: 0.3s opacity ease;
-  cursor: pointer;
-}
-
-#active-folder-upload-button i {
-  font-size: 1.1rem;
-  margin-top: 2px;
-  cursor: pointer;
+#active-folder-new-folder-button.creating {
+  color: transparent;
 }
 
 #sort-active-folder-button.fa-sort-amount-asc::after,
@@ -1762,8 +1782,65 @@ body:not(.viewing-mode) #webclips-button.shown {
   content: "\f017";
   font-size: 10px;
   position: absolute;
-  top: -2px;
-  right: 14px;
+  top: 10px;
+  right: 24px;
+}
+
+.afolder.subfolder {
+  padding: 0.5rem;
+  margin-bottom: 2px !important;
+  cursor: pointer;
+}
+
+.afolder.subfolder .icon.foldericon {
+  float: left;
+  position: relative;
+  margin-right: calc(0.5rem + 1px);
+}
+
+.afolder.subfolder .subfoldertitle {
+  color: #888;
+  max-width: calc(100% - 1.5rem);
+}
+
+.afolder.subfolder .folderctx {
+  position: absolute;
+  right: 0;
+  top: 0.5rem;
+  background-color: transparent !important;
+  color: rgba(0,0,0,0.3);
+  pointer-events: all;
+  transition: 0.3s all ease !important;
+  opacity: 1;
+  user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select: none;
+}
+
+.folderctx i {
+  background-color: transparent !important;
+}
+
+#active-folder-actions { 
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 10rem;
+  height: 2.5rem;
+  display: flex;
+  margin-right: calc(0.5rem - 3px);
+  margin-top: 0.125rem;
+}
+
+#active-folder-actions .icon {
+  height: 2.5rem;
+  width: 2.5rem;
+  flex: 1;
+  color:#000;
+  opacity: 0.5;
+  transition: 0.3s opacity ease;
+  cursor: pointer !important;
 }
 
 /*///////////////////////////////////////////////////
@@ -1807,7 +1884,7 @@ body:not(.viewing-mode) #webclips-button.shown {
   width: calc(100% - 2rem);
   padding: 0.5rem 0.75rem;
   height: 2.5rem;
-  border-radius: 3.5rem;
+  border-radius: 10px;
   font-size: 0.9rem;
   box-shadow: 0 0.5rem 1rem rgba(10,10,10,0.1);
   cursor: pointer;
@@ -1815,7 +1892,7 @@ body:not(.viewing-mode) #webclips-button.shown {
 
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-1rem);
+  transform: translateY(-11rem);
   transition: 0.5s ease all;
 }
 
@@ -1831,7 +1908,7 @@ body:not(.viewing-mode) #webclips-button.shown {
 }
 
 #selections-wrapper.shown {
-  transform: translateY(0);
+  transform: translateY(-13rem);
   opacity: 1;
   pointer-events: all;
 }
@@ -1876,9 +1953,47 @@ body:not(.viewing-mode) #webclips-button.shown {
 	box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
 	transition: 0.5s all ease;
 	height: auto;
-	min-height: 2.5rem;
+	min-height: 2.75rem;
   border-radius: 10px;
   margin: 0 !important;
+  opacity: 1;
+  pointer-events: all;
+  padding: 0;
+}
+
+.docs-move-folders-list-item .icon {
+  margin-left: 0.5rem !important;
+}
+
+.docs-move-folders-list-item:focus {
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+}
+
+.docs-move-folders-list-item .movefoldertitle {
+  font-size: 11px;
+  height: 2.75rem;
+  line-height: 2.25rem;
+  text-align: left;
+  padding-left: 0.25rem;
+  padding-right: 1rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.docs-move-folders-list-item .number-of-children {
+  position: absolute;
+  right: 0.5rem;
+  width: auto;
+}
+
+.docs-move-folders-list-item .number-of-children .icon {
+  margin-left: 0 !important;
+}
+
+.docs-move-folders-list-item .fa-caret-right {
+  transform: rotate(0deg);
+  transition: 0.5s transform ease;
 }
 
 .docs-move-folders-list-item span {
@@ -1890,13 +2005,26 @@ body:not(.viewing-mode) #webclips-button.shown {
 
 .docs-move-folders-list-item.is-active  {
 	background-color: #363636;
-    color: #FFF;
-    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+  color: #FFF;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
 }
 
-.docs-move-folders-list-item.is-current {
-	color: #999;
-    box-shadow: none !important;
+.docs-move-folders-list-item.is-active .icon i {
+  color: #FFF !important;
+}
+
+.docs-move-folders-list-item.is-open .fa-folder::before {
+  content: "\f07c";
+}
+
+.docs-move-folders-list-item.is-open .fa-caret-right {
+  transform: rotate(90deg);
+}
+
+.docs-move-folders-list-item.is-not-open,
+.docs-move-folders-list-item.disallowed {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 #move-folders-list-new {
@@ -1909,13 +2037,24 @@ body:not(.viewing-mode) #webclips-button.shown {
 	width: calc(100% - 1.5rem);
 }
 
-#docs-move-folders-list {
+.docs-move-folders-list {
   min-height: 40px;
   max-height: initial;
-  margin-bottom: 1.25rem !important;
 }
 
+.move-subfolder {
+  display: none;
+  padding-right: 0;
+  padding-left: 1rem;
+}
 
+.move-items-modal * {
+  user-select: none;
+}
+
+.move-folder.column {
+  pointer-events: none;
+}
 
 /*///////////////////////////////////////////////////
 //////////////////  VIEWING MODE  ///////////////////
@@ -2027,7 +2166,7 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 ////////////////  BREAKPOINTS  //////////////////////
 ///////////////////////////////////////////////////*/
 
-@media (max-width:1075px) {
+@media (max-width:1097px) {
 
   #docs-right-wrap:not(.showRight) {
     display: none;
@@ -2155,7 +2294,8 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
     background-color: #F5F5F5 !important;
   }
 
-  .docctx {
+  .docctx, 
+  .subfolder .folderctx {
     color: #363636;
     height: 2.5rem;
     width:2.5rem;
@@ -2175,35 +2315,22 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
     margin-left: 0.5rem;
   }
   
-  #all-active-folder-docs .doc .docctx {
-    margin-top : -0.25rem;
+  #all-active-folder-contents .doc .docctx,
+  #all-active-folder-contents .subfolder .folderctx {
+    margin-top : -0.5rem;
   }
   
-  #all-active-folder-docs .doc .docicon {
+  #all-active-folder-contents .doc .docicon {
     margin-top: 0.125rem;
   }
-  #all-active-folder-docs .doc .doctitle  {
+  
+  #all-active-folder-contents .doc .doctitle {
     margin-top: 0.25rem;
   }
 
-  #sort-active-folder-button {
-    width: 2.25rem;
-    height: 2.25rem;
-    padding: 0.5rem;
-    margin-top: 3.5rem;
-  } 
-  
-  #active-folder-upload-button {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-left: 0;
-    padding: 0rem 1rem 0.5rem 0.25rem;
-  }
-
-  #sort-active-folder-button.fa-sort-amount-asc::after,
-  #sort-active-folder-button.fa-sort-amount-desc::after {
-    top: 4px;
-    right: 24px;
+  #active-folder-actions {
+    width: 10.5rem;
+    margin-right: calc(0.75rem - 1px);
   }
 
   body.edits-locked .mobile-floating-tools {
@@ -2252,18 +2379,21 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 
   .doc:not(.search-result):not(.decrypting):hover .docicon,
   .doc:not(.search-result):not(.decrypting):hover .doctitle,
-  .doc:not(.search-result):not(.decrypting):hover .docctx {
+  .doc:not(.search-result):not(.decrypting):hover .docctx,
+  .subfolder:hover .folderctx {
     color:#000 !important;
   }
 
   .dm .doc:not(.search-result):not(.decrypting):hover .docicon,
   .dm .doc:not(.search-result):not(.decrypting):hover .doctitle,
-  .dm .doc:not(.search-result):not(.decrypting):hover .docctx {
+  .dm .doc:not(.search-result):not(.decrypting):hover .docctx,
+  .dm .subfolder:hover .folderctx {
     color:var(--brightest) !important;
   }
   
   .doc:not(.search-result):not(.decrypting):hover,
   .doc:not(.search-result):not(.decrypting):hover .docicon:not(.is-loading) i,
+  .subfolder:hover,
   .activedoc:hover,
   .activefile:hover {
     background-color: #F5F5F5 !important;
@@ -2272,6 +2402,7 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 
   .dm .doc:not(.search-result):not(.decrypting):hover,
   .dm .doc:not(.search-result):not(.decrypting):hover .docicon:not(.is-loading) i,
+  .dm .subfolder:hover,
   .dm .activedoc:hover,
   .dm .activefile:hover {
     background-color: var(--darker) !important;
@@ -2300,6 +2431,14 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
     opacity: 1;
     cursor: pointer;
     pointer-events: all;
+  }
+
+  .folder-card:hover {
+    box-shadow: 0px 0.4rem 0.5rem rgba(0, 0, 0, 0.20);
+  }
+
+  #archiveDivider:hover, #summonDividerButton:hover {
+    box-shadow: 0 0.4rem 0.5rem rgba(0,0,0,0.2);
   }
 
   .folderrecent:hover {
@@ -2358,7 +2497,7 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
     color : var(--brightest);
   }
 
-  #sort-active-folder-button:hover {
+  #active-folder-actions .icon:hover {
     opacity: 1;
   }
 
@@ -2446,7 +2585,8 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 /* boxes #222222 */
 /* text #FFFFFF */
 
-.dm #docs-left-wrap ::placeholder {
+.dm #docs-left-wrap ::placeholder,
+.dm .folderctx {
   color :var(--bright) !important;
 }
 
@@ -2550,8 +2690,7 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 .dm .highlightedDoc .doctitle,
 .dm #active-folder-back::before,
 .dm #active-folder-back::after,
-.dm #sort-active-folder-button,
-.dm #active-folder-upload-button i,
+.dm #active-folder-actions .icon,
 .dm .docctx,
 .dm #fileLoadingStatus .message,
 .dm #homedoc.is-dark *,
@@ -2583,13 +2722,13 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 }
 
 .dm .folder-card {
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255,255,255,0.15);
   border-top-right-radius: 0px;
 }
 
-.dm #all-active-folder-docs,
+.dm #all-active-folder-contents,
 .dm #results .doc {
-  background-color: rgba(255,255,255,0.1) !important;
+  background-color: rgba(255,255,255,0.15) !important;
 }
 
 .dm .afolder:not(.archived) .foldercolor {
@@ -2677,9 +2816,17 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
   opacity: 1;
 }
 
-.dm #all-active-folder-docs::after {
+.dm #all-active-folder-contents::after {
   background-color: rgba(34,34,34,0.8);
   color:var(--bright);
+}
+
+.dm #all-active-folder-contents::before {
+  background-image: url('../../imgs/docs-empty-folder-dark.png');
+}
+
+.dm #active-folder-back {
+  background-color: transparent;
 }
 
 .dm .search-result .docicon,
@@ -2691,4 +2838,14 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 .dm .search-result .result-tag,
 .dm .search-result .result-tag i {
   color: var(--dark) !important;
+}
+
+.dm #archiveDivider,
+.dm #summonDividerButton {
+  background-color: var(--dark) !important; 
+}
+
+.dm #file-viewer { 
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
 }

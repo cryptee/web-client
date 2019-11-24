@@ -3,13 +3,13 @@
 ////////////////////////////////////////////////////
 
 var latest = (new Date()).getTime();
-var photoJSON = "https://static.crypt.ee/signin-photo.json?cachebust=" + latest;
-var photoURL = "https://static.crypt.ee/signin-photo.jpg?cachebust=" + latest;
+var photoJSON = "https://static.crypt.ee/signin-photo.json";
+var photoURL = "https://static.crypt.ee/signin-photo.jpg";
 var unsplashObject;
 function loadKeyModalBackground () {
   if (darkMode) {
-    photoJSON = "https://static.crypt.ee/signin-photo-night.json?cachebust=" + latest;
-    photoURL = "https://static.crypt.ee/signin-photo-night.jpg?cachebust=" + latest;
+    photoJSON = "https://static.crypt.ee/signin-photo-night.json";
+    photoURL = "https://static.crypt.ee/signin-photo-night.jpg";
   }
 
   $.ajax({ url: photoJSON }).done(function(data) {
@@ -70,8 +70,10 @@ function wrongKey (error) {
     $("#key-modal-decrypt-button").removeClass("is-loading");
   }, 1000);
   console.log("wrong key or ", error);
-  sessionStorage.removeItem('key');
-  localStorage.removeItem('memorizedKey');
+  try {
+    sessionStorage.removeItem('key');
+    localStorage.removeItem('memorizedKey');
+  } catch (e) {}
   if ($("#key-modal")[0]) {  
     showKeyModal();
   }
@@ -93,7 +95,7 @@ function keyModalApproved (){
 $("#key-input").on('keydown', function (e) {
   setTimeout(function(){
     lastActivityTime = (new Date()).getTime();
-    if (e.keyCode == 13) {
+    if (e.keyCode == 13 && $('#key-input').val()) {
       keyModalApproved ();
     }
   },50);
@@ -115,23 +117,22 @@ function getToken () {
         $.ajax({
           url: tokenURL,
           type: 'POST',
-          headers: {
-            "Authorization": "Bearer " + idToken
-          },
-          contentType: "application/json; charset=utf-8",
+          headers: { "Authorization": "Bearer " + idToken },
+          contentType: "text/plain; charset=utf-8",
           success: function(data) {
             gotToken(data);
           },
           error: function(xhr, ajaxOptions, thrownError) {
-            console.log(thrownError);
+            handleError("Error Getting Custom Token due to Network Failure", thrownError);
             retokening = false;
           }
         });
       }).catch(function(error) {
         if (error.code !== "auth/network-request-failed") {
-          handleError("Error Getting Token", error);
+          handleError("Error Getting ID Token", error);
+        } else {
+          handleError("Error Getting ID Token due to Network Failure");
         }
-        console.log("error getting token");
         retokening = false;
       });
     } else {
@@ -150,6 +151,8 @@ function gotToken (tokenData) {
   }).catch(function(error) {
     if (error.code !== "auth/network-request-failed") {
       handleError("Error Signing In With Token", error);
+    } else {
+      handleError("Error Signing In With Token due to Network Failure");
     }
     // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
     setTimeout(function() {
@@ -258,8 +261,7 @@ function gotMeta(userMeta) {
       isPaidUser = true;
     }
 
-    if (usedStorage >= allowedStorage){
-      $(".exceeded-storage").html(formatBytes(usedStorage + 100000 - allowedStorage));
+    if (usedStorage >= allowedStorage){      
       exceededStorage();
     } else if ((usedStorage >= allowedStorage * 0.8) && !huaLowStorage){
       try { quill.blur(); } catch (e){}

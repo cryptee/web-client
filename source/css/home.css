@@ -222,7 +222,7 @@
 	box-shadow: 0 1rem 2rem rgba(10,10,10,0.1);
 	overflow: hidden;
 	transition : 1s opacity ease, 1s box-shadow ease, 1s transform ease;
-	cursor: pointer;
+	/* cursor: pointer; */
 }
 
 #home-news-section .news-container {
@@ -337,7 +337,7 @@
 	float: right;
 	margin-top: 1px;
 	margin-right: 1.5rem;
-	font-weight: 700;
+	font-weight: 600;
 	cursor: pointer;
 }
 

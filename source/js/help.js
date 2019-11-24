@@ -1,5 +1,5 @@
 var theUser, theUsername, theEmail, metaRef, theUserID, typeOfApp;
-
+detectedLocale = detectedLocale || "XX";
 firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         //got user
@@ -30,7 +30,7 @@ function submitReport() {
     var crypteeUID = theUserID || "(Unknown)";
     var crypteeEmail = theEmail;
     var crypteeUsername = theUsername;
-
+    var locale = detectedLocale || "XX";
     var appType = typeOfApp;
     var ua = (navigator.userAgent || "(Unknown)");
     var resolution = $(window).width().toString() + "x" + $(window).height().toString();
@@ -44,7 +44,8 @@ function submitReport() {
         "crypteeUsername": crypteeUsername,
         "appType": appType,
         "ua": ua,
-        "resolution": resolution
+        "resolution": resolution,
+        "locale" : locale
     };
 
     if (description !== "" && contact !== "") {

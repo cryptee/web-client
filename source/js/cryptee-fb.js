@@ -15,9 +15,15 @@ firebase.initializeApp(config);
 var db = firebase.database();
 var store = firebase.storage();
 var tokenURL = "https://crypt.ee/api/auth";
-var offlineStorage = localforage.createInstance({ name: "offlineStorage" });
-var offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
-var encryptedIndexedCatalog = localforage.createInstance({ name: "encryptedIndexedCatalog" });
+var offlineStorage;
+var offlineErrorStorage;
+var encryptedIndexedCatalog;
+if (localforage) {
+  offlineStorage = localforage.createInstance({ name: "offlineStorage" });
+  offlineErrorStorage = localforage.createInstance({ name: "offlineErrorStorage" });
+  encryptedIndexedCatalog = localforage.createInstance({ name: "encryptedIndexedCatalog" });
+}
+
 var firebaseVersion = firebase.SDK_VERSION;
 
 ////////////////////////////////////////////////////

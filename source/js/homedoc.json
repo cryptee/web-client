@@ -373,16 +373,7 @@
       }
     },
     {
-      "insert": "If you have a question or run into any problems, let us know via the \"Report Bug\" section or check out our "
-    },
-    {
-      "attributes": {
-        "link": "/help"
-      },
-      "insert": "support"
-    },
-    {
-      "insert": ".\n"
+      "insert": "Experiencing problems? Have a feedback or question? Found a bug, or need help? Click the '?' on the top right corner of the page. Chances are we already have an answer to your question at our helpdesk! If not, don't worry! You can always reach out to us for more help there."
     }
   ]
 }

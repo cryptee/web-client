@@ -23,7 +23,9 @@
   <!-- @import "includes/footer-js.kit" -->
 
   <script type="text/javascript">
-  var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedkey
+  var keyToRemember; 
+  try { keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedkey
+  } catch (e) {}
   var userCreatedAt;
 
   loadUserDetailsFromLS();

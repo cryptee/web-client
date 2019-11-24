@@ -26,7 +26,8 @@ try {
             "'setEnd' on 'Range'", "'setStart' on 'Range'", "MetaMask",
             "lastpass", "u.position is not a function",
             "this.emitter is undefined", "can't access dead object",
-            "Cannot read property 'mutations' of undefined"
+            "Cannot read property 'mutations' of undefined", "NS_ERROR_FAILURE",
+            "formats/code", "ui/color-picker", "lib/showdown", "blots/cursor", "lib/tribute", "core/selection"
         ]
     });
 } catch (e) {
@@ -88,6 +89,7 @@ function ping(type, obj, callback) {
     if (sessionID) {
         obj.cid = sessionID;
     }
+
     if (isInWebAppiOS || isInWebAppChrome) {
         obj.ds = "app";
     } else {
@@ -98,6 +100,13 @@ function ping(type, obj, callback) {
         "type": type,
         "obj": obj
     };
+
+    if (type === "event") {
+        if (!obj.eventAction) {
+            obj.eventAction = "unknown";
+        }
+    }
+
     $.ajax({
         url: pingURL,
         type: 'POST',
@@ -182,9 +191,8 @@ function handleError(errorTitle, data, level) {
 
 function setSentryUser(userid) {
     Sentry.configureScope(function (scope) {
-        scope.setUser({
-            id: userid
-        });
+        scope.setUser({ id: userid });
+        scope.setTag("loggedin", "true");
     });
 }
 

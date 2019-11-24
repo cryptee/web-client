@@ -1,24 +1,47 @@
 <div class="document-contextual-dropdown">
 
   <p class="dropdown-save-button disabled-while-viewing" style="display:none;">
-    <span class="icon is-small"><i class="fa fa-fw fa-save"></i></span> &nbsp; Save Document
+    <span class="icon is-small"><i class="fa fa-fw fa-save"></i></span> &nbsp; Save
+  </p>
+
+  <p class="duplicate-button is-visible-homedoc is-hidden-offline disabled-while-viewing">
+    <span class="icon is-small">
+        <i class="fa fa-fw fa-copy"></i>
+    </span> &nbsp; Make a Copy
   </p>
   
-  <p onclick="showExportDocModal();" class="is-visible-homedoc disabled-while-viewing">
-    <span class="icon is-small"><i class="fa fa-fw fa-share-square"></i></span> &nbsp; Export Document
+  <p onclick="moveActiveDocument();" class="is-hidden-offline disabled-while-viewing">
+    <span class="icon is-small">
+      <span class="fa-fw fa-stack fa-lg" style="height: 1.5rem; margin-left:-1px; margin-top: -10px;">
+          <i class="fa fa-folder fa-stack-1x"></i>
+          <i class="fa fa-arrow-right fa-stack-2x text-danger" style="color: #000; margin-top: 13px; font-size: 8px !important;"></i>
+      </span>
+    </span> &nbsp; Move to ...
   </p>
-  
+
   <p onclick="showRenameDocModal();" class="is-hidden-offline disabled-while-viewing" >
-    <span class="icon is-small"><i class="fa fa-fw fa-i-cursor"></i></span> &nbsp; Rename Document
+    <span class="icon is-small"><i class="fa fa-fw fa-i-cursor"></i></span> &nbsp; Rename
+  </p>
+
+  <p onclick="showExportDocModal();" class="is-visible-homedoc disabled-while-viewing">
+    <span class="icon is-small"><i class="fa fa-fw fa-share-square"></i></span> &nbsp; Export
   </p>
   
+  <p onclick="print();" class="is-visible-homedoc disabled-while-viewing" id="print-doc-button">
+    <span class="icon is-small"><i class="fa fa-fw fa-print"></i></span> &nbsp; Print
+  </p>
+  
+  <!-- SEPARATORS MAKE HUMANS HAPPY -->
+  <hr>
+  <!-- SEPARATORS MAKE HUMANS HAPPY -->
+
   <p class="dropdown-makeoffline-button is-hidden-offline disabled-while-viewing" style="display:none;">
     <span class="icon is-small">
       <span class="fa-stack fa-lg" style="height: 1.5rem;">
         <i class="fa fa-cloud fa-stack-1x"></i>
         <i class="fa fa-times fa-stack-2x text-danger" style="color: #000; margin-top: 13px; font-size: 8px; margin-left:1px;"></i>
       </span>
-    </span> &nbsp; Make Doc Available Offline
+    </span> &nbsp; Make Available Offline
   </p>
   
   <p class="dropdown-makeonline-button is-hidden-offline disabled-while-viewing" style="display:none;">
@@ -27,29 +50,23 @@
         <i class="fa fa-cloud fa-stack-1x"></i>
         <i class="fa fa-times fa-stack-2x text-danger" style="color: #FFF; margin-top: 13px; font-size: 8px; margin-left:1px;"></i>
       </span>
-    </span> &nbsp; Make Doc Online Only
-  </p>
-
-  <p class="duplicate-button is-visible-homedoc is-hidden-offline disabled-while-viewing">
-      <span class="icon is-small">
-          <i class="fa fa-fw fa-copy"></i>
-      </span> &nbsp; Make a Copy
+    </span> &nbsp; Make Online Only
   </p>
 
   <!-- SEPARATORS MAKE HUMANS HAPPY -->
   <hr class="is-visible-homedoc">
   <!-- SEPARATORS MAKE HUMANS HAPPY -->
 
-  <p onclick="toggleEditLock();" class="is-hidden-offline" id="edit-lock-button">
-    <span class="icon is-small"><i class="fa fa-fw fa-unlock-alt"></i></span> &nbsp; <span id="edit-lock-label">Lock Edits</span>
-  </p>
-
   <p onclick="toggleViewingMode();" class="is-visible-homedoc" id="viewing-mode-button">
     <span class="icon is-small"><i class="fa fa-fw fa-window-maximize"></i></span> &nbsp; <span id="viewing-mode-label">Viewing Mode</span>
   </p>
   
+  <p onclick="toggleEditLock();" class="is-hidden-offline" id="edit-lock-button">
+    <span class="icon is-small"><i class="fa fa-fw fa-unlock-alt"></i></span> &nbsp; <span id="edit-lock-label">Lock Edits</span>
+  </p>
+
   <p onclick="closeDoc();" class="is-hidden-offline disabled-while-viewing">
-    <span class="icon is-small"><i class="fa fa-fw fa-close"></i></span> &nbsp; Close Document
+    <span class="icon is-small"><i class="fa fa-fw fa-close"></i></span> &nbsp; Close
   </p>
   
   <!-- SEPARATORS MAKE HUMANS HAPPY -->
@@ -57,7 +74,7 @@
   <!-- SEPARATORS MAKE HUMANS HAPPY -->
 
   <p onclick="showDeleteDocModal();" class="disabled-while-viewing">
-    <span class="icon is-small"><i class="fa fa-fw fa-trash"></i></span> &nbsp; Delete Document
+    <span class="icon is-small"><i class="fa fa-fw fa-trash"></i></span> &nbsp; Delete
   </p>
 
 </div>

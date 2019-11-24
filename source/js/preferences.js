@@ -1,5 +1,5 @@
 var txt = {};
-var localeURL = "https://flare.crypt.ee/api/locale";
+var localeURL = "https://atlas.crypt.ee/locale";
 var detectedLocale = "XX", detectedCurrency = "XX";
 var sessionID;
 var darkMode = false;
@@ -83,7 +83,7 @@ $(document).ready(function() {
     error:function (xhr, ajaxOptions, thrownError){
       if (navigator.onLine) { // throw this error only if user is online.
         if (xhr.status !== 0) {
-          handleError("Error getting locale",thrownError);
+          breadcrumb("Couldn't get locale");
         }
       }
     }

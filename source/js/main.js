@@ -20,6 +20,7 @@ var isios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 var isipados = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/) && (navigator.platform === "MacIntel") && (navigator.maxTouchPoints > 1);
 var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1;
 
+var monthsOfYearArray = ["", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 var isGoogleChrome = false;
 if (isIOSChrome) {
@@ -72,8 +73,13 @@ var isDOMRectBlocked = checkDOMRectBlocked();
 
 function iosVersion() {
   if (/iP(hone|od|ad)/.test(navigator.platform)) {
-    var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-    return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+    try { 
+      var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+      var ver = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+      return ver;
+    } catch (error) {
+      return false;
+    }
   }
 }
 
@@ -331,7 +337,7 @@ function detectIE() {
 
 function dataURIToBlob(dataURI) {
   var spacelessDataURI = dataURI.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
-  var binStr = atob(spacelessDataURI.split(',')[1]),
+  var binStr = decodeBase64(spacelessDataURI.split(',')[1]),
     len = binStr.length,
     arr = new Uint8Array(len);
 
@@ -648,19 +654,23 @@ deleteAllCookies();
 ///////////// WEB APP SERVICE WORKER ///////////////
 ////////////////////////////////////////////////////
 
+var canUseWorkers = false;
 
 if ('serviceWorker' in navigator) {
+  canUseWorkers = true;
   navigator.serviceWorker.register('../service-worker.js').then( function(serviceWorker) {
     breadcrumb('[Service Worker] Registered');
     setSentryTag("worker", "yes");
   }).catch(function(error) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
       breadcrumb('[Service Worker] Errored');
-      handleError("Couldn't register Service Worker", error);
+      handleError("Couldn't register Service Worker", error, "warning");
       setSentryTag("worker", "errored");
+      canUseWorkers = false;
     }
   });
 } else {
+  canUseWorkers = false;
   setSentryTag("worker", "no");
   breadcrumb("[Service Worker] No Support");
 }
@@ -680,7 +690,7 @@ function removeServiceWorker() {
 ////////////////////////////////////////////////////
 
 if (location.origin.indexOf("crypt.ee") !== -1) {
-  var warningTitleCSS = 'color:red; font-size:60px; font-weight: bold; font-family:Montserrat; letter-spacing:5px;';
+  var warningTitleCSS = 'color:red; font-size:60px; font-weight: 600; font-family:Montserrat; letter-spacing:5px;';
   var warningDescCSS = 'font-size: 18px; font-family:Montserrat;';
   console.log('%cSTOP!', warningTitleCSS);
   console.log("%cThis is a browser feature intended for developers. \n\nIf someone told you to copy and paste something here to enable a Cryptee feature or \"hack\" someone's account, it is a scam and will give them access to your Cryptee account.", warningDescCSS);
@@ -922,27 +932,105 @@ function checkConnection (callback) {
 
 
 
+/////////////////////////////////////////////////////////////////////////////////
+//////////////// CLOUD JSON PARSER //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
+function cloudParsedStorageURL(url) {
+  if (url) {
+    var preParsedURL = "https://atlas.crypt.ee/cjp?src=" + stringToB64URL(url);
+    return preParsedURL;
+  } else {
+    return null;
+  }
+}
 
+function parsedFileURL(id, token) {
+  if (token && id && theUserID) {
+    var path = theUserID + "%2F" + id + ".crypteefile";
+    var preParsedURL = "https://atlas.crypt.ee/file?p=" + path + "&t=" + token;
+    return preParsedURL;
+  } else {
+    return null;
+  }
+}
 
+function parsedDocURL(filename, token) {
+  if (token && filename && theUserID) {
+    var path = theUserID + "%2F" + filename;
+    var preParsedURL = "https://atlas.crypt.ee/doc?p=" + path + "&t=" + token;
+    return preParsedURL;
+  } else {
+    return null;
+  }
+}
 
+////////////////////////////////////////////////////
+/////////////////// GET FILE META  /////////////////
+////////////////////////////////////////////////////
+// meant as a semi-drop-in replacement for getMetadata()
+// returns gen, size, token
 
+function getFileMeta(filename) {
+  return new Promise(function (resolve, reject) {
+    if (theUser) {
+      firebase.auth().currentUser.getIdToken().then(function(accessToken) {       
+        $.ajax({
+          url: "https://atlas.crypt.ee/getFileMeta",
+          method: "POST",
+          dataType : "json",
+          data: {"filename":filename},
+          headers: { "Authorization": 'Bearer ' + accessToken },
+          success: function (meta) {
+            if (meta) { 
+              if (meta.generation) { 
+                resolve(meta); 
+              } else {
+                handleError("Error getting doc/file meta", {"filename" : filename});
+                reject();
+              }
+            } else {
+              handleError("Error getting doc/file meta", {"filename" : filename});
+              reject();
+            }
+          },
+          error:function (xhr, ajaxOptions, thrownError){
+            thrownError = thrownError || {};
+            thrownError.filename = filename;
+            handleError("Error getting doc/file meta", thrownError);
+            reject();
+          }
+        });
+      });
+    } else {
+      handleError("Tried getting doc/file meta without user", {"filename" : filename});
+      reject();
+    }
+  });
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 //////////////// OPENPGPJS SETUP ////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
+var cryptoThreadsCount = 1;
+var multithreadedCrypto = false;
+
+if (navigator.hardwareConcurrency && canUseWorkers) {
+  cryptoThreadsCount = navigator.hardwareConcurrency;
+  setSentryTag("cryptoThreadsCount", cryptoThreadsCount);
+}
+
 try {
   openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
   openpgp.config.aead_protect_version = 0;
-  openpgp.initWorker({ path:'../js/lib/openpgp.worker-4.5.3.min.js' }); // set the relative web worker path
+  openpgp.initWorker({path: '../js/lib/openpgp.worker-4.5.3.min.js', n :cryptoThreadsCount }); // set the relative web worker path
 } catch (e) {
   if (pgpCrossCheck) {
     breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
     handleError("Problem initializing openpgp in main js, failed in try/catch.", e, "warning");
   }
 }
-
 
 if (!openpgp) {
   if (pgpCrossCheck) {
@@ -952,7 +1040,18 @@ if (!openpgp) {
 } else {
   var openpgpversion = openpgp.config.versionstring.split("v")[1];
   setSentryTag("openpgp-ver", openpgpversion);
+
+  if (cryptoThreadsCount >= 2 && canUseWorkers) {
+    breadcrumb("[OpenPGPjs] Using " + cryptoThreadsCount + " worker threads");
+    breadcrumb("[OpenPGPjs] Bypassing native WebCrypto for better multi-threaded performance");
+    openpgp.config.use_native = false;
+    multithreadedCrypto = true;
+  } else {
+    breadcrumb("[OpenPGPjs] Using " + cryptoThreadsCount + " worker threads, with native WebCrypto");
+  }
+
 }
+
 
 
 
@@ -1012,16 +1111,16 @@ function decrypt(ciphertext, keys) {
 }
 
 /////////////////////////////////////////////////////////////
-// ENCRYPT ARRAY BUFFERS USING KEYS
+// ENCRYPT Uint8Array USING KEYS
 //
-// TAKES IN AN ARRAYBUFFER FROM FileReader readAsArrayBuffer
+// TAKES IN AN ARRAYBUFFER FROM base64ToUint8Array
 // RETURNS A Uint8Array
 /////////////////////////////////////////////////////////////
 
-function encryptArray(plaintext, keys) {
+function encryptUint8Array(plaintext, keys) {
   return new Promise(function (resolve, reject) {
     var options = {
-      message: openpgp.message.fromBinary(new Uint8Array(plaintext)),
+      message: openpgp.message.fromBinary(plaintext),
       passwords: keys,
       armor: false
     };
@@ -1030,30 +1129,6 @@ function encryptArray(plaintext, keys) {
       resolve(ciphertext.message.packets.write()); //ciphertext Uint8Array
     }).catch(function (error) {
       reject(error);
-    });
-  });
-}
-
-/////////////////////////////////////////////////////////////
-// ENCRYPT ARRAY BUFFERS USING KEYS (Uint8Array)
-//
-// TAKES IN AN Uint8Array & RETURNS A Uint8Array
-/////////////////////////////////////////////////////////////
-
-function decryptArray(ciphertext, keys) {
-  return new Promise(function (resolve, reject) {
-    openpgp.message.read(ciphertext).then(function (msg) {
-      var options = {
-        message: msg,
-        passwords: keys,
-        format: 'binary'
-      };
-      
-      openpgp.decrypt(options).then(function(plaintext) {
-        resolve(plaintext.data); // plaintext Uint8Array
-      }).catch(function (error) {
-        reject(error);
-      });
     });
   });
 }
@@ -1121,10 +1196,12 @@ function convertLegacyKey (dataRef, typedKey, hashedKey, callback) {
 function newEncryptedKeycheck(hashedKey, callback) {
   var now = ((new Date()).getTime()).toString();
   encrypt(now, [hashedKey]).then(function(ciphertext) {
-      var encryptedKeycheck = JSON.stringify(ciphertext);
-      callback(encryptedKeycheck);
+    var encryptedKeycheck = JSON.stringify(ciphertext);
+    callback(encryptedKeycheck);
   });
 }
+
+
 
 
 
@@ -1168,6 +1245,9 @@ if (isAndroid && isFirefox) {
 } else {
   setSentryTag("input-multiple-upload", "enabled");
 }
+
+var jQueryVersion = $.fn.jquery;
+setSentryTag("jquery-version", jQueryVersion);
 
 ///////////////////////////////////////////
 ////// SEARCH RELATED HELPER FUNCTIONS ////

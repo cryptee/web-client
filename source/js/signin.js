@@ -89,47 +89,53 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 function checkForExistingUser (){
-
-  db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-    //  CHECK IF USER HAS KEY IN DATABASE. IF NOT REDIRECT TO SIGNUP.
-    if (snapshot.val() === null) {
-      window.location = "signup?status=newuser";
-    } else {
-      if (isMobile) {
-        signInComplete();
+  if (theUserID) {
+    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+      //  CHECK IF USER HAS KEY IN DATABASE. IF NOT REDIRECT TO SIGNUP.
+      if (snapshot.val() === null) {
+        window.location = "signup?status=newuser";
       } else {
-        if (getUrlParameter("dlddid")) {
-          $("#key-status").html("Enter your encryption key to start the download");
+        if (isMobile) {
+          signInComplete();
+        } else {
+          if (getUrlParameter("dlddid")) {
+            $("#key-status").html("Enter your encryption key to start the download");
+          }
+          showKeyModal();
         }
-        showKeyModal();
       }
-    }
-  });
-
+    });
+  } else {
+    window.location = "signup?status=newuser";
+  }
 }
 
 function checkKey(key){
   $("#key-modal-decrypt-button").addClass("is-loading");
-  db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-    if (snapshot.val() === null) {
-      window.location = "signup?status=newuser";
-    } else {
-      var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+  if (theUserID) {
+    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
+      if (snapshot.val() === null) {
+        window.location = "signup?status=newuser";
+      } else {
+        var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
 
-      hashString(key).then(function(hashedKey){
-        decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
-          rightKey(plaintext, hashedKey);
-        }).catch(function (error) {
-          checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
+        hashString(key).then(function(hashedKey){
+          decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
             rightKey(plaintext, hashedKey);
-            // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+          }).catch(function (error) {
+            checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
+              rightKey(plaintext, hashedKey);
+              // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+            });
           });
-        });
-      }).catch(function(e){
-        wrongKey("Wide Character Error");
-      });      
-    }
-  });
+        }).catch(function(e){
+          wrongKey("Wide Character Error");
+        });      
+      }
+    });
+  } else {
+    window.location = "signup?status=newuser";
+  }
 }
 
 function rightKey (plaintext, hashedKey) {
@@ -138,8 +144,17 @@ function rightKey (plaintext, hashedKey) {
   $("#key-modal-decrypt-button").removeClass("is-loading");
   $("#key-status").removeClass("shown");
   $("#key-modal-signout-button").removeClass("shown");
-  
-  sessionStorage.setItem("key", JSON.stringify(hashedKey));
+
+  try {
+    sessionStorage.setItem("key", JSON.stringify(hashedKey));
+  } catch (e) {
+    // SHOW MODAL ABOUT SESSION STORAGE ACCESS.
+    $("#signin-info").html("<i class='fa fa-exclamation-triangle'></i><br><br>It seems like your browser is blocking accesss to sessionStorage.<br><br> Cryptee needs access to sessionStorage to keep you in memory while you're logged in. This error usually happens because some browsers like Firefox is a bit heavy-handed, and if you have cookies disabled, it disables sessionStorage too. Without this Cryptee will not work. We're very sorry for the inconvenience. Please enable access to sessionStorage for Cryptee and reload this page.").removeClass("is-info").addClass("is-danger").show();
+    $(".login-form").hide();
+    $(".tabs").hide();
+    $(".forgot-password").hide();
+    $("#other-error").hide();
+  }
 
   newEncryptedKeycheck(hashedKey,function(newKeycheck){
     var encryptedKeycheck = newKeycheck; // here we encrypt a timestamp using the hashedKey, and save this to localstore.

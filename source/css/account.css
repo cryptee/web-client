@@ -217,7 +217,7 @@ html.is-loading::after {
 	text-align: right;
 	margin-bottom: 0.75rem;
 	text-transform: uppercase;
-	font-weight: 700;
+	font-weight: 600;
 	letter-spacing: 1px;
 	cursor: pointer !important;
 	border-bottom: 1px solid transparent;
@@ -232,7 +232,7 @@ html.is-loading::after {
 
 .settings-right-column .title {
 	text-transform: uppercase;
-	font-weight: 700;
+	font-weight: 600;
 	letter-spacing: 1px;
 	font-size: 1.5rem;
 }
@@ -484,8 +484,8 @@ html.is-loading::after {
 	opacity: 0;
 	box-shadow: 0 0.5rem 1rem rgba(0,0,0,0);
 	transform: translateY(-2rem);
-  cursor: pointer;
-	transition: 0.5s all ease;
+	cursor: pointer;
+	transition: 0.3s all ease;
 	margin-bottom: 3rem;
 	padding: 3rem 1rem;
 	pointer-events: none;

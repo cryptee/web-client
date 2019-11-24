@@ -83,7 +83,9 @@ function loadTab(whichTab) {
       ping("event", {eventCategory: "upgrade", eventAction : "edit-plan"});
     }
   } else {
-    ping("event", {eventCategory: "settings-tab-loaded", eventAction : whichTab});
+    if (whichTab) {
+      ping("event", {eventCategory: "settings-tab-loaded", eventAction : whichTab});
+    }
   }
 
   $(".settings-tab-contents").hide();
@@ -104,6 +106,13 @@ $(window).on('load', function(event) {
     $(".account-menu-collapse").find("i").removeClass("fa-chevron-left").addClass("fa-bars");
   }
   $("#upgrade-coupon-input").val(couponForPaddle);
+});
+
+var potentiallyHRT = 0;
+
+$.ajax({ url: "https://atlas.crypt.ee/hrt", type: 'GET', success: function(hrtResponse){
+    potentiallyHRT = JSON.parse(hrtResponse);
+  }
 });
 
 //////////////////////////////////////////////////////////
@@ -227,12 +236,11 @@ function arrangeSettings() {
 
   if (loginMethod === "password") {
 
-  } else if (loginMethod === "google.com") {
+  }
+  
+  if (loginMethod === "google.com") {
     $("#changepasscard, #recoveryemailcard, #currentpass-delete-field").hide();
     $('#google-reauth-message').show();
-  } else {
-    $("#changepasscard, #recoveryemailcard, #currentpass-delete-field").hide();
-    $('#eid-reauth-message').show();
   }
 
 }
@@ -261,8 +269,6 @@ function checkDeletionMarks() {
 
 
 
-
-var gotDeletionEIDCode = false;
 
 function gotUserData (data) {
   if (data !== null) {
@@ -296,28 +302,6 @@ function gotUserData (data) {
       showClippers(data.clippers);
     } else {
       $("#webclippers-card").hide();
-    }
-    
-    var deleteCanceledError = false;
-    if (data.deletemecode) {
-      if (data.deletemecode !== "") {
-        gotEIDResponse(data.deletemecode);
-        gotDeletionEIDCode = true;
-      } else {
-        if (willLoseAuthForDeletion) {
-          deleteCanceledError = true;
-        }
-      }
-    } else {
-      if (willLoseAuthForDeletion) {
-        deleteCanceledError = true;
-      }
-    }
-
-    if (deleteCanceledError && gotDeletionEIDCode) {
-      $("#delete-account-button").removeClass('is-loading').prop('disabled', false);
-      $("#delete-account-confirm-button").removeClass('is-loading').prop('disabled', false);
-      showReauthPopup("is-warning", "Something went wrong. It seems that either you've cancelled the Smart-ID/Mobile-ID request, or our Smart-ID/Mobile-ID login system is experiencing some trouble. Please try again shortly.");
     }
 
     gotPreferences(data.preferences);
@@ -372,6 +356,7 @@ function hideReauthPopup () {
 function showReauthPopup(color, message){
   $("#change-pass-button").removeClass('is-loading disable-clicks');
   $("#change-key-button").removeClass('is-loading disable-clicks');
+  $("#change-email-button").removeClass('is-loading disable-clicks');
   $("#reauth-error").html('<button class="delete" onclick="hideReauthPopup();"></button>' + message);
   $("#reauth-error").removeClass("is-warning is-success is-info is-danger").addClass(color).fadeIn(500);
 }
@@ -420,7 +405,7 @@ function reauthForDelete (){
     });
   }
 
-  else if (loginMethod === "google.com") {
+  if (loginMethod === "google.com") {
     var provider = new firebase.auth.GoogleAuthProvider();
     if (isInWebAppiOS || isInWebAppChrome) {
       firebase.auth().signInWithRedirect(provider);
@@ -437,11 +422,6 @@ function reauthForDelete (){
          });
       });
     }
-  }
-
-  else {
-    willLoseAuthForDeletion = true;
-    dataRef.update({"deleteme" : "byebye"});
   }
 }
 
@@ -460,10 +440,6 @@ firebase.auth().getRedirectResult().then(function(result) {
     });
   }
 });
-
-function gotEIDResponse (code) {
-  showReauthPopup("is-info", "You will receive a verification notification on your phone shortly.<br><br> Only type your pin code, if the numbers you see on your phone are :<br><b style='font-size:24px;'>"+code+"</b>");
-}
 
 function changePassword (){
   var newPass = $("#newpass").val();
@@ -520,7 +496,7 @@ function changeEmail (){
           }
         }
       } else {
-        showReauthPopup("is-success", "Email successfully set! Please check your inbox for a verification mail. From now on, you will need to use your new email ( " + emailToSet + " ) to sign in. ");
+        showReauthPopup("is-success", "Email successfully set! Please check your email inbox (and spam folder just in case) for a verification mail. From now on, you will need to use your new email ( " + emailToSet + " ) to sign in. ");
         verifyEmail();
       }
     }, function(error) {
@@ -538,6 +514,8 @@ function verifyEmail() {
   $("#verify-email-button").addClass('is-loading');
   theUser.sendEmailVerification().then(function(){
     $("#verify-email-button").removeClass('is-loading').html("Email Sent").addClass('disable-clicks');
+  }).catch(function(e){
+    showReauthPopup("is-warning", "We're having trouble sending you a verification email. Please try again shortly.");
   });
 }
 
@@ -552,7 +530,8 @@ function checkPassStrength() {
     passVerified = true;
   }
 
-  var passScore = zxcvbn($("#newpass").val().trim()).score + 1;
+  var first64DigitsOfPassword = $("#newpass").val().trim().substring(0,64);
+  var passScore = zxcvbn(first64DigitsOfPassword).score + 1;
 
   $("#pass-score").attr("value", passScore * 20);
   if (passScore <= 2) {
@@ -578,7 +557,8 @@ function checkKeyStrength() {
     keyVerified = true;
   }
 
-  var keyScore = zxcvbn($("#newkey").val().trim()).score + 1;
+  var first64DigitsOfKey = $("#newkey").val().trim().substring(0,64);
+  var keyScore = zxcvbn(first64DigitsOfKey).score + 1;
 
   $("#key-score").attr("value", keyScore * 20);
 
@@ -816,7 +796,7 @@ function generateExportURLs (data) {
       allExportsObject["docs-home"] = {};
       allExportsObject["docs-home"].url = docURL; 
       $("#numTotalDownloads").html(numTotalDownloads());
-    });
+    }).catch(function(e){});
 
     if (data) {
       var docsFolders = data.val().folders;
@@ -852,7 +832,7 @@ function generateDocURLAndAppendToList(did) {
     allExportsObject[did].url = docURL;
     $("#numTotalDownloads").html(numTotalDownloads());
     clearTimeout(docsLoadedTimeout); docsLoadedTimeout = setTimeout(function () { allDocsLoaded(); }, 60000);
-  });
+  }).catch(function(e){});
 }
 
 function generateFileURLAndAppendToList(did) {
@@ -862,7 +842,7 @@ function generateFileURLAndAppendToList(did) {
     allExportsObject[did].url = docURL;
     $("#numTotalDownloads").html(numTotalDownloads());
     clearTimeout(docsLoadedTimeout); docsLoadedTimeout = setTimeout(function () { allDocsLoaded(); }, 60000);
-  });
+  }).catch(function(e){});
 }
 
 function allDocsLoaded() {
@@ -884,7 +864,7 @@ function generatePhotosURLs () {
               allExportsObject[photosHomeItemId].url = docURL;
               $("#numTotalDownloads").html(numTotalDownloads());
               clearTimeout(photosLoadedTimeout); photosLoadedTimeout = setTimeout(function () { allPhotosLoaded(); }, 60000);
-            });
+            }).catch(function(e){});
           } else if (photosHomeItemId.startsWith('f-')) {
             enumerateFolderForExport(photosHomeItemId);
           }
@@ -906,7 +886,7 @@ function enumerateFolderForExport(fid){
             allExportsObject[folderItemId].url = docURL;
             $("#numTotalDownloads").html(numTotalDownloads());
             clearTimeout(photosLoadedTimeout); photosLoadedTimeout = setTimeout(function () { allPhotosLoaded(); }, 60000);
-          });
+          }).catch(function(e){});
         } else if (folderItemId.startsWith('f-')) {
           enumerateFolderForExport(folderItemId);
         }

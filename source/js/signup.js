@@ -325,7 +325,7 @@ function isEmail(email) {
 }
 
 function checkPass() {
-  passScore = zxcvbn(thePass).score + 1;
+  passScore = zxcvbn(thePass.substring(0,64)).score + 1;
   $("#pass-score").attr("value", passScore * 20);
 
   if (passScore <= 2) {
@@ -348,7 +348,7 @@ var userPressedEnterToMoveOn = false;
 function checkKey() {
 
   if (theKey !== "") {
-    keyScore = zxcvbn(theKey).score + 1;
+    keyScore = zxcvbn(theKey.substring(0,64)).score + 1;
     $("#key-score").attr("value", keyScore * 20);
 
     if (keyScore > 1) {
@@ -600,7 +600,7 @@ function createUser () {
         showSignupInfo("Our servers think you may have used an invalid character in your username. No @ symbols or spaces please.", "is-warning", true, "user");
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       } else {
-        handleError("Error Creating User", error);
+        handleError("Error Creating User", error, "warning");
         showSignupInfo(disableBlockerError, "is-warning", true, "key");
         $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
       }
@@ -805,7 +805,7 @@ function createFirstAuth(hashedKey) {
           gotSignupToken(data, hashedKey); 
         },
         error:function (xhr, ajaxOptions, thrownError){ 
-          handleError("Couldn't get signup auth token", thrownError); 
+          handleError("Couldn't get signup auth token", thrownError, "warning"); 
           showSignupInfo(disableBlockerError, "is-warning", true, "key");
           $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
         }

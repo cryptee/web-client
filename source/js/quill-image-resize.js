@@ -669,7 +669,19 @@
             n.quill.root.style[e] = t, document.documentElement.style[e] = t
           })
         }, this.checkImage = function(t) {
-          n.img && (46 != t.keyCode && 8 != t.keyCode || window.Quill.find(n.img).deleteAt(0), n.hide())
+          if (n.img) {
+            if (t.keyCode === 46 || t.keyCode === 8) {
+              window.Quill.find(n.img).deleteAt(0); 
+              n.hide();
+            }
+            if (t.keyCode === 13 || t.keyCode === 32) {
+              var img = window.Quill.find(n.img);
+              var imgIndex = n.quill.getIndex(img);
+              n.quill.setSelection(imgIndex + 1);
+              n.quill.insertText(imgIndex + 1, '\n', 'user');
+              n.hide();
+            }
+          }
         }, this.quill = e;
         var s = !1;
         r.modules && (s = r.modules.slice()), this.options = i()({}, r, a.a), s !== !1 && (this.options.modules = s), document.execCommand("enableObjectResizing", !1, "false"), this.quill.root.addEventListener("click", this.handleClick, !1), this.quill.root.addEventListener('scroll', this.hide, !1), this.quill.root.parentNode.style.position = this.quill.root.parentNode.style.position || "relative", this.moduleClasses = this.options.modules, this.modules = []

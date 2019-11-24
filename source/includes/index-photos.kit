@@ -1,60 +1,70 @@
-<section class="container has-text-centered" id="www-photos-section">
-
-    <h2 class="title is-3" id="ping-photos">ENCRYPTED PHOTOS</h2>
-
-    <div class="is-hidden-mobile" id="www-photos-desktop-full">
-        <img style="display:block;" lazy-src="../imgs/hero-browser-bar.png" alt="browser bar for Encrypted Photos">
-        <img style="display:block;" lazy-src="../imgs/hero-photos.jpg" alt="Cryptee Encrypted Photos"
-            class="www-desktop-screen">
+<section class="pt" id="www-photos-section">
+    <div class="container">
+        
+        <div class="columns">
+            <div class="column hero-column">
+                <img lazy-src="../imgs/landing/photos-ipad.png" alt="Cryptee Encrypted Photos" class="www-desktop-screen">
+                <img lazy-src="../imgs/landing/photos-phone.png" alt="Cryptee Encrypted Photos" class="www-phone-screen">
+            </div>
+            
+            <div class="column is-one-third plx2 va">
+                <h2 class="title is-3 is-dark-bg" id="ping-photos">ENCRYPTED PHOTOS</h2>
+            </div>
+        </div>
+        
     </div>
+</section>
 
-    <img lazy-src="../imgs/photos-mobile.png" alt="Cryptee Encrypted Photos Mobile" id="www-photos-phone"
-        class="is-hidden-tablet">
+<section id="www-photos-features-section" class="slider-section">
+    
+    <div class="www-features-slider" id="www-photos-slider">
 
-    <div class="columns feature-columns">
-        <div class="column">
-            <img lazy-src="../imgs/photos-features/photos-albums.png" alt="Cryptee Encrypted Photos / Albums">
-            <p>QUICKLY CREATE ALBUMS</p>
-            <p><b>WITH ONE-CLICK SELECTIONS</b></p>
+        <div class="swiper-wrapper">
+
+            <div class="swiper-slide www-feature-slide">
+                <img lazy-src="../imgs/landing/feature-slides/photos-feature-ghost.png" alt="Cryptee Encrypted Photos / Ghost Albums">
+                <p>NEED SOME ALBUMS HIDDEN?</p>
+                <p><b>YOU CAN "GHOST" (HIDE) ALBUMS</b></p>
+            </div>
+            
+            <div class="swiper-slide www-feature-slide">
+                <img lazy-src="../imgs/landing/feature-slides/photos-feature-favorites.png" alt="Cryptee Encrypted Photos / Favorites">
+                <p>REVISIT YOUR TREASURED MOMENTS</p>
+                <p><b>WITH FAVORITE PHOTOS</b></p>
+            </div>
+
+            <div class="swiper-slide www-feature-slide">
+                <img lazy-src="../imgs/landing/feature-slides/photos-feature-upload.png" alt="Cryptee Encrypted Photos / Drag & Drop">
+                <p>EASILY UPLOAD YOUR PHOTOS</p>
+                <p><b>WITH DRAG &amp; DROP BULK UPLOAD</b></p>
+            </div>
+
+            <div class="swiper-slide www-feature-slide">
+                <img lazy-src="../imgs/landing/feature-slides/photos-feature-albums.png" alt="Cryptee Encrypted Photos / Albums">
+                <p>QUICKLY CREATE ALBUMS</p>
+                <p><b>WITH ONE-CLICK SELECTIONS</b></p>
+            </div>
+
+            <div class="swiper-slide www-feature-slide">
+                <img lazy-src="../imgs/landing/feature-slides/photos-feature-slideshow.png" alt="Cryptee Encrypted Photos / Slideshow">
+                <p>VIEW YOUR PHOTOS LARGER</p>
+                <p><b>WITH SLIDESHOW MODE</b></p>
+            </div>
+
+            <div class="swiper-slide www-feature-slide">
+                <img lazy-src="../imgs/landing/feature-slides/photos-feature-search.png" alt="Cryptee Encrypted Photos / Search">
+                <p>FIND YOUR PHOTOS WITH</p>
+                <p><b>INSTANT &amp; TYPO-TOLERANT SEARCH</b></p>
+            </div>
+
         </div>
-
-        <div class="column">
-            <img lazy-src="../imgs/photos-features/photos-ghost.png" alt="Cryptee Encrypted Photos / Ghost Albums">
-            <p>NEED SOME ALBUMS HIDDEN?</p>
-            <p><b>YOU CAN "GHOST" (HIDE) ALBUMS</b></p>
-        </div>
-    </div>
-
-    <div class="columns feature-columns">
-        <div class="column">
-            <img lazy-src="../imgs/photos-features/photos-slideshow.png" alt="Cryptee Encrypted Photos / Slideshow">
-            <p>VIEW YOUR PHOTOS LARGER</p>
-            <p><b>WITH SLIDESHOW MODE</b></p>
-        </div>
-
-        <div class="column">
-            <img lazy-src="../imgs/photos-features/photos-search.png" alt="Cryptee Encrypted Photos / Search">
-            <p>FIND WHAT YOU'RE LOOKING FOR</p>
-            <p><b>WITH INSTANT &amp; TYPO-TOLERANT SEARCH</b></p>
-        </div>
-    </div>
-
-    <div class="columns feature-columns">
-        <div class="column">
-            <img lazy-src="../imgs/photos-features/photos-drag.png" alt="Cryptee Encrypted Photos / Drag & Drop">
-            <p>EASILY UPLOAD YOUR PHOTOS</p>
-            <p><b>WITH DRAG &amp; DROP BULK UPLOAD</b></p>
-        </div>
-
-        <div class="column">
-            <img lazy-src="../imgs/photos-features/photos-favorites.png" alt="Cryptee Encrypted Photos / Favorites">
-            <p>REVISIT YOUR TREASURED MOMENTS</p>
-            <p><b>WITH FAVORITE PHOTOS</b></p>
-        </div>
+        
+        <div class="www-swiper-pagination" id="www-photos-slider-pagination"></div>
+        <div class="swiper-button-prev" id="www-photos-slider-prev"></div>
+        <div class="swiper-button-next" id="www-photos-slider-next"></div>
     </div>
 
     <div class="container has-text-centered">
-        <br><br><br><br>
-        <a href="signup" class="button hero-button www-action-button" id="ping-signup-photos">Sign up for free</a>
+        <a href="signup" class="button hero-button www-action-button" id="ping-signup-photos">GET STARTED FOR FREE</a>
     </div>
 </section>

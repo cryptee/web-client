@@ -1,14 +1,26 @@
 <div class="folders-new-folder left-view-input-group">
-  <span class="icon is-medium left-button" id="new-folder-button"><i class="fa fa-fw fa-plus"></i></span>
+
+  <span class="icon is-medium left-button" id="new-folder-button">
+    <span class="fa-fw fa-stack fa-lg" style="margin-top: -2px;">
+      <i class="fa fa-folder fa-stack-1x" style="font-size: 1.05rem !important;"></i>
+      <i class="fa fa-plus fa-stack-2x dm-contrasted" style="font-size: 8px !important; margin-top: 13px; color:#F5F5F5;"></i>
+    </span>
+  </span>
+
   <input class="left-nav-field" type="text" name="Type a new folder name" placeholder="Create New Folder" id="new-folder-title" autocomplete="off">
 </div>
 
 <div class="notification is-info first-folder-hint">
   <button class="delete" onclick="hideNotification(this);"></button>
-  <p>Let's start by creating your <br> first folder.<br><br>All your new documents and files will go into folders here.</p>
+  <p>Welcome to Cryptee Docs!<br><br></p>
+  <p>All your new documents and files will go into folders here.<br><br></p>
+  <p>Let's start by creating your <br> first folder, so you can see how it looks like.<br><br></p>
+  <p>Click on "Create New Folder" above, type in a name, and press enter (return) or click the <span class="icon is-small"><i class="fa fa-fw fa-plus"></i></span> icon.</p>
 </div>
 
 <div id="all-folders">
   <p id="archiveDivider"><span class="icon"><i class="fa fa-fw fa-archive"></i></span> Archived Folders</p>
   <p id="summonDividerButton" onclick="showGhostFolderHelp();"><span class="icon"><i class="fa fa-fw fa-eye"></i></span> Summon Ghost Folder</p>
 </div> <!--all-folders -->
+
+<div id="all-folders-upload-inputs"></div>

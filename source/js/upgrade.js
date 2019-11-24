@@ -1,8 +1,8 @@
-
 /////////////////////////////////////////////////////////////
 ///////////////////   PAYMENT FEEDBACK   ////////////////////
 /////////////////////////////////////////////////////////////
 var huaLowStorage, huaExceededStorage = false;
+var app = location.pathname.replace("/", "");
 
 $("#upgrade-thanks > .notification > .delete").on('click', function(event) {
   loadTab("overview");
@@ -19,15 +19,23 @@ function orderComplete () {
 }
 
 function exceededStorage(callback, callbackParam) {
+  $(".exceeded-storage").html(formatBytes(usedStorage + 105000 - allowedStorage));
   try { quill.blur(); } catch (e){}
   callback = callback || noop;
   getToken();
   if (!huaExceededStorage) {
-    $("#exceeded-modal").addClass("is-active");
-    if (location.pathname.replace("/", "") === "home") {
+    if (app === "home") {
       showExceededAtHome();
     } else {
-      breadcrumb('Displaying Exceeded Storage');
+      if (app === "photos") {
+        if (!isUploading) {
+          breadcrumb('Displaying Exceeded Storage');
+          $("#exceeded-modal").addClass("is-active");
+        }
+      } else {
+        breadcrumb('Displaying Exceeded Storage');
+        $("#exceeded-modal").addClass("is-active");
+      }
     }
   }
 }
@@ -42,7 +50,13 @@ $("#low-storage-warning > .notification > .delete").on('click', function(event) 
 });
 
 function showLowStorageWarning() {
-  showFlyingModal("low-storage-warning");
+  if (app === "photos") {
+    if (!isUploading) {
+      showFlyingModal("low-storage-warning");
+    }
+  } else {
+    showFlyingModal("low-storage-warning");
+  }
 }
 
 function hideLowStorageWarning(userAcknowledged) {
