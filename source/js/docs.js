@@ -1015,7 +1015,8 @@ function prepareRightClickDocFunctions (id) {
 function prepareRightClickFolderFunctions (id) {
   var fd = $("#folder-dropdown");
   var areThereAnyOnlineOnlyDocs = false;
-  var howManyDocs = 0;
+  var howManyDocsOrFolders = 0;
+  var childrenFIDs = [];
   fd.find(".upload-file-button").find("label").attr("for", 'upload-to-' + id);
   
   var renameDisabled = false;
@@ -1034,9 +1035,22 @@ function prepareRightClickFolderFunctions (id) {
     }
   }
   
+  $.each(catalog.folders, function(fid, folder){
+    if (folder.parent === id) {
+      howManyDocsOrFolders++;
+      childrenFIDs.push(fid);
+    }
+  }); 
+
   $.each(catalog.docs, function(did, doc){
     if (doc.fid === id) {
-      howManyDocs++;
+      howManyDocsOrFolders++;
+      if (!doc.isfile && !doc.isoffline) {
+        areThereAnyOnlineOnlyDocs = true;
+      }
+    }
+    
+    if (childrenFIDs.includes(doc.fid)) {
       if (!doc.isfile && !doc.isoffline) {
         areThereAnyOnlineOnlyDocs = true;
       }
@@ -1046,14 +1060,14 @@ function prepareRightClickFolderFunctions (id) {
   if (areThereAnyOnlineOnlyDocs) {
     fd.find(".offlinecheckbox").prop('checked', false);
   } else {
-    if (howManyDocs > 0) {
+    if (howManyDocsOrFolders > 0) {
       fd.find(".offlinecheckbox").prop('checked', true);
     } else {
       fd.find(".offlinecheckbox").prop('checked', false);
     }
   }
 
-  if (howManyDocs === 0 || catalog.folders[id].archived) {
+  if (howManyDocsOrFolders === 0 || catalog.folders[id].archived) {
     // renameDisabled = renameDisabled || true;
     ghostDisabled = ghostDisabled || true;
     archiveDisabled = archiveDisabled || true;
