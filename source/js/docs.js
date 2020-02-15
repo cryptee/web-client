@@ -2070,10 +2070,10 @@ function fixHomeDoc (callback, callbackParam){
             });
         });
       } else {
-        handleError("Error getting homedoc JSON for re-creating homedoc", error);
+        handleError("Error getting homedoc JSON for re-creating homedoc");
       }
     }).fail(function() {
-      handleError("Error getting homedoc JSON for re-creating homedoc", error);
+      handleError("Error getting homedoc JSON for re-creating homedoc");
     });
   }
 }
@@ -3832,14 +3832,20 @@ function appendFolder (folder, fid, moved){
       }
 
       $("#all-folders-upload-inputs").append(uploadInput);
-      document.getElementById('upload-to-'+fid).addEventListener('change', handleFileSelect, false);
+      var inputElement = document.getElementById('upload-to-'+fid);
+      if (inputElement) {
+        inputElement.addEventListener('change', handleFileSelect, false);
+      }
     }
 
     if (!folder.parent || (folder.parent && folder.parent === activeFolderID)) {
       // not a subfolder, or a subfolder and its parent is currently active. 
 
       if (isAPIAvailable()) {
-        document.getElementById(fid).addEventListener('drop', handleFileDrop, false);
+        var folderElementForDrop = document.getElementById(fid);
+        if (folderElementForDrop) {
+          folderElementForDrop.addEventListener('drop', handleFileDrop, false);
+        }
       }
 
       // somehow this is needed for the animation. 
@@ -5349,7 +5355,12 @@ function idleTimer () {
 
 function inactiveTimer () {
   var now = (new Date()).getTime();
-  var timeoutAmount = userPreferences.general.inactivityTimeout * 60000; // default is 30 mins
+  var timeoutAmount;
+  if (userPreferences) {
+    timeoutAmount = userPreferences.general.inactivityTimeout * 60000; // default is 30 mins
+  } else {
+    timeoutAmount = 30 * 60000; // default is 30 mins
+  }
 
   if (timeoutAmount !== 0) {
     if (now - lastActivityTime > timeoutAmount) {
@@ -5586,7 +5597,7 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
 
     //loading indicator
     if (dtitle) {
-      showDocProgress("Loading " + dtitle + "<p class='cancel-loading' onclick='cancelLoading();'>Cancel</p>");
+      showDocProgress("Loading " + dtitle + "<p class='cancel-loading clickable' onclick='cancelLoading();'>Cancel</p>");
     } else {
       showDocProgress("Loading Document ...");
     }
@@ -5629,15 +5640,17 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
       });
 
     }).catch(function(error) {
-      if (did === "home") {
-        breadcrumb("Couldn't find home doc. Attempting to fix.");
-        fixHomeDoc(loadDoc, "home");
-      } else {  
-        breadcrumb("Couldn't find doc. Attempting to fix.");          
-        showDocProgress("One moment please<br>Our system has detected an error<br>and it's self-repairing.");
-        fixFilesAndFolders(did);
+      if (connected && navigator.onLine) {
+        if (did === "home") {
+          breadcrumb("Couldn't find home doc. Attempting to fix.");
+          fixHomeDoc(loadDoc, "home");
+        } else {  
+          breadcrumb("Couldn't find doc. Attempting to fix.");          
+          showDocProgress("One moment please<br>Our system has detected an error<br>and it's self-repairing.");
+          fixFilesAndFolders(did);
+        }
+        handleError("Error Loading Doc/File", error);
       }
-      handleError("Error Loading Doc/File", error);
     });
 
   } else {
@@ -6358,33 +6371,36 @@ function encryptAndUploadDoc(did, fid, callback, callbackParam) {
         $("#filesize").attr("size", filesize);
         lastActivityTime = (new Date()).getTime();
         switch (snapshot.state) { case firebase.storage.TaskState.PAUSED: break; case firebase.storage.TaskState.RUNNING: break; }
-      }, function(error) {
-
-        // IF THIS DOC DIDN'T EXIST IN SERVER, WE HAVE JUST CREATED REFERENCES FOR IT. AND FILE ISN'T UPLOADED.
-        // UH-OH. THIS WILL NEED TO BE CLEANED LATER ON BY A FIXER.
-        if (usedStorage >= allowedStorage) {
-          exceededStorage(callback, callbackParam);
-        } else {
-          $('#main-progress').attr("max", "100").attr("value", "100").removeClass("is-warning is-success is-info").addClass("is-danger");
-
-          checkConnection(function(status){
-            if (status) {
-              showErrorBubble("Error saving document, will retry again shortly.");
-              console.log("SAVE FAILED. RETRYING IN 5 SECONDS.");
-              setTimeout(function(){
-                saveDoc(callback, callbackParam);
-              }, 5000);
-            } else {
-              activateOfflineMode();
-              showErrorBubble("Document will be uploaded when you're back online.");
-            }
-          });
-        }
-      });
+      }, function(error) { err(error); });
       saveUpload.then(function(snap){
         saveUploadComplete(did, snap.metadata, callback, callbackParam);
-      });
+      }).catch(function(error) { err(error); });
   });
+
+  function err(error) {
+    // IF THIS DOC DIDN'T EXIST IN SERVER, WE HAVE JUST CREATED REFERENCES FOR IT. AND FILE ISN'T UPLOADED.
+    // UH-OH. THIS WILL NEED TO BE CLEANED LATER ON BY A FIXER.
+     
+    if (usedStorage >= allowedStorage) {
+      exceededStorage(callback, callbackParam);
+    } else {
+      $('#main-progress').attr("max", "100").attr("value", "100").removeClass("is-warning is-success is-info").addClass("is-danger");
+
+      checkConnection(function(status){
+        if (status) {
+          showErrorBubble("Error saving document, will retry again shortly.");
+          console.log("SAVE FAILED. RETRYING IN 5 SECONDS.");
+          setTimeout(function(){
+            saveDoc(callback, callbackParam);
+          }, 5000);
+        } else {
+          activateOfflineMode();
+          showErrorBubble("Document will be uploaded when you're back online.");
+        }
+      });
+    }
+    
+  }
 }
 
 
@@ -11066,20 +11082,22 @@ function hideWebClips() {
 
 function gotWebclips(snap) {
   // THESE ARE ONLY POINTERS.
-  $.each(snap, function(time, wcid){
-    if (!clips[wcid]) {
-      var clipRef = rootRef.child("wc-" + wcid + ".crypteeclip");
-      clips[wcid] = { "time" : time, "ref" : clipRef };
-    }
-  });
+  if (snap) {
+    $.each(snap, function(time, wcid){
+      if (!clips[wcid]) {
+        var clipRef = rootRef.child("wc-" + wcid + ".crypteeclip");
+        clips[wcid] = { "time" : time, "ref" : clipRef };
+      }
+    });
 
-  if (webclipsOpen) {
-    // if it's already open
-    fetchWebclips();
-  } else {
-    // if it's not already open, and there's clips,
-    if (Object.keys(clips).length > 0) {
-      $("#webclips-button").addClass("shown");
+    if (webclipsOpen) {
+      // if it's already open
+      fetchWebclips();
+    } else {
+      // if it's not already open, and there's clips,
+      if (Object.keys(clips).length > 0) {
+        $("#webclips-button").addClass("shown");
+      }
     }
   }
 }

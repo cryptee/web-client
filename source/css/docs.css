@@ -664,7 +664,7 @@ body:not(.viewing-mode) #hotkeys-button.shown {
   margin-top: calc(4rem - 4px);
   opacity: 0;
   transition: opacity ease;
-  pointer-events: none;
+  pointer-events: none !important; /* remove important when releasing this for public*/
   transition-duration: 0.6s !important;
 }
 
@@ -688,10 +688,9 @@ body:not(.viewing-mode) #hotkeys-button.shown {
   position: absolute !important;
 }
 
-
 #docs-webclips-wrapper.is-active {
   opacity: 1;
-  pointer-events: all;
+  pointer-events: all !important; /* remove important when releasing this for public*/
   transition-duration: 2s !important;
 }
 
@@ -972,6 +971,12 @@ body:not(.viewing-mode) #webclips-button.shown {
 #docs-right-wrap.is-loading
 {
   opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#docs-left-wrap.is-loading #docs-left-center.itsMobile * ,
+#docs-left-wrap.is-loading #docs-left-bottom.itsMobile * ,
+#docs-left-wrap.is-loading #docs-left-top.itsMobile * {
   pointer-events: none !important;
 }
 

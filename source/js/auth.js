@@ -123,15 +123,15 @@ function getToken () {
             gotToken(data);
           },
           error: function(xhr, ajaxOptions, thrownError) {
-            handleError("Error Getting Custom Token due to Network Failure", thrownError);
+            handleError("Error Getting Custom Token (Network Request Failed)", thrownError);
             retokening = false;
           }
         });
       }).catch(function(error) {
         if (error.code !== "auth/network-request-failed") {
-          handleError("Error Getting ID Token", error);
+          handleError("Error Getting ID Token (Network Request Failed)", error, "warning");
         } else {
-          handleError("Error Getting ID Token due to Network Failure");
+          handleError("Error Getting ID Token", error);
         }
         retokening = false;
       });
@@ -150,9 +150,9 @@ function gotToken (tokenData) {
     retokening = false;
   }).catch(function(error) {
     if (error.code !== "auth/network-request-failed") {
-      handleError("Error Signing In With Token", error);
+      handleError("Error Signing In With Token (Network Request Failed)", error);
     } else {
-      handleError("Error Signing In With Token due to Network Failure");
+      handleError("Error Signing In With Token", error);
     }
     // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
     setTimeout(function() {

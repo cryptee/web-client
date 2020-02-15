@@ -638,17 +638,21 @@ function renderTimelineLabel(label, whatToUse) {
 $("#photos-timeline-navigator").on('click', "p", function(event) {
   var goto = $(this).attr("goto");
   var firstElem;
+  
   if (goto.startsWith("day")) {
     goto = goto.replace("day-", "");
     firstElem = $(".folder-content[datesort$='"+goto+"']")[0];
   } else {
     firstElem = $(".folder-content[datesort^='"+goto+"']")[0] || $(".folder-content[photositemname^='"+goto+"']")[0];
   }
-  if (isipados || isios) {
-    var offset = $(firstElem).offset().top - 200;
-    $("html").animate({ scrollTop: offset }, 3000);
-  } else {
-    firstElem.scrollIntoView();
+
+  if (firstElem) {
+    if (isipados || isios) {
+      var offset = $(firstElem).offset().top - 200;
+      $("html").animate({ scrollTop: offset }, 3000);
+    } else {
+      firstElem.scrollIntoView();
+    }
   }
 }); 
 
@@ -3623,7 +3627,7 @@ function renderFolder (fid, fname, pinky, thumb, exifDate, callback, callback2, 
 
   var theParsedFoldername = "";
   try { theParsedFoldername = JSON.parse(fname); } catch (e) { theParsedFoldername = fname; }
-  theParsedFoldername = theParsedFoldername.toUpperCase();
+  theParsedFoldername = (theParsedFoldername || "Untitled").toUpperCase();
   var date = yearFromTitle(theParsedFoldername) || fancyDate(exifDate) || "";
   var titleWithoutYear = yearOmittedTitle(theParsedFoldername);
   var sortableDate = sortableDateFromTitleOrEXIF(theParsedFoldername, exifDate);
@@ -3663,7 +3667,7 @@ function renderFolderShell(id, title, exifDate) {
   var sortableDate = sortableDateFromTitleOrEXIF(title, exifDate);
   
   if (title) {
-    title = title.toUpperCase();
+    title = (title || "Untitled").toUpperCase();
   }
   var html = "<div class='column is-full folder-content albumitem shell' photositemname='"+title+"' id='"+id+"' date='"+ date +"' datesort='"+sortableDate+"'><progress class='progress is-small is-dark'></progress></div>";
   return html;
@@ -3688,7 +3692,7 @@ function renderPhoto (pid, nail, pname, exifDate, rawBool, callback, callbackPar
   try { theParsedFilename = JSON.parse(pname); } catch (e) { theParsedFilename = pname; }
 
   pext = extensionFromFilename(theParsedFilename) || "";
-  theParsedFilename = titleFromFilename(theParsedFilename).toUpperCase();
+  theParsedFilename = (titleFromFilename(theParsedFilename) || "Untitled.jpg").toUpperCase();
 
   var imgElem = ""; var dominant = "";
   if (nail.startsWith("data:image")) {
@@ -3733,7 +3737,7 @@ function renderPhotoShell (id, nail, title, exifDate) {
   try { theParsedFilename = JSON.parse(title); } catch (e) { theParsedFilename = title; }
   
   if (theParsedFilename) {
-    theParsedFilename = titleFromFilename(theParsedFilename).toUpperCase();
+    theParsedFilename = (titleFromFilename(theParsedFilename) || "Untitled.jpg").toUpperCase();
   }
   
   var sortableDate = sortableExifDate(exifDate) || "";

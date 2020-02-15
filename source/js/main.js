@@ -973,10 +973,51 @@ function parsedDocURL(filename, token) {
 
 function getFileMeta(filename) {
   return new Promise(function (resolve, reject) {
+    getFileMetaFromAtlasOrAPI(filename, "atlas").then(resolve).catch(function(e){
+      getFileMetaFromAtlasOrAPI(filename, "api").then(resolve).catch(function(e){
+        getFileMetaFromCstore(filename).then(resolve).catch(function(e){
+          reject();
+        });
+      });
+    });
+  });
+}
+
+function getFileMetaFromCstore(filename) {
+  return new Promise(function (resolve, reject) {
+    rootRef.child(filename).getMetadata().then(function(metadata) {
+      if (metadata) { 
+        if (metadata.generation) { 
+          breadcrumb("Atlas & API were both unresponsive, got doc meta from Cstore");
+          resolve(metadata); 
+        } else {
+          handleError("Error getting doc/file meta using Cstore", {"filename" : filename});
+          reject();
+        }
+      } else {
+        handleError("Error getting doc/file meta using Cstore", {"filename" : filename});
+        reject();
+      }
+    }).catch(function(error) {
+      error = error || {};
+      error.filename = filename;
+      handleError("Error getting doc/file meta using Atlas & Cstore", error);
+      reject();
+    });
+  });
+}
+
+function getFileMetaFromAtlasOrAPI(filename, using) {
+  using = using || "atlas";
+  var url;
+  if (using === "api") { url = "https://crypt.ee/api/getFileMeta"; }
+  if (using === "atlas") { url = "https://atlas.crypt.ee/getFileMeta"; }
+
+  return new Promise(function (resolve, reject) {
     if (theUser) {
       firebase.auth().currentUser.getIdToken().then(function(accessToken) {       
         $.ajax({
-          url: "https://atlas.crypt.ee/getFileMeta",
+          url: url,
           method: "POST",
           dataType : "json",
           data: {"filename":filename},
@@ -986,21 +1027,26 @@ function getFileMeta(filename) {
               if (meta.generation) { 
                 resolve(meta); 
               } else {
-                handleError("Error getting doc/file meta", {"filename" : filename});
+                handleError("Error getting doc/file meta using " + using, {"filename" : filename});
                 reject();
               }
             } else {
-              handleError("Error getting doc/file meta", {"filename" : filename});
+              handleError("Error getting doc/file meta using " + using, {"filename" : filename});
               reject();
             }
           },
           error:function (xhr, ajaxOptions, thrownError){
             thrownError = thrownError || {};
             thrownError.filename = filename;
-            handleError("Error getting doc/file meta", thrownError);
+            handleError("Error getting doc/file meta using " + using, thrownError);
             reject();
           }
         });
+      }).catch(function(err){
+        err = err || {};
+        err.filename = filename;
+        handleError("Can't get user ID Token to get doc/file meta", err);
+        reject();
       });
     } else {
       handleError("Tried getting doc/file meta without user", {"filename" : filename});

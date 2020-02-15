@@ -44,15 +44,23 @@ $(document).ready(function() {
 
   $.ajax({ url: localeURL, type: 'GET',
     success: function(flareResponse){
-      var detected = JSON.parse(flareResponse);
-      detectedLocale = detected.loc;
-      detectedCurrency = detected.cur;
+      var detected;
+      try {
+        detected = JSON.parse(flareResponse);
+        detectedLocale = detected.loc;
+        detectedCurrency = detected.cur;
+      } catch (error) {}
 
       if (sessionID === null) {
         if ($("#pageis").attr("type") === "www") {
           if ($("#pagehas").attr("type") !== "critical") {
-            sessionID = detected.ses;
-            sessionStorage.setItem("sessionID", sessionID);
+            if (detected) {
+              sessionID = detected.ses;
+              sessionStorage.setItem("sessionID", sessionID);
+            } else {
+              sessionStorage.removeItem("sessionID");
+              sessionID = null;
+            }
           } else {
             sessionStorage.removeItem("sessionID");
             sessionID = null;

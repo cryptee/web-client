@@ -3416,8 +3416,8 @@ body.draggingStuff {
 
 .cancel-loading {
   color : #ccc;
-  cursor: pointer;
   font-size: 0.8rem;
+  user-select: none;
 }
 
 #no-offline-docs-to-show {
