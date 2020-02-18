@@ -3627,7 +3627,11 @@ function renderFolder (fid, fname, pinky, thumb, exifDate, callback, callback2, 
 
   var theParsedFoldername = "";
   try { theParsedFoldername = JSON.parse(fname); } catch (e) { theParsedFoldername = fname; }
-  theParsedFoldername = (theParsedFoldername || "Untitled").toUpperCase();
+  if (theParsedFoldername && typeof theParsedFoldername === "string") {
+    theParsedFoldername = (theParsedFoldername || "Untitled").toUpperCase();
+  } else {
+    theParsedFoldername = "UNTITLED FOLDER";
+  }
   var date = yearFromTitle(theParsedFoldername) || fancyDate(exifDate) || "";
   var titleWithoutYear = yearOmittedTitle(theParsedFoldername);
   var sortableDate = sortableDateFromTitleOrEXIF(theParsedFoldername, exifDate);
@@ -3666,8 +3670,10 @@ function renderFolderShell(id, title, exifDate) {
   var date = yearFromTitle(title) || fancyDate(exifDate) || "";
   var sortableDate = sortableDateFromTitleOrEXIF(title, exifDate);
   
-  if (title) {
+  if (title && typeof title === "string") {
     title = (title || "Untitled").toUpperCase();
+  } else {
+    title = "UNTITLED FOLDER";
   }
   var html = "<div class='column is-full folder-content albumitem shell' photositemname='"+title+"' id='"+id+"' date='"+ date +"' datesort='"+sortableDate+"'><progress class='progress is-small is-dark'></progress></div>";
   return html;
@@ -3691,8 +3697,13 @@ function renderPhoto (pid, nail, pname, exifDate, rawBool, callback, callbackPar
   var theParsedFilename = "";
   try { theParsedFilename = JSON.parse(pname); } catch (e) { theParsedFilename = pname; }
 
-  pext = extensionFromFilename(theParsedFilename) || "";
-  theParsedFilename = (titleFromFilename(theParsedFilename) || "Untitled.jpg").toUpperCase();
+  if (theParsedFilename && typeof theParsedFilename === "string") {
+    pext = extensionFromFilename(theParsedFilename) || "";
+    theParsedFilename = (titleFromFilename(theParsedFilename) || "Untitled.jpg").toUpperCase();
+  } else {
+    pext = extensionFromFilename("Untitled.jpg");
+    theParsedFilename = (titleFromFilename("UNTITLED.jpg"));
+  }
 
   var imgElem = ""; var dominant = "";
   if (nail.startsWith("data:image")) {
@@ -3736,8 +3747,10 @@ function renderPhotoShell (id, nail, title, exifDate) {
   var theParsedFilename = "";
   try { theParsedFilename = JSON.parse(title); } catch (e) { theParsedFilename = title; }
   
-  if (theParsedFilename) {
-    theParsedFilename = (titleFromFilename(theParsedFilename) || "Untitled.jpg").toUpperCase();
+  if (theParsedFilename && typeof theParsedFilename === "string") {
+    theParsedFilename = (titleFromFilename(theParsedFilename).toString() || "Untitled.jpg").toUpperCase();
+  } else {
+    theParsedFilename = titleFromFilename("Untitled.jpg").toUpperCase();
   }
   
   var sortableDate = sortableExifDate(exifDate) || "";

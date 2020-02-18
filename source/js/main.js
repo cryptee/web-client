@@ -664,7 +664,6 @@ if ('serviceWorker' in navigator) {
   }).catch(function(error) {
     if (location.origin.indexOf("crypt.ee") !== -1) {
       breadcrumb('[Service Worker] Errored');
-      handleError("Couldn't register Service Worker", error, "warning");
       setSentryTag("worker", "errored");
       canUseWorkers = false;
     }
