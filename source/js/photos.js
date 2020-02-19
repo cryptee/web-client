@@ -3626,11 +3626,11 @@ function renderFolder (fid, fname, pinky, thumb, exifDate, callback, callback2, 
   }
 
   var theParsedFoldername = "";
-  try { theParsedFoldername = JSON.parse(fname); } catch (e) { theParsedFoldername = fname; }
+  try { theParsedFoldername = JSON.parse(fname).toString(); } catch (e) { theParsedFoldername = fname; }  
   if (theParsedFoldername && typeof theParsedFoldername === "string") {
     theParsedFoldername = (theParsedFoldername || "Untitled").toUpperCase();
   } else {
-    theParsedFoldername = "UNTITLED FOLDER";
+    theParsedFoldername = "UNTITLED ALBUM";
   }
   var date = yearFromTitle(theParsedFoldername) || fancyDate(exifDate) || "";
   var titleWithoutYear = yearOmittedTitle(theParsedFoldername);
@@ -3669,11 +3669,11 @@ function renderFolder (fid, fname, pinky, thumb, exifDate, callback, callback2, 
 function renderFolderShell(id, title, exifDate) {
   var date = yearFromTitle(title) || fancyDate(exifDate) || "";
   var sortableDate = sortableDateFromTitleOrEXIF(title, exifDate);
-  
+
   if (title && typeof title === "string") {
     title = (title || "Untitled").toUpperCase();
   } else {
-    title = "UNTITLED FOLDER";
+    title = "UNTITLED ALBUM";
   }
   var html = "<div class='column is-full folder-content albumitem shell' photositemname='"+title+"' id='"+id+"' date='"+ date +"' datesort='"+sortableDate+"'><progress class='progress is-small is-dark'></progress></div>";
   return html;
@@ -3695,7 +3695,7 @@ function renderPhoto (pid, nail, pname, exifDate, rawBool, callback, callbackPar
   if (pid in selectionsObject) { isItSelected = " selected"; }
 
   var theParsedFilename = "";
-  try { theParsedFilename = JSON.parse(pname); } catch (e) { theParsedFilename = pname; }
+  try { theParsedFilename = JSON.parse(pname).toString(); } catch (e) { theParsedFilename = pname; }
 
   if (theParsedFilename && typeof theParsedFilename === "string") {
     pext = extensionFromFilename(theParsedFilename) || "";
@@ -3745,7 +3745,7 @@ function renderPhotoShell (id, nail, title, exifDate) {
   }
   
   var theParsedFilename = "";
-  try { theParsedFilename = JSON.parse(title); } catch (e) { theParsedFilename = title; }
+  try { theParsedFilename = JSON.parse(title).toString(); } catch (e) { theParsedFilename = title; }
   
   if (theParsedFilename && typeof theParsedFilename === "string") {
     theParsedFilename = (titleFromFilename(theParsedFilename).toString() || "Untitled.jpg").toUpperCase();
