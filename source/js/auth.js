@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////
 ///////////////////   KEY MODAL    /////////////////
 ////////////////////////////////////////////////////
@@ -162,12 +163,96 @@ function gotToken (tokenData) {
   });
 }
 
+////////////////////////////////////////////////////
+////////////  AUTHENTICATION & PERSISTENCE /////////
+////////////////////////////////////////////////////
+
+var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUserPlan, keycheck;
+var ssuTimestamp = 0;
+var ssuExpirationTime = 5 * 60 * 1000; // 5min
+
+try {
+  var sessionUserAuth = sessionStorage.getItem("sessionauth");
+  if (sessionUserAuth) { 
+    theUser = JSON.parse(sessionUserAuth); 
+    theUserJSON = theUser;
+  }
+} catch (e) {}
+
+try {
+  var sessionUserAuthTimestamp = sessionStorage.getItem("sessionauthtime");
+  if (sessionUserAuthTimestamp) { 
+    ssuTimestamp = JSON.parse(sessionUserAuthTimestamp); 
+    ssuTimestamp = parseInt(ssuTimestamp) || 0;
+  }
+} catch (e) {}
+
+function authenticate(gotUserCallback, noUserCallback) {
+  var now = (new Date()).getTime(); 
+  logTimeStart("[AUTH]");
+  if (theUser && (ssuTimestamp >= (now - ssuExpirationTime))) {
+    // if there's a user in sessionStorage, and it's authenticated in the last 5 mins, use that to start things up, saves approx 1 second
+    breadcrumb('[AUTH] Started up with SSU');
+    
+    getToken();
+    createUserDBReferences(theUser);
+
+    gotUserCallback(theUser);
+    logTimeEnd("[AUTH]");
+
+    // and refresh auth in the meantime
+    reAuth();
+  } else {
+    breadcrumb('[AUTH] No up-to-date SSU Found');
+    reAuth();
+  }
+
+  function reAuth() {
+    breadcrumb('[AUTH] Re/Authenticating');
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        // if not logged in
+        purgeOfflineStorage();
+        breadcrumb('[AUTH] Not Logged In');
+        noUserCallback();
+      } else {
+        // user logged in
+        
+        getToken();
+        createUserDBReferences(user);
+
+        breadcrumb('[AUTH] Logged In');
+
+        // if logged in, but we didn't have a user in sessionStorage newer than 5 minutes, so we're starting up from server auth = call gotUserCallback
+        if (!theUser || (ssuTimestamp < (now - ssuExpirationTime))) {
+          gotUserCallback(user);
+          logTimeEnd("[AUTH]");
+        }
+
+        // update user in sessionStorage & memory
+        theUser = user;
+        theUserJSON = theUser.toJSON();
+        
+        try {
+          sessionStorage.setItem("sessionauth", JSON.stringify(theUser));
+          sessionStorage.setItem("sessionauthtime", JSON.stringify(now));
+          breadcrumb('[AUTH] Updated SSU');
+        } catch (e) {}
+
+      }
+    }, function(error){
+      if (error.code !== "auth/network-request-failed") {
+        handleError("Error Authenticating", error);
+      }
+    });
+  }
+}
+
 
 ////////////////////////////////////////////////////
 /////////////// IN APP AUTHENTICATION //////////////
 ////////////////////////////////////////////////////
 
-var theUser, theUserID, theUsername, theEmail, emailVerified, theUserPlan;
 var rootRef, dataRef, metaRef;
 var theToken;
 var isPaidUser;
@@ -185,10 +270,10 @@ function createUserDBReferences(user) {
   theUsername = theUser.displayName;
   emailVerified = theUser.emailVerified;
 
-  rootRef = store.ref().child('/users/' + theUserID);
-  dataRef = db.ref().child('/users/' + theUserID + "/data/");
-  metaRef = db.ref().child('/users/' + theUserID + "/meta/");
-  
+  rootRef     = store.ref().child('/users/' + theUserID);
+  dataRef     = db.ref().child('/users/' + theUserID + "/data/");
+  metaRef     = db.ref().child('/users/' + theUserID + "/meta/");
+
   setSentryUser(theUserID);
   $('.username').html(theUser.displayName || theEmail);
 
@@ -199,7 +284,7 @@ function createUserDBReferences(user) {
   // ONLY INITIALIZING THESE IN APPS THEMSELVES TO AVOID NAMESPACE CONFLICTS
   // LIKE "homeRef" can be home doc in Docs, but home Album in Photos etc.
   // or titlesRef etc. 
-
+  
   var app = location.pathname.replace("/", "");
 
   if (app === "docs") {
@@ -208,10 +293,11 @@ function createUserDBReferences(user) {
   }  
 
   if (app === "photos") { 
-    homeRef = firestore.collection("users").doc(theUserID).collection("photos");
-    titlesRef = firestore.collection("users").doc(theUserID).collection("titles");
-    uploadsRef = firestore.collection("users").doc(theUserID).collection("uploads");
-    favRef = firestore.collection("users").doc(theUserID).collection("favorites");
+    userRef =  firestore.collection("users").doc(theUserID);
+    homeRef =    userRef.collection("photos");
+    titlesRef =  userRef.collection("titles");
+    uploadsRef = userRef.collection("uploads");
+    favRef =     userRef.collection("favorites");
   }
 
   if (app === "account") {
@@ -278,4 +364,55 @@ function gotMeta(userMeta) {
 
     saveUserDetailsToLS(theUsername, theEmail, usedStorage, allowedStorage, paidOrNot, theUserPlan);
   }
+}
+
+////////////////////////////////////////////////////
+////////////////  KEYCHECK & PERSISTENCE ///////////
+////////////////////////////////////////////////////
+
+// SUBSTITUTE FOR 
+// dataRef.child("keycheck").once('value').then(function(snapshot)
+// but returns snapshot.val() instead. 
+
+// UTILIZES SESSION STORAGE, SO THIS RUNS ONCE, FOR EACH SESSION.
+// MOST LIKELY WILL BE @ HOME ON MOBILE.
+
+// Takes about 750 - 1250ms if it makes a call to the server. 
+// It's stored in sessionStorage to save time, but DO NOT store this in localstorage to save more time. 
+// if user changes their encryption key, and this is in localstorage,
+// old key would still allow access to the strongKey. 
+// Effectively rendering changing encryption key useless 
+
+function getKeycheck() {
+  return new Promise(function (resolve, reject) {
+    try {
+      keycheck = sessionStorage.getItem("session-keycheck");
+    } catch (e) {}
+
+    if (!keycheck) {
+      if (theUserID) {
+        //  CHECK IF USER HAS KEY IN DATABASE. 
+        dataRef.child("keycheck").once('value').then(function(snapshot) {
+          if (snapshot.val() === null) {
+            // IF NO KEYCHECK IN DB REDIRECT TO SIGNUP.
+            window.location = "signup?status=newuser";
+          } else {
+            keycheck = snapshot.val();
+            
+            try {
+              sessionStorage.setItem("session-keycheck", keycheck);
+            } catch (e) {}
+            
+            resolve(keycheck);
+          
+          }
+        }).catch(reject);
+      } else {
+        window.location = "signin";
+      }
+    } else {
+      resolve(keycheck);
+    }
+    
+  });
 }

@@ -210,7 +210,7 @@ function b64URLToString(str) {
 // Format Bytes
 
 function formatBytes (bytes) {
-   if (bytes <= 0) { return '0 Bytes'; }
+   if (bytes <= 0) { return '0 MB'; }
    var k = 1000,
        dm = 1,
        sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
@@ -649,6 +649,7 @@ function deleteAllCookies() {
 }
 deleteAllCookies();
 
+function mapNumbers(num, in_min, in_max, out_min, out_max) { return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min; }
 
 ////////////////////////////////////////////////////
 ///////////// WEB APP SERVICE WORKER ///////////////
@@ -658,15 +659,17 @@ var canUseWorkers = false;
 
 if ('serviceWorker' in navigator) {
   canUseWorkers = true;
-  navigator.serviceWorker.register('../service-worker.js').then( function(serviceWorker) {
-    breadcrumb('[Service Worker] Registered');
-    setSentryTag("worker", "yes");
-  }).catch(function(error) {
-    if (location.origin.indexOf("crypt.ee") !== -1) {
-      breadcrumb('[Service Worker] Errored');
-      setSentryTag("worker", "errored");
-      canUseWorkers = false;
-    }
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('../service-worker.js').then( function(serviceWorker) {
+      breadcrumb('[Service Worker] Registered');
+      setSentryTag("worker", "yes");
+    }).catch(function(error) {
+      if (location.origin.indexOf("crypt.ee") !== -1) {
+        breadcrumb('[Service Worker] Errored');
+        setSentryTag("worker", "errored");
+        canUseWorkers = false;
+      }
+    });
   });
 } else {
   canUseWorkers = false;
@@ -1326,4 +1329,8 @@ if (window.MediaSource) {
   setSentryTag("media-source-api", "supported");
 } else {
   setSentryTag("media-source-api", "unsupported");
+}
+
+if (isipados) {
+  setSentryTag("ipados", "true");
 }

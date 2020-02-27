@@ -166,6 +166,15 @@
 	transition: 0.5s color ease, 0.5s background-color ease;
 }
 
+#home-welcome-card p, 
+#home-news-section p, 
+#home-news-section .news, 
+#home-news-section .news *:not(a), 
+#home-news-section h2 {
+	user-select: none;
+	cursor: default;
+}
+
 .home-item {
 	margin: 0 1rem;
 	padding: 1.5rem 0.5rem;
@@ -195,10 +204,14 @@
 }
 
 .username {
-		font-size: 0.9em;
-    max-height: 60px;
+    font-size: 0.9em;
+    max-height: 30px;
+    min-height: 30px;
     overflow: hidden;
     display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 /*///////////////////////////////////////////////////

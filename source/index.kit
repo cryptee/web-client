@@ -3,7 +3,6 @@
 
 <head>
   <!-- @import "includes/www-head.kit" -->
-  <script src="../js/lib/swiper.min.js"></script>
   <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">
 
   <title>Cryptee | Private, Secure, Encrypted Photos and Encrypted Documents</title>
@@ -42,8 +41,11 @@
 
 <!-- @import "includes/index-security.kit" -->
 
+<!-- @import "includes/index-press.kit" -->
+
 <!-- @import "includes/www-footer.kit" -->
 
+<script src="../js/lib/swiper.min.js"></script>
 <script type="text/javascript">
 
 var loadTime = (new Date()).getTime();
@@ -81,12 +83,30 @@ $("a[href='signup']").click(function (event) {
 
 window.addEventListener('load', function(){
   [].forEach.call(document.querySelectorAll('img[lazy-src]'), function(img) {
-  	img.setAttribute('src', img.getAttribute('lazy-src'));
-  	img.onload = function() {
-  		img.removeAttribute('lazy-src');
-  	};
+    if (img.className === "www-desktop-screen") {
+      if (window.innerWidth > 709) {
+        setImgSrc(img);
+      }
+    } else {
+      setImgSrc(img);
+    }
   });
 }, false)
+
+window.addEventListener('resize', function(){
+  if (window.innerWidth > 709) {
+    [].forEach.call(document.querySelectorAll('img[lazy-src]'), function(img) {
+      if (img.className === "www-desktop-screen") {
+        setImgSrc(img);
+      }
+    });
+  }
+}, false)
+
+function setImgSrc(img) {
+  img.setAttribute('src', img.getAttribute('lazy-src'));
+  img.onload = function() { img.removeAttribute('lazy-src'); };
+}
 
 $(document).ready(function () {
   //initialize swiper when document ready

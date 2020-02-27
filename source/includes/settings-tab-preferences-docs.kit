@@ -39,6 +39,32 @@
     </div>
   </div>
   <p style="clear:both;">If you often edit long documents with lots of spellchecker errors, they could slow down your scroll speed. Or maybe you just hate spellcheckers. Whatever the reason may be, you can turn the spellchecker on/off here as you wish.</p>
+  
+  <br><br><hr><br><br>
+
+  <div class="field is-horizontal">
+    <div class="field is-horizontal">
+      <div class="field-label is-expanded">
+        <label class="label">Edit / Undo History</label>
+      </div>
+
+      <div class="field-body">
+        <div class="field">
+          <p class="control">
+            <input class="input is-static" type="number" placeholder="100" min="100" max="1000" value="100" id="num-history-docs-input">
+          </p>
+        </div>
+      </div>
+
+      <div class="field-label">
+        <label class="label">changes</label>
+      </div>
+    </div>
+  </div>
+  <p style="clear:both;">Sometimes, we all wish we could undo more. Here you can set how many changes Cryptee's editor should remember. All edits/changes occuring in 1 second are merged into a single undo history. You can set the history to a minimum of 100, or maximum 1000. We recommend keeping this low for better performance.</p>
+  <br>
+  <p style="clear:both;"><span class="icon"><i class="fa fa-info-circle"></i></span> Note that the editor history isn't saved on the server for your privacy. Once you close a document, close a tab/window, or reload the page, the history of the document will be erased for your privacy.</p>
+
   <br>
 </div>
 

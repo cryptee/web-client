@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="is-loading" data-loading="Authenticating">
+<html  data-loading="Authenticating">
 
 <head>
   <!-- @import "includes/app-head.kit" -->
@@ -7,7 +7,7 @@
   <link rel="stylesheet" type="text/css" href="../css/home.css">
 </head>
 
-<body class="home-body is-loading">
+<body class="home-body">
   <progress id="main-progress" class="no-print progress is-small is-success" value="100" max="100"></progress>
 
   <!-- @import "includes/home-app-nav.kit" -->
@@ -34,33 +34,20 @@
   key('d', function(){ document.location.replace("docs"); return false; });
   key('p', function(){ document.location.replace("photos"); return false; });
 
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (!user) {
-      webAppURLController("signin?redirect=home");
-    } else {
-      //got user
-
-      createUserDBReferences(user);
-
-      checkForExistingUser(function(){
-        gotUser();
-        webAppURLController();
-      });
-    }
-  }, function(error){
-    if (error.code !== "auth/network-request-failed") {
-      handleError("Error Authenticating", error);
-    }
+  authenticate(function(user) {
+    checkForExistingUser(function(){
+      gotUser();
+      webAppURLController();
+    });
+  }, function() {
+    // no user
+    webAppURLController("signin?redirect=home");
   });
 
   function checkForExistingUser (callback){
     callback = callback || noop;
-    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-      if (snapshot.val() === null) {
-        window.location = "signup?status=newuser";
-      } else {
-        callback();
-      }
+    getKeycheck().then(function(snapshot) {
+      callback();
     });
   }
 

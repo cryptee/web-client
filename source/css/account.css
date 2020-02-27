@@ -259,6 +259,8 @@ html.is-loading::after {
 
 .cryptee-latest-deploy-version {
 	font-size: 11px;
+	user-select: all;
+	font-family: monospace;
 }
 
 .account-card {
@@ -274,6 +276,11 @@ html.is-loading::after {
 
 .account-card .button.is-dark:not(.is-small) {
 	font-size: 12px;
+}
+
+.account-card p:not(.button) {
+	user-select: none;
+	cursor: default;
 }
 
 .account-upgrade-card {
@@ -884,6 +891,12 @@ html.is-loading::after {
 	color:#FFF;
 }
 
+#num-history-docs-input {
+	min-width: 75px;
+    width: 100%;
+    display: inline-block;
+}
+
 /*///////////////////////////////////////////////////
 ///////////////////  MOBILE   ///////////////////
 ///////////////////////////////////////////////////*/
@@ -972,24 +985,6 @@ html.is-loading::after {
 }
 
 
-@media (-moz-touch-enabled: 0), (pointer:fine) {
-	.pricing-card:not(.is-black):hover {
-		/* transform: translateY(-3px); */
-		box-shadow: 0 1rem 2rem rgba(0,0,0,0.25);
-	}
-
-	.dm .menu-list a:hover {
-		background-color: var(--darkest);
-		color: var(--brightest);
-	}
-}
-
-
-
-
-
-
-
 
 
 
@@ -998,12 +993,26 @@ html.is-loading::after {
 ///////////////////////////////////////////////////*/
 
 .dm .menu-list a {
-	color: var(--brightest);
+	color: var(--brightest) !important;
 }
 
 .dm .menu-list a.is-active:not(.menu-delete-account) {
-    background-color: var(--brightest);
+    background-color: var(--brightest) !important;
     color: #000 !important;
+}
+
+.dm .menu-list a:hover {
+	background-color: var(--darkest) !important;
+	color: var(--brightest) !important;
+}
+
+
+@media (-moz-touch-enabled: 0), (pointer:fine) {
+	.pricing-card:not(.is-black):hover {
+		box-shadow: 0 1rem 2rem rgba(0,0,0,0.25);
+	}
+
+	
 }
 
 

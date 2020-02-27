@@ -15,6 +15,7 @@
   font-family: 'Montserrat';
   font-style: normal;
   font-weight: 400;
+  font-display: swap;
   src: local('Montserrat Regular'), local('Montserrat-Regular'),
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -25,6 +26,7 @@
   font-family: 'Montserrat';
   font-style: normal;
   font-weight: 600;
+  font-display: swap;
   src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'),
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -35,6 +37,7 @@
   font-family: 'Montserrat';
   font-style: normal;
   font-weight: 800;
+  font-display: swap;
   src: local('Montserrat ExtraBold'), local('Montserrat-ExtraBold'),
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-800.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-800.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -285,13 +288,13 @@ code, pre {
   margin-bottom: 1rem !important;
 }
 
-
 .ql-editor img {
   max-width: 100% !important;
+  min-width: 150px !important;
   height: auto;
   border-radius: 10px;
   margin: 0 !important;
-  user-select: none;
+  /* user-select: none; */
 }
 
 .ql-editor img[style*="float:left"],
@@ -1278,6 +1281,11 @@ html {
 .is-hidden-phone { display : block; }
 .overflowhidden { overflow:hidden !important; }
 
+.modal p {
+    cursor: default;
+    user-select: none;
+}
+
 /* HOLY SHIT THIS IS UNBELIEVABLE */
 *[disabled] { pointer-events: none; }
 
@@ -1414,7 +1422,6 @@ html {
 }
 
 .signup-body {
-  overflow: scroll;
   background-color: #f5f5f5;
   height: 100%;
   width: 100%;
@@ -1487,7 +1494,6 @@ html {
   background-color: #FFF;
   box-shadow: 0 1rem 2rem rgba(0,0,0,0.15);
   border-radius: 0.5rem;
-  overflow-y: scroll;
 }
 
 #signup-wrapper .column {
@@ -1588,7 +1594,7 @@ html {
   opacity: 0;
   pointer-events: none;
   transition: 0.5s opacity ease, 1s transform ease;
-  overflow-y: scroll;
+  overflow: hidden;
   vertical-align: top;
   max-width: calc(600px - 6rem);
   width: 100%;
@@ -2092,11 +2098,13 @@ html {
   background-position: right;
   padding-bottom: 8rem;
   margin-bottom: -8rem;
+  background-size: 100% 100%;
 }
 
 #www-docs-section {
   background-image: url("../imgs/landing/docs-background.svg");
   background-position: left;
+  background-size: 100% 100%;
 }
 
 #www-docs-section .www-phone-screen {
@@ -2123,7 +2131,7 @@ html {
 
 .www-feature-slide img {
   /* height: 100%; */
-  max-height: 260px;
+  max-height: 220px;
   width: auto;
 }
 
@@ -2173,6 +2181,7 @@ html {
   background-image: url("../imgs/landing/media-background.svg");
   background-position: left;
   padding: 16rem 0 0 0;
+  background-size: 100% 100%;
 }
 
 #www-media-section .media-quotes .crypteecard {
@@ -2209,9 +2218,14 @@ html {
   margin-bottom: 2rem;
 }
 
+#www-media-section .medialink {
+  color: #000 !important;
+}
+
 #why-cryptee-section {
   background-image: url("../imgs/landing/why-background.svg");
   background-position: right;
+  background-size: 100% 100%;
 }
 
 #why-cryptee-section h2, #download h2 {
@@ -2221,7 +2235,6 @@ html {
 
 #pricing-section-divider h2 {
   line-height: 12rem;
-  padding-bottom: 2rem;
   margin-bottom: 0;
 }
 
@@ -2256,11 +2269,15 @@ html {
 .www-body #download {
   background-image: url("../imgs/landing/download-background.svg");
   background-position: left;
+  background-size: 100% 100%;
+  padding: 8rem 0 4rem 0;
 }
 
 #pricing-section-divider {
   background-image: url("../imgs/landing/pricing-background.svg");
   background-position: left;
+  background-size: 100% 100%;
+  padding: 2rem 0 4rem 0;
 }
 
 .pricing-card {
@@ -2542,30 +2559,32 @@ html {
   max-height: calc(100% - 150px);
   margin-left: auto;
   margin-bottom: 0px;
-  transform: translateX(0);
-  transition: 0.25s ease all;
+  transform: translate3d(0,0,0);
+  transition: 0.4s transform ease;
   bottom: 0;
   position: fixed;
   right: 1rem;
   box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.25);
   z-index: 99;
   overflow: hidden;
+  background-color: #363636 !important;
 }
 
 #file-viewer > .message-header {
   height: 3rem;
   padding: .5em;
-  background-color: #363636;
+  background-color: #363636 !important;
 }
 
 #file-viewer > .message-body {
   border: 0;
   height: calc(100% - 3rem);
   padding: 0;
+  background-color: #363636 !important;
 }
 
 .loading-contents {
-  transform: translateX(+100%) !important;
+  transform: translate3d(calc(100% + 1rem),0,0) !important;
 }
 
 #file-viewer-contents img, #file-viewer-contents audio, #file-viewer-contents video  {
@@ -2585,6 +2604,13 @@ html {
 #file-viewer-filesize {
   font-size: 0.75rem;
   margin-top: 0.35rem;
+  transition: 0.3s opacity ease;
+  opacity: 1;
+}
+
+#active-file-download-button {
+  transition: 0.3s opacity ease;
+  opacity: 1;
 }
 
 #file-viewer.unsupported {
@@ -2625,8 +2651,12 @@ html {
   font-size: 14px !important;
   width: calc(100% - 163px);
   max-height: 2.25rem;
-  overflow: hidden;
   padding: 0rem 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: 0.3s opacity ease;
+  opacity: 1;
 }
 
 #file-viewer.minimized #file-viewer-title {
@@ -3896,7 +3926,7 @@ body.draggingStuff {
   transition: all ease 1s;
   z-index: 98;
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.25);
-  /* overflow: scroll; */
+  overflow: hidden;
   border-radius: 10px;
 }
 
@@ -3907,7 +3937,8 @@ body.draggingStuff {
 
 #upload-status-contents {
   height: calc(100% - 50px);
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .docs-body .upload-status-message {
@@ -5152,6 +5183,7 @@ body.draggingStuff {
   left: 0;
   right: 0;
   overflow: scroll;
+  align-content: flex-start;
 }
 
 #photos-search-contents.search-active  {
@@ -5172,9 +5204,9 @@ body.draggingStuff {
   height: 2rem;
   width: 100px;
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.5rem;
   left: calc(50% - 50px);
-  top: calc(50% - 50px);
+  top: calc(50% - 3rem);
   color:#000;
   position: fixed !important;
 }
@@ -5191,18 +5223,18 @@ body.draggingStuff {
 }
 
 #folder-contents.is-loading::after {
-  -webkit-animation: spinAround 500ms infinite linear;
-  animation: spinAround 500ms infinite linear;
-  border: 3px solid #000;
-  border-radius: 290486px;
+  -webkit-animation: spinAround 400ms infinite linear;
+  animation: spinAround 400ms infinite linear;
+  border: 1px solid #000;
   border-right-color: transparent;
   border-top-color: transparent;
   content: "";
   display: block;
-  height: 100px;
-  width: 100px;
-  left: calc(50% - (100px/2));
-  top: calc(50% - 78px);
+  height: 75px;
+  width: 75px;
+  border-radius: 1000px;
+  left: calc(50% - (75px/2));
+  top: calc(50% - 65.5px);
   position: fixed !important;
 }
 
@@ -5633,6 +5665,7 @@ body.draggingStuff {
   border: none;
   overflow: hidden;
   transition: opacity 0.25s ease;
+  user-select: none;
 }
 
 .photos-top-nav .button {
@@ -5727,7 +5760,7 @@ body.draggingStuff {
   transition: opacity 0.5s ease;
   object-fit: contain;
   border-radius: 1rem;
-  max-height: calc(100% - 2rem) !important;
+  max-height: calc(100% - 4rem) !important;
   max-width: calc(100% - 2rem);
   margin: auto;
   box-shadow: 0px 0px 1rem rgba(0,0,0,0.2);
@@ -5841,7 +5874,7 @@ body.draggingStuff {
 .photos-search-result {
   padding: 0.5rem;
   margin-bottom:1rem;
-  max-height: calc(150px + 6rem);
+  max-height: calc(150px + 7rem);
   cursor: pointer;
   user-select: none;
 }
@@ -6395,13 +6428,6 @@ body.draggingStuff {
     min-width: 280px;
   }
 
-  #file-viewer {
-    max-height: calc(100% - 0.5rem);
-    max-width: 100%;
-    z-index: 96;
-    right: 0rem !important;
-  }
-
   #toolbar-container {
     height: 24px;
   }
@@ -6782,6 +6808,12 @@ body.draggingStuff {
     color:#000;
   }
 
+  .dm .photos-search-result:hover .title, 
+  .dm .photos-search-result:hover .subtitle,
+  .dm .photos-search-result-folder:hover .title {
+    color:#FFF;
+  }
+
   .photos-search-result .image:hover,
   .photos-search-result-folder .sr-folder-images:hover {
     box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.3);
@@ -6963,6 +6995,7 @@ body.draggingStuff {
   #doc-contextual-buttons .control, #doc-contextual-buttons .button {
     height: 40px;
     width: 40px;
+    text-align: center;
   }
 
   .document-contextual-dropdown {

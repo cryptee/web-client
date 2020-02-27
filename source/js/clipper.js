@@ -18,75 +18,60 @@ checkLatestVersion();
 ////////////////// SIGN IN AND KEY /////////////////
 ////////////////////////////////////////////////////
 
-firebase.auth().onAuthStateChanged(function (user) {
-    if (user) {
-        //got user
-                    
-        createUserDBReferences(user);
+authenticate(function(user) {
+    //got user
+                
+    checkForExistingUser(function () {
+        if (keyToRemember) {
+            checkKey();
+        } else {
+            $("html, body").removeClass("pending");
+            showKeyModal();
+        }
+    });
 
-        checkForExistingUser(function () {
-            if (keyToRemember) {
-                checkKey();
-            } else {
-                $("html, body").removeClass("pending");
-                showKeyModal();
-            }
-        });
-
-        getToken();
-        webAppURLController();
-    } else {
-        // no user. redirect to sign in IF NOT WEBAPP
-        webAppURLController("signin?redirect=clipper");
-    }
-}, function (error) {
-    if (error.code !== "auth/network-request-failed") {
-        handleError("Error Authenticating", error);
-    }
+    webAppURLController();
+    
+}, function () {
+    // no user. redirect to sign in IF NOT WEBAPP
+    webAppURLController("signin?redirect=clipper");
 });
 
 function checkForExistingUser(callback) {
     callback = callback || noop;
-
-    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function (snapshot) {
-        if (snapshot.val() === null) {
-            window.location = "signup?status=newuser";
-        } else {
-            callback();
-        }
+    getKeycheck().then(function(kcheck) {
+        callback();
     });
-
 }
 
 function checkKey(key) {
-    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function (snapshot) {
-        var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
-        
-        $("html, body").removeClass("pending");
+    // keycheck is set in auth.js in getKeyckeck();
+    var encryptedStrongKey = JSON.parse(keycheck).data; // or encrypted checkstring for legacy accounts
+    
+    $("html, body").removeClass("pending");
 
-        if (key) {
-            hashString(key).then(function (hashedKey) {
-                checkHashedKey(hashedKey);
-            }).catch(function (e) {
-                wrongKey("Wide Character Error");
-            });
-        } else {
-            hashedKey = keyToRemember;
+    if (key) {
+        hashString(key).then(function (hashedKey) {
             checkHashedKey(hashedKey);
-        }
+        }).catch(function (e) {
+            wrongKey("Wide Character Error");
+        });
+    } else {
+        hashedKey = keyToRemember;
+        checkHashedKey(hashedKey);
+    }
 
-        function checkHashedKey(hashedKey) {
-            decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+    function checkHashedKey(hashedKey) {
+        decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+            rightKey(plaintext, hashedKey);
+        }).catch(function (error) {
+            checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
                 rightKey(plaintext, hashedKey);
-            }).catch(function (error) {
-                checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
-                    rightKey(plaintext, hashedKey);
-                    // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-                });
+                // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
             });
-        }
+        });
+    }
 
-    });
 }
 
 function rightKey(plaintext, hashedKey) {

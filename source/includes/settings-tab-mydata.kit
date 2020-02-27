@@ -7,10 +7,12 @@
   <p><span class="icon is-small"><i class="fa fa-info-circle"></i></span> Please note that if you have any ghost folders or albums, their contents won't be exported, because Cryptee is unable to determine whether if you have any ghost folders or not. If you do have any ghost folders or albums, please summon them first to be able to export them.</p>
   <br>
   <p><span class="icon is-small"><i class="fa fa-info-circle"></i></span> Depending on how much data you have, the export and download process could take many hours, since it requires not just downloading, but also decrypting your data in this browser.</p>
+  <br>
+  <p id="mydata-desktop-notice" class="notification is-info" style="display: none;">Because the exporting requires decrypting all your data, it requires heavier than usual processing power, memory and storage, therefore this feature is only available on desktops, and not on mobile devices, tablets, iPads etc. Please navigate to this page on your desktop/laptop to export your data.</p>
 </div>
 
 
-<div class="account-card crypteecard">
+<div class="account-card crypteecard is-hidden-mobile" id="mydata-metadata-card">
   <p class="title is-4">My Metadata</p>
   <div id="account-data-json">
 

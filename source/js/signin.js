@@ -62,48 +62,40 @@ $(window).on("load", function(event) {
 
 });
 
-firebase.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    //got user
-    createUserDBReferences(user);
-    
-    $("html, body").removeClass("is-loading");
+authenticate(function(user) {
+  //got user
+  
+  $("html, body").removeClass("is-loading");
 
-    if (!isMobile) {
-      $(".hero-banner").css("width", "100%");
-      $(".hero-body > .container").delay(1000).fadeOut(250, function() {
-        checkForExistingUser ();
-      });
-    } else {
+  if (!isMobile) {
+    $(".hero-banner").css("width", "100%");
+    $(".hero-body > .container").delay(1000).fadeOut(250, function() {
       checkForExistingUser ();
-    }
+    });
   } else {
-    if (getUrlParameter("dlddid")) {
-      $("#signin-info").html("Please sign in to start your download.").show();
-    }
+    checkForExistingUser ();
   }
-}, function(error){
-  if (error.code !== "auth/network-request-failed") {
-    handleError("Error Authenticating", error);
+  
+}, function(){
+  if (getUrlParameter("dlddid")) {
+    $("#signin-info").html("Please sign in to start your download.").show();
   }
 });
 
 function checkForExistingUser (){
   if (theUserID) {
-    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-      //  CHECK IF USER HAS KEY IN DATABASE. IF NOT REDIRECT TO SIGNUP.
-      if (snapshot.val() === null) {
-        window.location = "signup?status=newuser";
+    //  CHECK IF USER HAS KEY IN DATABASE. IF NOT REDIRECT TO SIGNUP.
+    getKeycheck().then(function(kcheck) {
+      
+      if (isMobile) {
+        signInComplete();
       } else {
-        if (isMobile) {
-          signInComplete();
-        } else {
-          if (getUrlParameter("dlddid")) {
-            $("#key-status").html("Enter your encryption key to start the download");
-          }
-          showKeyModal();
+        if (getUrlParameter("dlddid")) {
+          $("#key-status").html("Enter your encryption key to start the download");
         }
+        showKeyModal();
       }
+      
     });
   } else {
     window.location = "signup?status=newuser";
@@ -112,30 +104,22 @@ function checkForExistingUser (){
 
 function checkKey(key){
   $("#key-modal-decrypt-button").addClass("is-loading");
-  if (theUserID) {
-    db.ref('/users/' + theUserID + "/data/keycheck").once('value').then(function(snapshot) {
-      if (snapshot.val() === null) {
-        window.location = "signup?status=newuser";
-      } else {
-        var encryptedStrongKey = JSON.parse(snapshot.val()).data; // or encrypted checkstring for legacy accounts
+  // keycheck is set in auth.js in getKeyckeck();
+  var encryptedStrongKey = JSON.parse(keycheck).data; // or encrypted checkstring for legacy accounts
 
-        hashString(key).then(function(hashedKey){
-          decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
-            rightKey(plaintext, hashedKey);
-          }).catch(function (error) {
-            checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
-              rightKey(plaintext, hashedKey);
-              // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
-            });
-          });
-        }).catch(function(e){
-          wrongKey("Wide Character Error");
-        });      
-      }
+  hashString(key).then(function(hashedKey){
+    decrypt(encryptedStrongKey, [hashedKey]).then(function (plaintext) {
+      rightKey(plaintext, hashedKey);
+    }).catch(function (error) {
+      checkLegacyKey(dataRef, key, hashedKey, encryptedStrongKey, function (plaintext) {
+        rightKey(plaintext, hashedKey);
+        // if it's wrong, wrongKey() will be called in checkLegacyKey in main.js
+      });
     });
-  } else {
-    window.location = "signup?status=newuser";
-  }
+  }).catch(function(e){
+    wrongKey("Wide Character Error");
+  });      
+
 }
 
 function rightKey (plaintext, hashedKey) {

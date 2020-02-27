@@ -8,6 +8,8 @@ firebase.auth().onAuthStateChanged(function (user) {
         theEmail = theUser.email;
         theUserID = theUser.uid;
         gotUser();
+    } else {
+        purgeOfflineStorage();
     }
 });
 

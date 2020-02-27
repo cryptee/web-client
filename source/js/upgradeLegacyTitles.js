@@ -27,29 +27,41 @@ function upgradeLegacyTitles () {
   checkConnection (function(status){
     connected = status;
     if (connected && theKey) {
-      displayUpgradeStatus(0,100);
-      console.log("Commencing Upgrade");
-      dataRef.child("titles").once('value', function(snapshot) {
-        var JSONifiedEncryptedTitlesObject = snapshot.val();
-        if (JSONifiedEncryptedTitlesObject) {
-          if (JSONifiedEncryptedTitlesObject !== null && JSONifiedEncryptedTitlesObject !== undefined) {
-            var encryptedTitlesObject = JSON.parse(JSONifiedEncryptedTitlesObject).data;
-            console.log("Got Encrypted Titles Object");
-            decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
-              legacyTitlesObject = JSON.parse(plaintext.data);
-              gotLegacyTitles();
-            }).catch(function(error) { handleError("Error Decrypting Encrypted Titles @ Upgrade Legacy Titles", error); });
 
-          } else {
-            // ACCOUNT HAD NO TITLES? SO IT MUST BE A SUPER OLD ACCOUNT WITH NOTHING IN THERE, LOGGING IN NOW.
-            upgradeSuccesful();
-          }
+      dataRef.child("tie").once('value').then(function(tieSnapshot) {
+        if (tieSnapshot.val() === null) {
+         
+          console.log("Commencing Upgrade");
+          displayUpgradeStatus(0,100);
+          dataRef.child("titles").once('value', function(snapshot) {
+            var JSONifiedEncryptedTitlesObject = snapshot.val();
+            if (JSONifiedEncryptedTitlesObject) {
+              if (JSONifiedEncryptedTitlesObject !== null && JSONifiedEncryptedTitlesObject !== undefined) {
+                var encryptedTitlesObject = JSON.parse(JSONifiedEncryptedTitlesObject).data;
+                console.log("Got Encrypted Titles Object");
+                decrypt(encryptedTitlesObject, [theKey]).then(function(plaintext) {
+                  legacyTitlesObject = JSON.parse(plaintext.data);
+                  gotLegacyTitles();
+                }).catch(function(error) { handleError("Error Decrypting Encrypted Titles @ Upgrade Legacy Titles", error); });
+
+              } else {
+                // ACCOUNT HAD NO TITLES? SO IT MUST BE A SUPER OLD ACCOUNT WITH NOTHING IN THERE, LOGGING IN NOW.
+                upgradeSuccesful();
+              }
+            } else {
+              // ACCOUNT HAD NO TITLES? SO IT MUST BE A SUPER OLD ACCOUNT WITH NOTHING IN THERE, LOGGING IN NOW.
+              upgradeSuccesful();
+            }
+          }).catch(function(error) { handleError("Error Getting Encrypted Titles @ Upgrade Legacy Titles", error); });
+
         } else {
-          // ACCOUNT HAD NO TITLES? SO IT MUST BE A SUPER OLD ACCOUNT WITH NOTHING IN THERE, LOGGING IN NOW.
-          upgradeSuccesful();
+          // abort. 
+          handleError("Started TIE Upgrade for no reason");
+          hideDocProgress();
+          signInComplete();
         }
-      }).catch(function(error) { handleError("Error Getting Encrypted Titles @ Upgrade Legacy Titles", error); });
-
+      });
+      
     } else {
       displayUpgradeMessage("Cryptee needs to perform a performance update.<br>Please connect your device to the internet.<br><br>");
       // NOT CONNECTED. THIS WILL FUCK SHIT UP. DON'T PROCEED.

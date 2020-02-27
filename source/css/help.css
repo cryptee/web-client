@@ -127,12 +127,15 @@ blockquote *:not(code) {
 
 .help-column {
 	/* same as docs page width for optical OCD's sake */
-	max-width: calc(100% - 320px + 1rem);
+  max-width: 1280px;
+  width: calc(100% - 2rem);
 	margin: auto auto 0.5rem auto !important;
 }
 
 .help-card .subquestion {
   min-height: 110px;
+  user-select: none;
+  cursor: default;
 }
 
 .help-card {
@@ -145,6 +148,14 @@ blockquote *:not(code) {
   min-height: 50px;
   font-size: 16px;
   margin-bottom: 0.5rem;
+  user-select: none;
+  cursor: default;
+}
+
+.help-img-card *:not(a),
+.help-img-card {
+  user-select: none;
+  cursor: default;
 }
 
 .help-img-card {

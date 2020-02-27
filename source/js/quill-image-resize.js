@@ -671,8 +671,11 @@
         }, this.checkImage = function(t) {
           if (n.img) {
             if (t.keyCode === 46 || t.keyCode === 8) {
-              window.Quill.find(n.img).deleteAt(0); 
-              n.hide();
+              var foundImg = window.Quill.find(n.img);
+              if (foundImg) {
+                foundImg.deleteAt(0); 
+                n.hide();
+              }
             }
             if (t.keyCode === 13 || t.keyCode === 32) {
               var img = window.Quill.find(n.img);

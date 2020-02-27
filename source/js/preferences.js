@@ -136,7 +136,8 @@ var userPreferences = {
   "docs" : {
     "direction" : "ltr",
     "spellcheck" : "on",
-    "opentab" : "recents" // or can be "folders"
+    "opentab" : "recents", // or can be "folders"
+    "history" : 100
   },
   "photos" : {
 
@@ -145,6 +146,14 @@ var userPreferences = {
 
   }
 };
+
+try {
+  if (localStorage) {
+    userPreferences = JSON.parse(localStorage.getItem("crypteepref")) || userPreferences;
+  }
+} catch (error) {
+  userPreferences = userPreferences;
+}
 
 function gotPreferences(pref) {
   if (pref !== undefined && pref !== null && pref !== "" && pref !== {}) {
@@ -167,6 +176,10 @@ function gotPreferences(pref) {
 
       if (pref.docs.opentab) {
         userPreferences.docs.opentab = pref.docs.opentab;
+      }
+
+      if (pref.docs.history >= 100) {
+        userPreferences.docs.history = pref.docs.history;
       }
 
     }
@@ -206,6 +219,11 @@ function populatePreferences () {
     $(".spellcheckswitch").prop('checked', true).attr('checked', true);
   } else {
     $(".spellcheckswitch").prop('checked', false).attr('checked', false);
+  }
+
+  if (userPreferences.docs.history) {
+    var maxHistory = userPreferences.docs.history || 100;
+    $("#num-history-docs-input").val(maxHistory);
   }
 
   setTimeout(function () {

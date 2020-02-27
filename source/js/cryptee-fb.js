@@ -33,11 +33,10 @@ var firebaseVersion = firebase.SDK_VERSION;
 function signOut () {
   purgeOfflineStorage();
   firebase.auth().signOut().then(function() {
-    try { localStorage.clear(); } finally {
-      console.log('Signed Out');
-      if (location.pathname === "/signin" || location.pathname === "/signin.html") {
-        window.location.reload(true);
-      }
+    purgeOfflineStorage();
+    console.log('Signed Out');
+    if (location.pathname === "/signin" || location.pathname === "/signin.html") {
+      window.location.reload(true);
     }
   }, function(error) {
     handleError("Error signing out", error);
@@ -46,7 +45,10 @@ function signOut () {
 
 function saveUserDetailsToLS (theUsername, theEmail, usedStorage, allowedStorage, paid, plan) {
   plan = plan || "free";
-  var createdAt = parseInt(theUser.toJSON().createdAt);
+  var createdAt;
+  if (theUserJSON) {
+    createdAt = parseInt(theUserJSON.createdAt) || 0;
+  }
   localStorage.setItem('crypteeuser', JSON.stringify({
     "theUsername" : theUsername,
     "theEmail" : theEmail,
@@ -102,7 +104,7 @@ function loadUserDetailsFromLS () {
 
 function purgeOfflineStorage () {
   try { localStorage.clear(); } catch (e) {}
-  try { sessionStorage.clear();} catch (e) {}
+  try { sessionStorage.clear(); } catch (e) {}
   try { offlineStorage.clear(); } catch (e) {}
   try { offlineErrorStorage.clear(); } catch (e) {}
   try { encryptedIndexedCatalog.clear(); } catch (e) {}
@@ -137,8 +139,8 @@ function authenticatediOSBrowser () {
 
   var providerId;
   var loginMethod;
-  if (theUser.toJSON().providerData[0]) {
-    providerId = theUser.toJSON().providerData[0].providerId;
+  if (theUserJSON.providerData[0]) {
+    providerId = theUserJSON.providerData[0].providerId;
     if (providerId !== "" && providerId !== " ") {
       loginMethod = providerId; //password //google.com //phone
     }

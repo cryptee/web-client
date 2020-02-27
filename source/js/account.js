@@ -101,6 +101,13 @@ $(window).on('load', function(event) {
   if (isInWebAppiOS || isInWebAppChrome) {
     $("#acct-signout").hide();
   }
+
+  if (isMobile || isipados) {
+    $("#mydata-downloads-card").hide();
+    $("#mydata-metadata-card").hide();
+    $("#mydata-desktop-notice").show();
+  }
+
   if ($(window).width() < 768) { 
     $("#account-menu-left").addClass("collapsed");
     $(".account-menu-collapse").find("i").removeClass("fa-chevron-left").addClass("fa-bars");
@@ -129,9 +136,8 @@ firebase.auth().onAuthStateChanged(function(user) {
         window.location = "goodbye";
       }
     } else {
-      try { sessionStorage.removeItem('key'); } finally {
-        webAppURLController("signin?redirect=account");
-      }
+      purgeOfflineStorage();
+      webAppURLController("signin?redirect=account");
     }
   } else {
     //got user
@@ -1179,6 +1185,18 @@ $("#num-recent-docs-input").on("keydown keypress paste copy cut change", functio
       var numRecentDocs = parseInt($("#num-recent-docs-input").val().trim());
       localStorage.setItem("numRecentDocs", numRecentDocs);
     }, 50);
+});
+
+$("#num-history-docs-input").on("keydown keypress paste copy cut change", function(e){
+  setTimeout(function () {
+    var maxHistory = parseInt($("#num-history-docs-input").val().trim());
+    if (userPreferences) {
+      if (maxHistory >= 100) {
+        userPreferences.docs.history = maxHistory;
+        dataRef.update({"preferences" : userPreferences});
+      }
+    }
+  }, 50);
 });
 
 // //////////////////////////
