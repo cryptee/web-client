@@ -878,12 +878,14 @@ html {
 }
 
 .flying-modal .modal-background{
-  background-color: rgba(245,245,245,0) !important;
-  transition: 1s background-color ease !important;
+  opacity: 0;
+  background-color: rgb(245,245,245) !important;
+  transition: 0.5s opacity ease !important;
 }
 
 .flying-modal.is-shown .modal-background{
-  background-color: rgba(245,245,245,0.9) !important;
+  opacity: 0.9;
+  background-color: rgb(245,245,245) !important;
 }
 
 .flying-modal .crypteecard {
@@ -894,15 +896,15 @@ html {
 
 .flying-modal .modal-content {
   max-width: 480px;
-  transform: translateY(250%);
-  transition: 1s transform ease;
+  transform: translate3d(0,25%,0);
+  transition: 0.5s transform ease, 0.5s opacity ease;
+  opacity: 0;
   margin: 0;
 }
 
 .flying-modal.is-shown .modal-content {
-  max-width: 480px;
-  transform: translateY(0);
-  transition: 1s transform ease; 
+  transform: translate3d(0,0,0);
+  opacity: 1;
 }
 
 .flying-modal img {
@@ -922,6 +924,10 @@ html {
 
 .flying-modal p:not(.title) {
   text-align: left;
+}
+
+.flying-modal .modal-input {
+  font-size: 1.5rem;
 }
 
 #crypteedoc-modal-decrypt-button,
@@ -2593,6 +2599,10 @@ html {
   display: block;
   margin: auto;
   object-fit: contain;
+}
+
+#file-viewer-contents audio {
+  height: 4rem;
 }
 
 #file-viewer-contents iframe {
@@ -6603,6 +6613,10 @@ body.draggingStuff {
     display: none;
   }
 
+  .www-body #download h2 {
+    line-height: 4rem;
+  }
+
   .is-hidden-phone {
     display : none !important;
   }
@@ -7190,41 +7204,6 @@ body.draggingStuff {
 #active-doc-contents.iosPinned {
   padding-top: 49px;
 } */
-
-@page {
-    size: auto;
-    margin-top: 2cm;
-    margin-bottom: 2cm;
- }
-
-@media print {
-
-  html, body {
-    height: auto !important;
-  }
-
-  #docs-page-wrap, #docs-main-wrap, #docs-center-wrap {
-    height: auto !important;
-    overflow: auto !important;
-  }
-
-  #docs-page-wrap {
-    padding-top: 0 !important;
-    padding-left: 0 !important;
-    min-width: 100% !important;
-    width: 100% !important;
-    box-shadow: 0 1rem 2rem rgba(0,0,0,0) !important;
-    margin: 0 !important;
-  }
-
-  .ql-editor {
-    height: auto !important;
-    overflow: auto !important;
-  }
-  .no-print, .no-print *, .modal, .modal *, .notification, .notification * {
-    display: none !important;
-  }
-}
 
 
 

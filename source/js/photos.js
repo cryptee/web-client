@@ -6,8 +6,12 @@ var cloudfunctions = firebase.functions();
 
 
 var theKey;
-var keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedKey
-sessionStorage.removeItem('key');
+var keyToRemember;
+
+if (sessionStorage.getItem('key')) {
+  keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedKey
+  sessionStorage.removeItem('key');
+}
 
 if (localStorage.getItem('memorizedKey')) {
   keyToRemember = JSON.parse(localStorage.getItem('memorizedKey')); // hashedKey
@@ -2994,7 +2998,9 @@ function setFolderThumbnail() {
   var thumbToken = activeItemsObject[id].ttoken;
   var lightToken = activeItemsObject[id].ltoken;
   
-  var folderObject = { thumb : thumb, pinky : pinky };
+  var folderObject = {};
+  if (thumb) { folderObject.thumb = thumb; }
+  if (pinky) { folderObject.pinky = pinky; }
   if (thumbToken) { folderObject.ttoken = thumbToken; }
   if (lightToken) { folderObject.ltoken = lightToken; }
   
@@ -5664,9 +5670,13 @@ function addToFavorites(id, callback) {
   favAlbumRef = favRef.doc(id);
   
   originalAlbumRef.get().then(function(photo) {
-    favAlbumRef.set(photo.data(), { merge: true }).then(function() {
+    if (photo.data()) {
+      favAlbumRef.set(photo.data(), { merge: true }).then(function() {
+        callback();
+      });
+    } else {
       callback();
-    });
+    }
   });
 }
 

@@ -107,7 +107,8 @@ $("#key-input").on('keydown', function (e) {
 ///////////////   TOKEN MANAGEMENT   ///////////////
 ////////////////////////////////////////////////////
 var retokening = false;
-function getToken () {
+function getToken (callback) {
+  callback = callback || noop;
   if (!retokening) {
     retokening = true;
     var curUser = firebase.auth().currentUser;
@@ -121,46 +122,59 @@ function getToken () {
           headers: { "Authorization": "Bearer " + idToken },
           contentType: "text/plain; charset=utf-8",
           success: function(data) {
-            gotToken(data);
+            gotToken(data, callback);
           },
           error: function(xhr, ajaxOptions, thrownError) {
             handleError("Error Getting Custom Token (Network Request Failed)", thrownError);
+            callback();
             retokening = false;
           }
         });
+
       }).catch(function(error) {
         if (error.code !== "auth/network-request-failed") {
           handleError("Error Getting ID Token (Network Request Failed)", error, "warning");
         } else {
           handleError("Error Getting ID Token", error);
         }
+        callback();
         retokening = false;
       });
     } else {
       setTimeout(function () {
-         getToken();
+        getToken();
       }, 1000);
     }
   
   }
 }
 
-function gotToken (tokenData) {
+function gotToken (tokenData, callback) {
   var token = tokenData;
-  firebase.auth().signInWithCustomToken(token).then(function(){
-    retokening = false;
-  }).catch(function(error) {
-    if (error.code !== "auth/network-request-failed") {
-      handleError("Error Signing In With Token (Network Request Failed)", error);
-    } else {
-      handleError("Error Signing In With Token", error);
-    }
-    // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
+  callback = callback || noop;
+  if (token) {
+    firebase.auth().signInWithCustomToken(token).then(function(){
+      retokening = false;
+      callback();
+    }).catch(function(error) {
+      if (error.code !== "auth/network-request-failed") {
+        handleError("Error Signing In With Token (Network Request Failed)", error);
+      } else {
+        handleError("Error Signing In With Token", error);
+      }
+      callback();
+      // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
+      setTimeout(function() {
+        retokening = false;
+      }, 5000);
+    });
+  } else {
+    handleError("Error Signing In With Token, Undefined Token", error);
+    callback();
     setTimeout(function() {
       retokening = false;
     }, 5000);
-    console.log("error signing in with token");
-  });
+  }
 }
 
 ////////////////////////////////////////////////////

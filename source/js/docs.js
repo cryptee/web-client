@@ -999,7 +999,7 @@ function prepareRightClickDocFunctions (id) {
     offlineStorage.getItem(id, function (err, offlineDoc) {
       if (err) { 
         err.isFile = isFile;
-        err.did = did;
+        err.did = id;
         handleError("Error getting offline document from storage", err); 
       }
       if (offlineDoc) { 
@@ -2639,7 +2639,7 @@ function decryptTitle (id, encryptedTitle, callback) {
         } catch (error) {
           if (!postLoadIntegrityChecksComplete) {
             error.titleID = id;
-            handleError("Caught corrupted title", error);
+            handleError("Caught corrupted title", error, "warning");
           } else {
             // chances are very high that this is a retrieved ghost thats title is trying to be read with every doc right now.
           }
@@ -5315,29 +5315,50 @@ function newRecentDoc () {
 $('#active-folder-new-doc-button').on('click', function (event) {
   event.preventDefault();
   if (usedStorage <= allowedStorage) {
-    showDocProgress("Saving Current Document");
-    saveDoc(activeDocID, newActiveFolderDoc);
+    $('#new-doc-in-folder-input').val("");
+    showFlyingModal("new-doc-in-folder-modal"); // this asks for a document name and creates a new doc
+    setTimeout(function () {
+      $("#new-doc-in-folder-input").focus();
+    }, 10);
   } else {
     exceededStorage();
   }
 });
 
-
-function newActiveFolderDoc () {
-
-  showDocProgress("Creating New Document");
-  breadcrumb("Creating New Document (Folder)");
-
-  // first check if uncategorized folder exists
-
-  var did = "d-" + newUUID();
-  var fid = activeFolderID;
-
-  newDoc(did, fid);  
-  
+function confirmedNewActiveFolderDoc() {
+  var newDocTitle = $("#new-doc-in-folder-input").val().trim();
+  if (newDocTitle !== "") {
+    newActiveFolderDoc(newDocTitle);
+  }
 }
 
+function newActiveFolderDoc (newDocTitle) {
+  showDocProgress("Saving Current Document");
+  hideActiveFlyingModal();
 
+  saveDoc(activeDocID, function() {
+    showDocProgress("Creating New Document");
+    breadcrumb("Creating New Document (Folder)");
+    
+    // first check if uncategorized folder exists
+    
+    var did = "d-" + newUUID();
+    var fid = activeFolderID;
+    
+    newDoc(did, fid, newDocTitle);  
+  });
+
+}
+
+$('#new-doc-in-folder-input').on('keydown', function(event) {
+  setTimeout(function(){
+    if (event.keyCode == 13) {
+      confirmedNewActiveFolderDoc();
+    } else if (event.keyCode == 27) {
+      hideActiveFlyingModal();
+    }
+  },50);
+});
 
 
 function newDoc (did, fid, docTitle, input){
@@ -5713,7 +5734,7 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
             useOfflineCopy(offlineDoc.content);
           } else if (offlineGeneration === onlineGeneration) {
             // decrypt offline copy and use that instead to save time. it's the same.
-            useOfflineCopy(offlineDoc.content);
+            useOfflineCopy(offlineDoc.content, true, token); // true = fallback to online if you have to
           } else {
             // use online copy, it's newer.
             downloadOnlineCopy(token);
@@ -5783,9 +5804,10 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
     }
   }
 
-  function useOfflineCopy (delta) {
+  function useOfflineCopy (delta, fallbackToOnline, token) {
     breadcrumb('[LOAD] – Using Offline Copy');
     if (keyToRemember) {
+      breadcrumb('[LOAD] – Got offline key, decrypting');
       var offlineEncryptedDelta = JSON.parse(delta).data;
       decrypt(offlineEncryptedDelta, [keyToRemember]).then(function(offlineCopyPlaintext) {
         var offlineCopyDecryptedText = offlineCopyPlaintext.data;
@@ -5796,13 +5818,21 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
         loadHomeDoc();
       });
     } else {
-      // tried loading offline, but there was no keyToRemember. 
-      // Now. this means there's a newer offlien copy, but we can't decrypt this.
-      // Skip to loading home, and hope that keyToRemember gets set. This will pass the responsibility to upsync offline docs. 
-      // if the key gets set, we're good. 
-      // if not, upsync decides what happens. 
-      // likely will get deleted automatically since it won't be possible to decrypt if you can't get the key.
-      loadHomeDoc();
+      if (fallbackToOnline) {
+        breadcrumb('[LOAD] – Couldnt get offline key, falling back to online version, it seems to be the same');
+        downloadOnlineCopy(token);
+      } else {
+        
+        // tried loading offline, but there was no keyToRemember. 
+        // Now. this means there's a newer offlien copy, but we can't decrypt this.
+        // Skip to loading home, and hope that keyToRemember gets set. This will pass the responsibility to upsync offline docs. 
+        // if the key gets set, we're good. 
+        // if not, upsync decides what happens. 
+        // likely will get deleted automatically since it won't be possible to decrypt if you can't get the key.
+        
+        breadcrumb('[LOAD] – Couldnt get offline key, and online version is older. Will load home instead and hope that offline key gets set after loading home.');
+        loadHomeDoc();
+      }
     }
   }
 
@@ -6283,7 +6313,7 @@ function displayAudioFile (dtitle, did, decryptedContents, callback, filesize, c
     setTimeout(function () {
       var audioH = $("audio#"+did).height() + "px";
       var audioW = $("audio#"+did).width() + "px";
-      var size = "calc("+audioH+" + 3rem)";
+      var size = "calc("+audioH+" + 4rem)";
       $("#file-viewer").css({ "height" : size});
       $("#file-viewer").css({ "width" : audioW});
       setTimeout(function () { $("#file-viewer").removeClass("loading-contents"); }, 250);
@@ -6529,6 +6559,7 @@ function encryptAndUploadDoc(did, fid, callback, callbackParam) {
   }
 }
 
+var failedSaveUploadAttempts = {};
 function saveUpload(did, fid, encryptedDocDelta, callback, callbackParam) {
   var docRef = rootRef.child(did + ".crypteedoc");
   saveUploads[did] = docRef.putString(encryptedDocDelta);
@@ -6569,12 +6600,29 @@ function saveUpload(did, fid, encryptedDocDelta, callback, callbackParam) {
 
         checkConnection(function(status){
           if (status) {
+            failedSaveUploadAttempts[did] = (failedSaveUploadAttempts[did] || 0) + 1;
+            showErrorBubble("Error saving document, will retry shortly.");
+            breadcrumb("[SAVE FAILED] Will try again shortly. (Attempt #" + failedSaveUploadAttempts[did] +")");
             handleError("Error saving document", error);
-            showErrorBubble("Error saving document, will retry again shortly.");
-            console.error("SAVE FAILED. RETRYING IN 5 SECONDS.");
-            setTimeout(function(){
-              encryptAndUploadDoc(did, fid, callback, callbackParam);
-            }, 5000);
+            
+            if (failedSaveUploadAttempts[did] <= 1) {
+              breadcrumb('[SAVE FAILED] Trying to get a new token.');
+              getToken(function() { 
+                breadcrumb('[SAVE FAILED] Got a new token. Trying again.');
+                encryptAndUploadDoc(did, fid, callback, callbackParam);
+              });
+            } else {
+              if (failedSaveUploadAttempts[did] <= 4) {
+                setTimeout(function () {
+                  breadcrumb("[SAVE FAILED] Either couldn't get a new token or save failed despite having a new token.");
+                  breadcrumb("[SAVE FAILED] Will try again in 5 seconds. (Attempt #" + failedSaveUploadAttempts[did] +")");
+                  encryptAndUploadDoc(did, fid, callback, callbackParam);
+                }, 5000);
+              } else {
+                handleError("Error saving doc (after 5+ attempts)", error);
+                showErrorBubble("Failed to save document 5+ times. Please check your internet connection or try turning-off content-blockers if you have any.");
+              }
+            }
           } else {
             activateOfflineMode();
             showErrorBubble("Document will be uploaded when you're back online.");
@@ -6582,6 +6630,8 @@ function saveUpload(did, fid, encryptedDocDelta, callback, callbackParam) {
         });
       }
 
+    } else {
+      breadcrumb('[SAVE] Canceled.');
     }
 
   });
@@ -6605,13 +6655,14 @@ function saveUploadComplete(did, fid, metadata, callback, callbackParam) {
   breadcrumb("[SAVE] – Upload Completed " + did);
 
   var tagsOfDoc = [];
-  if (catalog.docs[did]) {
-    tagsOfDoc = catalog.docs[did].tags || []; // this is updated in update active tags in save
-  }
+
+  catalog.docs[did] = catalog.docs[did] || {};
+  tagsOfDoc = catalog.docs[did].tags || []; // this is updated in update active tags in save
 
   currentGeneration = metadata.generation;
 
   if (did !== "home") {
+
     catalog.docs[did].gen = parseInt(currentGeneration);
     updateLocalCatalog();
 
@@ -6643,6 +6694,7 @@ function saveComplete(did, callback, callbackParam){
 
   delete saveUploads[did];
   delete saveUploadsProgress[did];  
+  delete failedSaveUploadAttempts[did];
 
   setTimeout(function () { updateUploadsProgress("is-success"); }, 500);
   
@@ -7313,7 +7365,7 @@ function renameInactiveDoc () {
 
 function hideRenameDocModal () {
   $(".rename-doc-status > .title").html("Type in a new name below");
-  $("#rename-doc-modal").removeClass("is-active");
+  hideActiveFlyingModal();
   $("#active-doc-title-input").blur();
 }
 
@@ -7373,12 +7425,12 @@ function renameDoc () {
             var updatedDoc = offlineDoc;
             updatedDoc.name = newDocName;
             offlineStorage.setItem(activeDocID, updatedDoc).catch(function(err) {
-              err.did = did;
+              err.did = activeDocID;
               handleError("Error setting offline document to storage", err, "warning");
             });
           }
         }).catch(function(err) {
-          err.did = did;
+          err.did = activeDocID;
           handleError("Error getting offline document from storage", err);
         });
         
@@ -9028,15 +9080,18 @@ $('.ql-editor').on('click', 'crypteefile', function(event) {
   if (!theFile.hasClass("error")) {
     event.preventDefault();
     var did = theFile.attr("did");
-    var fileTitle = theFile.attr("filetitle");
     theFile.addClass("loading");
 
-    var filename = did + ".crypteedoc";
     if (catalog.docs[did]) {
       if (catalog.docs[did].isfile) {
-        filename = did + ".crypteefile";
+        // looks like a file, so go ahead and try loading right away.
+        loadDoc(did, attachmentLoadComplete, did);
+      } else {
+        // if opening another doc, you may need to save the old one.
+        prepareToLoad(did);  
+        attachmentLoadComplete(did);
       }
-      loadDoc(did, attachmentLoadComplete, did);
+      
     } else {
       theFile.removeClass("loading").addClass("error");
     }

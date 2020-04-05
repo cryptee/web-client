@@ -1,0 +1,20 @@
+<div class="modal flying-modal" id="new-doc-in-folder-modal">
+  <div class="modal-background" onclick="hideActiveFlyingModal();"></div>
+  <div class="modal-content">
+    <div class="crypteecard">
+      <div class="content">
+        <p class="title is-4 has-text-centered">New Document</p>
+        <p class="subtitle is-6 has-text-centered">Please enter a name for your new document</p>
+        
+        <div class="field">
+          <p class="control">
+            <input id="new-doc-in-folder-input" class="modal-input input" type="text" placeholder="New Document" autocomplete="off">
+          </p>
+        </div>
+        
+        <a class="button is-success www-action-button" onclick="confirmedNewActiveFolderDoc();">Create</a>
+        <a class="button is-danger www-action-button" onclick="hideActiveFlyingModal();">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -812,7 +812,7 @@ function createFirstAuth(hashedKey) {
       });
     });
   } else {
-    handleError("Couldn't get current user to get signup auth token", thrownError); 
+    handleError("Couldn't get current user to get signup auth token"); 
     showSignupInfo(disableBlockerError, "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   }

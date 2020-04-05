@@ -2720,6 +2720,51 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
 
 }
 
+
+
+
+@page {
+  size: auto;
+  margin-top: 2cm;
+  margin-bottom: 2cm;
+}
+
+@media print {
+
+  html, body {
+    height: auto !important;
+  }
+
+  #docs-page-wrap, #docs-main-wrap, #docs-center-wrap {
+    height: auto !important;
+    overflow: auto !important;
+  }
+
+  #docs-page-wrap {
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    min-width: 100% !important;
+    width: 100% !important;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0) !important;
+    margin: 0 !important;
+  }
+
+  .ql-editor {
+    height: auto !important;
+    overflow: auto !important;
+  }
+  
+  .no-print, .no-print *, .modal, .modal *, .notification, .notification * {
+    display: none !important;
+  }
+
+  #docs-center-wrap::before {
+    content: "" !important;
+    opacity: 0 !important;
+  }
+
+}
+
 /*///////////////////////////////////////////////////
 //////////////// DARK MODE OVERRIDES ////////////////
 ///////////////////////////////////////////////////*/

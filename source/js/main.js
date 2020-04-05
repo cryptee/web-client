@@ -756,7 +756,7 @@ function hideActiveFlyingModal() {
   $(".flying-modal.is-active").removeClass("is-shown");
   setTimeout(function() {
     cancelModal();
-  }, 1000);
+  }, 510);
 }
 
 function progressModal (id) {
@@ -976,9 +976,11 @@ function parsedDocURL(filename, token) {
 function getFileMeta(filename) {
   return new Promise(function (resolve, reject) {
     getFileMetaFromAtlasOrAPI(filename, "atlas").then(resolve).catch(function(e){
-      getFileMetaFromAtlasOrAPI(filename, "api").then(resolve).catch(function(e){
-        getFileMetaFromCstore(filename).then(resolve).catch(function(e){
-          reject();
+      getToken(function() { // if the auth token is outdated, i.e. if we're using an old one from sesssionStorage etc. this could cause atlas to throw an error. So force get a new token, THEN call regular api. This could help in some cases.
+        getFileMetaFromAtlasOrAPI(filename, "api").then(resolve).catch(function(e){
+          getFileMetaFromCstore(filename).then(resolve).catch(function(e){
+            reject();
+          });
         });
       });
     });
@@ -1194,10 +1196,15 @@ function encryptUint8Array(plaintext, keys) {
 
 
 
-function hashString (str) {
+function hashString (str, strength) {
   return new Promise(function (resolve, reject) {
     var uinta = openpgp.util.str_to_Uint8Array(str);
-    openpgp.crypto.hash.sha256(uinta).then(function (hashedUintA) {
+    var algo = openpgp.crypto.hash.sha256(uinta);
+    strength = strength || "256";
+    if (strength === "512") { 
+      algo = openpgp.crypto.hash.sha512(uinta); 
+    }
+    algo.then(function (hashedUintA) {
       var hashedStr = openpgp.util.Uint8Array_to_str(hashedUintA);
       var hashedHex = openpgp.util.str_to_hex(hashedStr);
       var result = hashedHex.split(" ").join("").split("\n").join("");

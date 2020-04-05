@@ -10,6 +10,7 @@ function doesSubscriptionBoxExist() {
 function insertEmailForm() {
     var formNode = document.createElement('div');
     var articleNode = document.querySelector('article');
+    formNode.className = "subscribe-wrapper";
 
     formNode.innerHTML = 
     "<hr>" +

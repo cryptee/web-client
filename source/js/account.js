@@ -967,24 +967,37 @@ function decryptDocsTitles() {
 function decryptDocTitle(index) {
   if (docTitlesToDecrypt[index]) {    
     var nextIndex = index+1;
-    var parsedEncryptedTitle = JSON.parse(docTitlesToDecrypt[index].et).data;
+    var parsedEncryptedTitle;
+    try {
+      parsedEncryptedTitle = JSON.parse(docTitlesToDecrypt[index].et).data;
+    } catch (error) {}
+
     var did = docTitlesToDecrypt[index].did;
-    var isfile = docTitlesToDecrypt[index].isfile;
-    decrypt(parsedEncryptedTitle, [theKey]).then(function(plaintext) {
-      var plaintextTitle = JSON.parse(plaintext.data);
-      allExportsObject[did] = allExportsObject[did] || {};
-      allExportsObject[did].title = plaintextTitle;
-      if (!isfile) { 
-        allExportsObject[did].title = plaintextTitle + ".uecd";
-      }
-      decryptDocTitle(nextIndex);
-    }).catch(function(error) {
-      error.itemid = did;
-      handleError("Error decrypting title, passing Untitled", error);
+
+    if (parsedEncryptedTitle) {
+      var isfile = docTitlesToDecrypt[index].isfile;
+      decrypt(parsedEncryptedTitle, [theKey]).then(function(plaintext) {
+        var plaintextTitle = JSON.parse(plaintext.data);
+        allExportsObject[did] = allExportsObject[did] || {};
+        allExportsObject[did].title = plaintextTitle;
+        if (!isfile) { 
+          allExportsObject[did].title = plaintextTitle + ".uecd";
+        }
+        decryptDocTitle(nextIndex);
+      }).catch(function(error) {
+        error.itemid = did;
+        handleError("Error decrypting title, passing Untitled", error);
+        allExportsObject[did] = allExportsObject[did] || {};
+        allExportsObject[did].title = "Untitled.uecd";
+        decryptDocTitle(nextIndex);
+      });
+    } else {
+      handleError("Error parsing title before decryption, passing Untitled", error);
       allExportsObject[did] = allExportsObject[did] || {};
       allExportsObject[did].title = "Untitled.uecd";
       decryptDocTitle(nextIndex);
-    });
+    }
+    
   } else {
     allTitlesDecrypted();
   }

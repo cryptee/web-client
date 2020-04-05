@@ -161,6 +161,18 @@ hr {
     flex-basis: 100%;
 }
 
+#paging a {
+    font-size: 12px;
+    color: #fff !important;
+    font-weight: 600;
+    border: 1px solid #000;
+    width: auto;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    background-color: #363636;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+}
+
 @media (min-width: 540px) {
     #collection section#wrapper {
         display: -webkit-box;
@@ -187,6 +199,10 @@ hr {
     margin-bottom: 2rem;
     text-align: center;
 }
+
+.subscribe-wrapper {
+    width: 100%;
+} 
 
 footer nav, footer hr {
     display:none;

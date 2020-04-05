@@ -108,7 +108,7 @@ function htmlToDocx(htmlContents, title) {
                         }
                     } else {
                         // likely <br>
-                        console.log(subTag);
+                        // console.log(subTag);
                     }
                 }
             });
