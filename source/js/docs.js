@@ -10529,7 +10529,7 @@ function makeOfflineDoc(did) {
                 err.did = did;
                 err.fid = fid;
                 showErrorBubble("Error with encryption of "+dtitle+" during download");
-                handleError("Error re-ncrypting doc during makeOffline dowload", err);
+                handleError("Error re-encrypting doc during makeOffline dowload", err);
               });
             }).catch(function(err) {
               err.did = did;

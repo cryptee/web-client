@@ -865,7 +865,7 @@ function createUserInDB(hashedKey) {
       });
     });
   } else {
-    handleError("Couldn't get all necessary user data set the key during signup", error);
+    handleError("Couldn't get all necessary user data set the key during signup");
     showSignupInfo(disableBlockerError, "is-warning", true, "key");
     $("#signup-button").prop('disabled', false).attr("disabled", false).removeClass("is-loading is-success").html("Try Again");
   }

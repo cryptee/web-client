@@ -110,12 +110,14 @@ var retokening = false;
 function getToken (callback) {
   callback = callback || noop;
   if (!retokening) {
+    
     retokening = true;
-    var curUser = firebase.auth().currentUser;
-
-    if (curUser) {
-      curUser.getIdToken(true).then(function(idToken) {
-
+    
+    if (theUser) {
+      breadcrumb('[TOKEN] Getting ID Token');
+      theUser.getIdToken(true).then(function(idToken) {
+        breadcrumb('[TOKEN] Got ID Token');
+        breadcrumb('[TOKEN] Getting New Auth Token');
         $.ajax({
           url: tokenURL,
           type: 'POST',
@@ -125,7 +127,7 @@ function getToken (callback) {
             gotToken(data, callback);
           },
           error: function(xhr, ajaxOptions, thrownError) {
-            handleError("Error Getting Custom Token (Network Request Failed)", thrownError);
+            handleError("Error Getting Custom Token (Network Req Failed)", thrownError);
             callback();
             retokening = false;
           }
@@ -133,9 +135,9 @@ function getToken (callback) {
 
       }).catch(function(error) {
         if (error.code !== "auth/network-request-failed") {
-          handleError("Error Getting ID Token (Network Request Failed)", error, "warning");
+          handleError("Error Getting ID Token", error, "warning");
         } else {
-          handleError("Error Getting ID Token", error);
+          handleError("Error Getting ID Token (Network Req Failed)", error);
         }
         callback();
         retokening = false;
@@ -153,14 +155,17 @@ function gotToken (tokenData, callback) {
   var token = tokenData;
   callback = callback || noop;
   if (token) {
+    breadcrumb('[TOKEN] Got New Auth Token');
+    breadcrumb('[TOKEN] Signing In With New Auth Token');
     firebase.auth().signInWithCustomToken(token).then(function(){
+      breadcrumb('[TOKEN] Signed In With New Auth Token');
       retokening = false;
       callback();
     }).catch(function(error) {
       if (error.code !== "auth/network-request-failed") {
-        handleError("Error Signing In With Token (Network Request Failed)", error);
-      } else {
         handleError("Error Signing In With Token", error);
+      } else {
+        handleError("Error Signing In With Token (Network Req Failed)", error);
       }
       callback();
       // TODO CREATE SOME SORT OF ERROR HANDLING MECHANISM FOR TOKEN-SIGNIN ERRORS
@@ -169,7 +174,7 @@ function gotToken (tokenData, callback) {
       }, 5000);
     });
   } else {
-    handleError("Error Signing In With Token, Undefined Token", error);
+    handleError("Error Signing In With Token, Undefined Token");
     callback();
     setTimeout(function() {
       retokening = false;
@@ -193,22 +198,19 @@ function authenticate(gotUserCallback, noUserCallback) {
     setSentryTag("time-to-auth", timeToAuth);
     if (!user) {
       // if not logged in
-      purgeOfflineStorage();
       breadcrumb('[AUTH] Not Logged In');
+      
+      purgeOfflineStorage();
       noUserCallback();
+
     } else {
       // user logged in
-      
-      getToken();
-      createUserDBReferences(user);
-
       breadcrumb('[AUTH] Logged In');
-
+      
+      createUserDBReferences(user);
       gotUserCallback(user);
+      getToken();
 
-      // update user in sessionStorage & memory
-      theUser = user;
-      theUserJSON = theUser.toJSON();
     }
   }, function(error){
     if (error.code !== "auth/network-request-failed") {
@@ -233,15 +235,16 @@ function createUserDBReferences(user) {
   // REFERENCES TO BE USED IN ALL APPS //
   ///////////////////////////////////////
 
-  theUser = user;
-  theUserID = theUser.uid;
-  theEmail = theUser.email;
-  theUsername = theUser.displayName;
+  theUser       = user;
+  theUserID     = theUser.uid;
+  theEmail      = theUser.email;
+  theUserJSON   = theUser.toJSON();
+  theUsername   = theUser.displayName;
   emailVerified = theUser.emailVerified;
 
-  rootRef     = store.ref().child('/users/' + theUserID);
-  dataRef     = db.ref().child('/users/' + theUserID + "/data/");
-  metaRef     = db.ref().child('/users/' + theUserID + "/meta/");
+  rootRef       = store.ref().child('/users/' + theUserID);
+  dataRef       = db.ref().child('/users/' + theUserID + "/data/");
+  metaRef       = db.ref().child('/users/' + theUserID + "/meta/");
 
   setSentryUser(theUserID);
   $('.username').html(theUser.displayName || theEmail);
