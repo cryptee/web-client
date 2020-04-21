@@ -182,84 +182,39 @@ function gotToken (tokenData, callback) {
 ////////////////////////////////////////////////////
 
 var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUserPlan, keycheck;
-var ssuTimestamp = 0;
-var ssuExpirationTime = 5 * 60 * 1000; // 5min
-
-try {
-  var sessionUserAuth = sessionStorage.getItem("sessionauth");
-  if (sessionUserAuth) { 
-    theUser = JSON.parse(sessionUserAuth); 
-    theUserJSON = theUser;
-  }
-} catch (e) {}
-
-try {
-  var sessionUserAuthTimestamp = sessionStorage.getItem("sessionauthtime");
-  if (sessionUserAuthTimestamp) { 
-    ssuTimestamp = JSON.parse(sessionUserAuthTimestamp); 
-    ssuTimestamp = parseInt(ssuTimestamp) || 0;
-  }
-} catch (e) {}
 
 function authenticate(gotUserCallback, noUserCallback) {
-  var now = (new Date()).getTime(); 
-  logTimeStart("[AUTH]");
-  if (theUser && (ssuTimestamp >= (now - ssuExpirationTime))) {
-    // if there's a user in sessionStorage, and it's authenticated in the last 5 mins, use that to start things up, saves approx 1 second
-    breadcrumb('[AUTH] Started up with SSU');
-    
-    getToken();
-    createUserDBReferences(theUser);
+  var authStartTime = (new Date()).getTime();
+  breadcrumb('[AUTH] Re/Authenticating');
+  firebase.auth().onAuthStateChanged(function(user) {
+    var authEndTime = (new Date()).getTime();
+    var timeToAuth = (authEndTime - authStartTime) + "ms";
+    breadcrumb("[AUTH] Took " + timeToAuth);
+    setSentryTag("time-to-auth", timeToAuth);
+    if (!user) {
+      // if not logged in
+      purgeOfflineStorage();
+      breadcrumb('[AUTH] Not Logged In');
+      noUserCallback();
+    } else {
+      // user logged in
+      
+      getToken();
+      createUserDBReferences(user);
 
-    gotUserCallback(theUser);
-    logTimeEnd("[AUTH]");
+      breadcrumb('[AUTH] Logged In');
 
-    // and refresh auth in the meantime
-    reAuth();
-  } else {
-    breadcrumb('[AUTH] No up-to-date SSU Found');
-    reAuth();
-  }
+      gotUserCallback(user);
 
-  function reAuth() {
-    breadcrumb('[AUTH] Re/Authenticating');
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (!user) {
-        // if not logged in
-        purgeOfflineStorage();
-        breadcrumb('[AUTH] Not Logged In');
-        noUserCallback();
-      } else {
-        // user logged in
-        
-        getToken();
-        createUserDBReferences(user);
-
-        breadcrumb('[AUTH] Logged In');
-
-        // if logged in, but we didn't have a user in sessionStorage newer than 5 minutes, so we're starting up from server auth = call gotUserCallback
-        if (!theUser || (ssuTimestamp < (now - ssuExpirationTime))) {
-          gotUserCallback(user);
-          logTimeEnd("[AUTH]");
-        }
-
-        // update user in sessionStorage & memory
-        theUser = user;
-        theUserJSON = theUser.toJSON();
-        
-        try {
-          sessionStorage.setItem("sessionauth", JSON.stringify(theUser));
-          sessionStorage.setItem("sessionauthtime", JSON.stringify(now));
-          breadcrumb('[AUTH] Updated SSU');
-        } catch (e) {}
-
-      }
-    }, function(error){
-      if (error.code !== "auth/network-request-failed") {
-        handleError("Error Authenticating", error);
-      }
-    });
-  }
+      // update user in sessionStorage & memory
+      theUser = user;
+      theUserJSON = theUser.toJSON();
+    }
+  }, function(error){
+    if (error.code !== "auth/network-request-failed") {
+      handleError("Error Authenticating", error);
+    }
+  });
 }
 
 

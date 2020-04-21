@@ -66,9 +66,9 @@ connectedRef.on("value", function(snap) {
     clearTimeout(checkConnectionTimeout);
     checkConnectionTimeout = setTimeout(function() {
       if (snap.val()) { 
-        breadcrumb("Sockets Got Connection within/after 3 seconds. Will check server connection to confirm.");
+        breadcrumb("[CONN] Sockets Got Connection within/after 3 seconds. Will check server connection to confirm.");
       } else {
-        breadcrumb("Sockets Lost Connection for 3 seconds. Will check server connection to decide.");
+        breadcrumb("[CONN] Sockets Lost Connection for 3 seconds. Will check server connection to decide.");
       }
       forceCheckConnection();
     }, 3000);
