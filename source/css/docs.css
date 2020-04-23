@@ -189,11 +189,15 @@
   margin-top: 0;
   height: calc(100% - 3rem);
   box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
-  transition: 0.75s transform ease, 0.5s opacity ease;
+  transition: 0.5s transform ease, 0.5s opacity ease;
 }
 
 #docs-page-wrap.showLeft {
   transform: translateX(160px);
+}
+
+#docs-page-wrap.showLeft .ql-editor {
+  pointer-events: none;
 }
 
 #docs-left-wrap:not(.showLeft) #docs-left-bottom *,
@@ -248,6 +252,10 @@
 #mobile-topbar:not(.itsMobile) .control,
 #mobile-topbar:not(.itsMobile) .document-contextual-dropdown {
   pointer-events: all;
+}
+
+#mobile-topbar.showLeft .document-contextual-dropdown {
+  display: none;
 }
 
 @media (max-width : 892px) {
@@ -418,6 +426,10 @@
   transition: 1s transform ease, 0.25s opacity ease, 0.5s max-width ease, 0.5s top ease;
   pointer-events: all;
   position: relative;
+}
+
+#mobile-topbar.itsMobile {
+  transition: 1s transform ease, 0.25s opacity ease;
 }
 
 .markdown-export-icon {
@@ -647,6 +659,14 @@ body:not(.viewing-mode) #hotkeys-button.shown {
   width: 100%;
   height: 2rem;
   pointer-events: none;
+}
+
+#docs-right-wrap.viewer-visible #doc-counts {
+  margin-bottom: 3.725rem;
+}
+
+#docs-right-wrap.viewer-visible #docs-sections-wrapper {
+  height: calc(100% - 11.5rem);
 }
 
 .docsection.H1 {
@@ -2268,7 +2288,7 @@ body.edits-locked #editor-toolbar .ql-formats {
   filter: blur(4px);
 }
 
-#docs-center-wrap::before {
+body:not(.viewing-mode) #docs-center-wrap::before {
   content: "locked";
   font-family: "Montserrat";
   letter-spacing: 1px;
@@ -2290,7 +2310,7 @@ body.edits-locked #editor-toolbar .ql-formats {
   transition: 0.5s opacity ease, 0.5s transform ease;
 }
 
-body.edits-locked #docs-center-wrap::before {
+body.edits-locked:not(.viewing-mode) #docs-center-wrap::before {
   content: "locked";
   opacity: 1;
   transform: translateY(0);
@@ -2298,7 +2318,7 @@ body.edits-locked #docs-center-wrap::before {
   z-index: 99;
 }
 
-body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
+body.edits-locked:not(.viewing-mode) #docs-left-wrap.showLeft + #docs-center-wrap::before,
 #docs-center-wrap.is-loading::before {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -2377,7 +2397,7 @@ body.edits-locked #docs-left-wrap.showLeft + #docs-center-wrap::before,
   }
 
   #docs-page-wrap.showLeft {
-    transform: translateX( calc(300px) );
+    transform: translateX(300px);
   }
 
   /* #docs-center-wrap.is-loading #docs-page-wrap {

@@ -352,16 +352,15 @@ crypteefile::after {
 crypteefile {
   display: block;
   font-family: FontAwesome;
-  font-size: 16px;
+  font-size: 18px;
   padding: 0.5rem 1rem;
   border: 1px solid #ccc;
-  /* background-color: #F5F5F5; */
   box-shadow: 0px 0.125rem 0.25rem rgba(0,0,0,0.1); 
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.5s ease-in;
   opacity: 1;
-  line-height: 2rem;
+  line-height: 26px;
   margin: 1rem 0;
 }
 
@@ -7273,7 +7272,7 @@ html.dm.pending::before {
   color :var(--brightest);
 }
 
-.dm .modal:not(#exceeded-modal).modal-background {
+.dm .modal:not(#exceeded-modal) .modal-background {
   background-color:rgba(10,10,10,0.86) !important;
 }
 

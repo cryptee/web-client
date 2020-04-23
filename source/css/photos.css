@@ -1066,7 +1066,7 @@ html.search-active, body.search-active {
 	width: 5.5rem;
 	height: auto;
 	max-height: calc(100% - 17.75rem);
-	overflow-y: scroll;
+	overflow-y: auto;
 	overflow-x: hidden;
 	
 	opacity: 1;

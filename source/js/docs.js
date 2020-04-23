@@ -164,34 +164,8 @@ var markdownConverter = new showdown.Converter({
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 
-var Inline = Quill.import('blots/inline');
-var Block = Quill.import('blots/block');
-var BlockEmbed = Quill.import('blots/block/embed');
-
-var fontSizeStyle = Quill.import('attributors/style/size');
 fontSizeStyle.whitelist = ['8px', '10px', '13px', '16px', '18px', '20px', '24px', '30px', '36px', '40px', '48px'];
 Quill.register(fontSizeStyle, true);
-
-
-var DividerBlot = function (_BlockEmbed) {
-  _inherits(DividerBlot, _BlockEmbed);
-  function DividerBlot() {
-    _classCallCheck(this, DividerBlot);
-    return _possibleConstructorReturn(this, _BlockEmbed.apply(this, arguments));
-  }
-  return DividerBlot;
-}(BlockEmbed);
-DividerBlot.blotName = 'divider'; DividerBlot.tagName = 'hr';
-Quill.register(DividerBlot);
-
-$('.ql-hr').click(function () {
-  var range = quill.getSelection(true);
-  if (range) {
-    quill.insertText(range.index, '\n', Quill.sources.USER);  
-    quill.insertEmbed(range.index + 1, 'divider', true, Quill.sources.USER);
-    quill.setSelection(range.index + 2, Quill.sources.SILENT);
-  }
-});
 
 
 var IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png)$/i;
@@ -214,116 +188,6 @@ document.onpaste = function(e){
     }
   }
 };
-
-
-var Parchment = Quill.import('parchment');
-var BaseImageFormat = Quill.import('formats/image');
-var ImageFormatAttributesList = ['alt', 'height', 'width', 'style'];
-var whitelisted_styles = ['display', 'float'];
-
-var ImageFormat = function (_BaseImageFormat) {
-  _inherits(ImageFormat, _BaseImageFormat);
-  function ImageFormat() { _classCallCheck(this, ImageFormat); return _possibleConstructorReturn(this, (ImageFormat.__proto__ || Object.getPrototypeOf(ImageFormat)).apply(this, arguments)); }
-  _createClass(ImageFormat, [{
-    key: 'format',
-    value: function format(name, value) {
-      if (ImageFormatAttributesList.indexOf(name) > -1) {
-        if (value) {
-          if (name === 'style') {
-            value = this.sanitize_style(value);
-          }
-          this.domNode.setAttribute(name, value);
-        } else {
-          this.domNode.removeAttribute(name);
-        }
-      } else {
-        _get(ImageFormat.prototype.__proto__ || Object.getPrototypeOf(ImageFormat.prototype), 'format', this).call(this, name, value);
-      }
-    }
-  }, {
-    key: 'sanitize_style',
-    value: function sanitize_style(style) {
-      var style_arr = style.split(";");
-      var allow_style = "";
-      style_arr.forEach(function (v, i) {
-        if (whitelisted_styles.indexOf(v.trim().split(":")[0]) !== -1) {
-          allow_style += v + ";";
-        }
-      });
-      return allow_style;
-    }
-  }], [{
-    key: 'formats',
-    value: function formats(domNode) {
-      return ImageFormatAttributesList.reduce(function (formats, attribute) {
-        if (domNode.hasAttribute(attribute)) {
-          formats[attribute] = domNode.getAttribute(attribute);
-        }
-        return formats;
-      }, {});
-    }
-  }]);
-
-  return ImageFormat;
-}(BaseImageFormat);
-
-Quill.register(ImageFormat, true);
-
-var CrypteeFileBlot = function (_Inline) {
-  _inherits(CrypteeFileBlot, _Inline);
-
-  function CrypteeFileBlot() {
-    _classCallCheck(this, CrypteeFileBlot);
-    return _possibleConstructorReturn(this, _Inline.apply(this, arguments));
-  }
-
-  CrypteeFileBlot.create = function create(value) {
-    var node = _Inline.create.call(this);
-    node.setAttribute('did', value.did);
-    node.setAttribute('filetitle', value.filetitle);
-    node.contentEditable = 'false';
-    return node;
-  };
-
-  CrypteeFileBlot.formats = function formats(node) {
-    return {
-      did: node.getAttribute('did'),
-      filetitle: node.getAttribute('filetitle')
-    };
-  };
-
-  return CrypteeFileBlot;
-}(Inline);
-
-CrypteeFileBlot.blotName = 'file';
-CrypteeFileBlot.tagName = 'crypteefile';
-Quill.register(CrypteeFileBlot);
-
-
-var CrypteeTagBlot = function (_Inline2) {
-  _inherits(CrypteeTagBlot, _Inline2);
-
-  function CrypteeTagBlot() {
-    _classCallCheck(this, CrypteeTagBlot);
-    return _possibleConstructorReturn(this, _Inline2.apply(this, arguments));
-  }
-
-  CrypteeTagBlot.create = function create(value) {
-    var node = _Inline2.create.call(this);
-    node.contentEditable = 'false';
-    return node;
-  };
-
-  return CrypteeTagBlot;
-}(Inline);
-
-CrypteeTagBlot.blotName = 'tag';
-CrypteeTagBlot.tagName = 'crypteetag';
-Quill.register(CrypteeTagBlot);
-
-
-
-var Keyboard = Quill.import('modules/keyboard');
 
 var quillkeyboardbindings = {
   enter: {
@@ -448,7 +312,7 @@ $(".ql-font").append("<option value='sans-serif' selected>Default</option>");
 $(".ql-font").append(fontOptions);
 
 // Add fonts to whitelist
-var Font = Quill.import('formats/font');
+
 Font.whitelist = fontNames;
 Quill.register(Font, true);
 
@@ -576,7 +440,7 @@ $('.ql-editor').on('click', 'crypteetag', function(event) {
 
 $("#mobile-floating-list").on("click", function(){
   if (quill.getFormat().list === "bullet") {
-    quill.removeFormat(quill.getSelection().index);
+    quill.removeFormat(getLastSelectionRange().index);
   } else {
     quill.format('list', 'bullet');
   }
@@ -603,6 +467,12 @@ $("#docs-page-wrap").on('touchstart', 'ul[data-checked="false"] > li, ul[data-ch
   event.stopPropagation();
   event.preventDefault();
 });
+
+$("#docs-page-wrap").on('click', function(event) {
+  if ($(this).hasClass("showLeft")) {
+    hideMenu();
+  } 
+}); 
 
 $('.ql-editor').on('click', function(event) {
   if (event.target.tagName.toLowerCase() === 'a') {
@@ -631,7 +501,7 @@ $('.ql-editor').on('click', function(event) {
 
   lastActivityTime = (new Date()).getTime();
 
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
 });
 
 if (isios || isipados) { $("#docs-url-box").addClass("isios"); }
@@ -726,10 +596,9 @@ key('command+shift+k, ctrl+shift+k', function(){
 key('command+shift+6, ctrl+shift+6', function(){
 
   var curFormat = quill.getFormat();
-  var range = quill.getSelection();
 
   if (curFormat.list === "unchecked" || curFormat.list === "checked") {
-    quill.removeFormat(range.index);
+    quill.removeFormat(getLastSelectionRange().index);
   } else {
     if (isMobile) {
       $("#checkbox-button").click();
@@ -743,9 +612,8 @@ key('command+shift+6, ctrl+shift+6', function(){
 
 key('command+shift+7, ctrl+shift+7', function(){ 
   var curFormat = quill.getFormat();
-  var range = quill.getSelection();
   if (curFormat.list === "ordered") {
-    quill.removeFormat(range.index);
+    quill.removeFormat(getLastSelectionRange().index);
   } else {
     quill.format('list', 'ordered');
   }
@@ -754,9 +622,8 @@ key('command+shift+7, ctrl+shift+7', function(){
 
 key('command+shift+8, ctrl+shift+8', function(){ 
   var curFormat = quill.getFormat();
-  var range = quill.getSelection();
   if (curFormat.list === "bullet") {
-    quill.removeFormat(range.index);
+    quill.removeFormat(getLastSelectionRange().index);
   } else {
     quill.format('list', 'bullet');
   }
@@ -851,7 +718,6 @@ $("body").on('swiperight',  function(){
       showMenu();
     }
 });
-
 
 
 ///////////////////////////////////////////////////////////
@@ -1294,10 +1160,12 @@ function showMenu () {
   if (!viewingMode) {
     if (isMobile) {
       $("#help-button, #hotkeys-button").addClass("shown");
+      quill.blur();
+      quill.disable();
     }
     wrappersToMove.addClass("showLeft");
     hideWebClips();
-    $(".document-contextual-dropdown").removeClass("open");
+    hideDocumentContextualDropdown();
     checkAndSaveDocIfNecessary();
   }
 }
@@ -1307,6 +1175,7 @@ function hideMenu () {
     if (isMobile) {
       $("#help-button, #hotkeys-button").removeClass("shown");
       $(".filesize-button, .mobile-floating-tools").removeClass('menuOpen');
+      if (!editLock) { quill.enable(); }
     }
     wrappersToMove.removeClass("showLeft");
     clearSearch();
@@ -1335,15 +1204,15 @@ $("#hamburger").on('click', function(event) {
 
 function toggleViewingMode() {
   $("body").toggleClass("viewing-mode");
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
   
   if (viewingMode) {
     viewingMode = false;
-    quill.enable();
+    if (!editLock) { quill.enable(); }
     $("#viewing-mode-label").html("Viewing Mode");
   } else {
     viewingMode = true;
-    quill.disable();
+    if (!editLock) { quill.disable(); }
     clearSearch();
     clearSelections();
     $("#viewing-mode-label").html("Editing Mode");
@@ -1353,7 +1222,7 @@ function toggleViewingMode() {
 // lock document
 var editLock = false;
 function toggleEditLock() {
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
   var did = activeDocID;
   if (editLock) {
     unlockEditor();
@@ -1475,11 +1344,27 @@ function updateUploadsProgress(status) {
 ///////////////// DOC CONTEXTUAL MENU   ////////////
 ////////////////////////////////////////////////////
 
-function toggleContextualMenu () {
-  
-  $(".document-contextual-dropdown").toggleClass("open");
-  $(".filesize-button, .mobile-floating-tools").toggleClass('menuOpen');
-  
+function toggleDocumentContextualDropdown() {
+  if ($(".document-contextual-dropdown").hasClass("open")) {
+    hideDocumentContextualDropdown();
+  } else {
+    showDocumentContextualDropdown();
+  }
+}
+function showDocumentContextualDropdown () {
+  $(".document-contextual-dropdown").show();
+  setTimeout(function () { 
+    $(".document-contextual-dropdown").addClass("open");
+    $(".filesize-button, .mobile-floating-tools").addClass('menuOpen');
+  }, 10);
+}
+
+function hideDocumentContextualDropdown () {
+  $(".document-contextual-dropdown").removeClass("open");
+  $(".filesize-button, .mobile-floating-tools").removeClass('menuOpen');
+  setTimeout(function () {
+    $(".document-contextual-dropdown").hide();
+  }, 510);
 }
 
 function prepareDocContextualButton(did) {
@@ -1604,6 +1489,9 @@ function checkForExistingUser (callback){
       if (error) {
         if (error.code !== "auth/network-request-failed") {
           noNetwork();
+        } else {
+          handleError("Can't get keycheck! Network Request Failed", error);
+          showDocProgress("<span class='cancel-loading'>Looks like we can't reach one of our servers.<br><br>Try disabling your ad-blocker or DNS/VPN filters for Cryptee. Rarely, these filters could mistakenly break/block connections to servers they shouldn't.</span>");
         }
       }
     });
@@ -3942,56 +3830,69 @@ function extractFromFilename (filename, whatToExtract) {
   var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
   var ifw = "fa fa-fw fa-";
   var icon = ifw + "file-text-o";
+  var unicodeIcon = "&#xf0f6;";
   var filetype = null;
   var extract;
 
   if (extension.match(/^(006|007|3DMF|3DX|8PBS|ABM|ABR|ADI|AEX|AI|AIS|ALBM|AMU|ARD|ART|ARW|ASAT|B16|BIL|BLEND|BLKRT|BLZ|BMC|BMC|BMP|BOB|BR4|BR5|C4|CADRG|CATPART|CCX|CDR|CDT|CDX|CGM|CHT|CM2|CMX|CMZ|COMICDOC|CPL|CPS|CPT|CR2|CSF|CV5|CVG|CVI|CVI|CVX|DAE|DCIM|DCM|DCR|DCS|DDS|DESIGN|DIB|DJV|DJVU|DNG|DRG|DRW|DRWDOT|DT2|DVL|DWB|DWF|DXB|EASM|EC3|EDP|EDRW|EDW|EMF|EPRT|EPS|EPSF|EPSI|EXR|FAC|FACE|FBM|FBX|FC2|FCZ|FD2|FH11|FHD|FIT|FLIC|FLM|FM|FPF|FS|FXG|GIF|GRAFFLE|GTX|HD2|HDZ|HPD|HPI|HR2|HTZ4|ICL|ICS|IDW|IEF|IGES|IGR|ILBM|ILM|IMA|IME|IMI|IMS|INDD|INDT|IPJ|IRF|ITC2|ITHMB|J2K|JIFF|JNG|JPEG|JPF|JPG|JPG2|JPS|JPW|JT|JWL|JXR|KDC|KODAK|KPG|LDA|LDM|LET|LT2|LTZ|LVA|LVF|LXF|MAC|MACP|MCS|MCZ|MDI|MGS|MGX|MIC|MIP|MNG|MPF|MPO|MTZ|MUR|MUR|NAV|NCR|NEU|NFF|NJB|NTC|NTH|ODI|ODIF|OLA|OPD|ORA|OTA|OTB|OTC|OTG|OTI|OVW|P21|P2Z|PAT|PC6|PC7|PCD|PCT|PCX|PDN|PEF|PI2|PIC|PIC|PICNC|PICTCLIPPING|PL0|PL2|PLN|PMB|PNG|POL|PP2|PPSX|PRW|PS|PS|PSB|PSD|PSF|PSG|PSP|PSPIMAGE|PSQ|PVL|PWD|PWS|PX|PXR|PZ2|PZ3|QTIF|QTZ|QXD|RIC|RLC|RLE|RW2|SDK|SDR|SEC|SFW|SIG|SKP|SLDASM|SLDDRW|SLDPRT|SNX|SRF|SST|SUN|SVG|SVGZ|TARGA|TCW|TCX|TEX|TGA|TIF|TIFF|TJP|TN|TPF|TPX|TRIF|TRX|U3D|UPX|URT|UTX|V00|V3D|VFS|VGA|VHD|VIS|VRL|VTX|WB1|WBC|WBD|WBZ|WEBP|WGS|WI|WMF|WNK|XDW|XIP|XSI|X_B|X_T|ZDL|ZIF|ZNO|ZPRF|ZT)$/i)) {
     filetype = "image photo foto";
     icon = ifw + "file-image-o";
+    unicodeIcon = "&#xf1c5;";
   }
   if (extension.match(/^(pdf)$/i)) {
     filetype = "pdf adobe document";
     icon = ifw + "file-pdf-o";
+    unicodeIcon = "&#xf1c1;";
   }
   if (extension.match(/^(epub)$/i)) {
     filetype = "book epub ebook mobi read ereader volume publication novel paperback hardback reference";
     icon = ifw + "book";
+    unicodeIcon = "&#xf02d;";
   }
   if (extension.match(/^(ecd)$/i)) {
     filetype = "encrypted cryptee document";
     icon = ifw + "lock";
+    unicodeIcon = "&#xf023;";
   }
   if (extension.match(/^(uecd)$/i)) {
     filetype = "cryptee document";
     icon = ifw + "file-text-o";
+    unicodeIcon = "&#xf0f6;";
   }
   if (extension.match(/^(c|cake|clojure|coffee|jsx|cpp|cs|css|less|scss|csx|gfm|git-config|go|gotemplate|java|java-properties|js|jquery|regexp|json|litcoffee|makefile|nant-build|objc|objcpp|perl|perl6|plist|python|ruby|rails|rjs|sass|shell|sql|mustache|strings|toml|yaml|git-commit|git-rebase|html|erb|gohtml|jsp|php|py|junit-test-report|shell-session|xml|xsl)$/i)) {
     filetype = "code script program";
     icon = ifw + "file-code-o";
+    unicodeIcon = "&#xf1c9;";
   }
   if (extension.match(/^(7z|bz2|tar|gz|rar|zip|zipx|dmg|pkg|tgz|wim)$/i)) {
     filetype = "archive compress";
     icon = ifw + "file-archive-o";
+    unicodeIcon = "&#xf1c6;";
   }
   if (extension.match(/^(doc|dot|wbk|docx|docm|dotx|dotm|docb|apxl|pages)$/i)) {
     filetype = "office word microsoft document";
     icon = ifw + "file-word-o";
+    unicodeIcon = "&#xf1c2;";
   }
   if (extension.match(/^(xls|xlt|xlm|xlsx|xlsm|xltx|xltm|xlsb|xla|xlam|xll|xlw|numbers)$/i)) {
     filetype = "office excel microsoft document";
     icon = ifw + "file-excel-o";
+    unicodeIcon = "&#xf1c3;";
   }
   if (extension.match(/^(ppt|pot|pps|pptx|pptm|potx|potm|ppam|ppsx|ppsm|sldx|sldm|key|keynote)$/i)) {
     filetype = "office powerpoint microsoft document";
     icon = ifw + "file-powerpoint-o";
+    unicodeIcon = "&#xf1c4;";
   }
   if (extension.match(/^(3GA|AA|AA3|AAC|AAX|ABC|AC3|ACD|ACD|ACM|ACT|ADG|ADTS|AFC|AHX|AIF|AIFC|AIFF|AL|AMR|AMZ|AOB|APC|APE|APF|ATRAC|AU|AVR|AWB|AWB|BAP|BMW|CAF|CDA|CFA|CIDB|COPY|CPR|CWP|DAC|DCF|DCM|DCT|DFC|DIG|DSM|DSS|DTS|DTSHD|DVF|EFA|EFE|EFK|EFV|EMD|EMX|ENC|F64|FL|FLAC|FLP|FST|GNT|GPX|GSM|GSM|HMA|HTW|IFF|IKLAX|IMW|IMY|ITS|IVC|K26|KAR|KFN|KOE|KOZ|KOZ|KPL|KTP|LQT|M3U|M3U8|M4A|M4B|M4P|M4R|MA1|MID|MIDI|MINIUSF|MIO|MKA|MMF|MON|MP2|MP3|MPA|MPC|MPU|MP_|MSV|MT2|MTE|MTP|MUP|MXP4|MZP|NCOR|NKI|NRT|NSA|NTN|NWC|ODM|OGA|OGG|OMA|OMG|OMX|OTS|OVE|PCAST|PEK|PLA|PLS|PNA|PROG|PVC|QCP|R1M|RA|RAM|RAW|RAX|REX|RFL|RIF|RMJ|RNS|RSD|RSO|RTI|RX2|SA1|SBR|SD2|SFA|SGT|SID|SMF|SND|SNG|SNS|SPRG|SSEQ|SSND|SWA|SYH|SZ|TAP|TRM|UL|USF|USFLIB|USM|VAG|VMO|VOI|VOX|VPM|VRF|VYF|W01|W64|WAV|WMA|WPROJ|WRK|WUS|WUT|WWU|XFS|ZGR|ZVR)$/i)) {
     filetype = "sound audio song track vibe music voice record play tune phono phone capture";
     icon = ifw + "file-audio-o";
+    unicodeIcon = "&#xf1c7;";
   }
   if (extension.match(/^(264|3G2|3GP|3MM|3P2|60D|AAF|AEC|AEP|AEPX|AJP|AM4|AMV|ARF|ARV|ASD|ASF|ASX|AVB|AVD|AVI|AVP|AVS|AVS|AX|AXM|BDMV|BIK|BIX|BOX|BPJ|BUP|CAMREC|CINE|CPI|CVC|D2V|D3V|DAV|DCE|DDAT|DIVX|DKD|DLX|DMB|DM_84|DPG|DREAM|DSM|DV|DV2|DVM|DVR|DVR|DVX|DXR|EDL|ENC|EVO|F4V|FBR|FBZ|FCP|FCPROJECT|FLC|FLI|FLV|GTS|GVI|GVP|H3R|HDMOV|IFO|IMOVIEPROJ|IMOVIEPROJECT|IRCP|IRF|IRF|IVR|IVS|IZZ|IZZY|M1PG|M21|M21|M2P|M2T|M2TS|M2V|M4E|M4U|M4V|MBF|MBT|MBV|MJ2|MJP|MK3D|MKV|MNV|MOCHA|MOD|MOFF|MOI|MOV|MP21|MP21|MP4|MP4V|MPEG|MPG|MPG2|MQV|MSDVD|MSWMM|MTS|MTV|MVB|MVP|MXF|MZT|NSV|OGV|OGX|PDS|PGI|PIV|PLB|PMF|PNS|PPJ|PRPROJ|PRTL|PSH|PVR|PXV|QT|QTL|R3D|RATDVD|RM|RMS|RMVB|ROQ|RPF|RPL|RUM|RV|SDV|SFVIDCAP|SLC|SMK|SPL|SQZ|SUB|SVI|SWF|TDA3MT|THM|TIVO|TOD|TP0|TRP|TS|UDP|USM|VCR|VEG|VFT|VGZ|VIEWLET|VLAB|VMB|VOB|VP6|VP7|VRO|VSP|VVF|WD1|WEBM|WLMP|WMMP|WMV|WP3|WTV|XFL|XVID|ZM1|ZM2|ZM3|ZMV)$/i)) {
     filetype = "video film record play capture";
     icon = ifw + "file-video-o";
+    unicodeIcon = "&#xf1c8;";
   }
 
   if (whatToExtract === "icon") {
@@ -4000,6 +3901,10 @@ function extractFromFilename (filename, whatToExtract) {
 
   if (whatToExtract === "filetype") {
     extract = filetype;
+  }
+
+  if (whatToExtract === "unicodeIcon") {
+    extract = unicodeIcon;
   }
 
   return extract;
@@ -5446,15 +5351,22 @@ quill.on('text-change', function(delta, oldDelta, source) {
 
 });
 
+var lastSelectionRange;
 quill.on('selection-change', function(range, oldRange, source) {  
   if (!range) {
     // CURSOR LEFT EDITOR, TRIGGER AUTOSAVE
     checkAndSaveDocIfNecessary();
   } else {
     // EDITOR GOT FOCUS, IF IT'S NOT TRIGGERED BY API, THEN HIDE MENU
+    lastSelectionRange = range;
     if (source !== "api") { hideMenu(); }
   }
 });
+
+function getLastSelectionRange() {
+  if (lastSelectionRange) { return lastSelectionRange; }
+  else { return quill.getSelection(true); }
+}
 
 function idleTimer () {
   idleTime++;
@@ -6077,6 +5989,7 @@ function showFileViewer (callback, callbackParam) {
   if (isMobile) { hideMenu(); }
   callback(callbackParam);
   maximizeFileViewer();
+  $("#docs-right-wrap").addClass("viewer-visible");
 }
 
 $('#file-viewer-minimize-button').on('click',  function(event) {
@@ -6134,6 +6047,7 @@ function hideFileViewer () {
   $("#doc-top, #docs-page-wrap").show();
   $(".activefile").removeClass("activefile");
   $(".docs-body").removeClass("sideBySide");
+  $("#docs-right-wrap").removeClass("viewer-visible");
 }
 
 function sideBySideFileViewer() {
@@ -6406,7 +6320,7 @@ function displayUnsupportedFile (dtitle, did, decryptedContents, callback, files
 //////////////////////////////
 
 function closeDoc (){
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
   if (!saveUploads[activeDocID]) {
     saveDoc(activeDocID, loadDoc, "home");
   } else {
@@ -6434,7 +6348,7 @@ function checkAndSaveDocIfNecessary () {
 }
 
 $(".save-doc-button, .dropdown-save-button").on('click', function(event) {
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
   if (connectivityMode) {
     if (!saveUploads[activeDocID]) {
       saveDoc(activeDocID);
@@ -6782,7 +6696,7 @@ function saveComplete(did, callback, callbackParam){
 // });
 
 function showDeleteDocModal() {
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
   clearSelections();
   if (connectivityMode) {
     $("#delete-doc-modal").find(".subtitle").html("You're about to delete the currently open document");
@@ -7029,7 +6943,7 @@ $("#doc-dropdown").on('click', ".duplicate-button", function(event) {
 $(".document-contextual-dropdown").on('click', ".duplicate-button", function(event) {
   saveDoc(activeDocID, function(){
     duplicateDoc(activeDocID);
-    toggleContextualMenu();
+    hideDocumentContextualDropdown();
   });
 }); 
 
@@ -7370,7 +7284,7 @@ function hideRenameDocModal () {
 }
 
 function showRenameDocModal () {
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
   clearSelections();
   $("#rename-doc-modal").addClass("is-active");
   setTimeout(function () {
@@ -8578,7 +8492,7 @@ $("#upgrade-badge").on('click', function(event) {
 ///////////////////////////////////////////////////////////
 
 function showExportDocModal() {
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
   showFlyingModal("export-doc-modal");
 }
 
@@ -8705,9 +8619,8 @@ function exportAsWord() {
 ////////////////// QUILL EMBED CONTROLLER  ////////////////
 ///////////////////////////////////////////////////////////
 
-var activeEmbed, embedRange;
+var activeEmbed;
 function showEmbed(embed) {
-  embedRange = quill.getSelection();
   activeEmbed = embed;
   var modalTitle, placeholder;
   if (embed === "formula"){
@@ -8741,7 +8654,7 @@ function confirmEmbed() {
   var erroredOut = false;
   if (activeEmbed === "formula"){
     try {
-      quill.insertEmbed(embedRange.index, 'formula', $("#embed-input").val());
+      quill.insertEmbed(getLastSelectionRange().index, 'formula', $("#embed-input").val());
     } catch (error) {
       erroredOut = true;
       var errorMessage = error.message.replace("KaTeX parse error: ", "");
@@ -8751,7 +8664,7 @@ function confirmEmbed() {
   } else if (activeEmbed === "link") {
     quill.format('link', $("#embed-input").val());
   } else if (activeEmbed === "video") {
-    quill.insertEmbed(embedRange.index, 'video', $("#embed-input").val());
+    quill.insertEmbed(getLastSelectionRange().index, 'video', $("#embed-input").val());
   }
   if (!erroredOut) {
     hideEmbed();
@@ -8762,7 +8675,9 @@ function hideEmbed() {
   $("#embed-modal-status").addClass("is-white").removeClass("is-danger");
   $("#embed-modal-error").html("");
   $("#embed-modal").removeClass("is-active");
-  quill.focus();
+  if (!isMobile && !isipados) {
+    quill.focus();
+  }
 }
 
 $("#embed-input").on('keydown', function (e) {
@@ -8808,7 +8723,9 @@ function hideAttachmentSelector () {
   $(".image-selection-preview").css("background-image", 'none');
   $(".image-selection-preview").hide();
   $("#attach-from-device-button").val("");
-  quill.focus();
+  if (!isMobile && !isipados) {
+    quill.focus();
+  }
 }
 
 function attachmentSelectedFromDevice (event) {
@@ -8864,8 +8781,6 @@ function embedDroppedAttachment (file) {
 
 function processEmbedImage (file) {
   try {
-    quill.focus();
-    embedRange = quill.getSelection();
     var reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = function(){
@@ -8875,7 +8790,7 @@ function processEmbedImage (file) {
         //THIS LINE IS TO MAKE SURE FILE HAS SOME CONTENTS AND MAKE THIS "TRY" FAIL IF IT'S EMPTY, LIKE WHEN IT IS A FOLDER.
         var fileContents = base64FileContents.substr(base64FileContents.indexOf(',')+1);
         var imageTag = "<img src='"+base64FileContents+"' class='embedded-image'/>";
-        quill.clipboard.dangerouslyPasteHTML(embedRange.index, imageTag);
+        quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, imageTag);
         hideAttachmentSelector();
       } catch (e) {}
     };
@@ -8896,8 +8811,6 @@ function processEmbedImage (file) {
 
 function processDroppedAttachment (file) {
   try {
-    quill.focus();
-    embedRange = quill.getSelection();
     var reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = function(){
@@ -9005,7 +8918,6 @@ $("#doc-dropdown").on('click', '.attach-button', function(event) {
   attachCrypteeFile(title, did);
   
   hideRightClickMenu();
-  showFileUploadStatus("is-info", "Attaching " + title + " to document.");
 });
 
 $("#doc-dropdown").on('click', '.embed-button', function(event) {
@@ -9014,18 +8926,18 @@ $("#doc-dropdown").on('click', '.embed-button', function(event) {
   catalog.docs[did] = catalog.docs[did] || {};
   var title = catalog.docs[did].name || "Untitled Document";
 
-  downloadAttachment(title, did);
+  downloadImageAttachment(title, did);
   
   hideRightClickMenu();
   showFileUploadStatus("is-info", "Embedding " + title + " to document.");
 });
 
-function downloadAttachment (attachmentTitle, did) {
+function downloadImageAttachment (attachmentTitle, did) {
   getFileMeta(did + ".crypteefile").then(function(metadata){
     var token = metadata.token;
     $.ajax({ url: parsedDocURL(did + ".crypteefile", token), type: 'GET',
       success: function(encryptedFileContents){
-        attachmentLoaded(did, encryptedFileContents, attachmentTitle);
+        imageAttachmentLoaded(did, encryptedFileContents, attachmentTitle);
       },
       error:function (xhr, ajaxOptions, thrownError){
         console.log(thrownError);
@@ -9042,7 +8954,7 @@ function downloadAttachment (attachmentTitle, did) {
   }); 
 }
 
-function attachmentLoaded (did, encryptedFileContents, attachmentTitle) {
+function imageAttachmentLoaded (did, encryptedFileContents, attachmentTitle) {
   decrypt(encryptedFileContents, [theKey]).then(function(plaintext) {
       var decryptedContents = plaintext.data;
       var ext = extensionFromFilename(attachmentTitle);
@@ -9053,26 +8965,19 @@ function attachmentLoaded (did, encryptedFileContents, attachmentTitle) {
 }
 
 function attachImageFile (b64ImageToEmbed) {
-  quill.focus();
-  setTimeout(function () {
-    embedRange = quill.getSelection();
-    var imageTag = "<img src='"+b64ImageToEmbed+"' class='embedded-image'/>";
-    quill.clipboard.dangerouslyPasteHTML(embedRange.index, imageTag);
-    hideFileUploadStatus();
-  }, 50);
+  var imageTag = "<img src='"+b64ImageToEmbed+"' class='embedded-image'/><p><br></p>";
+  quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index + 1, imageTag);
+  hideFileUploadStatus();
 }
 
 
 
 function attachCrypteeFile (attachmentTitle, did) {
-  quill.focus();
-  setTimeout(function () {
-    embedRange = quill.getSelection();
-    var attachmentTag = "<crypteefile did='"+did+"' filetitle='"+attachmentTitle+"'>&#xf0c6;</crypteefile><p><br></p>";
-    quill.clipboard.dangerouslyPasteHTML(embedRange.index, attachmentTag);
-    quill.setSelection(embedRange.index + 2, "silent");
-    hideFileUploadStatus();
-  }, 50);
+  var icon = extractFromFilename(attachmentTitle,"unicodeIcon");
+  if (icon === "&#xf0c6;") { icon = "&#xf0c6;"; }
+  var attachmentTag = "<crypteefile did='"+did+"' filetitle='"+attachmentTitle+"'>"+icon+"</crypteefile><p><br></p>";
+  quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, attachmentTag, "api");
+  quill.setSelection(getLastSelectionRange().index + 2, "silent");
 }
 
 $('.ql-editor').on('click', 'crypteefile', function(event) {
@@ -11117,12 +11022,12 @@ $("#doc-dropdown").on('click', '.offlinecheckbox', function(event) {
 
 $(".dropdown-makeoffline-button").on('click', function(event) {
   makeOfflineDoc(activeDocID);
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
 });
 
 $(".dropdown-makeonline-button").on('click', function(event) {
   removeOfflineDoc(activeDocID);
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
 });
 
 $("#doc-dropdown").on('click', '.offline-button', function(event) {
@@ -11269,7 +11174,7 @@ $(".ql-editor").on('scroll', throttleScroll(function(event) {
     });
   }, 300);
 
-  $(".document-contextual-dropdown").removeClass("open");
+  hideDocumentContextualDropdown();
 }, 100));
 
 ///////////////////////////////////////////////////////////
@@ -11370,7 +11275,7 @@ function showWebClips() {
     wrappersToMove.addClass("showRight");
     hideMenu();
     $("#docs-webclips-wrapper").addClass("is-active is-loading");
-    $(".document-contextual-dropdown").removeClass("open");
+    hideDocumentContextualDropdown();
     $("#webclips-button").removeClass("shown");
     checkAndSaveDocIfNecessary();
     fetchWebclips();
@@ -11719,7 +11624,9 @@ $("#webclips").on('click', ".wclip-delete-button", function(event) {
         // this was the last webclip. hide button and close webclips.
         hideWebClips();
         $("#webclips-button").removeClass("shown");
-        quill.focus();
+        if (!isMobile && !isipados) {
+          quill.focus();
+        }
       }
     });
   });
@@ -11735,9 +11642,8 @@ $("#webclips").on('click', ".wclip-delete-button", function(event) {
 $("#webclips").on('click', ".wclip-insert-button", function(event) {
   var wcid = $(this).parents(".wclipcard").attr("id").replace("wc-", "");
   var clip = JSON.parse(clips[wcid].data);
-  var range = quill.getSelection(true);
+  var range = quill.getSelection(true); // use getLastSelectionRange() if possible.
   var index = range.index;
-
 
   if (clip.cliptype === "link") {
     var linkTag = '<a target="_blank" rel="noopener" href="'+clip.linkUrl+'">'+clip.linkUrl+'</a>';
