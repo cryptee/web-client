@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////
 var firestore = firebase.firestore();
 var cloudfunctions = firebase.functions();
-
+setCloudFunctionsAPIBaseURL();
 
 var theKey;
 var keyToRemember;
@@ -1503,9 +1503,9 @@ function getEXIFDateStringOfPhotoID(pidOrTid, fid, callback, callbackParam) {
         
         getEXIF(origB64, function (exif) {
           if (exif) {
-            if (exif.DateTime) { 
-              var date = exif.DateTime;
-              callback(date);
+            var exifDate = extractExifDateTime(exif);
+            if (exifDate) { 
+              callback(exifDate);
             } else {
               // no date found in exif
               callback(null);
@@ -3286,6 +3286,40 @@ function moveFolderSelectionMade () {
 ///////////////// GENERATE THUMBNAIL ///////////////
 ////////////////////////////////////////////////////
 
+
+// https://github.com/blueimp/JavaScript-Load-Image/commit/1e4df707821a0afcc11ea0720ee403b8759f3881
+
+var browserWillHandleEXIFOrientation;
+
+// Check if browser supports automatic image orientation
+function determineBrowserEXIFOrientationTreatment() {
+  // black 2x1 JPEG, with the following meta information set - EXIF Orientation: 6 (Rotated 90° CCW)
+  var testImageURL =
+    'data:image/jpeg;base64,/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA' +
+    'AAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA' +
+    'QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE' +
+    'BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/x' +
+    'ABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAA' +
+    'AAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q==';
+  var img = document.createElement('img');
+  img.onload = function () {
+    // Check if browser supports automatic image orientation:
+    browserWillHandleEXIFOrientation = img.width === 1 && img.height === 2;
+    if (browserWillHandleEXIFOrientation) {
+      // true == browser supports = don't rotate in js
+      breadcrumb('[EXIF Orientation] Will be handled by Browser');
+      setSentryTag("browser-handles-exif-orientation", "yes");
+    } else {
+      // false == browser doesn't support = rotate in js
+      breadcrumb('[EXIF Orientation] Will be handled by Cryptee');
+      setSentryTag("browser-handles-exif-orientation", "no");
+    }
+  };
+  img.src = testImageURL;
+}
+
+determineBrowserEXIFOrientationTreatment();
+
 // you can use generatePrimitive(imgB64, callback) as a drop in replacement
 // function generatePinkynail (imgB64, callback) {
 //   var maxWidth = 10, maxHeight = 10;
@@ -3321,14 +3355,14 @@ function generateThumbnailsAndNecessaryMeta(imgB64, callback) {
     var uploadObject = { "lightbox" : "", "thumbnail" : "", "date" : "" };
 
     getEXIF(imgB64, function (exif) {
+        
         var orientation;
-        if (exif.Orientation) { orientation = exif.Orientation; }
-        if (exif.DateTime) { 
-          if (exif.DateTime.indexOf(":") !== -1) {
-            // just to make sure we're not writing something non exif looking here.
-            uploadObject.date = exif.DateTime; 
-          }
-        } 
+        // if the browser won't handle orientation, and there's exif orientation data, use it to rotate pic.
+        if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
+        
+        var exifDate = extractExifDateTime(exif);
+        if (exifDate) { uploadObject.date = exifDate; }
+
         // reuse these canvases globally in the interest of saving memory if garbage collection is shittier / slower than expected.
 
         resizedCanvas = resizedCanvas || document.createElement("canvas");
@@ -3543,6 +3577,38 @@ function getEXIF(b64, callback) {
       callback({}, e);
     }
   };
+}
+
+function extractExifDateTime(exif) {
+  var date;
+  
+  // use DateTimeOriginal || DateTimeDigitized || DateTime in this exact order. 
+  // DateTimeOriginal = taken time, if it exists.
+  // DateTime = Edited Time, if it's edited in lightroom, if not, taken time. 
+  if (exif) {
+    if (exif.DateTime) { 
+      if (exif.DateTime.indexOf(":") !== -1) {
+        // just to make sure we're not writing something non exif looking here.
+        date = exif.DateTime; 
+      }
+    } 
+  
+    if (exif.DateTimeDigitized) { 
+      if (exif.DateTimeDigitized.indexOf(":") !== -1) {
+        // just to make sure we're not writing something non exif looking here.
+        date = exif.DateTimeDigitized; 
+      }
+    } 
+  
+    if (exif.DateTimeOriginal) { 
+      if (exif.DateTimeOriginal.indexOf(":") !== -1) {
+        // just to make sure we're not writing something non exif looking here.
+        date = exif.DateTimeOriginal; 
+      }
+    } 
+  }
+
+  return date;
 }
 
 ////////////////////////////////////////////////////
@@ -4779,6 +4845,7 @@ $("#folder-contents").on("click", '.ghostfoldericon', function(event) {
     fidToGhost = thisIcon.parents(".albumitem").attr("id");
     $("#ghost-folder-confirm-input").val(albumTitle);
     $("#ghost-folder-confirm-input").attr("placeholder", albumTitle);
+    $("#ghost-folder-confirm-button").attr("disabled", true).prop("disabled", true);
     showModal("ghost-album-modal");
   }).catch(function(e){
     showModal("ghost-album-titleerror-modal");

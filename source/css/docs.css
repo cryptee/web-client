@@ -94,12 +94,18 @@
   color: #FFF !important;
 }
 
+.ql-editor .ql-video {
+  width: 640px;
+  height: 480px;
+}
+
 .ql-bubble .ql-tooltip {
   transition: 0.3s transform ease, 0.3s opacity ease;
   display: block !important;
   pointer-events: all;
   opacity: 1;
-  transform: translate3d(0, 6px, 0)
+  transform: translate3d(0, 6px, 0);
+  margin: 0.5rem 0;
 }
 
 .ql-tooltip.ql-hidden {
@@ -258,7 +264,7 @@
   display: none;
 }
 
-@media (max-width : 892px) {
+@media (max-width : 918px) {
   #mobile-topbar:not(.itsMobile) {
     top: 5.5rem;
   }
@@ -657,7 +663,7 @@ body:not(.viewing-mode) #hotkeys-button.shown {
   margin: 0 0 0.725rem 0;
   padding-left: 180px;
   width: 100%;
-  height: 2rem;
+  height: 2.5rem;
   pointer-events: none;
 }
 
@@ -727,7 +733,7 @@ body:not(.viewing-mode) #hotkeys-button.shown {
   color: #f5f5f5;
 }
 
-#word-count, #char-count {
+#word-count, #char-count, #what-count {
   font-size: 9px;
   color : #f5f5f5;
   text-align: left;
@@ -1911,7 +1917,8 @@ body:not(.viewing-mode) #webclips-button.shown {
 }
 
 #active-folder-new-folder-button.creating {
-  color: transparent;
+  animation: blinkOpacity 0.5s ease infinite;
+  pointer-events: none;
 }
 
 #sort-active-folder-button.fa-sort-amount-asc::after,
@@ -2324,11 +2331,256 @@ body.edits-locked:not(.viewing-mode) #docs-left-wrap.showLeft + #docs-center-wra
   pointer-events: none !important;
 }
 
+
+/*///////////////////////////////////////////////////
+//////////////////      TABLES      /////////////////
+///////////////////////////////////////////////////*/
+
+crypteetabledata {
+  display: block;
+  /* visibility: hidden; */ /* dont add this, it breaks tabledata */
+  height: 0;
+  width: 0;
+  /* user-select: none; */ /* don't add this, breaks table selection / copy paste in safari */
+}
+
+crypteetable {
+  display: grid;
+  grid-template-columns: repeat( var(--columns), minmax(30px, 1fr) );
+  border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  pointer-events: none;
+  margin-bottom: 1.5rem;
+  transition: 0.3s background-color ease;
+}
+
+crypteetablecell {
+  border-bottom: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  transition: 0.3s border ease, 0.3s background-color ease, 0.3s box-shadow ease;
+  padding: 0.25em 0.5em;
+  pointer-events: all;
+  background-color: rgba(255,255,255,0);
+  height: auto;
+  overflow: hidden;
+}
+
+crypteetable.selected {
+  background-color: #000;
+}
+
+crypteetablecell.warn, crypteetable.warn {
+  background-color: rgba(185, 0, 0, 0.15);
+}
+
+crypteetablecell.insertAbove {
+  box-shadow: 0px -2px 0px #4BBF73, 0px 2px 0px #4BBF73 inset;
+}
+
+crypteetablecell.insertBelow {
+  box-shadow: 0px 2px 0px #4BBF73, 0px -2px 0px #4BBF73 inset;
+}
+
+crypteetablecell.insertRight {
+  box-shadow: 2px 0px 0px #4BBF73, -2px 0px 0px #4BBF73 inset;
+}
+
+crypteetablecell.insertLeft {
+  box-shadow: -2px 0px 0px #4BBF73, 2px 0px 0px #4BBF73 inset;
+}
+
+crypteetablecell * {
+  height: auto;
+  display: inline-block;
+  line-height: initial;
+}
+
+
+
+
+
+
+#table-picker {
+  display: grid;
+  grid-template-columns: repeat( 8, 35px );
+  margin: 0 auto 2rem auto;
+  border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  width: 281px;
+}
+
+.table-picker-cell {
+  height: 35px;
+  border-bottom: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  background-color: #f5f5f5;
+  color: #f5f5f5;
+  text-align: center;
+  line-height: 35px;
+  font-family: monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding-left: 2px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.table-picker-cell.s {
+  color: #363636;
+  background-color: #363636;
+}
+
+
+
+
+
+#table-contextual-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 26px;
+  width: 26px;
+  text-align: center;
+  
+  pointer-events: none;
+  z-index: 12;
+  
+  font-size: 16px;
+  line-height: 26px;
+
+  background-color: transparent;
+  transition: 0.3s background-color ease;
+  transform: translate3d(0,0,0);
+}
+
+#table-contextual-button i {
+  margin-top: -2px;
+  color: rgba(0,0,0,0);
+  transition: 0.3s color ease;
+}
+
+#table-contextual-button.visible {
+  pointer-events: all;
+  cursor: pointer;
+  background-color: #FFF;
+}
+
+#table-contextual-button.visible i {
+  color: rgba(0,0,0,0.3);
+}
+
+#table-contextual-button.warn, 
+#table-contextual-button.insertRight, 
+#table-contextual-button.insertLeft,
+#table-contextual-button.insertAbove,
+#table-contextual-button.insertBelow {
+  background-color: transparent;
+}
+
+#table-dropdown {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 285px;
+  background-color: #363636;
+  box-shadow: 0 1rem 2rem rgba(10,10,10,0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  display: none;
+  z-index: 12;
+}
+
+.table-dropdown-button {
+  padding:0.25rem 0.75rem;
+  cursor: pointer;
+}
+
+.table-dropdown-button:last-of-type {
+  padding-top: 0.325rem;
+  padding-bottom: 0.325rem;
+}
+
+#table-dropdown p {
+  color: #FFF;
+  line-height: 28px;
+  width: auto;
+}
+
+.table-dropdown-icon {
+  height: 28px;
+  width: 28px;
+  float: left;
+  margin-right: 0.5rem;
+}
+
+.table-dropdown-icon.d90 {
+  transform: rotate(90deg);
+}
+
+.table-dropdown-icon.d180 {
+  transform: rotate(180deg);
+}
+
+.table-dropdown-icon.d270 {
+  transform: rotate(270deg);
+}
+
+#table-dropdown hr {
+  margin: 0.5rem 0;
+  background-color: #888;
+}
+
+#table-dropdown.visible {
+  display: block;
+}
+
+
+
+
+.quill-toolbar.in-table .ql-header,
+.quill-toolbar.in-table .ql-blockquote,
+.quill-toolbar.in-table .ql-code-block,
+.quill-toolbar.in-table .ql-clean,
+.quill-toolbar.in-table .ql-list,
+.quill-toolbar.in-table .ql-indent,
+.quill-toolbar.in-table .ql-hr,
+.quill-toolbar.in-table .ql-formula,
+.quill-toolbar.in-table .ql-video,
+.quill-toolbar.in-table .ql-image,
+.quill-toolbar.in-table .ql-attachfile,
+.quill-toolbar.in-table .ql-new-table 
+{
+  pointer-events: none !important;
+  opacity: 0.3 !important;
+}
+
+#doc-contextual-buttons.in-table #mobile-floating-list,
+#doc-contextual-buttons.in-table #mobile-floating-check,
+#doc-contextual-buttons.in-table #mobile-floating-picture
+{
+  pointer-events: none !important;
+  opacity: 0.3 !important;
+}
+
+#mobile-toolbar.in-table .ql-header,
+#mobile-toolbar.in-table .ql-blockquote,
+#mobile-toolbar.in-table .ql-clean,
+#mobile-toolbar.in-table .ql-list,
+#mobile-toolbar.in-table .ql-indent
+{
+  display: none !important;
+}
+
+#mobile-toolbar.in-table {
+  text-align: center;
+}
+
 /*///////////////////////////////////////////////////
 ////////////////  BREAKPOINTS  //////////////////////
 ///////////////////////////////////////////////////*/
 
-@media (max-width:1097px) {
+@media (max-width:1124px) {
 
   #docs-right-wrap:not(.showRight) {
     display: none;
@@ -2422,6 +2674,11 @@ body.edits-locked:not(.viewing-mode) #docs-left-wrap.showLeft + #docs-center-wra
   {
     opacity: 1 !important;
     pointer-events: all !important;
+  }
+
+  #table-picker {
+    grid-template-columns: repeat(6, 35px);
+    width: 211px; /* 6 * 35px + 1px */
   }
 }
 
@@ -2526,7 +2783,9 @@ body.edits-locked:not(.viewing-mode) #docs-left-wrap.showLeft + #docs-center-wra
   /* IT'S A POINTER DEVICE */
   /* ENABLE HOVERS */
 
-  .ql-hr.icon .fa-minus:hover, .ql-attachfile.icon .fa-paperclip:hover {
+  .ql-hr.icon .fa-minus:hover, 
+  .ql-attachfile.icon .fa-paperclip:hover,
+  .ql-new-table.icon .fa-table:hover {
     color:#4BBF73;
   }
 
@@ -2736,6 +2995,30 @@ body.edits-locked:not(.viewing-mode) #docs-left-wrap.showLeft + #docs-center-wra
   .dm .search-result:hover {
     background-color: var(--darker);
     color: var(--brightest);
+  }
+
+  crypteetable:not(.selected) crypteetablecell:hover {
+    border-bottom-color:#555;
+  }
+
+  .table-picker-cell:hover {
+    background-color: #000;
+  }
+
+  .table-dropdown-button:hover {
+    background-color: #000;
+  }
+
+  .table-dropdown-button.warn:hover {
+    background-color: #d9534f;
+  }
+
+  #table-contextual-button.visible:hover {
+    background-color: #FFF;
+  }
+  
+  #table-contextual-button.visible:hover i {
+    color: rgba(0,0,0,1);
   }
 
 }
@@ -2974,6 +3257,7 @@ body.edits-locked:not(.viewing-mode) #docs-left-wrap.showLeft + #docs-center-wra
   color: var(--darker);
 }
 
+.dm #what-count,
 .dm #word-count, 
 .dm #char-count {
   color : var(--darker);

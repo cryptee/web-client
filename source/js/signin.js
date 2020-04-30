@@ -67,14 +67,7 @@ authenticate(function(user) {
   
   $("html, body").removeClass("is-loading");
 
-  if (!isMobile) {
-    $(".hero-banner").css("width", "100%");
-    $(".hero-body > .container").delay(1000).fadeOut(250, function() {
-      checkForExistingUser ();
-    });
-  } else {
-    checkForExistingUser ();
-  }
+  checkForExistingUser();
   
 }, function(){
   if (getUrlParameter("dlddid")) {
@@ -90,12 +83,18 @@ function checkForExistingUser (){
       if (isMobile) {
         signInComplete();
       } else {
-        if (getUrlParameter("dlddid")) {
-          $("#key-status").html("Enter your encryption key to start the download");
-        }
-        showKeyModal();
+        $(".hero-banner").css("width", "100%");
+        $(".hero-body > .container").delay(1000).fadeOut(250, function() {
+          if (getUrlParameter("dlddid")) { $("#key-status").html("Enter your encryption key to start the download"); }
+          showKeyModal();
+        });
       }
       
+    }).catch(function(error){
+      if (error) {
+        handleError("Can't get keycheck! Network Request Failed", error);
+        $("#signin-info").html("<i class='fa fa-exclamation-triangle'></i><br><br>Looks like we can't reach one of our servers, or your browser is blocking accesss to it.<br><br>This usually happens when content/ad-blocking browser extensions or DNS/VPN filters like Pi-Hole are accidentally blocking one of Cryptee's servers. Please try again after disabling your blockers/filters, or <a href='https://crypt.ee/help'>reach out to our support</a> to get further help.").removeClass("is-info").addClass("is-danger").show();
+      }
     });
   } else {
     window.location = "signup?status=newuser";

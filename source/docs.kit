@@ -122,13 +122,13 @@
     <!-- @import "includes/docs-no-offline-docs.kit" -->
     <!-- @import "includes/docs-outdated-messages.kit" -->
 
-    <div id="editor-toolbar" class="no-print">
+    <div id="editor-toolbar" class="no-print quill-toolbar">
       <!-- @import "includes/docs-toolbar.kit" -->
     </div>
 
     <span id="close-menu-button" class="icon no-print"> <i class="fa fa-chevron-left" aria-hidden="true"></i> </span>
 
-    <div id="mobile-topbar" class="no-print">
+    <div id="mobile-topbar" class="no-print quill-toolbar">
       <!-- @import "includes/docs-mobile-topbar.kit" -->
     </div>
 
@@ -150,6 +150,7 @@
     
     <div id="doc-counts">
       <div class="countsWrapper">
+        <p class="deets" id="what-count"></p>
         <p class="deets" id="word-count"></p>
         <p class="deets" id="char-count"></p>
       </div>
@@ -182,6 +183,7 @@
 <!-- @import "includes/modal-docs-move-selections.kit" -->
 <!-- @import "includes/modal-docs-move-folder.kit" -->
 <!-- @import "includes/modal-docs-new-doc-in-folder.kit" -->
+<!-- @import "includes/modal-docs-insert-table.kit" -->
 <!-- @import "includes/modal-rename-doc.kit" -->
 <!-- @import "includes/modal-rename-inactive-doc.kit" -->
 <!-- @import "includes/modal-export.kit" -->
@@ -212,6 +214,7 @@
 <!-- @import "includes/docs-sync-messages.kit" -->
 <!-- @import "includes/docs-upload-download-status.kit" -->
 <!-- @import "includes/docs-toolbar-mobile.kit" -->
+<!-- @import "includes/docs-table-dropdown.kit" -->
 
 <!-- OTHER FLOATERS AND MESSAGES END HERE -->
 
@@ -220,11 +223,20 @@
 <!-- @import "includes/footer-js.kit" -->
 
 <script src="../js/quill-modules/quill-imports.js"></script>
+<script src="../js/quill-modules/quill-clipboard.js"></script>
 <script src="../js/quill-modules/quill-divider.js"></script>
 <script src="../js/quill-modules/quill-image-resize.js"></script>
 <script src="../js/quill-modules/quill-image-format.js"></script>
 <script src="../js/quill-modules/quill-crypteefile.js"></script>
+<script src="../js/quill-modules/quill-history.js"></script>
 <script src="../js/quill-modules/quill-crypteetag.js"></script>
+<script src="../js/quill-modules/quill-tables.js"></script>
+
+<!-- ++ add more modules here ++ -->
+
+<script src="../js/quill-modules/quill-keyboard-bindings-and-hotkeys.js"></script>
+
+
 
 <script src="../js/lib/magicurl.js"></script>
 <script src="../js/upgradeLegacyTitles.js"></script>

@@ -1183,6 +1183,21 @@ html.search-active, body.search-active {
 	#photos-timeline-navigator {
 		display: none;
 	}
+
+	#lightbox-prev-button, #lightbox-next-button {
+		width: 4rem;
+		height: 4rem;
+		bottom: 1.5rem;
+	}
+
+	#lightbox-prev-button {
+		left: 1.5rem;
+	}
+	
+	#lightbox-next-button {
+		right: 1.5rem;
+	}
+	
 }
 
 @media (max-width: 508px) {
@@ -1206,20 +1221,15 @@ html.search-active, body.search-active {
 
 @media (min-width:1800px){
 	.albumitem {
+		width: calc((100% / 2) - 2rem) !important;
 		min-height: 240px;
 		height: calc(25vh);
+		margin:1rem;
 	}
 
 	.column.is-one-sixth-fullhd {
 		flex: none;
 		width: calc(100% / 6);
-	}
-}
-
-@media (min-width:2400px){
-	.albumitem {
-		min-height: 240px;
-		height: calc(35vh);
 	}
 }
 

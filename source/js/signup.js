@@ -35,7 +35,7 @@ var images = {
   }
 };
 
-var disableBlockerError = "Something went wrong. It seems we can't process the signup at this moment. <br><br>Please try disabling content blockers and other extensions if possible to make sure nothing is interfering with the sign up process and try again shortly..";
+var disableBlockerError = "Something went wrong. It seems we can't process the signup at this moment.<br><br>Please try disabling content/ad-blocking browser extensions or DNS/VPN filters like Pi-Hole if possible to make sure nothing is interfering with the sign up process and try again.";
 
 function showSignupInfo (message, color, closable, sectionToGoIfError) {
   closable = closable || false;

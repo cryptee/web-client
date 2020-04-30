@@ -24,7 +24,7 @@
 @font-face {
   font-family: 'Montserrat';
   font-style: normal;
-  font-weight: 600;
+  font-weight: 700; /* a hacky way to solve the quill bold paste bug. Quill looks for >= 700 to see if a text is bold. we're overriding this to make it look like 700 for editor strong & bold basically */
   src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'),
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
        url('../fonts/montserrat-v14-cyrillic-ext_latin-ext_latin_cyrillic-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
@@ -248,6 +248,12 @@ code, pre {
 }
 
 
+.ql-editor strong, .ql-editor b {
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+
 .ql-editor h1 {
   font-size: 30px;
   letter-spacing: 0.5px;
@@ -307,6 +313,7 @@ code, pre {
 .ql-snow .ql-editor pre {
   margin: 1rem 0;
   font-family: Monaco, Courier New, monospace;
+  border-radius: 10px;
 }
 
 .ql-editor blockquote {
@@ -404,30 +411,21 @@ crypteetag::before {
   display: inline-block;
   padding-left: 5px;
   font-size: 11px;
-}
-
-crypteetag::after {
-  font-family: FontAwesome;
-  content: '\00a0\00a0\f00d';
-  display: inline-block;
-  font-size: 11px;
-  vertical-align: text-bottom;
-  cursor: pointer;
-  pointer-events: all;
-  line-height: 14px;
+  color: rgb(74, 74, 74);
 }
 
 crypteetag {
   font-family: 'Montserrat', sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
-  border: 1px solid #000;
-  padding: 1px 5px 1px 1px;
-  border-radius: 5px;
-  color: #000;
-  pointer-events: none;
-  line-height: 1.75rem;
+  padding: 0.125rem 0.625rem 0.125rem 0.325rem;
+  border-radius: 3rem;
+  color: rgb(74, 74, 74);
+  /* pointer-events: none; */
+  line-height: 14px;
   font-size: 14px;
+  background-color: #ececec;
+  margin: 0 0.25rem;
 }
 
 .crypteecard { 
@@ -1310,6 +1308,12 @@ html {
     background-image: linear-gradient(to right, #4BBF73 50%, #f5f5f5 50%);
     background-position: -200% 0;
   }
+}
+
+@keyframes blinkOpacity {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
 }
 
 /*///////////////////////////////////////////////////
@@ -2621,7 +2625,7 @@ html {
 
 #file-viewer.unsupported {
   width: 320px !important;
-  height: 320px !important;
+  height: 270px !important;
   transition: 0.35s ease all;
 }
 
@@ -2674,18 +2678,24 @@ html {
 }
 
 .unsupported-file-preview {
-  padding: 2.5rem;
+  padding: 2rem;
   text-align: center;
-  border: 1px #ccc solid;
-  margin: 1rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+  margin: 0.5rem 1rem;
   border-radius: 1rem;
   display: block;
   text-decoration: none !important;
   font-size: 12px;
+  color: #FFF;
+  background-color: #151515;
 }
 
 .unsupported-file-preview .icon {
   margin:1rem 0;
+}
+
+.unsupported-file-preview .deets {
+  color:#FFF;
 }
 
 #doc-top {
@@ -3631,10 +3641,6 @@ body.draggingStuff {
   width: 100%;
 }
 
-.modal .notification.crypteecard {
-  padding-bottom: 0rem;
-}
-
 .modal .notification.crypteecard .title {
   margin-bottom: 2rem;
 }
@@ -3644,8 +3650,8 @@ body.draggingStuff {
   margin-bottom: 1rem;
 }
 
-.modal .notification.crypteecard .button:first-of-type {
-  margin: 1.25rem 0.5rem 1.25rem 0;
+.modal .notification.crypteecard .button {
+  margin: 0.5rem 0.5rem 0.5rem 0;
 }
 
 .modal, .rename-status, .rename-doc-status, .ghost-status {

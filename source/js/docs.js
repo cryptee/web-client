@@ -23,6 +23,7 @@ var thereIsALocalEncryptedCatalog = false;
 initalizeLocalCatalog();
 
 var cloudfunctions = firebase.functions();
+setCloudFunctionsAPIBaseURL();
 
 var foldersRef;
 var idleTime = 0;
@@ -47,6 +48,7 @@ var startedOffline = false;
 var connectivityMode = true; // true = online // false = offline
 var viewingMode = false;
 
+var quill;
 setSentryTag("offline-driver", storageDriver);
 setSentryTag("quill-ver", Quill.version);
 
@@ -117,7 +119,7 @@ var somethingDropped = false;
 
 var isDocOutdated = false;
 var menuClosedDueToOffline = false;
-var desktopCutOffWidthPixel = 1097;
+var desktopCutOffWidthPixel = 1124;
 
 loadUserDetailsFromLS();
 checkLatestVersion();
@@ -167,6 +169,12 @@ Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 fontSizeStyle.whitelist = ['8px', '10px', '13px', '16px', '18px', '20px', '24px', '30px', '36px', '40px', '48px'];
 Quill.register(fontSizeStyle, true);
 
+Bold.tagName = 'b';
+Quill.register(Bold, true);
+
+Italic.tagName = 'i';
+Quill.register(Italic, true);
+
 
 var IMAGE_MIME_REGEX = /^image\/(p?jpeg|gif|png)$/i;
 document.onpaste = function(e){
@@ -189,77 +197,6 @@ document.onpaste = function(e){
   }
 };
 
-var quillkeyboardbindings = {
-  enter: {
-    key: Keyboard.keys.ENTER,
-    handler: function(range, context) {
-      if (tribute.isActive) {
-
-        tribute.selectItemAtIndex(tribute.menuSelected);
-        tribute.hideMenu();
-        return false;
-      
-      } else {
-        if (context.format.file) {
-
-          quill.insertText(range.index, '\n');
-        
-        } else if (context.format.tag) {
-        
-          quill.insertText(range.index, '\n ');
-          quill.setSelection(range.index + 1, "silent");
-          quill.deleteText(range.index, 1);
-          quill.setSelection(range.index + 1, "silent");
-        
-        } else if (context.format.list) {
-        
-          if (context.collapsed && context.empty && context.offset < 1) {
-            this.quill.format('list', false);
-          } else {
-            return true;
-          }
-        
-        } else if (context.format.blockquote) {
-        
-          if (context.collapsed && context.empty && context.offset < 1) {
-            this.quill.format('blockquote', false);
-          } else {
-            return true;
-          }
-        
-        } else {
-          return true;
-        }
-      }
-    }
-  },
-  backspace: {
-    key: Keyboard.keys.BACKSPACE,
-    handler: function(range, context) {
-      if (context.format.list) {
-        if (context.collapsed && context.empty && context.offset < 1) {
-          this.quill.format('list', false);
-        } else {
-          return true;
-        }
-      } else if (context.format.blockquote) {
-        if (context.collapsed && context.empty && context.offset < 1) {
-          this.quill.format('blockquote', false);
-        } else {
-          return true;
-        }
-      } else if (context.format['code-block']) {
-        if (context.collapsed && context.empty && context.offset < 1) {
-          this.quill.format('code-block', false);
-        } else {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    }
-  }
-};
 
 function firefoxJustifiedTextFixHandler(range,context) {
   if (context.format.align === "justify" && context.prefix.length >= context.offset) {
@@ -357,7 +294,7 @@ if (isMobile) {
   quillBaseConfig.theme = 'bubble';
   quillBaseConfig.bounds = "#docs-page-wrap";
 
-  var quill = new Quill('#docs-page-wrap', quillBaseConfig);
+  quill = new Quill('#docs-page-wrap', quillBaseConfig);
 
 } else {
 
@@ -372,8 +309,28 @@ if (isMobile) {
     quillBaseConfig.modules.imageResize = {};
   }
 
-  var quill = new Quill('#docs-page-wrap', quillBaseConfig);
+  quill = new Quill('#docs-page-wrap', quillBaseConfig);
 }
+
+quill.clipboard.addMatcher('crypteetable', function(node, delta) { return delta; });
+quill.clipboard.addMatcher('crypteetabledata', function(node, delta) { return delta; });
+quill.clipboard.addMatcher('crypteetablecell', function(node, delta) { return delta; });
+
+quill.clipboard.addMatcher('crypteetag', function(node, delta) { return delta; });
+quill.clipboard.addMatcher('crypteefile', function(node, delta) { return delta; });
+
+quill.clipboard.addMatcher('span', function(node, delta) { return delta; });
+quill.clipboard.addMatcher('div', function(node, delta) { return delta; });
+
+quill.clipboard.addMatcher(Node.ELEMENT_NODE, function (node, delta) {
+  if (isCursorInTable()) {
+    return handleTablePaste(node, delta);
+  } else {
+    var updatedDelta = updateTablesInDelta(node, delta);
+    return updatedDelta;
+  }
+});
+
 
 quill.clipboard.addMatcher('img', function(node, delta) { 
   var src = $(node).attr("src");
@@ -390,8 +347,6 @@ quill.clipboard.addMatcher('img', function(node, delta) {
     return delta; 
   }
 });
-quill.clipboard.addMatcher('span', function(node, delta) { return delta; });
-quill.clipboard.addMatcher('div', function(node, delta) { return delta; });
 
 var tribute = new Tribute({
   values: function (tag, callback) {
@@ -431,13 +386,6 @@ function checkOrAddTag(tag, callback) {
   }
 }
 
-$('.ql-editor').on('click', 'crypteetag', function(event) {
-  if (!isMobile) {
-    event.preventDefault();
-  }
-  $(this).remove();
-});
-
 $("#mobile-floating-list").on("click", function(){
   if (quill.getFormat().list === "bullet") {
     quill.removeFormat(getLastSelectionRange().index);
@@ -452,10 +400,6 @@ $("#mobile-floating-check").on("click", function(){
 
 $("#mobile-floating-picture").on("click", function(){
   showAttachmentSelector("image");
-});
-
-$("#mobile-floating-attach").on("click", function(){
-  showAttachmentSelector(" ");
 });
 
 $("#docs-page-wrap").on('touchstart', 'ul[data-checked="false"] > li, ul[data-checked="true"] > li', function(event) {
@@ -520,186 +464,6 @@ function hideURLBox() {
 $("#mobile-floating-undo").on("click", function(){
   quill.history.undo();
   quill.root.blur();
-});
-
-//////// HOTKEYS //////////
-
-// OPEN RECENTS
-key('alt+shift+r', function(){
-  if (connectivityMode) {
-    quill.blur();
-    showMenu();
-    $("#recents-button").click();
-    checkAndSaveDocIfNecessary();
-  }
-  return false;
-});
-
-// OPEN FOLDERS
-key('alt+shift+f', function(){
-  if (connectivityMode) {
-    quill.blur();
-    showMenu();
-    $("#folders-button").click();
-    checkAndSaveDocIfNecessary();
-  }
-  return false;
-});
-
-// MINIMIZE / MAXIMIZE PREVIEW
-key('alt+shift+m', function(){
-  if (connectivityMode) {
-    if ($("#file-viewer").hasClass("minimized")) {
-      maximizeFileViewer();
-    } else {
-      minimizeFileViewer();
-    }
-    
-    checkAndSaveDocIfNecessary();
-  }
-  return false;
-});
-
-key('command+shift+o, ctrl+shift+o', function(){
-  if (connectivityMode) {
-    quill.blur();
-    showMenu();
-    $("#search-input").focus();
-    checkAndSaveDocIfNecessary();
-  }
-  return false;
-});
-
-key('command+], ctrl+]', function(){ quill.format('indent', '+1'); return false; });
-key('command+[, ctrl+[', function(){ quill.format('indent', '-1'); return false; });
-key('command+s, ctrl+s', function(){
-  if (connectivityMode) {
-    if (!saveUploads[activeDocID]) {
-      saveDoc(activeDocID);
-    }
-  } else {
-    saveOfflineDoc();
-  }
-  return false;
-});
-
-key('command+shift+alt+s, ctrl+shift+alt+s', function(){
-  exportAsHTML(null, true);
-  return false;
-});
-
-key('command+shift+k, ctrl+shift+k', function(){ 
-  showEmbed("formula"); 
-  return false; 
-});
-
-key('command+shift+6, ctrl+shift+6', function(){
-
-  var curFormat = quill.getFormat();
-
-  if (curFormat.list === "unchecked" || curFormat.list === "checked") {
-    quill.removeFormat(getLastSelectionRange().index);
-  } else {
-    if (isMobile) {
-      $("#checkbox-button").click();
-    } else {
-      $(".ql-list[value='check']").click();
-    }
-  }
-
-  return false;
-});
-
-key('command+shift+7, ctrl+shift+7', function(){ 
-  var curFormat = quill.getFormat();
-  if (curFormat.list === "ordered") {
-    quill.removeFormat(getLastSelectionRange().index);
-  } else {
-    quill.format('list', 'ordered');
-  }
-  return false; 
-});
-
-key('command+shift+8, ctrl+shift+8', function(){ 
-  var curFormat = quill.getFormat();
-  if (curFormat.list === "bullet") {
-    quill.removeFormat(getLastSelectionRange().index);
-  } else {
-    quill.format('list', 'bullet');
-  }
-  return false; 
-});
-
-key('command+shift+s, ctrl+shift+s', function(){ 
-  $(".ql-strike").click(); 
-  return false;
-});
-
-key('command+/, ctrl+/', function(){ 
-  toggleHotkeys(); 
-  return false; 
-});
-
-key('command+., ctrl+.', function(){
-  $("#hamburger").click();
-  return false;
-});
-
-key('command+\\, ctrl+\\', function(){
-  $(".ql-clean").click();
-  return false;
-});
-
-key('command+a, ctrl+a', function(){ 
-  var toReturnOrNotTo = true;
-  // if a selection exists, left panel is visible and editor doesn't have focus, 
-  // and it's files in a folder (not recent since it would be selecting all docs) then select all visible files
-  if (selectionArray.length > 0 && $(".showLeft").length > 1 && !quill.hasFocus() && activeFolderID !== "root") {
-    $("#all-active-folder-contents").children().each(function(i, sel) {
-      if (!$(sel).hasClass("selected")) {
-        var seldid = $(sel).attr("did");
-        selectDoc(seldid);
-      }
-    });
-    toReturnOrNotTo = false;
-  }
-  return toReturnOrNotTo; 
-});
-
-
-var quoteToggle = false;
-key('command+shift+9, ctrl+shift+9', function(){
-  if (quoteToggle) {
-    quill.format('blockquote', false);
-    quoteToggle = false;
-  } else {
-    quill.format('blockquote', true);
-    quoteToggle = true;
-  }
-  return false;
-});
-
-var codeToggle = false;
-key('command+shift+0, ctrl+shift+0', function(){
-  if (codeToggle) {
-    quill.format('code-block', false);
-    codeToggle = false;
-  } else {
-    quill.format('code-block', true);
-    codeToggle = true;
-  }
-  return false;
-});
-
-key('esc', function(){
-  if($(".modal.is-active:not(#key-modal)")){
-    $(".modal.is-active:not(#key-modal)").removeClass('is-active');
-    $(".modal.is-active").find("input").val("");
-    $(".modal.is-active").find("input").blur();
-  }
-  checkAndSaveDocIfNecessary();
-  clearSelections();
-  hideRightClickMenu();
 });
 
 //////// MENU SWIPE FOR MOBILE //////////
@@ -1036,26 +800,31 @@ if (!isMobile) {
     if (!viewingMode) {
       wrappersToMove.addClass("showLeft");
       hideWebClips();
+      hideDocumentContextualDropdown();
+      hideTableContextualButton();
     }
   }, function () {
     if ( isItSafeToHideMenu() ) {
       if (!viewingMode) {
         wrappersToMove.removeClass("showLeft");
+        setTimeout(function () {
+          checkIfTableHasFocus();
+        }, 1000);
       }
     }
   });
 
-  $("#docs-right-wrap").hover(function() {
-    if (dragCounter === 0) {
-      updateCounts();
-      // don't forget to account for file drops just in case.
+  // $("#docs-right-wrap").hover(function() {
+  //   if (dragCounter === 0) {
+      
+  //     // don't forget to account for file drops just in case.
 
-    }
-  }, function () {
-    if (!viewingMode) {
-      // wrappersToMove.removeClass("showRight");
-    }
-  });
+  //   }
+  // }, function () {
+  //   if (!viewingMode) {
+  //     // wrappersToMove.removeClass("showRight");
+  //   }
+  // });
 }
 
 
@@ -1167,6 +936,8 @@ function showMenu () {
     hideWebClips();
     hideDocumentContextualDropdown();
     checkAndSaveDocIfNecessary();
+    hideTableContextualButton();
+    hideTableContextualDropdown();
   }
 }
 
@@ -1302,6 +1073,8 @@ function hideWindowProgress () {
 }
 
 function showDocProgress (status){
+  hideTableContextualButton();
+  hideTableContextualDropdown();
   $("#fileLoadingStatus > .message").html(status);
   $("#docs-center-wrap, #docs-left-wrap, #docs-right-wrap").addClass("is-loading");
 }
@@ -1353,6 +1126,8 @@ function toggleDocumentContextualDropdown() {
 }
 function showDocumentContextualDropdown () {
   $(".document-contextual-dropdown").show();
+  hideTableContextualDropdown();
+  hideTableContextualButton();
   setTimeout(function () { 
     $(".document-contextual-dropdown").addClass("open");
     $(".filesize-button, .mobile-floating-tools").addClass('menuOpen');
@@ -1806,11 +1581,11 @@ function sortFolders () {
       $("#" + fid).attr("data-sort", index);
     });
 
-    $('.afolder').sort(function (a, b) {
+    $('.afolder').not(".subfolder").sort(function (a, b) {
       return ($(b).data('sort')) < ($(a).data('sort')) ? 1 : -1;
     }).prependTo('#all-folders');
 
-    $(".afolder").each(function(folder){
+    $(".afolder").not(".subfolder").each(function(folder){
       if ($(this).hasClass("archived")){
         numberOfArchivedFolders++;
         $(this).insertAfter("#archiveDivider");
@@ -3922,7 +3697,7 @@ function extensionFromFilename (filename) {
 function updateFolderIndexes () {
 
   var newFoldersOrderObject = {};
-  $(".afolder").each(function(index, theFolder) {
+  $(".afolder").not(".subfolder").each(function(index, theFolder) {
     newFoldersOrderObject[index] = $(this).attr("id");
   });
 
@@ -5344,11 +5119,15 @@ function newDoc (did, fid, docTitle, input){
 
 quill.on('text-change', function(delta, oldDelta, source) {
   $('#main-progress').attr("value", "0").attr("max", "100").removeClass('is-success');
-
+  
   lastActivityTime = (new Date()).getTime();
   idleTime = 0;
   docChanged = true;
+  
+  lastSelectionRange = quill.getSelection();
 
+  preventTableFromBreaking(delta, oldDelta, source);
+  checkIfTableHasFocus();
 });
 
 var lastSelectionRange;
@@ -5356,12 +5135,39 @@ quill.on('selection-change', function(range, oldRange, source) {
   if (!range) {
     // CURSOR LEFT EDITOR, TRIGGER AUTOSAVE
     checkAndSaveDocIfNecessary();
+    hideTableContextualButton();
+    hideTableContextualDropdown();
   } else {
     // EDITOR GOT FOCUS, IF IT'S NOT TRIGGERED BY API, THEN HIDE MENU
     lastSelectionRange = range;
+    
+    checkIfTableHasFocus();
+    selectTablesIfAnyInRange(range,oldRange,source);
+
+    if (range.length > 1) {
+      selectionCounts();
+    } else {
+      documentCounts();
+    }
+
     if (source !== "api") { hideMenu(); }
   }
 });
+
+function getSelectedNode() {
+  var nativeRange = quill.selection.getNativeRange();
+  if (nativeRange) {
+    return nativeRange.native.commonAncestorContainer;
+  } else {
+    return null;
+  }
+}
+
+function getQuillIndexOfDOMNode(domNode) {
+  var node = Quill.find(domNode);
+  var indexOfDOMNode = quill.getIndex(node);
+  return indexOfDOMNode;
+}
 
 function getLastSelectionRange() {
   if (lastSelectionRange) { return lastSelectionRange; }
@@ -5781,6 +5587,7 @@ function loadDoc (did, callback, callbackParam, preloadedEncryptedDeltas){
       dtitle = "Home";
     }
 
+    catalog.docs[did] = catalog.docs[did] || {};
     if (catalog.docs[did].islocked) {
       lockEditor();
     } else {
@@ -6281,10 +6088,10 @@ function displayUnsupportedFile (dtitle, did, decryptedContents, callback, files
     $("#file-viewer-filesize").html(formatBytes(filesize));
 
   if (isios && !isInWebAppiOS) {
-    $('#file-viewer-contents').html('<a class="unsupported-file-preview clickable openInSafari" href="'+decryptedContents+'" target="_blank"><p><b>'+dtitle+'</b></p><span class="icon is-large"><i class="fa fa-download"></i></span><br><p class="deets">Unfortunately it isn\'t possible to preview this filetype on your device in browser/app yet. Click here to download/open the file.</p></a>');
+    $('#file-viewer-contents').html('<a class="unsupported-file-preview clickable openInSafari" href="'+decryptedContents+'" target="_blank"><p><b>'+dtitle+'</b></p><span class="icon is-large"><i class="fa fa-download"></i></span><br><p class="deets">Unfortunately it isn\'t possible to preview this filetype on your device in browser / app yet. Click here to download or open the file.</p></a>');
   } else {
     // not ios continue.
-    $('#file-viewer-contents').html('<span class="unsupported-file-preview clickable"><p><b>'+dtitle+'</b></p><span class="icon is-large"><i class="fa fa-download"></i></span><br><p class="deets">Unfortunately it isn\'t possible to preview this filetype on your device in browser/app yet. Click here to download/open the file.</p></span>');
+    $('#file-viewer-contents').html('<span class="unsupported-file-preview clickable"><p><b>'+dtitle+'</b></p><span class="icon is-large"><i class="fa fa-download"></i></span><br><p class="deets">Unfortunately it isn\'t possible to preview this filetype on your device in browser / app yet. Click here to download or open the file.</p></span>');
 
     $("#file-viewer").on('click', '.unsupported-file-preview', function(event) {
       event.preventDefault();
@@ -7141,6 +6948,14 @@ function openMoveFolder(fid, children, parentsWithChildren) {
   $(".docs-move-folders-list-item.is-active").addClass("is-open");
   $(".docs-move-folders-list-item:not(.is-open)").addClass("is-not-open");
 
+  children.sort(function(a, b) {
+    if (a.name.toLowerCase() > b.name.toLowerCase()) {
+      return -1;
+    } else {
+      return 1;
+    }
+  });
+
   $.each(children, function(i, folder){
     $(".docs-move-folders-list-item.is-active.is-open").after(renderMoveFolderItem(folder));
   });
@@ -7153,19 +6968,19 @@ function openMoveFolder(fid, children, parentsWithChildren) {
     } 
   });
 
-  setTimeout(function () {
+  // setTimeout(function () {
     $(".move-subfolder").slideDown(300);
 
     // scroll to child
     
-    setTimeout(function () {
-      if ($(".is-open").parent().position()){
-        var offsetFromTop = $(".is-open").parent().position().top;
-        $(".docs-move-folders-list").animate({ scrollTop: offsetFromTop }, 500);
-      }
-    }, 50);
+    // setTimeout(function () {
+    //   if ($(".is-open").parent().position()){
+    //     var offsetFromTop = $(".is-open").parent().position().top;
+    //     $(".docs-move-folders-list").animate({ scrollTop: offsetFromTop }, 500);
+    //   }
+    // }, 50);
 
-  }, 10);
+  // }, 10);
 }
 
 function closeMoveFolder(fid) {
@@ -7578,7 +7393,7 @@ $('#selection-delete-button').on('click', function(event) {
 function showDeleteSelectionsModal () {
   $(".documents-to-be-deleted").html("");
   $.each(selectionArray, function(index, selection) {
-    var docElement = "<span class='docToBeDeleted'>"+selection.dtitle+"</span>"
+    var docElement = "<span class='docToBeDeleted'>"+selection.dtitle+"</span>";
     $(".documents-to-be-deleted").append(docElement);
   });
   $('#delete-selections-modal').addClass("is-active");
@@ -8801,7 +8616,7 @@ function processEmbedImage (file) {
     };
   } catch (error) {
     fileUploadError = true;
-    handleError("Error reading image in processEmbedImage", err);
+    handleError("Error reading image in processEmbedImage", error);
     showFileUploadStatus("is-danger", "Error. Seems like we're having trouble reading this file. This is most likely a problem we need to fix, and rest assured we will.");
   }
   
@@ -9958,21 +9773,27 @@ document.addEventListener('visibilityChange', handleVisibilityChange, false);
 $(window).on("focus", function () {
   forceCheckConnection();
   checkLatestVersion();
+  checkIfTableHasFocus();
   windowVisible = true;
 });
 
 $(window).on("blur", function () {
   windowVisible = false;
+  hideTableContextualButton();
+   hideTableContextualDropdown();
 });
 
 function handleVisibilityChange() {
   if (document.hidden) {
     // hidden
     windowVisible = false;
+    hideTableContextualButton();
+    hideTableContextualDropdown();
   } else {
     // shown
     forceCheckConnection();
     checkLatestVersion();
+    checkIfTableHasFocus();
     windowVisible = true;
   }
 }
@@ -11175,29 +10996,53 @@ $(".ql-editor").on('scroll', throttleScroll(function(event) {
   }, 300);
 
   hideDocumentContextualDropdown();
+  hideTableContextualButton();
+  hideTableContextualDropdown();
 }, 100));
 
 ///////////////////////////////////////////////////////////
 ///////////////////// WORD COUNT  /////////////////////////
 ///////////////////////////////////////////////////////////
 
+function selectionCounts() {
+  var selection = window.getSelection();
+  if (selection.rangeCount > 0) {
+    var range = selection.getRangeAt(0);
+    var documentFragment = range.cloneContents();
+    var selectedContents = $(documentFragment).text();
+    var words = wordCount(selectedContents);
+    var chars = charCount(selectedContents);
+    updateCounts(words, chars);
+  }
+}
 
-function wordCount() {
-  var text = quill.getText().trim();
+function documentCounts() {
+  updateCounts();
+}
+
+function wordCount(text) {
+  text = text || quill.getText().trim();
   // Splitting empty text returns a non-empty array
   var count = text.length > 0 ? text.split(/\s+/).length : 0;
   return count;
 }
 
-function charCount() {
-  var text = quill.getText().trim();
+function charCount(text) {
+  text = text || quill.getText().trim();
   var count = text.length;
   return count;
 }
 
-function updateCounts() {
-  var words = wordCount();
-  var chars = charCount();
+function updateCounts(words, chars) {
+  
+  if (words && chars) {
+    $("#what-count").html("Selection:");
+  } else {
+    $("#what-count").html("Document:");
+  }
+
+  words = words || wordCount();
+  chars = chars || charCount();
 
   var wCountString = words + " " + "word";
   if (words !== 1) { wCountString += 's'; }

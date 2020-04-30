@@ -7,11 +7,6 @@ html {
   scroll-behavior: smooth;
 }
 
-.help-body.resultsVisible, html.resultsVisible {
-  overflow: hidden !important;
-  height: 100%;
-}
-
 #main-progress {
   margin-top: 0;
   margin-bottom: 0;
@@ -25,11 +20,10 @@ html {
 h1 { 
   font-size: 30px;
   margin:0 0 0.75rem 0;
-
 }
 
 h2 { 
-  font-size: 24px; 
+  font-size: 20px; 
   margin:0 0 0.75rem 0;
 }
 
@@ -71,14 +65,14 @@ blockquote *:not(code) {
 }
 
 #article-contents p {
-  margin:0.25rem 0;
+  margin:0.5rem 0;
 }
 
 #article-contents code {
   color: rgb(199, 37, 78);
-    background-color: rgb(249, 242, 244);
-    border-radius: 5px;
-    padding: 0.25rem 0.5rem; 
+  background-color: rgb(249, 242, 244);
+  border-radius: 5px;
+  padding: 0.25rem 0.5rem; 
 }
 
 .ql-indent-1 {
@@ -127,9 +121,110 @@ blockquote *:not(code) {
 
 .help-column {
 	/* same as docs page width for optical OCD's sake */
-  max-width: 1280px;
+  max-width: 900px;
   width: calc(100% - 2rem);
-	margin: auto auto 0.5rem auto !important;
+  margin: auto auto 0.5rem auto !important;
+  height: calc(100% - 0.5rem);
+}
+
+/* getting started */
+
+.getting-started-item {
+  cursor: pointer;
+  margin-bottom: 2rem;
+  min-width: 205px;
+}
+
+.img-card {
+  box-shadow: 0 0.125rem 0.25rem rgba(10, 10, 10, 0.1);
+  padding : 0;
+  overflow: hidden;
+  transform: translate3d(0,0,0);
+  transition: 0.5s transform ease, 0.5s box-shadow ease;
+}
+
+.img-card img {
+  object-fit: contain;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.img-card-description {
+  padding:0rem calc(1rem + 10px);
+}
+
+.img-card-description .is-light {
+  opacity: 0.5;
+  transition: 0.3s opacity ease;
+}
+
+.getting-started-item:hover .img-card {
+  transform: translate3d(0,-0.25rem,0);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.getting-started-item:hover .img-card-description .is-light{
+ opacity: 1;
+}
+
+/* move in */
+
+#help-move-in .columns {
+  padding: 0 1rem;
+}
+
+#help-move-in .column {
+  padding: 1rem 0;
+}
+
+.move-in-card {
+  height: 25vw;
+  max-height: 260px;
+  padding: 1.5rem;
+  position: relative;
+  transform: translate3d(0,0,0);
+  transition: 0.5s transform ease, 0.5s box-shadow ease;
+  cursor: pointer;
+}
+
+.move-in-card img {
+  min-height: 30px;
+  max-height: 50px;
+  max-width: 50px;
+  width: auto;
+  height: 25%;
+}
+
+.move-in-card p {
+  color: #FFF;
+  position: absolute;
+  bottom: 1.5rem;
+  width: calc(100% - 3rem);
+}
+
+.move-in-card:hover {
+  transform: translate3d(0,-0.25rem,0);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.faq-item {
+  cursor: pointer;
+}
+
+.faq-item:hover .img-card {
+  transform: translate3d(0,-0.25rem,0);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+/* faq */
+
+.faq-item p, .faq-item b {
+  line-height: 2rem;
+}
+
+.faq-item p:hover {
+  text-decoration: underline;
 }
 
 .help-card .subquestion {
@@ -181,11 +276,21 @@ blockquote *:not(code) {
 }
 
 .help-tag {
-  background-color: #FFF;
+  background-color: #f5f5f5;
   border-radius: 3rem;
-  box-shadow: 0 0.25rem 0.5rem rgba(10, 10, 10, 0.1);
   padding: 1.25rem;
   cursor: pointer;
+}
+
+#search-results {
+  max-height: calc(450px - 2rem);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #FFF;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0, 0.2);
+  padding-bottom: 1rem;
+  align-content: flex-start;
 }
 
 #search-results .tag {
@@ -220,12 +325,19 @@ blockquote *:not(code) {
 }
 
 #search-results .column {
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0.5rem 0;
+}
+
+#search-results .column:first-child {
+  padding-top: 1rem;
 }
 
 #search-results .tag span::first-letter {
   text-transform: uppercase;
+}
+
+#search-results h3 {
+  font-size: 14px;
 }
 
 .tags {
@@ -267,14 +379,14 @@ blockquote *:not(code) {
 
 #help-results {
   position: absolute;
-  top: 12.5rem;
-  height: calc(100% - 12.5rem);
+  top: 18rem;
+  height: 450px;
   width: 100%;
-  background-color: #F5F5F5 !important;
+  background-color: transparent;
   z-index: 999;
   opacity: 0;
   pointer-events: none;
-  transition: 0.3s all ease;
+  transition: 0.3s opacity ease;
   overflow-y: scroll;
 }
 
@@ -283,12 +395,30 @@ blockquote *:not(code) {
   opacity: 1;
 }
 
+#help-results.floating {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  top: auto;
+  width: 550px;
+  height: 450px;
+}
+
 #article-wrapper {
   margin-top: 2rem !important;
 }
 
 #article-contents {
   padding: 4rem;
+}
+
+body.resultsVisible #article-wrapper {
+  opacity: 0.1;
+}
+
+body.resultsVisible .is-hidden-with-content {
+  opacity: 0.1;
+  pointer-events: none;
 }
 
 /*//////////////////////////////////////////////////
@@ -335,6 +465,8 @@ p {
   border-radius: 3rem;
   overflow: hidden;
   box-shadow: 0 0.5rem 1rem rgba(10, 10, 10, 0.1);
+  max-width: 640px;
+  margin: 0 auto 2rem auto;
 }
 
 #search-bar .button {
@@ -362,12 +494,40 @@ p {
 
 @media (max-width: 768px) {
   #help-results {
-    top: 8.5rem;
-    height: calc(100% - 8.5rem);
+    top: 14rem;
+    height: calc(100% - 14rem);
+  }
+
+  #search-results {
+    max-height: calc(100% - 1rem);
   }
 
   #article-contents {
     padding: 1rem;
+  }
+
+  .getting-started-item {
+    max-width: 50%;
+    margin: 0 auto 2rem auto;
+  }
+
+  #help-results.floating {
+    position: fixed;
+    bottom: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100%;
+    height: calc(100% - 2rem);
+  }
+
+  .help-body.resultsVisible, html.resultsVisible {
+    overflow: hidden !important;
+    height: 100%;
+  }
+
+  #search-results h3 {
+    width: 100%;
+    text-align: center;
   }
 
 }
@@ -382,8 +542,20 @@ p {
     margin-left: 0.5rem;
     margin-right: 0.5rem;
   }
-}
+  
+  #help-hero h1 {
+    font-size:24px;
+  }
 
+  .move-in-card {
+    min-height: 150px;
+  }
+
+  .getting-started-item {
+    max-width: 280px;
+    margin: 0 auto 2rem auto;
+  }
+}
 
 /*///////////////////////////////////////////////////
 //////////////// DARK MODE OVERRIDES ////////////////
@@ -410,6 +582,10 @@ p {
 .dm #search-bar {
 	background-color: var(--darkest);
 	color:var(--bright);
+}
+
+.dm #search-results {
+  background-color: var(--dark) !important;
 }
 
 .dm #help-results {

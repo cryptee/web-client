@@ -40,6 +40,7 @@ checkLatestVersion();
 
 try {
   sessionStorage.removeItem('key');
+  sessionStorage.removeItem('session-keycheck');
 } finally { }
 
 //////////////////////////////////////////////////////

@@ -1,5 +1,8 @@
 var theUser, theUsername, theEmail, metaRef, theUserID, typeOfApp;
 detectedLocale = detectedLocale || "XX";
+
+lazyLoadUncriticalAssets();
+
 firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         //got user
@@ -341,14 +344,18 @@ function displaySearchResults(results, term) {
     }
 }
 
-function showSearch() {
+function showSearch(float) {
     $("html, body").addClass("resultsVisible");
     $("#help-results").addClass("visible");
+    if (float) {
+        $("#help-results").addClass("floating");
+    }
 }
 
 function hideSearch() {
     $("html, body").removeClass("resultsVisible");
     $("#help-results").removeClass("visible");
+    $("#help-results").removeClass("floating");
     $("#search-results").html("");
 }
 
@@ -356,7 +363,7 @@ function hideSearch() {
 function loadTopic(topicID) {
     if (topicID) {
 
-        showSearch();
+        showSearch(true); // floating
         $("#search-results").html("");
         var once = false;
         if (articlesReady) {
