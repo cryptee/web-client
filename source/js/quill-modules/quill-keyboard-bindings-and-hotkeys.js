@@ -175,9 +175,11 @@ var quillkeyboardbindings = {
         prefix: /^\s*?(\d+\.|-|\*|\[ ?\]|\[x\])$/,
         handler: function (range, context) {
             var length = context.prefix.length;
-            var line = this.quill.getLine(range.index).line;
-            var offset = this.quill.getLine(range.index).offset;
-            if (offset > length) return true;
+            var line = quill.getLine(range.index)[0];
+            var offset = quill.getLine(range.index)[1];
+            if (line == undefined || line == null) { return true; }
+            if (length == undefined || length == null) { return true; }
+            if (offset > length) { return true; }
             var value;
             switch (context.prefix.trim()) {
                 case '[]':
@@ -194,15 +196,15 @@ var quillkeyboardbindings = {
                 default:
                     value = 'ordered';
             }
-            this.quill.insertText(range.index, ' ', Quill.sources.USER);
-            this.quill.history.cutoff();
+            quill.insertText(range.index, ' ', Quill.sources.USER);
+            quill.history.cutoff();
             var delta = new Delta().retain(range.index - offset)
                 .delete(length + 1)
                 .retain(line.length() - 2 - offset)
                 .retain(1, { list: value });
-            this.quill.updateContents(delta, Quill.sources.USER);
-            this.quill.history.cutoff();
-            this.quill.setSelection(range.index - length, Quill.sources.SILENT);
+            quill.updateContents(delta, Quill.sources.USER);
+            quill.history.cutoff();
+            quill.setSelection(range.index - length, Quill.sources.SILENT);
         }
     }
 };
