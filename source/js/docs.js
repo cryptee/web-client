@@ -2800,7 +2800,6 @@ function ttQueueCompleted() {
   // ALL TITLES IN QUEUE DECRYPTED
   breadcrumb("[TT Decryption Queue] : DONE. Decrypted in " + (completedTTQueue - startedTTQueue) + "ms");
   logTimeEnd('Decrypting Online Catalog');
-  checkCatalogIntegrity();
   
   $("#sync-progress").addClass("done");
   $(".sync-details").html("Sync Complete");
@@ -2810,8 +2809,11 @@ function ttQueueCompleted() {
   
   // if this is first boot, load last open doc now.
   if (!initialDecryptComplete) {
+    checkCatalogIntegrity();
+
     initialDecryptComplete = true;
     setSentryTag("titles-decryption-speed", (completedTTQueue - startedTTQueue) + "ms");
+    
     if (!thereIsALocalEncryptedCatalog) {
       loadLastOpenDoc();
     } else {
