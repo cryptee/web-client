@@ -485,50 +485,56 @@ function doesSelectionHaveTables(range, context) {
 var selectedCellCoords = {};
 function checkIfTableHasFocus() {
 
-    var selectedFormat = quill.getFormat();
-    if (selectedFormat.crypteetable) {
-        var tableid = selectedFormat.crypteetable;
-        
-        var cell = getSelectedTableCellNode();
-        if (cell) {
-            var cellIndex = $(cell).index();
-            var cellIndexString = cellIndex.toString();
-            var cellPosition = cell.getBoundingClientRect();
-            var cellTop = cellPosition.top;
-            var cellLeft = cellPosition.left;
-            var cellWidth = $(cell).width();
+    try {
+        var selectedFormat = quill.getFormat();
+        if (selectedFormat.crypteetable) {
+            var tableid = selectedFormat.crypteetable;
             
-            var ctxLeft = cellLeft + cellWidth - 11 + "px";
-            var ctxTop = cellTop + 1 + "px";
-            selectedCellCoords = { 
-                top : cellTop, 
-                left : cellLeft, 
-                width : cellWidth, 
-                tableid : tableid 
-            };
+            var cell = getSelectedTableCellNode();
+            if (cell) {
+                var cellIndex = $(cell).index();
+                var cellIndexString = cellIndex.toString();
+                var cellPosition = cell.getBoundingClientRect();
+                var cellTop = cellPosition.top;
+                var cellLeft = cellPosition.left;
+                var cellWidth = $(cell).width();
+                
+                var ctxLeft = cellLeft + cellWidth - 11 + "px";
+                var ctxTop = cellTop + 1 + "px";
+                selectedCellCoords = { 
+                    top : cellTop, 
+                    left : cellLeft, 
+                    width : cellWidth, 
+                    tableid : tableid 
+                };
 
-            if (selectedFormat.direction === "rtl" || selectedFormat.align === "right") {
-                // user is using right align or RTL, show the contextual button on the left side of the cell instead.
-                ctxLeft = cellLeft + 1 + "px";
+                if (selectedFormat.direction === "rtl" || selectedFormat.align === "right") {
+                    // user is using right align or RTL, show the contextual button on the left side of the cell instead.
+                    ctxLeft = cellLeft + 1 + "px";
+                }
+                
+                $("#table-contextual-button").css({ transform: "translate3d("+ctxLeft+", "+ctxTop+", 0)" });
+                if (cellIndexString) { $("#table-contextual-button, #table-dropdown").attr("cellindex", cellIndexString); }
+                if (tableid) { $("#table-contextual-button, #table-dropdown").attr("tableid", tableid); }
+                $("#table-contextual-button").addClass("visible");
+                enableEditorToolbarTableMode();
+            } else {
+                hideTableContextualButton();
+                disableEditorToolbarTableMode();
             }
-            
-            $("#table-contextual-button").css({ transform: "translate3d("+ctxLeft+", "+ctxTop+", 0)" });
-            if (cellIndexString) { $("#table-contextual-button, #table-dropdown").attr("cellindex", cellIndexString); }
-            if (tableid) { $("#table-contextual-button, #table-dropdown").attr("tableid", tableid); }
-            $("#table-contextual-button").addClass("visible");
-            enableEditorToolbarTableMode();
+        } else if (selectedFormat.crypteetabledata) { 
+            var tabledataid = selectedFormat.crypteetabledata.tableid;
+            setCursorToTableCellAtIndex(tabledataid, 0); 
         } else {
             hideTableContextualButton();
             disableEditorToolbarTableMode();
         }
-    } else if (selectedFormat.crypteetabledata) { 
-        var tabledataid = selectedFormat.crypteetabledata.tableid;
-        setCursorToTableCellAtIndex(tabledataid, 0); 
-    } else {
+    } catch (error) {
+        handleError("Couldn't get format to check if table's in focus", error, "warning");
         hideTableContextualButton();
-        disableEditorToolbarTableMode();
+        disableEditorToolbarTableMode();  
     }
-        
+
     hideTableContextualDropdown();
     $("#table-contextual-button, crypteetablecell").removeClass("warn insertAbove insertBelow insertLeft insertRight");    
     
