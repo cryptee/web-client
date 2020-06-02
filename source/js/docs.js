@@ -3601,8 +3601,7 @@ function appendFolder (folder, fid, moved){
 
 
 function extractFromFilename (filename, whatToExtract) {
-  filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
-  var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+  var extension = extensionFromFilename(filename);
   var ifw = "fa fa-fw fa-";
   var icon = ifw + "file-text-o";
   var unicodeIcon = "&#xf0f6;";
@@ -3688,6 +3687,14 @@ function extractFromFilename (filename, whatToExtract) {
 function extensionFromFilename (filename) {
   filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
   return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+}
+
+function filenameWithoutExtension(filename) {
+  filename = filename + ""; // this is to make sure if it's a number, it becomes a string.
+  var extension = "." + extensionFromFilename(filename);
+  var n = filename.lastIndexOf(extension);
+  filename = filename.slice(0, n) + filename.slice(n).replace(extension, "");
+  return filename;
 }
 
 //////////////////
@@ -7041,32 +7048,47 @@ function showRenameInactiveDocModal (did) {
   clearSelections();
   $("#rename-inactive-doc-modal").addClass("is-active");
   $("#inactive-doc-title-input").attr("did", did);
-  var inactiveTitle = titleOf(did);
-  $("#inactive-doc-title-input").val(inactiveTitle);
-  $("#inactive-doc-title-input").attr("placeholder", inactiveTitle);
+  var filename = titleOf(did);
+  
+  // remove extension (and add it back while renaming) 
+  // for example if it's a photo.jpg, remove "".jpg" 
+  catalog.docs[did] = catalog.docs[did] || {};
+  if (catalog.docs[did].isfile) {
+    var extension = extensionFromFilename(filename);
+    filename = filenameWithoutExtension(filename);
+    $("#inactive-doc-title-input").attr("ext", extension);
+  } else {
+    $("#inactive-doc-title-input").attr("ext", "");
+  }
+
+  $("#inactive-doc-title-input").val(filename);
+  $("#inactive-doc-title-input").attr("placeholder", filename);
+
   setTimeout(function () { $("#inactive-doc-title-input").focus(); }, 10);
 }
 
 function hideRenameInactiveDocModal () {
-  $(".rename-doc-status > .title").html("Type in a new name below");
   $("#rename-inactive-doc-modal").removeClass("is-active");
+  $(".rename-doc-status > .title").html("Type in a new name below");
   $("#inactive-doc-title-input").blur();
 }
 
 function renameInactiveDoc () {
-  var inactiveDidToRename = $("#inactive-doc-title-input").attr("did");
   var theInput = $('#inactive-doc-title-input');
-  var newDocName = $('#inactive-doc-title-input').val().trim();
-  var oldDocName = $('#inactive-doc-title-input').attr("placeholder");
-  var fid = fidOfDID(inactiveDidToRename);
-  if (newDocName !== oldDocName) {
+  var inactiveDidToRename = theInput.attr("did");
+  var extension = "" + theInput.attr("ext");
+  if (extension.length > 0) { extension = "." + extension; } // if there's an extension, set it back.
+  var newDocName = theInput.val().trim() + extension;
+  var oldDocName = theInput.attr("placeholder") + extension;
+  // var fid = fidOfDID(inactiveDidToRename);
+  
+  if (newDocName !== oldDocName && inactiveDidToRename) {
+    breadcrumb("[RENAME] Renaming " + inactiveDidToRename);
     $(".rename-doc-status > .title").html("Renaming ... ");
 
     updateDocTitleInDOM(inactiveDidToRename, newDocName);
 
     updateDocTitle (inactiveDidToRename, JSON.stringify(newDocName), function(){
-      theInput.val(newDocName);
-      theInput.attr("placeholder", newDocName);
 
       offlineStorage.getItem(inactiveDidToRename).then(function (offlineDoc) {
         if (offlineDoc) {
@@ -7082,25 +7104,27 @@ function renameInactiveDoc () {
         handleError("Error getting offline document from storage", err);
       });
 
+      breadcrumb("[RENAME] Done.");
       $(".rename-doc-status > .title").html("Done");
       setTimeout(function(){ hideRenameInactiveDocModal(); }, 1000);
     });
 
   } else{
-    hideRenameDocModal();
+    breadcrumb("[RENAME] Skipping. No change.");
+    hideRenameInactiveDocModal();
   }
 
 }
 
 function hideRenameDocModal () {
-  $(".rename-doc-status > .title").html("Type in a new name below");
-  hideActiveFlyingModal();
+  cancelModal();
   $("#active-doc-title-input").blur();
 }
 
 function showRenameDocModal () {
   hideDocumentContextualDropdown();
   clearSelections();
+  $(".rename-doc-status > .title").html("Type in a new name below");
   $("#rename-doc-modal").addClass("is-active");
   setTimeout(function () {
     $("#active-doc-title-input").focus();
