@@ -575,6 +575,10 @@ p {
   color : var(--bright) !important;
 }
 
+.dm .move-in-card b {
+  color : #FFF !important;
+}
+
 .dm .help-card, 
 .dm .help-img-card,
 .dm .help-tag,
