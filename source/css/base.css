@@ -4918,9 +4918,9 @@ body.draggingStuff {
 #upgrade-form.is-white {
   background-color: #FFFFFF;
   padding: 0 !important;
-  height: 575px;
+  height: 675px;
   position: relative;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #upgrade-form.is-white.is-loading::after {
@@ -5022,7 +5022,7 @@ body.draggingStuff {
 
 .paddle-frame {
   display: block;
-  margin: 1rem auto;
+  margin: 0 auto 1rem auto;
 }
 
 #paddle-loading {
@@ -6317,6 +6317,7 @@ body.draggingStuff {
   .upgrade-container.is-white {
     box-shadow: none;
     margin-top: 0rem !important;
+    margin-bottom: 0rem !important;
   }
 
   /* .upgrade-payment-options, .upgrade-details, #upgrade-reason, #upgrade-form {
@@ -7176,7 +7177,13 @@ body.draggingStuff {
   }
 
   #upgrade-form.is-white.paddleWillBeMobile {
-    height: 575px;
+    height: calc(100vh - 13.25rem);
+  }
+
+  #upgrade-form.is-white.paddleWillBeMobile .paddle-frame {
+    height: calc(100vh - 13.25rem);
+    margin-top: 0;
+    margin-bottom: 1rem;
   }
 
   .media-selection:not(.selectionmode) {
