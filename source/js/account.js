@@ -1351,7 +1351,6 @@ encryptedIndexedCatalog.getItem('encat', function(err, cat) {
 
 
 function clearLocalCache() {
-  var encryptedIndexedCatalog = localforage.createInstance({ name: "encryptedIndexedCatalog" });
   encryptedIndexedCatalog.removeItem('encat').then(function() {
     localStorage.removeItem("encryptedCatalog");
     $("#clear-cache-button").html("Cleared").addClass("is-success").prop('disabled', true).attr('disabled', true);
