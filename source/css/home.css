@@ -5,7 +5,6 @@
 .home-body, html {
 	background: #F5F5F5;
 	min-height: 100%;
-	scroll-snap-type: y mandatory;
 }
 
 .home-column {
