@@ -50,6 +50,8 @@ function displayPrices (period) {
 
         $(".pricing-card").find(".this-period").html("billed monthly");
         $(".pricing-card").find(".other-period").html("billed yearly");
+        $(".mobile-pricecard").find(".this-period").html("billed monthly");
+        $(".mobile-pricecard").find(".other-period").html("billed yearly");
         
         $(".pricing-card[plan='a']").find(".other-period-price").html(priceTable.a.y);
         $(".pricing-card[plan='b']").find(".other-period-price").html(priceTable.b.y);
@@ -70,6 +72,8 @@ function displayPrices (period) {
 
         $(".pricing-card").find(".this-period").html("billed yearly");
         $(".pricing-card").find(".other-period").html("billed monthly");
+        $(".mobile-pricecard").find(".this-period").html("billed yearly");
+        $(".mobile-pricecard").find(".other-period").html("billed monthly");
         
         $(".pricing-card[plan='a']").find(".other-period-price").html(priceTable.a.m);
         $(".pricing-card[plan='b']").find(".other-period-price").html(priceTable.b.m);
