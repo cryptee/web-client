@@ -868,19 +868,41 @@ function reloadForNewVersion () {
               return caches.delete(key);
             }));
           }).then(function () {
-            window.location.reload(true);
+            updateCompleteLoadNewVersion();
           });
         });
       } else {
-        window.location.reload(true);
+        updateCompleteLoadNewVersion();
       }
     });
   } else {
     // strangely sometimes serviceWorker passes as undefined 
     // in some versions of FF Linux. This is here as a failsafe
     // just in case if the update bubble covers the whole home screen.
-    window.location.reload(true);
+    updateCompleteLoadNewVersion();
   }
+}
+
+function updateCompleteLoadNewVersion() {
+
+  // clear local caches if you're not in Docs. 
+  // user could be in the middle of a save etc. we don't want to break things by wiping catalog altogether.
+
+  if (window.location.pathname !== "/docs" && localforage) {
+
+    try { localStorage.removeItem("encryptedCatalog"); } catch (e) {}
+    
+    encryptedIndexedCatalog = localforage.createInstance({ name: "encryptedIndexedCatalog" });
+    encryptedIndexedCatalog.removeItem('encat').then(function() {
+      window.location.reload(true);
+    }).catch(function(err) {
+      window.location.reload(true);
+    });
+
+  } else {
+    window.location.reload(true); 
+  }
+
 }
 
 setSentryRelease(latestDeployVersion);
