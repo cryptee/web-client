@@ -21,7 +21,6 @@ var homeRef, titlesRef, uploadsRef, userRef;
 var connectedRef = db.ref(".info/connected");
 
 var connected = false;
-var upOrDownInProgress = false;
 
 var activeFID = "home";
 
@@ -116,7 +115,9 @@ var windowVisible;
 document.addEventListener('visibilityChange', handleVisibilityChange, false);
 
 $(window).on("focus", function () {
-  checkLatestVersion();
+  if (!isUploading) {
+    checkLatestVersion();
+  }
   windowVisible = true;
 });
 
@@ -130,7 +131,9 @@ function handleVisibilityChange() {
     windowVisible = false;
   } else {
     // shown
-    checkLatestVersion();
+    if (!isUploading) {
+      checkLatestVersion();
+    }
     windowVisible = true;
   }
 }
@@ -243,7 +246,7 @@ $(window).on("load", function(event) {
 
 // Enable navigation prompt
 window.onbeforeunload = function() {
-  if (upOrDownInProgress) {
+  if (isUploading || downloadQueue.length > 0) {
     return true;
   }
 };
