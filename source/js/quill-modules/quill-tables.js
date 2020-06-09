@@ -451,7 +451,7 @@ function isThereSomethingElseOtherThanNewLineSelected(range, context) {
     opsAtIndex.forEach(function(op) {
         if (op.insert) {
             if (typeof op.insert === "string") {
-                op.insert = op.insert.replace(/^\n+/,"").replace(/^\r+/,"");
+                op.insert = op.insert.trim().replace(/(\r\n|\n|\r)/gm, " ");
             }
             if (op.insert) { thereIsSomethingElse = true; }
         }
@@ -660,9 +660,9 @@ function handleTablePaste(node, delta) {
     
     delta.ops.forEach(function(op) {
         if (op.insert) {
-            
+            // trim the inserts (because &nbsp; gets to pass through as \n as well)
             if (typeof op.insert === "string") {
-                op.insert = op.insert.replace(/^\n+/,"").replace(/^\r+/,"");
+                op.insert = op.insert.trim().replace(/(\r\n|\n|\r)/gm, " ");
                 ops.push({ insert: op.insert });
             } else {
                 ops.push(op);
@@ -708,29 +708,31 @@ function updateTablesInDelta(node, delta) {
                 
                 // check the number of cells in the original table, using the tabledata from the paste memory
                 var table = pastedTableDataMemory[tableid];
-                cellsInTable = table.columns * table.rows;
-
-                // update the table insert operation with the new id
-                op.attributes.crypteetable = pastedTableDataMemory[tableid].newTableID;
-
-                if (op.insert) {
-                    if (typeof op.insert === "string") {
-                        // if the table has more newlines than the number of cells, get rid of them.
-                        newlinesInTable = (op.insert.match(/\r\n|\r|\n/g) || '').length;
-                        
-                        while (newlinesInTable > cellsInTable) {
-                            // usually it's the leading or trailing newlines, delete it all.
-                            if (newlinesInTable > cellsInTable) {
-                                op.insert = op.insert.replace(/^\n/,"").replace(/^\r/,"");
-                                newlinesInTable--;
-                            }
+                if (table) {
+                    cellsInTable = table.columns * table.rows;
     
-                            if (newlinesInTable > cellsInTable) {
-                                op.insert = op.insert.replace(/\n$/,"").replace(/\r$/,"");
-                                newlinesInTable--;
+                    // update the table insert operation with the new id
+                    op.attributes.crypteetable = pastedTableDataMemory[tableid].newTableID;
+    
+                    if (op.insert) {
+                        if (typeof op.insert === "string") {
+                            // if the table has more newlines than the number of cells, get rid of them.
+                            newlinesInTable = (op.insert.match(/\r\n|\r|\n/g) || '').length;
+                            
+                            while (newlinesInTable > cellsInTable) {
+                                // usually it's the leading or trailing newlines, delete it all.
+                                if (newlinesInTable > cellsInTable) {
+                                    op.insert = op.insert.replace(/^\n/,"").replace(/^\r/,"");
+                                    newlinesInTable--;
+                                }
+        
+                                if (newlinesInTable > cellsInTable) {
+                                    op.insert = op.insert.replace(/\n$/,"").replace(/\r$/,"");
+                                    newlinesInTable--;
+                                }
                             }
+                            
                         }
-                        
                     }
                 }
                 
