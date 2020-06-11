@@ -478,8 +478,11 @@ $("body").on('swipeleft',  function(){
 $("body").on('swiperight',  function(){
     if (isMobile || isipados) {
       // SHOW
-      quill.blur();
-      showMenu();
+      var selectionLength = getLastSelectionRange().length;
+      if ($(".ql-tooltip").hasClass("ql-hidden") && selectionLength < 1) {
+        quill.blur();
+        showMenu();
+      }
     }
 });
 
