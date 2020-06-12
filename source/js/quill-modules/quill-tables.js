@@ -361,8 +361,8 @@ function isCursorInTable() {
         }
 
     } else {
-
-        var format = quill.getFormat();
+        var lastSelRange = getLastSelectionRange();
+        var format = quill.getFormat(lastSelRange);
         if (format.crypteetable || format.crypteetablecell) {
             inTable = true;
         }
@@ -374,7 +374,8 @@ function isCursorInTable() {
 
 function getTableIDAtCursor() {
     var tableid;
-    var format = quill.getFormat();
+    var lastSelRange = getLastSelectionRange();
+    var format = quill.getFormat(lastSelRange);
     if (format.crypteetable) {
         tableid = format.crypteetable;
     }
@@ -486,7 +487,9 @@ var selectedCellCoords = {};
 function checkIfTableHasFocus() {
 
     try {
-        var selectedFormat = quill.getFormat();
+        var lastSelRange = getLastSelectionRange();
+        var selectedFormat = quill.getFormat(lastSelRange);
+
         if (selectedFormat.crypteetable) {
             var tableid = selectedFormat.crypteetable;
             

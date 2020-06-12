@@ -366,7 +366,8 @@ var tribute = new Tribute({
 tribute.attach(document.getElementsByClassName('ql-editor'));
 
 function checkOrAddTag(tag, callback) {
-  if (quill.getFormat()['code-block'] || quill.getFormat().blockquote || quill.getFormat().bold || quill.getFormat().header === 1 || quill.getFormat().header === 2) {
+  var format = quill.getFormat();
+  if (format['code-block'] || format.blockquote || format.bold || format.header === 1 || format.header === 2) {
     tribute.hideMenu();
     callback([]);
     tribute.hideMenu();
@@ -387,7 +388,8 @@ function checkOrAddTag(tag, callback) {
 }
 
 $("#mobile-floating-list").on("click", function(){
-  if (quill.getFormat().list === "bullet") {
+  var format = quill.getFormat();
+  if (format.list === "bullet") {
     quill.removeFormat(getLastSelectionRange().index);
   } else {
     quill.format('list', 'bullet');
@@ -5128,7 +5130,8 @@ function newDoc (did, fid, docTitle, input){
 // _DOC INPUT CHANGE & AUTOSAVE   //
 /////////////////////////////////////
 
-
+var lastSelectionRange = {index: 0, length : 0};
+var zeroSelectionRange = {index: 0, length : 0};
 quill.on('text-change', function(delta, oldDelta, source) {
   $('#main-progress').attr("value", "0").attr("max", "100").removeClass('is-success');
   
@@ -5136,13 +5139,12 @@ quill.on('text-change', function(delta, oldDelta, source) {
   idleTime = 0;
   docChanged = true;
   
-  lastSelectionRange = quill.getSelection();
+  lastSelectionRange = quill.getSelection() || zeroSelectionRange;
 
   preventTableFromBreaking(delta, oldDelta, source);
   checkIfTableHasFocus();
 });
 
-var lastSelectionRange;
 quill.on('selection-change', function(range, oldRange, source) {  
   if (!range) {
     // CURSOR LEFT EDITOR, TRIGGER AUTOSAVE
@@ -9809,7 +9811,7 @@ $(window).on("focus", function () {
 $(window).on("blur", function () {
   windowVisible = false;
   hideTableContextualButton();
-   hideTableContextualDropdown();
+  hideTableContextualDropdown();
 });
 
 function handleVisibilityChange() {
