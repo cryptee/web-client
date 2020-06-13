@@ -6323,7 +6323,7 @@ function saveUpload(did, fid, encryptedDocDelta, callback, callbackParam) {
     // IF THIS DOC DIDN'T EXIST IN SERVER, WE HAVE JUST CREATED REFERENCES FOR IT. AND FILE ISN'T UPLOADED.
     // UH-OH. THIS WILL NEED TO BE CLEANED LATER ON BY A FIXER.
      
-    if (error.code !== "storage/canceled") {
+    if (error.code !== "storage/canceled" && error.serverResponse !== "Upload has already been terminated.") {
           
       if (usedStorage >= allowedStorage) {
         exceededStorage(callback, callbackParam);
@@ -6376,7 +6376,7 @@ function saveUpload(did, fid, encryptedDocDelta, callback, callbackParam) {
       saveUploadComplete(did, fid, snap.metadata, callback, callbackParam);
     }, 10);
   }).catch(function(error){
-    if (error.code !== "storage/canceled") {
+    if (error.code !== "storage/canceled" && error.serverResponse !== "Upload has already been terminated.") {
       handleError("Error uploading document.", error);
     }
   });
