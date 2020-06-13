@@ -57,8 +57,12 @@ var quillkeyboardbindings = {
         handler: function (range, context) {
             var prevSibling = getSelectedNode().previousSibling;
             if (prevSibling) {
-                if (!context.offset && prevSibling.tagName.toUpperCase() === "CRYPTEETABLE") {
-                    return false;
+                if (!context.offset) {
+                    if (prevSibling.tagName) {
+                        if (prevSibling.tagName.toUpperCase() === "CRYPTEETABLE") {
+                            return false;
+                        }
+                    }
                 }
             }
 
@@ -98,8 +102,12 @@ var quillkeyboardbindings = {
 
             var nextSibling = getSelectedNode().nextSibling;
             if (nextSibling) {
-                if (!context.offset && nextSibling.tagName.toUpperCase() === "CRYPTEETABLE") {
-                    return false;
+                if (!context.offset) {
+                    if (nextSibling.tagName) {
+                        if (nextSibling.tagName.toUpperCase() === "CRYPTEETABLE") {
+                            return false;
+                        }
+                    }
                 }
             }
 
