@@ -1,0 +1,464 @@
+
+/* -----------------------------
+-------------------------------- 
+ 
+ACCOUNT SETTINGS 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LAYOUT 
+ 
+--------------------------------
+----------------------------- */
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--cryptee-4);
+}
+
+body {
+    display: grid;
+    grid-template-columns: 20rem 20rem minmax(20rem, 1fr) 1fr;
+    grid-template-rows: 1rem 2rem 1rem 4rem 3fr;
+    padding-left: 3rem;
+}
+
+.dm body {
+    background: var(--oled-safe-black);
+}
+
+#logo {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    user-drag: none; 
+    user-select: none;
+    outline: none;
+    z-index: 2;
+}
+
+#logo img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    opacity: 0.3;
+    transition: 0.3s opacity linear;
+    user-drag: none; 
+    user-select: none;
+}
+
+.dm #logo img { filter: invert(1); }
+
+#back {
+    position: fixed;
+    top: 1rem;
+    left: 0rem;
+    height: 2rem;
+    line-height: 2rem;
+    margin-top: 0;
+    width: 4rem;
+    padding-left: 1rem;
+    pointer-events: none;
+    opacity: 0;    
+    user-select: none;
+    transform: translate3d(4rem,0,0);
+    transition: 0.5s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
+}
+
+.dm #back { color: white; }
+
+#cryptee-latest-deploy-version {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: block;
+    width: auto;
+    height: 2rem;
+    line-height: 2rem;
+    margin-top: 0;
+    opacity: 0.4;
+}
+.dm #cryptee-latest-deploy-version { color: white; }
+
+/* -----------------------------
+-------------------------------- 
+ 
+INITIAL / FIRST NAVIGATION 
+ 
+--------------------------------
+----------------------------- */
+
+
+nav {
+    grid-row: 5/6;
+    grid-column: 1/2;
+    padding: 0 1rem;
+    transform: translate3d(0,0,0);
+    transition: 0.5s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
+}
+
+nav button, section button {
+    width: 100%;
+    display: block;
+    
+    height: 2rem;
+    line-height: 2rem;
+    margin-top: 0;
+}
+
+nav b {
+    display: block;
+    height: 4rem;
+}
+
+.dm nav button {
+    color: white;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+SECTIONS & SUBSECTIONS
+ 
+--------------------------------
+----------------------------- */
+
+
+
+*:not(.modal) > section {
+    grid-row: 5/6;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 1rem;
+
+    opacity: 0;
+    transform: translate3d(1rem,0,0);
+    pointer-events: none;
+    transition: 0.5s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
+}
+
+*:not(.modal) > section button {
+    text-align: left;
+}
+
+*:not(.modal) > section[tab] { 
+    grid-column: 2/3; 
+}
+
+*:not(.modal) > section[subtab] { 
+    grid-column: 3/4; 
+    padding: 0 1rem;
+}
+
+*:not(.modal) > section.active {
+    opacity: 1;
+    transform: translate3d(0,0,0);
+    pointer-events: all;
+}
+
+*:not(.modal) > section.passive {
+    opacity: 1;
+    transform: translate3d(-1rem,0,0);
+    pointer-events: all;
+}
+
+*:not(.modal) > section > p {    
+    display: block;
+    min-width: 4rem;
+    max-width: 100%;
+    height: auto;
+
+    line-height: 2rem;
+    margin-top: 0;
+
+    overflow: hidden;
+    overflow-wrap:break-word;
+}
+
+*:not(.modal) > section > p > span {    
+    font-size: 1rem;
+    line-height: 1.5rem;
+    display: table-cell;
+    min-width: 4rem;
+    max-width: 100%;
+    
+    line-height: 2rem;
+    margin-top: 0;
+
+    overflow: hidden;
+    overflow-wrap:break-word;
+}
+
+*:not(.modal) > section > p span, *:not(.modal) > section > p small {
+    margin-top: 0;
+}
+
+*:not(.modal) > section details, *:not(.modal) > section summary, details > p {
+    line-height: 2rem;
+    margin-top: 0;
+}
+
+nav > *:last-child, 
+*:not(.modal) > section[tab] > *:last-child, 
+*:not(.modal) > section[subtab] > *:last-child {
+    margin-bottom: 4rem;
+}
+
+.dm section *:not(.gray):not(.green):not(.red):not(.yellow) {
+    color: white;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+INPUTS 
+ 
+--------------------------------
+----------------------------- */
+
+
+input, textarea {
+    margin-top: 0;
+    line-height: 2rem;
+}
+
+input {
+    height: 2rem;
+    max-width: calc(100% - 2px);
+    width: 100%;
+}
+
+textarea {
+    width: 100%;
+    min-height: 16rem;
+}
+
+#cancel-subscription-reason {
+    box-shadow: inset 2px 0px 0px var(--cryptee-3);
+    padding-left: 1rem;
+    min-width: calc(100% - 1rem);
+    max-width: calc(100% - 1rem);
+}
+
+.dm ::placeholder           { color: #ccc; }
+.dm :-ms-input-placeholder  { color: #ccc; }
+.dm ::-ms-input-placeholder { color: #ccc; }
+
+/* mozilla treats placeholder colors differently. */
+@-moz-document url-prefix() {
+    .dm ::placeholder { color: #ccc !important; }
+}
+
+#cancel-subscription-reason:focus {
+    box-shadow: inset 4px 0px 0px var(--cryptee-0);
+}
+
+.dm #cancel-subscription-reason:focus {
+    box-shadow: inset 4px 0px 0px var(--cryptee-4);
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+BUTTONS 
+ 
+--------------------------------
+----------------------------- */
+
+nav button.active, 
+*:not(.modal) > section button.active {
+    text-decoration: underline;
+}
+
+*:not(.modal) > section button.bold {
+    opacity: 1 !important;
+}
+
+*:not(.modal) > section button.bold.loading,
+*:not(.modal) > section button.loading {
+    opacity: 0.5 !important;
+}
+
+*:not(.modal) > section button.loading::after {
+    display: inline-block;
+    content: "\EEC6" !important;
+    
+    animation: spin 0.4s linear infinite;
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.dm button[disabled] {
+    opacity: 0.5 !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+OVERVIEW 
+ 
+--------------------------------
+----------------------------- */
+
+.username.email-user + .email {
+    display: none !important;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+CHANGE EMAIL 
+ 
+--------------------------------
+----------------------------- */
+
+#change-email-input:placeholder-shown ~ #change-email-button,
+#verify-pasword-for-email-change-input:placeholder-shown ~ #change-email-button {
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+VERIFY EMAIL 
+ 
+--------------------------------
+----------------------------- */
+
+.email:not([unverified]) ~ #verify-email-warning {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+CHANGE PASSWORD 
+ 
+--------------------------------
+----------------------------- */
+
+#change-password-input:not(:placeholder-shown),
+#new-key-for-change-key-input:not(:placeholder-shown) {
+    box-shadow: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IT'S A POINTER DEVICE,
+ENABLE HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+
+    #logo:hover img, 
+    #help:hover {
+        opacity: 1 !important;
+    }
+
+    nav button:hover {
+        text-decoration: underline;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA QUERIES 
+ 
+--------------------------------
+----------------------------- */
+
+
+@media (max-width : 960px) {  
+    body {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1rem 2rem 1rem 1fr;
+        padding-left: 0;
+    }
+    
+    nav, *:not(.modal) > section[tab], *:not(.modal) > section[subtab] { 
+        grid-column: 1 / 2; 
+        grid-row: 4 / -1;
+    }
+
+    *:not(.modal) > section {
+        transform: translate3d(4rem,0,0);
+    }
+
+    nav.passive {
+        opacity: 0;
+        transform: translate3d(-4rem,0,0);
+    }
+
+    *:not(.modal) > section.passive {
+        opacity: 0;
+        transform: translate3d(-4rem,0,0);
+    }
+
+    #logo {
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    #back.show {
+        pointer-events: all;
+        opacity: 1;
+        transform: translate3d(0,0,0);
+    }
+}

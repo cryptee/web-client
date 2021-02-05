@@ -1,0 +1,615 @@
+
+/* -----------------------------
+-------------------------------- 
+ 
+ARTICLE TYPOGRAPHY
+
+ 
+--------------------------------
+----------------------------- */
+
+article blockquote {
+    border-left: 2px solid #000;
+    padding-left: 1rem;
+}
+
+.dm article blockquote {
+    border-left: 2px solid white;
+}
+
+article img {
+    margin: 1rem 0;
+    max-width: 100%;
+}
+
+article > *:last-child {
+    margin-bottom: 4rem;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+SELF-SERVICE HELP 
+ 
+--------------------------------
+----------------------------- */
+
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--cryptee-4);
+}
+
+body {
+    padding-top: 18rem;
+    height: auto;
+}
+
+.dm body {
+    background-color: var(--oled-safe-black);
+    color: white;
+}
+
+.dm article {
+    background-color: var(--cryptee-1);
+    color: white;
+}
+
+.darkback::placeholder           { color: white !important; }
+.darkback:-ms-input-placeholder  { color: white !important; }
+.darkback::-ms-input-placeholder { color: white !important; }
+
+#logo {
+    position: absolute;
+    top: 8rem;
+    left: calc(50% - 1rem);
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    user-drag: none; 
+    user-select: none;
+    outline: none;
+    z-index: 2;
+
+    transform: translateY(0);
+    transition: 1s transform var(--cryptee-cb);
+}
+
+#logo img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    opacity: 0.3;
+    transition: 0.3s opacity linear;
+    user-drag: none; 
+    user-select: none;
+}
+
+.dm #logo { filter: invert(1); }
+
+#head {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 7rem;
+    opacity: 1;
+    transition: 0.5s opacity var(--cryptee-cb);
+}
+
+nav {
+    width: 24rem;
+    margin: auto;
+    background-color: black;
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+    opacity: 1;
+    position: relative;
+
+    margin-bottom: 8rem;
+    transition: opacity, box-shadow;
+    transition-duration: 0.5s;
+    transition-timing-function: var(--cryptee-cb);
+    border-radius: 0.25rem;
+    overflow:hidden;
+}
+
+.dm nav, .dm #results {
+    background-color: var(--cryptee-1);
+}
+
+.dm hr {
+    border-bottom: 2px solid white;
+}
+
+nav input {
+    box-shadow: none !important;
+    margin-top: 0;
+    height: 2rem;
+    width: 100%;
+    line-height: 2rem;
+}
+
+nav i {
+    position: absolute;
+    right: 2rem;
+    top: 1rem;
+    height: 2rem;
+    line-height: 2rem;
+    width: 1rem;
+    font-size: 1.25rem;
+
+    opacity: 1;
+    transition: 0.3s opacity var(--cryptee-cb);
+}
+
+nav button {
+    position: absolute;
+    right: 1.5rem;
+    top: 0.5rem;
+
+    opacity: 0;
+    transition: 0.3s opacity var(--cryptee-cb);
+
+    pointer-events: none;
+}
+
+body > section {
+    width: 100%;
+    max-width: 60rem;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 12rem);
+    row-gap: 4rem;
+    column-gap: 4rem;
+    grid-auto-flow: row;
+
+    opacity: 1;
+    transition: 0.3s opacity var(--cryptee-cb);
+}
+
+body > section h3 {
+    grid-column: 1/2;
+    margin-bottom: -0.75rem;
+}
+
+body > section h3 + hr {
+    grid-column: 2/-1;
+    border: none;
+    border-bottom: 2px solid #000;
+}
+
+body > section > p, 
+body > section > button {
+    grid-column: span 2;
+}
+
+body > section > p > span {
+    text-transform: lowercase;
+}
+
+body > section > b {
+    grid-column: 1/-1;    
+}
+
+body > section .import-from-app {
+    grid-column: span 1;
+    height: 10rem;
+    padding: 1rem;
+    position: relative;
+    background-color: white;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: 0.3s box-shadow var(--cryptee-cb);
+    border-radius: 0.5rem;
+}
+
+body > section .import-from-app img {
+    height: 2em;
+    width: 2rem;
+    object-fit: contain;
+}
+
+body > section .import-from-app p {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    color: white;
+}
+
+body > section .import-from-app.inverted p {
+    color: black;
+}
+
+nav:focus-within {
+    box-shadow: 0 1rem 1.5rem rgba(0,0,0,0.3);
+}
+
+nav input:not(:placeholder-shown) + i {
+    opacity: 0;
+}
+
+nav input:not(:placeholder-shown) ~ button {
+    opacity: 1;
+    pointer-events: all;
+}
+
+nav:focus-within ~ section, 
+#results:not(:empty) ~ section {
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+RESULTS 
+ 
+--------------------------------
+----------------------------- */
+
+
+#results {
+    background-color: black;
+    position: absolute;
+    top: 34rem;
+    z-index: 2;
+    overflow-y: scroll;
+
+    width: calc(100% - 8rem);
+    max-width: 52rem;
+    margin-left: calc(50% - 30rem);
+    box-shadow: 0 1rem 1.5rem rgba(0,0,0,0.3);
+    border-radius: 0.5rem;
+    
+    padding: 4rem;
+
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    opacity: 0;
+    transform: translateY(-1rem);
+    pointer-events: none;
+    transition: opacity, transform;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+body:not(.article) #results:not(:empty) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: initial;
+}
+
+#results p {
+    color: white;
+    text-transform: lowercase;
+}
+
+#results.floating {
+    height: 240px;
+    max-width: 480px;
+    position: fixed;
+    top: initial;
+    bottom: 4rem;
+    right: 4rem;
+}
+
+#results.floating p:last-child {
+    margin-bottom: 4rem;
+}
+
+#close-results {
+    position: fixed;
+    z-index: 2;
+    
+    height: 2rem;
+    bottom: calc(240px + 9rem);
+    right: 5rem;
+    pointer-events: none;
+    opacity: 0;
+
+
+    transition: opacity;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+body:not(.article) #results.floating:not(:empty) ~ #close-results {
+    opacity: 1;
+    pointer-events: all;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ARTICLE 
+ 
+--------------------------------
+----------------------------- */
+
+body.article {
+    overflow: hidden;
+}
+
+body.article #logo { 
+    transform: translateY(-6rem);
+    position: fixed;
+}
+
+main {
+    position: fixed;
+    z-index: 3;
+    top: 2rem;
+    left: 4rem;
+    right: 4rem;
+    width: calc(100% - 8rem);
+    height: calc(100% - 2rem);
+
+    max-width: 60rem;
+    margin: auto;
+}
+
+article {
+    background-color: white;
+    margin-top: 2rem;
+    height: calc(100% - 16rem);
+    width: calc(100% - 8rem);
+
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+
+    will-change: opacity, transform;
+    opacity: 0;
+    transform: translateY(2rem) scale(0.95);
+
+    transition: opacity, transform;
+    transition-duration: 1s;
+    transition-timing-function: var(--cryptee-cb);
+    pointer-events:none;
+    
+    padding: 4rem;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+#back {
+    cursor: pointer;
+
+    opacity: 0;
+    transform: translateY(2rem);
+
+    transition: opacity, transform;
+    transition-duration: 1s;
+    transition-timing-function: var(--cryptee-cb);
+    pointer-events:none;
+}
+
+body.article section, 
+body.article nav,
+body.article #head {
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.article article, 
+body.article #back {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: initial;
+}
+
+body:not(.article) main {
+    pointer-events: none;
+}
+
+main progress {
+    position: absolute;
+    top : 4rem;
+    z-index: 2;
+
+    opacity: 0;
+    transition: opacity;
+    transition-duration: 0.5s;
+    transition-delay: 0.5s;
+    transition-timing-function: var(--cryptee-cb);
+
+    width: 100% !important;
+    height: 0.25rem !important;
+}
+
+body.article main.loading progress {
+    opacity: 1;
+}
+
+article > * {
+    will-change: opacity;
+    transition: 0.10s opacity linear;
+    opacity: 0;
+}
+
+article > .loaded {
+    opacity: 1;
+}
+
+.faq {
+    border-top: 1px solid var(--cryptee-3);
+    padding-top: 2rem;
+}
+
+.faq i.lg {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    line-height: 1.125rem;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+
+ERROR REPORT / CONTACT 
+ 
+--------------------------------
+----------------------------- */
+
+.modal textarea {
+    font-weight: 350;
+    display: inline-block;
+    min-width: 11rem !important;
+    max-width: 11rem !important;
+    width: 100% !important;
+    min-height: 14rem;
+    height: calc(100% - 6rem);
+    max-height: calc(100% - 2rem);
+    box-shadow: inset 1px 0px 0px var(--cryptee-2);
+    padding-left: 1rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+*[onclick] {
+    cursor: pointer;
+}
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+    section .import-from-app:hover {
+        box-shadow: 0 1rem 1.5rem rgba(0,0,0,0.3);
+    }
+
+    *:not(.modal) > *[onclick]:hover {
+        text-decoration: underline;
+    }
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+@media (max-width : 960px) { 
+
+    body {
+        position: initial !important;
+        margin: auto;
+        width: 28rem;
+    }
+    
+    section { grid-template-columns: repeat(2, 12rem); }
+
+    #results {
+        margin-left: 0;
+        width: 20rem;
+    }
+
+}
+
+@media (max-width : 544px) { 
+
+    body { 
+        position: initial !important;
+        width: calc(100% - 2rem); 
+        padding-top: 10rem;
+    }
+
+    body > section > p, 
+    body > section > button,
+    hr {
+        grid-column: 1 / -1 !important;
+    }
+
+    
+    #logo { top: 4rem; }   
+    #head { margin-bottom: 3rem; }
+
+    nav {
+        width: calc(100% - 4rem);
+    }
+    
+    section {
+        grid-template-columns: 1fr 1fr !important;
+        column-gap: 1rem !important;
+    }
+
+    body > section .import-from-app {
+        height: 8rem;
+    }
+
+    #results {
+        top: 20.5rem;
+        width: calc(100% - 6rem);
+        padding: 2rem;
+    }
+
+    #results.floating {
+        max-width: calc(100% - 6rem);
+        height: 320px;
+        position: fixed;
+        top: initial;
+        bottom: 2rem;
+        right: 1rem;
+    }
+    
+
+    #close-results {
+        bottom: calc(240px + 8rem);
+        right: 2rem;
+    }
+
+
+    main {
+        left: 1rem;
+        right: 1rem;
+        bottom: 0rem;
+        top: 1rem;
+        width: calc(100% - 2rem);
+        height: calc(100% - 1rem);
+    }
+
+    body.article #logo { 
+        transform: translateY(-3rem);
+    }
+
+    article {
+        margin-top: 1rem;
+        height: calc(100% - 8rem);
+        width: calc(100% - 4rem);
+        padding: 2rem;
+    }
+
+    main progress {
+        top: 3rem;
+    }
+}

@@ -1,0 +1,1632 @@
+:root {
+    --bg: #363636;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LAYOUT 
+ 
+--------------------------------
+----------------------------- */
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--cryptee-4);
+    overflow: hidden;
+}
+
+
+.dm body {
+    background: var(--oled-safe-black);
+    color: var(--cryptee-2);
+}
+
+main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(auto-fit, 16rem) minmax(0, 1fr);
+    column-gap: 4rem;
+    
+    width: 100%;
+    height: calc(100% - 8rem);
+    padding-top: 8rem;
+    margin-bottom: 12rem;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
+nav {
+    background-color: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(auto-fit, 16rem) minmax(0, 1fr);
+    grid-template-rows: 4rem 4rem;
+    column-gap: 4rem;
+    z-index: 9;
+}
+
+nav .background { 
+    grid-column: 1 / -1; 
+    transform: translate3d(0,0,0);
+    transition: 0.5s background-color var(--cryptee-cb), 0.5s transform var(--cryptee-cb); 
+}
+
+nav .top.background { grid-row: 1 / 2;    background-color : var(--cryptee-4); }
+nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
+
+.dm nav .top.background { grid-row: 1 / 2;    background-color : var(--oled-safe-black); }
+.dm nav .bottom.background { grid-row: 2 / 3; background-color : var(--oled-safe-black); }
+
+#help {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    margin-top: 0;
+    opacity: 0.4;
+    transition: 0.3s opacity linear;
+}
+
+#logo {
+    display: block;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 1rem;
+    margin-left: 1rem;
+    user-drag: none; 
+    user-select: none;
+    outline: none;
+    z-index: 2;
+}
+
+#logo img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    opacity: 0.4;
+    transition: 0.3s opacity linear;
+    user-drag: none; 
+    user-select: none;
+}
+
+.dm #logo img { filter: invert(1); }
+
+#searchInput {
+    margin-top: 0;
+    grid-row: 1/2;
+    grid-column: 2/-3;
+    line-height: 4rem;
+    height: 4rem;
+    box-shadow: none !important;
+    z-index: 2;
+
+    transition: 0.3s opacity var(--cryptee-cb);
+    opacity: 1;
+}
+
+.dm ::placeholder           { color: #ccc; }
+.dm :-ms-input-placeholder  { color: #ccc; }
+.dm ::-ms-input-placeholder { color: #ccc; }
+
+/* mozilla treats placeholder colors differently. */
+@-moz-document url-prefix() {
+    .dm ::placeholder { color: #ccc !important; }
+}
+
+
+.progress {
+    grid-row: 2/3;
+    grid-column: 1/-1;
+    opacity: 0.2;
+    transition: 0.5s opacity var(--cryptee-cb);
+    z-index: 2;
+}
+
+.dm .progress { filter: invert(1); }
+
+#searchInput:focus, 
+#searchInput:not(:placeholder-shown) {
+    grid-column: 2/-2; 
+}
+
+#searchInput:focus ~ .progress { opacity: 1; }
+
+nav .buttons        { display: flex; }
+nav .top.buttons    { grid-row: 1/2; grid-column: -3 / -2; }
+nav .bottom.buttons { grid-row: 2/3; }
+nav .bottom.buttons.left-side   { grid-column: 2/3; }
+nav .bottom.buttons.right-side  { grid-column: -3/-2; }
+
+nav button {
+    line-height: 4rem;
+    height: 4rem;
+    width: 8rem;
+    margin-top: 0;
+    opacity: 0.4;
+    transition: 0.3s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
+    user-select: none;
+    display: inline-block;
+    transform: translate3d(0,0,0);
+    z-index: 2;
+}
+
+.top.buttons button:nth-child(2) { transition-delay: 0.05s; }
+
+.dm nav button, .dm #help { color: white; }
+.dm #delete-button { opacity: 0.6; }
+
+label[for="upload-input"] {
+    cursor: pointer;
+    display: block;
+    height: 100%;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+STARTUP / LOADING  
+ 
+--------------------------------
+----------------------------- */
+
+body.searching #main-progress,
+body.starting #main-progress,
+body.loading #main-progress { 
+    opacity: 1; 
+}
+
+body.offline .buttons button,
+body.searching .buttons button,
+body.starting .buttons button,
+body.loading .buttons button { 
+    opacity: 0; pointer-events: none; 
+}
+
+body.offline #searchInput,
+body.starting:not(.searching) #searchInput, 
+body.loading:not(.searching) #searchInput { 
+    opacity: 0; pointer-events: none; 
+}
+
+body.offline #timeline small,
+body.searching #timeline small, 
+body.starting #timeline small, 
+body.loading #timeline small { 
+    transform: translateX(4rem) !important; 
+    pointer-events: none !important;
+}
+
+body.offline #sorter,
+body.searching #sorter,
+body.starting #sorter,
+body.loading #sorter {
+    transform: translate3d(0, -10rem, 0) !important;
+    pointer-events: none !important;
+}
+
+
+body.offline::before {
+    content: "";
+    display: block;
+    position: fixed;
+    z-index : 997;
+    top: 4rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--cryptee-4);
+}
+
+body.offline::after {
+    content : "looks like you are offline. \a\ayou can only use cryptee photos with an internet connection. \a\aif you are connected to the internet, but having issues only with cryptee, an ad-blocker / vpn / company firewall or another network filter may be mistakenly blocking cryptee. try disabling it & reload cryptee.";
+    white-space: break-spaces;
+    position: fixed;
+    z-index : 998;
+    top: 4rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+
+    width: 12rem;
+    height: 22rem;
+    background-color: #FFF;
+    color: var(--cryptee-0);
+    
+    padding: 4rem;
+
+    font-weight: 350;
+    line-height: 1.5rem;
+    text-align: justify;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+SORT POPUP / SORTER 
+ 
+--------------------------------
+----------------------------- */
+
+#sorter {
+    background: black;
+    color: white;
+
+    grid-row: 2/3;
+    grid-column: -3/-2;
+    z-index: 3;
+
+    display: flex;
+    width: 24rem;
+    padding-left: 2.5rem;
+    margin-left: -10.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+    transform: translate3d(0,-10rem,0);
+    transition: 0.5s transform var(--cryptee-cb);
+    pointer-events: none;
+}
+
+.dm #sorter {
+    background-color: var(--cryptee-0);
+}
+
+#sorter.shown {
+    transform: translate3d(0,0,0);
+    pointer-events: all;
+}
+
+#sorter small {
+    margin-top: 0 !important;
+
+    min-width: 4rem;
+    max-width: 4rem;
+    
+    height: 4rem;
+    line-height: 4rem;
+    
+    user-select: none;
+    text-align: left;
+}
+
+#sorter i {
+    min-width: 4rem;
+    max-width: 4rem;
+    
+    height: 4rem;    
+    line-height: 4rem;
+    
+    text-align: left;
+    cursor: pointer;
+
+    opacity: 0.7;
+    transition: 0.3s opacity ease;
+}
+
+#sorter i.selected {
+    opacity: 1 !important;
+    box-shadow: inset 0px -3px 0px white;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+SEARCH & SEARCH ANIMATIONS 
+ 
+--------------------------------
+----------------------------- */
+
+/* SEARCH IS IN FOCUS */
+#searchInput:focus ~ .top.buttons button              { opacity: 0 !important; pointer-events: none; }
+#searchInput:focus ~ .top.buttons button:nth-child(1) { transform: translate3d(0.5rem,0,0); }
+#searchInput:focus ~ .top.buttons button:nth-child(2) { transform: translate3d(0.75rem,0,0); }
+#searchInput:focus ~ .top.buttons button:nth-child(3) { transform: translate3d(1rem,0,0); }
+
+/* USER TYPED SOMETHING INTO SEARCH */
+#searchInput:not(:placeholder-shown) ~ .buttons button { opacity: 0 !important; pointer-events: none; }
+#searchInput:not(:placeholder-shown) ~ .buttons button:nth-child(1) { transform: translate3d(0.5rem,0,0); }
+#searchInput:not(:placeholder-shown) ~ .buttons button:nth-child(2) { transform: translate3d(0.75rem,0,0); }
+
+#searchInput:not(:placeholder-shown) ~ .bottom.buttons.left-side button:nth-child(1) { transform: translate3d(0.5rem,0,0); }
+#searchInput:not(:placeholder-shown) ~ .bottom.buttons.left-side button:nth-child(2) { transform: translate3d(0.75rem,0,0); }
+
+#searchInput:not(:placeholder-shown) ~ .bottom.buttons.right-side button:nth-child(1) { transform: translate3d(1rem,0,0); }
+#searchInput:not(:placeholder-shown) ~ .bottom.buttons.right-side button:nth-child(2) { transform: translate3d(1.25rem,0,0); }
+
+#searchInput:not(:placeholder-shown) ~ .bottom.background { background-color: transparent; }
+
+#searchInput:not(:placeholder-shown) ~ .bottom.buttons button { 
+    transform: translate3d(0,-0.25rem,0) !important; 
+}
+
+#searchInput:not(:placeholder-shown) ~ .bottom.background { 
+    background-color: transparent !important;
+    transform: translate3d(0,-0.5rem,0) !important; 
+}
+
+#searchInput:not(:placeholder-shown) ~ #sorter {
+    transform: translate3d(0, -10rem, 0) !important;
+    pointer-events: none !important;
+}
+
+/* ------------------------------
+---------------------------------
+ 
+NAV BUTTONS & STATES & SELECTIONS 
+ 
+---------------------------------
+------------------------------ */
+
+#delete-button { color: var(--cryptee-red); }
+
+/* default gallery state */
+/* body.nav-gallery */
+
+
+/* album */
+body:not(.nav-album) .albums.buttons button {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body:not(.loading):not(.starting).nav-album .gallery.buttons button {
+    transform: translate3d(0,-1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* gallery or album without photos */
+body:not(.loading):not(.starting).nav-nophotos #selectall-button {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* favorites */
+body:not(.loading):not(.starting).nav-favorites .bottom.buttons button,
+body:not(.loading):not(.starting).nav-favorites .top.buttons button {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body:not(.loading):not(.starting).nav-favorites #gallery-button {
+    transform: translate3d(0,0,0);
+    opacity: 0.4 !important;
+    pointer-events: initial !important;
+}
+
+/* selections */
+body:not(.loading):not(.starting).nav-selection .unselected.buttons button {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+} 
+
+.selected.buttons button {
+    transform: translate3d(0,-1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body:not(.loading):not(.starting).nav-selection .top.buttons button {
+    transform: translate3d(0,-1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body:not(.loading):not(.starting).nav-selection .selected.buttons button {
+    transform: translate3d(0,0,0);
+    opacity: 0.4 !important;
+    pointer-events: initial !important;
+}
+
+#download-button.ios {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#make-cover-button.hidden {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+TIMELINE
+ 
+--------------------------------
+----------------------------- */
+
+#timeline {
+    position: absolute;
+    right: 0;
+    top: 8rem;
+
+    height: calc(100% - 12rem);
+    width: 4rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    margin-left: auto;
+    max-width: 4rem;
+    z-index: 2;
+}
+
+#timeline small {
+    float: right;
+    width: 4rem;
+    margin-top: 0;
+    border-bottom: 1px solid black;
+    display: block;
+    opacity: 0.4;
+    cursor: pointer;
+    user-select: none;
+
+    color: var(--cryptee-1);
+
+    transform: translateX(0);
+    transition: opacity, transform, color;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--cryptee-cb);
+    will-change: opacity, transform;
+}
+
+.dm #timeline small {
+    color: white;
+    border-bottom: 1px solid white;
+}
+
+#timeline .sub                          { height : 1rem; transform: translateX(1rem); }
+#timeline small.active                  { opacity: 1; }
+#timeline small.sub.active              { transform: translateX(1.5rem); }
+#timeline small:not(.sub).active        { transform: translateX(0.5rem); }
+
+#timeline small.sub:not(.active)        { transform: translateX(2rem); }
+#timeline small:not(.sub):not(.active)  { transform: translateX(1rem); }
+
+#timeline.loading small,
+#timeline small.loading {
+    transform: translateX(4rem) !important;
+}
+
+#timeline.compact small.sub {
+    height: 0.35rem !important;
+    color: transparent !important;
+    overflow: hidden !important;
+}
+
+#timeline.compact small:not(.sub) {
+    transform: translateX(0.5rem);
+}
+
+#timeline.compact small.sub.active {
+    transform: translateX(1.25rem);
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+GALLERY / ALBUM CONTENTS 
+ 
+--------------------------------
+----------------------------- */
+
+/* #albumContents & searchContents */
+.contents {
+    position: relative;
+    grid-column: 2/-2;
+    grid-row: 1/-6;
+
+    display: block;
+    margin-left: -4rem;
+
+    -webkit-overflow-scrolling: touch;
+
+    padding-bottom: 4rem;
+
+    opacity: 1;
+    transition: 0.3s opacity ease;
+}
+
+body:not(.searching) #searchContents {
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+main:not(.scrolling):not(.browsing) .content.loading {
+    animation: loadingBlink 0.75s infinite ease forwards;    
+}
+
+.content.loading:nth-child(2n)  { animation-delay: 0.03s !important; }
+.content.loading:nth-child(3n)  { animation-delay: 0.06s !important; }
+.content.loading:nth-child(4n)  { animation-delay: 0.09s !important; }
+.content.loading:nth-child(5n)  { animation-delay: 0.12s !important; }
+.content.loading:nth-child(6n)  { animation-delay: 0.15s !important; }
+.content.loading:nth-child(7n)  { animation-delay: 0.18s !important; }
+.content.loading:nth-child(8n)  { animation-delay: 0.21s !important; }
+.content.loading:nth-child(9n)  { animation-delay: 0.24s !important; }
+.content.loading:nth-child(10n) { animation-delay: 0.27s !important; }
+.content.loading:nth-child(11n) { animation-delay: 0.30s !important; }
+
+
+
+
+
+
+
+/* This is to put them on the same layer for rendering & gain some performance benefits */
+.contents, .contents > * { z-index: 1; }
+
+.contents img {
+    object-fit: cover;
+    object-position: center;
+    opacity: 1;
+    user-select: none;
+    transition: 0.75s opacity ease;
+}
+
+/* only onscreen elements and their images get the optimization */
+/* since they're the only ones that will change their opacity */
+
+.contents > .onscreen,
+.contents > .onscreen img {
+    will-change: opacity;
+}
+
+.contents > .loading img,
+.contents img[src=""] {
+    opacity: 0;
+}
+
+.contents.loading {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body:not(.loading) #albumContents:empty:not(.loading)::after {
+    content: "welcome to cryptee photos! \a\alooks like you don't have any photos. \ato get started, drag & drop some photos or a folder full of photos here. \a\ayou can also press the upload button on the top right to select & upload photos as well.";
+    font-weight: 320;
+    line-height: 1.5rem;
+    display: block;
+    grid-column: 1/-1;
+    margin-top: auto;
+    white-space: pre-wrap;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+PHOTO / MEDIA ITEM 
+ 
+--------------------------------
+----------------------------- */
+
+.photo {
+
+    float: left;    
+    width: 16rem;
+    height: 16rem;
+    margin: 0 0 4rem 4rem;
+
+    background-color: var(--bg);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    user-select: none;
+}
+
+.photo img {
+    width: 100%;
+    height: 100%;
+}
+
+.photo i {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+    border-radius: 3rem;
+    font-size: 2rem;
+    text-align: center;
+
+    opacity: 0;
+    transform: scale(1);
+    /* transition: 0.15s opacity ease, 0.15s transform ease, 0.15s background-color ease; */
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    color: white;
+    background-color: var(--cryptee-0);
+}
+
+.photo i::before {
+    content: "\eb7a";
+}
+
+.photo.selected i {
+    opacity: 1;
+    background-color: var(--cryptee-green);
+    transform: scale(0.9);
+}
+
+.photo.loading i {
+    opacity: 0;
+    transform: scale(1);
+    pointer-events: none;
+}
+
+
+body.highlight-deletions .photo.selected i {
+    background-color: var(--cryptee-red);
+}
+
+body.highlight-deletions .photo.selected i::before {
+    content: "\ec27";
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ALBUM 
+ 
+--------------------------------
+----------------------------- */
+
+.album {
+    
+    float: left;    
+    width: 56rem;
+    height: 16rem;
+    margin: 0 0 4rem 4rem;
+
+    background-color: var(--bg);
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+
+.album img {
+    width: 36rem;
+    height: 100%;
+}
+
+/* album name */
+.album::after {
+    content: attr(name);
+    text-transform: uppercase;
+    user-select: none;
+
+    position: absolute;
+    bottom: 3.5rem;
+    right: 0rem;
+    margin-bottom: -0.5rem;
+
+    width: 12rem; /* minus padding */
+    height: 2rem;
+    padding: 1rem 4rem 0 0;
+
+    background-color: transparent;
+    color: var(--cryptee-0);
+    
+    /* EQUIVALENT OF BOLD P */
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 2rem;
+    
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
+    white-space: nowrap;
+
+}
+
+.dm .album::after {
+    color: white;
+}
+
+/* album date */
+.album::before {
+    content: attr(date);
+    user-select: none;
+
+    position: absolute;
+    bottom: 0rem;
+    right: 0rem;
+    
+    width: 16rem;
+    height: 100%;
+    padding: 0rem 0 0 4rem;
+    
+    line-height: 20rem;
+    font-weight: 350;
+    font-size: 1rem;
+    letter-spacing: 0.1rem;
+    
+    background-color: white;
+    color: rgba(54,54,54,0.3);
+}
+
+.dm .album::before {
+    background-color: var(--cryptee-0);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.album i {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+
+    font-size: 1.5rem;
+    text-align: center;
+
+    transform: rotate(0deg) translate3d(0,0,0);
+    transition: 0.15s opacity linear, 0.3s transform var(--cryptee-cb);
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    opacity: 0;
+    color: var(--cryptee-0);
+}
+
+.dm .album i {
+    color: white;
+}
+
+.album i::before {
+    content: "\EA13";
+}
+
+.album .dropdown.show ~ i {
+    transform: rotate(45deg) translate3d(0,0,0);
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+ALBUM DROPDOWN 
+ 
+--------------------------------
+----------------------------- */
+
+.album .dropdown {
+    position: absolute;
+    top: 0;
+    right: 4rem;
+    width: 12rem;
+    height: 8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.album .dropdown button {
+    display: block;
+    width: 100%;
+
+    opacity: 0.5;
+    transition: 0.3s opacity var(--cryptee-cb);
+}
+
+.dm .album .dropdown button:not(.red) {
+    color: white;
+}
+
+.album .dropdown:not(.show) button {
+    pointer-events: none;
+    opacity: 0;
+}
+
+
+
+
+/* .album .dropdown button:nth-child(4) { transition-delay: 0.s; } */
+.album .dropdown button:nth-child(1) { transition-delay: 0s; }
+.album .dropdown button:nth-child(2) { transition-delay: 0.05s; }
+.album .dropdown button:nth-child(3) { transition-delay: 0.10s; }
+
+/* -----------------------------
+-------------------------------- 
+ 
+ALBUM CONTENTS VIEW 
+ 
+--------------------------------
+----------------------------- */
+
+#albumheader {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    margin-left: 4rem;
+    width: calc(100% - 4rem);
+    user-select: none;
+    cursor: pointer;
+}
+
+#albumheader .date {
+    color: var(--cryptee-3);
+
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 0.125rem solid var(--bg);
+    min-width: 16rem;
+    max-width: 36rem;
+    width: 100%;
+    text-transform: uppercase;
+}
+
+
+.dm #albumheader .date {
+    border-top: 0.125rem solid var(--bg);
+}
+
+#albumheader .date[exif="0000:00:00"] {
+    color: transparent !important;
+    user-select: none;
+}
+
+#albumheader .name, 
+.searchheader .title {
+    text-transform: uppercase;
+}
+
+#albumheader .name::after {
+    opacity: 0;
+    
+    transition: 0.3s opacity ease;
+    font-size: 1rem;
+    
+    content: "\EFE0";
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin-left: auto;
+}
+
+/* DISABLE THE EDIT ALBUM FEATURES FOR FAVORITES */
+.nav-favorites #albumheader {
+    pointer-events: none !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+SEARCH 
+ 
+--------------------------------
+----------------------------- */
+
+.searchheader {
+    padding-top: 3.5rem;
+    padding-bottom: 4rem;
+    margin-left: 4rem;
+    width: calc(100% - 4rem);
+    user-select: none;
+}
+
+.searchheader .title {
+    color: var(--cryptee-3);
+    padding-bottom: 1rem;
+    width: 100%;
+    text-transform: uppercase;
+}
+
+
+#searchContents {
+    grid-auto-rows: 10rem;
+    grid-auto-flow: row;
+}
+
+#searchContents .album::before {
+    content: attr(photos);
+    line-height: 8.5rem;
+}
+
+#searchContents .album i {
+    display: none !important;
+}
+
+#searchContents::after {
+    content: "";
+    font-family: 'Josefin Sans';
+    font-size: 16px;
+    font-weight: 350;
+
+    margin-left: 4rem;
+    margin-top: 4rem;
+    display: inline-block;
+    width: calc(100% - 4rem);
+
+    opacity: 0;
+    transition: 0.5s opacity ease;
+    
+}
+
+body:not(.loading) #searchContents:not(.loading)::after {
+    content: "it seems you've reached the end of search results";
+    opacity: 1;
+}
+
+body:not(.loading) #searchContents:not(.loading):empty::after {
+    content: "looks like there aren't any results for '" attr(term) "'";
+    opacity: 1;
+}
+
+body.searching:not(.loading) #albumContents {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+LIGHTBOX 
+ 
+--------------------------------
+----------------------------- */
+
+#lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--cryptee-0);
+    z-index: 11;
+    transition: 0.5s opacity var(--cryptee-cb);
+    
+    opacity: 0;
+    pointer-events: none;
+
+    display: grid;
+    grid-template-columns: 4rem 4rem 1fr 4rem 4rem 1fr 4rem 4rem;
+    grid-template-rows: 4rem 1fr 4rem;
+
+    will-change: opacity;
+}
+
+#lightbox.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.lightbox-button {
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    margin-top: 0;
+    text-align: center;
+    color: #FFF;
+    z-index: 12;
+    grid-row: 1 / 2;
+    opacity: 0.7;
+    transition: 0.3s opacity linear;
+}
+
+#lightbox-close      { grid-column: 1/2; }
+#lightbox-fullscreen { grid-column: 2/3; }
+
+#lightbox-favorite   { grid-column: 4/5; }
+/* #lightbox-info       { grid-column: 5/6; } */
+#lightbox-download   { grid-column: 5/6; }
+
+#lightbox-previous   { grid-column: 7/8;}
+#lightbox-next       { grid-column: 8/9;}
+
+#lightbox-previous.disabled,
+#lightbox-next.disabled {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#lightbox-favorite i::before {
+    content: "\ee0f";
+}
+
+#lightbox-favorite.fav i::before {
+    content: "\ee0e";
+}
+
+#lightbox-favorite i {
+    transform: scale(1);
+    color: white;
+
+    transition: 0.3s transform var(--cryptee-cb), 0.3s color var(--cryptee-cb);
+}
+
+#lightbox-favorite.fav i {
+    transform: scale(1.3);
+    color: var(--cryptee-red);
+}
+
+#lightbox-swipe-container {
+    grid-row: 2 / -1;
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 11;
+    background-color: var(--oled-safe-black);
+}
+
+.lbox-photo {
+    display: block;
+    opacity: 1;
+    transition: 0.3s opacity ease;
+    will-change: opacity;
+}
+
+.lbox-photo[src=""] {
+    opacity: 0;
+}
+
+.lightbox-wrapper {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	display: flex;
+}
+
+.swiper-slide div {
+    height: 100%;
+}
+
+
+#lightbox-progress { 
+    z-index: 13;
+}
+
+#popup-photo-info input, 
+#popup-album-info input {
+    color: white;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+#popup-photo-info input::-webkit-calendar-picker-indicator, 
+#popup-album-info input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+#popup-photo-info p {
+    line-height: 1.5rem;
+    font-size: 14px;
+    font-weight: 300;
+    overflow-wrap: break-word;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+UPGRADE TEXT 
+ 
+--------------------------------
+----------------------------- */
+
+#upgrade {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    text-align: left;
+    margin-top: 0;
+    transition: 0.3s opacity var(--cryptee-cb);
+    user-select: none;
+    cursor: pointer;
+    z-index: 4;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DOWNLOADS 
+ 
+--------------------------------
+----------------------------- */
+
+#start-downloads-button {
+    opacity: 1;
+    transition: 0.3s opacity ease;
+}
+
+#start-downloads-button.downloading,
+#start-downloads-button.ios {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+UPLOADER 
+ 
+--------------------------------
+----------------------------- */
+
+#uploader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 101;
+    color: white;
+
+    opacity: 1;
+    transition: 0.5s opacity var(--cryptee-cb);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0,1fr) 512px minmax(0,1fr);
+}
+
+#uploader section {
+    grid-column: 2/3;
+    grid-row: 2/3;
+    background-color: #121212;
+    padding: 2rem 0 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+#uploads {
+    height: calc(100% - 10rem);
+    overflow: scroll;
+}
+
+#uploader h2 {
+    margin-bottom: 1rem;
+}
+
+#uploader-button {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    color: white;
+}
+
+#uploader-button::after {
+    content: attr(uploaded) " / " attr(total);
+    opacity: 0.5;
+}
+
+#uploader progress {
+    width: 100%;
+    margin-bottom: 2rem;
+    opacity: 1;
+    filter: invert(1);
+}
+
+#uploader progress:indeterminate {
+    filter: invert(0);
+}
+
+#uploader img { 
+    filter: invert(1);
+    opacity: 0.05;
+    height: 10rem;
+    width: 10rem;
+
+    position: absolute;
+    right: 10rem;
+    top: 2rem;
+
+    pointer-events: none !important;
+
+    transform: rotate(0deg) translateX(8rem) rotate(0deg);
+    animation: uploaderMoon 60s infinite linear forwards;
+}
+
+#uploader.show.uploading img {
+    animation-play-state: running;
+}
+
+#uploader.show:not(.uploading) img,
+#uploader:not(.show) img {
+    animation-play-state: paused;
+}
+
+#uploader:not(.show) {
+    pointer-events: none !important;
+    opacity: 0;
+}
+
+#uploader.uploading #uploader-button {
+    pointer-events: none !important;
+}
+
+#uploader:not(.uploading) #uploader-button:after {
+    content: "close";
+    font-weight: 600;
+    opacity: 1;
+}
+
+#uploader .upload {
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    transition: 0.3s height ease, 0.3s margin ease;
+}
+
+#uploader .upload .status {
+    opacity: 0.5;
+}
+
+#uploader.uploading .upload[status="uploading"] {
+    height: 3rem;
+    margin-bottom: 1rem;
+}
+
+#uploader:not(.uploading) .upload[status="too large ( > 50mb )"],
+#uploader:not(.uploading) .upload[status="unsupported format"],
+#uploader:not(.uploading) .upload[status="error"] {
+    margin-bottom: 0;
+    height: 4.5rem;
+}
+
+#uploader:not(.uploading) .upload[status="too large ( > 50mb )"] .status,
+#uploader:not(.uploading) .upload[status="unsupported format"] .status,
+#uploader:not(.uploading) .upload[status="error"]  .status{
+    opacity: 0.7;
+    color: var(--cryptee-red);
+}
+
+
+
+
+@keyframes uploaderMoon {
+    from {
+        transform: rotate(0deg) translateX(8rem) rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg) translateX(8rem) rotate(-360deg);
+    }
+}
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MOVE 
+ 
+--------------------------------
+----------------------------- */
+
+
+button.bold.radio[group="move"] {
+    padding: 0.25rem 0;
+}
+
+button.radio[disabled] {
+    opacity: 0.5;
+}
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IT'S A POINTER DEVICE,
+ENABLE HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+
+    #logo:hover img, 
+    #help:hover,
+    nav button:hover,
+    nav .top.buttons button:hover,
+    nav .bottom.buttons:not(.selected) button:hover,
+    .album .dropdown button:hover {
+        opacity: 1 !important;
+    }
+
+    #searchInput:not(:focus):hover ~ .progress { opacity: 0.4; }
+
+    #timeline small:hover           { opacity: 1; }
+    #timeline small.sub:hover       { transform: translateX(1.5rem); }
+    #timeline small:not(.sub):hover { transform: translateX(0.5rem); }
+
+    main:not(.scrolling):not(.browsing) .photo:not(.selected):not(.loading):hover i   { 
+        opacity:1; 
+    }
+    main:not(.scrolling):not(.browsing) .album:hover i                                { 
+        opacity:1; 
+    }
+
+    #sorter i:hover { opacity:1; }
+    #lightbox button:hover { opacity:1; }
+
+    #albumheader:hover .name::after {
+        opacity: 1;
+    }
+    
+}
+
+@media (-moz-touch-enabled : 1), (pointer:coarse) {
+    #timeline small:not(.sub)        { transform: translateX(0rem); }
+    #timeline small.sub              { transform: translateX(2rem); }
+    
+    #timeline small.sub.active       { transform: translateX(0.5rem); }
+    #timeline small:not(.sub).active { transform: translateX(0rem); }
+
+    #timeline.compact small:not(.sub) { transform: translateX(0.5rem); }
+
+    .photo i { 
+        opacity:1 !important; 
+        transform: scale(0.75) !important; 
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .album i {
+        opacity: 1;
+        font-size: 1.25rem;
+        height: 3.5rem;
+        line-height: 3.5rem;
+    }
+
+    .album i::before {
+        content: "\EF76";
+    }
+
+    .album .dropdown.show ~ i {
+        transform: rotate(135deg);
+    }
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA QUERIES 
+ 
+--------------------------------
+----------------------------- */
+
+@media (max-width : 1023px) {
+    .album { width: 36rem; }
+    .album img { width: 16rem; }
+}
+
+@media (max-width : 703px) { 
+    main, nav {
+        grid-template-columns: minmax(4rem, 1fr) minmax(4rem, 1fr) minmax(4rem, 1fr) minmax(4rem, 1fr);
+        column-gap: 0;
+    }
+
+    .contents { 
+        margin-left: 0;
+        grid-column: 1/-1;
+    }
+
+    .album { 
+        width: 100%; 
+        height: 16rem;
+        margin: 0;
+    }
+
+    .photo { 
+        width: 25vw; 
+        height: 25vw; 
+        margin: 0;
+    }
+
+    nav .buttons button { width: 100%; }
+    nav .bottom.buttons.left-side { grid-column: 1/3; }
+    nav .top.buttons, nav .bottom.buttons.right-side { grid-column: 3/-1; }
+
+    #new-album-button, #move-button, #gallery-button {
+        order: -1;
+        padding-left: 1rem; 
+        width: calc(100% - 1rem);
+    }
+
+    .album::after {
+        padding-right: 1rem;
+        width: calc(50% - 2.5rem);
+        margin-bottom: 0.75rem;
+        border-top: none;
+        text-align: left;
+        bottom: 0;
+        
+    }
+
+    .album::before {
+        width: calc(50% - 1.5rem);
+        line-height: 25rem;
+        padding: 0 0 0 1.5rem;
+        background-color: var(--cryptee-4);
+        text-align: left;
+    }
+
+    .dm .album::before {
+        background-color: var(--oled-safe-black);
+    }
+
+    .album i { 
+        bottom:2.325rem; 
+        right: 0;
+    }
+    
+    .album img { width: 50%; }
+    
+    .album .dropdown {
+        height: 10.5rem;
+        width: calc(50% - 5.5rem);
+    }
+
+    #albumheader, .searchheader {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    #albumheader h2, .searchheader h2 {
+        /* h3 equivalent */
+        font-size: 1.325rem;
+        line-height: 2rem;          
+        letter-spacing: 0.125rem;
+        padding: 0 1rem;  
+        width: calc(100% - 2rem); 
+    }
+
+    #albumheader .date, .searchheader .title {
+        margin-left: 1rem;
+        padding-top: 1rem;
+        min-width: calc(100% - 2rem);
+        width: calc(100% - 2rem);
+    }
+
+    #searchContents {
+        grid-auto-rows: 4rem;
+    }
+
+    #searchContents::after {
+        margin-left: 1rem;
+    }
+
+    .searchheader {
+        border-bottom: none;
+        padding-top: 0rem;
+    }
+    
+    #help, #timeline { display: none !important; }
+    
+    #upgrade {
+        background-color: var(--cryptee-4);
+        bottom: 0;
+        left: 0;
+        width: calc(100% - 2rem);
+        height: 2rem;
+        padding: 1rem;
+    }
+
+    .dm #upgrade {
+        background-color: var(--cryptee-0);
+    }
+
+
+    body:not(.loading) #albumContents:empty:not(.loading)::after {
+        padding: 4rem 1rem;
+    }
+
+}
+
+@media (max-width : 544px) {
+    .contents {
+        grid-template-columns: minmax(4rem, 1fr) minmax(4rem, 1fr);
+        grid-auto-rows: 12rem;
+    }    
+
+    .album { height: 12rem; }
+
+    .photo { 
+        width: 50vw; 
+        height: 50vw; 
+    }
+
+    #searchContents {
+        grid-auto-rows: 8rem;
+    }
+
+    .searchheader {
+        border-bottom: none;
+        padding-top: 2rem;
+    }
+
+    .album { grid-column: span 2; grid-row: span 1; }
+    .album::before {
+        line-height: 17rem;
+    }
+    .album::after {
+        width: calc(50% - 2.5rem);
+        margin-bottom: 0.75rem;
+        padding-right: 1rem;
+    }
+
+    .album .dropdown {
+        height: 6.5rem;
+    }
+
+    #lightbox {
+        grid-template-columns: 4rem 1fr 4rem 4rem;
+    }
+
+    #lightbox-close      { grid-column: 1/2; }
+    #lightbox-favorite   { grid-column: 3/4; }
+    /* #lightbox-info       { grid-column: 4/5; } */
+    #lightbox-download   { grid-column: 4/5; }
+
+    #sorter small, #sorter i { max-width: 3rem; min-width: 3rem; }
+    #sorter { padding-left: 1.5rem; }
+}
+
+
+

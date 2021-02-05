@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Login</title>
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+
+<body class="app-body fixed">
+
+        <div id="login-grid">
+                        
+            <a href="/" id="logo" tabindex="-1">
+                <img src="../assets/logo-b.svg" alt="CRYPTEE">
+            </a>
+            
+            <div class="wrapper">
+                <input class="full" type="text"      autocomplete="off" id="email" placeholder="username or email">
+                <input class="full" type="password"  autocomplete="off" id="pswrd" placeholder="password">
+                <button class="bold" id="login">login</button>
+                <b></b>
+                <button id="g" class="right" title="Login with Google">
+                    <i class="ri-google-fill"></i>
+                </button>
+                <progress class="progress full" max="100"></progress> 
+            </div>
+    
+            <div class="bottom">
+                <b></b>
+                <p class="left" ><a class="plain" href="/signup">signup</a></p>
+                <b></b>
+                <p class="right"><a class="plain" href="/forgot">forgot</a></p>
+            </div>
+    
+            <div class="popup" id="popup-login">
+                <button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button>
+                <p class="message justify"></p>
+            </div>
+            
+            <img src="" alt="Login Photo" id="key-image">
+            <b id="key-image-placeholder"></b>
+
+        </div>
+        
+        <small id="image-author"></small>    
+
+    
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script src="../js/login.js"></script>
+    
+</body></html>

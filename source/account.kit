@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Account Settings</title>
+
+    <!-- INSERT MORE CSS HERE -->
+
+    <link rel="stylesheet" href="../css/account.css">
+
+</head>
+
+<body class="app-body fixed">
+
+    <a id="logo" href="/home" draggable="false" ondragstart="return false;">
+        <img src="../assets/logo-b.svg" alt="CRYPTEE">
+    </a>
+
+    <small id="cryptee-latest-deploy-version"></small>
+
+    <button id="back" to="">
+        <i class="ri-arrow-left-line"></i>
+    </button>
+
+    <nav class="active">
+        <button tab="overview">overview</button>
+        <button tab="my-data">my data</button>
+        <button tab="docs-settings">docs settings</button>
+        <button tab="security">login &amp; security</button>
+        <button tab="app-preferences">app preferences</button>
+        <button tab="plan-payments">plan &amp; payments</button>
+        <br>
+        <button tab="delete-account" class="gray danger">delete account</button>
+    </nav>
+
+
+
+
+    <section tab="overview">
+        <!-- @import "imports/app/account-tab-overview.kit" -->
+    </section>
+
+
+
+    <section tab="my-data">
+        <p class="gray">here's all the data linked to your account</p>
+        <p>&nbsp;</p>
+        <button tab="my-data" subtab="files-photos">files &amp; photos</button>
+        <button tab="my-data" subtab="metadata">other metadata</button>
+    </section>
+
+    <section tab="my-data" subtab="metadata">      <!-- @import "imports/app/account-tab-my-data-metadata.kit" -->      </section>
+    <section tab="my-data" subtab="files-photos">  <!-- @import "imports/app/account-tab-my-data-files-photos.kit" -->  </section>
+    
+
+
+    <section tab="docs-settings">
+        <p class="gray">configure cryptee docs to your liking!</p>
+        <p>&nbsp;</p>
+        <button tab="docs-settings" subtab="storage-caches">storage &amp; caches</button>
+    </section>
+    
+    <section tab="docs-settings" subtab="storage-caches"> <!-- @import "imports/app/account-tab-docs-settings-storage-caches.kit" --> </section>
+
+
+
+
+    <section tab="security">
+        <p class="gray">need to update your login credentials or configure your device security?</p>
+        <p>&nbsp;</p>
+        <button tab="security" subtab="email" id="change-email-tab-button" class="for-pass-users">change email</button>
+        <button tab="security" subtab="password" class="for-pass-users">change password</button>
+        <button tab="security" subtab="encryption-key">change encryption key</button>
+        <button tab="security" subtab="device">device security</button>
+    </section>
+
+    <section tab="security" subtab="device">                <!-- @import "imports/app/account-tab-security-device.kit" -->              </section>
+    <section tab="security" subtab="email">                 <!-- @import "imports/app/account-tab-security-email.kit" -->               </section>
+    <section tab="security" subtab="password">              <!-- @import "imports/app/account-tab-security-password.kit" -->            </section>
+    <section tab="security" subtab="encryption-key">        <!-- @import "imports/app/account-tab-security-encryption-key.kit" -->      </section>
+    
+    
+    
+
+
+    <section tab="app-preferences">
+        <p class="gray">customize cryptee to your liking! these preferences affect only this device</p>
+        <p>&nbsp;</p>
+        <button tab="app-preferences" subtab="quick-start">quick start</button>
+        <button tab="app-preferences" subtab="darkmode">dark mode</button>
+        <button tab="app-preferences" subtab="timeout">inactivity timeout</button>
+    </section>
+    
+    <section tab="app-preferences" subtab="quick-start">   <!-- @import "imports/app/account-tab-app-preferences-quick-start.kit" -->   </section>
+    <section tab="app-preferences" subtab="darkmode">      <!-- @import "imports/app/account-tab-app-preferences-darkmode.kit" -->      </section>
+    <section tab="app-preferences" subtab="timeout">       <!-- @import "imports/app/account-tab-app-preferences-timeout.kit" -->       </section>
+
+
+
+
+
+
+    <section tab="plan-payments">
+        <p class="gray">need more storage? want to update your payment method, or looking for invoices?</p>
+        <p>&nbsp;</p>
+        <button tab="plan-payments" subtab=""><a href="/plans" class="green">upgrade or downgrade</a></button>
+        <button tab="plan-payments" subtab="payment-method" class="for-paid-users">update payment method</button>
+        <button tab="plan-payments" subtab="invoices" class="for-paid-users">invoices &amp; payment history</button>
+        <button tab="plan-payments" subtab="other">other</button>
+        <p>&nbsp;</p>
+        <button tab="plan-payments" subtab="cancel-subscription" class="yellow for-paid-users">cancel subscription</button>
+    </section>
+
+    <section tab="plan-payments" subtab="payment-method">       <!-- @import "imports/app/account-tab-plan-payments-payment-method.kit" -->        </section>
+    <section tab="plan-payments" subtab="invoices">             <!-- @import "imports/app/account-tab-plan-payments-invoices.kit" -->              </section>
+    <section tab="plan-payments" subtab="other">                <!-- @import "imports/app/account-tab-plan-payments-other.kit" -->                 </section>
+    <section tab="plan-payments" subtab="cancel-subscription">  <!-- @import "imports/app/account-tab-plan-payments-cancel-subscription.kit" -->   </section>
+
+
+
+    <section tab="delete-account">
+        <!-- @import "imports/app/account-tab-delete-account.kit" -->
+    </section>
+
+
+
+
+    <!-- MODALS -->
+    <!-- @import "imports/app/account-modal-cancel-subscription.kit" -->
+
+
+
+
+
+    <!-- POPUPS -->
+    <!-- @import "imports/app/account-popup-delete-account.kit" -->
+    <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+    
+
+
+
+
+    <!-- @import "imports/app/footer.kit" -->
+    <script src="../js/account.js"></script>
+    <script src="../js/account/changes.js"></script>
+    <script src="../js/account/payments.js"></script>
+    <script src="../js/account/delete-acct.js"></script>
+    <script src="../js/account/remember-key.js"></script>
+    <script src="../js/account/docs-preferences.js"></script>
+    
+    <!-- zxcvbn is 800kb, so it's in this special folder which isn't installed by the service worker since you can only change your password while you're online anyway -->
+    <script src="../rare-and-large-js-libs/zxcvbn.js"></script>
+
+</body></html>

@@ -1,0 +1,53 @@
+<progress id="progress" class="progress" value="100" max="100"></progress>
+
+<div id="desktopToolbar" class="quill-toolbar">
+    <!-- @import "../app/docs-desktop-toolbar.kit" -->
+</div>
+
+<div id="mobileToolbar" class="quill-toolbar">
+    <!-- @import "../app/docs-mobile-toolbar.kit" -->
+</div>
+
+<small id="statusMessage">loading</small>
+
+<div id="urlbox">
+    <a target="_blank" rel="noopener" class="external" href="https://crypt.ee">https://crypt.ee</a>
+</div>
+
+<div id="editorWrapper"></div>
+
+<div id="blankEditor">
+    <!-- @import "../app/docs-blank-editor.kit" -->
+</div>
+
+<div id="documentActionButtons">
+
+    <button alt="Document" id="panel-button-docfile" onclick="togglePanel('panel-docfile');">
+        <i class="ri-file-text-fill"></i> 
+    </button>
+
+    <button alt="Tools" id="panel-button-doctools" onclick="togglePanel('panel-doctools');">
+        <i class="ri-toggle-fill"></i>
+    </button>
+
+    <button alt="Info" id="panel-button-docinfo" onclick="togglePanel('panel-docinfo');">
+        <i class="ri-information-fill"></i> 
+    </button>
+
+    <!-- <button alt="Page Setup" id="panel-button-pagesetup" onclick="togglePanel('panel-pagesetup');">
+        <i class="ri-ruler-2-fill"></i> 
+    </button> -->
+
+    <button alt="Table of Contents" id="toc-button" onclick="showModal('modal-toc')">
+        <i class="ri-heading"></i> 
+    </button>
+
+</div>
+
+<button alt="Help" id="helpButton" onclick="showModal('modal-help')">
+    <i class="ri-question-mark"></i> 
+</button>
+
+<button alt="Markdown & Hotkeys" id="hotkeysButton" onclick="showModal('modal-hotkeys')">
+    <i class="ri-keyboard-fill"></i> 
+</button>

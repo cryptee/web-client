@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Email Action</title>
+    <link rel="stylesheet" href="../css/email-action.css">
+
+</head>
+
+<body>
+
+    <a href="/" id="logo" tabindex="-1">
+        <img src="../assets/logo-b.svg" alt="CRYPTEE">
+    </a>
+
+    <div id="card">
+        <div id="reset" >
+            
+            <h3>RESET PASSWORD</h3>
+            <br class="hidden-tablet">
+            <br class="hidden-tablet">
+
+            <p>pick a new account password for:</p>
+            <small class="gray" id="reset-email">email@email.com</small>
+            <br><br>
+            
+            <input type="password" placeholder="new password" id="reset-password-new-input">
+            <progress class="progress yellow" value="0" max="100" id="password-strength"></progress>
+            <small id="password-strength-message"> &nbsp; </small>
+            
+            <br>
+            
+            <input type="password" placeholder="verify new password" id="reset-password-verify-input">
+            
+            <br><br><br>
+            
+            <button class="bold" onclick="resetPassword();" id="reset-password-button" disabled>reset password</button>
+
+        </div>
+        
+        <div id="recover">
+            <h3>RECOVER EMAIL</h3>
+            <br class="hidden-tablet">
+            <br class="hidden-tablet">
+            <progress class="progress"></progress>
+            <p id="recover-status">one moment please</p>
+            <br><br>
+            <div id="recover-reset" style="display: none;">
+                <p>if you think your account was compromised, we recommend changing your account password now:</p>
+                <br>
+                <br>
+                <button class="bold" onclick="sendPasswordResetEmail();" id="send-password-reset-email-button">send password reset email</button>
+            </div>
+        </div>
+        
+        <div id="verify">
+            <h3>VERIFY EMAIL</h3>
+            <br class="hidden-tablet">
+            <br class="hidden-tablet">
+            <progress class="progress"></progress>
+            <p id="verify-status">one moment please </p>
+        </div>
+
+        <div id="error">
+            <h2>SOMETHING WENT WRONG</h2>
+            <br><br>
+            <p>please make sure the url you've clicked / copied from the email is complete and not cut-off or missing something, then try again.</p>
+            <br><br>
+        </div>
+
+    </div>
+    
+    <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+
+    <!-- @import "imports/app/footer.kit" -->
+    <script src="../js/email-action.js"></script>
+
+    <!-- zxcvbn is 800kb, so it's in this special folder which isn't installed by the service worker since you can only change your password while you're online anyway -->
+    <script src="../rare-and-large-js-libs/zxcvbn.js"></script>
+
+</body>
+
+</html>

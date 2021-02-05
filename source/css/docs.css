@@ -1,0 +1,3113 @@
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EDITOR TYPOGRAPHY 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LAYOUT 
+ 
+--------------------------------
+----------------------------- */
+
+html, body {
+    width: 100%;
+    height: 100%;
+    /* overflow: hidden; */
+}
+
+.dm body { background: var(--oled-safe-black); }
+
+body               { background: linear-gradient(to right, #000 4rem, var(--cryptee-4) 4rem); }
+.dm body            { background: linear-gradient(to right, var(--cryptee-0) 4rem, var(--oled-safe-black) 4rem); }
+body.bubble        { background: linear-gradient(to right, #000 4rem, white 4rem); }
+.dm body.bubble     { background: linear-gradient(to right, var(--cryptee-0) 4rem, var(--oled-safe-black) 4rem); }
+
+html.overflowBG, 
+body:not(.starting).overflowBG {
+    background: linear-gradient(to right, #000 50%, var(--cryptee-4) 50%);
+}
+
+html.overflowBG, 
+body.bubble:not(.starting).overflowBG {
+    background: linear-gradient(to right, #000 50%, white 50%);
+}
+
+html.overflowBG, 
+.dm body:not(.starting).overflowBG {
+    background: linear-gradient(to right, var(--cryptee-0) 50%, var(--oled-safe-black) 50%);
+}
+
+
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.swiper-container {
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: 0.5s opacity ease;
+}
+
+.swiper-wrapper, .swiper-slide {
+    will-change: transform;
+}
+
+#rightSlide { overflow: hidden; }
+
+#leftSlide {
+    min-width: 320px;
+    width: 320px;
+    max-width: 320px;
+    background-color: black;
+    color: white;
+    display: grid;
+    grid-template-rows: repeat(4, 1rem) 1fr 1rem 2rem 1rem;
+    grid-template-columns: repeat(auto-fill, 1rem) 1rem 2rem 1rem;
+    z-index: 2;
+
+    opacity: 1;
+    transition: 0.5s opacity ease;
+}
+
+#rightSlide {
+    background-color: var(--cryptee-4);
+    min-width: calc(320px - 4rem);
+    width: 100%;
+    max-width: calc(100% - 4rem);
+    display: grid;
+
+    grid-template-rows: 1rem 2rem 1rem 1fr 1rem 2rem 1rem;
+    grid-template-columns: 1fr 1rem 2rem 1rem;
+    z-index: 1;
+}
+
+.dm #leftSlide {
+    background-color:var(--cryptee-0);
+}
+
+.dm #rightSlide {
+    background-color: var(--oled-safe-black);
+}
+
+body.starting .swiper-container {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body::after {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    height: 2rem;
+    width: 2rem;
+    background-color: #000;
+    margin: auto;
+    z-index: 998;
+    border-radius: 2rem;
+    animation: blinkOpacity 0.75s infinite ease forwards;
+    animation-play-state: paused;
+    pointer-events: none !important;
+}
+
+/* starting circle */
+body::after { background-color: white; }
+
+body.starting::after {
+    content: "";
+    animation-play-state: running;
+}
+
+body.starting::before {
+    content: attr(msg);
+    position: absolute;
+    top: 1.5rem;
+    left: 5rem;
+    z-index: 998;
+    pointer-events: none !important;
+    font-weight: 350;;
+    color: black;
+}
+
+.dm body.starting::before {
+    color: white;
+}
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LEFT MENU 
+ 
+--------------------------------
+----------------------------- */
+
+
+#leftSlide button i {
+    margin-top: 0;
+    color: white;
+}
+
+#leftSlide button {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+#logo {
+    width: 100%;
+    height: 100%;
+    grid-row: 2 / 4;
+    grid-column: 18 / 19;
+}
+
+#logo img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    user-drag: none; 
+    user-select: none;
+}
+
+
+
+
+
+
+
+
+/*  PIN & UPGRADE */
+
+#sliderCaret {
+    position: relative;
+    text-align: center;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    padding-top: 0;
+    margin-top: 0;
+    grid-row: 7 / 8;
+    grid-column: 18 / 19;
+
+    opacity: 0.5;
+    transition: 0.3s opacity ease;
+    will-change: opacity;
+}
+
+#upgrade {
+    padding-top: 0;
+    margin-top: 0;
+    grid-row: 7 / 8;
+    grid-column: 2 / 17;
+    user-select: none;
+    cursor: pointer;
+}
+
+#upgrade #storageLeft + span {
+    color: var(--cryptee-green);
+}
+
+#upgrade span:last-child {
+    color: var(--cryptee-3);
+}
+
+#upgrade.loading {
+    pointer-events: none !important;
+}
+
+
+/* OFFLINE BADGE */
+
+#offline-badge {
+    padding-top: 0;
+    margin-top: 0;
+    grid-row: 7 / 8;
+    grid-column: 2 / 17;
+    user-select: none;
+    cursor: pointer;
+}
+
+
+
+/* MOVE & SELECTIONS / ACTION FLOATER */
+
+.actionFloater {
+    grid-column: 1 / 20;
+    z-index: 4;
+    
+    background-color: var(--cryptee-1);
+    color: white;
+    display: flex;
+    padding-right: 0.5rem;
+    position: relative;
+
+    transform: translateY(0);
+    transition-timing-function: var(--cryptee-cb);
+    transition-property: transform, background-color;
+    transition-duration: 0.5s;
+
+    user-select: none;
+}
+
+.actionFloater i {
+    line-height: 3rem;
+    min-height: 3rem;
+    min-width: 3rem;
+    text-align: center;
+}
+
+.actionFloater i:last-of-type {
+    font-size: 1.25rem;
+    opacity: 0.5;
+    transition: 0.3s opacity ease;
+}
+
+.actionFloater p, 
+.actionFloater small {
+    display: inline;
+    flex-grow: 1;
+    user-select: none;
+    margin-top: 0;
+}
+
+.actionFloater p {
+    line-height: 3rem;
+}
+
+.actionFloater small {
+    min-width: 10rem;
+    padding-left: 1rem;
+    margin-top: 1rem;
+    opacity: 1;
+    transition-duration: 0.3s;
+    transition-property: opacity;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.actionFloater progress {
+    position: absolute;
+    height: 1px;
+    top: -1px;
+    left: 0;
+}
+
+.swiper-slide:not(.activeSlide) .actionFloater {
+    pointer-events: none !important;
+}
+
+/* MOVE */
+
+#moveFloat { grid-row: 6 / 9; }
+
+#moveFloat button {
+    height: 4rem;
+    min-width: 4.325rem;
+    text-align: center;
+    background-color: var(--cryptee-green);
+    transition-duration: 0.5s;
+    transition-property: background-color, min-width;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#moveFloat button::before {
+    content: "move here";
+}
+
+#moveFloat i {
+    line-height: 4rem;
+    min-height: 4rem;
+    cursor: pointer;
+}
+
+.swiper-slide:not(.activeSlide) #moveFloat,
+#moveFloat:not(.show) {
+    transform: translateY(calc(4rem + 3px));
+    pointer-events: none !important;
+}
+
+#moveFloat.moving small {
+    opacity: 0;
+}
+
+#moveFloat.moving {
+    pointer-events: none !important;
+}
+
+#moveFloat.moving i {
+    opacity: 0;
+}
+
+#moveFloat.moving button {
+    min-width: 20rem;
+    pointer-events: none !important;
+    background-color: var(--cryptee-1) !important;
+}
+
+#moveFloat.moving button::before {
+    content: "moving...";
+}
+
+/* SELECTIONS */
+
+#selectionsFloat { 
+    grid-row: 1 / 4; 
+    border-bottom: 1px solid white;
+    cursor: pointer;
+}
+
+.swiper-slide:not(.activeSlide) #selectionsFloat,
+#selectionsFloat:not(.show) {
+    transform: translateY(calc(-3rem - 3px));
+}
+
+#selectionsFloat i:first-of-type {
+    font-size: 1rem;
+    transform: scale(1);
+    transition: 0.3s transform var(--cryptee-cb);
+}
+
+
+/* SEARCH */
+
+#searchInput {
+    padding-left: 0;  
+    padding-top: 0;
+
+    grid-column: 2 / 17;
+    grid-row: 2 / 4;
+    z-index: 3;
+
+    height: 2rem;
+    line-height: 2rem;
+    
+    margin-top: 0;
+    will-change: transform;
+    opacity: 1;
+}
+
+
+/* mozilla treats placeholder colors differently. */
+@-moz-document url-prefix() {
+    #leftSlide ::placeholder { color: #ccc !important; }
+}
+
+#leftSlide input {
+    color: white;
+    box-shadow: none !important;
+}
+
+#leftSlide input:focus {
+    -webkit-appearance: none;
+    box-shadow: none !important;
+}
+
+
+
+/* SEARCH PROGRESS */
+
+#searchProgress {
+    grid-column: 2 / 17;
+    grid-row: 4 / 5;
+    z-index: 4;
+    height: 1px;
+    opacity: 0.3;
+    transition: 0.3s opacity ease;
+}
+
+#searchInput:focus + #searchProgress {
+    opacity: 1;
+}
+
+
+
+
+/* side buttons */
+
+#explorerButtons {
+    grid-row: 5 / 6;
+    grid-column: 17 / 20;
+    text-align: center;
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#explorerButtons button {
+    text-align: center;
+    display: block;
+    width: 4rem;
+    height: 3rem;
+    line-height: 3rem;
+    position: relative;
+    user-select: none;
+    outline: none;
+    box-shadow: none;
+
+    opacity: 0.5;
+    transition: 0.3s opacity ease;
+    will-change: opacity;
+}
+
+#explorerButtons i, 
+#sliderCaret i {
+    text-align: center;
+}
+
+#explorerButtons button.active {
+    opacity: 1 !important;
+}
+
+#explorerButtons button::after, 
+#sliderCaret::after {
+    content: attr(alt);
+    color: black;
+    text-transform: lowercase;
+    margin-top: 0.125rem;  
+    font-size: 0.75rem;
+    line-height: 2rem; 
+    text-align: left;
+    width: 8rem;
+    position: absolute;
+    left: 5.5rem;
+    user-select: none;
+    outline: none;
+    box-shadow: none;
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+    will-change: opacity;
+}
+
+#sliderCaret::after {
+    left: 4.5rem;
+}
+
+#explorerButtons button::after {
+    line-height: 3rem; 
+}
+
+.dm #explorerButtons button::after, 
+.dm #sliderCaret::after {
+    color: white;
+}
+
+#explorerButtons .spacer {
+    flex-grow: 1;
+}
+
+#leftListWrapper {
+    grid-row: 4 / 7;
+    grid-column: 1 / 17;
+    width: 100%;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(4, 16rem);
+}
+
+
+#leftListWrapper > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+
+    height: calc(100% - 1rem);
+    width: 17rem;
+    padding: 1rem 0 0 0 ;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    will-change: transform;
+    transition: 1s transform var(--cryptee-cb);
+}
+
+.swiper-slide:not(.activeSlide) #leftListWrapper > div { 
+    transition-duration: 0s; 
+}
+
+#leftListWrapper > div:not(#activeFolder) > *:last-child {
+    margin-bottom: 1rem;
+}
+
+/* SEARCH */
+#leftListWrapper[show="results"] > div { transform: translate3d(0,0,0); }
+#leftListWrapper[show="results"] ~ #explorerButtons button {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+
+/* RECENTS */
+#leftListWrapper[show="recents"] > div { transform: translate3d(-16rem,0,0); }
+#leftListWrapper[show="recents"] > div::after { height: 1rem; content: ''; } /* this acts as bottom spacer */
+
+/* FOLDERS */
+#leftListWrapper[show="folders"] > div { transform: translate3d(-32rem,0,0); }
+#leftListWrapper[show="folders"] > div::after { height: 1rem; content: ''; } /* this acts as bottom spacer */
+
+
+/* ACTIVE FOLDER */
+#leftListWrapper[show="folder"] > div { transform: translate3d(-48rem,0,0); }
+
+
+#leftListWrapper[show="results"] > div:not(#results)      { overflow: hidden; }
+#leftListWrapper[show="recents"] > div:not(#recents)      { overflow: hidden; }
+#leftListWrapper[show="folders"] > div:not(#folders)      { overflow: hidden; }
+#leftListWrapper[show="folder"]  > div:not(#activeFolder) { overflow: hidden; }
+
+
+
+/* RECENTS BUTTONS EXCEPTIONS */
+#leftListWrapper[show="recents"] ~ #explorerButtons > #recentsButton { opacity: 1 !important; }
+
+/* FOLDERS BUTTONS EXCEPTIONS*/
+#leftListWrapper[show="folders"] ~ #explorerButtons > #foldersButton { opacity: 1 !important; }
+
+/* if the sidebar is closed, and we have an active folder, change the folders button label */
+#leftSlide:not(.activeSlide) #leftListWrapper[show="folder"] ~ #explorerButtons > #foldersButton::after {
+    content: "current folder";
+}
+
+
+#leftListWrapper:not([show="folders"]) ~ #explorerButtons > #archiveButton,
+#leftListWrapper:not([show="folders"]) ~ #explorerButtons > #summonButton { 
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+
+
+/* ACTIVE FOLDER BUTTONS EXCEPTIONS */
+#leftListWrapper:not([show="folder"]) ~ #explorerButtons > #sortButton,
+#leftListWrapper:not([show="folder"]) ~ #explorerButtons > #uploadFileButton { 
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+
+
+/* NEW FOLDER BUTTON EXCEPTIONS */
+/* new folder button should only show in folders / active folder */
+#leftListWrapper:not([show^="folder"]) ~ #explorerButtons > #newFolderButton {
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+
+
+
+
+#leftListWrapper[show="folders"].show-archived ~ #explorerButtons > #archiveButton {
+    opacity: 1 !important;
+}
+
+#uploadFileButton[disabled] {
+    opacity: 0.25 !important;
+    pointer-events: none !important;
+}
+
+#activeFolder::after {
+    position: absolute;
+    top:0;
+    left: 0;
+    
+    content: "";
+    font-weight: 350;
+    user-select: none;
+    
+    margin-top: 5rem;
+    margin-left: 1rem;
+    
+    opacity: 0;
+    transition: 0.6s opacity var(--cryptee-cb);
+}
+
+
+.fader {
+    z-index: 2;
+    grid-row: 3 / 5;
+    grid-column: 1 / 18;
+    background: linear-gradient(to bottom, #000000 50%, rgba(0,0,0,0) 100%);
+    will-change: transform;
+}
+
+.dm .fader {
+    background: linear-gradient(to bottom, var(--cryptee-0) 50%, rgba(18,18,18,0) 100%);
+}
+
+.fader.inverted {
+    grid-row: 6 / 7;
+    background: linear-gradient(to top, #000000 50%, rgba(0,0,0,0) 100%);
+}
+
+.dm .fader.inverted {
+    background: linear-gradient(to top, var(--cryptee-0) 50%, rgba(18,18,18,0) 100%);
+}
+
+#leftSlide.activeSlide #sliderCaret i::before {
+    content: "\EA64";
+}
+
+#leftSlide:not(.activeSlide) #explorerButtons button {
+    opacity: 0.5 !important;
+}
+
+#leftSlide:not(.activeSlide) #explorerButtons .hidden-while-editing {
+    pointer-events: none;
+    opacity: 0 !important;
+}
+
+#sortButton i       { transition-delay: 0.05s; }
+#uploadFileButton i { transition-delay: 0.1s;  }
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EMPTY SECTIONS IN LEFT SIDEBAR 
+ 
+--------------------------------
+----------------------------- */
+
+#leftListWrapper[show="folder"] #activeFolder.empty::after {
+    display: block;
+    content: "looks like this folder is empty. \a\a you can create a new document, create a new sub-folder,\a or upload some files here\a by pressing the blinking buttons on the right";
+    
+    padding: 0rem 1rem 0.25rem 0rem;
+    white-space: break-spaces;
+    line-height: 1.5rem;
+    font-weight: 350;
+    height: auto;
+    opacity: 1;
+}
+
+
+/* 5 seconds round */
+@keyframes blinkGroupForAttention1 {
+    0%        {opacity: 0.5;}
+    15%       {opacity: 1;}
+    30%, 100% {opacity: 0.5;}
+}
+
+@keyframes blinkGroupForAttention2 {
+    0%, 30%   {opacity: 0.5;}
+    45%       {opacity: 1;}
+    60%, 100% {opacity: 0.5;}
+}
+
+@keyframes blinkGroupForAttention3 {
+    0%, 60%   {opacity: 0.5;}
+    75%       {opacity: 1;}
+    90%, 100% {opacity: 0.5;}
+}
+
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newDocButton {
+    animation: blinkGroupForAttention1 5s infinite ease forwards;
+}
+
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newFolderButton {
+    animation: blinkGroupForAttention2 5s infinite ease forwards;
+}
+
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #uploadFileButton {
+    animation: blinkGroupForAttention3 5s infinite ease forwards;
+}
+
+
+#leftListWrapper[show="recents"] #recents:empty:after {
+    display: block;
+    content: "looks like you don't have any recent documents. \a\a to create a new document, \a you can press the blinking button";
+    
+    padding: 0.75rem 1rem 0.25rem 1rem;
+    white-space: break-spaces;
+    line-height: 1.5rem;
+    font-weight: 350;
+    height: auto;
+    opacity: 1;
+}
+
+
+#leftSlide.activeSlide #leftListWrapper[show="recents"].no-recents ~ #explorerButtons #newDocButton {
+    animation: blinkForAttention 2s infinite ease forwards;
+}
+
+
+#leftListWrapper[show="folders"] #folders:empty:after {
+    display: block;
+    content: "looks like you don't have any folders. \a\a\a\a to create a new folder, \a you can press the blinking button";
+    
+    padding: 0.75rem 1rem 0.25rem 1rem;
+    white-space: break-spaces;
+    line-height: 1.5rem;
+    font-weight: 350;
+    height: auto;
+    opacity: 1;
+}
+
+
+#leftSlide.activeSlide #leftListWrapper[show="folders"].no-folders ~ #explorerButtons #newFolderButton {
+    animation: blinkForAttention 2s infinite ease forwards;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DOCUMENTS & SUBFOLDERS
+ 
+--------------------------------
+----------------------------- */
+
+.doc, 
+.subfolder,
+.folderheader button {
+    opacity: 0.7 !important;
+    transition: 0.3s opacity ease;
+}
+
+.doc, 
+.subfolder,
+.folderheader {
+    z-index: 1;
+    display: flex;
+    cursor: pointer;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+}
+
+.doc button,
+.subfolder button,
+.folderheader button {
+    display: block;
+    min-width: 3rem;
+    min-height: 3rem;
+    max-width: 3rem;
+    max-height: 3rem;
+    margin: 0;
+    text-align: center;
+}
+ 
+.subfolder .icon, 
+.doc .icon, 
+.folderheader .icon {
+    flex-grow: 1;
+    position: relative;
+}
+
+.subfolder .name,
+.doc .name,
+.folderheader .name {
+    width: 100%;
+    margin-top: 1rem;
+    display: inline-block;
+    min-width: 11rem;
+    max-width: 11rem;
+    overflow-wrap: anywhere;
+}
+
+.doc .more ,
+.subfolder .more {
+    flex-grow: 1;
+    float: right;
+    opacity: 0 !important;
+    transition: 0.3s opacity ease;
+}
+
+.doc small {
+    display: block;
+    margin-top: 0;
+    color: var(--cryptee-2);
+}
+
+.doc .fldr {
+    text-transform: lowercase;
+    width: calc(100% - 0.5rem);
+    
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    white-space: break-spaces;
+}
+
+.doc .info {
+    filter: blur(0);
+    transition: 0.2s filter linear, 0.2s opacity linear;
+}
+
+#activeFolder .doc .info small {
+    opacity: 0 !important;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+
+/* SELECTED DOC */
+.doc.selected button.more {
+    opacity: 0 !important;
+}
+
+.doc.selected .icon i::before {
+    content: "\EB82";
+}
+
+
+
+/* DECRYPTING / LOADING / SAVING DOC */
+.doc.decrypting, 
+.doc.loading {
+    pointer-events: none !important;
+}
+
+.doc.decrypting .info {
+    filter: blur(3px);
+}
+
+.doc.saving .icon i::before,
+.doc.decrypting .icon i::before,
+.doc.loading .icon i::before {
+    content: "\EEC6" !important;
+}
+
+.doc.saving .icon i,
+.doc.decrypting .icon i,
+.doc.loading .icon i {
+    animation: spin 0.4s linear infinite;
+}
+
+.doc.saving .icon {
+    pointer-events: none !important;
+}
+
+.doc.loading .info { opacity: 0.5 !important; }
+.doc.saving .info { opacity: 0.7 !important; }
+
+/* OFFLINE DOC */
+
+.doc.offline:not(.selected):not(.loading):not(.decrypting):not(.selected) .icon:not(:hover) i {
+    transform: rotate(180deg) scaleX(-1);
+}
+
+.doc.offline:not(.selected):not(.loading):not(.decrypting):not(.selected) .icon:not(:hover) i::before {
+   content: "\F198"; 
+}
+
+.doc.offline:not(.selected):not(.loading):not(.decrypting):not(.selected) .icon:not(:hover)::before {
+    font-size: 0.65rem;
+    position: absolute;
+    right: 1.1875rem;
+    bottom: 0.65rem;
+    z-index: 2;
+
+    color: black;
+
+    content: "\F2C1";
+
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+body.offline .doc:not(.offline) {
+    pointer-events: none !important;
+}
+
+body.offline .doc:not(.offline) .info {
+    opacity: 0.35 !important;
+}
+
+body.offline .doc:not(.offline) .icon i::before {
+    content: "\ECCE";
+}
+
+
+
+
+
+
+
+
+
+/* FOLDER HEADER */
+
+.folderheader {
+    cursor: auto;
+    order: -1;
+}
+
+.folderheader button {
+    min-width: 3rem;
+    max-width: 3rem;
+    cursor: pointer;
+}
+
+.folderheader .name {
+    font-weight: bold;
+    user-select: none;
+    pointer-events: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.folderheader[fid="f-uncat"] .name {
+    min-width: 11rem !important;
+    max-width: 11rem !important;
+}
+
+/* EXTENSION SEPARATOR */
+
+.separator {
+    position: relative;
+    width: calc(100% - 2rem);
+    margin: 2rem 1rem 1rem 1rem;
+}
+
+.separator hr {
+    opacity: 0.4;
+    height: 0px;
+    border: none;
+    border-bottom: 1px solid white;
+}
+
+.separator small {
+    background-color: #000;
+    position: absolute;
+    margin-top: 0;
+    top: calc(-0.5rem - 2px);
+    left: 1.5rem;
+    padding: 0 0.5rem;
+    user-select: none;
+    font-weight: 700;
+}
+
+.dm .separator small {
+    background-color: var(--cryptee-0);
+}
+
+
+
+
+
+
+/* ACTIVE DOC  */
+
+
+
+.doc.active { 
+    opacity: 1 !important; 
+}
+
+.doc.active .info {
+    pointer-events: none !important; 
+}
+
+.doc.active .when {
+    font-size: 0;
+}
+
+.doc.active .when::before {
+    font-size: 0.75rem;
+    content: "editing now";
+    color: #FFF;
+    font-weight: 350;
+}
+
+.doc.active .when::after {
+    color: #FFF;
+    font-size: 0.75rem;
+    vertical-align: top;
+
+    content: "\EA6D";
+
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.doc.active:not(.loading):not(.decrypting):not(.offline):not(.isfile):not(.selected) .icon i::before { 
+    content:"\ED0E"; 
+}
+
+
+
+
+/* SAVING DOC */
+
+.doc.saving .when::before {
+    font-size: 0.75rem;
+    content: "saving";
+    color: #FFF;
+    font-weight: 350;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FOLDERS 
+ 
+--------------------------------
+----------------------------- */
+
+.folder {
+    z-index: 1;
+    position: relative;
+    width: 15rem;
+    margin: 0 1rem 1rem 1rem;
+    display: grid;
+    grid-template-rows: 1rem 1rem max-content;
+    grid-template-columns: repeat(auto-fit, 1rem);
+    cursor: pointer;
+    opacity: 0.7;
+    transition-duration: 0.3s;
+    transition-property: opacity, max-height, margin;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.foldertab {
+    grid-row: 1 / 3;
+    grid-column: 1 / 13;
+    height: 100%;
+    margin-top: 0.5rem;
+    pointer-events: none;
+    user-select: none;
+    -moz-user-select: none;
+    z-index: 1;
+}
+
+.folder .contents {
+    grid-row: 3 / 4;
+    grid-column: 1 / -1;
+
+    background-color: var(--cryptee-folder);
+    border-radius: 8px;
+    border-top-left-radius: 0;
+    
+    padding: 1rem 2rem 0.75rem 1rem;
+}
+
+.folder .name {
+    line-height: 1.125rem;
+    margin-top: 0;
+    font-weight: 700;
+    user-select: none;
+    color: var(--cryptee-4);
+
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    white-space: break-spaces;
+}
+
+.folder::before {
+    content: "";
+    position: absolute;
+    right: 1rem;
+    top: 1.875rem;
+    width: 75%;
+    height: 0.25rem;
+    background-color: var(--fcolor);
+    z-index: -1;
+    border-radius: 4rem;
+
+    transition: 0.5s background-color linear;
+}
+
+.folder i {
+    text-align: center;
+    grid-row: 3 / 4;
+    grid-column: 14 / 16;
+    z-index: 2;
+    width: 2rem;
+    height: 100%;
+    line-height: 100%;
+    line-height: 2.75rem;
+}
+
+.folder.archived {
+    opacity: 0;
+    max-height: 0;
+    margin: 0 1rem 0 1rem;
+    transition-duration: 1s;
+    overflow: hidden;
+    pointer-events: none !important;
+}
+
+#leftListWrapper.show-archived .folder.archived {
+    opacity: 1;
+    margin: 0 1rem 1rem 1rem;
+    max-height: 128px;
+    pointer-events: all !important;
+}
+
+.folder.archived .name::before {
+    content: "\EA47";
+
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    display: inline-block;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    width: 1rem;
+    vertical-align: middle;
+    font-style: normal;
+
+    margin-top: -0.325rem;
+    margin-right: 0.75rem;
+}
+
+
+
+
+
+
+
+
+/* RESULTS */
+
+#results > .doc.highlight, 
+#results > .subfolder.highlight {
+    opacity: 1 !important;
+    box-shadow: inset 3px 0px 0px #FFF;
+}
+
+#results > .doc .tags {
+    color: #FFF;
+}
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DROPDOWNS 
+ 
+--------------------------------
+----------------------------- */
+.dropdown {
+    position: absolute;
+    top: 8rem;
+    left: 16.75rem;
+    min-width: 14rem;
+    max-width: 17rem;
+
+    background-color: #242424;
+    z-index: 9;
+
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+
+    transform: translate3d(-1rem,0,0);
+    opacity: 0;
+    transition-duration: 0.3s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+
+    pointer-events: none;
+}
+
+.dropdown button {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem 0.5rem 0.75rem;
+    height: 3rem;
+    margin-top: 0;
+
+    transition: 0.1s background-color linear;
+}
+
+.dropdown button:last-child {
+    padding-bottom: 0.5rem;
+}
+
+.dropdown button.red {
+    color: white;
+    background-color: var(--cryptee-red);
+}
+
+.dropdown button.yellow {
+    color: black;
+    background-color: var(--cryptee-yellow);
+}
+
+.dropdown button.green {
+    color: white;
+    background-color: var(--cryptee-green);
+}
+
+.dropdown i {
+    margin-left: 0.25rem;
+    margin-right: 0.75rem;
+}
+
+.dropdown i[color] {
+    margin-right: 0.25rem;
+    transform: scale(1);
+    transition: 0.15s transform var(--cryptee-cb);
+}
+
+.dropdown i[color]:nth-child(2) {
+    margin-left: 0;
+}
+.dropdown i[color]:last-child {
+    text-shadow: 0 0 0 rgba(255,255,255,1);
+    margin-right: 0;
+}
+
+.dropdown.show {
+    opacity: 1;
+    pointer-events: all;
+    transform: translate3d(0,0,0);
+}
+
+.dropdown[name]::before {
+    content: attr(name);
+    user-select: none;
+    display: block;
+
+    height: 1.5rem;
+    line-height: 1.5rem;
+    width: calc(100% - 1.5rem);
+    padding: 0.75rem 0.75rem 0.5rem 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+    font-weight: 350;
+    font-size: 0.75rem; 
+
+    background-color: var(--cryptee-1);
+    color: white;
+    opacity: 0.5;
+}
+
+
+
+.dropdown:not(.for-offline-items) .show-for-offline-folder-or-doc { display: none; }
+.dropdown.for-offline-items       .hide-for-offline-folder-or-doc { display: none; }
+.dropdown:not([parent])           .hide-in-folders                { display: none; }
+
+.dropdown:not(.for-images)        .show-for-images { display: none; }
+
+.dropdown.for-files               .hide-for-files  { display: none; }
+.dropdown.for-active-folder       .hide-for-activefolder { display : none; }
+
+.dropdown.saving       .disabled-while-saving,
+.dropdown.for-reserved .disabled-for-reserved,
+.dropdown.for-active-doc .disabled-for-activedoc,
+.dropdown.for-archived-items .disabled-for-archived,
+body.no-doc .dropdown .disabled-for-empty-editor,
+body.locked-doc .dropdown .disabled-for-empty-editor,
+body.loading-doc .dropdown .disabled-for-empty-editor,
+body.viewing-doc .dropdown .disabled-for-empty-editor,
+#dropdown-selections.ios-multi-download .disabled-for-ios-multi-download {
+    opacity: 0.2;
+    pointer-events: none !important;
+}
+
+/* if folder is archived, change label to "un-archive" */
+#dropdown-folder.for-archived-items .show-for-archived-items::before {
+    content: "un-";
+}
+
+/* and icon to unarchive */
+#dropdown-folder.for-archived-items #archiveFolderButton:not(.loading) i::before {
+    content: "\EE50";
+}
+
+#dropdown-folder:not([fid="f-uncat"]) .for-inbox {
+    display: none;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PANELS 
+ 
+--------------------------------
+----------------------------- */
+
+
+.panel {
+    display: grid;
+    grid-auto-rows: max-content;
+    grid-template-columns: 3rem 1fr 1fr;
+
+    position: absolute;
+    top: 4rem;
+    right: 4rem;
+    
+    min-width: 16rem;
+    max-width: 18rem;
+    min-height: 3rem;
+    
+    background-color: #242424;
+    z-index: 9;
+
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+
+    pointer-events: none;
+    
+    transform: translate3d(1rem,0,0);
+    opacity: 0;
+    
+    transition-duration: 0.3s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.panel i {
+    /* margin-top: -0.125rem; */
+    height: 3rem;
+    line-height: 3rem;
+    text-align: center;
+}
+
+.panel button small {
+    max-width: calc(100% - 3rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: text-bottom;
+}
+
+.panel i + small,
+.panel i + small + small { 
+    margin-top: 1.125rem; 
+}
+
+.panel hr, .panel b { 
+    grid-column: span 3; 
+}
+
+.panel b {
+    height: 1rem;
+}
+
+.panel .wide {
+    grid-column: span 2;
+    padding-right: 1.25rem;
+}
+
+.panel .tall {
+    grid-row: span 2;
+    height: 7rem;
+    padding-bottom: 1rem;
+}
+
+.panel .tall .small {
+    display: inline;
+    width: calc(100% - 3rem);
+    float: right;
+}
+
+.panel small {
+    user-select: none;
+}
+
+.panel.show {
+    transform: translate3d(0,0,0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+
+button[id^="panel-button"].active i { opacity: 1 !important; }
+button[id^="panel-button"].active i::before { content: "\EB98"; }
+
+.panel button {
+    margin-top: 0;
+    grid-column: span 3;
+    height: 3rem;
+    padding-right: 1.25rem;
+    transition: 0.1s background-color linear;
+}
+
+.panel button:first-child {
+    margin-top: 0.25rem;
+}
+
+.panel button i {
+    width: 3rem;
+    line-height: 3rem;
+    height: 3rem;
+}
+
+.panel button span.small {
+    margin-top: 0.875rem !important;
+}
+
+.panel button .toggle {
+    float: right;
+    font-size: 1.5rem;
+    margin-right: -0.75rem;
+    margin-top: -0.25rem;
+}
+
+.panel button .toggle::before { 
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    content:"\F219"; 
+}
+
+.panel button.on .toggle::before { 
+    content:"\F218"; 
+}
+
+
+.panel button.red {
+    color: white;
+    background-color: var(--cryptee-red);
+}
+
+.panel button.yellow {
+    color: black;
+    background-color: var(--cryptee-yellow);
+}
+
+.panel button.green {
+    color: white;
+    background-color: var(--cryptee-green);
+}
+
+.panel input {
+    width: 100%;
+}
+
+
+
+/* MOBILE PANELS */
+/* this is a minor correction to make panels appear in the correct place for mobile editor */
+
+body.bubble .panel:not(.centered) {
+    top: auto;
+    right: auto;
+    left: 4rem;
+    bottom: 4rem;
+}
+
+/* VIEWPORT-CENTERED FLYING PANEL */
+
+.panel.centered {
+    position: fixed;
+    margin: auto;
+    z-index: 9;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+
+    height: 24rem;
+    width: 100%;
+    max-width: 16rem;
+    min-width: calc(320px - 8rem);
+
+    padding: 2rem;
+    color: white;
+
+    transform: translate3d(0, 2rem, 0);
+    grid-template-columns: 1fr;
+    grid-template-rows: 2rem 4rem 2rem;
+}
+
+.panel.centered.show {
+    transform: translate3d(0, 0, 0);
+}
+
+body.bubble .panel.centered {
+    width: calc(100% - 9rem);
+    margin: 8rem auto auto auto;
+}
+
+
+/* VIEWPORT-CORNER FLYING PANEL */
+
+.panel.corner {
+    display: block;
+    position: fixed;
+    margin: auto;
+    z-index: 9;
+    top: auto;
+    left: auto;
+    right: 4rem;
+    bottom: 4rem;
+
+    height: auto;
+    width: 100%;
+    max-width: 16rem;
+    min-width: calc(320px - 8rem);
+    max-height: 20rem;
+
+    padding: 2rem;
+    color: white;
+
+    transform: translate3d(0, 2rem, 0);
+}
+
+.panel.corner.show {
+    transform: translate3d(0, 0, 0);
+}
+
+
+
+
+.panel:not(.for-offline-items) .show-for-offline-folder-or-doc { display: none; }
+.panel.for-offline-items       .hide-for-offline-folder-or-doc { display: none; }
+
+
+.panel.saving       .disabled-while-saving,
+.panel.for-reserved .disabled-for-reserved {
+    opacity: 0.2;
+    pointer-events: none !important;
+}
+
+
+.dropdown.saving::after,
+.panel.saving::after {
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    content: "\F24B";
+    position: absolute;
+    font-size: 1.75rem;
+    top: 0.5rem;
+    right: 0.625rem;
+    text-align: center;
+    
+    z-index: 1;
+    color: white;
+    opacity: 0.3;
+
+    animation: animateSavingCloud 2s infinite ease forwards;
+}
+
+@keyframes animateSavingCloud {
+    0%   {  content: "\F24B"; }
+    50%  {  content: "\EB9C"; }
+    100% {  content: "\F24B"; }
+}
+
+
+/* DOCUMENT INFO PANEL */
+
+.total-words:empty + span { display: none;}
+.total-chars:empty + span { display: none;}
+.selection-words:empty + span { display: none;}
+.selection-chars:empty + span { display: none;}
+
+.total-words:empty::after { 
+    content: "document is empty";
+    grid-column: span 2;
+    color: var(--cryptee-yellow);
+}
+
+.selection-words:empty::after {
+    content: "no text selected";
+    grid-column: span 2;
+    color: var(--cryptee-yellow);
+}
+
+#remoteImagesButton {
+    border-top: 2px solid #FFF;
+}
+
+#remoteImagesButton[remoteimages="hidden"] .small::before {
+    content: "this document contains remote images and cryptee blocked them to protect your security & privacy. click here to learn how to fix this, and load remote images in this document if you'd like.";
+}
+
+#remoteImagesButton[remoteimages="loaded"] .small::before {
+    content: "this document contains remote images which may pose a risk for your security & privacy. click here to block remote images in this document.";
+}
+
+
+
+
+
+/* PAGE SETUP PANEL */
+
+#panel-pagesetup {
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+#panel-pagesetup .wide {
+    padding-right: 0;
+}
+
+#panel-pagesetup p {
+    cursor: pointer;
+}
+
+
+
+/* EXPORT DOC PANEL */
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ADD LINK PANEL 
+NEW DOC PANEL
+ 
+--------------------------------
+----------------------------- */
+#link-box, #panel-new-doc {
+    height : 8.25rem;
+}
+
+#link-box .confirm img,
+#panel-new-doc .confirm img {
+    height: 100%;
+    width: 100%;;
+}
+
+#link-box input,
+#panel-new-doc input {
+    transition: 0.15s width var(--cryptee-cb);
+    width: calc(100% - 3rem);
+}
+
+#link-box input:placeholder-shown,
+#panel-new-doc input:placeholder-shown {
+    width: 100%;
+}
+
+#link-box .confirm,
+#panel-new-doc .confirm {
+
+    padding-right: 0 !important;
+
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+
+    height: 1rem;
+    width: 1rem;
+
+    transform: rotate(45deg);
+
+    opacity: 1;
+    transition: 0.15s opacity var(--cryptee-cb);
+
+}
+
+#link-box input:placeholder-shown ~ .confirm,
+#panel-new-doc input:placeholder-shown ~ .confirm {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+NEW TABLE PANEL / POPUP 
+ 
+--------------------------------
+----------------------------- */
+
+
+#table-picker {
+    display: grid;
+    grid-template-columns: repeat(8, 2rem);
+    
+    height: 16.5rem; /* 8px for borders */
+    width:  16rem;
+
+    border-top: 1px solid #fff;
+    border-right: 1px solid #fff;
+    
+    margin-top: 1.5rem;
+}
+
+.table-picker-cell {
+    height: 2rem;
+    line-height: 2rem;
+    
+    border-bottom: 1px solid #fff;
+    border-left: 1px solid #fff;
+    
+    background-color: transparent;
+    color: #f5f5f5;
+
+    font-family: monospace;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 1px;
+    
+    padding-left: 2px;
+    user-select: none;
+    cursor: pointer;
+}
+
+.table-picker-cell.s {
+    color: transparent;
+    background-color: rgba(29,185,84,0.7);
+}
+
+#add-table.compact {
+    max-width: 12rem;
+    max-height: 20rem;
+}
+
+#add-table.compact #table-picker {
+    grid-template-columns: repeat(6, 2rem);
+    height: calc(12rem + 6px); /* 6px for borders */
+    width:  12rem;
+}
+
+
+#add-table.compact .table-picker-cell[r='7'],
+#add-table.compact .table-picker-cell[r='8'],
+#add-table.compact .table-picker-cell[c='7'],
+#add-table.compact .table-picker-cell[c='8'] {
+    display: none !important;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EMBEDDING IMAGE PANEL 
+ 
+--------------------------------
+----------------------------- */
+
+#panel-embedding-image {
+    grid-template-rows: 4rem 4rem 4rem;
+    height: 9rem;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+UPLOADER PANEL 
+ 
+--------------------------------
+----------------------------- */
+
+#panel-uploads {
+    min-height: 0rem;
+    max-height: 10rem;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    pointer-events: none !important;
+}
+
+#panel-uploads:not(:empty) {
+    transform: translate3d(0,0,0);
+    opacity: 1;
+}
+
+#panel-uploads::before {
+    content: "ENCRYPTING / SAVING";
+    
+    margin-top: 0.25rem;         /* 8px spacing to match vertical rhythm on grid */
+    font-size: 1rem;            /* 16px */
+    line-height: 1.5rem;        /* 24px */
+    font-weight: 700;
+    
+    display: block;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: 0.5s opacity ease, 0.5s height ease;
+}
+
+#panel-uploads:not(:empty)::before {
+    height: 1.5rem;
+    opacity: 1;
+}
+
+#panel-uploads .upload {
+    display: grid;
+    grid-template-columns: 1fr 3.5rem;
+    grid-template-rows: 2.5rem 0.5rem;
+
+    transition: 0.5s opacity ease, 0.5s height ease;
+    height: 3rem;
+    opacity: 1;
+}
+
+#panel-uploads .upload[status="%100.00"],
+#panel-uploads .upload[status="%00.00"] {
+    opacity: 0;
+    height: 0;
+}
+
+#panel-uploads .upload:not([status^="%"]) p {
+    color: var(--cryptee-red);
+}
+
+#panel-uploads .upload:not([status^="%"]) .status {
+    margin-top: 0.25rem;
+}
+
+#panel-uploads[uploaded][total]::before {
+    content: "ENCRYPTING & UPLOADING (" attr(uploaded) "/" attr(total) ")";
+    font-size: 0.8rem;
+}
+
+#panel-uploads .status {
+    text-align: right;
+}
+
+#panel-uploads .progress {
+    grid-column: span 2;
+}
+
+#panel-uploads p {
+    text-transform: lowercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* corner popup next to uploader popup */
+#panel-uploads:not(:empty) ~ .popup.corner.created { transform: translate3d(-24rem,0,0); }
+#panel-uploads:not(:empty) ~ .popup.corner.created ~ .popup.corner.created { transform: translate3d(-48rem,0,0); }
+#panel-uploads:not(:empty) ~ .popup.corner.created ~ .popup.corner.created ~ .popup.corner.created { transform: translate3d(-72rem,0,0); }
+
+/* -----------------------------
+-------------------------------- 
+ 
+EDITOR & RIGHT VIEW 
+ 
+--------------------------------
+----------------------------- */
+
+#rightSlide button i {
+    margin-top: 0;
+}
+
+#rightSlide button {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+
+#progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    height: 3px;
+
+    opacity: 1;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EDITOR TOOLBARS (DESKTOP & MOBILE) 
+ 
+--------------------------------
+----------------------------- */
+
+#desktopToolbar, #mobileToolbar {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+    padding: 0;
+    border: 0;
+    box-sizing: initial;
+    font-family: 'Josefin Sans' !important;
+    font-size: 1rem !important;
+    user-select: none !important;
+
+    opacity: 1;
+    transition: 0.5s opacity var(--cryptee-cb);
+}
+
+#desktopToolbar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#rightSlide > #mobileToolbar {
+    display: none;
+}
+
+#statusMessage {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+    padding-left: 1.5rem;
+    margin-top: 0.625rem;
+    user-select: none;
+    pointer-events: none;
+
+    opacity: 0;
+    transition: 0.5s opacity var(--cryptee-cb);
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+URL BOX 
+ 
+--------------------------------
+----------------------------- */
+
+#urlbox {
+    grid-row: 1 / 4;
+    grid-column: 1 / -1;
+    padding: 1rem;
+    border: 0;
+    box-sizing: initial;
+    font-family: 'Josefin Sans' !important;
+    font-size: 1rem !important;
+    line-height: 2rem !important;
+    user-select: none !important;
+    font-weight: 350;
+
+    background-color: var(--cryptee-green);
+    color: #FFF;
+
+    opacity: 1;
+    transform: translateY(0);
+    transition: 0.5s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
+
+    z-index: 2;
+}
+
+#urlbox a::before {
+    content: "visit";
+    margin-right: 1rem;
+    font-weight: 700;
+}
+
+#urlbox a {
+    display: block;
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-transform: lowercase;
+}
+
+#urlbox:not(.show) {
+    transform: translateY(-4rem);
+    pointer-events: none !important;
+}
+
+body:not(.bubble) #urlbox {
+    display: none !important;
+    transform: translateY(-4rem) !important;
+    pointer-events: none !important;
+}
+
+#urlbox.insecure {
+    background-color: var(--cryptee-yellow);
+    color: #000;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+EDITOR 
+ 
+--------------------------------
+----------------------------- */
+
+#editorWrapper {
+    grid-row: 4 / -1;
+    grid-column: 1 / 2;
+
+    opacity: 1;
+    transition: 0.5s opacity var(--cryptee-cb);
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FILE VIEWER 
+ 
+--------------------------------
+----------------------------- */
+
+#fileViewerWrapper {
+    grid-row: 1 / -1;
+    grid-column: 1 / -1;
+
+    opacity: 1;
+    transition: 0.5s opacity var(--cryptee-cb);
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DOCUMENT ACTION BUTTONS
+ 
+--------------------------------
+----------------------------- */
+
+#documentActionButtons {
+    grid-row: 4 / 5;
+    grid-column: 3 / 4;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#documentActionButtons button {
+    text-align: center;
+    line-height: 3rem;
+    width: 2rem;
+    height: 3rem;
+
+    transform: translateX(0) translateY(0);
+    transition: 0.5s transform var(--cryptee-cb);
+}
+
+#helpButton {
+    text-align: center;
+    grid-row: 6 / 7;
+    grid-column: 3 / 4;
+    line-height: 2rem;
+    height: 2rem;
+}
+
+#hotkeysButton {
+    text-align: center;
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+    line-height: 2rem;
+    height: 2rem;
+}
+
+#documentActionButtons i, 
+#helpButton i,
+#hotkeysButton i {
+    color: black !important;
+    opacity: 0.4;
+    transition: 0.3s opacity ease;
+}
+
+.dm #documentActionButtons i, 
+.dm #helpButton i,
+.dm #hotkeysButton i {
+    color: white !important;
+}
+
+#documentActionButtons button::before, 
+#helpButton::before,
+#hotkeysButton::before {
+    content: attr(alt);
+    color: black;
+    text-transform: lowercase;
+    text-align: right;
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 3rem;
+    width: 8rem;
+    position: absolute;
+    right: 4rem;
+    user-select: none;
+    outline: none;
+    box-shadow: none;
+    opacity: 0;
+    z-index: 4;
+    pointer-events: none;
+    will-change: opacity;
+}
+
+#helpButton::before,
+#hotkeysButton::before {
+    line-height: 2rem; 
+}
+
+#hotkeysButton::before {
+    background-color: var(--cryptee-4);
+}
+
+.dm #hotkeysButton::before {
+    background-color: var(--oled-safe-black);
+}
+
+.dm #documentActionButtons button::before, 
+.dm #helpButton::before,
+.dm #hotkeysButton::before {
+    color: white;
+}
+
+body.bubble #panel-button-docinfo.warning i, 
+#panel-button-docinfo.warning i { 
+    color : var(--cryptee-yellow) !important;
+    opacity: 1 !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+table of contents 
+ 
+--------------------------------
+----------------------------- */
+
+#tableofcontents > * { 
+    margin-top: 0.5rem; 
+    cursor: pointer;
+    display: block;
+}
+
+#tableofcontents:empty::after {
+    content: "looks like you don't have any headings in your document. once you add headings to your document – which you can do using the 'H1', 'H2', 'H3' buttons in the editor – your headings will show up here in the table of contents. you can click on a heading here in the table of contents to scroll to the heading, and navigate through long documents";
+    line-height: 1.5rem;
+    font-weight: 350;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+HOTKEYS MODAL 
+ 
+--------------------------------
+----------------------------- */
+
+.modal table {
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DELETING MODALS
+ 
+--------------------------------
+----------------------------- */
+
+#making-online-filenames p::before, 
+#deleting-filenames p::before {
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    content: "\ECEB";
+    
+    display: inline-block;
+    margin-top: -0.5rem;
+    margin-right: 1rem;
+
+    font-size: 1rem;
+    line-height: 1rem;
+    width: 1rem;
+    vertical-align: middle;
+    margin-left: 0rem;
+    margin-right: 0.75rem;
+}   
+
+
+#making-online-filenames p, 
+#deleting-filenames p {
+    display: block;
+    background-color: #fff;
+    color: var(--cryptee-red);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+}
+
+.deleting-active-doc-tag, 
+.deleting-not-synced-tag {
+    width: calc(100% - 1rem);
+    display: block;
+    background-color: #f2f2f2;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-top: 0.75rem;
+}
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+BLANK EDITOR 
+ 
+--------------------------------
+----------------------------- */
+
+#blankEditor {
+
+    grid-row: 4 / 5;
+    grid-column: 1 / 2;
+
+    opacity: 1;
+    transition: 0.5s opacity var(--cryptee-cb);
+
+    display: grid;
+    grid-template-columns: 1fr minmax(16rem, 32rem) 1fr;
+    grid-template-rows: minmax(0,1fr) minmax(16rem, 38rem) minmax(0,1fr);
+}
+
+@media (max-height : 760px) {
+    #blankEditor {
+        grid-template-rows: minmax(0,1fr) minmax(16rem, calc(100vh - 8rem)) minmax(0,1fr);
+    }
+}
+
+#blankEditor > div {
+    grid-column: 2/3;
+    grid-row: 1/4;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 0 4rem;
+    color: var(--cryptee-2);
+
+    display: grid;
+    grid-template-rows: 1fr auto 1fr;
+}
+
+#blankEditor article {
+    grid-row: 2/3;
+}
+
+#blankEditor > div img {
+    width: 2.25rem;
+    height: 2.25rem;
+    object-fit: contain;
+    opacity: 0.2;
+    display: block;
+    margin: 0 auto 2rem auto;
+    user-select: none;
+}
+
+#blankEditor p, 
+#blankEditor details,
+#blankEditor summary {
+    user-select: none;
+}
+
+#blankEditor summary { 
+    color: var(--cryptee-2); 
+}
+
+#blankEditor details > p     { color: var(--cryptee-1); }
+.dm #blankEditor details > p { color: var(--cryptee-4); }
+
+.dm #blankEditor > div img {
+    filter: invert(1);
+    opacity: 0.3;
+}
+
+body:not(.no-doc) #blankEditor {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EDITOR STATES 
+ 
+--------------------------------
+----------------------------- */
+
+
+body.loading-doc #desktopToolbar,
+body.no-doc #desktopToolbar, 
+body.loading-doc #mobileToolbar,
+body.no-doc #mobileToolbar,
+body.loading-doc #editorWrapper,
+body.no-doc #editorWrapper {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body.loading-doc #documentActionButtons button,
+body.no-doc #documentActionButtons  button{
+    transform: translateX(4rem) !important;
+    pointer-events: none !important;
+}
+
+body.loading-doc .ql-editor,
+body.no-doc .ql-editor {
+    pointer-events: none !important;
+}
+
+
+
+
+
+
+
+body.loading-doc #statusMessage {
+    opacity: 1;
+    animation: blinkEntirely 1s infinite ease forwards;   
+}
+
+.dm body.loading-doc #statusMessage {
+    color: var(--cryptee-4);
+}
+
+
+body.locked-doc #desktopToolbar > .ql-formats {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    filter: blur(4px);
+}
+
+body.locked-doc #desktopToolbar::before {
+    content: "locked";
+    position: absolute;
+    right: 4rem;
+    top: 1.675rem;
+    width: calc(100% - 4rem);
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    color: black;
+    letter-spacing: 0;
+    opacity: 0.7;
+    transition: 0.3s opacity ease;
+}
+
+.dm body.locked-doc #desktopToolbar::before {
+    color: white;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+VIEWING MODE 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+body.viewing-doc #leftSlide:not(.activeSlide),
+body.viewing-doc #progress {
+    opacity: 0;
+}
+
+body.viewing-doc #desktopToolbar { 
+    opacity: 0 !important; 
+    pointer-events: none !important;
+}
+
+body.viewing-doc #documentActionButtons #panel-button-doctools {
+    transform: translateY(-6.5rem);
+}
+
+body.viewing-doc #panel-doctools {
+    transform: translate3d(0,-3.25rem,0);
+}
+
+body.viewing-doc #documentActionButtons button:not(#panel-button-doctools),
+body.viewing-doc #hotkeysButton,
+body.viewing-doc #helpButton {
+    pointer-events: none !important;
+}
+
+body.viewing-doc #documentActionButtons button:not(#panel-button-doctools) i,
+body.viewing-doc #hotkeysButton i,
+body.viewing-doc #helpButton i { 
+    opacity: 0 !important;
+}
+
+body.viewing-doc #documentActionButtons #panel-button-doctools i {
+    opacity: 0.2 !important;
+}
+
+body.viewing-doc #panel-doctools button:not(#viewingModeButton) {
+    display: none !important;
+}
+
+body.viewing-doc:not(.starting),
+body.viewing-doc.overflowBG:not(.starting) {
+    background: var(--cryptee-4);
+}
+
+.dm body.viewing-doc:not(.starting),
+.dm body.viewing-doc.overflowBG:not(.starting) {
+    background: var(--oled-safe-black);
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+OFFLINE MODE 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+body.offline .panel button.disabled-in-offline-mode .toggle {
+    display: none;
+}
+
+body.offline .dropdown .disabled-in-offline-mode,
+body.offline .panel .disabled-in-offline-mode {
+    opacity: 0.2;
+    pointer-events: none !important;
+}
+
+body.offline .dropdown::after,
+body.offline .panel::after {
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    content: "\F2C1";
+    position: absolute;
+    font-size: 1.75rem;
+    top: 0.5rem;
+    right: 0.625rem;
+    text-align: center;
+    
+    z-index: 1;
+    color: white;
+    opacity: 0.3;
+}
+
+body.offline .dropdown::before,
+body.offline .panel::before {
+    width: calc(100% - 3.75rem);
+    padding: 0.75rem 3rem 0.5rem 0.75rem;
+    background-color: transparent;
+}
+
+body.offline .dropdown .delete,
+body.offline .panel .delete {
+    background-color: transparent;
+}
+
+
+body.offline .cryptee-attachfile,
+body.offline .ql-video {
+    pointer-events: none !important;
+    opacity: 0.2 !important;
+}
+
+body.offline #uploadFileButton,
+body.offline #newFolderButton {
+    display: none !important;
+}
+
+body.offline #upgrade { display: none; }
+body:not(.offline) #offline-badge {display: none; }
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MOBILE MODE 
+ 
+--------------------------------
+----------------------------- */
+
+body.bubble #rightSlide { background-color: white; }
+.dm body.bubble #rightSlide,
+.dm body.bubble .ql-editor { 
+    background-color: var(--oled-safe-black); 
+}
+
+body.bubble #blankEditor {
+    grid-row: 1 / -1;
+}
+
+body.bubble #blankEditor,
+body.bubble #editorWrapper {
+    grid-column: 1/-1;
+}
+
+body.bubble #blankEditor > div {
+    padding: 3rem 1.5rem 0 1.5rem;
+    grid-row: 1/-1;
+}
+
+body.bubble #editorWrapper .ql-editor {
+    padding: 0.5rem 1.5rem;
+}
+
+body.bubble #desktopToolbar { 
+    justify-content: flex-end;
+}
+
+body.bubble #desktopToolbar .ql-formats * {
+    color: black;
+    stroke: black;
+    fill: black;
+}
+
+.dm body.bubble #desktopToolbar .ql-formats * {
+    color: white;
+    stroke: white;
+    fill: white;
+}
+
+body.bubble #desktopToolbar {
+    opacity: 0.4;
+}
+
+body.bubble #documentActionButtons i, 
+body.bubble #helpButton i,
+body.bubble #hotkeysButton i  {
+    opacity: 0.3;
+}
+
+body.bubble #documentActionButtons {
+    grid-row: 5 / 6;
+    grid-column: 18 / 19;
+    text-align: center;
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+}
+
+body.bubble #documentActionButtons button {
+    will-change: transform;
+}
+
+body.bubble #documentActionButtons i {
+    color: white !important;
+    opacity: 0.5;
+}
+
+body.bubble #documentActionButtons button:first-child {
+    margin-top: auto;
+}
+
+body.bubble #leftSlide.activeSlide #documentActionButtons button {
+    transform: translateX(4rem) !important;
+    pointer-events: none !important
+}
+
+body.bubble #viewingModeButton {
+    display: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DROPZONES
+ 
+--------------------------------
+----------------------------- */
+
+#dropzone {
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 1fr;
+}
+
+#dropzone > div { 
+    grid-row : 1 / -1; 
+    
+    display: grid;    
+    grid-template-rows: 1fr 4rem 6rem 2rem 1fr;
+    grid-template-columns: 1fr;
+    padding: 4rem;
+}
+
+#explorer-dropzone { 
+    grid-column : 1/2; 
+    background-color: var(--cryptee-0); 
+    color: var(--cryptee-4);
+}
+
+#document-dropzone { 
+    grid-column : 2/3; 
+    background-color: var(--cryptee-4); 
+    color: var(--cryptee-0);
+}
+
+#dropzone.show {
+    pointer-events: all !important;
+}
+
+#dropzone progress {
+    opacity: 0;
+    transition: 0.2s opacity ease;
+}
+
+#dropzone.show progress:not([value]) {
+    opacity: 1 !important;
+}
+
+#dropzone.show progress:not([value]),
+#dropzone.show div.highlight > progress {
+    opacity: 1 !important;
+}
+
+#explorer-dropzone i {
+    margin-top: -0.325rem;
+    margin-right: 0.5rem;
+}
+
+body.no-doc #document-dropzone {
+    display: none;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+SPLIT VIEW MODE 
+ 
+--------------------------------
+----------------------------- */
+
+@media (min-width : 1121px) {
+    body:not(.pinned).split #desktopToolbar { width: 50%; }
+    body:not(.pinned).split #editorWrapper { width: 50%; }
+}
+
+@media (min-width : 1696px) {
+    body.split.pinned #desktopToolbar { width: calc(50% - 160px + 2rem); grid-row: 1/4; }
+    body.split.pinned #editorWrapper { width: calc(50% - 160px + 2rem); }
+}
+
+@media (min-width : 1121px) and (max-width:2047px) { 
+    body:not(.pinned).split #desktopToolbar { width: calc(50% + 2rem); grid-row: 1/4; }
+}
+
+@media (min-width : 1696px) and (max-width:2047px) { 
+    body.split.pinned #desktopToolbar { width: calc(50% - 160px + 2rem); grid-row: 1/4; }
+}
+
+@media (min-width : 2047px) and (max-width:2079px) { 
+    body.split #desktopToolbar { grid-row: 1/4; }
+}
+
+@media (max-width : 1359px) { 
+    body.pinned #desktopToolbar { grid-row: 1/4; }
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+
+PINNED 
+
+--------------------------------
+----------------------------- */
+
+
+body.pinned #rightSlide {
+    min-width: calc(100% - 320px);
+    max-width: calc(100% - 320px);
+}
+
+body.pinned #sliderPin i::before {
+    content: "\F038";
+}
+    
+body.pinned #sliderPin { 
+    opacity: 1; 
+}
+
+body.pinned #sliderCaret {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+body.pinned #explorerButtons {
+    grid-row: 5 / 8;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA QUERIES 
+ 
+--------------------------------
+----------------------------- */
+
+/* 70rem */
+@media (max-width : 1120px) {
+    #desktopToolbar {
+        grid-row: 1/4;
+        width: 32rem; /* 640px */
+        margin: auto;
+    }
+
+    #link-box {
+        max-width: calc(100% - 8rem);
+    }
+    
+}
+
+@media (max-width : 896px) {
+    #sliderPin { display: none; }
+}
+
+@media (max-width : 703px) {
+    #desktopToolbar {
+        grid-row: 2/3;
+        width: 100%;
+    }
+}
+
+@media (max-width : 544px) {
+    .modal.wide {
+        width: 12rem;
+    }    
+
+    .modal table {
+        font-size: 0.75rem;
+    }
+
+    .dropdown {
+        left: auto;
+        right: 1.75rem;
+    }
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IT'S A POINTER DEVICE,
+ENABLE HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+
+    /* -----------------------------
+    -------------------------------- 
+     
+    LEFT MENU 
+     
+    --------------------------------
+    ----------------------------- */
+    
+    #searchInput:hover + #searchProgress {
+        opacity: 0.5;
+    }
+
+    #searchInput:hover:focus + #searchProgress {
+        opacity: 1;
+    }
+
+    #explorerButtons button:hover::after,
+    #sliderCaret:hover::after {
+        opacity: 1;
+    }
+
+    #documentActionButtons button:hover i, 
+    #helpButton:hover i,
+    #hotkeysButton:hover i,
+    #documentActionButtons button:hover::before, 
+    #helpButton:hover::before,
+    #hotkeysButton:hover::before {
+        opacity: 1;
+    }
+
+    #leftSlide:not(.activeSlide) #explorerButtons button:hover,
+    #explorerButtons button:hover,
+    #sliderCaret:hover {
+        opacity: 1 !important;
+    }
+
+    .actionFloater:hover i:first-child {
+        transform: scale(1.25);
+    }
+    
+    .actionFloater i:hover:last-of-type {
+        opacity: 1;
+    }
+
+    .actionFloater button:hover {
+        background-color: rgba(29,185,84,0.7) !important;
+    }
+    
+    #selectionsFloat:hover {
+        background-color: #242424 !important;
+    }
+
+    /* DOCUMENT & SUBFOLDER */
+    .folderheader button:hover,
+    .subfolder:hover .more,
+    .subfolder:hover,
+    .doc:hover .more,
+    .doc:hover {
+        opacity: 1 !important;
+    }
+    
+    .doc:not(.selected) .icon:hover i::before {
+        content: "\EB85" !important;
+    }
+    
+    .doc.selected .icon:hover i::before {
+        content: "\EB83" !important;
+    }
+
+    /* FOLDER */
+    .folder:hover {
+        opacity: 1;
+    }
+
+    /* dropdowns */
+    .dropdown i[color]:hover {
+        transform: scale(1.5);
+    }
+    
+    .dropdown button:hover,
+    .panel button:hover { 
+        background-color: black; 
+    }
+
+    .dropdown button.red:hover,
+    .panel button.red:hover { 
+        background-color: rgba(204,1,1,0.7); 
+    }
+
+    .dropdown button.green:hover,
+    .panel button.green:hover { 
+        background-color: rgba(29,185,84,0.7); 
+    }
+
+    .dropdown button.yellow:hover,
+    .panel button.yellow:hover { 
+        background-color: #dea300; 
+    }
+
+    #activeDocFolderButton:hover i::before,
+    #loadParentOfDocButton:hover i::before {
+        content: "\ED6F";
+    }
+
+    /* toc */
+
+    #panel-pagesetup p.gray:hover {
+        color: var(--cryptee-3);
+    }
+
+    body.locked-doc #desktopToolbar:hover:before {
+        opacity: 1;
+    }
+
+    .table-picker-cell:hover {
+        background-color: var(--cryptee-green);
+    }
+
+    #file-viewer-nav button:hover { opacity: 1 !important;}
+}
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+TOUCHSCREEN DEVICE 
+ENABLE TOUCH SPECIFIC THINGS 
+
+--------------------------------
+----------------------------- */
+
+@media (-moz-touch-enabled: 1), (pointer:coarse) {  
+
+    #leftSlide { overflow: hidden; }
+
+    #leftListWrapper[show="results"] > #results      button.more { opacity: 1 !important; }
+    #leftListWrapper[show="recents"] > #recents      button.more { opacity: 1 !important; }
+    #leftListWrapper[show="folders"] > #folders      button.more { opacity: 1 !important; }
+    #leftListWrapper[show="folder"]  > #activeFolder button.more { opacity: 1 !important; }
+
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PRINT MODE 
+ 
+--------------------------------
+----------------------------- */
+
+
+@page {
+    size: auto;
+    margin-top: 2cm;
+    margin-bottom: 2cm;
+}
+
+@media print {
+    
+    * { transition: none !important; }
+
+    html, body {
+        position: relative !important;
+        height: auto !important;
+        overflow: auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    .swiper-container, .swiper-wrapper {
+        transform: translate3d(0px, 0px, 0px) !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: auto !important;
+        padding: 0 !important;
+    }
+
+    #leftSlide, 
+    #rightSlide > *:not(#editorWrapper),
+    #rightSlide > #editorWrapper > *:not(.ql-editor), 
+    body > *:not(.swiper-container) {
+        display: none !important; 
+    }
+
+     
+    #rightSlide {
+        padding: 0 !important;
+        height: auto !important;
+        max-width: 100% !important;
+        overflow: auto !important;
+        display: block !important;
+        background-color: transparent !important;
+    }
+
+    #editorWrapper {
+        padding: 0 !important;
+        grid-row: 1 / -1;
+        grid-column: 1 / -1;
+        overflow: auto !important;
+        height: auto !important;
+        width: auto !important;
+    }
+    
+    .ql-editor {
+        position: relative !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        overflow: auto !important;
+        background-color: transparent !important;
+    }
+
+}

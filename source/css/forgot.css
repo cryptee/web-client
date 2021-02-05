@@ -1,0 +1,136 @@
+body {
+    display: grid;
+    grid-template-columns: minmax(4rem, 1fr) minmax(20rem, 60rem) minmax(4rem, 1fr);
+    grid-template-rows: minmax(2rem, 12rem) minmax(32rem, 6fr) minmax(2rem, 12rem);
+}
+
+.dm body {
+    background-color: black;
+}
+
+.dm * {
+    color: white;
+}
+
+body > .full {
+    grid-column: span 1 / -1;
+}
+
+#logo {
+    grid-row: 2/3;
+    grid-column: 2/3;
+    text-align: center;
+    user-select: none;
+    outline: none;
+}
+
+#logo img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    user-select: none;
+}
+
+#key-image-placeholder {
+    grid-row: 1/-1;
+    grid-column: 4/5;
+    background-color: #222;
+}
+
+#key-image {
+    margin-top: 0;
+    grid-row: 1/-1;
+    grid-column: 4/5;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: bottom;
+}
+
+#image-author {
+    grid-row: 2/3;
+    grid-column: 3/4;
+    text-transform: lowercase;
+
+    writing-mode: vertical-lr;
+    text-align: right;
+    margin-left: 0.25rem;
+    margin-top: 0;
+    
+    opacity: 0;
+    transition: 1s opacity ease 1s;
+}
+
+#image-author:not(:empty) {
+    opacity: 1;
+}
+
+#forgot-grid {
+
+    grid-row: 2/3;
+    grid-column: 2/3;
+    background-color: white;
+
+    display: grid;
+    grid-template-columns: 4rem 12rem 4rem 1fr;
+    grid-template-rows: 4rem 2rem minmax(16rem, 1fr) 4rem 2rem 4rem;
+
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+    
+    overflow: hidden;
+}
+
+#forgot-grid .full {
+    grid-column: span 5;
+}
+
+#quote {
+    grid-row: 3/4;
+    grid-column: 2/3;
+}
+
+#forgot-email {
+    grid-row: 4/5;
+    grid-column: 2/3;
+}
+
+#reset-button {
+    grid-row: 5/6;
+    grid-column: 2/3;
+}
+
+button:not(.green).loading {
+    opacity: 0.5 !important;
+}
+
+button:not(.green).loading::after {
+    display: inline-block;
+    content: "\EEC6" !important;
+    
+    animation: spin 0.4s linear infinite;
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+}
+
+
+
+@media (max-width : 576px) {
+    body {
+        grid-template-columns: 0.5fr 20rem 0.5fr;
+        grid-template-rows: 2rem 1fr 2rem;
+
+    }
+
+    #key-image, #image-author {
+        opacity: 0 !important;
+    }
+}
+

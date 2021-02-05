@@ -1,0 +1,197 @@
+body {
+    display: grid;
+    grid-template-columns: minmax(4rem, 1fr) 20rem 1fr;
+    grid-template-rows: 1rem 2rem 1rem 1fr 24rem 1fr 1rem 2rem 1rem;
+}
+
+.dm body {
+    background-color: var(--oled-safe-black);
+    color: white;
+}
+
+.dm .progress::-moz-progress-bar        { background: var(--cryptee-4) !important; }
+.dm .progress::-webkit-progress-bar     { background: var(--cryptee-4) !important; }
+.dm .progress::-webkit-progress-value   { background: var(--cryptee-4) !important; }
+
+#logo {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+    object-fit: contain;
+    width: 2rem;
+    height: 2rem;
+    margin-left: 1rem;
+    opacity: 0.3;
+    user-select: none;
+}
+
+.dm #logo {
+    filter: invert(1);
+}
+
+main {
+    grid-column: 2/3;
+    grid-row: 5/6;
+    background-color: #FFF;
+
+    display: grid;
+    grid-template-rows: 3rem 3rem 3rem 1fr 2rem 4rem;
+    grid-template-columns: 4rem minmax(12rem, 16rem);
+    padding-top: 1rem;
+
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+}
+
+.dm main {
+    background-color: var(--cryptee-0);
+    box-shadow: none;
+    border-radius: 0;
+}
+
+
+main .appButton {
+    margin-top: 0;
+    grid-column: 1/-1;
+}
+
+main .appButton img {
+    height: 1rem;
+    width: 1rem;
+    object-fit: contain;
+    padding: 1rem 1.5rem;
+    float: left;
+    user-select: none;
+
+    opacity: 0.2;
+    transition: 0.15s opacity linear;
+}
+
+.dm main .appButton img  {
+    filter: invert(1);
+}
+
+main .appButton a {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+main .appButton a span {
+    line-height: 3rem;
+}
+
+#welcome {
+    grid-row: -2 / -1;
+    grid-column: 2 / -1;
+    margin-top: -0.5rem;
+    user-select: none;
+}
+
+b { 
+    grid-row: -3 / -2;
+    grid-column: 2 / 3;
+    background-color: black;
+    height: 1px;
+}
+
+.dm b {
+    background-color: var(--cryptee-4);
+}
+
+
+#displayName {
+    color: var(--cryptee-2);
+    user-select: none;
+    text-transform: lowercase;
+
+    width: calc(100% - 1rem);
+    text-overflow: ellipsis;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 1.5rem;
+}
+
+nav {
+    grid-row: 2/3;
+    grid-column: 2/4;
+    display: flex;
+    margin-left: auto;
+    margin-right: 1.5rem;
+}
+
+.menuButton {
+    margin-left: 2rem;
+    margin-top: 0;
+    display: block;
+    line-height: 2rem;
+
+    opacity: 0.4;
+    transition: 0.15s opacity linear;
+    color: #000;
+}
+
+.dm .menuButton {
+    color: #FFF;
+}
+
+#bottomNewsButton {
+    position: absolute;
+    bottom: 0;
+    right: 1.5rem;
+    text-align: right;
+    line-height: 4rem;
+    width: 4rem;
+
+    opacity: 0.4;
+    transition: 0.15s opacity linear;
+    display: none;
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA QUERIES 
+ 
+--------------------------------
+----------------------------- */
+
+@media (max-width : 448px) {
+    body {
+        display: grid;
+        grid-template-columns: minmax(4rem, 1fr) minmax(16rem, 20rem) 0;
+    }
+
+    #topNewsButton { display: none !important; }
+    #bottomNewsButton { display: block !important; }
+}
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IT'S A POINTER DEVICE,
+ENABLE HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+@media (-moz-touch-enabled: 0), (pointer:fine) {
+    #bottomNewsButton:hover, 
+    .appButton:hover img, 
+    .menuButton:hover {
+        opacity: 1;
+    }
+}

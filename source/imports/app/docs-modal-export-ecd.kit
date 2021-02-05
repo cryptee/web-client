@@ -1,0 +1,18 @@
+<div class="modal" id="modal-export-ecd">
+    <h3>SAVE AS ENCRYPTED CRYPTEE DOCUMENT</h3>
+    <p>choose a new key to encrypt &amp; export this document.</p>
+
+    <b></b>
+    
+    <section>
+    
+        <input id="ecd-export-key-input" type="password" class="darkback" placeholder="••••••••" autocomplete="off">
+        <br><br>
+        <small>you will need to enter this key to decrypt &amp; import the exported file in the future. for your own safety, and for best security practices, <b>do not</b> use your own encryption key or password for files you export.</small>
+
+    </section>
+    <progress id="ecd-exporting" class="progress" value="0" max="100"></progress>
+
+    <button class="action l md bold" onclick="exportAsECD();">save</button>
+    <button class="action r sm cancel" onclick="hideActiveModal();">cancel</button>
+</div>

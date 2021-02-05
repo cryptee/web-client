@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Sign Up</title>
+    <link rel="stylesheet" href="../css/signup.css">
+</head>
+
+<body class="app-body fixed">
+    <a href="/" id="logo">
+        <img src="../assets/logo-b.svg" alt="CRYPTEE">
+    </a>
+
+    <b class="full"></b>
+
+    <aside></aside>
+    <div id="signup-card">
+        <div id="signup-wrap" step="1">
+
+            <div id="step1">
+                <input class="full right" type="text"       autocomplete="off" id="email" placeholder="username or email">
+                <small class="full right blue" id="email-notice">please use a valid email</small>
+                <input class="full right" type="password"   autocomplete="off" id="pswrd" placeholder="password">
+                <progress class="progress yellow" value="0" max="100" id="password-strength"></progress>
+                <br><br>
+                <button class="bold right" id="next" disabled>signup</button>
+
+                <button class="right" id="bigg">or sign up with google</button>
+            </div>
+
+            <div id="step2">
+                <input  tabindex="-1" class="full right" type="password"   autocomplete="off" id="key" placeholder="pick an encryption key">
+                <progress class="progress yellow" value="0" max="100" id="key-strength"></progress>
+                <button tabindex="-1" class="small right" id="keyinfo">what's an encryption key?</button>
+                <br><br><br><br>
+                <small class="justify">
+                    <strong>if you ever lose this key, your data will be forever unrecoverable!</strong>
+                    by clicking sign up, you agree to our
+                    <a tabindex="-1" class="bold" target="_blank" href="/terms">terms</a>.
+                    you can learn more about how we handle your data by reading our famously simple
+                    <a tabindex="-1" class="bold" target="_blank" href="/privacy">privacy policy</a>.
+                </small>
+                <button class="bold right" id="signup" disabled>signup</button>
+            </div>
+
+            <div id="step3" class="right">
+                <p>one moment please</p>
+                <p><strong>creating your account</strong></p>
+                <br>
+                <progress class="progress" max="100"></progress>
+            </div>
+
+        </div>
+
+        <b class="hidden-below-tablet"></b>
+
+        <img class="hidden-below-tablet" src="../imgs/signup.jpg" alt="Sign Up Photo" id="splash">
+
+        <div class="popup" id="popup-signup">
+            <button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button>
+            <p class="message justify"></p>
+        </div>
+    </div>
+    <aside></aside>
+
+
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script src="../js/signup.js"></script>
+
+    <!-- zxcvbn is 800kb, so it's in this special folder which isn't installed by the service worker since you can only change your password while you're online anyway -->
+    <script src="../rare-and-large-js-libs/zxcvbn.js"></script>
+
+</body>
+
+</html>

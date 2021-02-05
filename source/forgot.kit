@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Forgot Password</title>
+    <link rel="stylesheet" href="../css/forgot.css">
+</head>
+
+<body class="app-body fixed">
+
+    <div id="forgot-grid">
+
+        <a href="/" id="logo" tabindex="-1">
+            <img src="../assets/logo-b.svg" alt="CRYPTEE">
+        </a>
+
+        <p id="quote">
+            <br><br>
+            don't worry, it's okay,<br>
+            sometimes we all forget.<br>
+            <span class="small">if you have an email associated to your account, you can only recover your account password. however, there's no way to recover your encryption key if you lost it. since we don't know your keys, we can not help you get it back either.
+            </span>
+        </p>
+
+        <input type="email" id="forgot-email" placeholder="email address">
+
+        <button class="bold" id="reset-button">reset password</button>
+
+        <img src="" alt="Forgot Password Photo" id="key-image">
+        <b id="key-image-placeholder"></b>
+
+    </div>
+    
+    <small id="image-author"></small>    
+
+    <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+    
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script src="../js/forgot.js"></script>
+    
+</body></html>

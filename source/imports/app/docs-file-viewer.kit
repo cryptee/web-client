@@ -1,0 +1,38 @@
+<div id="file-viewer" class="closed">
+    
+    <div id="file-viewer-nav">
+
+        <button for="epub" id="epubZoomOut" class="white" title="Zoom Out" onclick="epubZoomOut();">
+            <i class="ri-zoom-out-line"></i>
+        </button>
+
+        <button for="epub" id="epubZoom" class="white" title="Zoom In" onclick="epubZoom();">
+            <i class="ri-zoom-in-line"></i>
+        </button>
+
+        <button for="epub" id="epubLight" class="white" title="Toggle Light/Dark Mode for Reader" onclick="epubToggleTheme();">
+            <i class="ri-sun-fill"></i>
+        </button>
+
+        <small id="active-filename" name="Filename"></small>
+        
+        <button class="white" title="Maximize / Shrink File Viewer" onclick="maximizeFileViewer();" id="maximizeFileViewerButton">
+            <i class="ri-fullscreen-fill"></i>
+        </button>
+
+        <button class="white" title="Split File Viewer / Editor" onclick="splitFileViewer();" id="splitFileViewerButton">
+            <i class="ri-layout-column-fill"></i>
+        </button>
+
+        <button class="white" title="Minimize File Viewer" onclick="minimizeFileViewer();" id="minimizeFileViewerButton">
+            <i class="ri-subtract-fill"></i>
+        </button>
+
+        <button class="white" title="Close File Viewer" onclick="closeFileViewer();">
+            <i class="ri-close-fill"></i>
+        </button>
+
+    </div>
+
+    <div id="file-viewer-content"></div>
+</div>

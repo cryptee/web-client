@@ -1,0 +1,24 @@
+<div class="modal" id="modal-ghost" aid="">
+    <h2>GHOST ALBUM</h2>
+    <p>to confirm, please type the album's name below</p>
+
+    <b></b>
+    
+    <section>
+    
+        <input id="ghost-input" type="text" class="darkback" placeholder="type the album's name here" autocomplete="off">
+        <br><br>
+        <details class="lowercase">
+            <summary class="small">what's a ghost album?</summary>
+            <small>You might find yourself in a situation requiring you to hand over access to your account under stressful/forceful conditions. Cryptee's unique Ghost Albums feature allows you to hide certain albums, and be able to deny these albums' existence.</small>
+            <small>Ghost (hidden) albums are temporarily removed from your account, and they can only be brought back (summoned), by typing their exact names.</small>
+            <br>
+            <small>To summon a ghost album, click "summon (album)" on the navigation bar, then type the name of the album you'd like to summon / bring back.<br><br></small>
+        </details>
+
+    </section>
+    <progress id="ghosting-album" class="progress" value="0" max="100"></progress>
+
+    <button class="action l md bold" onclick="makeGhostAlbum();">ghost</button>
+    <button class="action r sm cancel"      onclick="hideActiveModal();">cancel</button>
+</div>

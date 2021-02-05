@@ -1,0 +1,30 @@
+<p>
+    we know that it can be inconvenient to type your encryption key every time you launch cryptee. 
+    if you prefer, you can configure <i>this specific device</i> to always remember your encryption key while you're logged in.
+    <br><br>
+    <i>we do not recommend this.</i> 
+    <br><br>  
+    however, if your device already has some form of biometric security, enabling this option could save you time when you launch cryptee.
+</p>
+
+<p>&nbsp;</p>
+
+<p>would you like this device to remember your encryption key?</p>
+<p>&nbsp;</p>
+
+<button class="bold radio selected" group="remember-key" val="dont">do not remember</button>
+<small>safest, but not so convenient</small>
+
+<p>&nbsp;</p>
+
+<button class="bold radio" group="remember-key" val="do">remember</button>
+<small>risky, but convenient</small>
+
+<div id="remember-key-save-form" style="display:none;">
+    <p>&nbsp;</p>
+    
+    <input type="password" placeholder="verify encryption key" id="remember-key-input">
+    <p>&nbsp;</p>
+    
+    <button class="bold" id="remember-key-button">save preference</button>
+</div>

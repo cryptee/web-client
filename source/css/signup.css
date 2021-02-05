@@ -1,0 +1,223 @@
+body {
+    display: grid;
+    grid-template-columns: 1fr minmax(20rem, 40rem) 1fr;
+    grid-template-rows: minmax(4rem, 1fr) 24rem 1fr;
+}
+
+#splash {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#logo {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+#logo img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+}
+
+.full {
+    grid-column: span 1 / -1;
+}
+
+#signup-card {
+    background-color: white;
+    position: relative;
+    
+    display: grid;
+    grid-template-columns: 12rem 4rem 1fr;
+
+    padding: 4rem;
+    overflow: hidden;
+    
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+}
+
+#signup-wrap {
+    position: relative;
+    max-height: 16rem;
+    height: 100%;
+    overflow: hidden;
+}
+
+#signup, #next, #bigg, #keyinfo {
+    float: right;
+}
+
+#step1, #step2, #step3 {
+    position: relative;
+    height: 16rem;
+    overflow: hidden;
+    transform: translate3d(0,0,0);
+    transition: 1s transform ease, 0.3s opacity ease;
+    opacity: 0;
+}
+
+#bigg {
+    font-weight: 350;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+input:first-child{
+    margin-top: 0;
+}
+
+input {
+    text-align: right;
+    width: calc(100% - 1px);
+}
+
+#keyinfo {
+    font-weight: 350;
+    margin-top: 0rem;
+}
+
+#step2 .light {
+    color: var(--cryptee-3);
+}
+
+#step2 strong, #step2 .bold {
+    font-weight: 600;
+}
+
+#step3 p:first-child {
+    margin-top: calc(11.25rem);
+}
+
+#signup {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+.popup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: auto;
+    z-index: 2;
+}
+
+#email-notice {
+    user-select: none;
+    display: block;
+    opacity: 0;
+    transition: 0.3s opacity var(--cryptee-cb);
+}
+
+#email-notice.show {
+    opacity: 1;
+}
+
+#password-strength, #key-strength {
+    transform: rotate(180deg);
+}
+
+#pswrd:not(:placeholder-shown),
+#key:not(:placeholder-shown) {
+    box-shadow: none !important;
+}
+
+#next, #signup {
+    opacity: 1;
+    border-bottom: 1px solid transparent;
+    transition-duration: 0.3s;
+    transition-property: opacity, border, color;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#next:focus, #signup:focus  {
+    color: var(--cryptee-green);
+    border-bottom: 1px solid var(--cryptee-green);
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+sliding animation 
+ 
+--------------------------------
+----------------------------- */
+
+#signup-wrap[step="1"] #step1 { opacity: 1; }
+#signup-wrap[step="1"] #step2 { opacity: 0; pointer-events: none; }
+#signup-wrap[step="1"] #step3 { opacity: 0; pointer-events: none; }
+
+#signup-wrap[step="2"] #step1 { opacity: 0; pointer-events: none; }
+#signup-wrap[step="2"] #step2 { opacity: 1; }
+#signup-wrap[step="2"] #step3 { opacity: 0; pointer-events: none; }
+
+#signup-wrap[step="3"] #step1 { opacity: 0; pointer-events: none; }
+#signup-wrap[step="3"] #step2 { opacity: 0; pointer-events: none; }
+#signup-wrap[step="3"] #step3 { opacity: 1; }
+
+#signup-wrap[step="2"] #step1,
+#signup-wrap[step="2"] #step2,
+#signup-wrap[step="2"] #step3 {
+    transform: translate3d(0,-16rem,0);
+}
+
+#signup-wrap[step="3"] #step1,
+#signup-wrap[step="3"] #step2,
+#signup-wrap[step="3"] #step3 {
+    transform: translate3d(0,-32rem,0);
+}
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA 
+ 
+--------------------------------
+----------------------------- */
+
+@media (max-width : 544px) {
+    body {
+        background-color: white;
+    }
+    
+    input, #step3 { 
+        text-align: left !important; 
+    }
+
+    #password-strength, #key-strength {
+        transform: rotate(0deg);
+    }
+    
+    #signup, #next, #bigg, #keyinfo {
+        float: left;
+    }
+
+    #bigg, #signup  {
+        right: unset;
+        left: 0;
+    }
+
+    #signup-card {
+        grid-template-columns: 1fr;
+        box-shadow: none;
+    }
+
+    .popup {
+        width: 100%;
+    }
+}

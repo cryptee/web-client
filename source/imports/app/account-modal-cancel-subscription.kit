@@ -1,0 +1,30 @@
+<div class="modal error" id="modal-cancel-subscription">
+    <!-- <button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button> -->
+    <h3>CANCEL SUBSCRIPTION</h3>
+    <p>are you sure you'd like to cancel your subscription?</p>
+    
+    <b></b>
+    
+    <section>
+        <p class="message">
+            <br><br>
+            
+            your subscription will be cancelled immediately, and you won't be refunded for the days left on
+            your subscription.
+            <br><br> 
+            
+            if you're already using more storage than what the free plan provides, upon
+            cancellation of your subscription your account will become read-only until you clear enough space. 
+            <br><br>
+    
+            if you are using more storage than what the free plan provides, your account will be deleted after 30 days. if you have an email address on file, you will receive a notification 15 days before we take action on your account.
+            <br><br>
+            
+            <br><br>
+        </p>
+    </section>
+    <progress id="unsubscribing" class="progress" value="0" max="100"></progress>
+
+    <button class="action l md white" onclick="confirmedCancelSubscription();">yes, unsubscribe!</button>
+    <button class="action r sm bold white cancel" onclick="hideActiveModal();">no, wait!</button>
+</div>

@@ -1,0 +1,750 @@
+
+/* -----------------------------
+-------------------------------- 
+ 
+PLANS & UPGRADE & DOWNGRADE 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LAYOUT 
+ 
+--------------------------------
+----------------------------- */
+
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--cryptee-4);
+}
+
+body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem,16rem) minmax(12rem,16rem) minmax(12rem,16rem) minmax(0, 1fr);
+    grid-template-rows: 1rem 2rem 1rem 1fr 2rem 1rem 1fr minmax(36rem, 1fr) 1fr 1rem 2rem 1fr 4rem;
+    column-gap: 4rem;
+}
+
+#logo {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    user-drag: none; 
+    user-select: none;
+    outline: none;
+    z-index: 5;
+}
+
+#logo img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    opacity: 0.3;
+    transition: 0.3s opacity linear;
+    user-drag: none; 
+    user-select: none;
+}
+
+#pick {
+    grid-column: 2/3;
+    grid-row: 2/3;
+    margin-top: 0;
+    line-height: 2rem;
+    opacity: 0.6;
+    user-select: none;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PERIODS 
+ 
+--------------------------------
+----------------------------- */
+
+
+#period {
+    grid-column: 2/3;
+    grid-row: 5/7;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#period button {
+    height: 2rem;
+    line-height: 2rem;
+    width: 100%;
+    min-width: 6rem;
+    max-width: 50%;
+    flex-grow: 1;
+    margin-top: 0;
+    opacity: 0.65;
+    transition: 0.3s opacity, 0.3s box-shadow;
+    transition-timing-function: var(--cryptee-cb);
+    box-shadow: inset 0px -1px 0px transparent;
+}
+
+#period button.active {
+    box-shadow: inset 0px -1px 0px var(--cryptee-0);
+    opacity: 1;
+}
+
+#period small {
+    flex-grow: 2;
+    max-width: 100%;
+    margin-top: 0;
+    opacity: 0;
+    transition: 0.3s opacity, 0.3s transform;
+    transition-timing-function: var(--cryptee-cb);
+    color: var(--cryptee-green);
+    transform: translateY(1rem);
+    user-select: none;
+    cursor: pointer;
+    pointer-events: none;
+}
+
+#period small::before {
+    content: "save up to " attr(cur) "36/yr";
+    font-weight: 700;
+}
+
+#period button.active + small {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+body.paddle-yearly #period,
+body.paddle-yearly #non-profit {
+    display: none !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+PLANS 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+.plan {
+    grid-row: 8/9;
+    opacity: 1;
+    transition: 0.3s opacity linear;
+    padding-top: 8rem;
+}
+
+.plan[plan="10GB"] { grid-column: 2/3; }
+.plan[plan="400GB"] { grid-column: 3/4; }
+.plan[plan="2000GB"] { grid-column: 4/5; }
+
+.storage {
+    display: inline;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+.plan .buttons {
+    display: flex;
+}
+
+.plan .buttons > * {
+    flex-grow: 3;
+    max-width: 50%;
+}
+
+.plan button {
+    margin-top: 0;
+    margin-right: 0rem;
+    background-color: var(--cryptee-0);
+    color: white;
+    font-weight: 500;
+    padding: 0.625rem 0;
+    line-height: 1rem;
+    height: 2rem;
+    width: 100%;
+    text-align: center;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    transition: max-width, color, box-shadow, background-color, margin;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.plan .buttons small {
+    margin-top: 0;
+    padding: 0.5rem 0;
+    line-height: 1rem;
+}
+
+.plan .description {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    max-width: 12rem;
+}
+
+.plan .buttons small {
+    color: var(--cryptee-green);
+    transition: 0.3s opacity, 0.3s transform, 0.3s color;
+    transition-timing-function: var(--cryptee-cb);
+    transform: translateY(1rem);
+    opacity: 0;
+}
+
+#period[period="yr"] ~ .plan small {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#period[period="yr"] ~ .plan[current="yr"] button,
+#period[period="mo"] ~ .plan[current="mo"] button  {
+    pointer-events: none;
+    flex-grow: 1;
+
+    background-color: transparent;
+    color: var(--cryptee-2);
+    box-shadow: none;
+    border: 1px solid var(--cryptee-3);
+}
+
+#period[period="yr"] ~ .plan[current="yr"] small,
+#period[period="mo"] ~ .plan[current="mo"] small {
+    transform: translateY(0) !important;
+    opacity: 0.5 !important;
+    color: black;
+}
+
+
+#period[period="mo"] ~ .plan button::before {
+    content: attr(cur) " " attr(mo) " / mo";
+}
+
+#period[period="yr"] ~ .plan button::before {
+    content: attr(cur) " " attr(yr) " / mo";
+}
+
+body:not(.paddle-yearly) #period ~ .plan small[save]::before {
+    content: "save " attr(cur) " " attr(save) " / yr";
+    font-weight: 700;
+}
+
+#period[period="mo"] ~ .plan[current] small::before {
+    content: "current plan" !important;
+    font-weight: 350;
+}
+
+#period[period="yr"] ~ .plan[current="yr"] small::before,
+#period[period="mo"] ~ .plan[current="mo"] small::before {
+    content: "current plan" !important;
+    font-weight: 350;
+}
+
+
+body.paddle-yearly .plan .buttons > * {
+    max-width: 50%;
+}
+
+body.paddle-yearly #period ~ .plan small {
+    color: var(--cryptee-2);
+}
+
+body.paddle-yearly #period ~ .plan small::before {
+    content: "billed annually";
+    font-weight: 700;
+}
+
+#non-profit {
+    grid-row: 10/12;
+    grid-column: 2/4;
+    opacity: 1;
+    transition: 0.3s opacity linear;
+}
+
+
+body:not(.chooseplan) #non-profit,
+body:not(.chooseplan) #pick,
+body:not(.chooseplan) #period button,
+body:not(.chooseplan) #period small,
+body:not(.chooseplan) .plan {
+    pointer-events: none;
+    opacity: 0;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+BILLING CARD 
+ 
+--------------------------------
+----------------------------- */
+
+#billing {
+    background-color: #FFF;
+
+    position: fixed;
+    display: block;
+    margin: auto;
+    z-index: 2;
+
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+
+    height: 36rem;
+    width: 22rem;
+
+    padding: 4rem 0;
+
+    opacity: 1;
+    transform: translateY(0);
+
+    transition-duration: 0.5s;
+    transition-property: opacity, transform, padding, height;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+body:not(.billing) #billing {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(1rem);
+}
+
+#chosenplan {
+    margin-bottom: 3rem;
+    opacity: 1;
+    transition: 0.3s opacity ease;
+}
+
+#chosenbilling {
+    margin-top: 0;
+}
+
+#chosenbilling[period="mo"]::before {
+    content: attr(cur) attr(price) "/" attr(period);
+}
+
+#chosenbilling[period="yr"]::before {
+    content: attr(cur) attr(price) "/mo billed annually";
+}
+
+#billing > *:not(#card) {
+    margin-left: 4rem;
+}
+
+#billing > input {
+    margin-left: 4rem;
+    width: calc(100% - 4rem);
+}
+
+#billing input + small {
+    opacity: 1;
+    margin-bottom: 2rem;
+    color: var(--cryptee-red);
+    transform: translateY(-0.5rem);
+
+    transition-duration: 0.3s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#billing input:not(.error) + small {
+    transform: translateY(-1rem);
+    opacity: 0;
+}
+
+#billing input.error { 
+    box-shadow: inset 0px -1px 0px var(--cryptee-red);
+}
+
+#card {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+    background-color: #121212;
+    border-radius: 1rem;
+    width: 22rem;
+    height: 14rem;
+
+    margin-bottom: 2.5rem;
+    padding: 1rem 2rem 1rem 2rem;
+    margin-left: 2rem;
+
+    display: grid;
+    grid-template-columns: 4rem 2rem 8rem;
+    grid-auto-rows: 2.5rem;
+    row-gap: 1rem;
+    column-gap: 2rem;
+
+    opacity: 1;
+    transition: 0.3s opacity ease;
+}
+
+#card p { 
+    grid-column: span 3; 
+}
+
+#card p:first-child {
+    margin-top: 0.75rem;
+}
+
+#card br { 
+    display: block;
+    grid-column: span 3; 
+}
+
+.stripe-input {
+    background-color: transparent;
+    box-shadow: inset 0px -1px 0px var(--cryptee-2);
+    padding-top: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    height: 1.5rem;
+    transition: 0.3s box-shadow ease;
+}
+
+.stripe-input.focus {
+    box-shadow: inset 0px -1px 0px white;
+}
+
+#card-pan {
+    grid-column: span 3;
+}
+
+#card-exp {
+    grid-column: span 1;
+}
+
+#card-cvc {
+    grid-column: span 1;
+}
+
+#billing-zip {
+    margin-top: 0;
+    padding-top: 0.5rem;
+    grid-column: span 1;
+    color: white !important
+}
+
+#billing-name {
+    margin-top: 0;
+    padding-top: 0.5rem;
+    grid-column: span 3;
+}
+
+#checkout-button{
+    float: right;
+    margin: 1rem 4rem 1rem 0 !important;
+    height: 3rem;
+    line-height: 3rem;
+    opacity: 1;
+
+    transition-duration: 0.5s;
+    transition-property: opacity;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#checkout-button:focus {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--cryptee-green);
+}
+
+#checkout-button[disabled] {
+    opacity: 0.4;
+}
+
+
+#vat-number {
+    margin: 1rem 0 1rem 4rem !important;
+
+    height: 3rem;
+    line-height: 3rem;
+    float: left;
+    width: 8rem !important;
+    max-width: 8rem !important;
+    
+    box-shadow: inset 0px -1px 0px transparent;
+
+    opacity: 1;
+    transition: 0.3s max-width ease, 0.3s opacity ease;
+}
+
+#company {
+    padding-left: 4rem;
+    width: calc(100% - 8rem);
+    margin-left: 0rem !important;
+    height: 2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    opacity: 1;
+    transition: 0.3s opacity ease;
+}
+
+#company:not(.validating):not(.error):not(.validated) {
+    user-select: none !important;
+    opacity: 0 !important;
+}
+
+#company i {
+    margin-left: -2.75rem;
+    margin-right: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 1.5rem;
+    vertical-align: top;
+}
+
+#company:not(.validated) i::before {
+    content: "\EEC5";
+    display: inline-block;
+    animation: spin 0.4s linear infinite;
+}
+
+#company.error i::before {
+    content: "\ECA0";
+    animation: none;
+}
+
+#company small {
+    padding-left: 0.25rem;
+    width: calc(100% - 0.25rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.already-have {
+    display: none !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+PROCESSING PAYMENT 
+ 
+--------------------------------
+----------------------------- */
+
+body.processing #chosenplan {
+    opacity: 0;
+}
+
+body.processing #checkout-button {
+    animation: blinkOpacity 1s ease infinite;
+    pointer-events: none !important;
+    border-bottom: none !important;
+}
+
+body:not(.processing) #checkout-button::before {
+    content: "upgrade";
+}
+
+body.processing #checkout-button::before {
+    content: "processing...";
+}
+
+body.processing #card {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body.processing #vat-number {
+    max-width: 0rem !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+body.processing #company {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+THANK YOU 
+ 
+--------------------------------
+----------------------------- */
+
+#thanks, #threeDSError, #dbError, #thanks-switch, #switching {
+    background-color: var(--cryptee-green);
+    color: #FFF;
+
+    position: fixed;
+    display: block;
+    margin: auto;
+    z-index: 2;
+
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+
+    height: 14.75rem;
+    width: 14.75rem;
+
+    padding: 4rem;
+
+    opacity: 1;
+    transform: translateY(0);
+
+    transition-duration: 0.5s;
+    transition-property: opacity, transform, padding, height;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#threeDSError {
+    background-color: var(--cryptee-yellow);
+    color: #121212;
+    height: 23rem;
+}
+
+#switching {
+    background-color: var(--cryptee-0);
+}
+
+#thanks-switch {
+    height: 16rem;
+}
+
+#dbError {
+    background-color: var(--cryptee-blue);
+    color: #FFF;
+    height: 23rem;
+}
+
+body:not(.thanks) #thanks,
+body:not(.threeds) #threeDSError,
+body:not(.dberror) #dbError,
+body:not(.switching) #switching,
+body:not(.thanks-switch) #thanks-switch {
+    opacity: 0;
+    pointer-events: none !important;
+    transform: translateY(1rem);
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+@media (max-width : 832px) {
+    body { column-gap: 2rem; }
+    #pick, #period { grid-column: 3/4; }
+}
+
+@media (max-width : 703px) {
+    body { 
+        display: block;
+        padding: 1rem 4rem;
+        width: auto !important;
+        height: auto !important;
+        overflow: scroll !important;
+        position: initial !important;
+    }
+    
+    body.billing {
+        position: fixed !important;
+        height: 100% !important;
+        overflow: hidden;
+    }
+
+    .plan, #pick {
+        margin-bottom: 4rem;
+    }
+
+    #period {
+        margin-bottom: 2rem;
+    }
+
+    .plan {
+        padding-top: 3rem;
+    }
+
+}
+
+
+@media (max-width : 544px) {
+    body { 
+        row-gap: 2rem;
+    }
+    
+    #billing {
+        top: 0rem;
+        width: 100%;
+        padding-top: 6rem;
+        background-color: transparent;
+    }
+
+    #card {
+        grid-template-columns: 4rem 2rem 6rem;
+    }
+    
+    #billing-email, #company {
+        width: 16rem !important;
+    }
+
+    #checkout-button,
+    #vat-number {
+        margin-top: 0rem !important;
+    }
+
+    #checkout-button {
+        margin-right: calc(100% - 20rem);
+    }
+
+}
+
+@media (max-width : 352px) { 
+
+    #checkout-button {
+        margin-right: 2rem;
+    }
+
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IT'S A POINTER DEVICE,
+ENABLE HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+
+    #logo:hover img {
+        opacity: 1 !important;
+    }
+
+
+}
+

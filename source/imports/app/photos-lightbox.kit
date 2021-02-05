@@ -1,0 +1,17 @@
+<!-- class="show" to show it -->
+<div id="lightbox"> 
+    <button class="lightbox-button" id="lightbox-close" onclick="closeLightbox()" title="close lightbox"><i class="ri-close-fill"></i></button>
+    <button class="lightbox-button hidden-below-tablet" id="lightbox-fullscreen" onclick="toggleFullScreen()" title="toggle fullscreen"><i class="ri-fullscreen-fill"></i></button>
+    
+    <button class="lightbox-button" id="lightbox-favorite" title="favorite/unfavorite photo"><i class="ri-heart-line"></i></button>
+    <!-- <button class="lightbox-button" id="lightbox-info"><i class="ri-information-fill"></i></button> -->
+    <button class="lightbox-button" id="lightbox-download" onclick="selectAndDownloadActivePhoto();" title="download photo"><i class="ri-download-fill"></i></button>
+
+    <button class="lightbox-button hidden-below-tablet" id="lightbox-previous" title="previous photo"><i class="ri-arrow-left-s-line"></i></button>
+    <button class="lightbox-button hidden-below-tablet" id="lightbox-next" title="next photo"><i class="ri-arrow-right-s-line"></i></button>
+    
+    <progress   id="lightbox-progress" class="progress" value="0" max="100"></progress>
+
+    <div id="lightbox-swipe-container"><div class="lightbox-wrapper"></div></div>
+    <!-- <img src="https://images.unsplash.com/photo-1574691612770-2a792c7197a0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9"> -->
+</div>

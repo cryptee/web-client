@@ -1,0 +1,31 @@
+<div class="modal" id="modal-ghost">
+    <h2>GHOST FOLDER</h2>
+    <p>to confirm, please type the folder's name below</p>
+
+    <b></b>
+    
+    <section>
+        
+        <input id="ghost-input" type="text" class="darkback" placeholder="type the folder's name here" autocomplete="off">
+        
+        <br><br>
+        <small class="lowercase">Once you turn this folder into a ghost folder, you will need to type the name of it exactly (case-sensitive) to bring it back.</small>
+        
+        <details class="lowercase">
+            <summary class="small bold">what's a ghost folder?</summary>
+            <small>You might find yourself in a situation requiring you to hand over access to your account under stressful/forceful conditions. Cryptee's unique Ghost Folders feature allows you to hide certain folders, and be able to deny these folders' existence.</small>
+            <small>Ghost (hidden) folders are temporarily removed from your account, and they can only be brought back (summoned), by typing their exact names exactly as it was.</small>
+        </details>
+        
+        <details class="lowercase">
+            <summary class="small bold">what about attachments &amp; links?</summary>
+            <small>If there are any file(s) in this folder, attached / linked to a document outside of this folder, their shortcuts will remain in those document(s).<br><br> This could potentially reveal that you have ghost (hidden) folders, or have deleted a folder with a file attached to a document outside of that folder. Since Cryptee can't see or access the contents of your encrypted documents, there is no way to remove these shortcuts automatically. You will need to delete the links to these attachments (if you have any).</small>
+        </details>
+
+    </section>
+    <progress id="ghosting-folder" class="progress" value="0" max="100"></progress>
+
+    
+    <button class="action l md bold" onclick="makeGhostFolder()">ghost folder</button>
+    <button class="action r sm cancel" onclick="hideActiveModal()">cancel</button>
+</div>

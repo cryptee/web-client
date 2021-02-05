@@ -1,0 +1,35 @@
+{
+  "short_name": "Cryptee",
+  "name": "Cryptee",
+  "description": "Cryptee is a safe, encrypted place to write personal documents, store photos privately and more.",
+  "icons": [
+    {
+      "src": "../assets/maskable-logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose" : "any"
+    },
+    {
+      "src": "../assets/maskable-logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose" : "maskable"
+    },
+    {
+      "src": "../assets/maskable-logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose" : "any"
+    },
+    {
+      "src": "../assets/maskable-logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose" : "maskable"
+    }
+  ],
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "rgb(255,255,255)",
+  "theme_color" : "rgb(255,255,255)"
+}

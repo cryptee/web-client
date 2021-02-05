@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Home</title>
+    <link rel="stylesheet" href="../css/home.css">
+</head>
+
+<body class="app-body fixed">
+
+    <img id="logo" src="../assets/logo-b.svg" alt="CRYPTEE" draggable="false" class="rememberKey">
+    
+    <main>
+
+        <p class="appButton" app="docs">
+            <a class="plain rememberKey" href="/docs">
+                <img src="../assets/square.svg" alt="docs" draggable="false">
+                <span>documents</span>
+            </a>
+        </p>
+    
+        <p class="appButton" app="photos">
+            <a class="plain rememberKey" href="/photos">
+                <img src="../assets/circle.svg" alt="photos" draggable="false">
+                <span>photos</span>
+            </a>
+        </p>
+
+        <b></b>
+
+        <p id="welcome">
+            welcome home<br>
+            <span id="displayName" class="username"></span>
+        </p>
+
+    </main>
+
+    <nav>
+        <p class="menuButton" id="topNewsButton">
+            <a class="plain" href="https://blog.crypt.ee"  target="_blank" rel="noopener" class="external">news</a>
+        </p>
+
+        <p class="menuButton" id="accountButton">
+            <a class="plain" href="/account">account</a>
+        </p>
+    
+        <p class="menuButton" id="helpButton">
+            <a class="plain" href="/help">help</a>
+        </p>
+    
+        <button class="menuButton" id="logoutButton" onclick="logOut();">log out</button>
+    </nav>
+    
+    <p id="bottomNewsButton">
+        <a class="plain external" href="https://blog.crypt.ee"  target="_blank" rel="noopener" class="external">news</a>
+    </p>
+
+
+
+
+    
+    <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+    
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script src="../js/home.js"></script>
+
+</body></html>

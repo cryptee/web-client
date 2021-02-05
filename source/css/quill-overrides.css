@@ -1,0 +1,1366 @@
+/* -----------------------------
+-------------------------------- 
+ 
+TOOLBAR OVERRIDES 
+ 
+--------------------------------
+----------------------------- */
+
+
+.ql-formats {
+    margin-right: 1rem !important;
+    user-select: none !important;
+}
+
+.ql-formats * {
+    box-shadow: none;
+    outline: none;
+}
+
+.ql-formats > * {
+    user-select: none !important;
+    display: inline-block;
+    width: 2rem !important;
+    height: 2rem !important;
+    line-height: 2rem !important;
+    font-size: 1rem !important;
+    text-align: center;
+    padding: 0 !important;
+    margin:0 !important;
+    vertical-align: middle;
+}
+
+.ql-formats i {
+    vertical-align: middle;
+}
+
+.ql-formats:last-of-type {
+    margin-right: 0!important;
+}
+
+.ql-picker:not(.ql-background):not(.ql-align):not(.ql-color):not(.ql-font), 
+.ql-picker:not(.ql-background):not(.ql-align):not(.ql-color):not(.ql-font) .ql-picker-label {
+    width: 2.125rem !important;
+    margin-right: 0.5rem !important;
+    text-align: left; 
+}
+
+.ql-picker, 
+.ql-picker-label{
+    box-shadow: none;
+    outline: none;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.ql-picker-label::before {
+    display: inline-block;
+    line-height: 2rem !important;
+    font-size: 1rem !important;
+}
+
+
+.ql-formats * { 
+    color: var(--cryptee-0); 
+    stroke: var(--cryptee-0);
+    fill: var(--cryptee-0);
+}
+
+.dm .ql-formats * { 
+    color: var(--cryptee-4); 
+    stroke: var(--cryptee-4);
+    fill: var(--cryptee-4);
+}
+
+
+.ql-toolbar button.ql-active,
+.ql-toolbar .ql-picker-label.ql-active,
+.ql-toolbar .ql-picker-item.ql-selected {
+    color: var(--cryptee-green) !important;
+}
+
+
+
+
+
+.ql-toolbar .ql-picker-label:focus .ql-stroke, 
+.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+.ql-toolbar .ql-picker-label:focus .ql-stroke-miter, 
+.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
+.ql-toolbar .ql-picker-label.ql-selected .ql-stroke-miter,
+.ql-toolbar .ql-active .ql-fill {
+    stroke: var(--cryptee-green) !important;
+}
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FONT DROPDOWN 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-font,
+.ql-font .ql-picker-label {
+    text-align: left !important;
+    width: 2.25rem !important;
+    margin-right: 0.5rem !important;
+}
+
+.ql-font .ql-picker-label:before {
+    content: "\ED8D" !important;
+    display: inline-block;
+    line-height: 2rem;
+    height: 2rem;
+    
+    font-size: 1rem;
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+    cursor: pointer;
+
+}
+
+.ql-font .ql-picker-options {
+    display: grid !important;
+}
+
+.ql-font .ql-picker-options span {
+    line-height: 2.5rem !important;
+    height: 2.5rem !important;
+    font-weight: 350;
+}
+
+.ql-font .ql-picker-options span:last-child {
+    margin-bottom: 0.5rem;
+}
+
+.ql-font .ql-picker-options .ql-selected {
+    order: -1;
+    padding-bottom: 2.5rem !important;
+    border-bottom: 1px solid #000 !important;
+    color: #000 !important;
+    margin-left: -1rem;
+    padding-left: 1rem;
+    width: calc(100% + 2rem);
+}
+
+.dm .ql-font .ql-picker-options .ql-selected {
+    color: white !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+SIZE DROPDOWN 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-size .ql-picker-label {
+    padding-top: 0.125rem !important;
+    font-weight: 350;
+}
+
+.ql-size .ql-picker-options span {
+    line-height: 2.5rem !important;
+    height: 2.5rem !important;
+    font-weight: 350;
+    text-align: center;
+}
+
+.ql-size .ql-picker-options span:last-child {
+    margin-bottom: 0.5rem;
+}
+
+.ql-size .ql-picker-options .ql-selected {
+    color: #000 !important;
+    font-weight: 700;
+}
+
+.dm .ql-size .ql-picker-options .ql-selected {
+    color: white !important;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+HEADER DROPDOWN 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-header .ql-picker-label:before,
+.ql-header .ql-picker-item:before {
+    display: inline-block;
+    line-height: 2rem;
+    height: 2rem;
+    
+    font-size: 1rem;
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.ql-header .ql-picker-label[data-value="1"]:before,
+.ql-header .ql-picker-item[data-value="1"]:before {
+    content: "\EDE6" !important;
+}
+
+.ql-header .ql-picker-label[data-value="2"]:before,
+.ql-header .ql-picker-item[data-value="2"]:before {
+    content: "\EDE7" !important;
+}
+
+.ql-header .ql-picker-label[data-value="3"]:before,
+.ql-header .ql-picker-item[data-value="3"]:before {
+    content: "\EDE8" !important;
+}
+
+.ql-header .ql-picker-label:not([data-value]):before,
+.ql-header .ql-picker-item:not([data-value]):before {
+    line-height: 2.25rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    font-family: 'Josefin Sans' !important;
+    content: "P" !important;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DIRECTION DROPDOWN 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-direction {
+    height: 2rem !important;
+    padding: 0.5rem !important;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+COLOR PICKER DROPDOWN  
+ 
+--------------------------------
+----------------------------- */
+
+
+.ql-color-picker .ql-picker-options {
+    padding: 0.5rem !important;
+    grid-template-columns: 1rem;
+    grid-auto-rows: 1rem;
+    column-gap: 0.5rem;
+    row-gap: 0.5rem;
+    width: auto !important;
+    margin-left: 0rem !important;
+}
+
+.ql-color-picker .ql-picker-options span {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border-radius: 1rem !important;
+    object-fit: cover;
+    transform: scale(1);
+
+    transition: transform;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.ql-color-picker .ql-picker-options .ql-selected  {
+    transform: scale(1.25);
+    border: none !important;
+}
+
+.ql-color .ql-picker-options .ql-picker-item[data-value]:not(.ql-primary),
+.ql-color .ql-picker-options .ql-picker-item[data-value="#000000"],
+.ql-color .ql-picker-options .ql-picker-item[data-value="#ffff00"] {
+    display: none;
+}
+
+
+.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
+    border: 1px solid #000 !important;
+    background-color: white;
+    order: -1;
+}
+
+.dm .ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
+    background-color: var(--cryptee-0);
+    border: 1px solid #FFF !important;
+    order: -1;
+}
+
+.ql-background .ql-picker-options .ql-picker-item[data-value] { display: none; }
+.ql-background .ql-picker-options .ql-picker-item[data-value="#f06666"] { display: block; }
+.ql-background .ql-picker-options .ql-picker-item[data-value="#ffc266"] { display: block; }
+.ql-background .ql-picker-options .ql-picker-item[data-value="#66b966"] { display: block; }
+.ql-background .ql-picker-options .ql-picker-item[data-value="#66a3e0"] { display: block; }
+.ql-background .ql-picker-options .ql-picker-item[data-value="#c285ff"] { display: block; }
+
+/* -----------------------------
+-------------------------------- 
+ 
+ALIGN DROPDOWN 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-align .ql-picker-options {
+    padding: 0.5rem !important;    
+    margin-left: -0.25rem !important;
+}
+
+.ql-align .ql-picker-options span {
+    line-height: 1.25rem;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ALL DROPDOWNS  
+ 
+--------------------------------
+----------------------------- */
+
+.ql-picker-options {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2) !important;
+    border: none !important;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    padding: 0rem 1rem !important;
+    margin: 0 0 0 -1rem !important;
+    z-index: 3 !important;
+
+    opacity: 0;
+    transform: translate3d(0,-0.5rem,0);
+    pointer-events: none;
+    display: grid !important;
+
+    transition: opacity, transform;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.dm .ql-picker-options {
+    background-color: var(--cryptee-1) !important;
+    color: white;
+}
+
+.ql-expanded .ql-picker-options {
+    opacity: 1;
+    pointer-events: initial;
+    transform: translate3d(0,0,0);
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EDITOR OVERRIDES 
+ 
+--------------------------------
+----------------------------- */
+.ql-container {
+    border: none !important;
+}
+
+.ql-editor {
+    background-color: white;
+    
+    padding: 4rem 4rem 0rem 4rem;
+
+    height: 100%;
+    width: 100%;
+    max-width: 62rem;
+    margin: auto;
+    
+    transform: scale(1);
+
+    -webkit-overflow-scrolling: touch;
+}
+
+.ql-editor > *:last-child { margin-bottom: 4rem; }
+
+.dm .ql-editor {
+    color: white;    
+    background-color: var(--cryptee-0);
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PRE / SYNTAX / CODE  
+ 
+--------------------------------
+----------------------------- */
+
+
+pre, .ql-syntax {
+    font-family: monospace !important;
+}
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+    .ql-toolbar button:hover,
+    .ql-toolbar button:focus,
+    .ql-toolbar .ql-picker-label:hover,
+    .ql-toolbar .ql-picker-item:hover {
+        color: var(--cryptee-green) !important;
+    }
+
+    .ql-toolbar .ql-picker-label:hover .ql-stroke, 
+    .ql-toolbar .ql-picker-label:hover .ql-stroke-miter,
+    .ql-toolbar .ql-formats *:hover .ql-fill {
+        stroke: var(--cryptee-green) !important;
+        fill: var(--cryptee-green) !important;
+    } 
+
+    .ql-color-picker .ql-picker-options span:hover {
+        transform: scale(1.25);
+        border: none !important;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+TABLES 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+
+crypteetabledata {
+    display: block;
+    /* visibility: hidden; */
+    /* dont add this, it breaks tabledata */
+    height: 0;
+    width: 0;
+    /* user-select: none; */
+    /* don't add this, breaks table selection / copy paste in safari */
+}
+
+/* chromium has an arbitrary 1000 / 10000 row limit on grids. and that's not cool */
+/* https://bugs.chromium.org/p/chromium/issues/detail?id=688640 */
+/* so we use a flex-based approach instead, it performs much better than grid for this use case */
+
+crypteetable {
+    display: flex;
+    flex-wrap: wrap;
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    pointer-events: none;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    transition: 0.3s background-color ease;
+}
+
+crypteetablecell {
+    width: calc(100% / var(--columns));
+    min-width: 2rem;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    transition: 0.3s border ease, 0.3s background-color ease, 0.3s box-shadow ease;
+    padding: 0.25em 0.5em;
+    pointer-events: all;
+    background-color: rgba(255, 255, 255, 0);
+    height: auto;
+    overflow: hidden;
+}
+
+crypteetable.selected {
+    background-color: #000;
+}
+
+crypteetablecell.warn,
+crypteetable.warn {
+    background-color: var(--cryptee-red);
+    color: white;
+}
+
+crypteetablecell.insertAbove {
+    box-shadow: 0px -2px 0px var(--cryptee-green), 0px 2px 0px var(--cryptee-green) inset;
+}
+
+crypteetablecell.insertBelow {
+    box-shadow: 0px 2px 0px var(--cryptee-green), 0px -2px 0px var(--cryptee-green) inset;
+}
+
+crypteetablecell.insertRight {
+    box-shadow: 2px 0px 0px var(--cryptee-green), -2px 0px 0px var(--cryptee-green) inset;
+}
+
+crypteetablecell.insertLeft {
+    box-shadow: -2px 0px 0px var(--cryptee-green), 2px 0px 0px var(--cryptee-green) inset;
+}
+
+crypteetablecell * {
+    height: auto;
+    display: inline-block;
+    line-height: initial;
+}
+
+
+
+
+#table-dropdown {
+    transition-duration: 0.15s;
+    transform: translate3d(0, -1rem, 0);
+    right: auto;
+}
+
+#table-dropdown.show {
+    transform: translate3d(0, 0, 0);
+}
+
+
+
+
+
+#table-contextual-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    
+    font-size:      1.25rem;
+    border-radius:  1.5rem;
+    line-height:    1.5rem;
+    height:         1.5rem;
+    width:          1.5rem;
+    
+    z-index: 9;
+    text-align: center;
+
+    background-color: #000;
+    color: #FFF;
+
+    opacity: 1;
+    cursor: pointer;
+    transition: 0.3s opacity ease;
+
+    transform: translate3d(0, 0, 0);
+}
+
+
+#table-contextual-button:not(.visible) {
+    pointer-events: none !important;
+    opacity: 0;
+}
+
+#table-contextual-button.warn,
+#table-contextual-button.insertRight,
+#table-contextual-button.insertLeft,
+#table-contextual-button.insertAbove,
+#table-contextual-button.insertBelow {
+    pointer-events: none !important;
+    opacity: 0;
+}
+
+.dm #table-contextual-button {
+    background-color: var(--cryptee-1);
+    
+}
+
+
+
+.quill-toolbar.in-table .ql-header,
+.quill-toolbar.in-table .ql-blockquote,
+.quill-toolbar.in-table .ql-code-block,
+.quill-toolbar.in-table .ql-clean,
+.quill-toolbar.in-table .ql-list,
+.quill-toolbar.in-table .ql-indent,
+.quill-toolbar.in-table .ql-hr,
+.quill-toolbar.in-table .ql-formula,
+.quill-toolbar.in-table .ql-video,
+.quill-toolbar.in-table .ql-image,
+.quill-toolbar.in-table .cryptee-attachfile,
+.quill-toolbar.in-table .cryptee-new-table {
+    pointer-events: none !important;
+    opacity: 0.2 !important;
+}
+
+
+#doc-contextual-buttons.in-table #mobile-floating-list,
+#doc-contextual-buttons.in-table #mobile-floating-check,
+#doc-contextual-buttons.in-table #mobile-floating-picture {
+    pointer-events: none !important;
+    opacity: 0.2 !important;
+}
+
+#mobile-toolbar.in-table .ql-header,
+#mobile-toolbar.in-table .ql-blockquote,
+#mobile-toolbar.in-table .ql-clean,
+#mobile-toolbar.in-table .ql-list,
+#mobile-toolbar.in-table .ql-indent {
+    display: none !important;
+}
+
+#mobile-toolbar.in-table {
+    text-align: center;
+}
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FILES 
+ 
+--------------------------------
+----------------------------- */
+
+
+crypteefile {
+    display: block;
+    font-size: 0;
+    font-weight: 350;
+    background-color: var(--cryptee-4);
+    padding: 1rem 1rem 0.5rem 1rem;
+    cursor: pointer;
+    margin: 1rem 0;
+    
+    transition: 0.5s opacity ease, 0.15s background-color ease, 0.15s color ease;
+    border-left: 1px solid #000;
+    opacity: 1;
+}
+
+crypteefile::after {
+    content: attr(filetitle);
+    font-size: 1rem;
+    pointer-events: all;
+    cursor: pointer;
+}
+
+crypteefile::before {
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    content: "\EA86";
+    
+    display: inline-block;
+    margin-top: -0.75rem;
+    margin-right: 1rem;
+
+    font-size: 1rem;
+    line-height: 1rem;
+    width: 1rem;
+    vertical-align: middle;
+    pointer-events: all;
+    cursor: pointer;
+}
+
+
+crypteefile.selected {
+    background-color: var(--cryptee-1) !important;
+    color: #FFF !important;
+}
+
+.dm crypteefile.selected {
+    background-color: var(--cryptee-4) !important;
+    color: #000 !important;
+}
+
+.dm crypteefile {
+    background-color: var(--cryptee-1) !important;
+    color: #FFF !important;
+    border-left: 1px solid #FFF;
+}
+
+
+/* FORMATS / ICONS */
+
+crypteefile[filetitle$=".gif"]::before,
+crypteefile[filetitle$=".png"]::before,
+crypteefile[filetitle$=".jpeg"]::before,
+crypteefile[filetitle$=".jpg"]::before {
+    content : "\EE4A";
+}
+
+crypteefile[filetitle$=".7z"]::before,
+crypteefile[filetitle$=".tar"]::before,
+crypteefile[filetitle$=".gz"]::before,
+crypteefile[filetitle$=".zip"]::before,
+crypteefile[filetitle$=".dmg"]::before,
+crypteefile[filetitle$=".pkg"]::before,
+crypteefile[filetitle$=".tgz"]::before,
+crypteefile[filetitle$=".rar"]::before {
+    content : "\ED1F";
+}
+
+
+crypteefile[filetitle$=".doc"]::before,
+crypteefile[filetitle$=".docx"]::before,
+crypteefile[filetitle$=".docm"]::before,
+crypteefile[filetitle$=".pages"]::before {
+    content : "\ED1B";
+}
+
+crypteefile[filetitle$=".xls"]::before,
+crypteefile[filetitle$=".xlsx"]::before,
+crypteefile[filetitle$=".numbers"]::before {
+    content : "\ECDD";
+}
+
+crypteefile[filetitle$=".ppt"]::before,
+crypteefile[filetitle$=".pptx"]::before,
+crypteefile[filetitle$=".key"]::before,
+crypteefile[filetitle$=".keynote"]::before,
+crypteefile[filetitle$=".pps"]::before {
+    content : "\ECFF";
+}
+
+crypteefile[filetitle$=".mp3"]::before,
+crypteefile[filetitle$=".wav"]::before,
+crypteefile[filetitle$=".wave"]::before,
+crypteefile[filetitle$=".ogg"]::before,
+crypteefile[filetitle$=".wma"]::before,
+crypteefile[filetitle$=".aif"]::before,
+crypteefile[filetitle$=".aiff"]::before {
+    content : "\EF87";
+}
+
+crypteefile[filetitle$=".mp4"]::before,
+crypteefile[filetitle$=".3gp"]::before,
+crypteefile[filetitle$=".avi"]::before,
+crypteefile[filetitle$=".fvl"]::before,
+crypteefile[filetitle$=".mkv"]::before,
+crypteefile[filetitle$=".ogv"]::before,
+crypteefile[filetitle$=".xvid"]::before,
+crypteefile[filetitle$=".wmv"]::before {
+    content : "\EF81";
+}
+
+crypteefile[filetitle$=".pdf"]::before  { content : "\ED01"; }
+crypteefile[filetitle$=".epub"]::before { content : "\EADB"; }
+crypteefile[filetitle$=".ecd"]::before  { content : "\ECF3"; }
+crypteefile[filetitle$=".uecd"]::before { content : "\ED0F"; }
+crypteefile[filetitle$=".enex"]::before { content : "\ECA2"; }
+
+/* MARKDOWN */
+crypteefile[filetitle$=".md"]::before,
+crypteefile[filetitle$=".mkd"]::before,
+crypteefile[filetitle$=".mkdn"]::before,
+crypteefile[filetitle$=".mdwn"]::before,
+crypteefile[filetitle$=".mdown"]::before,
+crypteefile[filetitle$=".markdown"]::before,
+crypteefile[filetitle$=".markdn"]::before,
+crypteefile[filetitle$=".mdtxt"]::before,
+crypteefile[filetitle$=".mdtext"]::before {
+    content : "\EF1D";
+}
+
+
+
+crypteefile.loading {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+}
+
+crypteefile.loading::before { 
+    content: "\EEC6" !important; 
+    animation: spin 0.4s linear infinite !important; 
+}
+
+crypteefile.error {
+    background-color: var(--cryptee-red);
+    border-color: var(--cryptee-red);
+    color: white;
+}
+
+
+
+crypteefile.error::before { content: "\ED19"; }
+crypteefile.error::after { content: "Failed to open " attr(filetitle); }
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+tags 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+
+crypteetag::before {
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    content: "\F023";
+    
+    display: inline-block;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    width: 1rem;
+    vertical-align: middle;
+    font-style: normal;
+
+    margin: -0.25rem 0.25rem 0rem 0.25rem;
+}
+
+
+crypteetag {
+    line-height: 1rem;
+    margin-top: -0.25rem;
+    margin-bottom: -0.25rem;
+    padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+    border-radius: 1rem;
+    text-transform: lowercase;
+    background-color: var(--cryptee-4);
+    color: var(--cryptee-1);
+    display: inline-block;
+}
+
+.dm crypteetag {
+    background-color: var(--cryptee-1);
+    color: var(--cryptee-4);
+}
+
+
+.tribute-container {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+}
+
+.tribute-container ul {
+    background-color: var(--cryptee-1);
+    padding-right: 0.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    color: #FFF;
+}
+
+.tribute-container li {
+    margin-top: 0;
+}
+
+.tribute-container li span {
+    font-weight: 350;
+    text-transform: lowercase;
+    line-height: 2rem;
+    height: 2rem;
+}
+
+.tribute-container i {
+    font-size: 1rem;
+    margin: 0 0.5rem;
+    line-height: 2rem;
+    height: 2rem;
+}
+
+.tribute-container i:last-child {
+    margin-right: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+toc 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor .highlighted, 
+.ql-editor .highlighted * {
+    color: var(--cryptee-green);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+TOOLTIP (urls etc) 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-tooltip {
+    display: flex;
+    text-transform: lowercase;
+    background-color: #242424;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 350;
+    white-space: nowrap;
+    padding: 0.5rem 1rem 0.25rem 1rem;
+    
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.25);
+}
+
+.ql-tooltip-arrow {
+    border-bottom-color: #242424 !important;
+}
+
+.ql-tooltip::before {
+    line-height: 1.5rem;
+    margin-right: 1rem;
+    font-weight: 700;
+}
+
+.ql-tooltip input {
+    display: none;
+    color: #FFF;
+    margin-top: 0;
+    width: 10rem;
+}
+
+.ql-tooltip[data-mode=link]::before     { content: "enter link"; }
+.ql-tooltip[data-mode=formula]::before  { content: "enter formula"; }
+.ql-tooltip[data-mode=video]::before    { content: "enter video"; }
+
+.ql-snow .ql-tooltip a.ql-action::after {
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    content: "\EC85";
+    font-size: 1rem;
+    line-height: 1.5rem;
+
+    margin-left: 1rem;
+    padding-right: 1rem;
+}
+
+.ql-snow .ql-tooltip a.ql-remove::before {
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    content: "\EC19";
+    font-size: 1rem;
+    line-height: 1.5rem;
+    
+    margin-left: 1rem;
+}
+
+.ql-snow .ql-tooltip.ql-editing a.ql-action::after {    
+    content: "\EB7B";
+    padding-right: 0;
+}
+
+.ql-tooltip .ql-action,
+.ql-tooltip .ql-remove {
+    font-weight: 700;
+    color: #FFF;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.ql-tooltip a.ql-preview {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    display: inline-block;
+    max-width: 200px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    color: #FFF;
+    text-decoration: underline;
+}
+
+.ql-tooltip input {
+    box-shadow: inset 0px -1px 0px var(--cryptee-2);
+    color: white;
+}
+
+.ql-tooltip input:focus {
+    -webkit-appearance: none;
+    box-shadow: inset 0px -1px 0px white;
+}
+
+.ql-tooltip input::placeholder { color: #888 !important; }
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MOBILE TOOLBAR 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-bubble .ql-tooltip {
+    width: 100% !important;
+    max-width: calc(12rem + 1rem) !important;
+    padding: 0.5rem;
+}
+
+.ql-bubble .ql-tooltip {
+    max-width: calc(100% - 2rem);
+}
+
+.ql-tooltip #mobileToolbar {
+    width: 100%;    
+}
+
+.ql-tooltip #mobileToolbar button,
+.ql-tooltip #mobileToolbar .ql-picker,
+.ql-tooltip #mobileToolbar select {
+    height: 2rem;
+    line-height: 2rem;
+    width: 2rem;
+}
+
+.ql-tooltip #mobileToolbar button i,
+.ql-tooltip #mobileToolbar .ql-picker i,
+.ql-tooltip #mobileToolbar select i { 
+    color: #aaa; 
+    font-size: 1.25rem;
+}
+
+.ql-tooltip #mobileToolbar button.ql-active i,
+.ql-tooltip #mobileToolbar .ql-picker.ql-expanded i { 
+    color: #FFF;
+}
+
+.ql-tooltip select,
+.ql-tooltip .ql-picker {
+    border: none;
+    cursor: pointer;
+    height: 24px;
+    padding: 3px 5px;
+    width: 28px;
+    text-align: center;
+}
+
+.ql-tooltip .ql-picker-options {
+    background-color: #000;
+    grid-template-columns: repeat(6, 1rem);
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+IMAGE OVERLAY & IMAGES
+ 
+--------------------------------
+----------------------------- */
+
+/* first child is image size */
+/* last child is buttons */
+/* rest are handles */
+
+.imageResizeOverlay {
+    border: 1px var(--cryptee-green) solid;
+}
+
+.imageResizeOverlay > div {
+    background-color: var(--cryptee-1) !important;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25) !important;
+}
+
+/* resize handles */
+.imageResizeOverlay > div:not(:last-child):not(:first-child) {
+    background-color: var(--cryptee-green) !important;
+    height: 1rem !important;
+    width: 1rem !important;
+}
+
+.imageResizeOverlay > div:last-child {
+    overflow: hidden !important;
+    border-radius: 0.5rem !important;
+    width: 9rem !important;
+    height: 3rem !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin: auto !important;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+.imageResizeOverlay > div:last-child span {
+    width: 3rem !important;
+    height: 3rem !important;
+    line-height: 3rem !important;
+    padding-top: 0.5rem !important;
+}
+
+.imageResizeOverlay > div:last-child span svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    line-height: 3rem !important;
+}
+
+.imageResizeOverlay > div:last-child span svg .ql-stroke {
+    stroke: #FFF;
+}
+
+.imageResizeOverlay > div:nth-child(2),
+.imageResizeOverlay > div:nth-child(3),
+.imageResizeOverlay > div:nth-child(5) {
+    display: none !important;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IMAGES 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor img { 
+    height: auto;
+    min-width: 14rem;
+}
+
+.ql-editor img[src="//:0"] {
+    background-color: var(--cryptee-yellow);
+    color: transparent;
+    position: relative;
+    border: none;
+    box-shadow: none;
+    outline: none;
+    width: 16rem;
+    min-width: 16rem;
+    height: 4rem;
+    text-decoration:none !important;
+    text-indent: -32rem;
+    overflow: hidden;
+
+    cursor: pointer;
+    transition: 0.3s background-color ease;
+    pointer-events: none;
+} 
+
+.ql-editor img[src="//:0"]::after {
+    pointer-events: all;
+    
+    content: "insecure remote image";
+    position: absolute;    
+    left: 0rem;
+    top: 0rem;
+    padding: 1rem 2rem 1rem 4rem;
+    color: black;
+    height: 2rem;
+    line-height: 2rem;
+    z-index: 2;
+    text-decoration:none !important;
+    text-indent: 0rem;
+    font-weight: 350;
+    
+}
+
+.ql-editor img[src="//:0"]::before {
+    pointer-events: all;
+
+    transition: 0.3s background-color ease;
+    background-color: var(--cryptee-yellow);
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 1rem;
+    z-index: 2;
+
+    color: black;
+    content: "\F103";
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+    cursor: pointer;
+    text-decoration:none !important;
+    text-indent: 0rem;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+HR
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor hr {
+    height: 0;
+    padding: 0;
+
+    border: 1px solid var(--cryptee-2);
+    border-top: none;
+    border-right: none;
+    border-left: none;
+}
+
+.dm .ql-editor hr { border-color: var(--cryptee-2); }
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+    .ql-tooltip input:hover {
+        -webkit-appearance: none;
+        box-shadow: inset 0px -1px 0px var(--cryptee-3);
+    }
+
+    .ql-tooltip input:hover:focus {
+        -webkit-appearance: none;
+        box-shadow: inset 0px -1px 0px white;
+    }
+
+    crypteefile:not(.loading):not(.error):hover { background-color: #EEE; }
+    crypteefile:hover::before { content: "\ECAE"; }
+    crypteefile.error:hover::before {content : "\EB96"; }
+
+    .ql-editor img[src="//:0"]:hover,
+    .ql-editor img[src="//:0"]:hover::before { background-color: #ffcc00; }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA QUERIES 
+ 
+--------------------------------
+----------------------------- */
+
+/* 70rem */
+@media (max-width : 1120px) {
+    .ql-formats:nth-of-type(2) {
+        margin-right: 0 !important;
+    }
+}
+
+/* 1008px (editor + left slider) */
+@media (max-width : 63rem) {
+    .ql-editor { 
+        max-width: 100%; 
+        position: absolute;
+    }
+}
+
+@media (max-width : 703px) {
+    .ql-formats {
+        margin-right: 0 !important;
+    }   
+}

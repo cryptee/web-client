@@ -1,0 +1,56 @@
+<div class="modal warning" id="modal-remote-images">
+    <h2>WARNING</h2>
+    
+    <p>cryptee has detected remote images, and blocked them from loading for your security &amp; privacy.<br><br>would you like to load these images?</p>
+    <b></b>
+
+    <section class="lowercase">
+
+        <details>
+            <summary class="bold">why am i seeing this warning?</summary>
+            <p>when you copy-paste images from websites into your cryptee documents, remote images get carried over as a side-effect of how copy-pasting works on all operating systems. Unfortunately, most apps don't watch out for these. So when you import 3rd party files like html, markdown, or evernote notes into cryptee, these files may also contain remote images.</p>
+        </details>
+
+        <br>
+
+        <details>
+            <summary class="bold">what happens if/when I click "load"?</summary>
+            <p>much like tracking pixels in emails, these images could be used to track you by the server owners. since the images will make connections to remote servers every time you open this document, servers can track:</p>
+            
+            <ul>
+                <li>&bull; <strong>when &amp; how often</strong> you open this document,</li>
+                <li>&bull; <strong>the location</strong> where you open this document using your ip address</li>
+                <li>&bull; <strong>the device</strong> with which you open this document (phone/laptop etc)</li>
+            </ul>
+
+            <br>
+            <strong>in addition:</strong>
+            <br>
+
+            <ul>
+                <li>&bull; if the images are from insecure URLs (i.e. <u>http</u> instead of <u>https</u>), your browser will display an insecure warning for cryptee. this isn't because cryptee itself is insecure, but the remote images are.</li>
+                <li>&bull; if you have ad-blockers, they will show cryptee making outgoing connections to remote images' source URLs, which cryptee has to do in order to display these images. so your ad-blockers may mistakenly think cryptee isn't making safe connections.</li>
+                <li>&bull; since your documents are encrypted on your device, and cryptee's servers are mathematically unable to access your documents, cryptee cannot scan these images for malware content, and these images may pose potential security risks to your devices.</li>
+                <li>&bull; since these images are loaded from remote sources, if you'd like to access this document while offline, these images won't be available.</li>
+            </ul>
+        </details>
+        
+        <br>
+
+        <details>
+            <summary class="bold">how can i fix this?</summary>
+            <p>While copy pasting images from websites, instead of highlighting &amp; selecting images along with other text using your cursor, right click on images themselves and press "copy image", and copy paste images one-by-one into your documents using this way. Operating systems will then copy the actual contents of images instead of copying mere links to remote sources of your images.</p>
+        </details>
+    
+        <br>
+
+        <details>
+            <summary class="bold">will i see this message every time?</summary>
+            <p>once you click the "load" button below, cryptee will remember your preference for this document & these specific images on this device. you can change this preference for each document by pressing the "info" button ( <i class="ri-information-fill"></i> ), which will be yellow for you to see easily.</p>
+        </details>
+    
+    </section>
+    
+    <button class="action r mm bold" onclick="hideActiveModal();">no, don't load!</button>
+    <button class="action l sm" onclick="loadInsecureImages(); hideActiveModal();">yes, load</button>
+</div>

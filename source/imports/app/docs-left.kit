@@ -1,0 +1,94 @@
+<b class="fader"></b>
+
+<!-- <button id="searchIcon"><i class="ri-search-line"></i></button> -->
+<input id="searchInput" type="text" placeholder="search" autocomplete="off">
+<progress id="searchProgress" class="progress white" value="100" max="100"></progress>
+
+<a id="logo" href="/home" draggable="false" ondragstart="return false;" class="rememberKey">
+    <img src="../assets/logo-w.svg" alt="CRYPTEE">
+</a>
+
+<div id="leftListWrapper" show="recents">
+    <div id="results"></div>
+    <div id="recents"></div>
+    <div id="folders"></div>
+    <div id="activeFolder"></div>
+</div>
+
+<div class="actionFloater" id="selectionsFloat">
+    <i class="ri-checkbox-multiple-fill"></i>
+    <p><span id="no-selections">0</span> selections</p>
+    <i class="ri-more-2-fill"></i>
+</div>
+
+<div id="explorerButtons">
+    <button alt="Recent Documents" id="recentsButton">
+        <i class="ri-time-fill"></i>
+    </button>
+
+    <button alt="Folders" id="foldersButton">
+        <i class="ri-folder-fill"></i>
+    </button>
+
+    <button alt="New Document" id="newDocButton" onclick="showNewDocPanel();">
+        <i class="ri-file-add-fill"></i>
+    </button>
+
+    <button alt="New Folder" id="newFolderButton" class="hidden-while-editing" onclick="newFolderFromSidebar();">
+        <i class="ri-folder-add-fill"></i>
+    </button>
+
+
+
+    <!-- ACTIVE FOLDER ONLY -->
+
+    <button alt="Upload A File" id="uploadFileButton" class="hidden-while-editing" onclick="document.getElementById('upload-input').click();">
+        <i class="ri-upload-fill"></i>
+    </button>
+
+    <button alt="Sort Items" id="sortButton" class="hidden-while-editing" onclick="changeFolderSort();">
+        <i class="ri-sort-desc"></i>
+    </button>
+
+
+
+    <!-- BOTTOM -->
+    <b class="spacer"></b>
+
+    <button alt="Summon Ghost Folder" id="summonButton" class="hidden-while-editing" onclick='showModal("modal-summon");'>
+        <i class="ri-eye-fill"></i>
+    </button>
+
+    <button alt="Show Archived Folders" id="archiveButton" class="hidden-while-editing" onclick="toggleArchivedFolders();">
+        <i class="ri-archive-fill"></i>
+    </button>
+
+    <button alt="Pin/Unpin Sidebar" id="sliderPin" class="hidden-while-editing hidden-below-tablet" onclick="toggleSidebarPin();">
+        <i class="ri-pushpin-2-fill"></i>
+    </button>
+
+</div>
+
+<small id="upgrade" onclick="goToUpgrade();">
+    <span id="storageLeft" class="remainingStorage">40mb</span> left.
+    <span>switch to a larger plan</span><br>
+    <span>store more files securely &amp; privately</span>
+</small>
+
+<small id="offline-badge" onclick="showOfflineInfoPopup();">
+    <span class="yellow">you are offline.</span>
+    <span>features that require internet are disabled & only offline docs are available.</span>
+</small>
+
+<div class="actionFloater" id="moveFloat">
+    <progress id="moveProgress" class="progress white" value="100" max="100"></progress>
+    <button class="bold white" onclick="confirmMove();"></button>
+    <small>open the folder you'd like to move things into, then press <b>move here</b></small>
+    <i class="ri-close-fill" onclick="hideFloater('moveFloat');"></i>
+</div>
+
+<button id="sliderCaret" alt="Open/Close Sidebar" onclick="toggleSidebarMenu();">
+    <i class="ri-arrow-right-s-line"></i>
+</button>
+
+<b class="fader inverted"></b>

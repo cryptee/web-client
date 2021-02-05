@@ -1,0 +1,189 @@
+<div class="dropdown" id="dropdown-doc">
+
+    <button class="white disabled-in-offline-mode disabled-for-reserved" onclick="prepareRenameModal();">
+        <i class="ri-file-edit-fill"></i>
+        <span>rename</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode disabled-while-saving" onclick="prepareMoveFloater('rightclick')">
+        <i class="ri-folder-shared-fill"></i>
+        <span>move to</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode disabled-while-saving" onclick="downloadFiles('single');" id="downloadFileButton">
+        <i class="ri-file-download-fill"></i>
+        <span>download</span>
+    </button>
+
+    <button class="white disabled-for-reserved disabled-while-saving" onclick="copySelectedDocument();" id="copyDocButton">
+        <i class="ri-file-copy-2-fill"></i>
+        <span>make a copy</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode disabled-for-empty-editor disabled-for-activedoc disabled-while-saving" onclick="attachSelectedFileInline();">
+        <i class="ri-attachment-2"></i>
+        <span>attach / link inline</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode show-for-images disabled-for-empty-editor disabled-while-saving" onclick="embedImageFromCryptee();" id="embedImageFromCrypteeButton">
+        <i class="ri-image-add-fill"></i>
+        <span>embed inline</span>
+    </button>
+
+    <button class="white hide-in-folders disabled-for-reserved" id="loadParentOfDocButton">
+        <i class="ri-folder-fill"></i>
+        <span>show in folder</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode hide-for-offline-folder-or-doc hide-for-files" onclick="makeDocumentAvailableOffline();" id="makeDocOfflineButton">
+        <i class="ri-download-cloud-fill"></i>
+        <span>make available offline</span>
+    </button>
+
+    <button class="red show-for-offline-folder-or-doc hide-for-files disabled-while-saving" onclick="prepareMakeOnlineModal('rightclick');" id="makeDocOnlineButton">
+        <i class="ri-delete-bin-4-fill"></i>
+        <span>remove from offline storage</span>
+    </button>
+
+    <hr>
+
+    <button class="red delete disabled-in-offline-mode disabled-while-saving" onclick="prepareDeleteDocsModal('rightclick')">
+        <i class="ri-delete-bin-fill"></i>
+        <span>delete</span>
+    </button>
+
+</div>
+
+<div class="dropdown" id="dropdown-folder">
+    
+    
+    <button class="white for-inbox" onclick="showInboxPopup();">
+        <i class="ri-question-fill"></i>
+        <span>what is inbox?</span>
+    </button>
+    
+    <button class="white disabled-in-offline-mode disabled-for-reserved" onclick="prepareRenameModal();">
+        <i class="ri-file-edit-fill"></i>
+        <span>rename</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode disabled-for-reserved disabled-for-archived hide-for-activefolder" onclick="prepareMoveFloater('rightclick')">
+        <i class="ri-folder-shared-fill"></i>
+        <span>move to</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode disabled-for-reserved hide-for-activefolder" onclick="archiveUnarchiveSelectedFolder();" id="archiveFolderButton">
+        <i class="ri-archive-fill"></i>
+        <span class="show-for-archived-items">archive folder</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode disabled-for-reserved disabled-for-archived hide-for-activefolder" onclick="prepareMakeGhostModal();">
+        <i class="ri-eye-off-fill"></i>
+        <span>make ghost folder</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode hide-for-activefolder">
+        <i class="ri-paint-fill"></i>      
+        <i color="#FF69B4" onclick="colorizeSelectedFolder('#FF69B4');" style="color:#FF69B4;" class="ri-checkbox-blank-circle-fill"></i>
+        <i color="#d9534f" onclick="colorizeSelectedFolder('#d9534f');" style="color:#d9534f;" class="ri-checkbox-blank-circle-fill"></i>
+        <i color="#FF8C00" onclick="colorizeSelectedFolder('#FF8C00');" style="color:#FF8C00;" class="ri-checkbox-blank-circle-fill"></i>
+        <i color="#ffdd57" onclick="colorizeSelectedFolder('#ffdd57');" style="color:#ffdd57;" class="ri-checkbox-blank-circle-fill"></i>
+        <i color="#4bbf73" onclick="colorizeSelectedFolder('#4bbf73');" style="color:#4bbf73;" class="ri-checkbox-blank-circle-fill"></i>
+        <i color="#1f9bcf" onclick="colorizeSelectedFolder('#1f9bcf');" style="color:#1f9bcf;" class="ri-checkbox-blank-circle-fill"></i>
+        <i color="#8A2BE2" onclick="colorizeSelectedFolder('#8A2BE2');" style="color:#8A2BE2;" class="ri-checkbox-blank-circle-fill"></i>
+    </button>
+
+    <!-- TODO – v3.1 - MAKE ALL DOCS OF FOLDER AVAILABLE OFFLINE -->
+
+    <!-- <button class="white disabled-in-offline-mode hide-for-offline-folder-or-doc">
+        <i class="ri-download-cloud-fill"></i>
+        <span>make docs available offline</span>
+    </button>
+
+    <button class="red show-for-offline-folder-or-doc">
+        <i class="ri-delete-bin-4-fill"></i>
+        <span>delete docs from offline storage</span>
+    </button> -->
+
+    <hr class="hide-for-activefolder">
+
+    <button class="red delete disabled-in-offline-mode hide-for-activefolder" onclick="prepareDeleteFolderModal();">
+        <i class="ri-delete-bin-fill"></i>
+        <span>delete folder</span>
+    </button>
+
+</div>
+
+
+
+<div class="dropdown" id="dropdown-selections">
+
+    <button class="white" onclick="clearSelections();">
+        <i class="ri-checkbox-indeterminate-fill"></i>
+        <span><b>de-select</b> all item(s)</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode" onclick="prepareMoveFloater('selections')">
+        <i class="ri-folder-shared-fill"></i>
+        <span><b>move</b> selected item(s) to</span>
+    </button>
+
+    <button class="white disabled-in-offline-mode disabled-for-ios-multi-download" onclick="showDownloadPopup();">
+        <i class="ri-file-download-fill"></i>
+        <span><b>download</b> selected item(s)</span>
+    </button>
+
+    <hr>
+
+    <button class="red delete disabled-in-offline-mode" onclick="prepareDeleteDocsModal('selections')">
+        <i class="ri-delete-bin-fill"></i>
+        <span><b>delete</b> selected item(s)</span>
+    </button>
+
+</div>
+
+
+
+
+<div class="panel" id="table-dropdown">
+    <button class="white" id="insert-table-row-above-button" onclick="insertRowAbove();">
+        <i class="ri-insert-row-top"></i>
+        <span>insert row above</span>
+    </button>
+
+    <button class="white" id="insert-table-row-below-button" onclick="insertRowBelow();">
+        <i class="ri-insert-row-bottom"></i>        
+        <span>insert row below</span>
+    </button>
+
+    <button class="white" id="insert-table-col-left-button" onclick="insertColLeft();">
+        <i class="ri-insert-column-left"></i>        
+        <span>insert column left</span>
+    </button>
+
+    <button class="white" id="insert-table-col-right-button" onclick="insertColRight();">
+        <i class="ri-insert-column-right"></i>        
+        <span>insert column right</span>
+    </button>
+
+    <hr>
+
+    <button class="white warn" id="delete-table-row-button" onclick="deleteSelectedRow();">
+        <i class="ri-delete-row"></i>        
+        <span>delete this row</span>
+    </button>
+
+    <button class="white warn" id="delete-table-column-button" onclick="deleteSelectedCol();">
+        <i class="ri-delete-column"></i>        
+        <span>delete this column</span>
+    </button>
+
+    <hr>
+    
+    <button class="red warn" id="delete-table-button"  onclick="deleteSelectedTable();">
+        <i class="ri-delete-bin-2-line"></i>        
+        <span>delete this table</span>
+    </button>
+</div>
+  
+<i class="ri-arrow-down-s-fill" id="table-contextual-button"></i>

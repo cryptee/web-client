@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+    
+    <title>Cryptee | Plans</title>
+    
+    <!-- INSERT MORE CSS HERE -->
+    
+    <link rel="stylesheet" href="../css/plans.css">
+    
+    <script src="https://js.stripe.com/v3/"></script>
+
+</head>
+
+<body class="app-body fixed chooseplan">
+<!-- <body class="app-body fixed billing"> -->
+
+    <a id="logo" href="/home" draggable="false" ondragstart="return false;">
+        <img src="../assets/logo-b.svg" alt="CRYPTEE">
+    </a>
+
+    <p id="pick">pick a plan</p>
+
+    <div id="period" period="mo">
+        <button period="yr" >yearly</button>
+        <button period="mo" class="active">monthly</button>
+        <small cur="€"></small>
+    </div>
+
+    <div class="plan" plan="10GB">
+        <span>
+            <h1 class="storage">10</h1>
+            <span>GB</span>
+        </span>
+
+        <p class="description gray">
+            great for light document editing &amp; attaching files
+        </p>
+        
+        <br><hr><br><br>
+
+        <div class="buttons">
+            <button cur="€" mo="3" yr="3"></button>
+            <small class="right"></small>
+        </div>
+    </div>
+
+    <div class="plan" plan="400GB">
+        <span>
+            <h1 class="storage">400</h1>
+            <span>GB</span>
+        </span>
+
+        <p class="description gray">
+            ideal for photo libraries, lots of files &amp; documents
+        </p>
+        
+        <br><hr><br><br>
+
+        <div class="buttons">
+            <button cur="€" mo="11" yr="9"></button>
+            <small cur="€" class="right" save="24"></small>
+        </div>
+    </div>
+
+
+    <div class="plan" plan="2000GB">
+        <span>
+            <h1 class="storage">2000</h1>
+            <span>GB</span>
+        </span>
+
+        <p class="description gray">
+            perfect for large photo libraries &amp; archives
+        </p>
+        
+        <br><hr><br><br>
+
+        <div class="buttons">
+            <button cur="€" mo="30" yr="27"></button>
+            <small cur="€" class="right" save="36"></small>
+        </div>
+    </div>
+
+    <p id="non-profit">are you a non-profit / charity / tax-exempt organization?<br>we got your back! <a href="help">contact us!</a><br></p>
+
+    <div id="billing">
+
+        <div id="chosenplan">
+            <h2 class="storage" id="chosenstorage"></h2>
+            <span class="gray">GB</span>
+            <p class="gray" id="chosenbilling" cur="€"></p>
+        </div>
+
+        <input onchange="validateBillingInfo();" id="billing-email" type="email" placeholder="email for receipts*">
+        <small>please type a valid email for receipts</small>
+
+        <div id="card">
+            <p class="gray">card details</p>
+            <div id="card-pan"       class="stripe-input"></div>
+            <div id="card-exp"       class="stripe-input"></div>
+            <div id="card-cvc"       class="stripe-input"></div>
+            <input id="billing-zip"  class="darkback" type="text" placeholder="zip code" onchange="validateBillingInfo();">
+            <input id="billing-name" class="darkback" type="text" placeholder="cardholder name" onchange="validateBillingInfo();">
+        </div>
+        
+        <p class="select" style="display: none !important;">
+            <select tabindex="-1" onchange="validateBillingInfo();" id="countries">
+                <!-- @import "imports/country-options.kit" -->
+            </select>
+        </p>
+
+        <input id="vat-number" type="text" tabindex="-1"  placeholder="add vat number" onchange="validateBillingInfo(); validateVAT();">            
+
+        <button id="checkout-button" class="bold green" onclick="upgrade();" disabled></button>
+
+        <div id="company">
+            <i id="vat-status" class="ri-hotel-fill"></i>
+            <small style="margin-top: 0 !important;">
+                <span id="company-name"    class="lowercase bold">validating vat #</span><br>
+                <span id="company-address" class="lowercase">one moment please</span>
+            </small>
+        </div>
+
+    </div>
+
+    <div id="thanks">
+        <h2>THANK YOU</h2>
+        <p>thank you for helping us make the internet a safer &amp; more private place. we've successfully processed your payment.</p>
+        <br><br><br>
+        <a class="close bold" href="home">
+            <span>continue to home</span>
+            <i class="ri-arrow-right-line" style="vertical-align: bottom;"></i>
+        </a>
+    </div>
+
+    <div id="threeDSError">
+        <p class="bold">3D SECURE PAYMENT<br> VERIFICATION FAILED</p>
+        <br>
+        <p>we couldn't verify your payment.</p>
+        <p>you will shortly receive an email with a payment link. using this link, you can re-try your payment for the next 24 hours. for your safety, we didn't process this payment or activate your plan.</p>
+        <br><br><br>
+        <a class="close bold" href="home">
+            <span>continue to home</span>
+            <i class="ri-arrow-right-line" style="vertical-align: bottom;"></i>
+        </a>
+    </div>
+
+    <div id="dbError">
+        <p class="bold">WAITING CONFIRMATION</p>
+        <br>
+        <p>looks like either your bank or our payment processor is taking a few extra minutes to confirm your payment.</p>
+        <p>our team has been notified, and your subscription should be activated shortly. we apologise for this inconvenience.</p>
+        <br><br><br>
+        <a class="close bold" href="home">
+            <span>continue to home</span>
+            <i class="ri-arrow-right-line" style="vertical-align: bottom;"></i>
+        </a>
+    </div>
+
+    <div id="switching">
+        <h2>ACTIVATING NEW PLAN</h2>
+        <p>one moment please</p>
+        <br><br><br><br>
+        <progress class="progress white" max="100"></progress>
+    </div>
+
+    <div id="thanks-switch">
+        <h2>THANK YOU</h2>
+        <p>thank you!<br>your new plan will be activated shortly.</p>
+        <p>you will be credited for the price difference, or billed only for the price difference if necessary.</p>
+        <br><br><br>
+        <a class="close bold" href="home">
+            <span>continue to home</span>
+            <i class="ri-arrow-right-line" style="vertical-align: bottom;"></i>
+        </a>
+    </div>
+
+    <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script src="../js/plans/apis.js"></script>
+    <script src="../js/prices.js"></script>
+    <script src="../js/plans.js"></script>
+
+</body></html>

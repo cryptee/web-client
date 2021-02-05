@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Help</title>
+    <link rel="stylesheet" href="../css/help.css">
+    <link rel="stylesheet" href="../css/typography.css">
+</head>
+
+<body class="app-body">
+
+    <img id="logo" src="../assets/logo-b.svg" alt="CRYPTEE" onclick="loadHome();">
+        
+    <h2 id="head">HELP</h2>
+
+    <nav>
+        <input class="darkback" type="text" id="searchInput" placeholder="search for help articles">
+        <i class="ri-search-line"></i>
+        <button id="clear-search" onclick="clearSearch();"><img src="../assets/cross.svg" alt="close" title="clear-search"></button>
+    </nav>
+
+    <div id="results"></div>
+
+    <section>
+        <h3>MOVING TO CRYPTEE?</h3>
+        <hr>
+        
+        <p>we've prepared step-by-step guides for you to easily move your data from your old unencrypted apps to cryptee in just a few minutes & few clicks.</p>
+        <!-- <b></b> -->
+        
+        <b>DOCUMENTS & NOTES</b>
+        
+        <div class="import-from-app" style="background-color:#5BA525" onclick="loadArticle('migrate-from-evernote')">
+            <img src="../imgs/help/evernote.svg" alt="">
+            <p>evernote</p>
+        </div>
+
+        <div class="import-from-app" style="background-color:#BE1419" onclick="loadArticle('migrate-from-bear-notes')">
+            <img src="../imgs/help/bear.svg" alt="">
+            <p>bear notes</p>
+        </div>
+
+        <div class="import-from-app" style="background-color:#363636" onclick="loadArticle('migrate-from-apple-notes')">
+            <img src="../imgs/help/apple.svg" alt="">
+            <p>icloud notes</p>
+        </div>
+
+        <div class="import-from-app inverted" style="background-color:white" onclick="loadArticle('how-can-i-import-migrate-documents-notes-files-to-cryptee-from-other-applications')">
+            <img src="../imgs/help/circle.svg" alt="">
+            <p>other</p>
+        </div>
+
+        <!-- <b></b> -->
+        <b>PHOTOS</b>
+
+        <div class="import-from-app inverted" style="background-color:white" onclick="loadArticle('migrate-from-google-photos')">
+            <img src="../imgs/help/gphotos.svg" alt="">
+            <p>google photos</p>
+        </div>
+
+        <div class="import-from-app" style="background-color:#FF9900" onclick="loadArticle('migrate-from-amazon-photos')">
+            <img src="../imgs/help/azphotos.svg" alt="">
+            <p>amazon photos</p>
+        </div>
+
+        <div class="import-from-app" style="background-color:#363636" onclick="loadArticle('migrate-from-icloud-photos')">
+            <img src="../imgs/help/apple.svg" alt="">
+            <p>icloud photos</p>
+        </div>
+
+        <div class="import-from-app inverted" style="background-color:white" onclick="loadArticle('how-can-i-bulk-import-my-photos-into-cryptee')">
+            <img src="../imgs/help/triangle.svg" alt="">
+            <p>other</p>
+        </div>
+
+        <b></b>
+        <b></b>
+    </section>
+
+    <section>
+        <h3>POPULAR QUESTIONS</h3>
+        <hr>
+        
+        <p>here are the most popular questions & help topics</p>
+        <span></span>
+
+        <p class="faq">
+            <i onclick="loadTopic('account');" class="topic-button ri-shield-user-line right lg"></i>
+            <b    onclick="loadTopic('account');" class="topic-button">ACCOUNT &amp; SECURITY</b><br><br>
+            <span onclick="loadArticle('im-having-trouble-logging-in')">– I'm having trouble logging in!</span><br>
+            <span onclick="loadArticle('i-lost-my-encryption-key-help')">– I forgot my encryption key!</span><br>
+            <span onclick="loadArticle('what-happens-if-i-cant-log-in-to-my-account')">– I forgot my password!</span><br>
+            <span onclick="loadArticle('about-password-managers')">– About password managers</span><br>
+            <span onclick="loadTopic('account');" class="topic-button">More ...</span><br>
+        </p>
+
+        <p class="faq">
+            <i onclick="loadTopic('general');" class="topic-button ri-information-line right lg"></i>
+            <b    onclick="loadTopic('general');" class="topic-button">GENERAL</b><br><br>
+            <span onclick="loadArticle('what-happens-if-i-exceed-my-storage-quota')">– What happens if I exceed my storage limit?</span><br>
+            <span onclick="loadArticle('why-is-cryptee-not-in-the-ios-app-store-or-android-play-store')">– Why can't I find Cryptee in the app store?</span><br>
+            <span onclick="loadArticle('how-large-of-a-file-can-i-upload')">– Is there a file-size limit?</span><br>
+            <span onclick="loadTopic('general');" class="topic-button">More ...</span><br>
+        </p>
+
+        <p class="faq">
+            <i onclick="loadTopic('docs');" class="topic-button ri-file-text-line right lg"></i>
+            <b    onclick="loadTopic('docs');" class="topic-button">DOCUMENTS</b><br><br>
+            <span onclick="loadArticle('how-can-i-see-the-word-count-and-or-character-count')">– How can I see the word / character count?</span><br>
+            <span onclick="loadArticle('how-can-i-search-documents-for-their-text-content')">– Can I search all my documents for a text?</span><br>
+            <span onclick="loadArticle('what-is-the-home-document')">– What is the Home Document?</span><br>
+            <span onclick="loadArticle('what-is-a-ghost-folder')">– What is a Ghost Folder?</span><br>
+            <span onclick="loadTopic('docs');" class="topic-button">More ...</span><br>
+        </p>
+
+        <p class="faq">
+            <i onclick="loadTopic('photos');" class="topic-button ri-camera-3-line right lg"></i>
+            <b    onclick="loadTopic('photos');" class="topic-button">PHOTOS</b><br><br>
+            <span onclick="loadArticle('how-can-i-sort-order-arrange-my-photos-and-albums')">– How can I arrange my photos &amp; albums?</span><br>
+            <span onclick="loadArticle('can-i-upload-videos-to-cryptee-photos')">– Can I upload videos to Cryptee Photos?</span><br>
+            <span onclick="loadArticle('how-does-cryptees-intelligent-photos-search-work')">– How does the intelligent search work?</span><br>
+            <span onclick="loadArticle('how-do-i-create-a-ghost-album')">– What is a Ghost Album?</span><br>
+            <span onclick="loadTopic('photos');" class="topic-button">More ...</span><br>
+        </p>
+
+        <p class="faq">
+            <i onclick="loadTopic('payments');" class="topic-button ri-bank-card-line right lg"></i>
+            <b    onclick="loadTopic('payments');" class="topic-button">PAYMENTS</b><br><br>
+            <span onclick="loadArticle('what-happens-if-i-cancel-my-subscription')">– What happens if I cancel my subscription?</span><br>
+            <span onclick="loadArticle('how-can-i-change-my-payment-method')">– How can I change my payment method?</span><br>
+            <span onclick="loadArticle('why-is-my-payment-method-not-accepted');">– Why is my payment (method) rejected?</span><br>
+            <span onclick="loadArticle('why-dont-you-accept-crypto-currencies-like-bitcoin');">– Can I pay with crypto-currencies like bitcoin?</span><br>
+        </p>
+
+        <b></b>
+        <b></b>
+    </section>
+
+    <section>
+        <h3>CONTACT US</h3>
+        <hr>
+
+        <p>
+            couldn't find what you're looking for? ran into an error or bug?
+            <br>
+            we're always here to help and listen to your feedback.
+        </p>
+
+        <span></span>
+
+        <!-- <p> -->
+            <!-- <b onclick="openContact('bug')">REPORT AN ERROR / BUG</b><br><br>
+            <span>let us know what went wrong</span><br>
+            <span>we'll fix things up right away</span><br>
+            <br> -->
+            <button class="bold" onclick="openContact('bug')">send error / bug report</button>
+        <!-- </p> -->
+        
+        <!-- <p> -->
+            <!-- <b onclick="openContact()">QUESTION / FEEDBACK</b><br><br>
+            <span>we're always here to answer your questions</span><br>
+            <span>help and listen to your feedback</span><br>
+            <br> -->
+            <button class="bold" onclick="openContact()">send question / feedback message</button>
+        <!-- </p> -->
+
+        <b></b>
+        <b></b>
+    </section>
+
+    <main>
+        <p id="back" onclick="closeArticle();">&lt; back <span class="hidden-below-tablet">to helpdesk</span></p>
+        <progress class="progress white" max="100"></progress>  
+        <article class="ql-editor"> <!-- not really an editor, but to keep the styling consistent using typography.css-->
+
+        </article>
+    </main>
+
+    <button id="close-results" onclick="clearTopicResults();"><img src="../assets/cross.svg" alt="close" title="close results"></button>
+
+
+    <!-- @import "imports/app/help-modal-bug.kit" -->
+    <!-- @import "imports/app/help-modal-contact.kit" -->
+
+    <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script src="../js/help.js"></script>
+
+</body></html>

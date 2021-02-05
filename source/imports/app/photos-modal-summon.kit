@@ -1,0 +1,36 @@
+<div class="modal" id="modal-summon">
+    <h2>SUMMON GHOST ALBUM</h2>
+    <p>type the ghost album's name below</p>
+
+    <b></b>
+    
+    <section>
+    
+        <input id="summon-input" type="text" class="darkback" placeholder="type the album's name here" autocomplete="off">
+        <br><br>
+
+        <small>once summoned, this album will become a regular album, and <strong>it will not</strong> automatically ghost itself back. if you'd like to ghost this album again, you'll need to do this manually.</small>
+
+        <details class="lowercase">
+            <summary class="small bold">why can't cryptee automatically re-ghost albums?</summary>
+            <small>With Cryptee, the names of all your photos and albums are encrypted on your device, using your encryption key. So cryptee's servers don't know, and can't see the names of your photos or albums. The un-encrypted names of your albums, only exist in the memory of your device, and only while you're logged in, and while cryptee's app / page is open.</small>
+            <small>Auto-ghosting albums would require ghosting albums after you've logged out or closed the app / page.</small>
+            <small>But since cryptee's servers don't know the names of your photos or albums, your albums cannot be automatically ghosted by cryptee's servers after you've closed the app.</small>
+            <small>Due to this subtle technical detail, albums can only be ghosted by you, and you only.</small>
+            <small>So if you need an album to be ghosted / hidden again after you've summoned it, you'll have to do it yourself before closing Cryptee's app / page.</small>
+        </details>
+
+        <details class="lowercase">
+            <summary class="small bold">what's a ghost album?</summary>
+            <small>You might find yourself in a situation requiring you to hand over access to your account under stressful/forceful conditions. Cryptee's unique Ghost Albums feature allows you to hide certain albums, and be able to deny these albums' existence.</small>
+            <small>Ghost (hidden) albums are temporarily removed from your account, and they can only be brought back (summoned), by typing their exact names in the "Summon Ghost Album" field below.</small>
+            <br>
+            <small>To make a ghost album, <br>click <i class="ri-more-2-fill"></i> or <i class="ri-add-fill"></i> next to the album.<br> Then click <b>ghost</b>.<br><br></small>
+        </details>
+
+    </section>
+    <progress id="summoning-album" class="progress" value="0" max="100"></progress>
+
+    <button class="action l md bold" onclick="summonGhostAlbum();">summon</button>
+    <button class="action r sm cancel"      onclick="hideActiveModal();">cancel</button>
+</div>

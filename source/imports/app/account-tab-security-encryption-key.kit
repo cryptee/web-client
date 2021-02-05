@@ -1,0 +1,17 @@
+<input type="password" placeholder="current encryption key" id="current-key-for-change-key-input">
+<p>&nbsp;</p>
+
+<input type="password" placeholder="new encryption key" id="new-key-for-change-key-input">
+<progress class="progress yellow" value="0" max="100" id="key-strength"></progress>
+<p>&nbsp;</p>                
+
+
+<input type="password" placeholder="verify new encryption key" id="verify-new-key-for-change-key-input">
+<p>&nbsp;</p>
+
+<small><b>if you forget this key, there is no way to recover it. if you lose or forget this key, all your data will be forever inaccessible.</b></small>
+<p>&nbsp;</p>
+
+<button class="bold" disabled id="change-key-button" onclick="tryChangingKey();">change encryption key</button>
+
+<p>&nbsp;</p>

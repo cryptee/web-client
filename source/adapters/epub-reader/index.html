@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html class="no-js">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link rel="stylesheet" type="text/css" href="../../icons/remixicon.css">
+  <link rel="stylesheet" href="/adapters/epub-reader/css/main.css">
+  <link rel="stylesheet" href="/adapters/epub-reader/css/themes.css">
+
+  <script src="../../js/lib/zepto-1.2.0/zepto.min.js"></script>
+  <script src="../../js/lib/jszip/jszip.min.js"></script>
+
+  <script src="/adapters/epub-reader/js/epub.min.js"></script>
+  <script src="/adapters/epub-reader/js/reader.js"></script>
+
+  <script>"use strict";
+            // document.onreadystatechange = function () {
+            //   if (document.readyState == "complete") {
+            //     window.reader = ePubReader("https://s3.amazonaws.com/moby-dick/", {
+            //        restore: true
+            //      });
+            //   }
+            // };
+  </script>
+
+</head>
+
+<body>
+  <nav>
+    <button title="Show Chapters & Bookmarks" id="slider">
+      <i class="ri-menu-2-fill"></i>
+    </button>
+
+    <div id="metainfo">
+      <small id="book-title"></small>
+      <small id="title-seperator">&nbsp; – &nbsp;</small>
+      <small id="chapter-title"></small>
+    </div>
+
+    <button title="Bookmark Position" id="bookmark">
+      <i class="ri-bookmark-fill"></i>
+    </button>
+  </nav>
+
+  <aside id="sidebar">
+    <nav id="panels">
+      <button class="show_view active" data-view="Toc" title="Chapters" id="show-Toc">
+        <i class="ri-node-tree"></i>
+      </button>
+
+      <button class="show_view" title="Bookmarks" data-view="Bookmarks" id="show-Bookmarks">
+        <i class="ri-book-mark-fill"></i>
+      </button>
+    </nav>
+
+    <div id="tocView" class="view"></div>
+    <div id="bookmarksView" class="view" style="display: none;">
+      <ul id="bookmarks"></ul>
+    </div>
+
+  </aside>
+
+  <main id="main">
+    <div id="viewer"></div>
+  </main>
+  
+  <div id="loader"></div>
+  
+  <button id="prev" title="Prev Page">
+    <i class="ri-arrow-left-s-line"></i>
+  </button>
+
+  <button id="next" title="Next Page">
+    <i class="ri-arrow-right-s-line"></i>
+  </button>
+
+  <!-- <div class="overlay"></div> -->
+</body>
+
+</html>

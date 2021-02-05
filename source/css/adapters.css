@@ -1,0 +1,382 @@
+#file-viewer {
+    /* A4 paper is (21cm x 30cm), so we'll use (28 x 36) + 4 for the window buttons) */
+    /* this will fit perfectly on an ipad, even if it's landscape or portrait */
+    
+    width: 28rem;
+    height: calc(36rem + 4rem);
+    
+    display: grid;
+    grid-template-rows: 4rem 1fr;
+
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+
+    background-color: var(--cryptee-0);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.25);
+
+    transform: translateY(0);
+    transition-property: opacity, transform;
+    transition-duration: 0.5s;
+    transition-timing-function: var(--cryptee-cb);
+    
+    overflow: hidden;
+}
+
+#file-viewer-nav {
+    background-color: #242424;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+#file-viewer-nav button {
+    min-width: 3rem;
+    width: 3rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+
+    opacity: 0.7;
+    transition: 0.3s opacity ease;
+    
+}
+
+#file-viewer-nav button:last-child {
+    padding-right: 0.5rem;
+}
+
+#file-viewer-nav #active-filename {
+    width: auto;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: left;
+    color:#FFF;
+    padding-left: 2rem;
+    margin-top: 0;
+    margin-bottom: -0.25rem;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+#file-viewer #active-filename::before {
+    content: attr(name);
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+STATES 
+ 
+--------------------------------
+----------------------------- */
+
+
+/* MINIMIZED */
+
+#file-viewer.minimized {
+    transform: translateY(36rem);
+}
+
+#file-viewer.minimized #minimizeFileViewerButton i::before {
+    content: "\EA78";
+}
+
+/* CLOSED */
+
+#file-viewer.closed {
+    transform: translateY(44rem);
+    box-shadow: none;
+}
+
+#file-viewer.minimized #file-viewer-content, 
+#file-viewer.closed #file-viewer-content{
+    pointer-events: none !important;
+}
+
+#file-viewer.minimized #splitFileViewerButton, 
+#file-viewer.closed #splitFileViewerButton,
+#file-viewer.minimized #maximizeFileViewerButton, 
+#file-viewer.closed #maximizeFileViewerButton {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+
+
+
+/* MAXIMIZED */
+
+#file-viewer.maximized:not(.minimized):not(.loading) {
+    width: 100%;
+    height: 100%;
+}
+
+#file-viewer.maximized:not(.minimized):not(.loading) #maximizeFileViewerButton i::before{
+    content : "\ED99";
+}
+
+
+
+
+
+/* SPLIT */
+@media (min-width : 1121px) {
+
+    body:not(.pinned).split #file-viewer:not(.loading) {
+        height: 100%;
+        width: 50%;
+        box-shadow: none;
+    }
+
+    body:not(.pinned).split #splitFileViewerButton i::before {
+        content : "\EFF3";
+    }
+
+}
+
+/* SPLIT */
+@media (min-width : 1696px) {
+
+    body.split #file-viewer:not(.loading) {
+        height: 100%;
+        width: 50%;
+        box-shadow: none;
+    }
+
+    body.split #splitFileViewerButton i::before {
+        content : "\EFF3";
+    }
+
+}
+
+
+@media (max-width : 1120px) {
+
+    #splitFileViewerButton {
+        display: none !important;
+    }
+
+}
+
+
+
+
+
+
+/* READER MODE */
+
+#file-viewer.reader #file-viewer-nav {
+    background-color: var(--cryptee-0);
+}
+
+#file-viewer.reader #file-viewer-nav button,
+#file-viewer.reader #file-viewer-nav #active-filename  {
+    opacity: 0.5;
+}
+
+
+
+
+
+
+/* LOADING */
+
+#file-viewer.loading {
+    transform: translateY(36rem);
+}
+
+#file-viewer.loading button:not(:last-child){
+    opacity: 0 !important;
+}
+
+#file-viewer.loading button {
+    pointer-events: none !important;
+}
+
+#file-viewer.loading button:last-child i::before {
+    content: "\EEC6";
+}
+
+#file-viewer.loading button:last-child i {
+    animation: spin 0.4s linear infinite;
+}
+
+#file-viewer.loading #active-filename::before {
+    content: "Loading ...";
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IMAGES 
+ 
+--------------------------------
+----------------------------- */
+
+#file-viewer-content > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+AUDIO 
+ 
+--------------------------------
+----------------------------- */
+
+#file-viewer[ext="mp3"]:not(.minimized):not(.loading) {
+    height: auto;
+}
+
+#file-viewer[ext="mp3"] #minimizeFileViewerButton,
+#file-viewer[ext="mp3"] #maximizeFileViewerButton,
+#file-viewer[ext="mp3"] #splitFileViewerButton {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#file-viewer-content > audio {
+    width: 100%;
+    outline: none;
+    box-shadow: none;
+}
+
+#file-viewer-content > audio.chrome {
+    filter: invert(1);
+}
+
+#file-viewer-content > audio::-webkit-media-controls-enclosure {
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0 0.325rem 0 0.625rem;
+}
+
+#file-viewer[ext="mp3"] #file-viewer-content.safari  {
+    overflow: hidden;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+VIDEO 
+ 
+--------------------------------
+----------------------------- */
+
+#file-viewer[ext="mp4"]:not(.minimized):not(.loading) {
+    height: auto;
+}
+
+#file-viewer[ext="mp4"] #minimizeFileViewerButton,
+#file-viewer[ext="mp4"] #maximizeFileViewerButton,
+#file-viewer[ext="mp4"] #splitFileViewerButton {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#file-viewer-content > video {
+    width: 100%;
+    outline: none;
+    box-shadow: none;
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PDF 
+ 
+--------------------------------
+----------------------------- */
+
+#file-viewer[ext="pdf"] #file-viewer-content iframe {
+    height: 100%;
+    width: 100%;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EPUB 
+ 
+--------------------------------
+----------------------------- */
+
+#file-viewer[ext="epub"] #file-viewer-content iframe {
+    height: 100%;
+    width: 100%;
+}
+
+#file-viewer[ext="epub"] #active-filename {
+    opacity: 0;
+}
+
+#file-viewer:not([ext="epub"]) button[for="epub"] {
+    display: none;
+}
+
+#file-viewer.minimized button[for="epub"] {
+    display: none;
+}
+
+
+/* zoom  */
+#file-viewer[ext="epub"] #epubZoomOut {
+    margin-left: 0.25rem;
+}
+
+#file-viewer[ext="epub"][zoom="70"] #epubZoomOut,
+#file-viewer[ext="epub"][zoom="190"] #epubZoom {
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+
+/* light / dark mode */
+#file-viewer[ext="epub"].epubLight:not(.loading):not(.minimized) #file-viewer-nav #epubLight i::before {
+    content: "\EF72";
+}
+
+#file-viewer[ext="epub"].epubLight:not(.loading):not(.minimized) #file-viewer-nav,
+#file-viewer[ext="epub"].epubLight:not(.loading):not(.minimized) #file-viewer-content {
+    background-color: var(--cryptee-4);
+}
+
+#file-viewer[ext="epub"].epubLight:not(.loading):not(.minimized) #file-viewer-nav button {
+    color: #242424;
+}
+
+
+@media (max-width : 480px) {
+    #file-viewer { width: 100%; }
+}
+
+
+
+
+
+
+

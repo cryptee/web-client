@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | Photos</title>
+
+    <link rel="stylesheet" href="../css/lib/swiper-bundle.min.css">
+
+    <!-- INSERT MORE CSS HERE -->
+
+    <link rel="stylesheet" href="../css/photos.css">
+
+</head>
+
+<body class="app-body fixed starting">
+
+    <nav>
+
+        <input type="text" id="searchInput" placeholder="search">
+
+        <a id="logo" href="/home" draggable="false" ondragstart="return false;" class="rememberKey">
+            <img src="../assets/logo-b.svg" alt="CRYPTEE">
+        </a>
+          
+        <div class="top buttons gallery">
+            <button id="favorites-button">fav<span class="hidden-tablet">orit</span>es</button>
+            <button class="upload-button"><label for="upload-input">upload</label></button>
+        </div>
+        
+        <div class="top buttons albums unselected">
+            <button></button>
+            <button class="upload-button"><label for="upload-input">upload</label></button>
+        </div>
+
+        <div class="top buttons albums selected">
+            <button id="make-cover-button" onclick="makeSelectedPhotoAlbumCover();">make album cover</button>
+        </div>
+
+        <progress   id="main-progress" class="progress"></progress>
+
+        <div class="bottom buttons left-side gallery unselected">
+            <button id="new-album-button" onclick="newAlbum();">new<span class="hidden-below-tablet"> album</span></button>
+            <button id="summon-album-button" onclick="showModal('modal-summon')">summon<span class="hidden-tablet"> album</span></button>
+        </div>
+        
+        <div class="bottom buttons left-side albums unselected">
+            <button id="gallery-button"><span class="hidden-below-tablet">&lt; </span>gallery</button>
+            <button id="edit-album-button" onclick="showEditAlbumPopup();">edit<span class="hidden-below-tablet"> album</span></button>
+            <!-- <button id="summon-album-button">summon<span class="hidden-tablet"> album</span></button> -->
+        </div>
+
+        <div class="bottom buttons right-side unselected">
+            <button id="selectall-button" onclick="selectAll();">select all</button>
+            <button id="sort-button" onclick="showSorter();">sort</button>
+        </div>
+
+        <div class="bottom buttons left-side selected">
+            <button id="download-button" onclick="showDownloadPopup();">download</button>
+            <button id="move-button" onclick="showMoveModal();">move</button>
+        </div>
+        
+        <div class="bottom buttons right-side selected">
+            <button id="unselect-button" onclick="clearSelections();">unselect<span class="hidden-tablet"> all</span></button>
+            <button id="delete-button" onclick="showDeleteSelectionsModal();">delete</button>
+        </div>
+
+        <div id="sorter">
+            <small>name</small>
+            <i type="az-desc" class="sort-button ri-sort-desc"></i>
+            <i type="az-asc"  class="sort-button ri-sort-asc"></i>
+            
+            <small>date</small>
+            <i type="date-desc" class="sort-button ri-sort-desc"></i>
+            <i type="date-asc"  class="sort-button ri-sort-asc"></i>
+        </div>
+        
+        <b class="top background"></b>
+        <b class="bottom background"></b>
+        
+    </nav>
+
+    <div id="timeline"></div>
+
+    <main>
+        <div id="albumContents" class="contents loading">
+            <!-- ALBUMHEADER, ALBUM, PHOTO elements all go here -->
+        </div>
+    
+        <div id="searchContents" class="contents loading">
+    
+        </div>    
+    </main>
+
+    <button id="help" onclick="showModal('modal-help')">
+        <i class="ri-question-mark"></i>
+    </button>
+
+    <small id="upgrade" onclick="goToUpgrade();">
+        <span id="storageLeft" class="remainingStorage">40mb</span> left. 
+        <span class="green">switch to a larger plan</span><br>
+        <span>store more photos securely &amp; privately</span>
+    </small>
+
+    <!-- @import "imports/app/photos-lightbox.kit" -->
+    
+    <!-- @import "imports/app/photos-uploader.kit" -->
+
+    <!-- @import "imports/app/dropzone.kit" -->
+    
+    
+    <!-- @import "imports/app/photos-popup-album-info.kit" -->
+    <!-- @import "imports/app/photos-popup-download.kit" -->
+    <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+
+
+
+
+    <!-- @import "imports/app/photos-modal-move.kit" -->
+
+    <!-- @import "imports/app/photos-modal-summon.kit" -->
+    <!-- @import "imports/app/photos-modal-ghost.kit" -->
+
+    <!-- @import "imports/app/photos-modal-delete-selections.kit" -->
+    <!-- @import "imports/app/photos-modal-delete-album.kit" -->
+    
+    <!-- @import "imports/app/modal-key.kit" -->
+    <!-- @import "imports/app/modal-help.kit" -->
+    <!-- @import "imports/app/modal-exceeded-storage.kit" -->
+    <!-- @import "imports/app/modal-low-storage.kit" -->
+    <!-- @import "imports/app/modal-canvas-blocked.kit" -->
+
+    <!-- <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png" webkitdirectory directory multiple/> -->
+    <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png" multiple/>
+
+
+
+
+
+
+
+
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script src="../js/lib/swiper-6.1.2/swiper-bundle.min.js"></script>
+    <script src="../js/lib/exif-reader-3.12.3/exif-reader.js"></script>
+    <script src="../js/lib/color-thief-2.0/color-thief.js"></script>
+
+    <script src="../js/photos.js"></script>
+
+    <script src="../js/photos/apis.js"></script> <!-- api operations--> 
+    <script src="../js/photos/abstractions.js"></script> <!-- all api abstractions & shortcuts--> 
+    <script src="../js/photos/renderers.js"></script> <!-- all api abstractions & shortcuts--> 
+    <script src="../js/photos/uploader.js"></script> <!-- uploader / drag and drop etc --> 
+    <script src="../js/photos/lightbox.js"></script> <!-- all lightbox related things --> 
+    <script src="../js/photos/scroll.js"></script> <!-- all scroll / dom virtualization --> 
+    
+    <script src="../js/photos/search.js"></script>
+
+
+
+    <!-- ++ add more photos modules here ++ -->
+
+
+</body></html>

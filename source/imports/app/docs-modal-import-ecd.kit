@@ -1,0 +1,18 @@
+<div class="modal" id="modal-import-ecd">
+    <h3>DIFFERENT KEY REQUIRED</h3>
+    <p>looks like this cryptee document is encrypted using a different key.<br>please enter the key used while encrypting this document.</p>
+
+    <b></b>
+    
+    <section>
+    
+        <input id="ecd-import-key-input" type="password" class="darkback" placeholder="••••••••" autocomplete="off">
+        <br><br>
+        <b id="ecd-import-status"></b>
+
+    </section>
+    <progress id="importing-ecd" class="progress" value="0" max="100"></progress>
+
+    <button class="action l md bold default" onclick="decryptAndImportECD();">decrypt</button>
+    <button class="action r sm cancel" onclick="hideActiveModal(); cancelAndResetImportingECD();">cancel</button>
+</div>

@@ -1,0 +1,15 @@
+<div class="modal" id="modal-bug">
+    <h3>REPORT AN ERROR</h3>
+    <p>please walk us through the steps that lead to this error, so that we can find out the error and fix it quicker.</p>
+
+    <b></b>
+    <section>
+        <input id="bug-report-form-email" type="email" placeholder="your contact email" class="darkback">
+        <br><br><br><br>
+        <textarea class="darkback" id="bug-report-form" cols="30" rows="10" placeholder="... I was writing my journal using Cryptee Docs on Windows 10 with Google Chrome v69, then my cat jumped onto my laptop and finished the journal for me ..."></textarea>
+    </section>
+    <progress id="sending-bug-form" class="progress" value="0" max="100"></progress>
+    
+    <button class="action l md bold" onclick="sendBugReport();">send error</button>
+    <button class="action r sm" onclick="hideActiveModal()">cancel</button>
+</div>

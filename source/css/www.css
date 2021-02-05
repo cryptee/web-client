@@ -1,0 +1,962 @@
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+THE GRID 
+ 
+--------------------------------
+----------------------------- */
+
+html {
+    width: 100%;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+body {
+    width: 100%;
+    scroll-behavior: smooth;
+}
+
+/* acts as a centering container */
+article {
+    display: grid;
+    grid-template-columns: minmax(1rem, 1fr) minmax(0, 56rem) minmax(1rem, 1fr);
+                                                    /* 896px */
+}
+
+/* acts as a main centered reading container */
+main {
+    display: grid;
+    grid-template-columns: minmax(1rem, 1fr) minmax(0, 32rem) minmax(1rem, 1fr);
+                                                    /* 512px */
+}
+
+/* acts as a creative grid */
+section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 4rem);
+    row-gap: 4rem;
+    grid-auto-flow: row;
+}
+
+article.autorow, 
+section.autorow,
+main.autorow {
+    row-gap: 0;
+    grid-auto-rows: 0.5rem;
+}
+
+article + br,
+article + br + br,
+main + br,
+main + br + br {     
+    display: block;
+    content: "";
+    margin-top: calc(var(--r) * 0.5rem);
+}
+
+article > img, 
+section > img,
+section > p > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+main img {
+    width: 100%;
+    height: 100%;
+    max-height: 12rem;
+    object-fit: contain;
+    margin-bottom: 4rem;
+}
+
+img.hero {
+    height: 28rem;
+    opacity: 1;
+    transition: 0.5s opacity linear 0.5s;
+    object-position: right;
+}
+
+img[lazysrc] {
+    opacity: 0;
+}
+
+.hero-img-carousel {
+    position: relative;
+    height: 28rem;
+}
+
+.hero-img-carousel img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-img-carousel img:first-child { z-index: 2; }
+.hero-img-carousel img:last-child  { z-index: 1; }
+
+.hero-img-carousel img:first-child {
+    animation: blinkEntirely 10s var(--cryptee-cb) infinite;
+}
+
+@keyframes blinkEntirely {
+    0%,40%   {opacity: 1;}
+    50%,90%  {opacity: 0;}
+    100%     {opacity: 1;}
+}
+
+main br { line-height: 2rem; }
+main br.m { line-height: 8rem; }
+main br.l { line-height: 12rem; }
+
+hr { border: 1px solid #000; }
+
+/* GRID FOR QUARTERS */
+
+.grid-quarter {
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    column-gap: 8rem;
+    row-gap: 8rem; 
+}
+
+.grid-quarter > * {
+    grid-column: span 1;
+}
+
+
+
+
+/* GRID FOR THIRDS */
+
+.grid-third, 
+.grid-half { 
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.grid-third {
+    column-gap: 4rem; 
+}
+
+.grid-third > * {
+    grid-column: span 1;
+}
+
+
+
+
+/* GRID FOR HALFS */
+
+.grid-half { 
+    column-gap: 8rem; 
+}
+
+.grid-half > * {
+    grid-column: span 1;
+}
+
+
+
+
+
+.quarter    { grid-column: span 2;  }
+.third      { grid-column: span 4;  }
+.twothird   { grid-column: span 9;  }
+.full       { grid-column: span 14; }
+.half       { grid-column: span 6;  }
+.spacer     { grid-row:    span 8;  }
+
+.grid-half  > .full,
+.grid-third > .full, 
+.grid-quarter > .full { 
+    grid-column: 1 / -1; 
+}
+
+.grid-third > .twothird { grid-column: span 2; }
+.grid-quarter > .half   { grid-column: span 2; }
+
+
+
+article > *, 
+section > *,
+main > * {
+    grid-column:    span var(--c, unset); /* -c : no. of columns element should occupy */
+    grid-row:       span var(--r, unset); /* -r : no. of rows element should occupy */
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+NAVBAR & FOOTER
+ 
+--------------------------------
+----------------------------- */
+
+nav {
+    width: 100%;
+    margin-top: 4rem;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+nav #logo img {
+    width: 3rem;
+    height: 3rem;
+    display: block;
+    margin: auto;
+    opacity: 0.1;
+    margin-top: 0.5rem;
+}
+
+nav #floating-logo img {
+    width: 2rem;
+    height: 2rem;
+    display: block;
+    margin: auto;
+    opacity: 0.1;
+    margin-top: 1rem;
+}
+
+nav #logo, nav #floating-logo {
+    outline: none;
+    user-select: none;
+}
+
+nav p {
+    margin-top: 0;
+    padding-top: 1.5rem; 
+    padding-bottom: 1rem;
+    min-width: 4rem;
+    max-width: 8rem;
+    flex-grow: 2;
+    cursor: pointer;
+}
+
+nav b { 
+    flex-grow: 1;
+}
+
+.dm nav #logo img, .dm nav #floating-logo img {
+    filter: invert(1);
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FLOATING NAV 
+ 
+--------------------------------
+----------------------------- */
+
+#floating-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    pointer-events: none !important;
+    transition: 0.5s transform var(--cryptee-cb);
+    background-color: white;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.2);
+    width: 100%;
+    
+    transform: translateY(-6.25rem);
+}
+
+.floatnav #floating-nav {
+    transform: translateY(0);
+    pointer-events: all !important;
+}
+
+#floating-nav nav { 
+    margin-top: 0rem;
+    margin-bottom: 0rem;
+}
+
+footer {
+/* acts as a centering container */
+    display: grid;
+    grid-template-columns: minmax(2rem, 1fr) minmax(0, 896px) minmax(2rem, 1fr);
+    background-color: black;
+    padding: 4rem 0;
+}
+
+footer > * {
+    grid-column:    span var(--c, unset); /* -c : no. of columns element should occupy */
+    grid-row:       span var(--r, unset); /* -r : no. of rows element should occupy */
+}
+
+
+
+.grid-footer {
+    display: grid;
+    grid-template-columns: 12rem 8rem 12rem 12rem;
+    grid-auto-rows: 12rem;
+    grid-auto-flow: row;
+    column-gap: 4rem; 
+    row-gap: 4rem;
+}
+
+footer .column {
+    height: 12rem;
+}
+
+footer .column:not(:first-of-type) {
+    box-shadow: inset 0px 2px 0px var(--cryptee-4);
+    grid-column: span 1;
+    color: var(--cryptee-4);
+}
+
+footer .column p {
+    margin-top: 0;
+}
+
+footer .column > p:first-of-type {
+    margin: 1rem 0;
+}
+
+
+
+
+
+footer #footer-logo, 
+footer #eu-flag {
+    float: left;
+    margin: 0 1rem 0 0;
+}
+
+footer #footer-logo img,
+footer #eu-flag img {
+    width: 3rem;
+    height: 3rem;
+    display: block;
+}
+
+footer #footer-logo + div,
+footer #eu-flag + div {
+    margin: 0.625rem 0 0 0;
+}
+
+footer h3, 
+footer small {
+    color: white;
+}
+
+footer small {
+    margin-top: 0;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FEATURES / GRID
+ 
+--------------------------------
+----------------------------- */
+
+
+.feature {
+    box-shadow: inset 0px 2px 0px var(--cryptee-1);
+}
+
+.feature p:first-of-type {
+    margin-top: 1rem; 
+    color: var(--cryptee-0);
+}
+
+.feature small,
+.feature p {
+    color: var(--cryptee-2);
+    transition: 0.3s color ease;
+}
+
+.feature small {
+    text-transform: lowercase;
+}
+
+.feature p + small {
+    margin-top: 0.5rem;
+}
+
+.feature.heavy p:first-of-type { 
+    color: var(--cryptee-0);
+}
+
+.feature-no-line p:first-of-type{
+    margin-top: 1rem;
+}
+
+.feature-no-line + img {
+    object-fit: contain;
+    max-height: 8rem;
+    margin-top: 2rem;
+}
+
+.dm .feature {
+    box-shadow: inset 0px 2px 0px white;
+}
+
+.dm .feature.heavy p:first-of-type { 
+    color: var(--cryptee-4);
+}
+
+.feature i.md {
+    font-size: 1.25rem;
+    width: 1.25rem;
+}
+
+.feature i.lg {
+    font-size: 1.5rem;
+    width: 1.5rem;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA MENTIONS / GRID
+ 
+--------------------------------
+----------------------------- */
+
+.media-logo {
+    height: 100%;
+    object-fit: contain;
+    object-position: left;
+}
+
+.media-bar {
+    background-color: var(--cryptee-0);
+    grid-column-end: 15;
+}
+
+.media-mention *:first-child {
+    margin-top: 0;
+}
+
+.media-mention small {
+    color: var(--cryptee-2);
+    transition: 0.3s color ease;
+}
+
+.dm .media-logo {
+    filter: invert(1);
+}
+
+.dm .media-bar {
+    background-color: var(--cryptee-4);
+}
+
+.media-logos {
+    display: flex;
+    height: 2rem; 
+}
+
+.media-logos a {
+    flex-grow: 1;
+    height: 2rem;
+}
+
+.media-logos a:first-child {
+    margin-right: 2rem;
+}
+
+.media-logos a:last-child img {
+    display: block;
+    margin-left: auto;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+DOWNLOAD BUTTONS / GRID 
+ 
+--------------------------------
+----------------------------- */
+
+.download-os {
+    height: 8rem;
+    outline: 2px solid var(--cryptee-0);
+    position: relative;
+}
+
+.download-os i {
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: 2rem;
+    margin-top: 3rem;
+}
+
+.download-os small {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 1rem;
+}
+
+.index-download {
+    grid-column: span 2;
+    height: 8rem;
+    position: relative;
+    color: var(--cryptee-4);
+    background-color: var(--cryptee-0);
+}
+
+.index-download small:first-child {
+    position: absolute;
+    top: 0rem;
+    right: 1rem;
+}
+
+.index-download small:last-child {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 1rem;
+}
+
+.dm .download-os {
+    outline: 2px solid white;
+}
+
+.dm .index-download {
+    background-color: white;
+    color: black;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+PRICING SECTION / FLEX 
+ 
+--------------------------------
+----------------------------- */
+
+.index-pricing h2,
+.index-pricing span {
+    display: inline-block;
+    font-weight: 500;
+}
+
+.index-pricing b {
+    display: block;
+    width: 100%;
+    height: 2rem;
+    background-color: var(--cryptee-0);
+    border-radius: 8rem;
+    margin-bottom: 0.75rem;
+}
+
+.index-pricing.xsmall b {
+    width: 2rem;
+}
+
+.index-pricing.xsmall b     { background-color: var(--cryptee-2); }
+.index-pricing.small  b     { background-color: var(--cryptee-1); }
+.index-pricing.medium b     { background-color: var(--cryptee-0); }
+.index-pricing.large  b     { background-color: black; }
+
+.index-pricing.xsmall       { grid-column: span 2; }
+.index-pricing.small        { grid-column: span 2; margin-top: 0 !important;}
+.index-pricing.medium       { grid-column: span 4; }
+.index-pricing.large        { grid-column: span 6; }
+
+
+.dm .index-pricing.xsmall b     { background-color: var(--cryptee-1); }
+.dm .index-pricing.small  b     { background-color: var(--cryptee-2); }
+.dm .index-pricing.medium b     { background-color: var(--cryptee-3); }
+.dm .index-pricing.large  b     { background-color: var(--cryptee-4);}
+
+/* -----------------------------
+-------------------------------- 
+ 
+TYPOGRAPHIC GRID DETAILS  
+ 
+--------------------------------
+----------------------------- */
+
+.long-paragraph, .grid-hero {
+    grid-template-columns: 7fr 6fr;
+    column-gap: 4rem;
+}
+
+.long-paragraph p, .grid-hero p {
+    text-align: justify;
+    margin-top: -1rem;
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ABOUT  
+ 
+--------------------------------
+----------------------------- */
+
+.bio-img {
+    float: left;
+    margin: -0.5rem 4rem 0 0;
+    width: 12rem;
+    filter: grayscale(1);
+}
+
+.bio-img + small {
+    margin-top: -0.5rem;
+    color: var(--cryptee-2);
+}
+
+.bio-creatures {
+    margin-bottom:0.5rem;
+    color: var(--cryptee-2);
+    transition: 0.3s color ease ;
+}
+
+.bio-creatures i {
+    margin-right: 3rem;
+}
+
+.about-img {
+    object-fit: contain;
+    height: 16rem;
+    max-height: 16rem;
+    min-height: 16rem;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+404 & OTHER ERRORS
+ 
+--------------------------------
+----------------------------- */
+
+.fourohfour-logo {
+    margin: auto;
+    object-fit: cover;
+    width:      3rem;
+    height:     3rem;
+}
+
+.fourohfour-img {
+    object-fit: cover;
+    height:     49rem;
+    max-height: 49rem;
+    min-height: 49rem;
+}
+
+
+.goodbye-img {
+    object-fit: cover;
+    height:     65rem;
+    max-height: 65rem;
+    min-height: 65rem;
+}
+
+.cf-error-details * {
+    font-size: 1rem !important;
+    letter-spacing: inherit !important;
+    font-weight: 350 !important;
+    text-transform: lowercase !important;
+    line-height: 1.5rem !important;
+    color: var(--cryptee-2) !important;
+}
+
+#recaptcha_submit {
+    text-transform: lowercase;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.fourohfour-logo.blink {
+    animation: blinkOpacity 1s linear infinite;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+ACKNOWLEDGEMENTS 
+ 
+--------------------------------
+----------------------------- */
+
+.other-logo {
+    filter: grayscale(1);
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PRIVACY POLICY 
+ 
+--------------------------------
+----------------------------- */
+
+.legal {
+    font-family: serif;
+}
+
+.tags {
+    text-align:left;
+}
+
+.tags li {
+    padding: 4px 8px;
+    margin-top: 4px;       /* 14px spacing to match vertical rhythm on grid*/ 
+    display: inline-block;
+    font-size: 0.75rem;         /* 12px */
+    line-height: 1rem;          /* 16px */
+    background-color: white;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PRESS KIT 
+ 
+--------------------------------
+----------------------------- */
+
+.press-kit-image img {
+    width: 100%;
+}
+
+.press-kit-image p span {
+    line-height: 1.5rem;
+}
+
+.press-kit-image p i {
+    line-height: 1rem;
+}
+
+.brand-card {
+    padding: 2rem;
+}
+
+.brand-card img {
+    width: 30%;
+    margin: auto;
+    display: block;
+}
+
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA QUERIES 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+@media (max-width : 960px) { 
+
+    .grid-third {
+        column-gap: 8rem; 
+    }
+
+    .grid-quarter {
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    }
+
+    .grid-quarter > .half,
+    .grid-third > .twothird  { 
+        grid-column: 1 / -1; 
+    }
+
+    .grid-third > .twothird + b {
+        display: none;
+    }
+    
+
+    .pricing-grid { row-gap: 2rem; }
+
+    .index-pricing.medium { grid-column: 4 / 15;  }
+    .index-pricing.large  { grid-column: 1 / 15;  }
+
+    .long-paragraph {
+        grid-template-columns: 2fr 1fr;
+    }
+
+    .grid-footer {
+        grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    }
+
+    .bio-creatures {
+        padding-top: 2rem;
+        display: inline-block;
+        text-decoration:none !important;
+    }
+
+    .grid-hero {
+        grid-template-columns: 4fr 3fr;
+    }
+
+}
+
+@media (max-width : 703px) { 
+
+    img.hero {
+        object-position: 78% center;
+        height: 18rem;
+    }
+
+    .hero-img-carousel {
+        height: 18rem;
+    }
+    
+    .grid-quarter {
+        grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    }
+
+    .feature-no-line + img {
+        order: -1;
+        max-height: 8rem;
+        margin-top: 0;
+    }
+
+    .grid-hero {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width : 544px) {
+    
+    .grid-half { 
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    } 
+    
+    .grid-quarter {
+        column-gap: 2rem;
+        row-gap: 2rem;
+    }
+
+    nav { margin-top: 0rem; }
+
+    nav #logo, nav #floating-logo  { order : -1; }
+    
+    nav #logo img, nav #floating-logo img {
+        margin-top: 1rem;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    nav b { display: none !important; }
+
+    nav p { padding-top: 1.5rem; }
+
+    nav p:not(.right) { text-align: right; }
+
+    img.hero {
+        object-position: 80% center;
+    }
+
+    .pricing-grid { row-gap: 4rem; }
+    .pricing-grid > b { display: none; }
+
+    .index-pricing.small { grid-column: 1 / 2;   }
+    .index-pricing.medium { grid-column: 1 / 4;   }
+    .index-pricing.large  { grid-column: span 14;  }
+
+    .long-paragraph > * {
+        grid-column: span 4;
+        text-align: left !important;
+    }
+
+    .long-paragraph > h2:last-child,
+    .long-paragraph > div:last-child {
+        order: -1;
+    }
+
+    .index-download {
+        grid-column: 1 / -1;
+    }
+
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IT'S A POINTER DEVICE,
+ENABLE HOVERS 
+ 
+--------------------------------
+----------------------------- */
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+
+    .feature:hover small,
+    .media-mention:hover small,
+    .bio-creatures:hover {
+        color: var(--cryptee-0);
+    }
+
+    .dm .feature:hover small,
+    .dm .media-mention:hover small,
+    .dm .bio-creatures:hover {
+        color: white;
+    }
+}
+
+@media (-moz-touch-enabled: 1), (pointer:coarse) { 
+    .grid-footer {
+        grid-auto-rows: 18rem;
+    }
+
+    footer p a {
+        line-height: 3rem;
+        display: block;
+    }
+
+    footer .column {
+        height: 18rem;
+    }
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+dark mode 
+ 
+--------------------------------
+----------------------------- */
+
+.dm body {
+    background-color: black;
+    color: var(--cryptee-4);
+}
+
+.dm hr {
+    border-color: white;
+}

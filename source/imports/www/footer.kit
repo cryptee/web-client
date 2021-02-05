@@ -1,0 +1,130 @@
+<br style="--r:16">
+
+<footer>
+    <aside></aside>  <!-- spacing -->
+
+    <div class="grid-footer">
+
+        <div class="column">
+            <div>
+                <a href="/" id="footer-logo">
+                    <img src="../assets/logo-w.svg" alt="CRYPTEE">
+                </a>
+                <div>
+                    <h3><a href="/">CRYPTEE</a></h3>
+                    <small>info @ crypt <strong>&middot;</strong> ee</small>
+                </div>
+            </div>
+
+            <br><br>
+
+            <div>
+                <p id="eu-flag">
+                    <img src="../imgs/other-logos/eu.svg" alt="EU Flag">
+                </p>
+                <div>
+                    <small>
+                        made
+                        <br>
+                        in
+                        <br>
+                        europe
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="column">
+            <p><strong>more</strong></p>
+            
+            <p>
+                <a href="/about">about</a>
+            </p>
+
+            <p>
+                <a href="/security">security</a>
+            </p>
+            
+            <p>
+                <a href="/download">download</a>
+            </p>
+            
+            <p>
+                <a href="https://github.com/cryptee" target="_blank" rel="noopener" class="external">source code</a>
+            </p>
+
+            <p>
+                <a href="/threat-model">threat model</a>
+            </p>
+        </div>
+
+        <div class="column">
+            <p><strong>other</strong></p>
+            
+            <p>
+                <a href="/press-kit">press kit</a>
+            </p>
+
+            <p>
+                <a href="https://blog.crypt.ee" target="_blank" rel="noopener" class="external">blog &amp; news</a>
+            </p>
+
+            <p>
+                <a href="/help">faq &amp; support</a>
+            </p>
+
+            <p>
+                <a href="/acknowledgements">acknowledgements</a>
+            </p>
+
+            <p>
+                <a href="/help">feedback &amp; bug report</a>
+            </p>
+        </div>
+
+        <div class="column">
+            <p><strong>legal</strong></p>
+
+            <p>
+                <a href="/imprint">imprint</a>
+            </p>
+
+            <p>
+                <a href="/privacy">privacy policy</a>
+            </p>
+
+            <p>
+                <a href="/terms">terms &amp; conditions</a>
+            </p>
+
+            <p>
+                <a href="/transparency">transparency report</a>
+            </p>
+        </div>
+
+    </div>
+
+    <aside></aside>  <!-- spacing -->
+</footer>
+
+<!-- WE NEED THIS FOR THE PWA INSTALL BANNER -->
+<script src="../js/register-worker.js"></script>
+<script>
+    // a super basic lazy loader
+    window.addEventListener('load', function(){
+        [].forEach.call(document.querySelectorAll('img[lazysrc]'), function(img) {
+            img.setAttribute('src', img.getAttribute('lazysrc'));
+            img.onload = function() { img.removeAttribute('lazysrc'); };
+        });
+    }, false);
+
+    // a super basic floating nav
+    window.addEventListener('scroll', function(){
+        if (document.documentElement.scrollTop >= 320) {
+            document.documentElement.classList.add("floatnav");
+        } else {
+            document.documentElement.classList.remove("floatnav");
+        }
+    });
+
+</script>

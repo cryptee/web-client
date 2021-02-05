@@ -1,0 +1,77 @@
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 1fr minmax(20rem, 30rem) 1fr;
+    grid-template-rows: minmax(4rem, 1fr) 30rem 1fr;
+}
+
+#logo {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
+#logo img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    opacity: 0.3;
+}
+
+#card {
+    grid-row: 2/3;
+    grid-column: 2/3;
+    position: relative;
+}
+
+#card > div {
+    width: calc(100% - 8rem);
+    height: calc(100% - 8rem);
+    position: absolute;
+    padding: 4rem;
+    top: 0rem;
+    left: 0rem;
+
+    display: none;
+}
+
+#card > div.show {
+    background-color: white;
+    display: block;
+}
+
+#card input {
+    width: 100%;
+}
+
+#error {
+    background-color: var(--cryptee-red);
+    color: white;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+CHANGE PASSWORD 
+ 
+--------------------------------
+----------------------------- */
+
+#reset-password-new-input:not(:placeholder-shown) {
+    box-shadow: none !important;
+}
+
+
+
+
+@media (max-width : 320px) {
+    #card > div {
+        padding: 2rem;
+        width: calc(100% - 4rem);
+        height: calc(100% - 4rem);
+    }
+}

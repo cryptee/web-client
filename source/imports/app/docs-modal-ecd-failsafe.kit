@@ -1,0 +1,23 @@
+<div class="modal error" id="modal-ecd-failsafe">
+    <h3>SAVE ERROR</h3>
+
+    <b></b>
+    <b></b>
+    
+    <section>
+        
+        <p class="bold">cryptee failed to save the document on your device and couldn't upload it either.</p>
+        <p>if you have any critical, unsaved changes, we strongly recommend you to export/download a copy of your document to your device as an <i>encrypted cryptee document</i> as a backup for safe-keeping.</p>
+        <p>you can upload this backup file to cryptee once your connection / browser settings are restored.</p>
+        <br>
+        <p>chances are this is a network problem, and/or your browser is configured to block access to indexedDB. </p>
+        <p>please disable your content-blockers, check your connection and make sure your browser isn't blocking access to indexedDB to prevent issues like this from happening in the future.</p>
+        <br>
+        <p>cryptee utilizes indexedDB to store your offline documents on your device. without it, if you lose network connectivity, it isn't possible to store any data on your device while you're offline.</p>
+
+    </section>
+    <progress id="ecd-backup-exporting" class="progress" value="0" max="100"></progress>
+
+    <button class="action l md bold" onclick="exportAsECD(true);">export backup</button>
+    <button class="action r sm" onclick="hideActiveModal();">cancel</button>
+</div>

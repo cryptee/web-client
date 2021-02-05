@@ -1,0 +1,455 @@
+
+/* -----------------------------
+-------------------------------- 
+ 
+RESETS 
+ 
+--------------------------------
+----------------------------- */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, main, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, main, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+hr { 
+    margin : 0;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none;
+    border: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    text-indent: -2px;
+    margin-top: 0 !important;
+}
+
+option {
+    padding: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+GLOBAL VARIABLES, COLORS, TIMINGS ETC.
+ 
+--------------------------------
+----------------------------- */
+
+:root {
+    --cryptee-green: #1DB954;
+    --cryptee-yellow: #F2B202;
+    --cryptee-red:#CC0101;
+    --cryptee-blue: #087284;
+
+    /* 5 SHADES OF CRYPTEE */
+
+    /* + black */
+
+    /* OLED SCREENS SMEAR FULL BLACK IF YOU SWIPE AROUND. USE THIS FOR BACKGROUNDS INSTEAD */
+    --oled-safe-black: #080808;
+
+    --cryptee-0: #121212;
+
+    --cryptee-folder: #222222;
+
+    --cryptee-1: #363636;
+    --cryptee-2: #888888;
+    --cryptee-3: #CCCCCC;
+    --cryptee-4: #F5F5F5;
+    
+    /* + white */
+
+   --cryptee-cb: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.green                    { color: var(--cryptee-green);  }
+.yellow                   { color: var(--cryptee-yellow); }
+.red                      { color: var(--cryptee-red);    }
+.blue                     { color: var(--cryptee-blue);   }
+.gray, .grey              { color: var(--cryptee-2);      }
+.lightgray, .lightgrey    { color: var(--cryptee-3);      }
+.white                    { color: white; }
+.black                    { color: black; }
+
+body {
+    background-color: var(--cryptee-4);
+    color: var(--cryptee-1);
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+
+    display: grid;
+    grid-template-columns: 1fr minmax(24rem, 45rem) 1fr;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+TYPOGRAPHY 
+ 
+--------------------------------
+----------------------------- */
+
+@font-face {
+    font-family: 'Josefin Sans';
+    src: url('https://static.crypt.ee/fonts/JosefinSans-VariableFont_wght.ttf') format("truetype-variations");
+    font-weight: 1 999;
+}
+
+
+
+
+
+
+/* font-sizes, line-heights, vertical rhythm */
+
+body, article, form, input  {
+    font-family: 'Josefin Sans', sans-serif !important;
+    font-size: 16px !important;
+    white-space: normal !important;
+}
+
+p, h3, li,table, select, input, time, body#post h2#title {
+    margin-top: 0.5rem !important;         /* 8px spacing to match vertical rhythm on grid */
+    font-size: 1rem !important;            /* 16px */
+    line-height: 1.5rem !important;        /* 24px */
+    display: block !important;
+    letter-spacing: 0 !important;
+}
+
+h2 {
+    margin-top: 0.125rem !important;       /* 2px for josefine sans, to maintain vertical rhythm on grid */
+    font-size: 1.325rem !important;        /* 16px for josefine sans, to maintain vertical rhythm on grid */
+    line-height: 2rem !important;          /* 36px */
+    letter-spacing: 0.125rem !important;   /*  2px */
+    display: block !important;
+}
+
+h1 {
+    margin-top: -0.5rem !important;
+    font-size: 2rem !important;            /* 32px */
+    line-height: 3rem !important;          /* 48px */
+    letter-spacing: 0.25rem !important;    /*  4px  */
+    display: block !important;
+}
+
+small, .small {
+    display: inline-block !important;
+    margin-top: 0.875rem !important;       /* 14px spacing to match vertical rhythm on grid*/ 
+    font-size: 0.75rem !important;         /* 12px */
+    line-height: 1rem !important;          /* 16px */
+}
+
+button:not(.small) > .small {
+    margin-top: 0.325rem !important;
+}
+
+
+
+
+/* FONT WEIGHTS AND STYLES */
+
+p, small, li, input, button, table, details, select, blockquote { font-weight: 350 !important; }
+
+b,strong,h1,h2,h3,th,.bold { font-weight: 700 !important; }
+p > i, span > i { font-style: italic !important; }
+
+a {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+p a, 
+small a,
+.underline {
+    text-decoration: underline !important;
+}
+
+nav a, footer a {
+    text-decoration: none !important;
+}
+
+a.bold, a.plain {
+    text-decoration: none !important;
+}
+
+
+
+
+
+
+
+h1, h2, h3,
+h1 a, h2 a, h3 a { 
+    text-transform: uppercase; 
+    word-break: break-word;
+    display: block;
+} 
+
+time {
+    text-transform: lowercase !important;
+    font-weight: 350 !important;
+    margin-bottom: 3rem !important;
+    opacity: 0.5;
+}
+
+body#post time {
+    margin-bottom: 2rem !important;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+HEADER 
+ 
+--------------------------------
+----------------------------- */
+
+header{
+    grid-column: 1/-1;
+    padding: 2rem 4rem 0 4rem !important;
+}
+
+header:before {
+    content: "";
+    margin: 0rem auto 4rem auto;
+    background-image: url(https://static.crypt.ee/cryptee-logo-2021-transparent.png);
+    background-size: 3rem;
+    height: 3rem;
+    width: 3rem;
+    display: block;
+    opacity: 0.2;
+}
+
+.description {
+    text-transform: lowercase !important;
+    color: var(--cryptee-2) !important;
+}
+
+body#post header:before {
+    margin: 0rem auto 2rem auto;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+footer 
+ 
+--------------------------------
+----------------------------- */
+
+
+#emailsub {
+    grid-column: 1/-1;
+    padding: 4rem 0 !important;
+}
+
+footer {
+    grid-column: 1/-1;
+    padding: 0 !important;
+}
+
+footer hr {
+   display: none !important;
+}
+
+footer {
+    background-color: white;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+ARTICLE 
+ 
+--------------------------------
+----------------------------- */
+
+section#wrapper { 
+    grid-column: 2/3; 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2rem;
+    margin: 0 2rem 2rem 2rem !important;
+}
+
+article {
+    margin: 0 auto 2rem auto !important;
+    background-color: #FFF !important;
+    padding: 2rem !important;
+}
+
+article p {
+    white-space: normal !important;
+}
+
+article:first-child {
+    padding: 4rem !important;
+    grid-column: 1/-1;
+}
+
+article:not(:first-child) h2 {
+    margin-top: 0.5rem !important;         /* 8px spacing to match vertical rhythm on grid */
+    font-size: 1rem !important;            /* 16px */
+    line-height: 1.5rem !important;        /* 24px */
+}
+
+body#post article {
+    grid-column: 2/3;
+}
+
+.e-content {
+    padding-top: 2rem !important;
+    border-top: 1px solid var(--cryptee-2);
+}
+
+article img:first-child {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LIST 
+ 
+--------------------------------
+----------------------------- */
+
+.read-more {
+    margin-top: 1.5rem !important;
+    display: block !important;
+    text-transform: lowercase !important;
+    font-weight: 700 !important;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PAGING 
+ 
+--------------------------------
+----------------------------- */
+
+nav {
+    padding: 0 4rem !important;
+    margin: 2rem auto !important;
+    max-width: 40rem !important;
+    text-transform: lowercase !important;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+EMAIL SUB  
+ 
+--------------------------------
+----------------------------- */
+
+#emailsub, #subscribe {
+    min-height: 8rem !important;
+    text-transform: lowercase !important;
+    text-align: left !important;
+}
+
+#emailsub input[type="email"],
+#subscribe input[type="email"] {
+    margin-top: 1rem !important;
+    padding: 0 !important;
+    float: left !important;
+    width: 100% !important;
+    border: none !important;
+    outline: none !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid #000 !important;
+    border-radius: 0 !important;
+}
+
+#subscribe-btn {
+    margin-top: 1rem !important;
+    margin-left: 0 !important;
+    float: left !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    outline: none !important;
+    background-color: var(--cryptee-1) !important;
+    color: #FFF !important;
+    text-transform: lowercase !important;
+    cursor: pointer !important;
+}
+
+#subscribe-btn:hover {
+    background-color: #000 !important;
+}
+
+
+@media (max-width : 720px) {
+    section#wrapper { grid-template-columns: 1fr; }
+    article, article:first-child { padding: 2rem !important; }
+}
+    

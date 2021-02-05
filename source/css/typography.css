@@ -1,0 +1,344 @@
+
+/* -----------------------------
+-------------------------------- 
+ 
+EDITOR GENERAL 
+ 
+--------------------------------
+----------------------------- */
+
+
+.ql-editor, .ql-tooltip {
+    font-family: "Josefin Sans";
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FONT SIZES, LINE HEIGHTS, VERTICAL RHYTHM 
+ 
+--------------------------------
+----------------------------- */
+
+
+/* font-sizes, line-heights, vertical rhythm */
+
+.ql-editor p,
+.ql-editor li,
+.ql-editor blockquote, 
+.ql-editor table,
+.ql-editor select {
+    margin-top: 0.5rem;         /* 8px spacing to match vertical rhythm on grid */
+    font-size: 1rem;            /* 16px */
+    line-height: 1.5rem;        /* 24px */
+}
+
+.ql-editor h3 {
+    padding-top: 0.25rem;       /* used to be 0 */
+    font-size: 1.25rem;         /* 20px */
+    line-height: 2rem;          /* 48px */
+    letter-spacing: 0;          /* to offset the global values */
+}
+
+.ql-editor h2 {
+    margin-top: 0;              /* used to be -0.5 */
+    font-size: 1.5rem;          /* 24px */
+    line-height: 2rem;          /* 36px */
+    letter-spacing: 0;          /* to offset the global values */
+}
+
+.ql-editor h1 {
+    font-size: 2rem;            /* 32px */
+    line-height: 3rem;          /* 48px */
+    letter-spacing: 0;          /* to offset the global values */
+}
+
+.ql-editor small, 
+.ql-editor .small {
+    display: inline-block;
+    margin-top: 0.875rem;       /* 14px spacing to match vertical rhythm on grid*/ 
+    font-size: 0.75rem;         /* 12px */
+    line-height: 1rem;          /* 16px */
+}
+
+
+.ql-editor crypteetable, 
+.ql-editor crypteetablecell {
+    font-weight: 350;
+    font-size: 1rem;            /* 16px */
+    line-height: 1.5rem;        /* 24px */
+}
+
+.ql-editor a {
+    color: var(--cryptee-green);
+}
+
+/* if something has a custom font-size set, use accurate line-height */
+.ql-editor *[style*="font-size"] {
+    line-height: normal;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+FONT-WEIGHTS & STYLES & DECORATION 
+ 
+--------------------------------
+----------------------------- */
+
+
+
+.ql-editor p, .ql-editor li, .ql-editor details, .ql-editor blockquote { font-weight: 350; }
+
+.ql-editor b, .ql-editor strong, 
+.ql-editor h1, .ql-editor h2, .ql-editor h3, 
+.ql-editor th, .ql-editor .bold { font-weight: 700; }
+
+.ql-editor i { font-style: italic; }
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.ql-editor p a, 
+.ql-editor .underline {
+    text-decoration: underline;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LISTS, CHECKBOXES ETC 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor ul > li::before {
+    content: '\2022';
+}
+
+.ql-editor ul[data-checked="true"] li {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.ql-editor ul[data-checked="true"] li::before {
+    content: "\EB85" !important;
+}
+
+.ql-editor ul[data-checked="false"] li::before {
+    content: "\EB7F" !important;
+}
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+    .ql-editor ul[data-checked="true"] li:hover::before {
+        content: "\EB84" !important;
+    }
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+
+BULLETS
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor ul li::before {
+    display: inline-block;
+    line-height: 2rem;
+    height: 2rem;
+    width: 2rem;
+    font-size: 1.25rem;
+    margin-top: -0.25rem;
+    vertical-align: middle;
+    
+    /*to center bullet to checkboxes*/
+    text-align: center;
+    margin-left: -0.375rem;
+    margin-right: 0.375rem;
+}
+
+/* rtl */
+.ql-editor ul li.ql-direction-rtl::before {
+    margin-left:   0.375rem;
+    margin-right: -0.375rem;
+}
+
+.ql-editor ul li.ql-indent-1::before { content: '\25E6'; }
+.ql-editor ul li.ql-indent-2::before { content: '\25A0'; }
+.ql-editor ul li.ql-indent-3::before { content: '\25CF'; }
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+
+CHECKBOXES 
+
+--------------------------------
+----------------------------- */
+
+.ql-editor ul[data-checked] li {
+    padding-left: 0rem;
+}
+
+.ql-editor ul[data-checked] li::before { 
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    cursor: pointer !important;
+    color: #000;
+
+    /*to reset bullet's offset*/
+    text-align: left;
+    margin-left: 0rem;
+    margin-right: 0rem;
+}
+
+/* rtl */
+.ql-editor ul[data-checked] li.ql-direction-rtl::before {
+    text-align: right;
+}
+
+.dm .ql-editor ul[data-checked] li::before {
+    color: #FFF;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ORDERED LISTS  
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor ol li::before {
+    display: inline-block;
+    line-height: 2rem;
+    height: 2rem;
+    width: 2rem;
+    font-size: 1rem;
+    margin-top: -0.25rem;
+    vertical-align: middle;
+}
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+INDENTATIONS 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor .ql-indent-1:not(.ql-direction-rtl)  { margin-left: 2rem !important; }
+.ql-editor .ql-indent-2:not(.ql-direction-rtl)  { margin-left: 4rem !important; }
+.ql-editor .ql-indent-3:not(.ql-direction-rtl)  { margin-left: 6rem !important; }
+.ql-editor .ql-indent-4:not(.ql-direction-rtl)  { margin-left: 8rem !important; }
+.ql-editor .ql-indent-5:not(.ql-direction-rtl)  { margin-left: 10rem !important; }
+.ql-editor .ql-indent-6:not(.ql-direction-rtl)  { margin-left: 12rem !important; }
+.ql-editor .ql-indent-7:not(.ql-direction-rtl)  { margin-left: 14rem !important; }
+.ql-editor .ql-indent-8:not(.ql-direction-rtl)  { margin-left: 16rem !important; }
+.ql-editor .ql-indent-9:not(.ql-direction-rtl)  { margin-left: 18rem !important; }
+
+.ql-editor .ql-indent-1.ql-direction-rtl        { padding-right: 2rem !important; }
+.ql-editor .ql-indent-2.ql-direction-rtl        { padding-right: 4rem !important; }
+.ql-editor .ql-indent-3.ql-direction-rtl        { padding-right: 6rem !important; }
+.ql-editor .ql-indent-4.ql-direction-rtl        { padding-right: 8rem !important; }
+.ql-editor .ql-indent-5.ql-direction-rtl        { padding-right: 10rem !important; }
+.ql-editor .ql-indent-6.ql-direction-rtl        { padding-right: 12rem !important; }
+.ql-editor .ql-indent-7.ql-direction-rtl        { padding-right: 14rem !important; }
+.ql-editor .ql-indent-8.ql-direction-rtl        { padding-right: 16rem !important; }
+.ql-editor .ql-indent-9.ql-direction-rtl        { padding-right: 18rem !important; }
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+QUOTES 
+ 
+--------------------------------
+----------------------------- */
+
+
+.ql-editor blockquote {
+    border-left: 2px solid var(--cryptee-2) !important;
+    padding-left: 1rem;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+BREAKS 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor hr { margin: 1rem 0; }
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+SUPER / SUB 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor sup {
+    vertical-align: super;
+    font-size: smaller;
+}
+
+.ql-editor sub {
+    vertical-align: sub;
+    font-size: smaller;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+CODE / PRE 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-editor code,
+.ql-editor pre {
+    font-family: monospace !important;
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0 !important;
+    background-color: var(--cryptee-0) !important;
+    color: var(--cryptee-4) !important;
+}
+
+.dm .ql-editor code,
+.dm .ql-editor pre {
+    border: 1px solid var(--cryptee-1);
+} 

@@ -1,0 +1,37 @@
+<div class="modal" id="modal-summon">
+    <h2>SUMMON GHOST FOLDER</h2>
+    <p>type the ghost folder's name below</p>
+
+    <b></b>
+    
+    <section>
+    
+        <input id="summon-input" type="text" class="darkback" placeholder="type in a folder name here" autocomplete="off">
+        <br><br>
+        
+        <small>once summoned, this folder will become a regular folder, and <strong>it will not</strong> automatically ghost itself back. if you'd like to ghost this folder again, you'll need to do this manually.</small>
+
+        <details class="lowercase">
+            <summary class="small bold">why can't cryptee automatically re-ghost folders?</summary>
+            <small>With Cryptee, all your filenames and folder-names are encrypted on your device, using your encryption key. So cryptee's servers don't know, and can't see the names of your files or folders. The un-encrypted names of your folders, only exist in the memory of your device, and only while you're logged in, and while cryptee's app / page is open.</small>
+            <small>Auto-ghosting folders would require ghosting folders after you've logged out or closed the app / page.</small>
+            <small>But since cryptee's servers don't know your filenames or foldernames, your folders cannot be automatically ghosted by cryptee's servers after you've closed the app.</small>
+            <small>Due to this subtle technical detail, folders can only be ghosted by you, and you only.</small>
+            <small>So if you need a folder to be ghosted / hidden again after you've summoned it, you'll have to do it yourself before closing Cryptee's app / page.</small>
+        </details>
+
+        <details class="lowercase">
+            <summary class="small bold">what's a ghost folder?</summary>
+            <small>You might find yourself in a situation requiring you to hand over access to your account under stressful/forceful conditions. Cryptee's unique Ghost Folders feature allows you to hide certain folders, and be able to deny these folders' existence.</small>
+            <small>Ghost (hidden) folders are temporarily removed from your account, and they can only be brought back (summoned), by typing their exact names in the "Summon Ghost Folder" field below.</small>
+            <br>
+            <small>To make a ghost folder, first click on <i class="ri-more-2-fill"></i> for the folder you'd like to ghost, then click <b>Make Ghost Folder</b>.<br><br></small>
+        </details>
+
+    </section>
+    
+    <progress id="summoning-folder" class="progress" value="0" max="100"></progress>
+    
+    <button class="action l md bold" onclick="summonGhostFolder()">summon</button>
+    <button class="action r sm cancel" onclick="hideActiveModal()">cancel</button>
+</div>

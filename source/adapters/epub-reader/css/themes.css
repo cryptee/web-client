@@ -1,0 +1,67 @@
+@font-face {
+    font-family: 'Literata';
+    src: url('../font/Literata-Italic-VariableFont_opsz_wght.ttf') format("truetype-variations");
+    font-weight: 1 999;
+}
+
+@font-face {
+    font-family: 'Literata';
+    src: url('../font/Literata-VariableFont_opsz_wght.ttf') format("truetype-variations");
+    font-style: italic;
+    font-weight: 1 999;
+}
+
+html,
+body {
+    font-family: "Literata", Times, serif;
+    font-size: 16px;
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    background-color: #242424;
+    color: #f5f5f5;
+}
+
+a,
+b,
+strong {
+    text-decoration: none;
+    font-weight: 600;
+    text-rendering: optimizeLegibility;
+}
+
+svg {
+    height: "100%";
+    width: "auto";
+}
+
+body * {
+    border: none !important;
+}
+
+.calibre {
+    font-size: 16px;
+    padding: 0 !important;
+    line-height: initial !important;
+}
+
+.dark {
+    background-color: #242424 !important;
+    color: #f5f5f5 !important;
+}
+
+.light {
+    background-color: #f5f5f5 !important;
+    color: #242424 !important;
+}
+
+.dark * {
+    background-color: #242424 !important;
+    color: #f5f5f5 !important;
+}
+
+.light * {
+    background-color: #f5f5f5 !important;
+    color: #242424 !important;
+}
