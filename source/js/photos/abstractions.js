@@ -862,13 +862,13 @@ function updateTimelineWithItemsOnScreen() {
     $("small[goto]").removeClass("active");
 
     itemsOnScreen.forEach(item => {
-        var name        = item.getAttribute("name");
+        var name        = item.getAttribute("name") || "";
         var firstLetter = name.slice(0,1).toUpperCase();
 
-        var date        = item.getAttribute("exifdate");
-        var year        = date.split(":")[0].trim().split(" ")[0]; 
-        var month       = date.split(":")[1].trim().split(" ")[0]; 
-        var day         = date.split(":")[2].trim().split(" ")[0];
+        var date        = item.getAttribute("exifdate") || "";
+        var year        = (date.split(":")[0] || "").trim().split(" ")[0]; 
+        var month       = (date.split(":")[1] || "").trim().split(" ")[0]; 
+        var day         = (date.split(":")[2] || "").trim().split(" ")[0];
 
         if (using === "years") {
             $(`#tl-label-${year}`).addClass("active");
