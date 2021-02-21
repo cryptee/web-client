@@ -320,7 +320,7 @@ function fancyDate(exifDate) {
         } catch (e) {}
 
         if (year && month) {
-            var monthName = monthsShort[parseInt(month)].toUpperCase();
+            var monthName = (monthsShort[parseInt(month)] || "").toUpperCase();
             result = (monthName + " " + "&#39;" + year);
         }
 

@@ -52,7 +52,7 @@ table {
 	border-spacing: 0;
 }
 hr { 
-    margin : 0;
+    margin: 2rem 0 !important;
 }
 
 select {
@@ -238,6 +238,7 @@ h1 a, h2 a, h3 a {
     text-transform: uppercase; 
     word-break: break-word;
     display: block;
+    margin: 2rem 0 !important;
 } 
 
 time {

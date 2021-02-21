@@ -57,6 +57,10 @@ body {
     color: white;
 }
 
+.dm .contactButton {
+    color: white;
+}
+
 .darkback::placeholder           { color: white !important; }
 .darkback:-ms-input-placeholder  { color: white !important; }
 .darkback::-ms-input-placeholder { color: white !important; }
