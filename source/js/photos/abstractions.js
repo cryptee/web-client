@@ -793,6 +793,11 @@ function renderTimelineLabel(label, whatToUse) {
     var labelElement = "";
     var year, month, monthName, day;
 
+    // normalize a few characters in dates I think some cameras might be using this in exif. [facepalm].
+    label = label.split("/").join(":"); 
+    label = label.split("-").join(":");
+    label = label.split(".").join(":");
+
     if (whatToUse === "yearsAndMonths") {
         year = label.split(":")[0];
         month = label.split(":")[1];
