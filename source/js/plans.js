@@ -37,11 +37,13 @@ try {
 // set email
 $("#billing-email").val(userEmail);
 
-// hide input
-$("#billing-email").addClass("already-have"); 
-
-// hide its error messages
-$("#billing-email").next().addClass("already-have");
+if (userEmail) {
+    // hide input
+    $("#billing-email").addClass("already-have"); 
+    
+    // hide its error messages
+    $("#billing-email").next().addClass("already-have");
+}
 
 // set current plan
 if (theUserPlan && theUserPlan !== "free") {
