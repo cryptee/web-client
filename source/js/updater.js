@@ -41,6 +41,7 @@ async function checkLatestVersion() {
         var version = await fetch(updateOrigin + "/v.json?cachebuster=" + now);
         deployedVersion = await version.json();
     } catch (error) {
+        breadcrumb('[UPDATER] failed to get the latest version error code: ' + (error.code || "") + " , error message: " + (error.message || "") );
         handleError("[UPDATER] Failed to get the latest version", error);
     }
 
