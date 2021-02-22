@@ -35,15 +35,9 @@ async function checkLatestVersion() {
     var now = (new Date()).getTime();
 
     breadcrumb("[UPDATER] Checking latest version");
-    var deployedVersion;
 
-    try {
-        var version = await fetch(updateOrigin + "/v.json?cachebuster=" + now);
-        deployedVersion = await version.json();
-    } catch (error) {
-        breadcrumb('[UPDATER] failed to get the latest version error code: ' + (error.code || "") + " , error message: " + (error.message || "") );
-        handleError("[UPDATER] Failed to get the latest version", error);
-    }
+    var version = await fetch(updateOrigin + "/v.json?cachebuster=" + now);
+    var deployedVersion = await version.json();
 
     if (!deployedVersion) { return false; }
     serverDeployVersion = deployedVersion.v;
