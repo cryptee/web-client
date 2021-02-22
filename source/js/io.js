@@ -84,12 +84,14 @@ async function api(path, params, data, method, timeout) {
         breadcrumb("[API] Requesting " + path);
         apiResponse = await axios(axiosConfig);
     } catch (error) {
+
         if (error.code === "ECONNABORTED") {
-            // aborted (i.e. when user navigates away from page before request is completed or when connection is timed out)
-            // axios timeouts also throw ECONNABORTED, so to distinguish,
+            // ECONNABORTED = aborted (i.e. when user navigates away from page before request is completed or when connection is timed out)
+            handleError("[API] Request to " + path + " timed out / aborted", error.response, "info");
         } else {
             handleError("[API] Request to " + path + " failed", error);
         }
+        
         return false;
     }
 
