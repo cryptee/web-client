@@ -15,12 +15,12 @@ $('#signup').on('click', submitStep2);
 $("#bigg").on('click', skipStep1);
 
 $('#keyinfo').on('click', function() {
-    showPopup("popup-signup", "In addition to the login password, Cryptee also uses a data encryption key to encrypt &amp; decrypt your data on your device, so that it's accessible only by you. The key never leaves your device, and it's never sent to any servers.<br><br>");
+    showPopup("popup-signup", "In addition to the login password, Cryptee also uses a data encryption key to encrypt &amp; decrypt your data on your device, so that it's accessible only by you. The key never leaves your device, and it's never sent to any servers.<br><br><br>");
 }); 
 
 function passColor(color) {
-    $("#password-strength").removeClass("yellow red green"); 
-    $("#password-strength").addClass(color); 
+    $("#password-strength, #password-strength-message").removeClass("yellow red green"); 
+    $("#password-strength, #password-strength-message").addClass(color); 
 }
 
 function keyColor(color) {
@@ -59,43 +59,49 @@ $("#pswrd").on('keydown keypress paste copy cut change', function(event) {
         passScore = zxcvbn(first64DigitsOfPassword).score;
 
         if (passScore === 0) {
+            $("#password-strength-message").html("too weak");
             $("#password-strength").attr("value", 5);
-            $("#next").attr("disabled", true); 
             passColor("red");
         }
         
         else if (passScore === 1) {
+            $("#password-strength-message").html("weak");
             $("#password-strength").attr("value", 10);
-            $("#next").attr("disabled", true);
             passColor("red");
         }
         
         else if (passScore === 2) {
+            $("#password-strength-message").html("fair");
             $("#password-strength").attr("value", 40);
-            $("#next").removeAttr("disabled");
             passColor("yellow");
         }
         
         else if (passScore === 3) {
+            $("#password-strength-message").html("good enough");
             $("#password-strength").attr("value", 75);
-            $("#next").removeAttr("disabled");
             passColor("green");
         }
         
         else {
             $("#password-strength").attr("value", 100);
-            $("#next").removeAttr("disabled");
             passColor("green");
+            
+            if (first64DigitsOfPassword.length >= 32) {
+                $("#password-strength-message").html("amazing!");
+            } else {
+                $("#password-strength-message").html("excellent");
+            }
         }
         
         // password must be at least 6 characters
         if (first64DigitsOfPassword.length < 6) {
+            $("#password-strength-message").html("minimum 6 characters");
             $("#password-strength").attr("value", 5);
-            $("#next").attr("disabled", true); 
             passColor("red");
         }
 
         if (first64DigitsOfPassword.length === 0) {
+            $("#password-strength-message").html(" &nbsp; ");
             $("#password-strength").attr("value", 0); 
             passColor("red");
         }
@@ -168,12 +174,6 @@ $("#key").on('keydown keypress paste copy cut change', function(event) {
 function submitStep1() {
     breadcrumb('[SIGNUP] Submitted Step 1');
 
-    // check pass is strong enough for step 1
-    if (passScore < 2) { 
-        $("#pswrd").trigger("focus");
-        return;
-    }
-
     // check there's a username / email in the first place
     var usernameOrEmail = $("#email").val().trim();
     if (!usernameOrEmail) {
@@ -184,6 +184,12 @@ function submitStep1() {
     // if it's an email, check it's valid
     if (usernameOrEmail && usernameOrEmail.includes("@") && !isEmail(usernameOrEmail)) {
         $("#email").trigger("focus");
+        return;
+    }
+
+    // check pass is strong enough for step 1
+    if (!passScore || passScore < 2) { 
+        $("#pswrd").trigger("focus");
         return;
     }
 

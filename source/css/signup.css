@@ -140,6 +140,11 @@ input {
     border-bottom: 1px solid var(--cryptee-green);
 }
 
+#password-strength-message {
+    margin-top: 0.25rem;
+    display: block;
+    margin-bottom: 1.25rem;
+}
 
 
 /* -----------------------------
@@ -207,6 +212,10 @@ MEDIA
         float: left;
     }
 
+    #password-strength-message {
+        text-align: left;
+    }
+
     #bigg, #signup  {
         right: unset;
         left: 0;
@@ -215,6 +224,7 @@ MEDIA
     #signup-card {
         grid-template-columns: 1fr;
         box-shadow: none;
+        border-radius: 0;
     }
 
     .popup {
