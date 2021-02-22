@@ -113,7 +113,12 @@ function authenticate(authenticatedCallback, unauthenticatedCallback, errorCallb
 
 async function getFreshToken(user) {
     breadcrumb("[AUTH] Getting a new token.");
-    await user.getIdTokenResult(true);
+    try {
+        await user.getIdTokenResult(true);
+    } catch (error) {
+        // this is most likely going to get triggered when user gets redirected away too quickly on login / home etc.
+        handleError("[AUTH] Error Getting Fresh Token", error);
+    }
     breadcrumb("[AUTH] Got a new token.");
 }
 
@@ -236,7 +241,11 @@ async function getKeycheck(force) {
     }
     
     if (!keycheckResponse) { 
-        handleError("Didn't get keycheck response");
+        // instead of a handleError, we're using a breadcrumb. Here's why.
+        // getKeycheck is called in authenticate, and on login / home, if user's redirected before the API responds, we'll get ECONNABORTED, and return false.
+        // so this may not be an error – and if it is an error, we'll catch it in "[API] Request to /user-keycheck failed"
+        // so here we just have to return false, maybe keep track in a breadcrumb but otherwise move on.
+        breadcrumb("Didn't get keycheck response");
         return false;
     }
 
@@ -280,18 +289,28 @@ var theKey;
 var keyToRemember;
 var encryptedKeycheck; // a timestamp encrypted with hashedKey to verify the hashedKey in offline mode.
 
-if (sessionStorage.getItem('key')) {
-  keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedKey
-  sessionStorage.removeItem('key');
+try {
+    if (sessionStorage.getItem('key')) {
+        keyToRemember = JSON.parse(sessionStorage.getItem('key')); // hashedKey
+        sessionStorage.removeItem('key');
+    } 
+} catch (e) {
+    // sessionStorage blocked, just to silence the errors.
 }
 
-if (localStorage.getItem('memorizedKey')) {
-  keyToRemember = JSON.parse(localStorage.getItem('memorizedKey')); // hashedKey
+
+try {
+    if (localStorage.getItem('memorizedKey')) {
+        keyToRemember = JSON.parse(localStorage.getItem('memorizedKey')); // hashedKey
+    }
+
+    if (localStorage.getItem("encryptedKeycheck")) {
+        encryptedKeycheck = JSON.parse(localStorage.getItem("encryptedKeycheck")).data;
+    }
+} catch (error) {
+    // localStorage blocked, just to silence the errors.
 }
 
-if (localStorage.getItem("encryptedKeycheck")) {
-  encryptedKeycheck = JSON.parse(localStorage.getItem("encryptedKeycheck")).data;
-}
 
 $("#key-enter").on('click', function(event) {
     var key = $("#key-input").val();
@@ -505,7 +524,11 @@ async function getUserInfo() {
     }
 
     if (!userInfoResponse) {
-        handleError("Didn't get user info response");
+        // instead of a handleError, we're using a breadcrumb. Here's why.
+        // getUserInfo is called in authenticate, and on login / home, if user's redirected before the API responds, we'll get ECONNABORTED, and return false.
+        // so this may not be an error – and if it is an error, we'll catch it in "[API] Request to /user-info failed"
+        // so here we just have to return false, maybe keep track in a breadcrumb but otherwise move on.
+        breadcrumb("[USER INFO] Didn't get user info response");
         return false;
     }
 

@@ -88,6 +88,13 @@ $("#pswrd").on('keydown keypress paste copy cut change', function(event) {
             passColor("green");
         }
         
+        // password must be at least 6 characters
+        if (first64DigitsOfPassword.length < 6) {
+            $("#password-strength").attr("value", 5);
+            $("#next").attr("disabled", true); 
+            passColor("red");
+        }
+
         if (first64DigitsOfPassword.length === 0) {
             $("#password-strength").attr("value", 0); 
             passColor("red");
@@ -516,7 +523,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     
     // (scenario 3) user created new account with google on login screen, and has no key, so we need to set a key.
     if (getUrlParameter("status") === "newuser") {
-        theUser.getIdToken(true).then(()=>{
+        theUser.getIdToken(true).then((idTokenResult)=>{
             if (!idTokenResult.claims.keycheck) {
                 breadcrumb('[SIGNUP] Authenticated! User signed up with google on login page. Asking for a key now.');
                 skipStep1();

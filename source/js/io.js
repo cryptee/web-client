@@ -84,7 +84,15 @@ async function api(path, params, data, method, timeout) {
         breadcrumb("[API] Requesting " + path);
         apiResponse = await axios(axiosConfig);
     } catch (error) {
-        handleError("[API] Request to " + path + " failed", error);
+        if (error.code === "ECONNABORTED" && !error.message) {
+            // aborted (i.e. when user navigates away from page before request is completed)
+            // axios timeouts also throw ECONNABORTED, so to distinguish, we check if it has a message
+            // timeouts have something like "message": "timeout of 1ms exceeded",
+            // whereas aborts have message : undefined
+            console.log("[API] Request to " + path + " is aborted");
+        } else {
+            handleError("[API] Request to " + path + " failed", error);
+        }
         return false;
     }
 
@@ -181,7 +189,7 @@ async function uploadFile(rawTextContents, filename, inBackground) {
                     return "exceeded";
                 } else {
                     // other error
-                    handleError("[UPLOAD] Upload failed with status: " + fileUpload.status, { filename : filename }, "warning");
+                    handleError("[UPLOAD] Upload failed with status: " + error.response.status, { filename : filename }, "warning");
                     return false;
                 }
             } else {

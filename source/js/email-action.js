@@ -231,6 +231,13 @@ $("#reset-password-new-input").on('keydown keypress paste copy cut change', func
                 $("#password-strength-message").html(passComment(passScore));
             }
         }
+
+        // password must be at least 6 characters
+        if (first64DigitsOfPassword.length < 6) {
+            $("#password-strength").attr("value", 5);
+            $("#reset-password-button").attr("disabled", true); 
+            passColor("red");
+        }
         
         if (first64DigitsOfPassword.length === 0) {
             $("#password-strength-message").html(" &nbsp; ");

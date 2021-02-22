@@ -181,8 +181,6 @@ async function displayUnsupportedFile(doc, filename) {
         ext = "<strong>" + ext + "</strong> files"; 
     }
 
-    handleError('[PREVIEW] – Unsupported Format (' + ext + ")", { did : did }, "info");
-
     createPopup(
         `unfortunately cryptee can't preview / load ${ext} on your current device yet. 
         we're working around the clock to add support for more filetypes & formats.<br> 

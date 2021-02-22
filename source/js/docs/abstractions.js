@@ -1543,7 +1543,7 @@ function toggleArchivedFolders() {
  */
 function sortFolder(docs, subfolders, activeFolder, sorttype) {
     if (!activeFolderID) { 
-        handleError("[SORT] We're not in activeFolder. Cancelling.");
+        handleError("[SORT] We're not in activeFolder. Cancelling.", {}, "warning");
         return false; 
     }
 
@@ -1771,6 +1771,7 @@ async function prepareActiveDocumentInfoPanel(did, doc, contents) {
         second : "numeric" 
     });
 
+    if (generation <= 0) { lastSaved = "a long time ago"; }
     $("#panel-docinfo").find(".time").html(lastSaved);
 
 
@@ -2817,6 +2818,16 @@ function epubToggleTheme() {
     var epubReaderFrame = document.getElementById('embeddedEPUBReader');
     var reader = epubReaderFrame.contentWindow.reader;
     var body = $(epubReaderFrame.contentDocument).find("body");
+
+    if (!reader) { 
+        handleError("[EPUB READER] Couldn't access reader. iFrame may be blocked", {}, "warning");
+        return; 
+    }
+
+    if (!reader.rendition) {
+        handleError("[EPUB READER] Couldn't access reader rendition. iFrame may be blocked", {}, "warning");
+        return;
+    }
 
     if (light) {
         reader.rendition.themes.select("light");

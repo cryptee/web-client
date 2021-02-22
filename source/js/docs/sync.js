@@ -32,7 +32,14 @@ async function sync() {
 
         if (doc.isfile) { continue; }
         if (!doc.generation) {
+
+            // for backwards compatibility. 
+            // v1 & v2 users who had a home doc, but never used it have a home doc with generation = 0.
+            // there's no need to throw an error for this, since it just means they never used their home doc. 
+            if (did === "d-home" && doc.generation === 0) { continue; }
+
             handleError("[SYNC] Caught a doc without generation", {did:did});
+            
             continue;
         }
 

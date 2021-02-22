@@ -300,7 +300,7 @@ function addFileToUploadQueue(file, did) {
     
     if (size > maxFilesize) { 
         status = "too large (>50mb)"; 
-        handleError('[UPLOAD FILE] Too Large (' + size + ")", {}, "info");
+        handleError("[UPLOAD FILE] Too Large )", { size : size }, "info");
     }
     
     uploadQueue[did] = {

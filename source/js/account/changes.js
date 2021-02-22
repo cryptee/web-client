@@ -217,6 +217,13 @@ $("#change-password-input").on('keydown keypress paste copy cut change', functio
             }
         }
         
+        // password must be at least 6 characters
+        if (first64DigitsOfPassword.length < 6) {
+            $("#password-strength").attr("value", 5);
+            $("#change-password-button").attr("disabled", true); 
+            passColor("red");
+        }
+
         if (first64DigitsOfPassword.length === 0) {
             $("#password-strength-message").html(" &nbsp; ");
             $("#password-strength").attr("value", 0); 

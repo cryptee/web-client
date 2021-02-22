@@ -334,7 +334,11 @@ function renderDoc(doc, folders) {
         isfile = "isfile";
         extension = extensionFromFilename(filename);
     } else {
-        when = timeSince(doc.generation) + " ago";
+        if (doc.generation > 0) {
+            when = timeSince(doc.generation) + " ago";
+        } else {
+            when = "a long time ago";
+        }
     }
 
     // IS IT OFFLINE 
@@ -342,7 +346,11 @@ function renderDoc(doc, folders) {
     if (doc.offline) {
         isOffline = "offline";
         if (doc.offline > doc.generation) {
-            when = timeSince(doc.offline) + " ago";
+            if (doc.offline > 0) {
+                when = timeSince(doc.offline) + " ago";
+            } else {
+                when = "a long time ago";
+            }
         }
     }
     
@@ -620,13 +628,18 @@ function updateDocInDOM(doc, folders) {
     }
 
     var when = timeSince(doc.generation) + " ago";
+    if (doc.generation <= 0) { when = "a long time ago"; } 
 
     // IS OFFLINE
     if (doc.offline) {
         docElem.addClass("offline");
         
         if (doc.offline > doc.generation) {
-            when = timeSince(doc.offline) + " ago";
+            if (doc.offline > 0) {
+                when = timeSince(doc.offline) + " ago";
+            } else {
+                when = "a long time ago";
+            }
         }
 
     } else {
