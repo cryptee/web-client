@@ -523,8 +523,11 @@ firebase.auth().onAuthStateChanged(function (user) {
     
     // (scenario 3) user created new account with google on login screen, and has no key, so we need to set a key.
     if (getUrlParameter("status") === "newuser") {
-        theUser.getIdToken(true).then((idTokenResult)=>{
-            if (!idTokenResult.claims.keycheck) {
+        theUser.getIdToken(true).then((idTokenResult) => {
+            var keycheckClaim; 
+            try { keycheckClaim = idTokenResult.claims.keycheck; } catch (error) {}
+
+            if (!keycheckClaim) {
                 breadcrumb('[SIGNUP] Authenticated! User signed up with google on login page. Asking for a key now.');
                 skipStep1();
                 return;  

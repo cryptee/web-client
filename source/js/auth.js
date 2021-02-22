@@ -117,6 +117,7 @@ async function getFreshToken(user) {
         await user.getIdTokenResult(true);
     } catch (error) {
         // this is most likely going to get triggered when user gets redirected away too quickly on login / home etc.
+        breadcrumb('[AUTH] fresh token error code ' + (error.code || "") + " , message : " + (error.message || ""));
         handleError("[AUTH] Error Getting Fresh Token", error);
     }
     breadcrumb("[AUTH] Got a new token.");

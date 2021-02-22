@@ -562,8 +562,10 @@ crypteetablecell * {
 
 
 #table-dropdown {
-    transition-duration: 0.15s;
     transform: translate3d(0, -1rem, 0);
+    transition-duration: 0.15s;
+    min-width: 13.5rem;
+    height: 21.5rem;
     right: auto;
 }
 

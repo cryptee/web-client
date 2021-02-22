@@ -108,7 +108,7 @@ async function prepareRenameModal(id) {
         ext = extensionFromFilename(name) || "";    
         $("#modal-rename").attr("ext", ext);
         $("#rename-input").attr("placeholder", titleFromFilename(name));
-
+        $("#rename-input").val(titleFromFilename(name));
     }
 
     if ($("#dropdown-folder").hasClass("show")) {
@@ -124,6 +124,7 @@ async function prepareRenameModal(id) {
         
         $("#modal-rename").attr("ext", "");
         $("#rename-input").attr("placeholder", name);
+        $("#rename-input").val(name);
     }
     
     $("#modal-rename").attr("forid", id);
