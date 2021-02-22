@@ -457,15 +457,19 @@ function renderFolderHeader(activeFolder) {
 
     var fname = folderName(activeFolder);
     var ctxButton = "";
-    if (activeFolder.folderid === "f-uncat") { 
-        fname = "Inbox"; 
-        ctxButton = `<button class="icon" id="inbox-info" onclick="showInboxPopup();"><i class="ri-question-fill"></i></button>`;
-    } else {
-        ctxButton = `<button class="icon" id="active-folder-dropdown" onclick="showFolderRightClickDropdown(activeFolderID,0,48);"><i class="ri-more-2-fill"></i></button>`;
+    var fid = activeFolder.folderid || ""; 
+
+    if (activeFolder) {
+        if (fid === "f-uncat") { 
+            fname = "Inbox"; 
+            ctxButton = `<button class="icon" id="inbox-info" onclick="showInboxPopup();"><i class="ri-question-fill"></i></button>`;
+        } else {
+            ctxButton = `<button class="icon" id="active-folder-dropdown" onclick="showFolderRightClickDropdown(activeFolderID,0,48);"><i class="ri-more-2-fill"></i></button>`;
+        }
     }
 
     var card = 
-    `<div class="folderheader" fid='${activeFolder.folderid}'>
+    `<div class="folderheader" fid='${fid}'>
         <button class="icon goback"><i class="ri-arrow-left-line"></i></button>
         <p class="name">${fname}</p>
         ${ctxButton}
