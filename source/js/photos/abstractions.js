@@ -485,14 +485,18 @@ function getSortedActiveAlbumContents(sorttype) {
     }
 
     // otherwise, add photos to the mix of things to sort
-    albums[activeAlbumID].photos.forEach(photoID => {
-        if (photos[photoID]) {
-            var photo = photos[photoID];
-            var photoTitle = (photo.decryptedTitle || "Untitled.jpg");
-            var photoDate = (photo.date || "").split("0000:00:00T00:00:00")[0] || "0000:00:00";
-            titlesArray.push([photoID, photoTitle, photoDate]);
-        }
-    });
+    // if for some reason the API request to "photos-album" fails, this object could be undefined, 
+    // and we won't be able to access photos.
+    if (!isEmpty(albums[activeAlbumID])) {
+        albums[activeAlbumID].photos.forEach(photoID => {
+            if (photos[photoID]) {
+                var photo = photos[photoID];
+                var photoTitle = (photo.decryptedTitle || "Untitled.jpg");
+                var photoDate = (photo.date || "").split("0000:00:00T00:00:00")[0] || "0000:00:00";
+                titlesArray.push([photoID, photoTitle, photoDate]);
+            }
+        });
+    }
 
     if (sorttype === "az-asc") {
         $(".sort-button[type='az-asc']").addClass("selected");
