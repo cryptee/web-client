@@ -48,7 +48,7 @@ async function rememberEncryptionKey() {
     try {
         plaintextKey = await decrypt(keycheck, [hashedKey]);
     } catch (error) {
-        handleError("[REMEMBER KEY] Failed to decrypt keycheck", error);
+        handleError("[REMEMBER KEY] Failed to decrypt keycheck", error, "info");
     }
 
     if (isEmpty(plaintextKey)) {

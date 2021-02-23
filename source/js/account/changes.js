@@ -395,7 +395,7 @@ async function tryChangingKey() {
        plaintextDEK = await decrypt(keycheck, [hashedCurrentKey]);
        dataEncryptionKey = plaintextDEK.data;
     } catch (error) {
-        handleError("[CHANGE KEY] Failed to decrypt the current key", error);
+        handleError("[CHANGE KEY] Failed to decrypt the current key", error, "info");
         createPopup("Looks like you made a mistake with your current key. Please double check the current key you've typed and try again.", "error");
         $("#change-key-button").removeClass("loading");
         return false;

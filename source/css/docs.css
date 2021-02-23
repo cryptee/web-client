@@ -1755,9 +1755,28 @@ NEW DOC PANEL
     pointer-events: none !important;
 }
 
+#new-doc-recos { 
+    margin-top: 0.5rem;
+    display: block; 
+}
 
+#new-doc-recos time {
+    color: white;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: 0.15s opacity var(--cryptee-cb);
+}
 
+#new-doc-recos time::before {
+    content: "\eea6";
 
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin-right: 0.5rem;
+    
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -3008,6 +3027,8 @@ ENABLE HOVERS
     }
 
     #file-viewer-nav button:hover { opacity: 1 !important;}
+
+    #new-doc-recos time:hover { opacity: 1 !important; }
 }
 
 

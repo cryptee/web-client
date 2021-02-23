@@ -410,6 +410,11 @@ EDITOR OVERRIDES
     background-color: var(--cryptee-0);
 }
 
+/* Firefox Justify Fix */
+/* https://github.com/cryptee/web-client/issues/48 */
+.ql-editor .ql-align-justify {
+    white-space: normal;
+}
 
 /* -----------------------------
 -------------------------------- 

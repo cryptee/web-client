@@ -180,7 +180,9 @@ TYPOGRAPHY
 
 /* font-sizes, line-heights, vertical rhythm */
 
-body, input, textarea, button, select {
+/* setting html to 16 overrides browser default font size i.e. what you select in chrome://settings/?search=font */
+/* this is a bandaid fix, and ideally things should scale up. will investigate and change this in the future */
+html, body, input, textarea, button, select {
     font-family: 'Josefin Sans', sans-serif;
     font-size: 16px;
 }

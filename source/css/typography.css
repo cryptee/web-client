@@ -70,9 +70,9 @@ FONT SIZES, LINE HEIGHTS, VERTICAL RHYTHM
     line-height: 1.5rem;        /* 24px */
 }
 
-.ql-editor a {
-    color: var(--cryptee-green);
-}
+.ql-editor a[href^="https:"] { color: var(--cryptee-green); }  /* secure urls */
+.ql-editor a[href^="http:"]  { color: var(--cryptee-yellow); } /* insecure urls */
+.ql-editor a[href^="ftp:"]   { color: var(--cryptee-yellow); } /* insecure urls */
 
 /* if something has a custom font-size set, use accurate line-height */
 .ql-editor *[style*="font-size"] {

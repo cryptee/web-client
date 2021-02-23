@@ -1209,6 +1209,12 @@ function showInboxPopup() {
 function showNewDocPanel() {
     $("#new-doc-input").val("");
 
+    var todaysDate = new Date();
+    var todayLocale = todaysDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+    var timeRightNow = todaysDate.toLocaleTimeString();
+
+    $("#new-doc-recos").html(`<time>${todayLocale}</time> &nbsp; &nbsp; &nbsp; <time>${timeRightNow}</time>`);
+    
     togglePanel('panel-new-doc');
 
     $("#new-doc-input").trigger("focus");
@@ -1218,12 +1224,17 @@ $("#new-doc-input").on('keyup', function(event) {
     if (event.key === "Enter") {
         confirmNewDoc();
     }
+
     if (event.key === "Escape") {
         hidePanels();
         $("#new-doc-input").val("");
     }
 }); 
 
+$("#new-doc-recos").on('click', "time", function(event) {
+    var recommendation = $(this).text();
+    $("#new-doc-input").val(recommendation);
+}); 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

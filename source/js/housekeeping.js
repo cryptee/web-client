@@ -22,7 +22,15 @@ try {
             "this.emitter is undefined", "can't access dead object",
             "Cannot read property 'mutations' of undefined", "NS_ERROR_FAILURE",
             "formats/code", "ui/color-picker", "lib/showdown", "blots/cursor", "lib/tribute", "core/selection"
-        ]
+        ],
+        denyUrls: [
+            // Chrome extensions
+            /extensions\//i,
+            /^chrome:\/\//i,
+        ],
+        beforeBreadcrumb(breadcrumb, hint) {
+            return cleanBreadcrumbs(breadcrumb, hint);
+        },
     };
 
     // this will be replaced in build
@@ -119,75 +127,31 @@ function indexedDBBlocked(isIDBBlocked, idbDB) {
     if (idbDB) { idbDB.delete(); }
 }
 
-
 ////////////////////////////////////////////////
-///////////////// PING SETUP ///////////////////
+////////////////////////////////////////////////
+//	CLEAN BREADCRUMBS
+////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-// ping("click", {btn : "btn name or sth"});
+// This cleans all breadcrumbs to remove unnecessary stuff
+// i.e. button labels/names, ui images' alt attributes etc.
 
-// TODO – PING – REWRITE API
-// TODO – PING – USE BEACON API
+function cleanBreadcrumbs(breadcrumb, hint) {
+    var category = breadcrumb.category || "";
+    
+    if (category.startsWith("ui")) {
+        
+        // clear name attributes
+        breadcrumb.message = breadcrumb.message.replace(/(?<=\[name=")(.*?)(?=\"])/gi, "...");
+        
+        // clear alt attributes
+        breadcrumb.message = breadcrumb.message.replace(/(?<=\[alt=")(.*?)(?=\"])/gi, "...");
 
-// var pingURL = "https://crypt.ee/api/ping";
+    }
+    
+    return breadcrumb;
+}
 
-// function ping(type, obj, callback) {
-//     callback = callback || noop;
-//     obj = obj || {};
-
-//     obj.aip = 1;
-//     obj.t = type;
-//     obj.ua = navigator.userAgent;
-//     obj.sr = $(window).width().toString() + "x" + $(window).height().toString();
-//     obj.dp = location.pathname;
-
-//     if (detectedLocale) {
-//         obj.geoid = detectedLocale;
-//     } else {
-//         obj.geoid = "XX";
-//     }
-
-//     var sessionID;
-//     try {
-//         sessionID = sessionStorage.getItem("sessionID");
-//     } catch (error) {}
-
-//     if (sessionID) {
-//         obj.cid = sessionID;
-//     }
-
-//     if (isInWebAppiOS || isInWebAppChrome) {
-//         obj.ds = "app";
-//     } else {
-//         obj.ds = "web";
-//     }
-
-//     var pingData = {
-//         "type": type,
-//         "obj": obj
-//     };
-
-//     if (type === "event") {
-//         if (!obj.eventAction) {
-//             obj.eventAction = "unknown";
-//         }
-//     }
-
-//     $.ajax({
-//         url: pingURL,
-//         type: 'POST',
-//         dataType: "json",
-//         data: pingData,
-//         success: function (data) {
-//             callback();
-//         }
-//     }).fail(function (resp) {
-//         if (resp.status !== 200 && resp.status !== 0 && resp.status !== 502) {
-//             console.log("Ping Error");
-//             callback();
-//         }
-//     });
-// }
 
 ///////////////////////////////////////////
 //////////////// REPORT BUGS /////////////

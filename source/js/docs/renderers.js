@@ -457,7 +457,8 @@ function renderFolderHeader(activeFolder) {
 
     var fname = folderName(activeFolder);
     var ctxButton = "";
-    var fid = activeFolder.folderid || ""; 
+    var fid = ""; 
+    if (!isEmpty(activeFolder)) { fid = activeFolder.folderid || ""; }
 
     if (activeFolder) {
         if (fid === "f-uncat") { 
