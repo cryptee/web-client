@@ -142,10 +142,10 @@ function cleanBreadcrumbs(breadcrumb, hint) {
     if (category.startsWith("ui")) {
         
         // clear name attributes
-        breadcrumb.message = breadcrumb.message.replace(/(?<=\[name=")(.*?)(?=\"])/gi, "...");
+        breadcrumb.message = breadcrumb.message.replace(/name=\s*(.*?)\s*"]/gi, "name='...']");
         
         // clear alt attributes
-        breadcrumb.message = breadcrumb.message.replace(/(?<=\[alt=")(.*?)(?=\"])/gi, "...");
+        breadcrumb.message = breadcrumb.message.replace(/alt=\s*(.*?)\s*"]/gi, "alt='...']");
 
     }
     
