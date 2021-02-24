@@ -1797,7 +1797,7 @@ NEW TABLE PANEL / POPUP
     border-top: 1px solid #fff;
     border-right: 1px solid #fff;
     
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
 }
 
 .table-picker-cell {
@@ -3021,6 +3021,8 @@ ENABLE HOVERS
     body.locked-doc #desktopToolbar:hover:before {
         opacity: 1;
     }
+
+    .table-picker-cell { color: transparent !important; }
 
     .table-picker-cell:hover {
         background-color: var(--cryptee-green);

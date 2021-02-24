@@ -1107,6 +1107,9 @@ function populateTablePicker() {
         $("#table-picker").append("<div class='table-picker-cell' c='" + (colNo + 1) + "' r='" + rowNo + "'>" + (colNo + 1) + "x" + rowNo + "</div>");
     }
 
+    $("#table-selected-cols").html("0");
+    $("#table-selected-rows").html("0");
+
     var winW = $(window).width();
     if (winW <= 480) {
         $("#add-table").addClass("compact");
@@ -1124,10 +1127,17 @@ $("#table-picker").on('mouseover', ".table-picker-cell",function(event) {
     $(".table-picker-cell").not(this).filter(function() { 
         return $(this).attr("r") <= row && $(this).attr("c") <= col; 
     }).addClass("s");
+
+    $("#table-selected-cols").html(col);
+    $("#table-selected-rows").html(row);
+    $("#table-picker-header").addClass("selection");
 }); 
 
 $("#table-picker").on('mouseout', ".table-picker-cell",function(event) {
+    $("#table-picker-header").removeClass("selection");
     $(".table-picker-cell").removeClass("s");
+    $("#table-selected-cols").html("0");
+    $("#table-selected-rows").html("0");
 });
 
 $("#table-picker").on('click', ".table-picker-cell",function(event) {

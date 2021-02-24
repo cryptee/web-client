@@ -578,9 +578,31 @@ crypteetablecell * {
     transform: translate3d(0, 0, 0);
 }
 
+#table-picker-header {
+    grid-row: span 2;
+    display: flex;
+}
 
+#table-picker-header h2 { flex-grow: 1; } 
 
+#table-picker-header > p { 
+    margin-top: 0;
+    width: 4.5rem;
+    height: 4.5rem;
+    line-height: 4.5rem;
+    background-color:  var(--cryptee-0);
+    
+    border-radius: 0.5rem;
+    border: 1px solid var(--cryptee-1);
+    text-align: center;
+    user-select: none;
 
+    transition: 0.3s border linear;
+}
+
+#table-picker-header.selection > p {
+    border: 1px solid var(--cryptee-green);
+}
 
 #table-contextual-button {
     position: absolute;
@@ -1328,10 +1350,12 @@ HOVERS
 
     .ql-editor img[src="//:0"]:hover,
     .ql-editor img[src="//:0"]:hover::before { background-color: #ffcc00; }
+
 }
 
-
-
+@media (-moz-touch-enabled: 1), (pointer:coarse) {  
+    #table-picker-header > p { display: none !important; }
+}
 
 
 
