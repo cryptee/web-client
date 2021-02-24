@@ -418,6 +418,9 @@ async function downloadFile(filename, token) {
         // breadcrumb('[DOWNLOAD] Download Token provided');
     }
 
+    // if we still couldn't get the token, abort sooner, since the next call will fail without a token
+    if (!token) { return false; }
+
     var fileDownload;
 
     var downloadURL = apiROOT + "/api/download";
