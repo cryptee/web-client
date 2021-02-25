@@ -434,3 +434,18 @@ key('esc', function () {
     clearSelections();
     hideRightClickDropdowns();
 });
+
+key('pageup', function(){
+    var currentEditorScrollPos = $(".ql-editor").scrollTop();
+    var scrollToPosition = currentEditorScrollPos - 128;
+    if (scrollToPosition <= 0) { scrollToPosition = 0; }
+    $(".ql-editor")[0].scrollTo({ top: scrollToPosition, left: 0, behavior: 'smooth' });
+    return false;
+});
+
+key('pagedown', function(){
+    var currentEditorScrollPos = $(".ql-editor").scrollTop();
+    var scrollToPosition = currentEditorScrollPos + 128;
+    $(".ql-editor")[0].scrollTo({ top: scrollToPosition, left: 0, behavior: 'smooth' });
+    return false;
+});

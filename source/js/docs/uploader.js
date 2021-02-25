@@ -431,6 +431,10 @@ async function runUploadQueue(where, predefinedTargetFID) {
 async function encryptAndUploadFile(uploadID, targetFID) {
 
     var upload = uploadQueue[uploadID];
+
+    // odd, but there's a very very slim chance it could happen, so terminate to be safe. 
+    if (!upload || isEmpty(upload)) { return false; }
+
     targetFID = targetFID || "f-uncat";
 
     // skip, because file is too large (or other error);

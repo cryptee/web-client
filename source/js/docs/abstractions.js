@@ -91,7 +91,7 @@ async function prepareRenameModal(id) {
 
     var name = "";
     var ext = "";
-
+    var doc;
 
     if (id || $("#dropdown-doc").hasClass("show")) {
         id = id || $("#dropdown-doc").attr("did");
@@ -102,13 +102,29 @@ async function prepareRenameModal(id) {
             return false; 
         }
 
-        name = await getDocNameFromCatalog(id);
+        doc = await getDocFromCatalog(id);
+        name = docName(doc) || "";
+        
+        if (doc.isfile) {
+            // it's a file, 
+            // separate the extension, since we don't want people renaming .mp3 files and converting them to docs etc
+            ext = extensionFromFilename(name) || "";    
+            
+            $("#modal-rename").attr("ext", ext);
+            $("#rename-input").attr("placeholder", titleFromFilename(name));
+            $("#rename-input").val(titleFromFilename(name));
 
-        // separate the extension, since we don't want people renaming .mp3 files and converting them to docs etc
-        ext = extensionFromFilename(name) || "";    
-        $("#modal-rename").attr("ext", ext);
-        $("#rename-input").attr("placeholder", titleFromFilename(name));
-        $("#rename-input").val(titleFromFilename(name));
+        } else {
+            // it's a cryptee document
+            // there's no extension, so use as it is.
+            
+            ext = "";
+
+            $("#modal-rename").attr("ext", "");
+            $("#rename-input").attr("placeholder", name);
+            $("#rename-input").val(name);
+        }
+        
     }
 
     if ($("#dropdown-folder").hasClass("show")) {
@@ -1571,7 +1587,7 @@ function sortFolder(docs, subfolders, activeFolder, sorttype) {
     // A-Z Ascending
     if (sorttype === "azasc") {
         items       = items.concat(docs,subfolders);
-        sortedItems = sortedItems.sort(naturalSort);
+        sortedItems = items.sort(naturalSort);
     }
     
     // A-Z Descending
@@ -1693,34 +1709,30 @@ function sortFolder(docs, subfolders, activeFolder, sorttype) {
     });
     
     $("#activeFolder").attr("sort", sorttype);
+    $("#panel-sort").attr("sort", sorttype);
     
     return true;
 
 }
 
 
-async function changeFolderSort() {
-    var types = ["genasc", "gendesc", "extasc", "extdesc", "azasc", "azdesc"];
-    
-    // get current sort
-    var activeFolder = await getFolderFromCatalog(activeFolderID);
-    var currentSort = activeFolder.sortdocs || "azasc";
-    
-    // get next sort
-    var indexOfCurrentSort = types.indexOf(currentSort);
-    var indexOfNextSort = ++indexOfCurrentSort % types.length;
-    var nextSort = types[indexOfNextSort];
+/**
+ * Changes a folder's sort using the given sort type.
+ * @param {("azasc"|"azdesc"|"extasc"|"extdesc"|"genasc"|"gendesc")} [sorttype] An optional sorttype
+ */
+async function changeFolderSort(sorttype) {
+    sorttype = sorttype || "azasc";
 
-    breadcrumb('[SORT] Sorting folder : ' + nextSort);
+    breadcrumb('[SORT] Sorting folder : ' + sorttype);
 
     // set in catalog
-    await setFolderMetaInCatalog(activeFolderID, {sortdocs : nextSort});
+    await setFolderMetaInCatalog(activeFolderID, {sortdocs : sorttype});
 
     // now refresh will take it from catalog
     await refreshDOM();
 
     // set it on server
-    await setFolderMeta(activeFolderID, {sortdocs : nextSort});
+    await setFolderMeta(activeFolderID, {sortdocs : sorttype});
 
     return true;
 }

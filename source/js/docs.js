@@ -390,7 +390,7 @@ function naturalSort (a, b) {
         hre = /^0x[0-9a-f]+$/i,
         ore = /^0/,
         i = function(s) {
-            return (naturalSort.insensitive && ('' + s).toLowerCase() || '' + s).replace(sre, '');
+            return (('' + s).toLowerCase() || '' + s).replace(sre, '');
         },
         // convert all to strings strip whitespace
         x = i(b.decryptedTitle),

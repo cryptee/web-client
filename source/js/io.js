@@ -89,7 +89,7 @@ async function api(path, params, data, method, timeout) {
             // ECONNABORTED = aborted (i.e. when user navigates away from page before request is completed or when connection is timed out)
             handleError("[API] Request to " + path + " timed out / aborted", error.response, "info");
         } else {
-            handleError("[API] Request to " + path + " failed", error);
+            handleError("[API] Request to " + path + " failed", error.response);
         }
         
         return false;
@@ -188,7 +188,8 @@ async function uploadFile(rawTextContents, filename, inBackground) {
                     return "exceeded";
                 } else {
                     // other error
-                    handleError("[UPLOAD] Upload failed with status: " + error.response.status, { filename : filename }, "warning");
+                    error.response.filename = filename;
+                    handleError("[UPLOAD] Upload failed with status: " + error.response.status, error.response, "warning");
                     return false;
                 }
             } else {
@@ -447,8 +448,10 @@ async function downloadFile(filename, token) {
         if (axios.isCancel(error)) {
             return "aborted";
         } else {
-            error.filename = filename;
-            handleError("[DOWNLOAD] Failed to download!", error);
+            if (error.code !== "ECONNABORTED") {
+                error.filename = filename;
+                handleError("[DOWNLOAD] Failed to download!", error);
+            }
             return false;
         }
     }

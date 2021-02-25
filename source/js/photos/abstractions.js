@@ -659,6 +659,14 @@ function addToTimeline(item) {
 
     var firstLetter = name.slice(0, 1).toUpperCase();
 
+    timelineObject.az = timelineObject.az || {};
+    timelineObject.years = timelineObject.years || {};
+    timelineObject.months = timelineObject.months || {};
+    timelineObject.days = timelineObject.days || {};
+    
+    timelineObject.yearsAndMonths = timelineObject.yearsAndMonths || {};
+    timelineObject.monthsAndDays = timelineObject.monthsAndDays || {};
+
     timelineObject.years[year] = (timelineObject.years[year] || 0) + 1;
     timelineObject.yearsAndMonths[yearAndMonth] = (timelineObject.yearsAndMonths[yearAndMonth] || 0) + 1;
     timelineObject.monthsAndDays[monthAndDay] = (timelineObject.monthsAndDays[monthAndDay] || 0) + 1;
@@ -1636,7 +1644,10 @@ function showDeleteAlbumModal(aid) {
         return false; 
     }
     
-    var albumName = albums[aid].decryptedTitle || "UNTITLED ALBUM";
+    var albumName = "UNTITLED ALBUM";
+    if (albums[aid]) {
+        albumName = albums[aid].decryptedTitle || "UNTITLED ALBUM";
+    }
     
     $("#modal-delete-album").attr("aid", aid);
     $("#deleting-albumname").html(albumName);
@@ -1655,7 +1666,12 @@ function showDeleteSelectionsModal() {
     $('#deleting-filenames').empty();
 
     selectedPhotos().forEach(pid => {
-        var name = photos[pid].decryptedTitle || "";
+        var name = "";
+        
+        if (!isEmpty(photos[pid])) { 
+            name = photos[pid].decryptedTitle || ""; 
+        }
+
         if (name && name !== "Untitled.jpg") {
             $('#deleting-filenames').append(`<p class="bold">${name}</p>`);
         }

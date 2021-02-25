@@ -188,7 +188,7 @@ if (isMobile) {
 
 quillBaseConfig.modules.toolbar = toolbarOptions;
 quill = new Quill('#editorWrapper', quillBaseConfig);
-
+setSentryTag("quill-config", quillBaseConfig.theme);
 
 
 
@@ -329,10 +329,10 @@ function initMobileTopToolbar() {
     // add listeners for mobile checkbox
     $(".ql-list[value='check']").on("click", function () {
         var format = quill.getFormat();
-        if (format.list === "checked") {
+        if (format.list === "checked" || format.list === "unchecked") {
             quill.removeFormat(getLastSelectionRange().index);
         } else {
-            quill.format('list', 'checked');
+            quill.format('list', 'unchecked');
         }
     });
 

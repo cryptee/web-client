@@ -330,6 +330,14 @@ $("#key-input").on('blur', function(event) {
     if (key) { checkKey(key); }
 }); 
 
+// TO MAKE PASSWORD MANAGER LOGINS SMOOTHER.
+$("#key-input").on('paste', function(event) {
+    setTimeout(function () {
+        var key = $("#key-input").val();
+        if (key) { checkKey(key); }
+    }, 100);
+}); 
+
 
 
 

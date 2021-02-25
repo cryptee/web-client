@@ -286,15 +286,6 @@ function renderDoc(doc, folders) {
     var filename = docName(doc) || randomString; 
     var lcname = filename.toLowerCase();
 
-    // EXTENSION
-    var extension = ""; 
-    
-    // ICON
-    var icon = extractFromFilename(filename, "icon");
-    if (doc.docid === "d-home") { icon = "ri-home-4-line"; }
-
-
-
     // FOLDER
     var fname = "";
     if (doc.fid && !isEmpty(folders)) { 
@@ -302,15 +293,12 @@ function renderDoc(doc, folders) {
     }
 
     // FOLDER COLOR
-    var fcolor = "";
-    if (doc.fid && !isEmpty(folders)) { 
+    var fcolor = "#FFF";
+    if (doc.fid && !isEmpty(folders) && folders[doc.fid]) { 
         fcolor = folders[doc.fid].color || "#FFF";
          
         // for the sake of recent docs, if a folder doesn't have color, then it's white
-
-        if (["#000", "#000000", "#363636"].includes(fcolor)) {
-            fcolor = "#FFF";
-        }
+        if (["#000", "#000000", "#363636"].includes(fcolor)) { fcolor = "#FFF"; }
     }
 
     // SELECTED
@@ -330,9 +318,17 @@ function renderDoc(doc, folders) {
     var isfile = "";
     var when = "";
 
+    // EXTENSION
+    var extension = ""; 
+
+    // ICON
+    var icon = "ri-file-text-line";
+    if (doc.docid === "d-home") { icon = "ri-home-4-line"; }
+    
     if (doc.isfile) {
         isfile = "isfile";
         extension = extensionFromFilename(filename);
+        icon = extractFromFilename(filename, "icon");
     } else {
         if (doc.generation > 0) {
             when = timeSince(doc.generation) + " ago";
@@ -587,13 +583,6 @@ function updateDocInDOM(doc, folders) {
     docElem.find(".name").html(filename);
     docElem.attr("name", lcname);
 
-    // ICON
-    var icon = extractFromFilename(filename, "icon");
-    if (doc.docid === "d-home") { icon = "ri-home-4-line"; }
-
-    docElem.find(".icon").find("i").removeClass();
-    docElem.find(".icon").find("i").addClass(icon);
-
     // FOLDER
     var fname = "";
     if (doc.fid) { 
@@ -603,34 +592,38 @@ function updateDocInDOM(doc, folders) {
     }
 
     // FOLDER COLOR
-    var fcolor = "";
-    if (doc.fid && !isEmpty(folders)) { 
+    var fcolor = "#FFF";
+    if (doc.fid && !isEmpty(folders) && folders[doc.fid]) { 
         fcolor = folders[doc.fid].color || "#FFF";
             
         // for the sake of recent docs, if a folder doesn't have color, then it's white
-
-        if (["#000", "#000000", "#363636"].includes(fcolor)) {
-            fcolor = "#FFF";
-        }
+        if (["#000", "#000000", "#363636"].includes(fcolor)) { fcolor = "#FFF"; }
 
         docElem.find(".fldr").attr("style", `color:${fcolor};`);
     }
-
-        
+  
     // SELECTED
     docElem.toggleClass("selected", selections.includes(doc.docid));
 
     // DECRYPTING
     docElem.toggleClass("decrypting", (filename === randomString));
 
-    // IS FILE & EXTENSION
+    // IS FILE , EXTENSION & ICON 
+    var icon = "ri-file-text-line";
+    if (doc.docid === "d-home") { icon = "ri-home-4-line"; }
+
     if (doc.isfile) {
         docElem.addClass("isfile");
         docElem.attr("ext", extensionFromFilename(filename));
+        icon = extractFromFilename(filename, "icon");
     } else {
         docElem.removeClass("isfile");
         docElem.attr("ext", "");
     }
+
+    // UPDATE ICON
+    docElem.find(".icon").find("i").removeClass();
+    docElem.find(".icon").find("i").addClass(icon);
 
     var when = timeSince(doc.generation) + " ago";
     if (doc.generation <= 0) { when = "a long time ago"; } 

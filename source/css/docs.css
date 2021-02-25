@@ -72,8 +72,6 @@ html.overflowBG,
     will-change: transform;
 }
 
-#rightSlide { overflow: hidden; }
-
 #leftSlide {
     min-width: 320px;
     width: 320px;
@@ -92,8 +90,9 @@ html.overflowBG,
 #rightSlide {
     background-color: var(--cryptee-4);
     min-width: calc(320px - 4rem);
-    width: 100%;
     max-width: calc(100% - 4rem);
+    overflow: hidden;
+    width: 100%;
     display: grid;
 
     grid-template-rows: 1rem 2rem 1rem 1fr 1rem 2rem 1rem;
@@ -605,7 +604,7 @@ LEFT MENU
 
 
 /* ACTIVE FOLDER BUTTONS EXCEPTIONS */
-#leftListWrapper:not([show="folder"]) ~ #explorerButtons > #sortButton,
+#leftListWrapper:not([show="folder"]) ~ #explorerButtons > #panel-button-sort,
 #leftListWrapper:not([show="folder"]) ~ #explorerButtons > #uploadFileButton { 
     pointer-events: none !important;
     opacity: 0 !important;
@@ -684,7 +683,7 @@ LEFT MENU
     opacity: 0 !important;
 }
 
-#sortButton i       { transition-delay: 0.05s; }
+#panel-button-sort i       { transition-delay: 0.05s; }
 #uploadFileButton i { transition-delay: 0.1s;  }
 
 
@@ -1688,7 +1687,7 @@ body.bubble .panel.centered {
     padding: 0.5rem 1.5rem 1.5rem 1.5rem;
 }
 
-#panel-pagesetup .wide {
+#panel-pagesetup .wide, #panel-sort .wide {
     padding-right: 0;
 }
 
@@ -1700,9 +1699,47 @@ body.bubble .panel.centered {
 
 /* EXPORT DOC PANEL */
 
+/* SORT PANEL */
 
+#panel-sort {
+    top: 19rem;
+    left: 19.5rem;
+    bottom: auto;
 
+    min-width: 10rem;
+    max-width: 10rem;
+    grid-template-columns: 2rem 2rem 2rem 2rem 2rem;
+    padding: 0.5rem 1rem 0.5rem 1.5rem;
+}
 
+#panel-sort p { 
+    height: 3rem; 
+    line-height: 3rem; 
+    margin-top: 0;
+}
+
+#panel-sort i {
+    transform: scale(1);
+    transition: 0.3s transform var(--cryptee-cb);
+    cursor: pointer;
+}
+
+#panel-sort .wide { grid-column: span 5; }
+#panel-sort b     { grid-column: span 1; }
+
+#panel-sort[sort="azdesc"]  i[sort="azdesc"]  { transform: scale(1.5); }
+#panel-sort[sort="azasc"]   i[sort="azasc"]   { transform: scale(1.5); }
+#panel-sort[sort="gendesc"] i[sort="gendesc"] { transform: scale(1.5); }
+#panel-sort[sort="genasc"]  i[sort="genasc"]  { transform: scale(1.5); }
+#panel-sort[sort="extasc"]  i[sort="extasc"]  { transform: scale(1.5); }
+#panel-sort[sort="extdesc"] i[sort="extdesc"] { transform: scale(1.5); }
+
+#panel-sort[sort="azdesc"]  i[sort="azdesc"]::before { content: "\EA49"; }
+#panel-sort[sort="azasc"]   i[sort="azasc"]::before { content: "\EA49"; }
+#panel-sort[sort="gendesc"] i[sort="gendesc"]::before { content: "\EA49"; }
+#panel-sort[sort="genasc"]  i[sort="genasc"]::before { content: "\EA49"; }
+#panel-sort[sort="extasc"]  i[sort="extasc"]::before { content: "\EA49"; }
+#panel-sort[sort="extdesc"] i[sort="extdesc"]::before { content: "\EA49"; }
 
 /* -----------------------------
 -------------------------------- 
@@ -2653,6 +2690,8 @@ body.bubble #editorWrapper .ql-editor {
 
 body.bubble #desktopToolbar { 
     justify-content: flex-end;
+    opacity: 0.4;
+    margin: auto 0 auto auto;
 }
 
 body.bubble #desktopToolbar .ql-formats * {
@@ -2667,8 +2706,8 @@ body.bubble #desktopToolbar .ql-formats * {
     fill: white;
 }
 
-body.bubble #desktopToolbar {
-    opacity: 0.4;
+body.bubble #desktopToolbar .hidden-tablet {
+    display: none;
 }
 
 body.bubble #documentActionButtons i, 
@@ -2896,6 +2935,8 @@ MEDIA QUERIES
         left: auto;
         right: 1.75rem;
     }
+
+    #panel-sort { left: 3.5rem; }
 }
 
 

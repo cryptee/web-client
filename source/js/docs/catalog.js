@@ -1177,7 +1177,10 @@ async function decryptTitle(id) {
     }
 
     var decryptedTitle = "";
-    if (plaintextTitle) { decryptedTitle = plaintextTitle.data; }
+
+    try {
+        if (plaintextTitle) { decryptedTitle = plaintextTitle.data; }
+    } catch (e) {}
 
     var parsedDecryptedTitle = decryptedTitle;
 

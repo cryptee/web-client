@@ -225,7 +225,7 @@ async function exportAllMetadata() {
     }
     
     if (!allDataRequest) {
-        handleError("[EXPORT ALL METADATA] Failed to export all data", error);
+        handleError("[EXPORT ALL METADATA] Failed to export all data");
         createPopup("it seems we're having difficulty connecting our servers to export your data. Chances are this is a network / connectivity problem, or your browser is configured to block access to a resource cryptee needs. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues. ", "error");
         $("#exportAllMetadataButton").removeClass("loading");
         return false;

@@ -599,11 +599,18 @@ async function updateAlbumTitles(aid) {
         return false;
     }
 
+    if (isEmpty(albums[aid])) {
+        handleError("[UPDATE TITLES] Album doesn't exist, can't update its titles without an album");
+        return false;
+    }
+
     var titlesObject = {
         albums : {},
         photos : {}
     };
     
+    albums[aid].photos = albums[aid].photos || [];
+
     albums[aid].photos.forEach(pid => {
         if (photos[pid]) {
             try {
