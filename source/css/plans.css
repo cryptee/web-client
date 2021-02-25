@@ -582,7 +582,7 @@ THANK YOU
 --------------------------------
 ----------------------------- */
 
-#thanks, #threeDSError, #dbError, #thanks-switch, #switching {
+#thanks, #threeDSError, #dbError, #thanks-switch, #switch-confirm, #switching {
     background-color: var(--cryptee-green);
     color: #FFF;
 
@@ -615,8 +615,12 @@ THANK YOU
     height: 23rem;
 }
 
-#switching {
+#switch-confirm, #switching {
     background-color: var(--cryptee-0);
+}
+
+#switch-confirm {
+    height: 16rem;
 }
 
 #thanks-switch {
@@ -633,6 +637,7 @@ body:not(.thanks) #thanks,
 body:not(.threeds) #threeDSError,
 body:not(.dberror) #dbError,
 body:not(.switching) #switching,
+body:not(.switch-confirm) #switch-confirm,
 body:not(.thanks-switch) #thanks-switch {
     opacity: 0;
     pointer-events: none !important;

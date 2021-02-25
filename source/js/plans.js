@@ -91,7 +91,7 @@ $('.plan').on('click', "button", function (event) {
     var price = $(this).attr(period);
 
     if (theUserPlan && theUserPlan !== "free") {
-        switchToPlan(plan, period);
+        switchConfirm(plan, period);
     } else {
         chosenPlan(plan, period, price);
     }
@@ -599,14 +599,16 @@ async function show3DSPopup(paymentMethodID, paymentIntentSecret) {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-async function switchToPlan(plan, period) {
-    var planID = storagePlans[period][plan];
+async function switchToPlan() {
+
+    var planID = $("#switch-confirm").attr("planid");
     
     switchingPlans();
 
     var switchResponse = await switchPlans(planID);
     if (!switchResponse) {
-        $("body").removeClass("billing vat processing threeds switching dberror");
+        $("body").removeClass("billing vat processing threeds switching switch-confirm dberror");
+        $("#switch-confirm").attr("planid", "");
         createPopup("Looks like we're having difficulty switching your plan. Chances are this is a connectivity issue. Your browser or ad-blocker may be blocking connections to our servers. Please check your internet connection, unblock connections to Cryptee from your ad-blocker and try again.", "error");
         return false;
     }
@@ -620,13 +622,33 @@ async function switchToPlan(plan, period) {
 
 }
 
+function switchConfirm(plan, period) {
+    
+    // set planid to confirmation modal
+    var planID = storagePlans[period][plan];
+    $("#switch-confirm").attr("planid", planID);
+
+    // set plan name to button
+    var planName = (plan + " plan").toLowerCase();
+    $("#switchname").html(planName);
+
+    // show confirmation modal
+    $("body").removeClass("billing vat processing threeds switching switch-confirm dberror");
+    $("body").addClass("switch-confirm");
+
+}
+
+function closeSwitcher() {
+    $("body").removeClass("billing vat processing threeds switching switch-confirm dberror");
+    $("#switch-confirm").attr("planid", "");
+}
 
 function switchingPlans() {
-    $("body").removeClass("billing vat processing threeds switching dberror");
+    $("body").removeClass("billing vat processing threeds switching switch-confirm dberror");
     $("body").addClass("switching");
 }
 
 function thanksSwitched() {
-    $("body").removeClass("billing vat processing threeds switching dberror");
+    $("body").removeClass("billing vat processing threeds switching switch-confirm dberror");
     $("body").addClass("thanks-switch");
 }
