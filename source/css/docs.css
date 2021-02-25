@@ -1556,7 +1556,7 @@ body.bubble .panel:not(.centered) {
     height: 24rem;
     width: 100%;
     max-width: 16rem;
-    min-width: calc(320px - 8rem);
+    min-width: calc(320px - 5rem);
 
     padding: 2rem;
     color: white;
@@ -2142,6 +2142,7 @@ DOCUMENT ACTION BUTTONS
 
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 #documentActionButtons button {
