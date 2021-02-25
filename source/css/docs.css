@@ -183,6 +183,9 @@ LEFT MENU
     height: 100%;
     grid-row: 2 / 4;
     grid-column: 18 / 19;
+
+    opacity: 0.5;
+    transition: 0.3s opacity ease;
 }
 
 #logo img {
@@ -582,10 +585,10 @@ LEFT MENU
 
 
 /* RECENTS BUTTONS EXCEPTIONS */
-#leftListWrapper[show="recents"] ~ #explorerButtons > #recentsButton { opacity: 1 !important; }
+.activeSlide #leftListWrapper[show="recents"] ~ #explorerButtons > #recentsButton { opacity: 1 !important; }
 
 /* FOLDERS BUTTONS EXCEPTIONS*/
-#leftListWrapper[show="folders"] ~ #explorerButtons > #foldersButton { opacity: 1 !important; }
+.activeSlide #leftListWrapper[show="folders"] ~ #explorerButtons > #foldersButton { opacity: 1 !important; }
 
 /* if the sidebar is closed, and we have an active folder, change the folders button label */
 #leftSlide:not(.activeSlide) #leftListWrapper[show="folder"] ~ #explorerButtons > #foldersButton::after {
@@ -2929,6 +2932,7 @@ ENABLE HOVERS
         opacity: 1;
     }
 
+    #logo:hover,
     #documentActionButtons button:hover i, 
     #helpButton:hover i,
     #hotkeysButton:hover i,
