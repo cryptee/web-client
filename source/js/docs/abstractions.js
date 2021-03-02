@@ -568,6 +568,7 @@ function loadSearch() {
     $("#activeFolder").empty();
     $("#leftListWrapper").attr("show", "results");
     hideRightClickDropdowns();
+    hidePanels();
     refreshDOM();
 }
 
@@ -577,6 +578,7 @@ function loadRecents() {
     $("#activeFolder").empty();
     $("#leftListWrapper").attr("show", "recents");
     hideRightClickDropdowns();
+    hidePanels();
     refreshDOM();
 }
 
@@ -589,6 +591,7 @@ function loadRootFolder() {
     $("#activeFolder").empty();
     $("#leftListWrapper").attr("show", "folders");
     hideRightClickDropdowns();
+    hidePanels();
     refreshDOM();
 }
 

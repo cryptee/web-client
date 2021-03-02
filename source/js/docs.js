@@ -791,10 +791,12 @@ $("#loadParentOfDocButton").on('click', function(event) {
 
 $("body").on('click', '.goback', function(event) {
     loadParentFolder();
+    hidePanels();
 });
 
 $("#activeFolder").on('swipeRight', function(event) {
     loadParentFolder();
+    hidePanels();
 }); 
 
 
