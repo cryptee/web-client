@@ -488,14 +488,16 @@ function getSortedActiveAlbumContents(sorttype) {
     // if for some reason the API request to "photos-album" fails, this object could be undefined, 
     // and we won't be able to access photos.
     if (!isEmpty(albums[activeAlbumID])) {
-        albums[activeAlbumID].photos.forEach(photoID => {
-            if (photos[photoID]) {
-                var photo = photos[photoID];
-                var photoTitle = (photo.decryptedTitle || "Untitled.jpg");
-                var photoDate = (photo.date || "").split("0000:00:00T00:00:00")[0] || "0000:00:00";
-                titlesArray.push([photoID, photoTitle, photoDate]);
-            }
-        });
+        if (albums[activeAlbumID].photos) {
+            albums[activeAlbumID].photos.forEach(photoID => {
+                if (photos[photoID]) {
+                    var photo = photos[photoID];
+                    var photoTitle = (photo.decryptedTitle || "Untitled.jpg");
+                    var photoDate = (photo.date || "").split("0000:00:00T00:00:00")[0] || "0000:00:00";
+                    titlesArray.push([photoID, photoTitle, photoDate]);
+                }
+            });
+        }
     }
 
     if (sorttype === "az-asc") {

@@ -310,7 +310,7 @@ async function displayPDFFile(doc, plaintextContents) {
                 pdfjsframe.contentWindow.PDFViewerApplication.open(plaintextContents);
             } else {
                 // it's a b64, sanitize and convert to uint8array
-                pdfjsframe.contentWindow.PDFViewerApplication.open(convertDataURIToBinary(sanitizeB64(plaintextContents)));
+                pdfjsframe.contentWindow.PDFViewerApplication.open(dataURIToUInt8Array(sanitizeB64(plaintextContents)));
             }
             resolve();
         };
@@ -376,7 +376,7 @@ async function displayEPUBFile(doc, plaintextContents) {
         if (did.endsWith("-v3")) { 
             epubBlob = uInt8ArrayToBlob(plaintextContents,"application/epub+zip");
         } else {
-            epubBlob = uInt8ArrayToBlob(convertDataURIToBinary(sanitizeB64(plaintextContents)),"application/epub+zip");
+            epubBlob = uInt8ArrayToBlob(dataURIToUInt8Array(sanitizeB64(plaintextContents)),"application/epub+zip");
         }
         
         rwindow.reader = rwindow.ePubReader(epubBlob, {

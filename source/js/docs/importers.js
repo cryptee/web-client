@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////
 
 
-var importerSupportedExtensions = ["htm", "html", "enex", "txt", "md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "markdn", "mdtxt", "mdtext", "crypteedoc","ecd","uecd"];
+var importerSupportedExtensions = ["htm", "html", "docx", "enex", "txt", "md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "markdn", "mdtxt", "mdtext", "crypteedoc", "ecd", "uecd"];
 
 
 // FOR IMPORTS, WE'LL ALWAYS FIRST CREATE A NEW COPY OF THE FILE, AND NAME IT "Original"
@@ -62,6 +62,11 @@ async function importFile(doc, fileContents, filename) {
     // ENEX FILES
     if (["enex"].includes(ext)) {
         await importENEXFile(doc, fileContents);
+    }
+
+    // DOCX FILES
+    if (["docx"].includes(ext)) {
+        await importDOCXFile(doc, fileContents);
     }
         
 
@@ -1338,3 +1343,88 @@ function prepareENEXAttachmentFromResource(x2js, noteDID, resource) {
 
 
 
+/**
+ * Imports / Converts a DOCX File to a CrypteeDoc through HTML
+ * @param {*} doc Document Object
+ * @param {*} fileContents Plaintext / Uint8Array contents of file
+ */
+async function importDOCXFile(doc, fileContents) {
+    
+    var did = doc.docid;
+
+    breadcrumb('[DOCX IMPORTER] Decoding File ' + did);
+    
+    // WE NEED DOCX FILES IN THE FORM OF A FILE, AS ARRAY BUFFER.
+    // SO DO THE NECESSARY CONVERSIONS
+    var fileArrayBuffer;
+    if (did.endsWith("-v3")) {
+        // fileContents === uInt8Array
+        var docxFile = uInt8ArrayToFile(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", docName(doc));
+        fileArrayBuffer = await readFileAs(docxFile, "arrayBuffer");
+        
+    } else {
+        // fileContents === dataURL / b64
+        fileArrayBuffer = dataURIToUInt8Array(fileContents).buffer;
+    }
+
+    breadcrumb('[DOCX IMPORTER] Converting ' + did);
+
+    var docContents;
+    try {
+        docContents = await convertDOCXToDeltas(fileArrayBuffer, did);
+    } catch (error) {
+        error.did = did;
+        handleError("[DOCX IMPORTER] Failed to convert to quill deltas", error);
+    }
+
+    if (isEmpty(docContents)) {
+        createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        return false;
+    }
+
+    breadcrumb('[DOCX IMPORTER] Making a backup of original of: ' + did);
+    
+    // seems like we could convert it, so let's make a copy, and call it "Original", users can delete this original later if they wish
+    await copyDocument(did, true);
+    
+    var savedConvertedDoc = await saveAndConvertFileToDocForImport(did, doc, docContents);
+    if (isEmpty(savedConvertedDoc)) {
+        handleError("[DOCX IMPORTER] Failed to save file/doc after conversion", {did:did});
+        createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        return false;
+    }
+
+    // now that we've got the converted doc, let's load it
+    await loadDoc(savedConvertedDoc);
+
+    createPopup(`<i>docx</i> is a 15+ year old format by Microsoft&trade;. Although Cryptee is able to convert &amp; open Word&trade; <i>docx</i> files as accurately as possible, you may still experience compatibility issues like misformatted tables or missing colors, highlights, comments etc. To prevent data-loss, Cryptee generated a copy of your original file before converting this <i>docx</i> file.`, "info");
+
+    return true;
+
+}
+
+
+/**
+ * Converts a raw docx arrayBuffer to html then to deltas, while making sure the tables format is correct, and won't break editor. In addition it tries to convert html tables to cryptee tables
+ * @param {*} arrayBuffer raw docx arrayBuffer contents
+ * @param {string} did doc id for error logging 
+ * @returns {*} delta quill delta
+ */
+async function convertDOCXToDeltas(arrayBuffer, did) {
+    
+    var convertedResult;
+    var rawHTML = ""; 
+
+    try {
+        convertedResult = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer }).then();
+        rawHTML = convertedResult.value;
+    } catch (error) {
+        error.did = did;
+        handleError("[DOCX IMPORTER] Failed to convert DOCX to HTML", error);
+    }
+
+    if (!rawHTML) { return false; }
+
+    return convertAndPurifyHTMLToDeltas(rawHTML);
+
+}

@@ -369,6 +369,7 @@ async function processEncryptAndUploadPhoto(uploadID, canvasNo) {
     var upload = uploadQueue[uploadID];
 
     // skip, because file is either too large or uses an unsupported format etc
+    if (!upload || isEmpty(upload)) { return false; }
     if (upload.status) { return false; }
 
     // skip, because already exceeded storage.
@@ -507,9 +508,16 @@ async function processEncryptAndUploadPhoto(uploadID, canvasNo) {
     photos[uploadID] = photoMeta;
     photos[uploadID].decryptedTitle = upload.plaintextName;
 
-    photos[uploadID].aid = aid;
-    albums[aid].photos = albums[aid].photos || [];
-    albums[aid].photos.push(uploadID);   
+    try {
+        photos[uploadID].aid = aid;
+        albums[aid].photos = albums[aid].photos || [];
+        albums[aid].photos.push(uploadID);   
+    } catch (error) {
+        // for some reason, sometimes, rarely, albums[aid] may be undefined, although album was created. 
+        // still investigating what may cause this...
+        handleError("[UPLOAD] Upload completed, but couldn't add photo to virtual album", error, "warning");
+        createPopup("Unfortunately there was a problem adding and displaying the photos you've uploaded in an album. We recommend reloading this page and this issue should be resolved. Rarely, ad-blockers / content-blockers may cause issues like these during uploads.","error");
+    }
 
     $("#upload-" + uploadID).attr("status", "done");
 

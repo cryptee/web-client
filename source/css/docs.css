@@ -502,7 +502,6 @@ LEFT MENU
     opacity: 0;
     z-index: 2;
     pointer-events: none;
-    will-change: opacity;
 }
 
 #sliderCaret::after {

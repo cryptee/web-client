@@ -528,11 +528,22 @@ function blobToFile(blob, filename) {
 
 /**
  * Creates a blob using a uInt8Array & mimetype
- * @param {*} buffer 
+ * @param {*} uInt8Array 
  * @param {*} mimetype
  */
-function uInt8ArrayToBlob(buffer, mimetype) {
-  return new Blob([buffer], {type : mimetype});
+function uInt8ArrayToBlob(uInt8Array, mimetype) {
+  return new Blob([uInt8Array], {type : mimetype});
+}
+
+
+
+/**
+ * Creates a File using a uInt8Array & mimetype
+ * @param {*} uInt8Array 
+ * @param {*} mimetype
+ */
+function uInt8ArrayToFile(uInt8Array, mimetype, filename) {
+  return blobToFile(new Blob([uInt8Array], {type : mimetype}), filename);
 }
 
 
@@ -635,7 +646,7 @@ function decodeUint8Array(uint8Array) {
  * @param {string} dataURI
  * @returns {*} UINT8ARRAY
  */
-function convertDataURIToBinary(dataURI) {
+function dataURIToUInt8Array(dataURI) {
   var b64Marker = ';base64,';
   var base64Index = dataURI.indexOf(b64Marker) + b64Marker.length;
   var base64 = dataURI.substring(base64Index);

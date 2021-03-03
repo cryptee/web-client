@@ -141,6 +141,17 @@ LISTS, CHECKBOXES ETC
 }
 
 
+/* to make sure text is indented correctly*/
+.ql-editor ul li:not(.ql-direction-rtl),
+.ql-editor ol li:not(.ql-direction-rtl) {
+    padding-left: 2rem;
+}
+
+/* to make sure text is indented correctly*/
+.ql-editor ul li.ql-direction-rtl,
+.ql-editor ol li.ql-direction-rtl {
+    padding-right: 2rem;
+}
 
 
 
@@ -177,7 +188,17 @@ BULLETS
 .ql-editor ul li.ql-indent-2::before { content: '\25A0'; }
 .ql-editor ul li.ql-indent-3::before { content: '\25CF'; }
 
+/* to make sure text is indented correctly */
+.ql-editor ul li:not(.ql-direction-rtl)::before {
+    margin-left: -2.375rem;
+    float: left;
+}
 
+/* to make sure text is indented correctly */
+.ql-editor ul li.ql-direction-rtl::before {
+    margin-right: -2.375rem;
+    float: right;
+}
 
 
 
@@ -189,9 +210,6 @@ CHECKBOXES
 --------------------------------
 ----------------------------- */
 
-.ql-editor ul[data-checked] li {
-    padding-left: 0rem;
-}
 
 .ql-editor ul[data-checked] li::before { 
     font-family: 'remixicon' !important;
@@ -217,6 +235,17 @@ CHECKBOXES
 }
 
 
+/* to make sure text is indented correctly */
+.ql-editor ul[data-checked] li:not(.ql-direction-rtl)::before {
+    float: left;
+    margin-left: -2rem;
+}
+
+/* to make sure text is indented correctly */
+.ql-editor ul[data-checked] li.ql-direction-rtl::before {
+    float: right;
+    margin-right: -2rem;
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -236,9 +265,17 @@ ORDERED LISTS
     vertical-align: middle;
 }
 
+/* to make sure text is indented correctly */
+.ql-editor ol li:not(.ql-direction-rtl)::before {
+    float: left;
+    margin-left: -2rem;
+}
 
-
-
+/* to make sure text is indented correctly */
+.ql-editor ol li.ql-direction-rtl::before {
+    float: right;
+    margin-right: -2rem;
+}
 
 
 /* -----------------------------
