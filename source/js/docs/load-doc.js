@@ -180,6 +180,11 @@ async function loadedDocPrepareEditor(doc, did, docContents, connection, forceSa
     quill.root.spellcheck = false;
     $("#spellCheckerButton").removeClass("on");
 
+    // clear editor to avoid a large diff compute time
+    // https://github.com/quilljs/quill/issues/1537
+    // https://github.com/cryptee/web-client/issues/102
+    quill.setContents("");
+    
     // add delta into the editor. 
     try {
         quill.setContents(docContents);

@@ -119,6 +119,8 @@ main br.m { line-height: 8rem; }
 main br.l { line-height: 12rem; }
 
 hr { border: 1px solid #000; }
+h2.balanced { margin-top: 0.5rem; }
+h2.balanced.spaced { margin-bottom: 4rem; }
 
 /* GRID FOR QUARTERS */
 
