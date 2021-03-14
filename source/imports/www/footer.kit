@@ -11,7 +11,7 @@
                     <img src="../assets/logo-w.svg" alt="CRYPTEE">
                 </a>
                 <div>
-                    <h3><a href="/">CRYPTEE</a></h3>
+                    <h1><a href="/">CRYPTEE</a></h1>
                     <small>info @ crypt <strong>&middot;</strong> ee</small>
                 </div>
             </div>
@@ -115,6 +115,10 @@
         [].forEach.call(document.querySelectorAll('img[lazysrc]'), function(img) {
             img.setAttribute('src', img.getAttribute('lazysrc'));
             img.onload = function() { img.removeAttribute('lazysrc'); };
+        });
+
+        [].forEach.call(document.querySelectorAll('.hero-img-carousel'), function(carousel) {
+            carousel.setAttribute('loaded', 'true');
         });
     }, false);
 

@@ -105,8 +105,7 @@ self.addEventListener('install', (event) => {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-async function handleFetch (event) {
-
+function isCacheBypassRequired(event) {
     var reqURL = new URL(event.request.url);
 
     //
@@ -124,8 +123,8 @@ async function handleFetch (event) {
     }
 
     // straight bypass, get from network, don't cache results
-    if (bypassForNetwork) { return respondFromNetwork(event); }
-    
+    if (bypassForNetwork) { return true; }
+
     // if we made it here, we know the file should be cached, and isn't on an exclusion list.
     // now let's check to see if the domain is correct. for this, we'll need to invert the network bypass logic. 
     bypassForNetwork = true;
@@ -143,10 +142,22 @@ async function handleFetch (event) {
     // get straight from network and don't cache results. 
     if (bypassForNetwork) { 
         console.log("[WORKER] BYPASS:", reqURL.pathname, "(Host un-cacheable)", reqURL.hostname);
-        return respondFromNetwork(event); 
+        return true; 
     }
 
     // finally if we're on a cache-supported hostname & file isn't on an exclusion list, 
+    // we'll go ahead and serve stuff from the cache. 
+
+    return false;
+
+}
+
+async function handleFetch (event) {
+
+    // we're on a cache-supported hostname & file isn't on an exclusion list, 
+    // so we'll serve using the worker fetch & cache. 
+
+    var reqURL = new URL(event.request.url);
 
     // get the cache
     var cache = await openCache();
@@ -261,7 +272,12 @@ self.addEventListener('fetch', (event) => {
     // XHR requests can check progress, but fetch can't. 
     // so if you 'fetch' POST requests using the service worker, you can't keep track of the upload progress in axios.
     if (event.request.method === 'POST') { return; }
+
+    // check to see if we need to bypass the cache for other reasons. 
+    // i.e. un-cacheable hostname or path etc. 
+    if (isCacheBypassRequired(event)) { return; }
     
+    // finally, use the worker / cache to serve
     event.respondWith( handleFetch(event) ); 
 });
 

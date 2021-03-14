@@ -662,7 +662,7 @@ async function uploadQueueFinished(targetFID, embed) {
     if (!issues) {
         uploadQueueOrder.forEach(did => { $("#upload-" + did).remove(); });
     } else {
-        createPopup(`Failed to encrypt/upload some of your file(s).<br><button class="white bold" onclick="$('#panel-uploads').empty();  hideAllPopups();">okay</button>`, "error");
+        createPopup(`Failed to encrypt/upload some of your file(s).<br><button class="white bold" onclick="$(this).parents('.popup').removeClass('minimizable'); $('#panel-uploads').empty();  hideAllPopups(); ">okay</button>`, "error", "", true);
     }
 
     uploadQueue = {};

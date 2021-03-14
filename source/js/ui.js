@@ -99,15 +99,24 @@ function showPopup(popupID, message, type) {
  * @param {String} message can be anything you want to show in popup 
  * @param {('info'|'error'|'warning'|'success'|'dark')} type can be info, error, warning or success
  * @param {string} [creationID] an optional ID to refer to this dynamically created popup 
+ * @param {boolean} [persist] optionally, make this popup persist?
  */
-function createPopup(message, type, creationID) {
+function createPopup(message, type, creationID, persist) {
     type = type || ""; // info, error, warning, success 
     message = message || "";
-
+    persist = persist || false;
     creationID = creationID || (new Date()).getTime();
+
+    var persistent = "";
+    var closeButton = '<button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button>';
+    if (persist) { 
+        persistent = "minimizable persistent"; 
+        closeButton = `<button class="minimize"><img src="../assets/dash.svg" alt="minimize" title="minimize/maximize message"></button>`;
+    }
+
     var popup = `
-    <div class="popup ${type} corner created" id="popup-${creationID}">
-        <button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button>
+    <div class="popup ${type} corner created ${persistent}" id="popup-${creationID}">
+        ${closeButton}
         <p class="message justify">${message}</p>
     </div>`;
 

@@ -1922,7 +1922,7 @@ function prepareActiveDocumentFilePanel(did, doc) {
 function prepareActiveDocumentToolsPanel(did, doc) {
     
     // locked 
-    $("#lockEditsButton").toggleClass("on", doc.islocked);
+    $("#lockEditsButton").toggleClass("on", (doc.islocked || false));
 
     // reset viewing mode
     $("#viewingModeButton").removeClass("on");
@@ -1984,10 +1984,10 @@ async function attachSelectedFileInline(did) {
 
     var name = await getDocNameFromCatalog(did);
 
-    var attachmentTag = `<p><br></p><crypteefile did='${did}' filetitle='${name}'></crypteefile><p><br></p>`;
+    var attachmentTag = `<p><br></p><crypteefile did='${did}'></crypteefile><p><br></p>`;
     quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, attachmentTag, "api");
     quill.setSelection(getLastSelectionRange().index + 2, "silent");
-
+    $(`crypteefile[did="${did}"]`).attr("filetitle", name);
     hideRightClickDropdowns();
     hidePanels();
 }

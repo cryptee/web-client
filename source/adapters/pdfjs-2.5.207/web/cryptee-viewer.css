@@ -137,6 +137,7 @@ nav input {
 
 nav select {
     width: 3.75rem;
+    max-width: 4.125rem !important;
     margin-top: 1.25rem !important;
     color: white;
     text-indent: 0;
@@ -151,6 +152,7 @@ button.toggled {
 }
 
 #scaleSelectContainer { 
+    max-width: 4.125rem !important;
     margin-right: 0.75rem;
 }
 

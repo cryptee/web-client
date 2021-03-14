@@ -383,10 +383,13 @@ async function getDownloadAuth(filename) {
  * 
  * @param {string} filename The full name of the file to download (i.e. 12345.crypteedoc )
  * @param {string} [token] An optional download token, if not provided, we'll make a getDownloadAuth request to get it.
+ * @param {boolean} [useStreamingDownload] Optionally, use the streaming download API (if the file is too large, and would need to be JSON parsed on client instead of server)
  * @returns {Promise<string>} ciphertext The Encrypted contents of the downloaded file
  */
-async function downloadFile(filename, token) {
+async function downloadFile(filename, token, useStreamingDownload) {
     
+    useStreamingDownload = useStreamingDownload || false;
+
     if (!filename) {
         handleError("[DOWNLOAD] Failed to download, filename is missing!");
         return false;
@@ -422,17 +425,19 @@ async function downloadFile(filename, token) {
     // if we still couldn't get the token, abort sooner, since the next call will fail without a token
     if (!token) { return false; }
 
-    var fileDownload;
+    var streamingDownload = "0";
+    if (useStreamingDownload) { streamingDownload = "1"; }
 
     var downloadURL = apiROOT + "/api/download";
 
-    // breadcrumb("[DOWNLOAD] Downloading " + filename);
+    var fileDownload;
 
     try {
         fileDownload = await axios({
             method: "get",
             url: downloadURL,
             params: {
+                s: streamingDownload,
                 u: theUserID,
                 f: filename,
                 t: token,
@@ -450,18 +455,32 @@ async function downloadFile(filename, token) {
         } else {
             if (error.code !== "ECONNABORTED") {
                 error.filename = filename;
+                fileDownload = error.request;
                 handleError("[DOWNLOAD] Failed to download!", error);
             }
-            return false;
         }
     }
 
+    // main API had an emotional breakdown, because file is too large to json parse.
+    // stream the file down, and parse it here instead.
+
+    if (fileDownload.status === 422) {
+        handleError("[DOWNLOAD] Download failed with status: 422", { filename : filename }, "warning");
+        breadcrumb("[DOWNLOAD] Will try stream-downloading and parsing here instead");
+        return await downloadFile(filename, token, true); // true to use streaming download.
+    }
+
     if (fileDownload.status !== 200) {
-        handleError("[DOWNLOAD] Download failed with status: " + fileDownload.status, {
-            filename : filename
-        }, "warning");
+        handleError("[DOWNLOAD] Download failed with status: " + fileDownload.status, { filename : filename }, "warning");
         return false;
     } 
+
+    // if the file is too large, we'll terminate the regular download, and instead download the file using the streaming downloader.
+    // this means the response will need to be JSON parsed on client, here.
+    // because the response type is json, axios will do the parsing, so as hilarious as it sounds like, you just need to return data.data
+    if (useStreamingDownload) {
+        return fileDownload.data.data;
+    }
 
     delete ongoingDownloads[downloadID];
 

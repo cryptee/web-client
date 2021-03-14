@@ -837,7 +837,7 @@ DOCUMENTS & SUBFOLDERS
     display: inline-block;
     min-width: 11rem;
     max-width: 11rem;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
 }
 
 .doc .more ,
@@ -1467,7 +1467,7 @@ button[id^="panel-button"].active i { opacity: 1 !important; }
 button[id^="panel-button"].active i::before { content: "\EB98"; }
 
 .panel button {
-    margin-top: 0;
+    margin: 0;
     grid-column: span 3;
     height: 3rem;
     padding-right: 1.25rem;
@@ -2541,6 +2541,10 @@ body.viewing-doc #progress {
 body.viewing-doc #desktopToolbar { 
     opacity: 0 !important; 
     pointer-events: none !important;
+}
+
+body.viewing-doc #documentActionButtons {
+    overflow: visible;
 }
 
 body.viewing-doc #documentActionButtons #panel-button-doctools {
