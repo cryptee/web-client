@@ -480,6 +480,12 @@ async function upgrade() {
         return false;
     }
 
+    // payment failed – stripe couldn't process payment
+    if (checkoutResponse === "stripe-error") {
+        processingError("stripe-error");
+        return false;
+    }
+
     // STEP 6 – CHECKOUT ALMOST COMPLETE. CHECK IF USER NEEDS TO DO A 3DS AUTH 
 
     var threeDSecureSuceeded = false;
@@ -551,8 +557,10 @@ function processingError(type) {
         handleError("[UPGRADE] Unrecognized Location Error");
         createPopup("Looks like we're having difficulty determining your location for tax compliance purposes. Often this happens if you're using a VPN pointing to a different country than your payment card's issue country. Please temporarily turn off your VPN or TOR, then try again. thank you for your understanding.", "warning");
     } else {
-        handleError("[UPGRADE] Payment Processing Error: " + type, {}, "fatal");
-        createPopup("Looks like we're having difficulty processing your payment. Chances are this is a connectivity issue. Your browser or ad-blocker may be blocking connections to our payments processor <i>Stripe</i>. Please check your internet connection, unblock connections to <i>Stripe</i> from your ad-blocker and try again.", "error");
+        type = type || "";
+        if (type) { type = "(" + type + ")"; }
+        handleError(`[UPGRADE] Payment Processing Error ${type}`, {}, "fatal");
+        createPopup("<strong>Failed to process your payment.</strong> Your card may be declined, or your ad-blocker may be blocking connections to Cryptee's payments processor <i>Stripe</i>. Please make sure you have enough funds on your card, double-check your payment information, unblock/allow connections to <i>Stripe</i> from your ad-blocker, check your internet connection and try again.", "error");
     }
 }
 
