@@ -567,6 +567,14 @@ async function checkConnection() {
     
     $("body").removeClass("offline");
     retriedCheckConnection = 0;
+
+    if (location.pathname === "/docs") {
+        if (startedOffline) { 
+            breadcrumb("[CONNECTIVITY] Switching to online mode");
+            startOnline(); 
+        }
+    }
+
     return true;
     
   }

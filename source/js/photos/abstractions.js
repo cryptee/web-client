@@ -692,7 +692,7 @@ function drawTimeline(sort) {
     if (sort.endsWith("desc")) { sortOrder = "desc"; }
 
     var whatToUse = analyzeTimelineObject(sort);
-    var timelineInUse = timelineObject[whatToUse];
+    var timelineInUse = timelineObject[whatToUse] || {};
     var timelineLabels = Object.keys(timelineInUse);
     var labels;
 

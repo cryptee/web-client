@@ -4,7 +4,7 @@
   "description": "Cryptee is a safe, encrypted place to write personal documents, store photos privately and more.",
   "icons": [
     {
-      "src": "../assets/maskable-logo.png",
+      "src": "../assets/masked-logo.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose" : "any"
@@ -16,7 +16,7 @@
       "purpose" : "maskable"
     },
     {
-      "src": "../assets/maskable-logo.png",
+      "src": "../assets/masked-logo.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose" : "any"
