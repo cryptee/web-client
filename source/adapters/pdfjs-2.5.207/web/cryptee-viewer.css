@@ -143,6 +143,8 @@ nav select {
     text-indent: 0;
 }
 
+option { color : initial; }
+
 #sidebarToggle.toggled i::before {
     content: "\EC13";
 }

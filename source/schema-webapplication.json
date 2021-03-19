@@ -1,0 +1,62 @@
+{
+    "@context": "http://schema.org",
+    "@id": "https://crypt.ee/#webapplication",
+    "@type": "WebApplication",
+    "name": "Cryptee",
+    "description": "Cryptee is a safe, encrypted place to write personal documents, privately store photos and more.",
+    "applicationCategory": "BusinessApplication",
+    "url": "https://crypt.ee/download",
+    "downloadURL": "https://crypt.ee/download",
+    "installURL": "https://crypt.ee/download",
+    "featureList": "Encrypted Documents, Personal Documents, Encrypted Photos, Private Photos, Photo Storage, Cloud Photo Storage, Private Photo Gallery, Encrypted Notes, Private Notes, Encrypted Storage, Zero-Knowledge Cloud Storage, Privacy, Security, Safety, Anonymity, Secure File Storage, Encrypted File Storage, Encrypted PDF, EPUB Reader, EBook Reader, Encryption, Deniability",
+    "about": {
+        "description": "Cryptee is a safe, encrypted place to write personal documents, privately store photos and more."
+    },
+    "softwareVersion": "3.0.0",
+    "operatingSystem": "All",
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "ratingCount": "2383"
+    },
+    "offers": {
+        "@type": "AggregateOffer",
+        "highPrice": "27",
+        "lowPrice": "0",
+        "offerCount": "4",
+        "priceCurrency": "EUR",
+        "offers": [{
+                "@type": "Offer",
+                "url": "https://crypt.ee/#pricing",
+                "price": "0.00",
+                "priceCurrency": "EUR"
+            },
+            {
+                "@type": "Offer",
+                "url": "https://crypt.ee/#pricing",
+                "price": "3.00",
+                "priceCurrency": "EUR"
+            },
+            {
+                "@type": "Offer",
+                "url": "https://crypt.ee/#pricing",
+                "price": "9.00",
+                "priceCurrency": "EUR"
+            },
+            {
+                "@type": "Offer",
+                "url": "https://crypt.ee/#pricing",
+                "price": "27.00",
+                "priceCurrency": "EUR"
+            }
+        ]
+    },
+    "publisher": {
+        "@context": "http://schema.org/",
+        "@id": "https://crypt.ee/#corporation",
+        "@type": "Corporation",
+        "name": "Cryptee",
+        "url": "https://crypt.ee",
+        "logo": "https://crypt.ee/assets/logo-b.png"
+    }
+}

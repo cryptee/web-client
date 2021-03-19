@@ -913,8 +913,11 @@ MEDIA QUERIES
 
 }
 
-
-
+@media (max-width: 348px) {
+    .hidden-tiny {
+        display: none;
+    }
+}
 
 
 /* -----------------------------

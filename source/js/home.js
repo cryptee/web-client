@@ -67,11 +67,11 @@ key('a', function () {
 });
 
 key('d', function () {
-    $("#docsButton > a").trigger("click");
+    $(".appButton[app='docs'] > a").trigger("click");
     return false;
 });
 
 key('p', function () {
-    $("#photosButton > a").trigger("click");
+    $(".appButton[app='photos'] > a").trigger("click");
     return false;
 });

@@ -1,0 +1,121 @@
+{
+    "@context": "http://schema.org/",
+    "@id": "https://crypt.ee/#corporation",
+    "@type": "Corporation",
+    "name": "Cryptee",
+    "legalName": "Cryptee",
+    "description": "Cryptee, is an Estonian software & technology company founded in 2018 by John Ozbay. Its mission is 'to develop open-source privacy technology that provides a safe and encrypted place to write personal documents, store private photos and more.'",
+    "url": "https://crypt.ee/",
+    "logo": "https://crypt.ee/assets/logo-b.png",
+    "address": {
+        "@type": "PostalAddress",
+        "name": "Cryptee",
+        "addressCountry": "Estonia",
+        "addressLocality": "Tallinn",
+        "addressRegion": "Harjumaa",
+        "streetAddress": "Svartlab OÜ, Narva mnt 5",
+        "postalCode": "10117"
+    },
+    "email": "info@crypt.ee",
+    "foundingDate": "2018-06-01",
+    "sameAs": [
+        "https://crypt.ee/#corporation",
+        "https://blog.crypt.ee",
+        "https://github.com/cryptee",
+        "https://appsco.pe/app/cryptee",
+        "https://angel.co/company/cryptee",
+        "https://www.crunchbase.com/organization/cryptee",
+        "https://alternativeto.net/software/cryptee/about/",
+        "https://www.youtube.com/channel/UCh8eIgzSclyjSxQ8ObSYcKw",
+        "https://workers.cloudflare.com/built-with/projects/cryptee",
+        "https://www.producthunt.com/posts/cryptee-2",
+        "https://johnozbay.com/cryptee",
+        "https://medium.com/crypt-ee"
+    ],
+    "owns": [
+        {
+            "@context": "http://schema.org",
+            "@id": "https://crypt.ee/#webapplication",
+            "@type": "WebApplication",
+            "name": "Cryptee",
+            "description": "Cryptee is a safe, encrypted place to write personal documents, privately store photos and more.",
+            "applicationCategory": "BusinessApplication",
+            "url": "https://crypt.ee/download",
+            "downloadURL": "https://crypt.ee/download",
+            "installURL": "https://crypt.ee/download",
+            "featureList": "Encrypted Documents, Personal Documents, Encrypted Photos, Private Photos, Photo Storage, Cloud Photo Storage, Private Photo Gallery, Encrypted Notes, Private Notes, Encrypted Storage, Zero-Knowledge Cloud Storage, Privacy, Security, Safety, Anonymity, Secure File Storage, Encrypted File Storage, Encrypted PDF, EPUB Reader, EBook Reader, Encryption, Deniability",
+            "about": {
+                "description": "Cryptee is a safe, encrypted place to write personal documents, privately store photos and more."
+            },
+            "softwareVersion": "3.0.0",
+            "operatingSystem": "All",
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "5.0",
+                "ratingCount": "2383"
+            },
+            "offers": {
+                "@type": "AggregateOffer",
+                "highPrice": "27",
+                "lowPrice": "0",
+                "offerCount": "4",
+                "priceCurrency": "EUR",
+                "offers": [{
+                        "@type": "Offer",
+                        "url": "https://crypt.ee/#pricing",
+                        "price": "0.00",
+                        "priceCurrency": "EUR"
+                    },
+                    {
+                        "@type": "Offer",
+                        "url": "https://crypt.ee/#pricing",
+                        "price": "3.00",
+                        "priceCurrency": "EUR"
+                    },
+                    {
+                        "@type": "Offer",
+                        "url": "https://crypt.ee/#pricing",
+                        "price": "9.00",
+                        "priceCurrency": "EUR"
+                    },
+                    {
+                        "@type": "Offer",
+                        "url": "https://crypt.ee/#pricing",
+                        "price": "27.00",
+                        "priceCurrency": "EUR"
+                    }
+                ]
+            },
+            "publisher": {
+                "@context": "http://schema.org/",
+                "@id": "https://crypt.ee/#corporation",
+                "@type": "Corporation",
+                "name": "Cryptee",
+                "url": "https://crypt.ee",
+                "logo": "https://crypt.ee/assets/logo-b.png"
+            }
+        }
+    ],
+    "founders": [{
+        "@type": "Person",
+        "@id": "https://musicbrainz.org/artist/10c5c8eb-269c-4f54-aadf-f2b0bf00c542",
+        "url": "https://johnozbay.com",
+        "name": "John Ozbay",
+        "sameAs": [
+            "https://johnozbay.com",
+            "https://musicbrainz.org/artist/10c5c8eb-269c-4f54-aadf-f2b0bf00c542",
+            "https://www.crunchbase.com/person/john-ozbay",
+            "https://music.youtube.com/channel/UCI8QapoVJKcf2xVCuWqiscA",
+            "https://open.spotify.com/artist/4QGD7gprTIdWcIIKW6lXtI",
+            "https://music.apple.com/us/artist/john-ozbay/712837781",
+            "https://www.shazam.com/artist/43664898/john-ozbay",
+            "https://en.wikipedia.org/wiki/User:Johnozbay",
+            "https://en.wikipedia.org/wiki/John_Ozbay",
+            "https://napster.com/artist/john-ozbay",
+            "https://www.last.fm/music/John+Ozbay",
+            "https://www.imdb.com/name/nm8710667",
+            "https://twitter.com/johnozbay",
+            "https://github.com/johnozbay"
+        ]
+    }]
+}
