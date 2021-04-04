@@ -840,7 +840,7 @@ MEDIA QUERIES
     }
 
     .hero-img-carousel {
-        height: 18rem;
+        height: 18rem !important;
     }
     
     .grid-quarter {
