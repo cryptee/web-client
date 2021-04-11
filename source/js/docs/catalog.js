@@ -1171,8 +1171,10 @@ async function decryptTitle(id) {
             handleError("[DECRYPT TITLE] Decrypted title object is empty.", {id:id});
         }
         
-        if (!plaintextTitle.data) {
-            handleError("[DECRYPT TITLE] Decrypted title data is empty.", {id:id});
+        if (plaintextTitle) {
+            if (!plaintextTitle.data) {
+                handleError("[DECRYPT TITLE] Decrypted title data is empty.", {id:id});
+            }
         }
     }
 

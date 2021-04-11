@@ -54,7 +54,7 @@ function hideKeyModal() {
 ////////////////////////////////////////////////
 
 var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUserPlan, thePaymentProcessor, loginMethod, keycheck;
-var isPaidUser, usedStorage, allowedStorage, remainingStorage;
+var usedStorage, allowedStorage, remainingStorage;
 var paddleCancelURL, paddleUpdateURL;
 
 /**
@@ -719,6 +719,8 @@ function plansUpdated() {
     if (theUserPlan && theUserPlan !== "free") { 
         $("#upgrade").hide(); 
         
+        $(".appButton[app='upgrade']").hide(); 
+
         $(".for-paid-users").show();
         $(".for-free-users").hide();
 
@@ -727,6 +729,8 @@ function plansUpdated() {
     } else {
         $("#upgrade").show(); 
         
+        $(".appButton[app='upgrade']").show(); 
+
         $(".for-paid-users").hide();
         $(".for-free-users").show();
 

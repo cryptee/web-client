@@ -4,7 +4,14 @@
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
+var newSignup = false;
+try { newSignup = sessionStorage.getItem("newsignup"); } catch (e) {}
 
+if (newSignup) {     
+    firstTimeHome(); 
+} else {
+    secondTimeHome();
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -14,12 +21,6 @@
 
 authenticate(function(user){
     // LOGGED IN    
-
-    var newSignup = sessionStorage.getItem("newsignup");
-    if (newSignup) {
-        firstTimeHome(user);
-    }
-
 }, function(){
     // NOT LOGGED IN
     location.href = "/login";
@@ -36,19 +37,30 @@ authenticate(function(user){
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-//	FIRST TIME HOME
+//	FIRST TIME HOME / SECOND TIME HOME ETC...
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
 
 /**
- * Runs all the errands for a first time user ... i.e. get a freshly minted token that can write etc. 
- * @param {*} user 
+ * Runs all the errands for a first time user ...
  */
-function firstTimeHome(user) {
-    
+function firstTimeHome() {
+
 }
 
+
+/**
+ * Runs all the errands for a continued user ... i.e. show upgrade button
+ */
+function secondTimeHome() {
+
+    if (!theUserPlan || theUserPlan === "free") { 
+        // show upgrade button for continued users
+        $(".appButton[app='upgrade']").show();  
+    }
+
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////

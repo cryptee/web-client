@@ -729,9 +729,9 @@ function drawTimeline(sort) {
 function analyzeTimelineObject(sort) {
     var whatToUse;
     if (sort.startsWith("date")) {
-        var years = Object.keys(timelineObject.years);
-        var months = Object.keys(timelineObject.months);
-        var days = Object.keys(timelineObject.days);
+        var years =  Object.keys((timelineObject.years || {}));
+        var months = Object.keys((timelineObject.months || {}));
+        var days =   Object.keys((timelineObject.days || {}));
         if (years.length <= 1) {
             // all from same year.
 
@@ -831,7 +831,7 @@ function renderTimelineLabel(label, whatToUse) {
 
     } else if (whatToUse === "monthsAndDays") {
 
-        year = Object.keys(timelineObject.years)[0]; // all months have same year. 
+        year = Object.keys((timelineObject.years || {}))[0]; // all months have same year. 
         month = label.split(":")[0];
         day = label.split(":")[1];
         monthName = monthsShort[parseInt(month)];
@@ -850,13 +850,13 @@ function renderTimelineLabel(label, whatToUse) {
 
     } else if (whatToUse === "months") {
 
-        year = Object.keys(timelineObject.years)[0]; // all months have same year. 
+        year = Object.keys((timelineObject.years || {}))[0]; // all months have same year. 
         monthName = monthsShort[parseInt(label)];
         labelElement = `<small class='loading' goto='${year}${label}' id='tl-label-${year}${label}'>${monthName}</small>`;
 
     } else if (whatToUse === "days") {
 
-        month = Object.keys(timelineObject.months)[0]; // all days have same month.
+        month = Object.keys((timelineObject.months || {}))[0]; // all days have same month.
         monthName = monthsShort[parseInt(month)];
         labelElement = `<small class='loading' goto='day-${label}' id='tl-label-${label}'>${monthName} ${label}</small>`;
 
@@ -1213,7 +1213,10 @@ async function downloadAndSavePhoto(pid) {
         return false;
     }
 
-    var title = photos[pid].decryptedTitle || "Untitled.jpg";
+    var title = "Untitled.jpg"; 
+    if (!isEmpty(photos[pid])) {
+        title = photos[pid].decryptedTitle || "Untitled.jpg";
+    }
 
     try {
         if (pid.endsWith("-v3")) {

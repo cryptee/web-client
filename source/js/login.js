@@ -165,8 +165,8 @@ function loginWithPassword(email, pswrd) {
 }
 
 function disableGoogleButtonIfNecessary() {
-    var pswrd = $("#pswrd").val().trim();
-    var email = $("#email").val().trim();
+    var pswrd = ($("#pswrd").val() || "").trim();
+    var email = ($("#email").val() || "").trim();
 
     if (email || pswrd) { 
         $("#g").prop('disabled', true); 

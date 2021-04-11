@@ -569,10 +569,12 @@ async function checkConnection() {
     retriedCheckConnection = 0;
 
     if (location.pathname === "/docs") {
-        if (startedOffline) { 
-            breadcrumb("[CONNECTIVITY] Switching to online mode");
-            startOnline(); 
-        }
+        try {
+            if (startedOffline) { 
+                breadcrumb("[CONNECTIVITY] Switching to online mode");
+                startOnline(); 
+            }
+        } catch (e) {}
     }
 
     return true;

@@ -59,7 +59,7 @@ function scrollToItem(id) {
 
 function setupIntersectionObserver (el) {
     var hasObserver = $(el).hasClass("obsrv");
-    if (!hasObserver) {
+    if (!hasObserver && observer) {
         observer.observe(el);
         $(el).addClass("obsrv");
     }
@@ -75,7 +75,19 @@ if (useHighResThumbnails || isTouch) {
     intersectionObserverConfig.rootMargin = "256px 0px 256px 0px"; 
 }
 
-var observer = new IntersectionObserver(onEntryAndExit, intersectionObserverConfig);
+var observer; 
+try {
+    observer = new IntersectionObserver(onEntryAndExit, intersectionObserverConfig);
+} catch (e) {}
+
+if (observer) {
+    setSentryTag("intersection-observer", true);
+    breadcrumb('[INTERSECTION OBSERVER] Supported.');
+} else {
+    setSentryTag("intersection-observer", false);
+    breadcrumb("[INTERSECTION OBSERVER] Unsupported! Thumbnails won't work.");
+    createPopup("Looks like your browser's lacking a feature required for Cryptee Photos to work. Chances are either your browser is configured to block access to IntersectionObserver(s) or your device is too old, and this browser doesn't support the feature. Please disable your content-blockers, try again and or update your device or browser if this issue continues.", "error");
+}
 
 
 

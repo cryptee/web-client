@@ -34,7 +34,7 @@ main {
     background-color: #FFF;
 
     display: grid;
-    grid-template-rows: 3rem 3rem 3rem 1fr 2rem 4rem;
+    grid-template-rows: 3rem 3rem 3rem 3rem 1fr 2rem 4rem;
     grid-template-columns: 4rem minmax(12rem, 16rem);
     padding-top: 1rem;
 
@@ -147,9 +147,6 @@ nav {
     transition: 0.15s opacity linear;
     display: none;
 }
-
-
-
 
 
 /* -----------------------------
