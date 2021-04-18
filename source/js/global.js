@@ -318,6 +318,19 @@ function parseSlug(string) {
   return string.replace(/-/g, " ").replace(".html", "");
 }
 
+/**
+ * Extracts hashtags from a given string. (i.e. "we went to #paris for a #business-trip" etc...)
+ * @param {string} string 
+ * @returns {array} array of hashtags
+ */
+function extractHashtags(string) {
+  // sort tags based on tag-length. here's why. 
+  // if you write "#paris #paris2019", paris will replace the tag with <i>paris</i> <i>paris</i>2019, making "2019" get ignored in the highlighter
+  // if you start from the longest tag, this won't be a problem
+  string = string.toLowerCase();
+  return (string.match(/#[A-Za-z0-9]*/g) || []).sort(function(a, b){ return b.length - a.length; });
+}
+
 
 /**
  * 
@@ -1302,7 +1315,41 @@ function generateStrongKey() {
 }
 
 
+/** 
+ * Computes and returns and HMAC signature of a string, with the given key. (Uses SHA-256 and native WebCrypto).
+ * @param {String} string 
+ * @param {String} keyToUse 
+ * @returns {Promise<String>} signature HMAC Signature
+ */
+async function hmacString(string, keyToUse) {
 
+  try {
+  
+    var enc = new TextEncoder("utf-8");
+  
+    var hmacKey = await window.crypto.subtle.importKey( 
+      "raw", // format of the key = raw, (should be Uint8Array)
+      enc.encode(keyToUse), 
+      { name: "HMAC", hash: { name: "SHA-256" } },
+      false, // not going to export, so false
+      ["sign", "verify"] // what key should be able to do
+    );
+  
+    var signature = await window.crypto.subtle.sign( 
+      "HMAC", 
+      hmacKey, 
+      enc.encode(string)
+    );
+  
+    return Array.prototype.map.call(new Uint8Array(signature), x => ('00' + x.toString(16)).slice(-2)).join("");
+  
+  } catch (error) {
+
+    throw new Error(error);
+  
+  }
+
+}
 
 
 

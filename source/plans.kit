@@ -21,7 +21,7 @@
         <img src="../assets/logo-b.svg" alt="CRYPTEE">
     </a>
 
-    <p id="pick">pick a plan</p>
+    <p id="select">select a plan</p>
 
     <div id="period" period="mo">
         <button period="yr" >yearly</button>
@@ -30,61 +30,67 @@
     </div>
 
     <div class="plan" plan="10GB">
-        <span>
-            <h1 class="storage">10</h1>
-            <span>GB</span>
-        </span>
+        <div class="plancard">
+            <span class="capacity">
+                <h2 class="storage">10</h2>
+                <span class="gray">GB</span>
+            </span>
+    
+            <p class="description gray">
+                great for light document editing &amp; attaching files
+            </p>
+            
+            <div class="prices">
+                <h2 class="price" mo="3" yr="3"></h2>
+                <small class="gray">€<br>/m</small>
+            </div>
 
-        <p class="description gray">
-            great for light document editing &amp; attaching files
-        </p>
-        
-        <br><hr><br><br>
-
-        <div class="buttons">
             <button cur="€" mo="3" yr="3"></button>
-            <small class="right"></small>
         </div>
     </div>
 
     <div class="plan" plan="400GB">
-        <span>
-            <h1 class="storage">400</h1>
-            <span>GB</span>
-        </span>
+        <div class="plancard">
+            <span class="capacity">
+                <h2 class="storage">400</h2>
+                <span class="gray">GB</span>
+            </span>
+    
+            <p class="description gray">
+                ideal for photo libraries, lots of files &amp; documents
+            </p>
+            
+            <div class="prices">
+                <h2 class="price" mo="11" yr="9"></h2>
+                <small class="gray">€<br>/m</small>
+            </div>
 
-        <p class="description gray">
-            ideal for photo libraries, lots of files &amp; documents
-        </p>
-        
-        <br><hr><br><br>
-
-        <div class="buttons">
             <button cur="€" mo="11" yr="9"></button>
-            <small cur="€" class="right" save="24"></small>
         </div>
     </div>
 
 
     <div class="plan" plan="2000GB">
-        <span>
-            <h1 class="storage">2000</h1>
-            <span>GB</span>
-        </span>
+        <div class="plancard">
+            <span class="capacity">
+                <h2 class="storage">2000</h2>
+                <span class="gray">GB</span>
+            </span>
+    
+            <p class="description gray">
+                perfect for large photo libraries &amp; archives
+            </p>
+            
+            <div class="prices">
+                <h2 class="price"mo="30" yr="27"></h2>
+                <small class="gray">€<br>/m</small>
+            </div>
 
-        <p class="description gray">
-            perfect for large photo libraries &amp; archives
-        </p>
-        
-        <br><hr><br><br>
-
-        <div class="buttons">
             <button cur="€" mo="30" yr="27"></button>
-            <small cur="€" class="right" save="36"></small>
         </div>
     </div>
 
-    <p id="non-profit">are you a non-profit / charity / tax-exempt organization?<br>we got your back! <a href="help">contact us!</a><br></p>
+    <p id="non-profit" class="gray">are you a non-profit / charity / tax-exempt organization? <br class="hidden-below-tablet">we got your back! <a href="help">contact us!</a><br></p>
 
     <div id="billing">
 
@@ -98,12 +104,13 @@
         <small>please type a valid email for receipts</small>
 
         <div id="card">
-            <p class="gray">card details</p>
-            <div id="card-pan"       class="stripe-input"></div>
-            <div id="card-exp"       class="stripe-input"></div>
-            <div id="card-cvc"       class="stripe-input"></div>
-            <input id="billing-zip"  class="darkback" type="text" placeholder="zip code" onchange="validateBillingInfo();">
-            <input id="billing-name" class="darkback" type="text" placeholder="cardholder name" onchange="validateBillingInfo();">
+            <p      class="white">card details</p>
+            <i      id="card-info"    class="ri-information-line white"></i>
+            <div    id="card-pan"     class="stripe-input"></div>
+            <div    id="card-exp"     class="stripe-input"></div>
+            <div    id="card-cvc"     class="stripe-input"></div>
+            <input  id="billing-zip"  class="darkback" type="text" placeholder="zip code" onchange="validateBillingInfo();">
+            <input  id="billing-name" class="darkback" type="text" placeholder="cardholder name" onchange="validateBillingInfo();">
         </div>
         
         <p class="select" style="display: none !important;">
@@ -112,7 +119,7 @@
             </select>
         </p>
 
-        <input id="vat-number" type="text" tabindex="-1"  placeholder="add vat number" onchange="validateBillingInfo(); validateVAT();">            
+        <input id="vat-number" type="text" tabindex="-1"  placeholder="add vat #" onchange="validateBillingInfo(); validateVAT();">            
 
         <button id="checkout-button" class="bold green" onclick="upgrade();" disabled></button>
 

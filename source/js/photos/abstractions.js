@@ -451,6 +451,38 @@ async function decryptAlbumTitles(aid) {
 }
 
 
+/**
+ * Decrypts a given encrypted tags object, and returns a decrypted tags object.
+ * @param {Object} encryptedTags (hmac : encryptedTag) 
+ */
+async function decryptTags(encryptedTags) {
+    
+    var decryptedTags = {};
+
+    if (isEmpty(encryptedTags)) { 
+        handleError("[DECRYPT TAGS] Can't decrypt tags, empty encryptedTags object");
+        return decryptedTags; 
+    }
+
+    breadcrumb('[DECRYPT TAGS] Decrypting tags');
+    
+    for (var hmac in encryptedTags) {
+        
+        await decrypt(encryptedTags[hmac], [theKey]).then((decryptedTag)=>{
+            breadcrumb('[DECRYPT TAGS] Decrypted: ' + hmac);
+            decryptedTags[hmac] = decryptedTag.data;
+        });
+        
+    }
+        
+    if (isEmpty(decryptedTags)) {
+        handleError("[DECRYPT TAGS] Failed to decrypt all tags, returning empty decryptedTags object");
+        return decryptedTags;
+    }
+
+    return decryptedTags;
+
+}
 
 
 
@@ -2139,3 +2171,155 @@ async function moveSelectedPhotos() {
 
 }
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	TAGS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+async function tagSelectedPhotos() {
+
+    var userInput   = $("#photos-tags-input").val();
+    var hashtags    = extractHashtags(userInput) || [];
+    var photosToTag = selectedPhotos();
+    var aid         = activeAlbumID;
+
+    if (hashtags.length < 1) { 
+        breadcrumb("[TAG PHOTOS] No hashtags found, aborting.");
+        $("#photos-tags-input").trigger("focus");
+        return;
+    }
+
+    if (photosToTag.length < 1) {
+        breadcrumb("[TAG PHOTOS] No photos selected, aborting.");
+        createPopup("In order to tag photos, please select at least one photo to tag by pressing the checkmark icons on photos.", "warning");
+        return;
+    }
+
+    if (aid === "favorites") {
+        breadcrumb("[TAG PHOTOS] Can't tag photos from the favorites album. aborting.");
+        createPopup("In order to tag photos, please open the album containing the photos. Unfortunately you can't tag photos while you're viewing your favorite photos at the moment. We're sorry for the inconvenience.", "warning");
+        return;
+    }
+
+    startTaggingPhotosProgress();
+
+    var tags = {};
+    try {
+        for (const hashtag of hashtags) {
+            
+            var plaintextTag = hashtag.replace("#", "") || "";
+
+            // this is to de-duplicate tags, in case if the user typed it twice. skip to save encryption & hmac processing time.
+
+            if (tags[plaintextTag]) { continue; }
+
+            var encryptedTag = await encrypt(plaintextTag, [theKey]);
+            var hmacOfTag    = await hmacString(plaintextTag, theKey);
+
+            tags[plaintextTag] = { 
+                encryptedTag : encryptedTag.data || "",
+                hmacOfTag    : hmacOfTag    || ""
+            };
+
+        }
+    } catch (error) {
+        handleError("[TAG PHOTOS] Failed to create tag", error);
+        createPopup("Couldn't tag the selected photos. Please make sure you're not using any special characters in your tags and try again.", "error");
+        $("#photos-tags-input").trigger("focus");
+        stopTaggingPhotosProgress();
+        return;
+    }
+    
+    var tagged;
+    
+    try {
+        tagged = await tagPhotos(aid, photosToTag, Object.values(tags));
+    } catch (error) {
+        error.aid = aid;
+        error.photos = photosToTag;
+        handleError("[TAG PHOTOS] Failed to tag photos", error);
+    }
+
+    if (!tagged) { 
+        createPopup("Couldn't tag the selected photos. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
+        stopTaggingPhotosProgress();
+        return false;
+    }
+    
+    // saved on server, now update the local object: 
+
+    var hmacs = [];
+    Object.values(tags).forEach(tag => { hmacs.push(tag.hmacOfTag); });
+
+    if (photosToTag.length === 1) {
+        // only one photo = rewrite the whole tags list, that's what server will do. 
+        var pid = photosToTag[0];
+        if (photos[pid]) { photos[pid].tags = hmacs; }
+    } else {
+        // multiple photos
+        photosToTag.forEach(pid => { 
+            if (photos[pid]) { 
+                var existingTags = photos[pid].tags || [];
+                var newTags = hmacs;
+                // union new tags & existing tags
+                photos[pid].tags = Array.from(new Set(existingTags.concat(newTags)));
+            } 
+        });
+    }
+
+    stopTaggingPhotosProgress();
+    hideTagsPanel();
+
+}
+
+/**
+ * Loads the tags of a photo with given id from server, decrypts them, and puts them into the editor
+ * @param {string} pid 
+ */
+async function loadTagsOfPhoto(pid) {
+    
+    // photo doesn't exist!?
+    if (isEmpty(photos[pid])) {
+        createPopup("Couldn't load the tags of this photo. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
+        return false;
+    }
+
+    // photo has no tags
+    if (!photos[pid].tags) {
+        setTimeout(function () { $("#photos-tags-input").trigger("focus"); }, 100);
+        return true;
+    }
+
+    var tagHMACs = photos[pid].tags;
+    if (!Array.isArray(tagHMACs) || tagHMACs.length === 0) {
+        setTimeout(function () { $("#photos-tags-input").trigger("focus"); }, 100);
+        return true;
+    }
+    
+    startTaggingPhotosLoadingProgress();
+
+    var arrayOfDecryptedTags = await getTags(tagHMACs);
+
+    var tags = [];
+    arrayOfDecryptedTags.forEach(decryptedTag => { tags.push("#" + decryptedTag); });
+
+    // sort tags based on tag-length. here's why. 
+    // if you write "#paris #paris2019", paris will replace the tag with <i>paris</i> <i>paris</i>2019, making "2019" get ignored in the highlighter
+    // if you start from the longest tag, this won't be a problem
+    tags.sort(function(a, b){ return b.length - a.length; });
+
+    var tagsString = tags.join(" ");
+    $("#photos-tags-input").val(tagsString);
+
+    tags.forEach(tag => { tagsString = replaceAll(tagsString, tag, `<i>${tag}</i>`); });
+    $("#tags-highlighter").html(tagsString);
+
+    stopTaggingPhotosProgress();
+
+    setTimeout(function () { $("#photos-tags-input").trigger("focus"); }, 100);
+
+    return true;
+}

@@ -76,8 +76,33 @@ function stopLightboxProgress() {
 }
 
 
+/**
+ * Starts tagging photos progress & disables tag button and input
+ */
+function startTaggingPhotosProgress() {
+    $("#add-tags-button").addClass("loading");
+    $("#photos-tags-input").attr("disabled", true);
+    startProgressWithID("progress-tagging-photos");
+}
 
+function startTaggingPhotosLoadingProgress() {
+    startTaggingPhotosProgress();
+    $("#tags-highlighter").addClass("loading");
+}
 
+/**
+ * Stops tagging photos progress & enables tag button and input
+ */
+function stopTaggingPhotosProgress() {
+    $("#add-tags-button").removeClass("loading");
+    $("#tags-highlighter").removeClass("loading");
+    $("#photos-tags-input").removeAttr("disabled");
+
+    stopProgressWithID("progress-tagging-photos");
+
+    $("#progress-tagging-photos").attr("value", 100);
+    $("#progress-tagging-photos").attr("max", 100);
+}
 
 
 
@@ -172,6 +197,7 @@ key('esc', function () {
     hideSorter();
     hideAlbumDropdownsExcept();
     clearSearch();
+    hideTagsPanel();
     return false;
 });
 
@@ -750,11 +776,7 @@ $("#searchInput").on('keydown', function (event) {
         $("#searchContents").attr("term", searchTerm);
         
 
-        if (event.key === "Escape" || searchTerm === "") {
-            event.preventDefault();
-            clearSearch();
-            stopMainProgress();
-        } else if (event.key.startsWith("Arrow")) {
+        if (event.key.startsWith("Arrow")) {
             event.preventDefault();
         } else if (event.key === "Meta" || event.key === "Shift") {
             event.preventDefault();
@@ -764,6 +786,10 @@ $("#searchInput").on('keydown', function (event) {
             event.preventDefault();
         } else if (event.metaKey || event.ctrlKey || event.shiftKey) {
             event.preventDefault();
+        } else if (event.key === "Escape" || searchTerm === "") {
+            event.preventDefault();
+            clearSearch();
+            stopMainProgress();
         } else if (event.key === "Enter") {
             $("#searchInput").trigger("blur");
         } else {
@@ -794,4 +820,81 @@ $("#searchInput").on('keydown', function (event) {
 
 function showChangeCoverPopup() {
     createPopup("to change an album's cover photo, first open the album and select the photo you'd like to use for the cover by pressing the check-mark over the photo. Once the photo is selected, press 'make album cover' on the top menu.", "info");
+}
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	TAGS / TAGS HIGHLIGHTER
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+$("#photos-tags-input").on('keydown keypress paste copy cut change', function(event) {
+    
+    if (event.key === "Enter") { event.preventDefault(); return false; }
+    if (event.key === "Escape") { 
+        event.preventDefault(); 
+        hideTagsPanel();
+        return false; 
+    }
+
+    setTimeout(function () {
+
+        var userInput = $("#photos-tags-input").val();
+        
+        // remove newlines (i.e. if user pastes them)
+        if (userInput.includes("\r") || userInput.includes("\n")) {
+            userInput = userInput.replace(/[\r\n]/g, '');
+            
+            // remove newlines from the text input
+            $("#photos-tags-input").val(userInput);
+        }
+
+        // remove all characters after 100th
+        if (userInput.length > 100) {    
+            userInput = userInput.substring(0,100);    
+            $("#photos-tags-input").val(userInput);
+        }
+        
+        // get tags
+        var tags = extractHashtags(userInput);
+
+        // highlight each tag in the highlighter
+        tags.forEach(tag => { userInput = replaceAll(userInput, tag, `<i>${tag}</i>`); });
+        $("#tags-highlighter").html(userInput);
+
+    }, 10);
+
+}); 
+
+function showTagsPanel() {
+    $("body").addClass("tagging");
+    $("#tags-highlighter").empty();
+    $("#photos-tags-input").val("");
+    $("#panel-add-tags").addClass("show");
+
+    var photosToTag = selectedPhotos();
+
+    if (photosToTag.length === 1) {
+        // if only one photo is selected, load its tags into the editor.
+        loadTagsOfPhoto(photosToTag[0]);
+    } else if (photosToTag.length > 1) {
+        // if more than one photo is selected, don't bother loading tags, focus the editor instead
+        setTimeout(function () { $("#photos-tags-input").trigger("focus"); }, 100);
+    } else {
+
+        // if no photos are selected, then show alert
+        createPopup("In order to tag photos, please select at least one photo to tag by pressing the checkmark icons on photos.", "warning");
+    }
+
+}
+
+function hideTagsPanel() {
+    $("body").removeClass("tagging");
+    $("#panel-add-tags").removeClass("show");
+    $("#photos-tags-input").trigger("blur");
+    setTimeout(function () { // for cosmetics
+        $("#tags-highlighter").empty();
+        $("#photos-tags-input").val("");
+    }, 200);
 }

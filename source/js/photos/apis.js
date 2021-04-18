@@ -449,8 +449,100 @@ async function getSyntacticSearchResults(references) {
 }
 
 
+async function getTagsSearchResults(hmacs) {
+    hmacs = hmacs || [];
+
+    if (hmacs === []) { 
+        breadcrumb("[SEARCH] No hmacs found, won't query");
+        return []; 
+    }
+
+    var apiResponse; 
+    
+    try {
+        apiResponse = await api("photos-tagged", {}, { hmacs : hmacs }, "POST");
+    } catch (error) {
+        handleError("[SEARCH] API had an error.", error);
+        return [];
+    }
+
+    if (!apiResponse) {
+        handleError("[SEARCH] Didn't get a response from the API");
+        return [];
+    }
+
+    if (apiResponse.status !== 200) {
+        handleError("[SEARCH] API had an error: " + apiResponse.status);
+        return [];
+    }
+
+    // add results to local memory to speed things up later when we're requesting thumbnails
+    apiResponse.data.forEach(photo => {
+
+        var pid = photo.id;
+        var aid = photo.aid;
+        
+        // add photo to photos in memory
+        photos[pid] = photos[pid] || {};
+        Object.keys(photo).forEach(photoKey => {
+            photos[pid][photoKey] = photo[photoKey];
+        });
+
+        // add photo to album's photos in memory
+        albums[aid] = albums[aid] || {};
+        albums[aid].photos = albums[aid].photos || [];
+
+        if (!albums[aid].photos.includes(pid)) { albums[aid].photos.push(pid); }
+
+    });
+    
+    return apiResponse.data;
+
+}
 
 
+/**
+ * Get Tags with given HMACs and decrypt them
+ * @param {array} tagHMACs An Array of Tag HMACs 
+ */
+async function getTags(tagHMACs) {
+    
+    if (!tagHMACs) { 
+        handleError("[GET TAGS] Can't get tags, no tag hmacs provided.");
+        return [];
+    }
+
+    if (!Array.isArray(tagHMACs) || tagHMACs.length === 0) {
+        handleError("[GET TAGS] Can't get tags, no tag hmacs provided.");
+        return [];
+    }
+
+    var apiResponse; 
+
+    try {
+        apiResponse = await api("photos-tags", {}, { tags : tagHMACs }, "POST");
+    } catch (error) {
+        handleError("[GET TAGS] API had an error.", error);
+        return [];
+    }
+
+    if (!apiResponse) {
+        handleError("[GET TAGS] Didn't get a response from the API.");
+        return [];
+    }
+
+    if (apiResponse.status !== 200) {
+        handleError("[GET TAGS] API had an error: " + apiResponse.status);
+        return [];
+    }
+
+    var encryptedTags = apiResponse.data;
+    var decryptedTags = await decryptTags(encryptedTags);
+    var arrayOfDecryptedTags = Object.values(decryptedTags) || [];
+    
+    return arrayOfDecryptedTags;
+
+}
 
 
 
@@ -885,6 +977,67 @@ async function setGhostAlbum(aid, hashedTitleToGhost) {
     }
 
     return true;
+}
+
+
+/**
+ * Tags photos of an album with the given tags
+ * @param {string} aid Album ID
+ * @param {array} photosToTag Array of Photo IDs 
+ * @param {array} tags Array of Tag Objects
+ */
+async function tagPhotos(aid, photosToTag, tags) {
+
+    if (!aid) {
+        handleError("[TAG PHOTOS] Can't tag photos. No Album ID!");
+        return false;
+    }
+
+    if (aid === "favorites") {
+        handleError("[TAG PHOTOS] Can't tag photos from the favorites album.");
+        return false;
+    }
+
+    if (!Array.isArray(photosToTag) || photosToTag.length === 0) {
+        handleError("[TAG PHOTOS] Can't tag photos. No photos!");
+        return false;
+    }
+
+    if (!Array.isArray(tags) || tags.length === 0) {
+        handleError("[TAG PHOTOS] Can't tag photos. No tags!");
+        return false;
+    }
+
+    breadcrumb("[TAG PHOTOS] Starting to tag photoso");
+    var startedRequest = (new Date()).getTime();
+
+    var response;
+    try {
+        response = await api("photos-tag", { a:aid }, { photosToTag : photosToTag, tags : tags }, "POST", 120);
+    } catch (error) {
+        error.aid = aid;
+        error.photos = photosToTag;
+        handleError("Couldn't tag photos due to error", error);
+        return false;
+    }
+
+    if (!response) {  
+        handleError("Didn't get tag photos response", { aid:aid, photos:photosToTag });
+        return false;
+    }
+
+    if (response.status !== 200) {
+        response.aid = aid;
+        response.photos = photosToTag;
+        handleError("Couldn't tag photos, response code: " + response.status);
+        return false;
+    }
+
+    var gotResponse = (new Date()).getTime();
+    breadcrumb("[TAG PHOTOS] Tagged " + photosToTag.length + " photo(s) in " + (gotResponse - startedRequest) + "ms");
+
+    return true;
+
 }
 
 

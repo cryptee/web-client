@@ -1048,6 +1048,7 @@ function search(term, searchID) {
 
     Promise.all([
         searchTitles(term, searchID).then(displaySearchResults),
+        searchTags(term, searchID).then(displaySearchResults),
         searchDatesSyntactically(term, searchID).then(displaySearchResults)
     ]).then(()=>{
         stopMainProgressforSearch();
@@ -1072,11 +1073,68 @@ async function searchTitles(term, searchID) {
 
 } 
 
+async function searchTags(term, searchID) {
+    
+    var typedTags = extractHashtags(term);
+    
+    if (!typedTags.length) { return { results : [], understood: "" }; }
+    
+    var tags = {};
+    var hmacs = [];
+    var understood = typedTags.join(" or ");
+
+    try {
+        for (const hashtag of typedTags) {
+
+            var plaintextTag = hashtag.replace("#", "") || "";
+    
+            // this is to de-duplicate tags, in case if the user typed it twice. skip to save encryption & hmac processing time.
+            if (tags[plaintextTag]) { continue; }
+    
+            var hmacOfTag = await hmacString(plaintextTag, theKey);
+            
+            hmacs.push(hmacOfTag);
+
+        }
+    } catch (error) {
+        handleError("[SEARCH PHOTOS] Failed to hmac a tag", error);
+    }
+    
+    if (!hmacs.length) { return { results : [], understood: "" }; }
+
+
+    breadcrumb("[SEARCH] Running tags search");
+
+    var tagsSearchResults = await getTagsSearchResults(hmacs);
+        
+    breadcrumb("[SEARCH] Tags search complete!");
+
+    return { results : (tagsSearchResults || []), understood: understood, searchID : searchID, type:"tags" };
+
+}
 
 async function displaySearchResults(sr) {
     var wrap = $(`#searchContents[search="${sr.searchID}"]`);
 
     var resultsHTML = [];
+
+    if (sr.type === "tags") {
+
+        if (sr.results.length > 0) {
+            resultsHTML.push(renderSearchHeader(`PHOTOS TAGGED WITH: ${sr.understood}`));
+        }
+
+        var resultAlbums = {};
+        sr.results.forEach(result => {
+            var aid = photos[result.id].aid;
+            resultAlbums[aid] = (resultAlbums[aid] || 0) + 1;
+        });
+
+        Object.keys(resultAlbums).forEach(aid => {
+            resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS"));
+        });
+
+    }
 
     if (sr.type === "name") {
 
@@ -1089,9 +1147,11 @@ async function displaySearchResults(sr) {
                 resultsHTML.push(renderAlbum(result.item.id));
             }
         });
+        
     }
 
     if (sr.type === "date") {
+
         if (sr.results.length > 0) {
             resultsHTML.push(renderSearchHeader(`PHOTOS FROM ${sr.understood}`));
         }

@@ -111,7 +111,8 @@ nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
     box-shadow: none !important;
     z-index: 2;
 
-    transition: 0.3s opacity var(--cryptee-cb);
+    transition: 0.3s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
+    transform: translate3d(0,0,0);
     opacity: 1;
 }
 
@@ -143,10 +144,10 @@ nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
 #searchInput:focus ~ .progress { opacity: 1; }
 
 nav .buttons        { display: flex; }
-nav .top.buttons    { grid-row: 1/2; grid-column: -3 / -2; }
+nav .top.buttons    { grid-row: 1/2; }
 nav .bottom.buttons { grid-row: 2/3; }
-nav .bottom.buttons.left-side   { grid-column: 2/3; }
-nav .bottom.buttons.right-side  { grid-column: -3/-2; }
+nav .left-side      { grid-column: 2/3; }
+nav .right-side     { grid-column: -3/-2; }
 
 nav button {
     line-height: 4rem;
@@ -415,6 +416,13 @@ body:not(.loading):not(.starting).nav-favorites #gallery-button {
 }
 
 /* selections */
+
+body:not(.loading):not(.starting).nav-selection #searchInput {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 body:not(.loading):not(.starting).nav-selection .unselected.buttons button {
     transform: translate3d(0,1rem,0);
     opacity: 0 !important;
@@ -428,7 +436,7 @@ body:not(.loading):not(.starting).nav-selection .unselected.buttons button {
 }
 
 body:not(.loading):not(.starting).nav-selection .top.buttons button {
-    transform: translate3d(0,-1rem,0);
+    transform: translate3d(0,1rem,0);
     opacity: 0 !important;
     pointer-events: none !important;
 }
@@ -446,6 +454,22 @@ body:not(.loading):not(.starting).nav-selection .selected.buttons button {
 }
 
 #make-cover-button.hidden {
+    transform: translate3d(0,1rem,0);
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* tagging */
+
+body.tagging .photo.selected i {
+    background-color: var(--cryptee-green);
+}
+
+body.tagging .photo.selected i::before {
+    content: "\F023";
+}
+
+body.tagging #tag-button {
     transform: translate3d(0,1rem,0);
     opacity: 0 !important;
     pointer-events: none !important;
@@ -941,11 +965,13 @@ SEARCH
 ----------------------------- */
 
 .searchheader {
-    padding-top: 3.5rem;
-    padding-bottom: 4rem;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
     margin-left: 4rem;
     width: calc(100% - 4rem);
     user-select: none;
+    clear: both;
 }
 
 .searchheader .title {
@@ -953,12 +979,6 @@ SEARCH
     padding-bottom: 1rem;
     width: 100%;
     text-transform: uppercase;
-}
-
-
-#searchContents {
-    grid-auto-rows: 10rem;
-    grid-auto-flow: row;
 }
 
 #searchContents .album::before {
@@ -1182,7 +1202,152 @@ DOWNLOADS
 
 
 
+/* -----------------------------
+-------------------------------- 
+ 
+PANELS / TAGS 
+ 
+--------------------------------
+----------------------------- */
 
+
+.panel {
+    position: fixed;
+    margin: auto;
+    z-index: 9;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    
+    height: 26rem;
+    width: 100%;
+    max-width: 20rem;
+    min-width: calc(320px - 5rem);
+    
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: #121212;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+
+    display: grid;
+    grid-template-rows: 3rem 10rem 8rem 5rem;
+    grid-template-columns: 1fr 1fr;
+
+    color: white;
+    padding-top: 2rem;
+
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    
+    transition-duration: 0.3s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.panel:not(.show) {
+    pointer-events: none !important;
+    transform: translate3d(0,2rem,0) !important;
+    opacity: 0 !important;
+}
+
+.panel h2,
+.panel p {
+    grid-column: span 2;
+    padding: 0 2rem;
+}
+
+.panel div {
+    grid-column: span 2;
+    position: relative;
+}
+
+.panel textarea {
+    width: calc(100% - 4rem);
+    min-width: calc(100% - 4rem);
+    max-width: calc(100% - 4rem);
+
+    height: calc(100% - 4rem);      /* padding top / bottom 2rem */
+    min-height: calc(100% - 4rem);  /* padding top / bottom 2rem */
+    max-height: calc(100% - 4rem);  /* padding top / bottom 2rem */
+
+    margin-top: 0;
+    resize: none;
+    color: transparent;
+    caret-color: #FFF;
+    background-color: transparent;
+    text-transform: lowercase;
+
+    border-top: 2px solid #FFF;
+    font-weight: 350;
+    padding: 2rem;
+    overflow: hidden;
+
+    transition: 0.3s box-shadow ease, 0.3s background-color ease;
+}
+
+.panel textarea:focus {
+    box-shadow: inset 0px -1px 0px #FFF;
+    background-color: #242424;
+}
+
+.panel #tags-highlighter {
+    width: calc(100% - 4rem);
+    min-width: calc(100% - 4rem);
+    max-width: calc(100% - 4rem);
+
+    height: calc(100% - 4rem);      /* padding top / bottom 2rem */
+    min-height: calc(100% - 4rem);  /* padding top / bottom 2rem */
+    max-height: calc(100% - 4rem);  /* padding top / bottom 2rem */
+
+    border-top: 1px solid transparent;
+    font-weight: 350;
+    line-height: 1.5rem;
+    padding: 2rem;
+    
+    text-transform: lowercase;
+    white-space: pre-wrap;
+    
+    color: var(--cryptee-yellow);
+    pointer-events: none !important;
+
+    position: absolute;
+}
+
+#tags-highlighter i { color: white; font-style: normal; }
+
+#progress-tagging-photos { 
+    opacity: 1; 
+    margin-top: -0.25rem;
+}
+
+.panel button {
+    margin-top: 0;
+    padding: 0 2rem;
+    line-height: 5rem;
+    height: 5rem;
+
+    background-color: transparent;
+    color: white;
+    transition: 0.3s background-color ease, 0.3s color ease;
+}
+
+.panel button:last-child { 
+    text-align: right; 
+}
+
+#photos-tags-input[disabled] {
+    box-shadow: none !important;
+}
+
+#tags-highlighter.loading {
+    background-color: #242424;
+}
+
+#tags-highlighter.loading::before {
+    color: #FFF;
+    content: "decrypting tags ...";
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -1407,6 +1572,12 @@ ENABLE HOVERS
         opacity: 1;
     }
     
+    .panel button:hover { background-color: var(--cryptee-green); }
+    .panel button:last-child:hover { background-color: var(--cryptee-yellow); color: #000; }
+    #add-tags-button.loading + button:hover {
+        color: var(--cryptee-yellow);
+        background-color: transparent;
+    }
 }
 
 @media (-moz-touch-enabled : 1), (pointer:coarse) {
@@ -1480,8 +1651,9 @@ MEDIA QUERIES
     }
 
     nav .buttons button { width: 100%; }
-    nav .bottom.buttons.left-side { grid-column: 1/3; }
-    nav .top.buttons, nav .bottom.buttons.right-side { grid-column: 3/-1; }
+    nav .left-side { grid-column: 1/3; }
+    nav .right-side { grid-column: 3/-1; }
+
 
     #new-album-button, #move-button, #gallery-button {
         order: -1;
@@ -1544,17 +1716,14 @@ MEDIA QUERIES
         width: calc(100% - 2rem);
     }
 
-    #searchContents {
-        grid-auto-rows: 4rem;
-    }
-
     #searchContents::after {
         margin-left: 1rem;
     }
 
     .searchheader {
         border-bottom: none;
-        padding-top: 0rem;
+        padding-top: 2rem;
+        margin-bottom: 0;
     }
     
     #help, #timeline { display: none !important; }
@@ -1580,20 +1749,12 @@ MEDIA QUERIES
 }
 
 @media (max-width : 544px) {
-    .contents {
-        grid-template-columns: minmax(4rem, 1fr) minmax(4rem, 1fr);
-        grid-auto-rows: 12rem;
-    }    
 
     .album { height: 12rem; }
 
     .photo { 
         width: 50vw; 
         height: 50vw; 
-    }
-
-    #searchContents {
-        grid-auto-rows: 8rem;
     }
 
     .searchheader {

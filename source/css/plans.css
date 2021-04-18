@@ -54,8 +54,8 @@ body {
     user-select: none;
 }
 
-#pick {
-    grid-column: 2/3;
+#select {
+    grid-column: 3/4;
     grid-row: 2/3;
     margin-top: 0;
     line-height: 2rem;
@@ -74,7 +74,7 @@ PERIODS
 
 
 #period {
-    grid-column: 2/3;
+    grid-column: 3/4;
     grid-row: 5/7;
     display: flex;
     flex-wrap: wrap;
@@ -146,66 +146,79 @@ PLANS
     padding-top: 8rem;
 }
 
+.plancard {
+    padding: 1.5rem 1.5rem 1.5rem 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.15);
+    background-color: #FFF;
+
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+}
+
+.plancard .capacity {
+    grid-column: span 2;
+}
+
 .plan[plan="10GB"] { grid-column: 2/3; }
 .plan[plan="400GB"] { grid-column: 3/4; }
 .plan[plan="2000GB"] { grid-column: 4/5; }
 
 .storage {
     display: inline;
+    font-size: 2.5rem;
+    letter-spacing: 2px;
     font-weight: 500;
-    letter-spacing: 0;
-}
-
-.plan .buttons {
-    display: flex;
-}
-
-.plan .buttons > * {
-    flex-grow: 3;
-    max-width: 50%;
 }
 
 .plan button {
     margin-top: 0;
     margin-right: 0rem;
-    background-color: var(--cryptee-0);
+    background-color: var(--cryptee-green);
     color: white;
     font-weight: 500;
-    padding: 0.625rem 0;
     line-height: 1rem;
-    height: 2rem;
+    height: 3rem;
     width: 100%;
     text-align: center;
     border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
     transition: max-width, color, box-shadow, background-color, margin;
     transition-duration: 0.3s;
     transition-timing-function: var(--cryptee-cb);
 }
 
-.plan .buttons small {
-    margin-top: 0;
-    padding: 0.5rem 0;
-    line-height: 1rem;
-}
-
 .plan .description {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+    grid-column: span 2;
     max-width: 12rem;
 }
 
-.plan .buttons small {
-    color: var(--cryptee-green);
-    transition: 0.3s opacity, 0.3s transform, 0.3s color;
-    transition-timing-function: var(--cryptee-cb);
-    transform: translateY(1rem);
-    opacity: 0;
+.plan .prices {
+    padding-top: 0.5rem;
 }
+
+.plan .price {
+    display: inline;
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+    letter-spacing: 2px;
+    font-weight: 500;
+}
+
+.plan .price + small { margin-top: 0rem; }
 
 #period[period="yr"] ~ .plan small {
     opacity: 1;
     transform: translateY(0);
+}
+
+.plan button::before { content: "select"; }
+
+#period[period="yr"] ~ .plan[current="yr"] button::before,
+#period[period="mo"] ~ .plan[current="mo"] button::before {
+    content: "your plan";
 }
 
 #period[period="yr"] ~ .plan[current="yr"] button,
@@ -227,34 +240,8 @@ PLANS
 }
 
 
-#period[period="mo"] ~ .plan button::before {
-    content: attr(cur) " " attr(mo) " / mo";
-}
-
-#period[period="yr"] ~ .plan button::before {
-    content: attr(cur) " " attr(yr) " / mo";
-}
-
-body:not(.paddle-yearly) #period ~ .plan small[save]::before {
-    content: "save " attr(cur) " " attr(save) " / yr";
-    font-weight: 700;
-}
-
-#period[period="mo"] ~ .plan[current] small::before {
-    content: "current plan" !important;
-    font-weight: 350;
-}
-
-#period[period="yr"] ~ .plan[current="yr"] small::before,
-#period[period="mo"] ~ .plan[current="mo"] small::before {
-    content: "current plan" !important;
-    font-weight: 350;
-}
-
-
-body.paddle-yearly .plan .buttons > * {
-    max-width: 50%;
-}
+#period[period="mo"] ~ .plan .price::before { content: attr(mo); }
+#period[period="yr"] ~ .plan .price::before { content: attr(yr); }
 
 body.paddle-yearly #period ~ .plan small {
     color: var(--cryptee-2);
@@ -274,7 +261,7 @@ body.paddle-yearly #period ~ .plan small::before {
 
 
 body:not(.chooseplan) #non-profit,
-body:not(.chooseplan) #pick,
+body:not(.chooseplan) #select,
 body:not(.chooseplan) #period button,
 body:not(.chooseplan) #period small,
 body:not(.chooseplan) .plan {
@@ -370,6 +357,8 @@ body:not(.billing) #billing {
 }
 
 #card {
+    position: relative;
+
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
     background-color: #121212;
     border-radius: 1rem;
@@ -429,6 +418,11 @@ body:not(.billing) #billing {
     grid-column: span 1;
 }
 
+#billing-zip, #billing-name {
+    margin-top: -0.125rem !important;
+    padding-bottom: 0.125rem !important;
+}
+
 #billing-zip {
     margin-top: 0;
     padding-top: 0.5rem;
@@ -442,12 +436,34 @@ body:not(.billing) #billing {
     grid-column: span 3;
 }
 
-#checkout-button{
+@-moz-document url-prefix() {
+    #billing-zip::placeholder { color: #fff !important; }
+    #billing-name::placeholder { color: #fff !important; }
+}
+
+#card-info {
+    opacity: 1;
+    position: absolute;
+    top: 1.8rem;
+    left: 8rem;
+    cursor: pointer;
+    transition: 0.3s opacity ease;
+    font-size: 1.125rem;
+}
+
+#checkout-button {
     float: right;
     margin: 1rem 4rem 1rem 0 !important;
-    height: 3rem;
-    line-height: 3rem;
     opacity: 1;
+    height: 3rem;
+    line-height: 1rem;
+
+    background-color: var(--cryptee-green);
+    color: white;
+    font-weight: 500;
+    padding: 0 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.25);
 
     transition-duration: 0.5s;
     transition-property: opacity;
@@ -470,8 +486,8 @@ body:not(.billing) #billing {
     height: 3rem;
     line-height: 3rem;
     float: left;
-    width: 8rem !important;
-    max-width: 8rem !important;
+    width: 6rem !important;
+    max-width: 6rem !important;
     
     box-shadow: inset 0px -1px 0px transparent;
 
@@ -657,12 +673,11 @@ MEDIA
 
 
 
-@media (max-width : 832px) {
+@media (max-width : 944px) {
     body { column-gap: 2rem; }
-    #pick, #period { grid-column: 3/4; }
 }
 
-@media (max-width : 703px) {
+@media (max-width : 832px) {
     body { 
         display: block;
         padding: 1rem 4rem;
@@ -678,26 +693,31 @@ MEDIA
         overflow: hidden;
     }
 
-    .plan, #pick {
-        margin-bottom: 4rem;
-    }
-
-    #period {
+    #period, #select {
         margin-bottom: 2rem;
     }
 
     .plan {
-        padding-top: 3rem;
+        padding-top: 4rem;
     }
 
+    #period, .plan {
+        max-width: 16rem;
+        margin: auto;
+    }
+    
+    #non-profit {
+        margin-top: 2rem;
+    }
 }
 
 
 @media (max-width : 544px) {
-    body { 
-        row-gap: 2rem;
-    }
+    body {  padding: 1rem 0; }
     
+    #select, #period { padding: 0 4rem; }
+    #non-profit { padding: 0 2rem; }
+
     #billing {
         top: 0rem;
         width: 100%;
@@ -719,7 +739,7 @@ MEDIA
     }
 
     #checkout-button {
-        margin-right: calc(100% - 20rem);
+        margin-right: calc(100% - 20rem) !important;
     }
 
 }
@@ -727,7 +747,7 @@ MEDIA
 @media (max-width : 352px) { 
 
     #checkout-button {
-        margin-right: 2rem;
+        margin-right: 2rem !important;
     }
 
 }

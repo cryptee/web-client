@@ -1,0 +1,20 @@
+<div class="panel" id="panel-add-tags" name="Add / Edit Tags">
+
+    <h2>EDIT TAGS</h2>
+
+    <p>
+        write a few <i>#hashtags</i> below to find your photo(s) easily.
+        you can search using tags by typing tags like: <i>#paris</i> in the search bar.
+        <br>
+    </p>
+    
+    <div>
+        <span id="tags-highlighter"></span>
+        <textarea name="tags" id="photos-tags-input" placeholder="#paris #trip #birthday #vacation #holiday …" autocapitalize="none" autocomplete="off" spellcheck="false"></textarea>
+        <progress id="progress-tagging-photos" class="progress white" value="100" max="100"></progress>
+    </div>
+
+    <button onclick="tagSelectedPhotos();" class="bold" id="add-tags-button">tag</button>
+    <button onclick="hideTagsPanel();" >cancel</button>
+
+</div>

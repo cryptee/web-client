@@ -18,24 +18,30 @@
 
     <nav>
 
-        <input type="text" id="searchInput" placeholder="search">
+        <input type="text" id="searchInput" placeholder="search" autocomplete="false" spellcheck="false">
 
         <a id="logo" href="/home" draggable="false" ondragstart="return false;" class="rememberKey">
             <img src="../assets/logo-b.svg" alt="CRYPTEE">
         </a>
           
-        <div class="top buttons gallery">
+        <div class="top buttons right-side gallery">
             <button id="favorites-button">fav<span class="hidden-tablet">orit</span>es</button>
             <button class="upload-button"><label for="upload-input">upload</label></button>
         </div>
         
-        <div class="top buttons albums unselected">
+        <div class="top buttons right-side albums selected">
+            <button id="make-cover-button" onclick="makeSelectedPhotoAlbumCover();">make <span class="hidden-tablet">album</span> cover</button>
+            <button></button>
+        </div>
+
+        <div class="top buttons right-side albums unselected">
             <button></button>
             <button class="upload-button"><label for="upload-input">upload</label></button>
         </div>
 
-        <div class="top buttons albums selected">
-            <button id="make-cover-button" onclick="makeSelectedPhotoAlbumCover();">make album cover</button>
+        <div class="top buttons left-side albums selected">
+            <button></button>
+            <button id="tag-button" onclick="showTagsPanel();">tag</button>
         </div>
 
         <progress   id="main-progress" class="progress"></progress>
@@ -110,13 +116,18 @@
     <!-- @import "imports/app/dropzone.kit" -->
     
     
+    
     <!-- @import "imports/app/photos-popup-album-info.kit" -->
     <!-- @import "imports/app/photos-popup-download.kit" -->
     <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+    
+    
+    
+    <!-- @import "imports/app/photos-panel-add-tags.kit" -->
 
 
 
-
+    
     <!-- @import "imports/app/photos-modal-move.kit" -->
 
     <!-- @import "imports/app/photos-modal-summon.kit" -->

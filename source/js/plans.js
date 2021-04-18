@@ -52,6 +52,7 @@ if (theUserPlan && theUserPlan !== "free") {
         var currentPeriod = currentPlan.period;
         var currentPlanSize = currentPlan.formattedQuota.replace(" ", "");
         $(`.plan[plan='${currentPlanSize}']`).attr("current", currentPeriod);
+        $('body').attr("current", theUserPlan);
 
         if (thePaymentProcessor === "paddle" && storagePlansByID[theUserPlan].period === "yr") {
             yearlyPaddle();
@@ -249,22 +250,24 @@ async function validateVAT() {
 
 
 
+var placeholderColor = "#888";
+if (isFirefox) { placeholderColor = "#aaa"; }
 
-var stripe = Stripe('pk_live_D9FkoKTyS1dPXaHhGrMZM8be00VxCQFFx5', {apiVersion: '2020-08-27;tax_product_beta=v1', betas: ["tax_product_beta_1"]});
-var elements = stripe.elements({fonts : [ { src: `url('https://static.crypt.ee/fonts/JosefinSans-VariableFont_wght.ttf')`, family: 'Josefin Sans',  weight: '350' } ]});
+var stripe = Stripe('pk_live_D9FkoKTyS1dPXaHhGrMZM8be00VxCQFFx5', { apiVersion: '2020-08-27;tax_product_beta=v1', betas: ["tax_product_beta_1"] });
+var elements = stripe.elements({fonts : [ { src: `url('https://static.crypt.ee/fonts/JosefinSans-VariableFont_wght.ttf')`, family: 'Josefin Sans' } ]});
 
 var elementStyles = {
     base: {
         color: '#fff',
-        fontWeight: 350,
+        fontWeight: '350',
         fontFamily: 'Josefin Sans, sans-serif',
         fontSize: '16px',
         textTransform: 'lowercase',
         fontSmoothing: 'antialiased',
 
         ':focus': { color: '#FFF' },
-        '::placeholder': { color: '#888' },
-        ':focus::placeholder': { color: '#888' },
+        '::placeholder': { color: placeholderColor },
+        ':focus::placeholder': { color: placeholderColor },
     },
     invalid: {
         color: '#CC0101',
@@ -596,7 +599,9 @@ async function show3DSPopup(paymentMethodID, paymentIntentSecret) {
     return true;
 }
 
-
+$('#card-info').on('click', function(event) {
+    createPopup("your payments will be processed securely and privately in ireland, europe, using stripe. your card information never touches cryptee's servers.");
+}); 
 
 
 
