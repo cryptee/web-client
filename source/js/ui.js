@@ -506,7 +506,7 @@ async function goToHelpdesk() {
 async function goToUpgrade() {
     if (location.pathname.startsWith("/docs")) {
         $("#upgrade").addClass("loading");
-        $("#upgrade").html("<span>saving your document...</span><br><span>one moment please</span>");
+        $("#upgrade").html("<span>saving your document...</span>");
         if (remainingStorage > 0) { await saveDoc(); } // if we don't have any storage space, we can't save anyway.
         location.href = "/plans";
     } else {

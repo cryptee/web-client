@@ -355,8 +355,44 @@ async function loadPhoto(pid) {
 
 }
 
+/**
+ * Loads a photo from search result by first loading the album, then loading the photo. 
+ * @param {string} pid 
+ */
+async function loadSearchResult(pid) {
+    if (!pid) {
+        handleError('[LOAD SEARCH RESULT] Failed to load. No PID.');
+        return false; 
+    }
 
+    var photo = photos[pid];
+    if (isEmpty(photo)) {
+        handleError('[LOAD SEARCH RESULT] Failed to load. Photo not found in memory.', { pid:pid });
+        return false; 
+    }
 
+    var aid = photo.aid;  
+    if (!aid) {
+        handleError('[LOAD SEARCH RESULT] Failed to load. Album of photo not found.', { pid:pid, aid:aid });
+        return false; 
+    }
+
+    hideAllPopups();
+    
+    breadcrumb('[LOAD SEARCH RESULT] Loading Album');
+    
+    // first load the album if we're not already in it
+    if (activeAlbumID !== aid) { 
+        await loadAlbum(aid);
+    }
+    
+    breadcrumb('[LOAD SEARCH RESULT] Loading Photo');
+    // then load the photo from the album
+    await loadPhoto(pid);
+    
+    breadcrumb('[LOAD SEARCH RESULT] Loaded Photo');
+    return true;
+}
 
 
 ////////////////////////////////////////////////

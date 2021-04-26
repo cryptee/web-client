@@ -118,8 +118,10 @@ $(".contents").on('click', '.photo', function(event) {
     var photoID = $(this).attr("id");
     var shifted = event.shiftKey;
 
-    if (event.target.tagName.toUpperCase() !== "I" && !$("body").hasClass("nav-selection")) {
+    if (event.target.tagName.toUpperCase() !== "I" && !$("body").hasClass("nav-selection") && !$("body").hasClass("searching")) {
         loadPhoto(photoID);
+    } else if ($("body").hasClass("searching")) {
+        loadSearchResult(photoID);
     } else {
         if (!shifted) {
             togglePhotoSelection(photoID);
@@ -551,7 +553,8 @@ function extensionOfPhoto(pid) {
     
     if (isEmpty(photo)) { return "jpg"; }
 
-    var name = photo.decryptedTitle;
+    var name = photo.decryptedTitle || "Untitled.jpg";
+    
     return extensionFromFilename(name);
 }
 

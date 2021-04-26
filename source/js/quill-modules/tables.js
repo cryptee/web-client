@@ -1182,18 +1182,12 @@ function hideTableContextualButton() {
 
 function enableEditorToolbarTableMode() {
     $(".quill-toolbar").addClass("in-table");
-    $("#mobile-toolbar").addClass("in-table");
     $("#doc-contextual-buttons").addClass("in-table");
 }
 
 function disableEditorToolbarTableMode() {
     $(".quill-toolbar").removeClass("in-table");
     $("#doc-contextual-buttons").removeClass("in-table");
-    
-    // to make sure other toolbar items aren't visible while the tooltip fades out
-    setTimeout(function () {
-        $("#mobile-toolbar").removeClass("in-table");
-    }, 300);
 }
 
 function showTableContextualDropdown() {

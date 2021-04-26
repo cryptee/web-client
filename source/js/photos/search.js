@@ -1117,6 +1117,7 @@ async function displaySearchResults(sr) {
     var wrap = $(`#searchContents[search="${sr.searchID}"]`);
 
     var resultsHTML = [];
+    var resultAlbums = {};
 
     if (sr.type === "tags") {
 
@@ -1124,15 +1125,27 @@ async function displaySearchResults(sr) {
             resultsHTML.push(renderSearchHeader(`PHOTOS TAGGED WITH: ${sr.understood}`));
         }
 
-        var resultAlbums = {};
-        sr.results.forEach(result => {
-            var aid = photos[result.id].aid;
-            resultAlbums[aid] = (resultAlbums[aid] || 0) + 1;
-        });
+        if (sr.results.length <= 100) {
+            
+            // if we have less than 100 results, show photos individually.
+            sr.results.forEach(result => {
+                resultsHTML.push(renderPhoto(result.id, true));
+            });
 
-        Object.keys(resultAlbums).forEach(aid => {
-            resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS"));
-        });
+        } else {
+
+            // if we have more than 100 results, show photos in albums
+            
+            sr.results.forEach(result => {
+                var aid = photos[result.id].aid;
+                resultAlbums[aid] = (resultAlbums[aid] || 0) + 1;
+            });
+    
+            Object.keys(resultAlbums).forEach(aid => {
+                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS"));
+            });
+
+        }
 
     }
 
@@ -1156,7 +1169,6 @@ async function displaySearchResults(sr) {
             resultsHTML.push(renderSearchHeader(`PHOTOS FROM ${sr.understood}`));
         }
 
-        var resultAlbums = {};
         sr.results.forEach(result => {
             var aid = photos[result.id].aid;
             resultAlbums[aid] = (resultAlbums[aid] || 0) + 1;
@@ -1218,3 +1230,5 @@ function clearSearch(dontScroll) {
     
     if (!dontScroll) { scrollTop(); }
 }
+
+

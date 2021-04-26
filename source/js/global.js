@@ -1029,12 +1029,26 @@ function inactivityTimeout () {
 }
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	PROMISE TIMEOUT
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
+/**
+ * a quick timeout implementation for promises, so that we can continue flow even if a promise is left unresolved
+ * @param {*} promise 
+ * @param {*} ms 
+ */
+function promiseTimeout(promise, ms){
 
+  let timeout = new Promise((resolve, reject) => {
+    let id = setTimeout(() => { clearTimeout(id); reject('Timed out'); }, ms);
+  });
 
-
-
-
+  return Promise.race([ promise, timeout ]);
+  
+}
 
 
 

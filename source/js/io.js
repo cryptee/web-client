@@ -87,7 +87,7 @@ async function api(path, params, data, method, timeout) {
 
         if (error.code === "ECONNABORTED") {
             // ECONNABORTED = aborted (i.e. when user navigates away from page before request is completed or when connection is timed out)
-            handleError("[API] Request to " + path + " timed out / aborted", error.response, "info");
+            // handleError("[API] Request to " + path + " timed out / aborted", error.response, "info");
         } else {
             handleError("[API] Request to " + path + " failed", error.response);
         }

@@ -87,3 +87,10 @@ key('p', function () {
     $(".appButton[app='photos'] > a").trigger("click");
     return false;
 });
+
+// force-reinstall/update
+key('alt+r', function () {
+    showUpdateAvailable();
+    reloadForNewVersion();
+    return false;
+});

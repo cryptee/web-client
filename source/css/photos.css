@@ -1177,8 +1177,8 @@ UPGRADE TEXT
     user-select: none;
     cursor: pointer;
     z-index: 4;
+    line-height: 2.25rem;
 }
-
 
 
 /* -----------------------------

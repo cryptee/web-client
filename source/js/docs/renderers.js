@@ -369,10 +369,10 @@ function renderDoc(doc, folders) {
         <button class="icon"><i class="${icon}"></i></button>
         <span class="info">
             <p class="name">${filename}</p>
+            <p class="fldr" fid="${doc.fid}" style="color:${fcolor};">${fname}</p>
             <small class="when bold">${when}</small>
             <small class="tags">${tags}</small>
-            <small class="fldr" fid="${doc.fid}" style="color:${fcolor};">${fname}</small>
-        </span>
+            </span>
         <button class="more"><i class="ri-more-2-fill"></i></button>
     </div>`;
 

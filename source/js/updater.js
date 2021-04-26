@@ -72,20 +72,56 @@ async function reloadForNewVersion() {
     
     $("#update-available").addClass("loading");
     breadcrumb("[UPDATER] Removing old version...");
+    breadcrumb("[UPDATER] Getting service worker registration... (will timeout in 15sec)");
     
-    var reg = await navigator.serviceWorker.getRegistration();
-    if (!reg) { 
+    var reg; 
+    try {
+        reg = await promiseTimeout(navigator.serviceWorker.getRegistration(), 15000);
+    } catch (error) {
+        handleError("[UPDATER] Couldn't get service worker registration", error);
+    }
+    
+    if (!reg || isEmpty(reg)) { 
         updateCompleteLoadNewVersion(); 
         return true; 
     }
 
-    await reg.unregister();
+    breadcrumb("[UPDATER] Unregistering service worker... (will timeout in 15sec)");
     
-    var keyList = await caches.keys();
-    await Promise.all(keyList.map(function (key) { return caches.delete(key); }));
+    try {
+        await promiseTimeout(reg.unregister(), 15000);
+    } catch (error) {
+        handleError("[UPDATER] Couldn't unregister service worker", error);
+        updateCompleteLoadNewVersion(); 
+        return true;
+    }
     
-    updateCompleteLoadNewVersion();
+    breadcrumb("[UPDATER] Getting caches key list...");
+    var keyList; 
+    try {
+        keyList = await caches.keys();
+    } catch (error) {
+        handleError("[UPDATER] Couldn't get caches keylist", error);
+    }
 
+    if (!keyList || isEmpty(keyList)) { 
+        updateCompleteLoadNewVersion(); 
+        return true; 
+    }
+
+    breadcrumb("[UPDATER] Deleting old version...");
+
+    try {
+        await Promise.all(
+            keyList.map(function (key) { 
+                return caches.delete(key).catch((e) => undefined); 
+            })
+        );
+    } catch (error) { handleError("[UPDATER] Couldn't delete old caches", error); }
+
+    breadcrumb("[UPDATER] Deleted old version!");
+
+    updateCompleteLoadNewVersion();
     return true;
 
 }

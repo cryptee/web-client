@@ -416,6 +416,12 @@ EDITOR OVERRIDES
     white-space: normal;
 }
 
+.ql-clipboard {
+    right: -100000px !important;
+    left: 0 !important;
+    opacity: 0 !important;
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -674,16 +680,18 @@ crypteetablecell * {
     opacity: 0.2 !important;
 }
 
-#mobile-toolbar.in-table .ql-header,
-#mobile-toolbar.in-table .ql-blockquote,
-#mobile-toolbar.in-table .ql-clean,
-#mobile-toolbar.in-table .ql-list,
-#mobile-toolbar.in-table .ql-indent {
+#mobileToolbar.in-table .ql-header,
+#mobileToolbar.in-table .ql-blockquote,
+#mobileToolbar.in-table .ql-code-block,
+#mobileToolbar.in-table .ql-clean,
+#mobileToolbar.in-table .ql-list,
+#mobileToolbar.in-table .ql-indent {
     display: none !important;
 }
 
-#mobile-toolbar.in-table {
+#mobileToolbar.in-table {
     text-align: center;
+    width: 14rem !important;
 }
 
 
@@ -1110,17 +1118,12 @@ MOBILE TOOLBAR
 ----------------------------- */
 
 .ql-bubble .ql-tooltip {
-    width: 100% !important;
-    max-width: calc(12rem + 1rem) !important;
+    width: auto !important;
     padding: 0.5rem;
 }
 
-.ql-bubble .ql-tooltip {
-    max-width: calc(100% - 2rem);
-}
-
 .ql-tooltip #mobileToolbar {
-    width: 100%;    
+    width: 18rem;
 }
 
 .ql-tooltip #mobileToolbar button,
@@ -1394,4 +1397,15 @@ MEDIA QUERIES
     .ql-formats {
         margin-right: 0 !important;
     }   
+}
+
+@media (max-width : 368px) {
+    #mobileToolbar .ql-list,
+    #mobileToolbar .ql-code-block {
+        display: none !important;
+    }
+
+    .ql-bubble .ql-tooltip {
+        max-width: calc(14rem + 1rem) !important;
+    }
 }

@@ -227,6 +227,7 @@ LEFT MENU
     grid-column: 2 / 17;
     user-select: none;
     cursor: pointer;
+    line-height: 2.25rem;
 }
 
 #upgrade #storageLeft + span {
@@ -327,6 +328,7 @@ LEFT MENU
 
 #moveFloat button {
     height: 4rem;
+    margin: 0;
     min-width: 4.325rem;
     text-align: center;
     background-color: var(--cryptee-green);
@@ -807,7 +809,6 @@ DOCUMENTS & SUBFOLDERS
     display: flex;
     cursor: pointer;
     user-select: none;
-    -webkit-font-smoothing: antialiased;
 }
 
 .doc button,
@@ -854,10 +855,15 @@ DOCUMENTS & SUBFOLDERS
     color: var(--cryptee-2);
 }
 
+#recents .doc small:last-child {
+    margin-bottom: 1rem;
+}
+
+
 .doc .fldr {
     text-transform: lowercase;
     width: calc(100% - 0.5rem);
-    
+    margin-top: 0;
     overflow: hidden;
     word-break: break-all;
     text-overflow: ellipsis;
@@ -869,7 +875,9 @@ DOCUMENTS & SUBFOLDERS
     transition: 0.2s filter linear, 0.2s opacity linear;
 }
 
-#activeFolder .doc .info small {
+#activeFolder .doc .info .when,
+#activeFolder .doc .info .fldr,
+#activeFolder .doc .info .tags {
     opacity: 0 !important;
     pointer-events: none;
     height: 0;
@@ -2172,6 +2180,8 @@ DOCUMENT ACTION BUTTONS
 --------------------------------
 ----------------------------- */
 
+/* THIS WAS OVERFLOW:HIDDEN TO PREVENT SOMETHING, BUT CAN'T REMEMBER WHAT. TEST IN WINDOWS & LINUX */
+
 #documentActionButtons {
     grid-row: 4 / 5;
     grid-column: 3 / 4;
@@ -2881,6 +2891,7 @@ body.pinned #sliderPin i::before {
     
 body.pinned #sliderPin { 
     opacity: 1; 
+    height: 4rem;
 }
 
 body.pinned #sliderCaret {
@@ -2889,7 +2900,7 @@ body.pinned #sliderCaret {
 }
 
 body.pinned #explorerButtons {
-    grid-row: 5 / 8;
+    grid-row: 5 / 9;
 }
 
 /* -----------------------------
@@ -3080,6 +3091,9 @@ ENABLE HOVERS
     #file-viewer-nav button:hover { opacity: 1 !important;}
 
     #new-doc-recos time:hover { opacity: 1 !important; }
+
+    /* THIS WAS OVERFLOW:HIDDEN TO PREVENT SOMETHING, BUT CAN'T REMEMBER WHAT. TEST IN WINDOWS & LINUX */
+    #documentActionButtons { overflow: visible; }
 }
 
 
