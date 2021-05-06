@@ -1259,12 +1259,35 @@ $("#searchInput").on('keyup', function(event) {
         var searchTerm = $("#searchInput").val().trim();
 
         if (event.key === "Escape" || searchTerm === "") {
+            
             event.preventDefault();
             stopLeftProgress();
             clearSearch(event.key === "Escape"); // if it's escape, we'll blur the search
+
+        } else if ( event.key === "Enter" && event.shiftKey && searchHighlightIndex >= 0 && activeDocID ){
+
+            // user pressed shift + enter 
+            // attach / link document highlighted in search, then close search
+            
+            var didToAttach = $("#results > .highlight").not(".active, .loading, .decrypting").attr("did");
+            
+            if (didToAttach) {
+                // if highlighted item is a doc, attach / link it
+                attachSelectedFileInline(didToAttach).then(()=>{
+                    stopLeftProgress();
+                    clearSearch(event.key === "Escape");
+                    closeSidebarMenu();
+                });
+            } else {
+                // if hihglighted item is a folder, then just load it
+                loadHighlightedResult();
+            }
+            
         } else if (event.key === "Enter") {
+            
             event.preventDefault();
             loadHighlightedResult();
+            
         } else if (event.key === "Meta" || event.key === "Shift") {
             event.preventDefault();
         } else if (event.key === "Alt" || event.key === "Control") {
@@ -1276,11 +1299,15 @@ $("#searchInput").on('keyup', function(event) {
         } else if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
             event.preventDefault();
         } else if (event.key === "ArrowUp") {
+
             event.preventDefault();
             highlightPreviousSearchResult();
+
         } else if (event.key === "ArrowDown") {
+            
             event.preventDefault();
             highlightNextSearchResult();
+
         } else {
             
             if (searchTerm.length < 2) { return; } 

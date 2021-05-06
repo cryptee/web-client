@@ -267,7 +267,12 @@ async function openCache() {
 }
 
 
+
 self.addEventListener('fetch', (event) => { 
+
+    // USE THIS IF YOU NEED TO ROUTE SENTRY VIA /API, THE REST OF THE MAGIC RECIPE IS IN THE SERVER CENSORSHIP CIRCUMVENTION PROXIES FILE
+    // if (event.request.url.includes("https://sentry.crypt.ee")) { event.respondWith( handleSentry(event) ); }
+
     // bypass for post requests. 
     // XHR requests can check progress, but fetch can't. 
     // so if you 'fetch' POST requests using the service worker, you can't keep track of the upload progress in axios.

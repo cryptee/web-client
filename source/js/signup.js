@@ -529,7 +529,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     
     // (scenario 3) user created new account with google on login screen, and has no key, so we need to set a key.
     if (getUrlParameter("status") === "newuser") {
-        theUser.getIdToken(true).then((idTokenResult) => {
+        theUser.getIdTokenResult(true).then((idTokenResult) => {
             var keycheckClaim; 
             try { keycheckClaim = idTokenResult.claims.keycheck; } catch (error) {}
 
@@ -544,14 +544,16 @@ firebase.auth().onAuthStateChanged(function (user) {
                 return;
             }
         });
+    } else {
+        
+        // scenario 4 – just a regular user, who accidentally came to the signup page. 
+        // in the interest of not fucking things up even more, we'll sign them out. 
+        
+        breadcrumb('[SIGNUP] Authenticated! Likely an existing user, logging out for safety.');
+        logOut();
+
     }
     
-    // scenario 4 – just a regular user, who accidentally came to the signup page. 
-    // in the interest of not fucking things up even more, we'll sign them out. 
-
-    breadcrumb('[SIGNUP] Authenticated! Likely an existing user, logging out for safety.');
-    logOut();
-
 }, function (error) {
     handleError("[SIGNUP] Failed to authenticate – likely blocker", error, "warning");
     showPopup("popup-signup", "Seems like we're having a connectivity issue. Chances are your browser, ad-blocker or dns-based-filters are mistakenly blocking access to a resource Cryptee needs to complete your sign up. Please disable your ad-blocker / dns filters temporarily and try again.");
