@@ -8,7 +8,7 @@ TOOLBAR OVERRIDES
 
 
 .ql-formats {
-    margin-right: 1rem !important;
+    margin-right: 0.625rem !important;
     user-select: none !important;
 }
 
@@ -38,8 +38,8 @@ TOOLBAR OVERRIDES
     margin-right: 0!important;
 }
 
-.ql-picker:not(.ql-background):not(.ql-align):not(.ql-color):not(.ql-font), 
-.ql-picker:not(.ql-background):not(.ql-align):not(.ql-color):not(.ql-font) .ql-picker-label {
+.ql-picker:not(.ql-background):not(.ql-align):not(.ql-line-height):not(.ql-color):not(.ql-font), 
+.ql-picker:not(.ql-background):not(.ql-align):not(.ql-line-height):not(.ql-color):not(.ql-font) .ql-picker-label {
     width: 2.125rem !important;
     margin-right: 0.5rem !important;
     text-align: left; 
@@ -128,7 +128,6 @@ FONT DROPDOWN
     -moz-osx-font-smoothing: grayscale;
     vertical-align: middle;
     cursor: pointer;
-
 }
 
 .ql-font .ql-picker-options {
@@ -335,6 +334,55 @@ ALIGN DROPDOWN
     line-height: 1.25rem;
 }
 
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LINE HEIGHT DROPDOWN 
+ 
+--------------------------------
+----------------------------- */
+
+.ql-line-height svg { display: none !important; }
+.ql-line-height .ql-picker-label { text-align: center; }
+.ql-line-height .ql-picker-label:before {
+    content: "\EEAD" !important;
+    display: inline-block;
+    line-height: 2rem;
+    height: 2rem;
+    
+    font-size: 1rem;
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.ql-line-height .ql-picker-options { margin: 0 !important; }
+.ql-line-height .ql-picker-options .ql-picker-item::before {
+    content: attr(data-label);
+    font-size: 1rem;
+    font-weight: 350;
+}
+
+.ql-line-height .ql-picker-options .ql-picker-item {
+    text-align: left;
+    text-transform: lowercase;
+}
+
+.ql-picker-label[data-value="1.5rem"  ] + .ql-picker-options > .ql-picker-item[data-value="1.5rem"  ]::before,
+.ql-picker-label[data-value="1.725rem"] + .ql-picker-options > .ql-picker-item[data-value="1.725rem"]::before,
+.ql-picker-label[data-value="1.875rem"] + .ql-picker-options > .ql-picker-item[data-value="1.875rem"]::before,
+.ql-picker-label[data-value="2.25rem" ] + .ql-picker-options > .ql-picker-item[data-value="2.25rem" ]::before,
+.ql-picker-label[data-value="2.625rem"] + .ql-picker-options > .ql-picker-item[data-value="2.625rem"]::before,
+.ql-picker-label[data-value="3rem"    ] + .ql-picker-options > .ql-picker-item[data-value="3rem"    ]::before,
+.ql-picker-label[data-value="4.5rem"  ] + .ql-picker-options > .ql-picker-item[data-value="4.5rem"  ]::before { 
+    font-weight: 700; 
+}
 
 /* -----------------------------
 -------------------------------- 

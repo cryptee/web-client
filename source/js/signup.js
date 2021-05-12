@@ -15,7 +15,7 @@ $('#signup').on('click', submitStep2);
 $("#bigg").on('click', skipStep1);
 
 $('#keyinfo').on('click', function() {
-    showPopup("popup-signup", "In addition to the login password, Cryptee also uses a data encryption key to encrypt &amp; decrypt your data on your device, so that it's accessible only by you. The key never leaves your device, and it's never sent to any servers.<br><br><br>");
+    showPopup("popup-signup", "In addition to the login password, Cryptee also requires you to pick a data encryption key to encrypt &amp; decrypt your data on your device, so that it's accessible only by you. The key never leaves your device, and it's never sent to any servers.<br><br><br>");
 }); 
 
 function passColor(color) {

@@ -165,11 +165,11 @@ BULLETS
 
 .ql-editor ul li::before {
     display: inline-block;
-    line-height: 2rem;
+    /* line-height: 2rem; */
     height: 2rem;
     width: 2rem;
     font-size: 1.25rem;
-    margin-top: -0.25rem;
+    margin-top: -0.125rem;
     vertical-align: middle;
     
     /*to center bullet to checkboxes*/

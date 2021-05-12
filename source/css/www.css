@@ -287,8 +287,26 @@ FLOATING NAV
     margin-bottom: 0rem;
 }
 
+.nav-signup {
+    position: relative;
+    margin-left: 1rem;
+    max-width: 7rem;
+}
+
+.nav-signup::after {
+    content: "";
+    background-color: var(--cryptee-green);
+    display: block;
+    height: 0.25rem;
+    width: 4.25rem;
+    position: absolute;
+    right: 0;
+    bottom: 0.625rem;
+}
+
+
 footer {
-/* acts as a centering container */
+    /* acts as a centering container */
     display: grid;
     grid-template-columns: minmax(2rem, 1fr) minmax(0, 896px) minmax(2rem, 1fr);
     background-color: black;
@@ -516,33 +534,84 @@ DOWNLOAD BUTTONS / GRID
     right: 1rem;
 }
 
-.index-download {
-    grid-column: span 2;
-    height: 8rem;
-    position: relative;
-    color: var(--cryptee-4);
-    background-color: var(--cryptee-0);
-}
-
-.index-download small:first-child {
-    position: absolute;
-    top: 0rem;
-    right: 1rem;
-}
-
-.index-download small:last-child {
-    position: absolute;
-    bottom: 0.5rem;
-    left: 1rem;
-}
-
 .dm .download-os {
     outline: 2px solid white;
 }
 
-.dm .index-download {
+.index-download-os {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 8rem;
+}
+
+.index-download-os a { 
+    color: var(--cryptee-2);
+}
+
+.index-download-os i {
+    float: left;
+    font-size: 1.5rem;
+    line-height: 3.75rem;
+    height: 4rem;
+    width: 2rem;
+}
+
+.index-download-os p {
+    margin-top: 0;
+    display: inline-block;
+    line-height: 4rem;
+    height: 4rem;
+}
+
+.download-description {
+    margin-top: -0.5rem;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+DOWNLOAD / SIGNUP BUTTONS 
+ 
+--------------------------------
+----------------------------- */
+
+.index-hero-button {
+    display: block;
+    grid-column: span 1;
+    height: 6rem;
+    margin-top: 1rem;
+    position: relative;
+    color: var(--cryptee-4);
+    background-color: var(--cryptee-0);
+    border-radius: 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 4rem;
+}
+
+.index-hero-button p,
+.index-hero-button i {
+    margin-top: 0 !important;
+    line-height: 6rem;
+}
+
+.index-hero-button i { text-align: center; }
+.index-hero-button p:first-child {
+    padding-left: 2rem;
+}
+
+.dm .index-hero-button {
     background-color: white;
     color: black;
+}
+
+.index-hero-button.slim {
+    height: 4rem;
+}
+
+.index-hero-button.slim p,
+.index-hero-button.slim i {
+    line-height: 4rem;
 }
 
 /* -----------------------------
@@ -829,6 +898,11 @@ MEDIA QUERIES
         grid-template-columns: 4fr 3fr;
     }
 
+    .index-download-os      { grid-template-columns: 1fr 1fr; }
+    .mobile-os { order: -1; }
+
+    .index-hero-button         { grid-template-columns: 1fr 4rem; }
+    .index-hero-button .gray   { display: none; }
 }
 
 @media (max-width : 703px) { 
@@ -856,6 +930,9 @@ MEDIA QUERIES
     .grid-hero {
         grid-template-columns: 1fr;
     }
+
+    .index-download-os      { margin-bottom: 2rem; }
+
 }
 
 
@@ -907,7 +984,7 @@ MEDIA QUERIES
         order: -1;
     }
 
-    .index-download {
+    .index-hero-button {
         grid-column: 1 / -1;
     }
 

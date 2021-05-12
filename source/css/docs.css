@@ -546,7 +546,13 @@ LEFT MENU
     -webkit-overflow-scrolling: touch;
     will-change: transform;
     transition: 1s transform var(--cryptee-cb);
+    
+    scrollbar-width: none; /* to hide scrollbars in windows firefox */
+    -ms-overflow-style:none; /* to hide scrollbars in windows / IE / Edge etc */
 }
+
+/* to hide scrollbars in windows */
+#leftListWrapper > div::-webkit-scrollbar { display: none; }
 
 .swiper-slide:not(.activeSlide) #leftListWrapper > div { 
     transition-duration: 0s; 

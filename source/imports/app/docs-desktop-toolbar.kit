@@ -13,7 +13,7 @@
         <option value="40px">40</option>
         <option value="48px">48</option>
     </select>
-    <select class="ql-header">
+    <select class="ql-header"         title="Paragraph Style">
         <option value="1"             title="Header 1"></option>
         <option value="2"             title="Header 2"></option>
         <option value="3"             title="Header 3"></option>
@@ -26,7 +26,6 @@
     <button class="ql-underline"                        title="Underline ( ⌘+u / ctrl+u )"></button>
     <button class="ql-strike"                           title="Strike ( ⌘+shift+s / ctrl+shift+s )"></button>
     <button class="ql-blockquote"                       title="Quote ( ⌘+shift+9 / ctrl+shift+9 )"></button>
-    <button class="ql-code-block"                       title="Code ( ⌘+shift+0 / ctrl+shift+0 )"></button>
     <select class="ql-color"                            title="Text Color"></select>
     <select class="ql-background"                       title="Highlight Color"></select>
     <button class="ql-script"    value="sub"            title="Sub"></button>
@@ -34,20 +33,30 @@
     <button class="ql-clean"     value="clean"          title="Clear Formatting ( ⌘+\ or ctrl+\ )"></button>
 </span>
 <span class="ql-formats">
-    <button class="ql-list"                         value="check"          title="Check List ( ⌘+shift+6 / ctrl+shift+6 )"></button>
-    <button class="ql-list"                         value="ordered"        title="Ordered List ( ⌘+shift+7 / ctrl+shift+7 )"></button>
-    <button class="ql-list"                         value="bullet"         title="Bullet List ( ⌘+shift+8 / ctrl+shift+8 )"></button>
-    <button class="ql-indent     hidden-tablet"     value="-1"             title="Indent Left ( ⌘+[ / ctrl+[ )"></button>
-    <button class="ql-indent     hidden-tablet"     value="+1"             title="Indent Right ( ⌘+] / ctrl+] )"></button>
-    <select class="ql-align      hidden-tablet"                            title="Text Align"></select>
-    <button class="ql-direction  hidden-tablet"     value="rtl"            title="Language Direction" style="margin-top:0.05rem !important;"></button>
-    <span class="ql-hr           hidden-tablet"     value="divider"        title="Divider"><i class="ri-separator"></i></span>
+    <button class="ql-list"      value="check"          title="Check List ( ⌘+shift+6 / ctrl+shift+6 )"></button>
+    <button class="ql-list"      value="ordered"        title="Ordered List ( ⌘+shift+7 / ctrl+shift+7 )"></button>
+    <button class="ql-list"      value="bullet"         title="Bullet List ( ⌘+shift+8 / ctrl+shift+8 )"></button>
+    <select class="ql-line-height hidden-tablet"        title="Line Spacing">
+        <option value="1.5rem"    title="Single">Single </option> <!-- 1.5rem x 1.00 -->
+        <option value="1.725rem"  title="1.15">1.15     </option> <!-- 1.5rem x 1.15 -->
+        <option value="1.875rem"  title="1.25">1.25     </option> <!-- 1.5rem x 1.25 -->
+        <option value="2.25rem"   title="1.5">1.5       </option> <!-- 1.5rem x 1.50 -->
+        <option value="2.625rem"  title="1.75">1.75     </option> <!-- 1.5rem x 1.75 -->
+        <option value="3rem"      title="Double">Double </option> <!-- 1.5rem x 2.00 -->
+        <option value="4.5rem"    title="Triple">Triple </option> <!-- 1.5rem x 3.00 -->
+    </select>
+    <button class="ql-indent     hidden-tablet"     value="-1"              title="Indent Left ( ⌘+[ / ctrl+[ )"></button>
+    <button class="ql-indent     hidden-tablet"     value="+1"              title="Indent Right ( ⌘+] / ctrl+] )"></button>
+    <select class="ql-align      hidden-tablet"                             title="Text Align"></select>
+    <button class="ql-direction  hidden-tablet"     value="rtl"             title="Language Direction" style="margin-top:0.05rem !important;"></button>
+    <span   class="ql-hr         hidden-tablet"     value="divider"         title="Divider"><i class="ri-separator"></i></span>
 </span>
 <span class="ql-formats">
-    <button class="ql-link       hidden-tablet"                 title="Hyperlink ( ⌘+k / ctrl+k )"></button>
-    <button class="ql-formula    hidden-tablet"                 title="Formula ( ⌘+shift+k / ctrl+shift+k )"></button>
-    <button class="ql-image      hidden-offline"                title="Image"></button>
-    <button class="ql-video      hidden-tablet hidden-offline"  title="Embed Video"></button>
-    <button class="cryptee-new-table  hidden-offline"  title="New Table"><i class="ri-table-2"></i></button>
-    <button class="cryptee-attachfile hidden-tablet hidden-offline"  title="Attach File from Cryptee" onclick="showInlineAttachmentPopup();"><i class="ri-attachment-line"></i></button>
+    <button class="ql-link       hidden-tablet"                             title="Hyperlink ( ⌘+k / ctrl+k )"></button>
+    <button class="ql-formula    hidden-tablet"                             title="Formula ( ⌘+shift+k / ctrl+shift+k )"></button>
+    <button class="ql-code-block hidden-tablet"                             title="Code ( ⌘+shift+0 / ctrl+shift+0 )"></button>
+    <button class="ql-image      hidden-offline"                            title="Image"></button>
+    <button class="ql-video      hidden-tablet hidden-offline"              title="Embed Video"></button>
+    <button class="cryptee-new-table  hidden-offline"                       title="New Table"><i class="ri-table-2"></i></button>
+    <button class="cryptee-attachfile hidden-tablet hidden-offline"         title="Attach File from Cryptee" onclick="showInlineAttachmentPopup();"><i class="ri-attachment-line"></i></button>
 </span>

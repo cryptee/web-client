@@ -325,11 +325,6 @@ $("#key-input").on('keyup', function(event) {
     activityHappened();
 }); 
 
-$("#key-input").on('blur', function(event) {
-    var key = $("#key-input").val();
-    if (key) { checkKey(key); }
-}); 
-
 // TO MAKE PASSWORD MANAGER LOGINS SMOOTHER.
 $("#key-input").on('paste', function(event) {
     setTimeout(function () {
@@ -433,6 +428,7 @@ function wrongKey(description, hashedKey) {
     breadcrumb('[KEY] Wrong Key');
     $("#key-error").addClass("shown");
     $("#key-progress").addClass("error");
+    $("#key-remember").removeClass("selected");
 
     if (description) {
         $("#key-error-description").html(description); 
@@ -454,6 +450,10 @@ function rightKey(plaintextKey, hashedKey) {
     hideKeyModal();
     
     newEncryptedKeycheck(hashedKey);
+
+    if ($("#key-remember").hasClass("selected")) {
+        tryToRememberTheKey(hashedKey);
+    }
     
     // THIS IS DEFINED IN EACH APP
     startup = startup || noop;
@@ -477,6 +477,16 @@ function newEncryptedKeycheck(hashedKey) {
 }
   
 
+function tryToRememberTheKey(hashedKey) {
+    breadcrumb('[REMEMBER KEY] Will remember key.');
+
+    try {
+        localStorage.setItem('memorizedKey', JSON.stringify(hashedKey));
+    } catch (error) {
+        handleError("[REMEMBER KEY] Couldn't set hashed key to local storage", error);
+        createPopup("Failed to remember your key. Please make sure your browser / ad-blockers aren't configured to block access to sessionStorage, localStorage or IndexedDB, try again and reach out to our support via our helpdesk if this issue continues.", "error");
+    }
+}
 
 
 

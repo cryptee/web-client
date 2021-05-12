@@ -786,6 +786,7 @@ KEY MODAL
     user-select: none;
     opacity: 0.25;
     transition: 0.3s opacity ease;
+    transform: rotate(90deg);
 }
 
 #key-error {
@@ -802,13 +803,36 @@ KEY MODAL
     pointer-events: none;
 }
 
-.dm #key-enter,
-.dm #key-error {
-    filter: invert(1);
+#key-remember {
+    grid-row: 3 / 4;
+    grid-column: 1/2;
+    text-align: right;
+    margin-top: 1rem;
+    opacity: 0.5;
+    transition: 0.3s opacity ease;
 }
 
+#key-remember.selected {
+    opacity: 1;
+}
 
+#key-remember::after {
+    margin: 0 0 0 3.5rem !important;
+}
 
+#key-error.shown ~ #key-remember {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+#key-remember:active { color: #000; }
+#key-remember:focus { opacity: 1; }
+
+.dm #key-enter,
+.dm #key-error,
+.dm #key-remember {
+    filter: invert(1);
+}
 
 /* ENTERING KEY */
 
@@ -1164,7 +1188,7 @@ RADIOS / MULTIPLE SELECTIONS
 --------------------------------
 ----------------------------- */
 
-button.radio::before {   
+button.radio::before, #key-remember::after {   
     content: "\EB7D";
     display: inline-block;
     line-height: 1.625rem;
@@ -1181,14 +1205,21 @@ button.radio::before {
     user-select: none;
 }
 
-button.radio.selected::before {
-    content: "\EB81";
+button.radio.selected::before { content: "\EB81"; }
+button.radio[disabled]::before { content: "\EE57"; }
+
+#key-remember::after { 
+    content: "\EB7C"; 
+    opacity: 0.5;
+    font-size: 1.125rem;
 }
 
-button.radio[disabled]::before {
-    content: "\EE57";
+#key-remember.selected::after { 
+    content: "\EB80"; 
+    opacity: 1;
 }
 
+#key-remember[disabled]::after { content: "\EE56"; }
 
 
 
@@ -1364,6 +1395,12 @@ ANIMATIONS
     100% {opacity: 1;}
 }
 
+@keyframes longBlinkForAttention {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.35; }
+    100% { opacity: 1; }
+}
+
 @keyframes loadingBlink {
     0%   {opacity: 1;}
     50%  {opacity: 0.75;}
@@ -1444,6 +1481,10 @@ ENABLE HOVERS
 
     #key-input:hover:not(:focus) ~ #key-enter {
         opacity: 0.4;
+    }
+
+    #key-remember:hover::after {
+        opacity: 1;
     }
 }
 

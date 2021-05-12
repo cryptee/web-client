@@ -153,6 +153,7 @@ quillIcons.header['3']          = renderIcon("h-3");
 quillIcons.italic               = renderIcon("italic");
 quillIcons.image                = renderIcon("image-line");
 
+quillIcons['line-height']       = renderIcon("line-height");
 quillIcons.indent['+1']         = renderIcon("indent-increase");
 quillIcons.indent['-1']         = renderIcon("indent-decrease");
 quillIcons.link                 = renderIcon("link-m");
