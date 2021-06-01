@@ -2707,6 +2707,10 @@ body.bubble #editorWrapper .ql-editor {
     padding: 0.5rem 1.5rem;
 }
 
+body.bubble .swiper-container-ios #editorWrapper .ql-editor {
+    padding: 0.5rem 1.5rem 60vh 1.5rem;
+}
+
 body.bubble #desktopToolbar { 
     justify-content: flex-end;
     opacity: 0.4;

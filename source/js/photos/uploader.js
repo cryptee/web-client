@@ -143,27 +143,35 @@ function traverseFileTree(item) {
     if (item.isFile) {
         
         item.file(addFileToUploadQueue);
-
-        traverseFiletreeTimeout = setTimeout(runUploadQueue, 100);
+        traverseFiletreeTimeout = setTimeout(runUploadQueue, 500);
 
     } else if (item.isDirectory) {
 
-        item.createReader().readEntries((entries) => {
-            entries.forEach(traverseFileTree);
-        });
+        var reader = item.createReader();
+        readDirectoryEntries(reader);
 
     } else {
+        
         // neither file, nor folder. ignore 
+        traverseFiletreeTimeout = setTimeout(runUploadQueue, 500);
 
-        traverseFiletreeTimeout = setTimeout(runUploadQueue, 100);
     }
+
+    // https://stackoverflow.com/a/53058574/353276
+    function readDirectoryEntries(reader) {
+        reader.readEntries((entries) => {
+            if (entries.length > 0) {
+                entries.forEach(traverseFileTree);
+                readDirectoryEntries(reader);
+            }
+        });
+    }
+
 }
 
 var uploadQueue = {};
 var uploadQueueOrder = [];
 var maxFilesize = 50000000; // 50mb for now, due to technical limits
-// var maxFilesize = 10000000; // 10mb for easy testing
-
 
 function addFileToUploadQueue(file) {
     var filename = (file.name || "").trim().toLowerCase(); // "photo.jpg"

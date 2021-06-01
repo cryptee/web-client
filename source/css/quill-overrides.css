@@ -451,6 +451,11 @@ EDITOR OVERRIDES
     -webkit-overflow-scrolling: touch;
 }
 
+.swiper-container-ios .ql-editor {
+    padding:4rem 4rem 60vh 4rem;
+}
+
+
 .ql-editor > *:last-child { margin-bottom: 4rem; }
 
 .dm .ql-editor {

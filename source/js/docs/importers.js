@@ -995,7 +995,7 @@ function convertHTMLToDeltas(purifiedCrypteeHTML) {
  */
 function purifyHTML(rawHTML) {
     breadcrumb('[PURIFY HTML] Purifying HTML');
-    var allowedHTMLTags = ["A", "B", "BLOCKQUOTE", "BR", "CODE", "DEL", "DIV", "H1", "H2", "H3", "H4", "H5", "H6", "HR", "I", "IMG", "LI", "META", "OL", "P", "PRE", "Q", "S", "SPAN", "STRIKE", "STRONG", "SUB", "SUP", "TABLE", "TBODY", "TFOOT", "THEAD", "TD", "TH", "TR", "U", "UL"];
+    var allowedHTMLTags = ["A", "B", "BLOCKQUOTE", "BR", "CODE", "DEL", "DIV", "EM", "H1", "H2", "H3", "H4", "H5", "H6", "HR", "I", "IMG", "LI", "META", "OL", "P", "PRE", "Q", "S", "SPAN", "STRIKE", "STRONG", "SUB", "SUP", "TABLE", "TBODY", "TFOOT", "THEAD", "TD", "TH", "TR", "U", "UL"];
     var allowedCustomTags = ["CRYPTEETABLEDATA", "CRYPTEETABLE", "CRYPTEETABLECELL", "CRYPTEEFILE", "CRYPTEETAG"];
     var allowedCrypteeAttributes = ["tableid", "rows", "columns", "fid", "did", "filetitle", "filename", "extsrc", "extalt", "type", "hash", "checked", "data-checked"];
     var cleanHTML = DOMPurify.sanitize(rawHTML, { 
