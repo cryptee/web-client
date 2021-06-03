@@ -220,8 +220,8 @@ async function validateVAT() {
 
     $("#company").removeClass("validating validated error");
     $("#company").addClass("validated");
-    $("#company-name").html(vatResponse.company_name);
-    $("#company-address").html(vatResponse.company_address);
+    $("#company-name").text(vatResponse.company_name);
+    $("#company-address").text(vatResponse.company_address);
     
     vatInfo = vatResponse;
     validatingVAT = false;
@@ -231,8 +231,8 @@ async function validateVAT() {
         createPopup(popupMsg, "error");
         $("#company").removeClass("validating validated error");
         $("#company").addClass("error");
-        $("#company-name").html("error");
-        $("#company-address").html(miniMsg);
+        $("#company-name").text("error");
+        $("#company-address").text(miniMsg);
         vatInfo = {};
         validatingVAT = false;
     }
@@ -258,20 +258,20 @@ var elements = stripe.elements({fonts : [ { src: `url('https://static.crypt.ee/f
 
 var elementStyles = {
     base: {
-        color: '#fff',
+        color: '#000',
         fontWeight: '350',
         fontFamily: 'Josefin Sans, sans-serif',
         fontSize: '16px',
         textTransform: 'lowercase',
         fontSmoothing: 'antialiased',
 
-        ':focus': { color: '#FFF' },
+        ':focus': { color: '#000' },
         '::placeholder': { color: placeholderColor },
         ':focus::placeholder': { color: placeholderColor },
     },
     invalid: {
         color: '#CC0101',
-        ':focus': { color: '#FFF' },
+        ':focus': { color: '#000' },
         '::placeholder': { color: '#980000' }, 
     },
 };

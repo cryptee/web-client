@@ -152,9 +152,9 @@ function createUserDBReferences(user) {
 
     setSentryUser(theUserID);
     if (theUsername) {
-        $('.username').html(theUsername);
+        $('.username').text(theUsername);
     } else {
-        $('.username').html(theEmail);
+        $('.username').text(theEmail);
         $('.username').addClass("email-user");
     }
 
@@ -162,7 +162,7 @@ function createUserDBReferences(user) {
     try { localStorage.setItem("username", (theUsername || theEmail)); } catch (e) {}
 
     if (!theEmail.endsWith("@users.crypt.ee")) {
-        $('.email').html(theEmail);
+        $('.email').text(theEmail);
         $('.email').val(theEmail);
         try { localStorage.setItem("email", theEmail); } catch (e) {}
     } else {
@@ -673,15 +673,15 @@ function restoreUserFromLS() {
         var email = localStorage.getItem("email");
         
         if (username) {
-            $('.username').html(username);
+            $('.username').text(username);
         } else {
-            $('.username').html(email);
+            $('.username').text(email);
             $('.username').addClass("email-user");
         }
 
         $('.username').val(username);
 
-        $('.email').html(email);
+        $('.email').text(email);
         $('.email').val(email);
 
         allowedStorage = localStorage.getItem("allowedStorage");

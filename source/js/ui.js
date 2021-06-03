@@ -92,6 +92,8 @@ function showPopup(popupID, message, type) {
             popup.addClass("show");
         }, 500);
     }
+
+    hideTips();
 }
 
 /**
@@ -174,6 +176,8 @@ function hideAllPopups() {
         var id = $(this).attr("id");
         hidePopup(id);
     });
+
+    hideTips();
 }
 
 
@@ -199,6 +203,8 @@ function showModal(modalID) {
     }
 
     if (typeof hidePanels === 'function') { hidePanels(); }
+
+    hideTips();
 
 }
 
@@ -248,11 +254,33 @@ $(".modal").on('keyup', 'input:first-child, input:last-child' , function(event) 
 
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	TIPS / GUIDES INTERACTIONS & FUNCTIONS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
+function showTip(tipsID) {
+    if (!tipsID) { return false; }
+    $("#" + tipsID).addClass("show");
+}
 
+function hideTips() {
+    $(".tip").removeClass("show");
+}
 
+$('.tip').on('swipeDown', hideTips);
+key('esc', hideTips);
 
-
+// initialize swiper for tips
+var tipsConfig = {
+    pagination: { el: '.tips-pagination', clickable: true },
+    mousewheel: { forceToAxis: true, invert: true },
+    navigation: { nextEl : '.tips-next' },
+    simulateTouch : false,
+    spaceBetween: 32,
+    speed: 500,
+};
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -477,8 +505,8 @@ async function prepKeyModal() {
         }, 100);
     }); 
     
-    $("#key-image-author").html("© " + authorName);
-    $("#image-author").html("© " + authorName);
+    $("#key-image-author").text("© " + authorName);
+    $("#image-author").text("© " + authorName);
 
 }
 

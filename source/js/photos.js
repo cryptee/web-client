@@ -853,6 +853,12 @@ $("#photos-tags-input").on('keydown keypress paste copy cut change', function(ev
             $("#photos-tags-input").val(userInput);
         }
 
+        // remove html entities (i.e. if user pastes them)
+        userInput = stripHTMLEntities(userInput);
+            
+        // remove html entities from the text input
+        $("#photos-tags-input").val(userInput);
+
         // remove all characters after 100th
         if (userInput.length > 100) {    
             userInput = userInput.substring(0,100);    

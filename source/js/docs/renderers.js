@@ -48,7 +48,7 @@ async function refreshDOM(autoRefresh) {
         // render recents
         for (var recentDoc of recentDocs) {
             var docElem = $(`#recents > .doc[did="${recentDoc.docid}"]`);
-            
+
             // don't show recent docs in archived folders 
             // (some docs i.e. homedoc may have no folder so, make sure we also check for docs without folders, and show them here)
             
@@ -60,8 +60,15 @@ async function refreshDOM(autoRefresh) {
             if (!folders[recentDoc.fid] || !folders[rootFolderParentIDOfDoc].archived) { 
                 
                 if (!docElem.length) {
+                    // add recent doc to sidebar
                     var docHTML = renderDoc(recentDoc, folders);
-                    $("#recents").prepend(docHTML);
+                    $("#recents").append(docHTML);
+
+                    // add recent doc to blank editor recent docs list if there's less than 3
+                    if ($(`#blank-editor-recents`).children().length < 3) {
+                        $("#blank-editor-recents").append(docHTML);
+                    }
+
                 } else { 
                     updateDocInDOM(recentDoc, folders);
                 }
@@ -72,7 +79,7 @@ async function refreshDOM(autoRefresh) {
             if (!isEmpty(folders[rootFolderParentIDOfDoc]) && folders[rootFolderParentIDOfDoc].archived) { docElem.remove(); }
 
         }
-        
+
         // get all root folders from our folders object
         var rootFolders = [];
         for (var fid in folders) {
@@ -104,6 +111,7 @@ async function refreshDOM(autoRefresh) {
         // empty recents.
         var hasNoRecents = ($("#recents").children().length === 0);
         $("#leftListWrapper").toggleClass("no-recents", hasNoRecents);
+        $(".quick-recent-docs").toggleClass("no-recents", hasNoRecents);
 
         // no folders.
         var hasNoFolders = ($("#folders").children().length === 0);
@@ -185,7 +193,7 @@ async function refreshDOM(autoRefresh) {
             // docname
             var activeDoc = await getDocFromCatalog(activeDocID);
             var activeDocName = docName(activeDoc);
-            $("#panel-docinfo").find(".name").html(activeDocName);
+            $("#panel-docinfo").find(".name").text(activeDocName);
 
 
 
@@ -196,7 +204,7 @@ async function refreshDOM(autoRefresh) {
                 var activeDocFolder = folders[activeDoc.fid];
                 var activeDocFoldername = folderName(activeDocFolder);
                 
-                $("#panel-docinfo").find(".docfolder").html(activeDocFoldername);
+                $("#panel-docinfo").find(".docfolder").text(activeDocFoldername);
                 $("#activeDocFolderButton").attr("fid", activeDoc.fid);
                 $("#activeDocFolderButton").show(); 
 
@@ -288,14 +296,16 @@ function renderDoc(doc, folders) {
 
     // FOLDER
     var fname = "";
-    if (doc.fid && !isEmpty(folders)) { 
-        fname = folderName(folders[doc.fid]); 
+    var fid = "";
+    if (doc.fid && !isEmpty(folders)) {
+        fid = doc.fid; 
+        fname = folderName(folders[fid]); 
     }
 
     // FOLDER COLOR
     var fcolor = "#FFF";
-    if (doc.fid && !isEmpty(folders) && folders[doc.fid]) { 
-        fcolor = folders[doc.fid].color || "#FFF";
+    if (fid && !isEmpty(folders) && folders[fid]) { 
+        fcolor = folders[fid].color || "#FFF";
          
         // for the sake of recent docs, if a folder doesn't have color, then it's white
         if (["#000", "#000000", "#363636"].includes(fcolor)) { fcolor = "#FFF"; }
@@ -365,11 +375,11 @@ function renderDoc(doc, folders) {
     }
 
     var card = 
-    `<div class="doc ${selected} ${decrypting} ${active} ${isfile} ${isOffline}" did="${doc.docid}" gen="${(doc.generation || 0)}" ext="${extension}" name="${lcname}">
+    escapeTemplateHTML`<div class="doc ${selected} ${decrypting} ${active} ${isfile} ${isOffline}" did="${doc.docid}" gen="${(doc.generation || 0)}" ext="${extension}" name="${lcname}">
         <button class="icon"><i class="${icon}"></i></button>
         <span class="info">
             <p class="name">${filename}</p>
-            <p class="fldr" fid="${doc.fid}" style="color:${fcolor};">${fname}</p>
+            <p class="fldr" fid="${fid}" style="color:${fcolor};">${fname}</p>
             <small class="when bold">${when}</small>
             <small class="tags">${tags}</small>
             </span>
@@ -401,7 +411,7 @@ function renderFolder(folder) {
     }
 
     var card =
-    `<div class="folder ${archived}" style="--fcolor:${color}" fid="${fid}" name="${lcname}">
+    escapeTemplateHTML`<div class="folder ${archived}" style="--fcolor:${color}" fid="${fid}" name="${lcname}">
         <i class="ri-more-2-fill"></i>
         <img class="foldertab" src="../assets/foldertab.svg" draggable="false">
         <div class="contents">
@@ -435,7 +445,7 @@ function renderSubFolder(folder) {
     }
 
     var card = 
-    `<div class="subfolder ${archived}" fid="${fid}" name="${lcname}">
+    escapeTemplateHTML`<div class="subfolder ${archived}" fid="${fid}" name="${lcname}">
         <button class="icon"><i style="color:${color}" class="ri-folder-fill"></i></button>
         <p class="name">${fname}</p>
         <button class="more"><i class="ri-more-2-fill"></i></button>
@@ -451,7 +461,7 @@ function renderSubFolder(folder) {
  */
 function renderFolderHeader(activeFolder) {
 
-    var fname = folderName(activeFolder);
+    var fname = escapeHTML(folderName(activeFolder));
     var ctxButton = "";
     var fid = ""; 
     if (!isEmpty(activeFolder)) { fid = activeFolder.folderid || ""; }
@@ -483,7 +493,7 @@ function renderFolderHeader(activeFolder) {
  */
 function renderSeparator(label,order) {
     label = label || "documents";
-    return `<div class="separator" style="order:${order};" order="${order}"><hr><small>${label}</small></div>`;
+    return escapeTemplateHTML`<div class="separator" style="order:${order};" order="${order}"><hr><small>${label}</small></div>`;
 }
 
 
@@ -502,7 +512,7 @@ function renderUpload(uploadID, name, loaded, total, status) {
     name = name || " ";
 
     var uploadCard = 
-    `<div class="upload" id="upload-${uploadID}" status="${status}">
+    escapeTemplateHTML`<div class="upload" id="upload-${uploadID}" status="${status}">
         <p>${name}</p>
         <small class="status">${status}</small>
         <progress class="progress white" value="${loaded}" max="${total}"></progress>
@@ -545,11 +555,11 @@ function updateFolderInDOM(folder) {
     var color = folder.color || "#FFF";
 
     $(`.folder[fid="${fid}"]`).attr("style", `--fcolor:${color}`);
-    $(`.folder[fid="${fid}"]`).find(".name").html(fname);
+    $(`.folder[fid="${fid}"]`).find(".name").text(fname);
     $(`.folder[fid="${fid}"]`).attr("name", lcname);
 
     $(`.subfolder[fid="${fid}"]`).find(".ri-folder-fill").attr("style", `color:${color}`);
-    $(`.subfolder[fid="${fid}"]`).find(".name").html(fname);
+    $(`.subfolder[fid="${fid}"]`).find(".name").text(fname);
     $(`.subfolder[fid="${fid}"]`).attr("name", lcname);
 
     if (folder.archived) {
@@ -580,7 +590,7 @@ function updateDocInDOM(doc, folders) {
     // NAME
     var filename = docName(doc) || randomString; 
     var lcname = filename.toLowerCase();
-    docElem.find(".name").html(filename);
+    docElem.find(".name").text(filename);
     docElem.attr("name", lcname);
 
     // FOLDER
@@ -588,7 +598,7 @@ function updateDocInDOM(doc, folders) {
     if (doc.fid) { 
         fname = folderName(folders[doc.fid]); 
         docElem.find(".fldr").attr("fid", doc.fid);
-        docElem.find(".fldr").html(fname);
+        docElem.find(".fldr").text(fname);
     }
 
     // FOLDER COLOR

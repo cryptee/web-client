@@ -1298,7 +1298,7 @@ async function prepareDeleteFolderModal() {
     }
 
     var fname = await getFolderNameFromCatalog(fid);
-    $("#deleting-foldername").html(fname);
+    $("#deleting-foldername").text(fname);
     $("#modal-delete-folder").attr("fid", fid);
 
     breadcrumb('[DELETE] Showing delete modal for ' + fid);
@@ -1388,7 +1388,10 @@ async function prepareDeleteDocsModal(whatToDelete) {
     
     for (var did of arrayOfDIDsToDelete) {
         var name = await getDocNameFromCatalog(did);
-        
+
+        name = name || "";
+        name = escapeHTML(name);
+
         var active = "";
         if (did === activeDocID || did === activeFileID) { active = "<span class='deleting-active-doc-tag'>currently open</span>"; }
 
@@ -1606,13 +1609,13 @@ function sortFolder(docs, subfolders, activeFolder, sorttype) {
     // Gen Ascending
     if (sorttype === "genasc") {
         sortedFolders   = subfolders.sort(naturalSort);
-        sortedDocs      = docs.sort(gensort);
+        sortedDocs      = docs.sort(gensort).reverse();
     }
     
     // Gen Descending
     if (sorttype === "gendesc") {
         sortedFolders   = subfolders.sort(naturalSort);
-        sortedDocs      = docs.sort(gensort).reverse();
+        sortedDocs      = docs.sort(gensort);
     }
 
 
@@ -1763,7 +1766,7 @@ async function prepareActiveDocumentInfoPanel(did, doc, contents) {
     
     // update name
     var name = docName(doc);
-    $("#panel-docinfo").find(".name").html(name);
+    $("#panel-docinfo").find(".name").text(name);
     
 
     // update size
@@ -1794,7 +1797,7 @@ async function prepareActiveDocumentInfoPanel(did, doc, contents) {
     // update folder name if it's not home
     if (did !== "d-home") {
         var fname = await getFolderNameFromCatalog(doc.fid);
-        $("#panel-docinfo").find(".docfolder").html(fname);
+        $("#panel-docinfo").find(".docfolder").text(fname);
         $("#activeDocFolderButton").attr("fid", doc.fid);
         $("#activeDocFolderButton").show(); 
     } else {
@@ -2075,6 +2078,7 @@ async function processEmbedImage(file, lastSelectionRangeIndex) {
     showEmbeddingImageProgress();
     
     var filename = file.name || "";
+    filename = escapeHTML(filename);
     var ext = extensionFromFilename(filename);
     lastSelectionRangeIndex = lastSelectionRangeIndex || getLastSelectionRange().index;
 
@@ -3114,16 +3118,5 @@ async function summonGhostFolder(hash) {
     $("#summon-input").val("");
 
     return true;
-
-}
-
-
-/**
- * This updates a freshly summoned folder's titles in the catalog. In V1 & V2, you were only allowed to ghost/summon folders without subfolders. 
- * And once ghosted, their hashes were written over their titles, leaving the folder without a title. (long story)
- * So if a user's summoning a V1/V2 folder, they will arrive without titles. We'll have to write those to the folder, and update the folder in catalog & server.
- * The way we know we need to do this, is if the folder arrives with a title = hash.
- */
-async function updateSummonedFolderName(fid, name){
 
 }

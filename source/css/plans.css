@@ -278,8 +278,6 @@ BILLING CARD
 ----------------------------- */
 
 #billing {
-    background-color: #FFF;
-
     position: fixed;
     display: block;
     margin: auto;
@@ -360,7 +358,7 @@ body:not(.billing) #billing {
     position: relative;
 
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
-    background-color: #121212;
+    background-color: #FFF;
     border-radius: 1rem;
     width: 22rem;
     height: 14rem;
@@ -403,7 +401,7 @@ body:not(.billing) #billing {
 }
 
 .stripe-input.focus {
-    box-shadow: inset 0px -1px 0px white;
+    box-shadow: inset 0px -1px 0px #000;
 }
 
 #card-pan {
@@ -427,18 +425,13 @@ body:not(.billing) #billing {
     margin-top: 0;
     padding-top: 0.5rem;
     grid-column: span 1;
-    color: white !important
+    color: #000 !important
 }
 
 #billing-name {
     margin-top: 0;
     padding-top: 0.5rem;
     grid-column: span 3;
-}
-
-@-moz-document url-prefix() {
-    #billing-zip::placeholder { color: #fff !important; }
-    #billing-name::placeholder { color: #fff !important; }
 }
 
 #card-info {
@@ -453,7 +446,7 @@ body:not(.billing) #billing {
 
 #checkout-button {
     float: right;
-    margin: 1rem 4rem 1rem 0 !important;
+    margin: 1rem 0rem !important;
     opacity: 1;
     height: 3rem;
     line-height: 1rem;

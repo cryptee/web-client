@@ -612,6 +612,96 @@ function getImageMimetypeFromUint8Array(uInt8Array) {
 }
 
 
+/**
+ * Escapes HTML Characters in a given string. i.e. things like (> < & etc etc)
+ * @param {String} string html string to escape characters
+ */
+function escapeHTML(string) { 
+  return String(string)
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/'/g, "&#039;")
+  .replace(/"/g, "&quot;"); 
+}
+
+/**
+ * UNESCAPE HTML Characters in a given string. i.e. things like (&amp; -> & etc etc)
+ * @param {String} string html string to escape characters
+ */
+function unescapeHTML(string) { 
+  return String(string)
+  .replace(/&amp;/g, "&")
+  .replace(/&#38;/g, "&") 
+  .replace(/&lt;/g, "<")
+  .replace(/&#60;/g, "<")
+  .replace(/&gt;/g, ">")
+  .replace(/&#62;/g, ">")
+  .replace(/&apos;/g, "'") 
+  .replace(/&#39;/g, "'") 
+  .replace(/&quot;/g, '"')
+  .replace(/&34;/g, '"');
+}
+
+/**
+ * Escapes Template HTML Strings (This is a Tagged Template Function)
+ * WONT WORK IF TEMPLATE STRING HAS INLINE FUNCTIONS LIKE ONCLICK ETC IN THEM
+ * from https://developers.google.com/web/updates/2015/01/ES6-Template-Strings
+ * Thanks to Andrea Giammarchi
+ * @param {*} pieces 
+ * @returns 
+ */
+ function escapeTemplateHTML(pieces) {
+  var util = (function () {
+    var reEscape = /[&<>'"]/g;
+    var reUnescape = /&(?:amp|#38|lt|#60|gt|#62|apos|#39|quot|#34);/g;
+    var oEscape = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    };
+    var oUnescape = {
+      '&amp;': '&',
+      '&#38;': '&',
+      '&lt;': '<',
+      '&#60;': '<',
+      '&gt;': '>',
+      '&#62;': '>',
+      '&apos;': "'",
+      '&#39;': "'",
+      '&quot;': '"',
+      '&#34;': '"'
+    };
+    var fnEscape = function (m) { return oEscape[m]; };
+    var fnUnescape = function (m) { return oUnescape[m]; };
+    var replace = String.prototype.replace;
+
+    return (Object.freeze || Object)({
+      escape: function escape(s) { 
+        if (!s) { return ""; } 
+        return replace.call(s, reEscape, fnEscape); 
+      },
+      unescape: function unescape(s) { 
+        if (!s) { return ""; } 
+        return replace.call(s, reUnescape, fnUnescape);
+      }
+    });
+  }());
+
+  var result = pieces[0];
+  var substitutions = [].slice.call(arguments, 1);
+  for (var i = 0; i < substitutions.length; ++i) { result += util.escape(substitutions[i]) + pieces[i + 1]; }
+
+  return result;
+}
+
+/**
+ * Strips html entities / characters from html string. (i.e. removes > or < etc)
+ * @param {String} string html string to strip html entities from
+ */
+function stripHTMLEntities(string) { return String(string).replace(/&/g, "").replace(/</g, "").replace(/>/g, "").replace(/"/g, "").replace(/'/g, "").replace(/\//g, ""); }
 
 
 /**

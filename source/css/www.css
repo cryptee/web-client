@@ -476,7 +476,6 @@ MEDIA MENTIONS / GRID
 
 .media-mention small {
     color: var(--cryptee-2);
-    transition: 0.3s color ease;
 }
 
 .dm .media-logo {
@@ -504,6 +503,12 @@ MEDIA MENTIONS / GRID
 .media-logos a:last-child img {
     display: block;
     margin-left: auto;
+}
+
+@media (max-width: 671px) {
+    .media-spacing {
+        display: none;
+    }
 }
 
 /* -----------------------------

@@ -401,7 +401,7 @@ function checkIfURLSelectedOnMobile() {
 
 function showURLBox(href) {
     $("#urlbox").find("a").attr("href", href);
-    $("#urlbox").find("a").html(href.replace("https://", ""));
+    $("#urlbox").find("a").text(href.replace("https://", ""));
     if (isMobile) { 
         $("#urlbox").addClass("show"); 
         if (href.startsWith("http://") || href.startsWith("ftp://")) {

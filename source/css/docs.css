@@ -220,6 +220,11 @@ LEFT MENU
     will-change: opacity;
 }
 
+#sliderCaret i {
+    transform: scale(1.25);
+    transition: 0.3s transform ease;
+}
+
 #upgrade {
     padding-top: 0;
     margin-top: 0;
@@ -2398,14 +2403,8 @@ BLANK EDITOR
     transition: 0.5s opacity var(--cryptee-cb);
 
     display: grid;
-    grid-template-columns: 1fr minmax(16rem, 32rem) 1fr;
+    grid-template-columns: minmax(4rem, 1fr) minmax(14rem, 40rem) 1fr;
     grid-template-rows: minmax(0,1fr) minmax(16rem, 38rem) minmax(0,1fr);
-}
-
-@media (max-height : 760px) {
-    #blankEditor {
-        grid-template-rows: minmax(0,1fr) minmax(16rem, calc(100vh - 8rem)) minmax(0,1fr);
-    }
 }
 
 #blankEditor > div {
@@ -2414,31 +2413,85 @@ BLANK EDITOR
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 
-    padding: 0 4rem;
-    color: var(--cryptee-2);
+    color: var(--cryptee-0);
 
     display: grid;
-    grid-template-rows: 1fr auto 1fr;
+    grid-template-columns: 4fr 5fr;
+    column-gap: 4rem;
+    grid-template-rows: 1fr 2px auto 2px auto 1fr;
 }
 
-#blankEditor article {
-    grid-row: 2/3;
-}
+.dm #blankEditor > div { color: #f5f5f5; }
 
-#blankEditor > div img {
-    width: 2.25rem;
-    height: 2.25rem;
-    object-fit: contain;
-    opacity: 0.2;
+#blankEditor header {
+    height: 0;
     display: block;
-    margin: 0 auto 2rem auto;
-    user-select: none;
+    grid-column: 1/-1;
+}
+
+#blankEditor hr {
+    height: 0;
+    grid-column: 1/-1;
+    border: none;
+    border-top: 2px solid #000;
+}
+
+.dm #blankEditor hr { border-top: 2px solid #f5f5f5; }
+
+#blankEditor section {
+    margin: 1rem 0 4.5rem 0; 
+}
+
+#blank-editor-recents .doc { 
+    width: 100%; 
+    opacity: 0.5;
+    display: block;
+    line-height: 1.5rem;
+    margin-top: 0;
+}
+
+#blank-editor-recents .doc .icon,
+#blank-editor-recents .doc .more,
+#blank-editor-recents .doc .fldr,
+#blank-editor-recents .doc .when,
+#blank-editor-recents .doc .tags {
+    display: none;
+}
+
+#blank-editor-recents .doc .name {
+    margin-top: 0.425rem;
+    line-height: 1.5rem;
+    max-width: 100%;
+}
+
+#blank-editor-recents .doc.loading .info {
+    animation: blinkOpacity 1s infinite linear forwards;
+}
+
+body.loading-doc #blank-editor-recents .doc:not(.loading) .info {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#blankEditor #getting-started p {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: 0.3s opacity var(--cryptee-cb);
 }
 
 #blankEditor p, 
+#blankEditor h3,
 #blankEditor details,
 #blankEditor summary {
     user-select: none;
+}
+
+#blankEditor details > summary {
+    list-style-type: none;
+}
+
+#blankEditor details > summary::-webkit-details-marker {
+    display: none;
 }
 
 #blankEditor summary { 
@@ -2448,16 +2501,59 @@ BLANK EDITOR
 #blankEditor details > p     { color: var(--cryptee-1); }
 .dm #blankEditor details > p { color: var(--cryptee-4); }
 
-.dm #blankEditor > div img {
-    filter: invert(1);
-    opacity: 0.3;
-}
-
 body:not(.no-doc) #blankEditor {
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
+.quick-recent-docs.no-recents { 
+    display: none !important; 
+}
+
+
+
+@media (max-width : 800px) { 
+    #blankEditor {
+        grid-template-columns: minmax(4rem, 1fr) minmax(12rem, 40rem) 1fr;
+    }
+
+    #blankEditor .doc span { max-width: 16rem; }
+
+    #blankEditor > div {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 2px 4.5rem auto 2px 3rem auto 1fr;
+    }
+
+    body.bubble #blankEditor > div {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(4rem, 1fr) 2px 4.5rem auto 2px 3rem auto minmax(4rem, 1fr);
+    }
+    
+    #blankEditor h3 {
+        font-size: 1rem; 
+        letter-spacing: 0;
+        line-height: 1.5rem;
+    }
+
+    #blankEditor section { margin: 1rem 0 0.5rem 0; }
+    #blank-editor-recents { 
+        margin-bottom: 4rem !important;  
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    #getting-started {
+        margin-bottom: 0 !important;  
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+}
+
+@media (max-height : 760px) {
+    #blankEditor {
+        grid-template-rows: minmax(0,1fr) minmax(16rem, calc(100vh - 8rem)) minmax(0,1fr);
+    }
+}
 
 
 
@@ -2699,8 +2795,23 @@ body.bubble #editorWrapper {
 }
 
 body.bubble #blankEditor > div {
-    padding: 3rem 1.5rem 0 1.5rem;
+    padding: 0 0 0 1.5rem;
+    max-width: calc(100% - 1.5rem);
     grid-row: 1/-1;
+    grid-column: 1/-1;
+}
+
+body.bubble #blankEditor section {
+    overflow-x: hidden;
+}
+
+body.bubble #blank-editor-recents,
+body.bubble #getting-started {
+    padding-right: 1rem;
+}
+ 
+body.bubble #blankEditor .doc span {
+    max-width: calc(100% - 2rem);
 }
 
 body.bubble #editorWrapper .ql-editor {
@@ -3014,6 +3125,10 @@ ENABLE HOVERS
         opacity: 1 !important;
     }
 
+    #sliderCaret:hover i {
+        transform: scale(1.5);
+    }
+
     .actionFloater:hover i:first-child {
         transform: scale(1.25);
     }
@@ -3104,6 +3219,10 @@ ENABLE HOVERS
 
     /* THIS WAS OVERFLOW:HIDDEN TO PREVENT SOMETHING, BUT CAN'T REMEMBER WHAT. TEST IN WINDOWS & LINUX */
     #documentActionButtons { overflow: visible; }
+
+    #blankEditor #getting-started p:hover {
+        opacity: 1;
+    }
 }
 
 

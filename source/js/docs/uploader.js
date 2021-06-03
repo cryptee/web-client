@@ -129,7 +129,7 @@ async function showDropzone() {
 
     var fname = await getFolderNameFromCatalog(targetFID);
 
-    $("#dropzone-folder").html(fname);
+    $("#dropzone-folder").text(fname);
     $("#dropzone").addClass("show");
     return true;
 }

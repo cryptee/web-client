@@ -1347,6 +1347,142 @@ UPDATE AVAILABLE
 
 
 
+
+/* -----------------------------
+-------------------------------- 
+ 
+TIPS / GUIDES 
+ 
+--------------------------------
+----------------------------- */
+
+
+.tip {
+    position: fixed;
+    margin: auto;
+    z-index: 9;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+
+    height: 26rem;
+    width: 100%;
+    max-width: 16rem;
+    min-width: calc(320px - 5rem);
+
+    padding: 2rem 2rem 1rem 2rem;
+    color: #000;
+    background-color: #FFF;
+
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+
+    pointer-events: none;
+    transform: translate3d(0,2rem,0);
+    opacity: 0;
+    
+    transition-duration: 0.3s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.tip.show {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+.tip section p {
+    text-transform: lowercase;
+    text-align: justify;
+    user-select: none;
+}
+
+.tip section h3 {
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    user-select: none;
+}
+
+.tip .swiper-wrapper {
+    height: calc(100% - 1rem);
+}
+
+.tip .tips-pagination {
+    display: flex;
+    height: 1rem;
+    width: calc(100% - 3rem) !important;
+    justify-content: left;
+    flex-direction: row;
+    z-index: 1;
+}
+
+.tip .swiper-pagination-bullet {
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.25rem;
+    
+    transform: scale(1);
+    background-color: var(--cryptee-2);
+    
+    transition-property: background-color, transform;
+    transition-timing-function: var(--cryptee-cb);
+    transition-duration: 1s;
+}
+
+.tip .swiper-pagination-bullet-active {
+    transform: scale(1.5);
+    background-color: var(--cryptee-0);
+}
+
+.tip .swiper-pagination-bullet-active:last-child {
+    background-color: var(--cryptee-green);
+}
+
+.tip .close {
+    position: absolute;
+    filter: invert(1);
+    right: 0.25rem;
+    top: 0.25rem;
+    margin-right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.tip .close img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.tip .tips-next { 
+    color: #000; 
+    font-size: 1.5rem; 
+
+    top: auto;
+    left: auto;
+    bottom: -0.75rem;
+    right: -1rem;
+    position: absolute;
+    margin: 0;
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+    z-index: 25;
+    text-align: center;
+
+    transform: scale(1) translateX(0);
+    transition: 0.3s transform var(--cryptee-cb);
+}
+
+.tip .tips-next.swiper-button-disabled {
+    pointer-events: none !important;
+    transform: scale(1) translateX(1rem);
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1485,6 +1621,15 @@ ENABLE HOVERS
 
     #key-remember:hover::after {
         opacity: 1;
+    }
+
+    .tip .swiper-pagination-bullet:hover {
+        transform: scale(1.5);
+        background-color: var(--cryptee-1) !important;
+    }
+
+    .tip .tips-next:not(.swiper-button-disabled):hover {
+        transform: scale(1.25) translateX(0);
     }
 }
 

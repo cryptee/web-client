@@ -297,6 +297,8 @@ COLOR PICKER DROPDOWN
     display: none;
 }
 
+.ql-color .ql-picker-options .ql-picker-item[data-value="#888888"] { display: block !important; }
+.ql-color .ql-picker-options .ql-picker-item[data-value="#bbbbbb"] { display: block !important; order: 1;}
 
 .ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
     border: 1px solid #000 !important;
@@ -316,6 +318,8 @@ COLOR PICKER DROPDOWN
 .ql-background .ql-picker-options .ql-picker-item[data-value="#66b966"] { display: block; }
 .ql-background .ql-picker-options .ql-picker-item[data-value="#66a3e0"] { display: block; }
 .ql-background .ql-picker-options .ql-picker-item[data-value="#c285ff"] { display: block; }
+.ql-background .ql-picker-options .ql-picker-item[data-value="#888888"] { display: block; }
+.ql-background .ql-picker-options .ql-picker-item[data-value="#bbbbbb"] { display: block; order: 1;}
 
 /* -----------------------------
 -------------------------------- 

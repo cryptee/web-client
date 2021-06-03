@@ -453,6 +453,7 @@ body:not(.loading):not(.starting).nav-selection .selected.buttons button {
     pointer-events: none !important;
 }
 
+body.nav-gallery #make-cover-button,
 #make-cover-button.hidden {
     transform: translate3d(0,1rem,0);
     opacity: 0 !important;
@@ -634,13 +635,14 @@ main:not(.scrolling):not(.browsing) .content.loading {
     pointer-events: none !important;
 }
 
-body:not(.loading) #albumContents:empty:not(.loading)::after {
-    content: "welcome to cryptee photos! \a\alooks like you don't have any photos. \ato get started, drag & drop some photos or a folder full of photos here. \a\ayou can also press the upload button on the top right to select & upload photos as well.";
+body:not(.loading) #albumContents:empty:not(.loading)::before {
+    content: "welcome to cryptee photos! \a\alooks like you don't have any albums or photos. \ato get started, drag & drop some photos or a folder full of photos here. \a\ayou can also press the upload button on the top right to upload photos as well.";
     font-weight: 320;
     line-height: 1.5rem;
     display: block;
     grid-column: 1/-1;
     margin-top: auto;
+    padding: 4rem;
     white-space: pre-wrap;
 }
 
@@ -1178,6 +1180,7 @@ UPGRADE TEXT
     cursor: pointer;
     z-index: 4;
     line-height: 2.25rem;
+    padding-left: 0.5rem;
 }
 
 
@@ -1732,9 +1735,9 @@ MEDIA QUERIES
         background-color: var(--cryptee-4);
         bottom: 0;
         left: 0;
-        width: calc(100% - 2rem);
+        width: calc(100% - 2.5rem);
         height: 2rem;
-        padding: 1rem;
+        padding: 1rem 1rem 1rem 1.5rem;
     }
 
     .dm #upgrade {

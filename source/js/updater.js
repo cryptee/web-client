@@ -19,7 +19,7 @@
 // ALSO GETS PASSED TO SENTRY FOR MORE GRANULAR INFO. YAS.
 
 var latestDeployVersion = "local-dev-ver";
-$("#cryptee-latest-deploy-version").html("" + latestDeployVersion);
+$("#cryptee-latest-deploy-version").text("" + latestDeployVersion);
 
 
 var serverDeployVersion;

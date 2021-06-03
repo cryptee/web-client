@@ -100,17 +100,17 @@
             <p class="gray" id="chosenbilling" cur="€"></p>
         </div>
 
-        <input onchange="validateBillingInfo();" id="billing-email" type="email" placeholder="email for receipts*">
+        <input onchange="validateBillingInfo();" id="billing-email" type="email" placeholder="email for receipts*" autocomplete="billing email">
         <small>please type a valid email for receipts</small>
 
         <div id="card">
-            <p      class="white">card details</p>
-            <i      id="card-info"    class="ri-information-line white"></i>
+            <p>card details</p>
+            <i      id="card-info"    class="ri-information-line"></i>
             <div    id="card-pan"     class="stripe-input"></div>
             <div    id="card-exp"     class="stripe-input"></div>
             <div    id="card-cvc"     class="stripe-input"></div>
-            <input  id="billing-zip"  class="darkback" type="text" placeholder="zip code" onchange="validateBillingInfo();">
-            <input  id="billing-name" class="darkback" type="text" placeholder="cardholder name" onchange="validateBillingInfo();">
+            <input  id="billing-zip"  type="text" placeholder="zip code" onchange="validateBillingInfo();" autocomplete="billing postal-code">
+            <input  id="billing-name" type="text" placeholder="cardholder name" onchange="validateBillingInfo();" autocomplete="cc-name">
         </div>
         
         <p class="select" style="display: none !important;">

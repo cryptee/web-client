@@ -365,8 +365,8 @@ function gensort(a, b) {
     var bOfflineGen = b.offline    || 0;
     if (bOfflineGen > bGeneration) { bGeneration = bOfflineGen; }
     
-    if (aGeneration < bGeneration) { return -1; }
-    if (aGeneration > bGeneration) { return 1; }
+    if (aGeneration < bGeneration) { return 1; }
+    if (aGeneration > bGeneration) { return -1; }
     return 0;
 }
 
@@ -628,8 +628,9 @@ function isPinned() {
 
 var sidebarOpen = false;
 var swiper;
+var gettingStartedTipsSwiper;
 $(document).on("ready", function () {
-    swiper = new Swiper('.swiper-container', {
+    swiper = new Swiper('.docs-swiper-container', {
         mousewheel: {
             forceToAxis: true,
             invert: true,
@@ -654,6 +655,14 @@ $(document).on("ready", function () {
             sidebarOpened();
         }
     });
+
+
+    //	init getting started tips swiper
+    gettingStartedTipsSwiper = new Swiper ('#tips-getting-started-swiper', tipsConfig);
+    key('left',  function () { if ($(".tip.show").length >= 1) { gettingStartedTipsSwiper.slidePrev(); } });
+    key('right', function () { if ($(".tip.show").length >= 1) { gettingStartedTipsSwiper.slideNext(); } });
+    key('space', function () { if ($(".tip.show").length >= 1) { gettingStartedTipsSwiper.slideNext(); } });
+
 });
 
 
@@ -783,6 +792,7 @@ $("#loadParentOfDocButton").on('click', function(event) {
     
     $("#leftListWrapper").attr("show", "folder");
     setTimeout(function () {
+        openSidebarMenu();
         hideRightClickDropdowns();
         hidePanels();
     }, 10);
@@ -988,6 +998,7 @@ function togglePanel(panelID) {
     
     // hide all panels but this one
     hidePanels(panelID);
+    hideTips();
 
     // make panel button active
     $("#panel-button-" + panelID.replace("panel-","")).toggleClass("active");

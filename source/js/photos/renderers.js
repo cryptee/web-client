@@ -22,6 +22,8 @@ function renderAlbum(aid, photos) {
     }
 
     var name            = album.decryptedTitle || "Untitled Album"; // "ALBUM NAME"
+    name = escapeHTML(name);
+
     var exifDate        = album.date  || "0000:00:00";              // "2019:07:03"
     var sortableDate    = sortableExifDate(exifDate);
     var prettyDate      = fancyDate(exifDate);                      // "NOV '20"
@@ -68,6 +70,8 @@ function renderAlbumHeader(aid) {
     }
 
     var name            = album.decryptedTitle || "Untitled Album"; // "ALBUM NAME"
+    name = escapeHTML(name);
+
     var exifDate        = album.date  || "0000:00:00";              // "2019:07:03"
     var prettyDate      = fancyDate(exifDate);                      // "NOV '20"
     var avgColor        = album.pinky || "54,54,54";                // rgb
@@ -121,6 +125,8 @@ function renderPhoto(pid, forSearch) {
     }
 
     var name         = photo.decryptedTitle || "Untitled.jpg";                              // A Photo Name
+    name = escapeHTML(name);
+
     var exifDate     = photo.date    || "0000:00:00";                                       // "2020:09:27" etc.
     // var exifDay      = photo.day     || dayFromEXIF(exifDate)   || "00";                    // "27"
     // var exifMonth    = photo.month   || monthFromEXIF(exifDate) || "00";                    // "09"
@@ -152,6 +158,8 @@ function renderPhoto(pid, forSearch) {
  * @param {string} status upload status (i.e. encrypting or something with percentage)
  */
 function renderUpload(id, name, status) {
+    name = name || "";
+    name = escapeHTML(name);
     return `
     <p class="upload" id="upload-${id}" status="${status}">
         <span class="name">${name}</span><br>
@@ -167,6 +175,8 @@ function renderUpload(id, name, status) {
  * @returns {string} searchHeaderHTML Search Header's HTML
  */
 function renderSearchHeader(title) {
+    title = title || "";
+    title = escapeHTML(title);
     return `
     <div class="searchheader" style="--bg:rgb(0,0,0)">
         <h3 class="title">${title}</h3>

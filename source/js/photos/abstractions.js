@@ -1723,7 +1723,7 @@ function showDeleteAlbumModal(aid) {
     }
     
     $("#modal-delete-album").attr("aid", aid);
-    $("#deleting-albumname").html(albumName);
+    $("#deleting-albumname").text(albumName);
 
     showModal("modal-delete-album");
 }

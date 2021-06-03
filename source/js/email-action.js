@@ -83,7 +83,7 @@ async function handleResetPassword() {
     }
 
     $("#reset").show();
-    $("#reset-email").html(accountEmail);
+    $("#reset-email").text(accountEmail);
 
     return true;
 

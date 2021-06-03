@@ -163,6 +163,11 @@ MEDIA QUERIES
         grid-template-columns: minmax(4rem, 1fr) minmax(16rem, 20rem) 0;
     }
 
+    main {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
     #topNewsButton { display: none !important; }
     #bottomNewsButton { display: block !important; }
 }
