@@ -1212,6 +1212,19 @@ function showInboxPopup() {
 
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+// NEW DOC & FOLDER RECOS	
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+function newDocAndFolderTimeRecommendations() {
+    var todaysDate = new Date();
+    var todayLocale = todaysDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+    var timeRightNow = todaysDate.toLocaleTimeString();
+
+    return `<time>${todayLocale}</time> &nbsp; &nbsp; &nbsp; <time>${timeRightNow}</time>`;
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1221,15 +1234,8 @@ function showInboxPopup() {
 
 function showNewDocPanel() {
     $("#new-doc-input").val("");
-
-    var todaysDate = new Date();
-    var todayLocale = todaysDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-    var timeRightNow = todaysDate.toLocaleTimeString();
-
-    $("#new-doc-recos").html(`<time>${todayLocale}</time> &nbsp; &nbsp; &nbsp; <time>${timeRightNow}</time>`);
-    
+    $("#new-doc-recos").html(newDocAndFolderTimeRecommendations());
     togglePanel('panel-new-doc');
-
     $("#new-doc-input").trigger("focus");
 }
 
@@ -1247,8 +1253,34 @@ $("#new-doc-input").on('keyup', function(event) {
 $("#new-doc-recos").on('click', "time", function(event) {
     var recommendation = $(this).text();
     $("#new-doc-input").val(recommendation);
+});
+
+$("#panel-new-doc").on('swipeDown', function() {  hidePanels(); }); 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	NEW FOLDER
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+function showNewFolderPanel() {
+    $("#new-folder-input").val("");
+    togglePanel('panel-new-folder');
+    $("#new-folder-input").trigger("focus");
+}
+
+$("#new-folder-input").on('keyup', function(event) {
+    if (event.key === "Enter") {
+        confirmNewFolder();
+    }
+
+    if (event.key === "Escape") {
+        hidePanels();
+        $("#new-folder-input").val("");
+    }
 }); 
 
+$("#panel-new-folder").on('swipeDown', function() {  hidePanels(); }); 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////

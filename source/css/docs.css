@@ -1764,32 +1764,38 @@ body.bubble .panel.centered {
  
 ADD LINK PANEL 
 NEW DOC PANEL
+NEW FOLDER PANEL
  
 --------------------------------
 ----------------------------- */
-#link-box, #panel-new-doc {
+
+#link-box, #panel-new-doc, #panel-new-folder {
     height : 8.25rem;
 }
 
 #link-box .confirm img,
-#panel-new-doc .confirm img {
+#panel-new-doc .confirm img,
+#panel-new-folder .confirm img {
     height: 100%;
     width: 100%;;
 }
 
 #link-box input,
-#panel-new-doc input {
+#panel-new-doc input,
+#panel-new-folder input {
     transition: 0.15s width var(--cryptee-cb);
     width: calc(100% - 3rem);
 }
 
 #link-box input:placeholder-shown,
-#panel-new-doc input:placeholder-shown {
+#panel-new-doc input:placeholder-shown,
+#panel-new-folder input:placeholder-shown {
     width: 100%;
 }
 
 #link-box .confirm,
-#panel-new-doc .confirm {
+#panel-new-doc .confirm,
+#panel-new-folder .confirm {
 
     padding-right: 0 !important;
 
@@ -1808,7 +1814,8 @@ NEW DOC PANEL
 }
 
 #link-box input:placeholder-shown ~ .confirm,
-#panel-new-doc input:placeholder-shown ~ .confirm {
+#panel-new-doc input:placeholder-shown ~ .confirm,
+#panel-new-folder input:placeholder-shown ~ .confirm {
     opacity: 0;
     pointer-events: none !important;
 }
@@ -1833,7 +1840,6 @@ NEW DOC PANEL
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin-right: 0.5rem;
-    
 }
 
 /* -----------------------------

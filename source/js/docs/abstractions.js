@@ -297,9 +297,9 @@ async function newFolder(parent, name, fid, color) {
 /**
  * Creates a new folder using the button on the sidebar, and scrolls to folders view & to the top to show the folder. 
  */
-async function newFolderFromSidebar() {
+async function confirmNewFolder() {
     
-    breadcrumb('[NEW FOLDER] Creating new folder from sidebar.');
+    breadcrumb('[NEW FOLDER] Creating new folder.');
 
     if (!activeFolderID) {
         // if we're in root, we may be in recents too, so scroll to folders
@@ -309,8 +309,23 @@ async function newFolderFromSidebar() {
     hideRightClickDropdowns();
     hidePanels();
 
+    var title = $("#new-folder-input").val().trim();
+    if (!title){
+        $("#new-folder-input").trigger("focus");
+        return;
+    }
+
+    $("#confirmNewFolderButton").addClass("loading");
+    $("#newFolderButton").addClass("loading");
+    $("#new-folder-input").trigger("blur");
+    hidePanels();
+
     // create a new folder in the current folder, both on server & in catalog
-    await newFolder(activeFolderID);
+    await newFolder(activeFolderID, title);
+
+    $("#confirmNewFolderButton").removeClass("loading");
+    $("#newFolderButton").removeClass("loading");
+    $("#new-folder-input").val("");
 
     return true;
 

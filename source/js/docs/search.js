@@ -189,11 +189,11 @@ function processSearchResults(results, allDocsAndFolders, term) {
 
         result.matches.forEach(match => {
             if (match.key === "decryptedTitle") {
-                item.decryptedTitle = underlineSearchResult(match.indices, item.decryptedTitle);
+                item.decryptedTitle = item.decryptedTitle;
             } 
             
             if (match.key === "decryptedTags") {
-                var matchingTag = "#" + underlineSearchResult(match.indices, match.value);
+                var matchingTag = "#" + match.value;
                 item.matchingTags = item.matchingTags || [];
                 item.matchingTags.push(matchingTag);
             }
