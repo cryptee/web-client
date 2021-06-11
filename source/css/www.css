@@ -124,6 +124,8 @@ hr { border: 1px solid #000; }
 h2.balanced { margin-top: 0.5rem; }
 h2.balanced.spaced { margin-bottom: 4rem; }
 
+h1,h2,h3,h4 { word-break: break-word; }
+
 /* GRID FOR QUARTERS */
 
 .grid-quarter {
@@ -237,7 +239,7 @@ nav #logo, nav #floating-logo {
 
 nav p {
     margin-top: 0;
-    padding-top: 1.5rem; 
+    padding-top: 1.25rem; 
     padding-bottom: 1rem;
     min-width: 4rem;
     max-width: 8rem;

@@ -40,7 +40,7 @@ $(document).on('ready', function(event) {
 
 $("#email").on('keydown keypress paste copy cut change', function(event) {
     setTimeout(function () {
-        var value = $("#email").val().trim();
+        var value = ($("#email").val() || "").trim();
         if (value && value.includes("@") && !isEmail(value)) {
             // show email must be valid note
             $("#email-notice").addClass("show");

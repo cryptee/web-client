@@ -168,8 +168,15 @@ async function getTitlesAndTags() {
     // so let's put titles & tags we got from server, into docs we've just read from the catalog.
 
     for (var did in allDocsFromCatalog) {
-        if (docsTT[did].title) { allDocsFromCatalog[did].title = docsTT[did].title; }
-        if (docsTT[did].tags) { allDocsFromCatalog[did].tags = docsTT[did].tags; }
+        if (docsTT[did]) {
+            if (docsTT[did].title) { 
+                allDocsFromCatalog[did].title = docsTT[did].title; 
+            }
+            
+            if (docsTT[did].tags) { 
+                allDocsFromCatalog[did].tags = docsTT[did].tags; 
+            }
+        }
     }
 
     // now let's pass this object as array to updateCatalogWithChanges

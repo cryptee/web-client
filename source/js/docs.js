@@ -115,11 +115,19 @@ function updateEditorState(state) {
     if (state) {
         $("body").addClass(state);
         quill.blur();
+        setTimeout(function () { swiper.update(); }, 100);
     } else {
-        // so that this happens shortly after we set the editor's contents
-        setTimeout(function () {
+        if (isMobile) {
+            // so that this happens right away once we set the editor's contents
             $("body").removeClass("loading-doc no-doc");
-        }, 300);
+            setTimeout(function () { swiper.update(); }, 100);            
+        } else {
+            // so that this happens shortly after we set the editor's contents
+            setTimeout(function () {
+                $("body").removeClass("loading-doc no-doc");
+                setTimeout(function () { swiper.update(); }, 100);
+            }, 300);
+        }
     }
 }
 
@@ -663,6 +671,14 @@ $(document).on("ready", function () {
     key('right', function () { if ($(".tip.show").length >= 1) { gettingStartedTipsSwiper.slideNext(); } });
     key('space', function () { if ($(".tip.show").length >= 1) { gettingStartedTipsSwiper.slideNext(); } });
 
+    if (isMobile) {
+        $("body").addClass("bubble");
+        
+        setTimeout(function () {
+            swiper.update();
+            closeSidebarMenu();
+        }, 250);
+    }
 });
 
 

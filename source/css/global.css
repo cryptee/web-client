@@ -125,10 +125,24 @@ GLOBAL VARIABLES, COLORS, TIMINGS ETC.
     --cryptee-2: #888888;
     --cryptee-3: #CCCCCC;
     --cryptee-4: #F5F5F5;
-    
+
     /* + white */
 
-   --cryptee-cb: cubic-bezier(0.22, 1, 0.36, 1);
+
+    
+    --cryptee-cb: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* iOS Keyboard Animation Timing Function */
+    /* mass, stiffness, damping, initial velocity */
+    /* https://twitter.com/Gorhom/status/1368699241716211715 */
+    /* https://github.com/react-navigation/react-navigation/blob/1a757fc30adb05d05824241a656bc09bdabaf090/packages/stack/src/TransitionConfigs/TransitionSpecs.tsx#L7 */
+    /* only available under CSS experimental flags in safari settings, so this is not in use, but here for future reference */
+    /* --ios-keyboard-spring: spring(3 1000 500 0); */
+
+    /* closest we can get with cubic beziers is this: */
+    /* 0.5s */
+    --ios-keyboard-cb: cubic-bezier(0.38, 0.7, 0.125, 1);
+    /* --ios-keyboard-cb: cubic-bezier(0.32, 0, 0.68, 1); */
 }
 
 .green                    { color: var(--cryptee-green);  }

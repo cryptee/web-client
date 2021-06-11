@@ -1142,12 +1142,12 @@ async function decryptTitle(id) {
     var whatToDecrypt = {};
     if (id.startsWith("d-")) {
         whatToDecrypt = await getDocFromCatalog(id);
-        if (!whatToDecrypt) { handleError("[DECRYPT TITLE] Couldn't get doc from catalog", {id:id}); }
+        if (!whatToDecrypt) { whatToDecrypt = {}; handleError("[DECRYPT TITLE] Couldn't get doc from catalog", {id:id}); }
     }
     
     if (id.startsWith("f-")) {
         whatToDecrypt = await getFolderFromCatalog(id);
-        if (!whatToDecrypt) { handleError("[DECRYPT TITLE] Couldn't get folder from catalog", {id:id}); }
+        if (!whatToDecrypt) { whatToDecrypt = {}; handleError("[DECRYPT TITLE] Couldn't get folder from catalog", {id:id}); }
     }
 
     if (!whatToDecrypt.title) {

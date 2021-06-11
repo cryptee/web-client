@@ -426,6 +426,9 @@ ALL DROPDOWNS
     transform: translate3d(0,0,0);
 }
 
+.ql-bubble .ql-picker-options {
+    transform: translate3d(3rem,-0.5rem,0);
+}
 
 
 
@@ -1066,7 +1069,7 @@ TOOLTIP (urls etc)
 .ql-tooltip {
     display: flex;
     text-transform: lowercase;
-    background-color: #242424;
+    background-color: rgba(18,18,18,1); /* cryptee-0 */
     color: #fff;
     font-size: 1rem;
     font-weight: 350;
@@ -1078,7 +1081,7 @@ TOOLTIP (urls etc)
 }
 
 .ql-tooltip-arrow {
-    border-bottom-color: #242424 !important;
+    border-bottom-color: rgba(18,18,18,1) !important;
 }
 
 .ql-tooltip::before {
@@ -1175,12 +1178,52 @@ MOBILE TOOLBAR
 ----------------------------- */
 
 .ql-bubble .ql-tooltip {
-    width: auto !important;
-    padding: 0.5rem;
+    z-index: 5;
+    padding: 1rem 0 calc(1rem + 16px) 0; /* intentionally adding +16px to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation*/
+    position: absolute;
+    width: 100% !important;
+    bottom: 0;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    border-radius: 0;
+    transform: translateY(16px); /* intentionally adding +16px to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation*/
+    
+    transition-duration: 0.5s;
+    transition-property: transform;
+    transition-timing-function: var(--ios-keyboard-cb);
+
+    display: grid;
+    grid-template-columns: 1fr 2rem;
+}
+
+.ql-bubble .ql-tooltip .ql-tooltip-arrow {
+    display: none !important;
+}
+
+.ql-bubble .ql-tooltip .fader {
+    display: block;
+    margin:0;
+    height: 100%;
+    grid-column: 1/-1;
+    grid-row: 1/1;
+    pointer-events: none;
+
+    background: linear-gradient(to right, rgba(18,18,18,1) 0%, rgba(18,18,18,0) 1.5rem, rgba(18,18,18,0) calc(100% - 3.5rem), rgba(18,18,18,1) 100%);
+}
+
+#rightSlide:not(.activeSlide) .ql-bubble .ql-tooltip,
+.ql-bubble .ql-tooltip.ql-hidden {
+    display: grid;
 }
 
 .ql-tooltip #mobileToolbar {
-    width: 18rem;
+    padding: 0 0 0 0.75rem;
+    display: flex;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: scroll;
+    grid-column: 1/-1;
+    grid-row: 1/2;
 }
 
 .ql-tooltip #mobileToolbar button,
@@ -1188,7 +1231,11 @@ MOBILE TOOLBAR
 .ql-tooltip #mobileToolbar select {
     height: 2rem;
     line-height: 2rem;
-    width: 2rem;
+    width: calc(3rem - 2px); /* to make sure some buttons always cut off to hint there's more and users should swipe */
+    min-width: calc(3rem - 2px); /* to make sure some buttons always cut off to hint there's more and users should swipe */
+    padding: 0 0.25rem 0 0;
+    text-align: center;
+    flex-grow: 1;
 }
 
 .ql-tooltip #mobileToolbar button i,
@@ -1203,6 +1250,10 @@ MOBILE TOOLBAR
     color: #FFF;
 }
 
+.ql-bubble .ql-expanded .ql-picker-options {
+    transform: translate3d(3rem,-2rem,0);
+}
+
 .ql-tooltip select,
 .ql-tooltip .ql-picker {
     border: none;
@@ -1215,7 +1266,11 @@ MOBILE TOOLBAR
 
 .ql-tooltip .ql-picker-options {
     background-color: #000;
-    grid-template-columns: repeat(6, 1rem);
+    grid-template-columns: repeat(8, 1rem);
+}
+
+.ql-tooltip #mobileToolbar button:last-child {
+    margin-right: 2.5rem;
 }
 
 /* -----------------------------
@@ -1454,15 +1509,4 @@ MEDIA QUERIES
     .ql-formats {
         margin-right: 0 !important;
     }   
-}
-
-@media (max-width : 368px) {
-    #mobileToolbar .ql-list,
-    #mobileToolbar .ql-code-block {
-        display: none !important;
-    }
-
-    .ql-bubble .ql-tooltip {
-        max-width: calc(14rem + 1rem) !important;
-    }
 }

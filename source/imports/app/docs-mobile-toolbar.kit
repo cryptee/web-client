@@ -1,27 +1,35 @@
 <!-- MOBILE TOOLBAR -->
-<!-- GROUPS OF 6 -->
 
 <button class="ql-header" value="1"      ></button>
 <button class="ql-header" value="2"      ></button>
 <button class="ql-header" value="3"      ></button>
 
-<button class="ql-list"   value="check"  ></button>
-<button class="ql-list"   value="ordered"></button>
-<button class="ql-list"   value="bullet" ></button>
+<!-- removing, since they're in the top menu now -->
 
 <button class="ql-bold"                  ></button>
 <button class="ql-italic"                ></button>
 <button class="ql-underline"             ></button>
 <button class="ql-strike"                ></button>
-<button class="ql-blockquote"            ></button>
-<button class="ql-code-block"            ></button>
+<button class="ql-link"                  ></button>
+
+<button class="ql-list"   value="check"  ></button>
+<button class="ql-list"   value="bullet" ></button>
+<button class="ql-list"   value="ordered"></button>
 
 <!-- only here to create virtual click events. since the desktop top bar isn't initialized in mobile, the picture ql-image button doesn't work-->
-<button class="ql-image" style="display:none !important;" ></button>
+<button class="ql-image hidden-offline"></button>
+<button class="cryptee-new-table hidden-offline" title="New Table"><i class="ri-table-2"></i></button>
 
-<select class="ql-color" ></select>
-<select class="ql-background" ></select>
+<!-- <select class="ql-color" ></select> -->
+<!-- <select class="ql-background" ></select> -->
+
+<button class="ql-blockquote"            ></button>
 <button class="ql-indent" value="-1"     ></button>
 <button class="ql-indent" value="+1"     ></button>
-<button class="ql-link"                  ></button>
+
+<button class="ql-code-block"            ></button>
 <button class="ql-clean"  value="clean"  ></button>
+
+<button alt="Help" onclick="showModal('modal-help')"><i class="ri-question-mark"></i></button>
+
+<!-- undo will be appended here in js -->

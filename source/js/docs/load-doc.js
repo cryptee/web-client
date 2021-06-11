@@ -422,7 +422,11 @@ async function closeActiveDoc() {
     
     // make editor state hidden.
     updateEditorState("no-doc");
-    stopRightProgress();
+    
+    setTimeout(function () {
+        stopRightProgress("red");
+        stopRightProgress();
+    }, 500);
 
     // set activeDocID;
     activeDocID = "";

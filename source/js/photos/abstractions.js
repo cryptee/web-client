@@ -1660,7 +1660,9 @@ async function deleteSelectedAlbum() {
     startMainProgress();
     startModalProgress("modal-delete-album");
 
-    var photosOfAlbum = albums[aid].photos || [];
+    var photosOfAlbum = [];
+    if (albums[aid]) { photosOfAlbum = albums[aid].photos || []; }
+
     var deleted = false;
 
     try {

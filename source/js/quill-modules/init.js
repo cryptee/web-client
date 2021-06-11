@@ -177,7 +177,7 @@ if (isMobile) {
     quillBaseConfig.bounds   = "#editorWrapper";
     quillIcons['code-block'] = renderIcon("code-s-slash-fill");
 
-    initMobileTopToolbar();
+    initMobileToolbar();
 } else {
     toolbarOptions.container = '#desktopToolbar';
     quillBaseConfig.theme = 'snow';
@@ -303,39 +303,21 @@ function checkOrAddTag(tag, callback) {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-function initMobileTopToolbar() {
+function initMobileToolbar() {
     
     // switch body state to bubble mode
     $("body").addClass("bubble");
 
     // table is already a custom button so it's already good to go
-    $("#desktopToolbar > .ql-formats > .ql-image").append(quillIcons.image);
-    $("#desktopToolbar > .ql-formats > .ql-list[value='bullet']").append(quillIcons.list.bullet);
-    $("#desktopToolbar > .ql-formats > .ql-list[value='check']").append(quillIcons.list.check);
+    $("#desktopToolbar > .ql-formats > .ql-image").hide();
+    $("#desktopToolbar > .ql-formats > .ql-list[value='bullet']").hide();
+    $("#desktopToolbar > .ql-formats > .ql-list[value='check']").hide();
     $("#desktopToolbar > .ql-formats > .ql-list[value='ordered']").hide();
+    $("#desktopToolbar > .ql-formats > .cryptee-new-table").hide();
+    $("#desktopToolbar > .ql-formats > .cryptee-attachfile").hide();
 
     // add undo button
-    $("#desktopToolbar > .ql-formats:last-child").append(`<button class="ql-undo" title="Undo">${renderIcon('arrow-go-back-fill')}</button>`);
-
-    // add listeners for bullet
-    $(".ql-list[value='bullet']").on("click", function () {
-        var format = quill.getFormat();
-        if (format.list === "bullet") {
-            quill.removeFormat(getLastSelectionRange().index);
-        } else {
-            quill.format('list', 'bullet');
-        }
-    });
-
-    // add listeners for mobile checkbox
-    $(".ql-list[value='check']").on("click", function () {
-        var format = quill.getFormat();
-        if (format.list === "checked" || format.list === "unchecked") {
-            quill.removeFormat(getLastSelectionRange().index);
-        } else {
-            quill.format('list', 'unchecked');
-        }
-    });
+    $("#mobileToolbar").append(`<button class="ql-undo" title="Undo">${renderIcon('arrow-go-back-fill')}</button>`);
 
     // add listeners for undo
     $(".ql-undo").on("click", function () {
@@ -343,18 +325,93 @@ function initMobileTopToolbar() {
         quill.root.blur();
     });
 
-    // add listeners for ql-image
-    $("#desktopToolbar").on("click", '.ql-image', function () {
-        $("#mobileToolbar > .ql-image").trigger("click");
-    });
-
     // move document action buttons to left
-    $("#documentActionButtons").insertAfter("#explorerButtons");
+    $("#documentActionButtons").insertAfter("#desktopToolbar > .ql-formats:last-child");
+
+    $("#documentActionButtons").prepend(`<button id="mobileSliderCaret" alt="Open Sidebar" onclick="toggleSidebarMenu();"><i class="ri-side-bar-fill"></i></button>`);
 }
 
 
 
+/**
+ * This calculates and shows/hides the on-keyboard mobile toolbar only in mobile (bubble theme) and shrinks/expands the editor so that it's not behind the keyboard
+ */
+function updateVisibleViewport(range) {
+    // only for mobile. 
+    if (!isMobile) { return; } 
+    
+    // on android we don't need visualviewport, keyboard triggers window resize events
+    if (isios || isipados) { 
+        
+        // STEP 1 – Move the Toolbar on iOS    
+        var viewport = window.visualViewport || { height : window.innerHeight };
+        var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation
+    
+        $(".ql-tooltip").attr("style", `transform: translateY(${keyboardHeight}px)`);
+        $(".ql-tooltip")[0].scrollTo({ left: 0, behavior : "smooth" });
 
+        // STEP 2 – Determine if keyboard is opening / closing, so you can crop the editor, and fire keyboard opened / closed events
+        cropEditorAccordingtoVisibleViewport();
+        
+    }
+
+    // STEP 3 – SCROLL THE EDITOR TO THE CURSOR (EVEN IF IT'S BEHIND THE TOOLBAR / KEYBOARD)
+    // now let's make the editor scroll to the selection while typing / when tapped on, and make sure it's not behind the keyboard.
+    if (!range || isEmpty(range)) { return; }
+    scrollEditorAccordingToVisibleViewport(range);
+}
+
+var keyboardVisibilityTimeout;
+var editorCropTimeout;
+function cropEditorAccordingtoVisibleViewport() {
+    // this is timed out by 20ms, because reporting is inconsistent across browsers if you measure right away. But seems to be working if you measure in a few ms.
+    // we'll try to keep this under 33ms (30fps for best visual performance / calculation tradeoff)
+    // If you go above 33ms, it looks croppy / choppy.
+
+    clearTimeout(keyboardVisibilityTimeout);
+    clearTimeout(editorCropTimeout);
+    keyboardVisibilityTimeout = setTimeout(function () {
+
+        var viewport = window.visualViewport || { height : window.innerHeight };
+        var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation    
+
+        if (keyboardHeight > 0) {
+            // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.   
+            $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
+        } else {
+            // keyboard will be in correct position 200ms later, crop the editor afterwards to prevent a 299ms cropped jumpy look.
+            editorCropTimeout = setTimeout(function () {
+                $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
+            }, 200);
+        }
+    }, 20);
+}
+
+function scrollEditorAccordingToVisibleViewport(range) {
+    // wait until the soft keyboard is open to calculate editor and viewport height correctly
+    setTimeout(function () {
+        
+        var viewport = window.visualViewport || { height : window.outerHeight };
+        var keyboardHeight = window.outerHeight - viewport.height;
+        var selectionBounds; 
+        try { selectionBounds = quill.getBounds(range.index, range.length); } catch (e) {}
+        selectionBounds = selectionBounds || { top : 0 };
+        var selectionOffset = window.outerHeight - selectionBounds.top;
+        var keyboardAndToolbarHeight = keyboardHeight + 96;
+    
+        if (keyboardAndToolbarHeight >= selectionOffset) {
+            var editorOffset = $(".ql-editor").scrollTop();
+            var targetOffset = editorOffset + 96;
+            $('.ql-editor')[0].scrollTo({ top: targetOffset, left: 0, behavior: 'smooth' });
+        }
+         
+    }, 100);
+}
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('scroll', function(){ updateVisibleViewport(); });
+    window.visualViewport.addEventListener('resize', function(){ updateVisibleViewport(); });
+}
 
 
 
@@ -601,6 +658,8 @@ $(".ql-editor").on('scroll', throttleScroll(function (event) {
 
     hideTableContextualButton();
     hideTableContextualDropdown();
+
+    updateVisibleViewport();
 }, 100));
 
 
@@ -655,6 +714,8 @@ quill.on('selection-change', function (range, oldRange, source) {
         hidePanels("panel-docinfo");
         closeSidebarMenu();
     }
+
+    updateVisibleViewport(range);
 });
 
 
