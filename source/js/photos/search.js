@@ -834,7 +834,7 @@ async function getSyntacticReferences(searchTerm) {
         if (findOne(elements, ["year", "years"])) {
             var yearsAgo = (thisYear - timeago) + "";
             reference = referenceWhere(reference, 'year', '==', yearsAgo);
-            understood = understood + " <b>" + yearsAgo + "</b>";
+            understood = understood + "'" + yearsAgo + "'";
         }
 
         if (targetStartDate && targetEndDate) {
@@ -874,7 +874,7 @@ async function getSyntacticReferences(searchTerm) {
         if (reference === [] || elements.indexOf("year") > -1) {
             var lastYear = (thisYear - 1) + "";
             reference = referenceWhere(reference, 'year', '==', lastYear);
-            understood = understood + " <b>" + lastYear + "</b>";
+            understood = understood + "'" + lastYear + "'";
         }
 
         comboMonth = combineWithMonth(elements, reference, understood);
@@ -950,7 +950,7 @@ function combineWithYear(elements, reference, understood) {
 
     if (year) {
         reference = referenceWhere(reference, 'year', '==', year);
-        understood = understood + " <b>" + year + "</b>";
+        understood = understood + "'" + year + "'";
     }
 
     return { r: reference, u: understood };
@@ -986,7 +986,7 @@ function combineWithTimesOfDay(elements, reference, understood) {
         if (timeRange[0] !== "not-a-time") {
             reference = referenceWhere(reference, 'time', '>=', timeRange[0]);
             reference = referenceWhere(reference, 'time', '<=', timeRange[1]);
-            understood = understood + " <b>" + timeOfDay + "</b> (" + timeRange.join(" – ") + ")";
+            understood = understood + "'" + timeOfDay + "' (" + timeRange.join(" – ") + ")";
         }
 
         return { r: reference, u: understood };
