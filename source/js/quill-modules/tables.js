@@ -91,7 +91,7 @@ CrypteeTableData.tagName = "crypteetabledata";
 //  TABLE CELL BLOT / DEFINITION 	 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-// crypteefile = 
+// crypteefile, crypteefolder = 
 
 var itemsDisallowedInTableCells = ["header", "blockquote", "code-block", "list", "list-item", "indent", "formula", "video", "image", "", "file", "divider", "hr"];
 var CrypteeTableCell = function (_Block) {

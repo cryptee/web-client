@@ -31,6 +31,17 @@ Italic.tagName = 'i';
 Quill.register(Italic, true);
 
 
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	VENDOR SPECIFIC FIXES 
+//  
+//  uuggghhhhhhh
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+// https://github.com/cryptee/web-client/issues/48
 function firefoxJustifiedTextFixHandler(range, context) {
     if (context.format.align === "justify" && context.prefix.length >= context.offset) {
         // this is the end of the paragraph / line, and user pressed space, quill will ignore this / delete this, so insert an extra space here. 
@@ -49,6 +60,38 @@ if (isFirefox) {
         handler: firefoxJustifiedTextFixHandler
     };
 }
+
+
+// https://github.com/cryptee/web-client/issues/129
+function androidPredictiveKeyboardNewlineFix(delta, oldDelta, source) {
+    if (!isAndroid) { return; }
+    
+    // if some text is selected, we replace the selected text with newline.
+    // this doesn't cause a bug, so you can continue as expected. 
+    var oldSelection = quill.getSelection();
+    if (!oldSelection || isEmpty(oldSelection)) { return; }
+    if (oldSelection.length > 0) { return; }
+
+    if (!delta || isEmpty(delta)) { return; }
+    if (!delta.ops) { return; }
+    if (!delta.ops[1]) { return; }
+    if (!delta.ops[1].insert) { return; }
+    if (delta.ops[1].insert !== "\n") { return; }
+
+    setTimeout(function () {
+        var newSelection = quill.getSelection(); 
+
+        // what happened is, we know we added a newline, but the selection index didn't change. 
+        // so now we'll need to move the cursor, to make sure things continue to work without breaking.
+        // fucking hell. 
+        if (!newSelection || newSelection.index === oldSelection.index) {
+            quill.setSelection(oldSelection.index + 1, 0);
+        }
+    }, 30);
+}
+
+
+
 
 var fonts = ['Alef', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Josefin Sans', 'Markazi', 'Montserrat', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
 var fontNames = [];
@@ -242,6 +285,7 @@ quill.clipboard.addMatcher('crypteetablecell', (node, delta) => {  return delta;
 // TAG & FILE ELEMENT MATCHERS
 quill.clipboard.addMatcher('crypteetag', (node, delta) =>       {  return delta; });
 quill.clipboard.addMatcher('crypteefile', (node, delta) =>      {  return delta; });
+quill.clipboard.addMatcher('crypteefolder', (node, delta) =>      {  return delta; });
 
 // REGULAR SPAN / DIV ELEMENT MATCHERS
 quill.clipboard.addMatcher('span', (node, delta) =>             {  return delta; });
@@ -521,6 +565,7 @@ function getSelectedCustomElementsInRange(range) {
     var selectedElements = {
         tables : [],
         files : [],
+        folders : [],
         // etc
     };
     
@@ -537,9 +582,14 @@ function getSelectedCustomElementsInRange(range) {
                 selectedElements.tables.push(op.attributes.crypteetabledata.tableid);
             }
 
-            // files
+            // crypteefiles
             if (op.attributes.file) {
                 selectedElements.files.push(op.attributes.file.did);
+            }
+
+            // crypteefolders
+            if (op.attributes.folder) {
+                selectedElements.folders.push(op.attributes.folder.fid);
             }
 
         }
@@ -581,8 +631,8 @@ function getSelectedCustomElementsInRange(range) {
 
 $('.ql-editor').on('click', function (event) {
 
-    // first item is a crypteefile (attachment, won't receive focus. add another p before)
-    if ($(".ql-editor p:last-child crypteefile").length === 1) {
+    // first item is a crypteefile or crypteefolder (attachment, won't receive focus. add another p before)
+    if ($(".ql-editor p:last-child crypteefile").length === 1 || $(".ql-editor p:last-child crypteefolder").length === 1) {
         $(".ql-editor").append("<p></p>");
     }
 
@@ -644,6 +694,40 @@ $('.ql-editor').on('click', 'crypteefile', function (event) {
 
 });
 
+
+$('.ql-editor').on('click', 'crypteefolder', function (event) {
+    var theFolder = $(this);
+    
+    if (theFolder.hasClass("error")) {
+        theFolder.remove();
+        return;
+    }
+
+    event.preventDefault();
+    var fid = theFolder.attr("fid");
+    
+    getFolderFromCatalog(fid).then((folder) => {
+        if (!folder || isEmpty(folder)) {
+            // folder doesn't exist in catalog. chances are it was an attachment, and it's ghosted or deleted etc. remove it.   
+            theFolder.removeClass("loading").addClass("error");
+            createPopup("looks like this folder doesn't exist anymore. Chances are it was deleted or ghosted. since your documents are encrypted, cryptee is mathematically unable to automatically remove these attachment-links once the original linked folder is gone.", "error");
+            return;
+        }
+        
+        clearSearchOnlyIfNecessary();
+        loadFolder(fid);
+
+        $("#leftListWrapper").attr("show", "folder");
+        setTimeout(function () {
+            openSidebarMenu();
+            hideRightClickDropdowns();
+            hidePanels();
+        }, 10);
+    }); 
+
+});
+
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 // 	 QUILL SCROLL LISTENER
@@ -678,13 +762,16 @@ var zeroSelectionRange = {index: 0, length : 0};
 
 
 quill.on('text-change', function (delta, oldDelta, source) {
+    
     somethingChanged();
     
     lastSelectionRange = quill.getSelection() || zeroSelectionRange;
-
+    
     preventTableFromBreaking(delta, oldDelta, source);
     checkIfTableHasFocus();
     checkIfDocumentHasRemoteImages();
+    
+    androidPredictiveKeyboardNewlineFix(delta, oldDelta, source);
 });
 
 
@@ -702,8 +789,10 @@ quill.on('selection-change', function (range, oldRange, source) {
 
         checkIfTableHasFocus();
         checkIfURLSelectedOnMobile();
+        
+        selectFoldersIfAnyInRange(range, oldRange, source);
         selectTablesIfAnyInRange(range, oldRange, source);
-        selectFilesIfAnyInRange(range, oldRange,source);
+        selectFilesIfAnyInRange(range, oldRange, source);
         
         if (range.length > 1) {
             selectionCounts();

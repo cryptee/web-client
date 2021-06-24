@@ -1213,10 +1213,17 @@ async function confirmMove() {
     }
 
     if (isMovingAFolder) {
-        // CHECK IF USER'S TRYING TO MOVE FOLDER TO SAME FOLDER. 
+        // CHECK IF USER'S TRYING TO MOVE FOLDER TO SAME PARENT FOLDER. (SO NOT REALLY MOVING ANYTHING) 
         var originalParent = await parentOfFolder(arrayOfItemsToMove[0]);
         if (originalParent === targetFID) {
             createPopup("The folder you'd like to move is already in the folder you've selected.<br><br> To move files or folders, first right click on them (or press <i class='ri-more-2-fill'></i>) and press <b>'move to'</b>. Then, open the target folder you'd like to move things into. Finally, once you're in the target folder press the green <b>move here</b> button in the bottom.","info");
+            hideFloater("moveFloat");
+            return false;
+        }
+
+        // CHECK IF USER'S TRYING TO MOVE FOLDER ONTO ITSELF.
+        if (arrayOfItemsToMove[0] === targetFID) {
+            createPopup("The folder you'd like to move is the same as the destination folder you've selected. You can't move a folder into itself. <br><br> To move files or folders, first right click on them (or press <i class='ri-more-2-fill'></i>) and press <b>'move to'</b>. Then, open the target folder you'd like to move things into. Finally, once you're in the target folder press the green <b>move here</b> button in the bottom.","info");
             hideFloater("moveFloat");
             return false;
         }
@@ -2010,7 +2017,33 @@ async function attachSelectedFileInline(did) {
     hidePanels();
 }
 
+/**
+ * Attaches a selected folder (or folder with given ID) inline to the current document in the editor
+ * @param {string} [fid] folder id (optionally use a fid instead of the selection)
+ */
+async function attachSelectedFolderInline(fid) {
+    fid = fid || $("#dropdown-folder").attr("fid");
 
+    if (!fid) { 
+        hideRightClickDropdowns();
+        hidePanels();
+        return false; 
+    }
+
+    if (isCursorInTable()) {
+        createPopup("Unfortunately you can't add attachments inside tables yet. Please place your cursor outside of the table, and press attach / link again.", "info");
+        return false;
+    }
+
+    var name = await getFolderNameFromCatalog(fid);
+
+    var attachmentTag = `<p><br></p><crypteefolder fid='${fid}'></crypteefolder><p><br></p>`;
+    quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, attachmentTag, "api");
+    quill.setSelection(getLastSelectionRange().index + 2, "silent");
+    $(`crypteefolder[fid="${fid}"]`).attr("foldertitle", name);
+    hideRightClickDropdowns();
+    hidePanels();
+}
 
 
 

@@ -740,20 +740,17 @@ crypteetablecell * {
     opacity: 0.2 !important;
 }
 
-#mobileToolbar.in-table .ql-header,
+#mobileToolbar.in-table .cryptee-new-table,
 #mobileToolbar.in-table .ql-blockquote,
 #mobileToolbar.in-table .ql-code-block,
+#mobileToolbar.in-table .ql-indent,
+#mobileToolbar.in-table .ql-header,
+#mobileToolbar.in-table .ql-image,
 #mobileToolbar.in-table .ql-clean,
 #mobileToolbar.in-table .ql-list,
-#mobileToolbar.in-table .ql-indent {
+#mobileToolbar.in-table .ql-hr {
     display: none !important;
 }
-
-#mobileToolbar.in-table {
-    text-align: center;
-    width: 14rem !important;
-}
-
 
 
 
@@ -771,7 +768,7 @@ FILES
 ----------------------------- */
 
 
-crypteefile {
+crypteefile, crypteefolder {
     display: block;
     font-size: 0;
     font-weight: 350;
@@ -785,22 +782,20 @@ crypteefile {
     opacity: 1;
 }
 
-crypteefile::after {
-    content: attr(filetitle);
+crypteefile::after, crypteefolder::after {
+    content: attr(filetitle) attr(foldertitle);
     font-size: 1rem;
     pointer-events: all;
     cursor: pointer;
 }
 
-crypteefile::before {
+crypteefile::before, crypteefolder::before {
     
     font-family: 'remixicon' !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
-    content: "\EA86";
-    
+        
     display: inline-block;
     margin-top: -0.75rem;
     margin-right: 1rem;
@@ -813,18 +808,20 @@ crypteefile::before {
     cursor: pointer;
 }
 
+crypteefile::before { content: "\EA86"; }
+crypteefolder::before { content: "\ED61"; }
 
-crypteefile.selected {
+crypteefile.selected, crypteefolder.selected {
     background-color: var(--cryptee-1) !important;
     color: #FFF !important;
 }
 
-.dm crypteefile.selected {
+.dm crypteefile.selected, .dm crypteefolder.selected {
     background-color: var(--cryptee-4) !important;
     color: #000 !important;
 }
 
-.dm crypteefile {
+.dm crypteefile, .dm crypteefolder {
     background-color: var(--cryptee-1) !important;
     color: #FFF !important;
     border-left: 1px solid #FFF;
@@ -915,17 +912,17 @@ crypteefile[filetitle$=".mdtext"]::before {
 
 
 
-crypteefile.loading {
+crypteefile.loading, crypteefolder.loading {
     pointer-events: none !important;
     opacity: 0.5 !important;
 }
 
-crypteefile.loading::before { 
+crypteefile.loading::before, crypteefolder.loading::before { 
     content: "\EEC6" !important; 
     animation: spin 0.4s linear infinite !important; 
 }
 
-crypteefile.error {
+crypteefile.error, crypteefolder.error {
     background-color: var(--cryptee-red);
     border-color: var(--cryptee-red);
     color: white;
@@ -933,8 +930,13 @@ crypteefile.error {
 
 
 
-crypteefile.error::before { content: "\ED19"; }
-crypteefile.error::after { content: "Failed to open " attr(filetitle); }
+crypteefile.error::before, crypteefolder.error::before { 
+    content: "\ED19"; 
+}
+
+crypteefile.error::after, crypteefolder.error::after { 
+    content: "Failed to open " attr(filetitle) attr(foldertitle); 
+}
 
 
 
@@ -1201,6 +1203,10 @@ MOBILE TOOLBAR
     display: none !important;
 }
 
+.ql-bubble .ql-tooltip.ql-flip {
+    transform: translateY(16px);
+}
+
 .ql-bubble .ql-tooltip .fader {
     display: block;
     margin:0;
@@ -1227,6 +1233,7 @@ MOBILE TOOLBAR
 }
 
 .ql-tooltip #mobileToolbar button,
+.ql-tooltip #mobileToolbar span,
 .ql-tooltip #mobileToolbar .ql-picker,
 .ql-tooltip #mobileToolbar select {
     height: 2rem;
@@ -1239,6 +1246,7 @@ MOBILE TOOLBAR
 }
 
 .ql-tooltip #mobileToolbar button i,
+.ql-tooltip #mobileToolbar span i,
 .ql-tooltip #mobileToolbar .ql-picker i,
 .ql-tooltip #mobileToolbar select i { 
     color: #aaa; 

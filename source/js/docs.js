@@ -1127,7 +1127,7 @@ $("#viewingModeButton").on('click', function(event) {
 ////////////////////////////////////////////////
 
 function showInlineAttachmentPopup() {
-    createPopup("to attach a file or a document, first find the file you'd like to attach to this document using the menu on the left, either from its folder, or via search. then, right click on it <br>(or press <i class='ri-more-2-fill'></i>)<br> and press '<b>attach inline</b>'", "info");
+    createPopup("to attach a file, document or folder, first find the file or folder you'd like to attach to this document using the menu on the left, either from its parent folder, or via search. then, right click on it <br>(or press <i class='ri-more-2-fill'></i>)<br> and press '<b>attach inline</b>'", "info");
 }
 
 

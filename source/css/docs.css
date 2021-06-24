@@ -2924,9 +2924,34 @@ body.bubble.no-doc.loading-doc #rightSlide.activeSlide {
     transition-duration: 0.5s;
 }
 
+body.bubble.locked-doc #desktopToolbar::before {
+    content: "\f097";
 
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: 350;
+    position: absolute;
+    left: 6.5rem;
+    top: 0.5625rem;
+    height: 3rem;
+    line-height: 3rem;
+    width: 3rem;
+    
+    color: #000;
 
+    transform: scale(1.5);
+}
 
+.dm body.bubble.locked-doc #desktopToolbar::before {
+    color: #FFF;
+}
+
+body.bubble.locked-doc #panel-button-doctools {
+    opacity: 0;
+    pointer-events: none !important;
+}
 
 /* -----------------------------
 -------------------------------- 

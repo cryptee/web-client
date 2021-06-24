@@ -27,7 +27,7 @@ var quillkeyboardbindings = {
                 } else if (context.format.list) {
 
                     if (context.collapsed && context.empty && context.offset < 1) {
-                        this.quill.format('list', false);
+                        quill.format('list', false);
                     } else {
                         return true;
                     }
@@ -35,7 +35,7 @@ var quillkeyboardbindings = {
                 } else if (context.format.blockquote) {
 
                     if (context.collapsed && context.empty && context.offset < 1) {
-                        this.quill.format('blockquote', false);
+                        quill.format('blockquote', false);
                     } else {
                         return true;
                     }
@@ -89,19 +89,19 @@ var quillkeyboardbindings = {
 
             if (context.format.list) {
                 if (context.collapsed && context.empty && !context.offset) {
-                    this.quill.format('list', false);
+                    quill.format('list', false);
                 } else {
                     return true;
                 }
             } else if (context.format.blockquote) {
                 if (context.collapsed && context.empty && !context.offset) {
-                    this.quill.format('blockquote', false);
+                    quill.format('blockquote', false);
                 } else {
                     return true;
                 }
             } else if (context.format['code-block']) {
                 if (context.collapsed && context.empty && !context.offset) {
-                    this.quill.format('code-block', false);
+                    quill.format('code-block', false);
                 } else {
                     return true;
                 }
@@ -257,7 +257,9 @@ var quillkeyboardbindings = {
             quill.history.cutoff();
             quill.setSelection(range.index - length, Quill.sources.SILENT);
         }
-    }
+    },
+    'indent code-block': null,
+    'outdent code-block': null
 };
 
 //////// HOTKEYS //////////

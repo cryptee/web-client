@@ -510,6 +510,11 @@ async function moveFolder(fidToMove, targetFID) {
         return false;
     }
 
+    if (fidToMove === targetFID) {
+        handleError("[MOVE FOLDER] Can't move folder onto itself.");
+        return false;
+    }
+
     breadcrumb("[MOVE FOLDER] Moving " + fidToMove + " to " + targetFID);
 
     var moved = await setFolderMeta(fidToMove, { parent : targetFID });

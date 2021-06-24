@@ -193,7 +193,7 @@ var MarkdownShortcuts = function () {
       }
     }, {
       name: 'italic',
-      pattern: /(?:\*|_){1}(.+?)(?:\* |_ ){1}/g,
+      pattern: /(?:\*|_){1}(.+?)(?:\*|_){1}/g,
       action: function action(text, selection, pattern, lineStart) {
         var match = pattern.exec(text);
 
@@ -241,10 +241,8 @@ var MarkdownShortcuts = function () {
 
         setTimeout(function () {
           _this.quill.deleteText(startIndex, annotatedText.length);
-          _this.quill.insertText(startIndex, ' ');
-          _this.quill.insertText(startIndex + 1, matchedText, { code: true });
+          _this.quill.insertText(startIndex, matchedText, { code: true });
           _this.quill.format('code', false);
-          _this.quill.insertText(_this.quill.getSelection(), ' ');
         }, 0);
       }
     }, {
