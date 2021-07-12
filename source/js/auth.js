@@ -509,15 +509,6 @@ function stopKeyProgress() {
 
 
 
-
-
-
-
-
-
-
-
-
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 //	
@@ -658,6 +649,7 @@ function updateUserInLS() {
 
         plansUpdated();
         gotPaymentProcessor();
+        checkForSpecialOffers();
 
         breadcrumb("[LS] Updated LS");
     } catch (e) {
@@ -706,6 +698,8 @@ function restoreUserFromLS() {
 
         thePaymentProcessor = localStorage.getItem("paymentProcessor"); 
         gotPaymentProcessor();
+
+        checkForSpecialOffers();
 
     } catch (e) {
         breadcrumb("Couldn't get user from LS, LS likely disabled");    
@@ -843,6 +837,63 @@ async function getUpdatedRemainingStorage() {
 
 
 
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	SPECIAL OFFERS / DISCOUNTS ETC
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+function checkForSpecialOffers() {
+    
+    fall2021DiscountCampaign();
+    
+}
+
+function fall2021DiscountCampaign() {
+    var freeUserQuotaInBytes = 100000000; // 100mb
+    var programEndsOn = 1640988000000; // Jan 1, 2022
+    var now = (new Date()).getTime();
+    var isQualified = (allowedStorage <= freeUserQuotaInBytes && now <= programEndsOn);
+
+    var messages = [
+        // "it's almost winter here in the north, and our office polar bear yaroslav needs a new scarf. upgrade by 2022, get 10% discount for life and help us keep yaroslav happy",
+        "need a drink after the dumpster-fire that was 2021? drinks on us! upgrade before 2022 to have 10% discount for life.",
+        "black ''fridays''? whole damn winter is dark here in northern europe. upgrade by 2022, get a 10% discount for life.",
+    ];
+
+    var message = messages[Math.floor((Math.random()*messages.length))];
+
+    if (isQualified) {
+
+        if (location.pathname === "/home" && !$('#offerButton').text() && !$(".newsButton").hasClass("unread")) {
+            $('#offerButton').text(message);
+        }
+
+        if (location.pathname === "/plans") {
+            applyPromoCode("FALL2021", 10);
+        }
+
+    } else {
+
+        if (location.pathname === "/home") {
+            $('#offerButton').text("");
+        }
+        
+        if (location.pathname === "/plans") {
+            removePromoCode();
+        }
+
+    }
+}
 
 
 

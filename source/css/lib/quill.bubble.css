@@ -58,7 +58,7 @@
 .ql-editor h6 {
   margin: 0;
   padding: 0;
-  counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+  counter-reset: list-0 list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9 !important;
 }
 /* .ql-editor ol,
 .ql-editor ul {
@@ -117,195 +117,43 @@
   counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
   counter-increment: list-0;
 }
-.ql-editor ol li:before {
-  content: counter(list-0, decimal) '. ';
-}
-.ql-editor ol li.ql-indent-1 {
-  counter-increment: list-1;
-}
-.ql-editor ol li.ql-indent-1:before {
-  content: counter(list-1, lower-alpha) '. ';
-}
-.ql-editor ol li.ql-indent-1 {
-  counter-reset: list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
-}
-.ql-editor ol li.ql-indent-2 {
-  counter-increment: list-2;
-}
-.ql-editor ol li.ql-indent-2:before {
-  content: counter(list-2, lower-roman) '. ';
-}
-.ql-editor ol li.ql-indent-2 {
-  counter-reset: list-3 list-4 list-5 list-6 list-7 list-8 list-9;
-}
-.ql-editor ol li.ql-indent-3 {
-  counter-increment: list-3;
-}
-.ql-editor ol li.ql-indent-3:before {
-  content: counter(list-3, decimal) '. ';
-}
-.ql-editor ol li.ql-indent-3 {
-  counter-reset: list-4 list-5 list-6 list-7 list-8 list-9;
-}
-.ql-editor ol li.ql-indent-4 {
-  counter-increment: list-4;
-}
-.ql-editor ol li.ql-indent-4:before {
-  content: counter(list-4, lower-alpha) '. ';
-}
-.ql-editor ol li.ql-indent-4 {
-  counter-reset: list-5 list-6 list-7 list-8 list-9;
-}
-.ql-editor ol li.ql-indent-5 {
-  counter-increment: list-5;
-}
-.ql-editor ol li.ql-indent-5:before {
-  content: counter(list-5, lower-roman) '. ';
-}
-.ql-editor ol li.ql-indent-5 {
-  counter-reset: list-6 list-7 list-8 list-9;
-}
-.ql-editor ol li.ql-indent-6 {
-  counter-increment: list-6;
-}
-.ql-editor ol li.ql-indent-6:before {
-  content: counter(list-6, decimal) '. ';
-}
-.ql-editor ol li.ql-indent-6 {
-  counter-reset: list-7 list-8 list-9;
-}
-.ql-editor ol li.ql-indent-7 {
-  counter-increment: list-7;
-}
-.ql-editor ol li.ql-indent-7:before {
-  content: counter(list-7, lower-alpha) '. ';
-}
-.ql-editor ol li.ql-indent-7 {
-  counter-reset: list-8 list-9;
-}
-.ql-editor ol li.ql-indent-8 {
-  counter-increment: list-8;
-}
-.ql-editor ol li.ql-indent-8:before {
-  content: counter(list-8, lower-roman) '. ';
-}
-.ql-editor ol li.ql-indent-8 {
-  counter-reset: list-9;
-}
-.ql-editor ol li.ql-indent-9 {
-  counter-increment: list-9;
-}
-.ql-editor ol li.ql-indent-9:before {
-  content: counter(list-9, decimal) '. ';
-}
-/* .ql-editor .ql-indent-1:not(.ql-direction-rtl) {
-  padding-left: 3rem;
-}
-.ql-editor li.ql-indent-1:not(.ql-direction-rtl) {
-  padding-left: 4.5rem;
-}
-.ql-editor .ql-indent-1.ql-direction-rtl.ql-align-right {
-  padding-right: 3rem;
-}
-.ql-editor li.ql-indent-1.ql-direction-rtl.ql-align-right {
-  padding-right: 4.5rem;
-}
-.ql-editor .ql-indent-2:not(.ql-direction-rtl) {
-  padding-left: 6rem;
-}
-.ql-editor li.ql-indent-2:not(.ql-direction-rtl) {
-  padding-left: 7.5rem;
-}
-.ql-editor .ql-indent-2.ql-direction-rtl.ql-align-right {
-  padding-right: 6rem;
-}
-.ql-editor li.ql-indent-2.ql-direction-rtl.ql-align-right {
-  padding-right: 7.5rem;
-}
-.ql-editor .ql-indent-3:not(.ql-direction-rtl) {
-  padding-left: 9rem;
-}
-.ql-editor li.ql-indent-3:not(.ql-direction-rtl) {
-  padding-left: 10.5rem;
-}
-.ql-editor .ql-indent-3.ql-direction-rtl.ql-align-right {
-  padding-right: 9rem;
-}
-.ql-editor li.ql-indent-3.ql-direction-rtl.ql-align-right {
-  padding-right: 10.5rem;
-}
-.ql-editor .ql-indent-4:not(.ql-direction-rtl) {
-  padding-left: 12rem;
-}
-.ql-editor li.ql-indent-4:not(.ql-direction-rtl) {
-  padding-left: 13.5rem;
-}
-.ql-editor .ql-indent-4.ql-direction-rtl.ql-align-right {
-  padding-right: 12rem;
-}
-.ql-editor li.ql-indent-4.ql-direction-rtl.ql-align-right {
-  padding-right: 13.5rem;
-}
-.ql-editor .ql-indent-5:not(.ql-direction-rtl) {
-  padding-left: 15rem;
-}
-.ql-editor li.ql-indent-5:not(.ql-direction-rtl) {
-  padding-left: 16.5rem;
-}
-.ql-editor .ql-indent-5.ql-direction-rtl.ql-align-right {
-  padding-right: 15rem;
-}
-.ql-editor li.ql-indent-5.ql-direction-rtl.ql-align-right {
-  padding-right: 16.5rem;
-}
-.ql-editor .ql-indent-6:not(.ql-direction-rtl) {
-  padding-left: 18rem;
-}
-.ql-editor li.ql-indent-6:not(.ql-direction-rtl) {
-  padding-left: 19.5rem;
-}
-.ql-editor .ql-indent-6.ql-direction-rtl.ql-align-right {
-  padding-right: 18rem;
-}
-.ql-editor li.ql-indent-6.ql-direction-rtl.ql-align-right {
-  padding-right: 19.5rem;
-}
-.ql-editor .ql-indent-7:not(.ql-direction-rtl) {
-  padding-left: 21rem;
-}
-.ql-editor li.ql-indent-7:not(.ql-direction-rtl) {
-  padding-left: 22.5rem;
-}
-.ql-editor .ql-indent-7.ql-direction-rtl.ql-align-right {
-  padding-right: 21rem;
-}
-.ql-editor li.ql-indent-7.ql-direction-rtl.ql-align-right {
-  padding-right: 22.5rem;
-}
-.ql-editor .ql-indent-8:not(.ql-direction-rtl) {
-  padding-left: 24rem;
-}
-.ql-editor li.ql-indent-8:not(.ql-direction-rtl) {
-  padding-left: 25.5rem;
-}
-.ql-editor .ql-indent-8.ql-direction-rtl.ql-align-right {
-  padding-right: 24rem;
-}
-.ql-editor li.ql-indent-8.ql-direction-rtl.ql-align-right {
-  padding-right: 25.5rem;
-}
-.ql-editor .ql-indent-9:not(.ql-direction-rtl) {
-  padding-left: 27rem;
-}
-.ql-editor li.ql-indent-9:not(.ql-direction-rtl) {
-  padding-left: 28.5rem;
-}
-.ql-editor .ql-indent-9.ql-direction-rtl.ql-align-right {
-  padding-right: 27rem;
-}
-.ql-editor li.ql-indent-9.ql-direction-rtl.ql-align-right {
-  padding-right: 28.5rem;
-} */
+.ql-editor ol li:before { content: counter(list-0, decimal) '. '; }
+
+.ql-editor ol li.ql-indent-1 { counter-increment: list-1; }
+.ql-editor ol li.ql-indent-1:before { content: counter(list-1, lower-alpha) '. '; }
+.ql-editor ol li.ql-indent-1 { counter-reset: list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9; }
+
+.ql-editor ol li.ql-indent-2 { counter-increment: list-2; }
+.ql-editor ol li.ql-indent-2:before { content: counter(list-2, lower-roman) '. '; }
+.ql-editor ol li.ql-indent-2 { counter-reset: list-3 list-4 list-5 list-6 list-7 list-8 list-9; }
+
+.ql-editor ol li.ql-indent-3 { counter-increment: list-3; }
+.ql-editor ol li.ql-indent-3:before { content: counter(list-3, decimal) '. '; }
+.ql-editor ol li.ql-indent-3 { counter-reset: list-4 list-5 list-6 list-7 list-8 list-9; }
+
+.ql-editor ol li.ql-indent-4 { counter-increment: list-4; }
+.ql-editor ol li.ql-indent-4:before { content: counter(list-4, lower-alpha) '. '; }
+.ql-editor ol li.ql-indent-4 { counter-reset: list-5 list-6 list-7 list-8 list-9; }
+
+.ql-editor ol li.ql-indent-5 { counter-increment: list-5; }
+.ql-editor ol li.ql-indent-5:before { content: counter(list-5, lower-roman) '. '; }
+.ql-editor ol li.ql-indent-5 { counter-reset: list-6 list-7 list-8 list-9; }
+
+.ql-editor ol li.ql-indent-6 { counter-increment: list-6; }
+.ql-editor ol li.ql-indent-6:before { content: counter(list-6, decimal) '. '; }
+.ql-editor ol li.ql-indent-6 { counter-reset: list-7 list-8 list-9; }
+
+.ql-editor ol li.ql-indent-7 { counter-increment: list-7; }
+.ql-editor ol li.ql-indent-7:before { content: counter(list-7, lower-alpha) '. '; }
+.ql-editor ol li.ql-indent-7 { counter-reset: list-8 list-9; }
+
+.ql-editor ol li.ql-indent-8 { counter-increment: list-8; }
+.ql-editor ol li.ql-indent-8:before { content: counter(list-8, lower-roman) '. '; }
+.ql-editor ol li.ql-indent-8 { counter-reset: list-9; }
+
+.ql-editor ol li.ql-indent-9 { counter-increment: list-9; }
+.ql-editor ol li.ql-indent-9:before { content: counter(list-9, decimal) '. '; }
+
 .ql-editor .ql-video {
   display: block;
   max-width: 100%;

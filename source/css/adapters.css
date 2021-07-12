@@ -55,7 +55,6 @@
     color:#FFF;
     padding-left: 2rem;
     margin-top: 0;
-    margin-bottom: -0.25rem;
     flex-grow: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -315,7 +314,52 @@ PDF
     width: 100%;
 }
 
+#file-viewer:not([ext="pdf"]) button[for="pdf"] { display: none; }
 
+#file-viewer[ext="pdf"] #active-filename {
+    padding-left: 1rem;
+}
+
+#file-viewer[ext="pdf"] #file-viewer-nav,
+#file-viewer[ext="pdf"] #file-viewer-nav > * {
+    transition: 1s all var(--cryptee-cb);
+}
+
+/* MODIFIED PDF */
+
+#file-viewer[ext="pdf"].modified #pdfSaveChanges, 
+#file-viewer[ext="pdf"].saving #pdfSaveChanges { 
+    opacity: 1; 
+}
+
+#file-viewer[ext="pdf"].modified #file-viewer-nav,
+#file-viewer[ext="pdf"].saving #file-viewer-nav { 
+    background-color: var(--cryptee-yellow); 
+}
+
+#file-viewer[ext="pdf"].modified #file-viewer-nav > *,
+#file-viewer[ext="pdf"].saving #file-viewer-nav > * { 
+    color: #000 !important; 
+}
+
+#file-viewer[ext="pdf"].modified #file-viewer-nav #active-filename,
+#file-viewer[ext="pdf"].saving #file-viewer-nav #active-filename { 
+    padding-left: 0 !important; 
+}
+
+#file-viewer[ext="pdf"]:not(.modified):not(.saving) #pdfSaveChanges { 
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    pointer-events: none !important;
+}
+
+/* SAVING PDF */
+
+#file-viewer[ext="pdf"].saving #file-viewer-nav > * {
+    opacity: 0.3;
+    pointer-events: none !important;
+}
 
 /* -----------------------------
 -------------------------------- 

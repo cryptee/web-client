@@ -31,5 +31,27 @@
   "start_url": "/home",
   "display": "standalone",
   "background_color": "rgb(255,255,255)",
-  "theme_color" : "rgb(255,255,255)"
+  "theme_color" : "rgb(255,255,255)",
+  "screenshots": [
+    {
+      "src": "../imgs/hero/cryptee-photos-docs-hero.jpg",
+      "sizes": "1792x896",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "../imgs/hero/cryptee-docs-grid.jpg",
+      "sizes": "1792x896",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "../imgs/hero/cryptee-photos-2.jpg",
+      "sizes": "1792x896",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "../imgs/hero/cryptee-docs-duo.jpg",
+      "sizes": "1792x896",
+      "type": "image/jpeg"
+    }    
+  ]
 }

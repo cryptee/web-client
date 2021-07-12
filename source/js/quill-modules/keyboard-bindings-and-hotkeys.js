@@ -430,6 +430,13 @@ key('command+shift+0, ctrl+shift+0', function () {
     return false;
 });
 
+key('command+enter, ctrl+enter', function () {
+    if (!isCursorInTable() && isPaperMode()) {
+        $(".ql-pagebreak").trigger("click");
+    }
+    return false;
+});
+
 key('esc', function () {
     hidePanels();
     hideFloaters();
@@ -438,16 +445,53 @@ key('esc', function () {
 });
 
 key('pageup', function(){
-    var currentEditorScrollPos = $(".ql-editor").scrollTop();
-    var scrollToPosition = currentEditorScrollPos - 128;
-    if (scrollToPosition <= 0) { scrollToPosition = 0; }
-    $(".ql-editor")[0].scrollTo({ top: scrollToPosition, left: 0, behavior: 'smooth' });
+    if (isPaperMode()) {
+        goToPrevPage();
+    } else {
+        var currentEditorScrollPos = $(".ql-editor").scrollTop();
+        var scrollToPosition = currentEditorScrollPos - 128;
+        if (scrollToPosition <= 0) { scrollToPosition = 0; }
+        $(".ql-editor")[0].scrollTo({ top: scrollToPosition, left: 0, behavior: 'smooth' });
+    }
+
     return false;
 });
 
 key('pagedown', function(){
-    var currentEditorScrollPos = $(".ql-editor").scrollTop();
-    var scrollToPosition = currentEditorScrollPos + 128;
-    $(".ql-editor")[0].scrollTo({ top: scrollToPosition, left: 0, behavior: 'smooth' });
+    if (isPaperMode()) {
+        goToNextPage();
+    } else {
+        var currentEditorScrollPos = $(".ql-editor").scrollTop();
+        var scrollToPosition = currentEditorScrollPos + 128;
+        $(".ql-editor")[0].scrollTo({ top: scrollToPosition, left: 0, behavior: 'smooth' });
+    }
+    
     return false;
+});
+
+/**
+ * This function checks and determines whether if the user can quick load documents using the 123 hotkeys on the keyboard. i.e. if a doc is open, or if another input is in focus, it returns false.
+ * @returns 
+ */
+function canQuickLoadWithHotkey() {
+    if ( $('input:focus').length > 0 ) { return false; }
+    if ( $('textarea:focus').length > 0 ) { return false; }
+    if (!$("body").hasClass("no-doc")) { return false; }
+    if (loadingDoc) { return false; }
+    return true;
+}
+
+key('1', function () {
+    if (!canQuickLoadWithHotkey()) { return; }
+    $("#blank-editor-recents").children().eq(0).find(".name").trigger("click");
+});
+
+key('2', function () {
+    if (!canQuickLoadWithHotkey()) { return; }
+    $("#blank-editor-recents").children().eq(1).find(".name").trigger("click");
+});
+
+key('3', function () {
+    if (!canQuickLoadWithHotkey()) { return; }
+    $("#blank-editor-recents").children().eq(2).find(".name").trigger("click");
 });

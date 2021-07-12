@@ -14,6 +14,7 @@ var storagePlans = {
 // same for paddle & stripe
 var storagePlansByID = {
     523200 : { "period" : "mo", "quota" : 10000000000,   "formattedQuota" : "10 GB"   },
+    523300 : { "period" : "yr", "quota" : 10000000000,   "formattedQuota" : "10 GB"   }, // legacy from paddle, here for backwards compat
     560664 : { "period" : "yr", "quota" : 10000000000,   "formattedQuota" : "10 GB"   },
     523202 : { "period" : "mo", "quota" : 400000000000,  "formattedQuota" : "400 GB"  },
     560661 : { "period" : "yr", "quota" : 400000000000,  "formattedQuota" : "400 GB"  },

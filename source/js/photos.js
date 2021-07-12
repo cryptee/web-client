@@ -769,6 +769,8 @@ $("#lightbox-favorite").on('click', function(event) {
 $("#searchInput").on('keydown', function (event) {
     // set a unique search id to the searchContents
     
+    event = event || {};
+    
     activityHappened();
     
     setTimeout(function(){

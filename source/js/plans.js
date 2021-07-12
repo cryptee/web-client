@@ -106,6 +106,11 @@ function chosenPlan(plan, period, price) {
     $("#chosenbilling").attr("price", price);
     $("#chosenbilling").attr("period", period);
 
+    if (usingPromoCode) {
+        var discountedPrice = (price - (price * (usingPercentOff / 100))).toFixed(2);
+        $("#chosenbilling").attr("price", discountedPrice);
+    }
+
     $("body").removeClass("chooseplan");
     $("body").addClass("billing");
 }
@@ -113,8 +118,52 @@ function chosenPlan(plan, period, price) {
 
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	CHECK PROMO / COUPON CODE
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
+var usingPromoCode;
+var usingPercentOff;
 
+/**
+ * Applies a given promo code to checkout, optionally using the provided coupon code and percentage. 
+ * Information like percentage etc passed through this is validated again on the server side, so this is just for UI / cosmetic purposes. 
+ * We'd like to kindly save you –the hacker, reading this– some time, and spare your servers, our servers and stripe's servers the trouble.
+ * World's on fire, why waste energy making unnecessary requests to servers here and there right?
+ * Then again, if you're reading this, and your first thought was "oh lemme see if I can hack this", maybe shoot us an email?
+ * We could use more like-minded people like you on our team!
+ * @param {string} [couponCode] 
+ * @param {number} [percentOff] 
+ */
+async function applyPromoCode(couponCode, percentOff) {
+    breadcrumb('[PROMO CODE] Applying Promo Code');
+    
+    couponCode = couponCode || '';
+    if (couponCode) { $("#coupon-input").val(couponCode); }
+    couponCode = ($("#coupon-input").val() || "").trim().toUpperCase();
+    percentOff = percentOff || await checkPromoCode(couponCode);
+
+    if (percentOff > 0) { 
+        breadcrumb('[PROMO CODE] Applied Promo Code: ' + couponCode + ' [' + percentOff + "% OFF]");
+        usingPromoCode = couponCode;
+        usingPercentOff = percentOff;
+        $("#discount-tag").text('"' + couponCode + '" (' + percentOff + "% OFF)");
+        $("body").attr("discount", percentOff);
+    } else {
+        breadcrumb('[PROMO CODE] No promo code provided / invalid promo code provided, wont apply promo code');
+        removePromoCode();
+    }
+}
+
+function removePromoCode() {
+    usingPromoCode = null;
+    usingPercentOff = 0;
+    $("#coupon-input").val("");
+    $("#discount-tag").text("");
+    $("body").removeAttr("discount");
+}
 
 
 ////////////////////////////////////////////////
@@ -469,7 +518,7 @@ async function upgrade() {
 
     // STEP 4 – CALL CHECKOUT API TO CREATE CUSTOMER, PROCESS TAX INFO, CREATE SUBSCRIPTION, AND RETURN A RESULT 
     
-    var checkoutResponse = await checkout(paymentMethodID, customerDetails, storagePlan, vatNumber);
+    var checkoutResponse = await checkout(paymentMethodID, customerDetails, storagePlan, vatNumber, usingPromoCode);
     if (!checkoutResponse) {
         processingError();
         return false;
@@ -600,7 +649,8 @@ async function show3DSPopup(paymentMethodID, paymentIntentSecret) {
 }
 
 $('#card-info').on('click', function(event) {
-    createPopup("your payments will be processed securely and privately in ireland, europe, using stripe. your card information never touches cryptee's servers.");
+    hidePopup("popup-card-info");
+    createPopup("your payments will be processed securely and privately in ireland, europe, using stripe. your card information never touches cryptee's servers.", null, "card-info");
 }); 
 
 

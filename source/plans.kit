@@ -98,6 +98,7 @@
             <h2 class="storage" id="chosenstorage"></h2>
             <span class="gray">GB</span>
             <p class="gray" id="chosenbilling" cur="€"></p>
+            <span id="discount-tag"></span>
         </div>
 
         <input onchange="validateBillingInfo();" id="billing-email" type="email" placeholder="email for receipts*" autocomplete="billing email">
@@ -132,6 +133,8 @@
         </div>
 
     </div>
+
+    <button id="coupon-button" title="enter coupon code" onclick="showPopup('popup-coupon');"><i class="ri-coupon-3-line"></i></button>
 
     <div id="thanks">
         <h2>THANK YOU</h2>
@@ -199,6 +202,8 @@
     </div>
 
     <div id="create-popups-before-placeholder" style="display: none !important;"></div>
+
+    <!-- @import "imports/app/plans-popup-coupon.kit" -->
 
     <!-- @import "imports/app/footer.kit" -->
 

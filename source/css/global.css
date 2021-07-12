@@ -490,6 +490,7 @@ button {
     background-color: transparent;
     outline: none;
 
+    color: var(--cryptee-1);    /* iOS 15+ Safari makes buttons blue for some reason */
     -webkit-appearance: none;
     box-shadow: none;
 
@@ -1072,6 +1073,7 @@ MODALS
 .modal section {
     width: 100%;
     overflow-y: auto;
+    padding-bottom: 2rem;
 }
 
 .modal section input {
@@ -1135,6 +1137,39 @@ MODALS
     background: var(--cryptee-red) linear-gradient(to right, var(--cryptee-red) 50%, transparent 50%) top left/150% 150% no-repeat;
 
 } 
+
+.modal section::after {
+    /* add a fade-out or sth to make it easy to see it's scrollable */
+    content: "";
+    background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0) 100%);
+    position: absolute;
+    bottom: 8rem;
+    left: 0;
+    right: 0;
+    height: 2rem;
+    pointer-events: none !important;
+}
+
+.modal.info section::after {
+    background: linear-gradient(to top, #FFF 0%, rgba(255,255,255,0) 100%) !important;
+    
+}
+
+.modal.error section::after {
+    background: linear-gradient(to top, var(--cryptee-red) 0%, rgba(204,1,1,0) 100%) !important;
+}
+
+.modal.warning section::after {
+    background: linear-gradient(to top, var(--cryptee-yellow) 0%, rgba(242,178,2,0) 100%) !important;
+    
+}
+
+.modal.success section::after {
+    background: linear-gradient(to top, var(--cryptee-green) 0%, rgba(29,185,84,0) 100%) !important;
+}
+
+
+.modal.hidden { display: none !important; }
 
 
 /* -----------------------------
@@ -1416,6 +1451,13 @@ TIPS / GUIDES
     user-select: none;
 }
 
+.tip section ul {
+    margin-bottom: 1.75rem;
+}
+.tip section li {
+    list-style-type: "– ";
+}
+
 .tip section h3 {
     text-transform: uppercase;
     margin-bottom: 1rem;
@@ -1497,6 +1539,8 @@ TIPS / GUIDES
     pointer-events: none !important;
     transform: scale(1) translateX(1rem);
 }
+
+.tip.hidden { display: none !important; }
 
 /* -----------------------------
 -------------------------------- 

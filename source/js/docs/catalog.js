@@ -823,25 +823,31 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
             // breadcrumb('[CHECK CATALOG] Doc has a different folder or generation, will update ' + did);
             updateInCatalog = true;
         }
-        
-        // if we got titles from server, and it's not the same one we have in the catalog
-        if (serverDoc.title && serverDoc.title !== catalogDoc.title) {
-            // breadcrumb('[CHECK CATALOG] Doc has a different title, will update ' + did);
-            updateInCatalog = true;
-        }
-        
+
         // if server detected that the doc doesn't have titles, update it in catalog
         if (serverDoc.untitled) {
             // breadcrumb('[CHECK CATALOG] Doc has no title, will update ' + did);
             updateInCatalog = true;
         }
         
-        // if we got tags from server, and it's not the same one we have in the catalog
-        if (serverDoc.tags && serverDoc.tags !== catalogDoc.tags) {
-            // breadcrumb('[CHECK CATALOG] Doc has a different tags, will update ' + did);
-            updateInCatalog = true;
-        }
-                
+        var propertiesToCheck = [
+            "title",        // if we got titles from server, and it's not the same one we have in the catalog
+            "tags",         // if we got tags from server, and it's not the same one we have in the catalog
+            "paper",        // if we got paper size from server, and it's not the same one we have in the catalog
+            "orientation",  // if we got paper orientation from server, and it's not the same one we have in the catalog
+            "islocked",     // if we got doc lock from server, and it's not the same one we have in the catalog
+            "modified",     // if we got a file from server, and it's modified = not the same one we have in the catalog
+            "page",         // if we got the last epub page from server, and it's not the same one we have in the catalog
+        ];
+        
+        propertiesToCheck.forEach(key => {
+            if (updateInCatalog) { return; } // we already know we'll update it, move on.
+            if (serverDoc[key] && serverDoc[key] !== catalogDoc[key]) { 
+                breadcrumb('[CHECK CATALOG] Doc has a different ' + key + ', will update ' + did);
+                updateInCatalog = true; 
+            }
+        });
+
         // if we'll replace the doc in catalog, and if the doc is available offline, 
         // this means its offline generation in catalog will be gone once it's replaced. 
         // to avoid this, if a document is offline, set the catalogDoc.offline to serverDoc.offline here,

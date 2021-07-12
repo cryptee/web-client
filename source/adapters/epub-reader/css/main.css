@@ -286,3 +286,6 @@ main.closed {
 #prev i, #next i {
   color: #FFF;
 }
+
+/* bookmark icon toggle */
+#bookmark.icon-bookmark-empty i::before { content: "\eae5" !important; }

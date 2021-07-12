@@ -28,6 +28,13 @@
             </a>
         </p>
 
+        <p class="appButton" app="install" style="display:none;" onclick="showTip('tips-install-pwa');">
+            <a class="plain clickable">
+                <img src="../assets/cross.svg" alt="install" draggable="false">
+                <span>install app</span>
+            </a>
+        </p>
+
         <p class="appButton green" app="upgrade" style="display:none;">
             <a class="plain" href="/plans">
                 <img src="../assets/triangle.svg" alt="upgrade" draggable="false">
@@ -45,8 +52,8 @@
     </main>
 
     <nav>
-        <p class="menuButton" id="topNewsButton">
-            <a class="plain external" href="https://blog.crypt.ee#to-cryptee"  target="_blank" rel="noopener" title="news and product updates">news</a>
+        <p class="menuButton newsButton" id="topNewsButton">
+            <a class="plain external" href="https://blog.crypt.ee#to-cryptee" target="_blank" rel="noopener" title="news and product updates" onclick="markNewsRead();">news</a>
         </p>
 
         <p class="menuButton" id="accountButton">
@@ -60,16 +67,18 @@
         <button class="menuButton" id="logoutButton" onclick="logOut();">log out</button>
     </nav>
     
-    <p id="bottomNewsButton">
-        <a class="plain external" href="https://blog.crypt.ee#to-cryptee"  target="_blank" rel="noopener">news</a>
+    <p id="bottomNewsButton" class="newsButton">
+        <a class="plain external" href="https://blog.crypt.ee#to-cryptee" target="_blank" rel="noopener" onclick="markNewsRead();">news</a>
     </p>
 
-
+    <a id="offerButton" class="offerButton" href="/plans"></a>
 
 
     
     <div id="create-popups-before-placeholder" style="display: none !important;"></div>
     
+    <!-- @import "imports/app/home-tips.kit" -->
+
     <!-- @import "imports/app/footer.kit" -->
 
     <script src="../js/home.js"></script>

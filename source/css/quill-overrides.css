@@ -18,6 +18,7 @@ TOOLBAR OVERRIDES
 }
 
 .ql-formats > * {
+    cursor: pointer;
     user-select: none !important;
     display: inline-block;
     width: 2rem !important;
@@ -291,6 +292,22 @@ COLOR PICKER DROPDOWN
     border: none !important;
 }
 
+.ql-color-picker .ql-picker-options .ql-selected::before {
+    content: "\EB7B";
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #FFF !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    line-height: 1rem;
+    font-size: 1rem;
+}
+
 .ql-color .ql-picker-options .ql-picker-item[data-value]:not(.ql-primary),
 .ql-color .ql-picker-options .ql-picker-item[data-value="#000000"],
 .ql-color .ql-picker-options .ql-picker-item[data-value="#ffff00"] {
@@ -300,14 +317,27 @@ COLOR PICKER DROPDOWN
 .ql-color .ql-picker-options .ql-picker-item[data-value="#888888"] { display: block !important; }
 .ql-color .ql-picker-options .ql-picker-item[data-value="#bbbbbb"] { display: block !important; order: 1;}
 
-.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
-    border: 1px solid #000 !important;
-    background-color: white;
+
+.ql-color.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
+    border: 1px solid #FFF !important;
+    background-color: #000 !important;
     order: -1;
 }
 
-.dm .ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
-    background-color: var(--cryptee-0);
+.dm .ql-color.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
+    background-color: #FFF !important;
+    border: 1px solid var(--cryptee-0) !important;
+    order: -1;
+}
+
+.ql-background.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
+    border: 1px solid #000 !important;
+    background-color: #FFF !important;
+    order: -1;
+}
+
+.dm .ql-background.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value]) {
+    background-color: var(--cryptee-0) !important;
     border: 1px solid #FFF !important;
     order: -1;
 }
@@ -320,6 +350,33 @@ COLOR PICKER DROPDOWN
 .ql-background .ql-picker-options .ql-picker-item[data-value="#c285ff"] { display: block; }
 .ql-background .ql-picker-options .ql-picker-item[data-value="#888888"] { display: block; }
 .ql-background .ql-picker-options .ql-picker-item[data-value="#bbbbbb"] { display: block; order: 1;}
+
+.ql-color.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value])::before,
+.ql-background.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value])::before {
+    content: "\EB98";
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #FFF !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    line-height: 0.9rem;
+    font-size: 0.9rem;
+}
+
+.ql-color.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value])::before,
+.dm .ql-background.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value])::before {
+    color: #FFF !important;
+}
+
+.dm .ql-color.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value])::before,
+.ql-background.ql-color-picker .ql-picker-options .ql-picker-item:not([data-value])::before {
+    color: #000 !important;
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -444,6 +501,7 @@ EDITOR OVERRIDES
 }
 
 .ql-editor {
+
     background-color: white;
     
     padding: 4rem 4rem 0rem 4rem;
@@ -456,6 +514,7 @@ EDITOR OVERRIDES
     transform: scale(1);
 
     -webkit-overflow-scrolling: touch;
+
 }
 
 .swiper-container-ios .ql-editor {
@@ -464,8 +523,9 @@ EDITOR OVERRIDES
 
 
 .ql-editor > *:last-child { margin-bottom: 4rem; }
+.ql-editor > * { overflow: visible; }
 
-.dm .ql-editor {
+.dm body:not([paper-stock]) .ql-editor {
     color: white;    
     background-color: var(--cryptee-0);
 }
@@ -476,10 +536,14 @@ EDITOR OVERRIDES
     white-space: normal;
 }
 
+/* to fix scroll jump issues */
+/* https://github.com/quilljs/quill/issues/1374 */
 .ql-clipboard {
     right: -100000px !important;
     left: 0 !important;
     opacity: 0 !important;
+    /* if you don't add this, browsers try to render the clipboard with the editor on the same layer, causing a massive 100,000px drawing overhead = resulting in ~450mb memory use. fucking hell */
+    transform: translateZ(0);
 }
 
 /* -----------------------------
@@ -582,6 +646,7 @@ crypteetable {
     margin-top: 1rem;
     margin-bottom: 1rem;
     transition: 0.3s background-color ease;
+    /* page-break-inside:auto;  */
 }
 
 crypteetablecell {
@@ -590,11 +655,13 @@ crypteetablecell {
     border-bottom: 1px solid #ccc;
     border-left: 1px solid #ccc;
     transition: 0.3s border ease, 0.3s background-color ease, 0.3s box-shadow ease;
-    padding: 0.25em 0.5em;
+    padding: 0.25rem 0.5rem;
     pointer-events: all;
     background-color: rgba(255, 255, 255, 0);
     height: auto;
     overflow: hidden;
+    /* page-break-inside:avoid;  */
+    /* page-break-after:auto; */
 }
 
 crypteetable.selected {
@@ -709,7 +776,7 @@ crypteetablecell * {
     opacity: 0;
 }
 
-.dm #table-contextual-button {
+.dm body:not([paper-stock]) #table-contextual-button {
     background-color: var(--cryptee-1);
     
 }
@@ -769,11 +836,13 @@ FILES
 
 
 crypteefile, crypteefolder {
-    display: block;
+    display: grid;
+    grid-template-columns: 1rem 1rem 1fr;
+    grid-template-rows: 1fr;
     font-size: 0;
     font-weight: 350;
     background-color: var(--cryptee-4);
-    padding: 1rem 1rem 0.5rem 1rem;
+    padding: 1rem 1rem 0.75rem 1rem;
     cursor: pointer;
     margin: 1rem 0;
     
@@ -787,6 +856,14 @@ crypteefile::after, crypteefolder::after {
     font-size: 1rem;
     pointer-events: all;
     cursor: pointer;
+
+    overflow: hidden;
+    display: block;
+    overflow-wrap: break-word;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    float: left;
 }
 
 crypteefile::before, crypteefolder::before {
@@ -796,16 +873,16 @@ crypteefile::before, crypteefolder::before {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
         
-    display: inline-block;
-    margin-top: -0.75rem;
-    margin-right: 1rem;
+    display: block;
+    margin-top: 0.125rem;
 
     font-size: 1rem;
     line-height: 1rem;
     width: 1rem;
-    vertical-align: middle;
+    height: 1rem;
     pointer-events: all;
     cursor: pointer;
+    float: left;
 }
 
 crypteefile::before { content: "\EA86"; }
@@ -816,12 +893,14 @@ crypteefile.selected, crypteefolder.selected {
     color: #FFF !important;
 }
 
-.dm crypteefile.selected, .dm crypteefolder.selected {
+.dm body:not([paper-stock]) crypteefile.selected, 
+.dm body:not([paper-stock]) crypteefolder.selected {
     background-color: var(--cryptee-4) !important;
     color: #000 !important;
 }
 
-.dm crypteefile, .dm crypteefolder {
+.dm body:not([paper-stock]) crypteefile, 
+.dm body:not([paper-stock]) crypteefolder {
     background-color: var(--cryptee-1) !important;
     color: #FFF !important;
     border-left: 1px solid #FFF;
@@ -930,8 +1009,12 @@ crypteefile.error, crypteefolder.error {
 
 
 
-crypteefile.error::before, crypteefolder.error::before { 
+crypteefile.error::before { 
     content: "\ED19"; 
+}
+
+crypteefolder.error::before { 
+    content: "\ED86"; 
 }
 
 crypteefile.error::after, crypteefolder.error::after { 
@@ -982,9 +1065,10 @@ crypteetag {
     background-color: var(--cryptee-4);
     color: var(--cryptee-1);
     display: inline-block;
+    max-width: 100%;
 }
 
-.dm crypteetag {
+.dm body:not([paper-stock]) crypteetag {
     background-color: var(--cryptee-1);
     color: var(--cryptee-4);
 }
@@ -1181,7 +1265,7 @@ MOBILE TOOLBAR
 
 .ql-bubble .ql-tooltip {
     z-index: 5;
-    padding: 1rem 0 calc(1rem + 16px) 0; /* intentionally adding +16px to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation*/
+    padding: 0.5rem 0 calc(0.5rem + 16px) 0; /* intentionally adding +16px to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation*/
     position: absolute;
     width: 100% !important;
     bottom: 0;
@@ -1232,6 +1316,8 @@ MOBILE TOOLBAR
     grid-row: 1/2;
 }
 
+.ql-tooltip #mobileToolbar::-webkit-scrollbar { display: none; }
+
 .ql-tooltip #mobileToolbar button,
 .ql-tooltip #mobileToolbar span,
 .ql-tooltip #mobileToolbar .ql-picker,
@@ -1240,6 +1326,7 @@ MOBILE TOOLBAR
     line-height: 2rem;
     width: calc(3rem - 2px); /* to make sure some buttons always cut off to hint there's more and users should swipe */
     min-width: calc(3rem - 2px); /* to make sure some buttons always cut off to hint there's more and users should swipe */
+    margin: 0.5rem 0;
     padding: 0 0.25rem 0 0;
     text-align: center;
     flex-grow: 1;
@@ -1355,7 +1442,7 @@ IMAGES
 
 .ql-editor img { 
     height: auto;
-    min-width: 14rem;
+    min-width: 50px;
 }
 
 .ql-editor img[src="//:0"] {
@@ -1440,7 +1527,7 @@ HR
     border-left: none;
 }
 
-.dm .ql-editor hr { border-color: var(--cryptee-2); }
+.dm body:not([paper-stock]) .ql-editor hr { border-color: var(--cryptee-2); }
 
 
 
@@ -1507,7 +1594,7 @@ MEDIA QUERIES
 
 /* 1008px (editor + left slider) */
 @media (max-width : 63rem) {
-    .ql-editor { 
+    body:not([paper-stock]) .ql-editor { 
         max-width: 100%; 
         position: absolute;
     }

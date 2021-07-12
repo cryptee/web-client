@@ -634,6 +634,13 @@ function isPinned() {
     return $("body").hasClass("pinned");
 }
 
+var rememberDocsWasPinned = false;
+
+try {
+    rememberDocsWasPinned = localStorage.getItem("docs-pinned");
+} catch (e) {}
+
+
 var sidebarOpen = false;
 var swiper;
 var gettingStartedTipsSwiper;
@@ -644,7 +651,6 @@ $(document).on("ready", function () {
             invert: true,
             thresholdDelta : 30
         },
-        // speed: 300,
         slidesPerView: 'auto',
         spaceBetween: 0,
         initialSlide: 1, // 0 = left, 1 = editor
@@ -679,6 +685,28 @@ $(document).on("ready", function () {
             closeSidebarMenu();
         }, 250);
     }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+    //	SIDEBAR PINNED
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    if (rememberDocsWasPinned && location.pathname === "/docs") {
+        openSidebarMenu();
+        pinSidebar();
+    } else {
+        unPinSidebar();
+        closeSidebarMenu();
+    }
+
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+    //	CLEAN OLD ATTENTION GRABBERS
+    ////////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
+    cleanOldAttentionGrabbers();
 });
 
 
@@ -728,6 +756,14 @@ function sidebarOpened() {
 
     // on mobile / touch, if you blur when sidebar is opened, it'll hide the keyboard causing lag while swiping. so fire this only on desktop on mobile we're fine anyway. 
     if (!isTouch) { quill.blur(); }
+
+    if (isPaperMode()) {
+        setTimeout(function () {
+            breadcrumb('[PAPER] Sidebar opened, viewing area changed. Recalculating.');
+            paperZoom("fit");
+            setTimeout(function () { calculatePaperOverflow(); }, 100);
+        }, 750); 
+    }
 }
 
 /**
@@ -743,20 +779,69 @@ function sidebarClosed() {
     hideRightClickDropdowns();
     
     hidePanels();
+
+    if (isPaperMode()) { 
+        setTimeout(function () {
+            breadcrumb('[PAPER] Sidebar closed, viewing area changed. Recalculating.');
+            paperZoom("fit");
+            setTimeout(function () { calculatePaperOverflow(); }, 100);
+        }, 750);
+    }
 }
 
 
 /**
- * Pins / Unpins sidebar, shrinks right slide, and disables swiping nav
+ * Pins / Unpins sidebar, shrinks right slide, disables swiping nav, updates paper layout
  */
 function toggleSidebarPin() {
     $("body").toggleClass("pinned");
     swiper.update();
+    windowResizedRecalculatePaper();
+
+    if (isPinned()) {
+        try { localStorage.setItem("docs-pinned", true); } catch (e) {}
+    } else {
+        try { localStorage.removeItem("docs-pinned"); } catch (e) {}
+    }
 }
 
+/**
+ * Unpins sidebar, expands right slide, enables swiping nav, updates paper layout
+ * Only to be used for restoring the pin-state
+ */
+function unPinSidebar() {
+    $("body").removeClass("pinned");
+    swiper.update();
+    windowResizedRecalculatePaper();
+    try { localStorage.removeItem("docs-pinned"); } catch (e) {}
+}
+
+/**
+ * Pins sidebar, shrinks right slide, disables swiping nav, updates paper layout
+ * Only to be used for restoring the pin-state
+ */
+function pinSidebar() {
+    if ($(window).width() > 896) {
+        $("body").addClass("pinned");
+        swiper.update();
+        windowResizedRecalculatePaper();
+        try { localStorage.setItem("docs-pinned", true); } catch (e) {}
+    } else {
+        unPinSidebar();
+    }
+}
 
 $(window).on('resize', function(event) {
     var width = $(window).width(); 
+
+    if (isPaperMode() && width < 928) {
+        // unpin if pinned, screen too small
+        if (isPinned()) { 
+            toggleSidebarPin(); 
+            closeSidebarMenu();
+        }
+    }
+
     if (width < 896) {
         // unpin if pinned, screen too small
         if (isPinned()) { 
@@ -764,6 +849,8 @@ $(window).on('resize', function(event) {
             closeSidebarMenu();
         }
     }
+
+    if (isPaperMode()) { windowResizedRecalculatePaper(); }
 }); 
 
 ////////////////////////////////////////////////
@@ -1010,14 +1097,39 @@ $(".dropdown").on('swipeLeft', function(event) {
  */
 function togglePanel(panelID) {
     // toggle panel
-    $("#" + panelID).toggleClass("show");
+    panelID = panelID || "";
+    
+    if ($("#" + panelID).hasClass("hidden")) {
+
+        $("#" + panelID).removeClass("hidden");
+
+        setTimeout(function () {
+            
+            $("#" + panelID).addClass("show");
+            
+            // make panel button active
+            $("#panel-button-" + panelID.replace("panel-","")).addClass("active");
+             
+        }, 10);
+
+    } else {
+        
+        $("#" + panelID).removeClass("show");
+            
+        // make panel button active
+        $("#panel-button-" + panelID.replace("panel-","")).removeClass("active");
+
+        var animationDuration = parseFloat($("#" + panelID).css("transition-duration")) * 1000;
+        setTimeout(function () { $("#" + panelID).addClass("hidden"); }, (animationDuration + 10));
+
+    }
+
     
     // hide all panels but this one
     hidePanels(panelID);
     hideTips();
 
-    // make panel button active
-    $("#panel-button-" + panelID.replace("panel-","")).toggleClass("active");
+    
 }
 
 
@@ -1026,12 +1138,24 @@ function togglePanel(panelID) {
  * @param {string} exceptID (i.e. "panel-docinfo")
  */
 function hidePanels(exceptID) {
+
+    exceptID = exceptID || "";
+    
     if (exceptID) {
         $(".panel").not("#" + exceptID).not(".persistent").removeClass("show");
         $("button[id^='panel-button']").not("#panel-button-" + exceptID.replace("panel-","")).removeClass("active");
+        
+        // animation is 300ms, you can hide it afterwards 
+        setTimeout(function () { $(".panel").not("#" + exceptID).not(".persistent").addClass("hidden"); }, 310);
     } else {
         $(".panel").removeClass("show");
         $("button[id^='panel-button']").removeClass("active");
+
+        resetPDFExporter();
+        $("#panel-copy-doc").attr("did", "");
+
+        // animation is 300ms, you can hide it afterwards 
+        setTimeout(function () { $(".panel").not(".persistent").addClass("hidden"); }, 310);
     }
 }
 
@@ -1234,44 +1358,92 @@ function showInboxPopup() {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-function newDocAndFolderTimeRecommendations() {
+function docNameTimeRecommendations() {
     var todaysDate = new Date();
     var todayLocale = todaysDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-    var timeRightNow = todaysDate.toLocaleTimeString();
+    var timeRightNow = todaysDate.toLocaleTimeString(undefined, {hour: '2-digit', minute:'2-digit'});
 
-    return `<time>${todayLocale}</time> &nbsp; &nbsp; &nbsp; <time>${timeRightNow}</time>`;
+    return `<time class="docreco">${todayLocale}</time><time class="docreco">${timeRightNow}</time>`;
+}
+
+function docNameRecoUp() {
+    var selIndex = $(".docreco.selected").index() - 1;
+    $(".docreco").removeClass("selected");
+    if (selIndex >= 0) {
+        $(".docreco").eq(selIndex).addClass("selected");
+    }
+}
+
+function docNameRecoDown() {
+    var selIndex = $(".docreco.selected").index() + 1;
+    $(".docreco").removeClass("selected");
+    $(".docreco").eq(selIndex).addClass("selected");
+}
+
+function useSelectedReco(input) {
+    var reco = $(".docreco.selected").text();
+    $(".docreco").removeClass("selected");
+    $(input).val(reco);
 }
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-//	NEW DOC
+//	NEW DOC & COPY DOC
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-function showNewDocPanel() {
+async function showNewDocPanel() {
     $("#new-doc-input").val("");
-    $("#new-doc-recos").html(newDocAndFolderTimeRecommendations());
+    $("#new-doc-recos").html(docNameTimeRecommendations());
+    var targetFID = activeFolderID || "f-uncat";
+    var targetFolderName = await getFolderNameFromCatalog(targetFID);
+    $("#new-doc-target-folder").text(targetFolderName);
     togglePanel('panel-new-doc');
     $("#new-doc-input").trigger("focus");
 }
 
-$("#new-doc-input").on('keyup', function(event) {
+$("#new-doc-input, #copy-doc-input").on('keyup', function(event) {
     if (event.key === "Enter") {
-        confirmNewDoc();
+        if ($(".docreco.selected").index() >= 0) {
+            useSelectedReco(this);
+        } else {
+            if ($(this).attr("id") === "new-doc-input") {
+                confirmNewDoc();
+            } else {
+                confirmCopyDoc();
+            }
+        }
     }
 
     if (event.key === "Escape") {
         hidePanels();
-        $("#new-doc-input").val("");
+        $(this).val("");
+    }
+
+    if (event.key === "ArrowDown") {
+        docNameRecoDown();
+    }
+
+    if (event.key === "ArrowUp") {
+        docNameRecoUp();
     }
 }); 
 
-$("#new-doc-recos").on('click', "time", function(event) {
+$("#new-doc-recos, #copy-doc-recos").on('click', "time", function(event) {
     var recommendation = $(this).text();
-    $("#new-doc-input").val(recommendation);
+    var input = $(this).parent().prev();
+    input.val(recommendation);
 });
 
-$("#panel-new-doc").on('swipeDown', function() {  hidePanels(); }); 
+$("#panel-new-doc, #panel-copy-doc").on('swipeDown', function() { hidePanels(); }); 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	COPY DOC
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1394,3 +1566,84 @@ $("#searchInput").on('keyup', function(event) {
 $("#blankEditor").on("click", "details", function(event) {
     $("#blankEditor").find("details").not(this).removeAttr("open");
 });
+
+$("#editorWrapper").on('click', function(event) {
+    hideRightClickDropdowns();
+    hidePanels();
+});
+
+$("#blankEditor").on("click", function(event) {
+    hidePanels();
+});
+
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	ATTENTION GRABBERS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+/**
+ * Grabs users attention to a button with given ID. Importantly, it only does it once by saving it to localstorage
+ * @param {String} buttonID (i.e. "panel-button-pagesetup")
+ */
+ function grabAttentionTo(buttonID) {
+     
+    try {
+        var alreadyPaidAttention = localStorage.getItem("attention-" + buttonID);
+        if (!alreadyPaidAttention) {
+            $("#" + buttonID).addClass("grab-attention");
+        }
+    } catch (e) {}
+
+}
+
+
+/**
+ * Disables attention grabber after user paid attention to a button by clicking on it etc. 
+ * It's automatic, we do this by listening to all attention grabber buttons from window
+ * @param {String} buttonID (i.e. "panel-button-pagesetup")
+ */
+function paidAttentionTo(buttonID) {
+    try { localStorage.setItem("attention-" + buttonID, "1"); } catch (e) {}
+    $("#" + buttonID).removeClass("grab-attention");
+}
+
+
+function cleanOldAttentionGrabbers() {
+    $(".grab-attention").each(function(){
+        var id = $(this).attr("id");
+
+        try {
+            var alreadyPaidAttention = localStorage.getItem("attention-" + id);
+            if (alreadyPaidAttention) {
+                $("#" + id).removeClass("grab-attention");
+            }
+        } catch (e) {}
+        
+    });
+}
+
+
+$(window).on('click', ".grab-attention" ,function(event) {
+    paidAttentionTo($(this).attr("id"));
+});
+
+
+/**
+ * Goes through an array of button ids, and sets up attention grabbers, only on desktop!
+ * @param {Array} buttons 
+ */
+function setupAttentionGrabbers(buttons) {
+    buttons = buttons || [];
+
+    if (isMobile) { return; }
+    buttons.forEach(buttonID => { grabAttentionTo(buttonID); });
+}
+
+// This will set up all attention grabbers. 
+// If user already paid attention they will be removed in document ready 
+setupAttentionGrabbers([ "panel-button-pagesetup" ]);

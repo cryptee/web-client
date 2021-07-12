@@ -230,7 +230,7 @@ async function downloadDocumentOrFile(doc, inBackground) {
 
     var decryptedContents;
     try {
-        if (doc.isfile && did.endsWith("-v3")) {
+        if (doc.isfile && (did.endsWith("-v3") || doc.modified)) {
             // it's a v3 file upload which is binary
             decryptedContents = await decryptToBinary(encryptedContents, [theKey]);
         } else {
@@ -242,7 +242,7 @@ async function downloadDocumentOrFile(doc, inBackground) {
         return false;
     }
 
-    if (doc.isfile && did.endsWith("-v3")) {
+    if (doc.isfile && (did.endsWith("-v3") || doc.modified)) {
         // it's a v3 file upload, we have the Uint8Array file in :
         // decryptedContents.data
         // and its mimetype in doc.mime;

@@ -107,6 +107,10 @@ a {
     text-decoration: underline;
 }
 
+.ql-editor s {
+    text-decoration: line-through !important;
+}
+
 
 
 /* -----------------------------
@@ -230,7 +234,7 @@ CHECKBOXES
     text-align: right;
 }
 
-.dm .ql-editor ul[data-checked] li::before {
+.dm body:not([paper-stock]) .ql-editor ul[data-checked] li::before {
     color: #FFF;
 }
 
@@ -375,7 +379,7 @@ CODE / PRE
     color: var(--cryptee-4) !important;
 }
 
-.dm .ql-editor code,
-.dm .ql-editor pre {
+.dm body:not([paper-stock]) .ql-editor code,
+.dm body:not([paper-stock]) .ql-editor pre {
     border: 1px solid var(--cryptee-1);
 } 

@@ -344,6 +344,7 @@ async function uploadQueueFinished(aid) {
 
         if (aid && aid === activeAlbumID) {
             sortThings(getCurrentSort());
+            updateAlbumNavbar();
         }
 
         hideUploader();
@@ -399,6 +400,10 @@ async function processEncryptAndUploadPhoto(uploadID, canvasNo) {
 
     // generate thumbnails, generate dominant color and get date from exif using the original buffer
     var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(originalBuffer, upload.type, canvasNo);
+
+    if (isEmpty(thumbsAndMeta)) {
+        return err("[UPLOAD] Failed to generate thumbnails and meta of image file, aborting.");
+    }
 
     // encrypt original from buffer
     breadcrumb('[UPLOAD] Encrypting Original');

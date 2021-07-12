@@ -1,0 +1,29 @@
+<div class="panel centered hidden" id="saveas-pdf">
+    <h3>SAVE AS PDF</h3>
+    <br>
+    <div id="pw-protect-pdf">
+        <input type="checkbox" id="pw-protect-pdf-checkbox" name="pw-protect-pdf">
+        
+        <p id="pw-protect-question"><b>password protect pdf?</b> <i class="ri-error-warning-fill yellow" onclick="showPasswordInfo()"></i></p>
+
+        <input id="pdf-password-protect-input" type="password" class="darkback" placeholder="pick a password to protect the pdf" autocomplete="off">
+
+        <div class="option">
+            <p>allow modifications</p>
+            <input type="checkbox" id="pdf-permissions-modifications-checkbox" name="pdf-permissions-modifications-checkbox">
+        </div>
+        
+        <div class="option">
+            <p>allow printing</p>
+            <input type="checkbox" id="pdf-permissions-printing-checkbox" name="pdf-permissions-printing-checkbox">
+        </div>
+    </div>
+
+    <br>
+    
+    <div id="saveas-pdf-actions">
+        <button id="saveas-pdf-print-button" class="white" onclick="needToPrint();">need to print?</button>
+        <button id="saveas-pdf-button" class="white" onclick="prepareDocumentPDF();">save</button>
+    </div>
+
+</div>

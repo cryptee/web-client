@@ -20,15 +20,32 @@ var previewerSupportedExtensions = ["jpg","jpeg","png","gif","svg","webp","mp3",
  * shows the file viewer
  */
 function showFileViewer() {
-    $("#file-viewer").removeClass("closed");
+    $("#file-viewer").removeClass("closed modified");
 }
 
 /**
- * hides the file viewer
+ * Closes the file viewer
+ * @param {Boolean} [forceCloseWithoutSavingChanges] 
  */
-function closeFileViewer() {
+function closeFileViewer(forceCloseWithoutSavingChanges) {
+    forceCloseWithoutSavingChanges = forceCloseWithoutSavingChanges || false;
+    
+    var ext = $("#file-viewer").attr("ext");
+    if (!forceCloseWithoutSavingChanges && $("#file-viewer").hasClass("modified")) {
+        breadcrumb('[PDF VIEWER] Warning about unsaved changes');
+        createPopup(`
+            <strong class="uppercase">UNSAVED CHANGES</strong>
+            This ${ext} has unsaved changes. What would you like to do?
+            <br><br><br>
+            <b    class="clickable" onclick="saveChangesToPDFAndClose();">save changes &amp; close</b>
+            <br><br><br>
+            <span class="clickable" onclick="hidePopup('popup-save-file-changes'); closeFileViewer(true);">close without saving</span>
+        `, "warning", "save-file-changes");
+        return;
+    }
+
     $("body").removeClass("split");
-    $("#file-viewer").removeClass("reader maximized minimized");
+    $("#file-viewer").removeClass("reader maximized minimized modified");
     $("#file-viewer").addClass("closed");
     
     setTimeout(function () {
@@ -37,6 +54,13 @@ function closeFileViewer() {
     
     activeFileID = "";
     
+    if (PDFViewerApplication) { PDFViewerApplication = undefined; }
+    if (pdfChangesInterval) { 
+        clearInterval(pdfChangesInterval); 
+        breadcrumb('[PDF VIEWER] Stopped listening for changes');
+    }
+    
+
     // refresh dom to reflect active file in recents/folder / remove name from file viewer
     refreshDOM();
 }
@@ -284,41 +308,6 @@ async function displayVideoFile(doc, plaintextContents) {
 
 
 
-/**
- * Displays a PDF file in the file viewer
- * @param {Object} doc A document Object 
- * @param {*} plaintextContents 
- */
-async function displayPDFFile(doc, plaintextContents) {
-
-    var did = doc.docid;
-    var filename = docName(doc);
-    var ext = extensionFromFilename(filename);
-    
-    $('#file-viewer-content').html(`
-        <iframe id="embeddedPDFViewer" src="../adapters/pdfjs-2.5.207/web/cryptee-viewer.html">
-            <p>Looks like your browser does not support PDFs. Please download the PDF to view it</p>
-        </iframe>
-    `);
-
-    var pdfjsframe = document.getElementById('embeddedPDFViewer');
-
-    return new Promise(function(resolve, reject) {
-        pdfjsframe.onload = function() {
-            if (did.endsWith("-v3")) {
-                // already a uint8array so use it
-                pdfjsframe.contentWindow.PDFViewerApplication.open(plaintextContents);
-            } else {
-                // it's a b64, sanitize and convert to uint8array
-                pdfjsframe.contentWindow.PDFViewerApplication.open(dataURIToUInt8Array(sanitizeB64(plaintextContents)));
-            }
-            resolve();
-        };
-    });
-
-}
-
-
 
 
 
@@ -358,7 +347,7 @@ async function displayEPUBFile(doc, plaintextContents) {
 
     var bookmarksObject = doc.bookmarks || {};
     var page = doc.page || "";
-    bookmarks = [];
+    var bookmarks = [];
 
     for (var b64Location in bookmarksObject) {
         try { 
@@ -432,3 +421,220 @@ async function displayEPUBFile(doc, plaintextContents) {
 
 //     console.log(activeZipFile.files);
 // }
+
+
+
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	
+// PDF
+//
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+var pdfChangesInterval;
+var PDFViewerApplication;
+
+/**
+ * Displays a PDF file in the file viewer
+ * @param {Object} doc A document Object 
+ * @param {*} plaintextContents 
+ */
+ async function displayPDFFile(doc, plaintextContents) {
+
+    var did = doc.docid;
+    var filename = docName(doc);
+    var ext = extensionFromFilename(filename);
+    var modified = doc.modified;
+
+    $('#file-viewer-content').html(`
+        <iframe id="embeddedPDFViewer" src="../adapters/pdfjs-2.10.377/web/cryptee-viewer.html">
+            <p>Looks like your browser does not support PDFs. Please download the PDF to view it</p>
+        </iframe>
+    `);
+
+    var pdfjsframe = document.getElementById('embeddedPDFViewer');
+
+    return new Promise(function(resolve, reject) {
+        pdfjsframe.onload = function() {
+
+            PDFViewerApplication = pdfjsframe.contentWindow.PDFViewerApplication;
+
+            if (did.endsWith("-v3") || modified) {
+                // already a uint8array so use it
+                PDFViewerApplication.open(plaintextContents);
+            } else {
+                // it's a b64, sanitize and convert to uint8array
+                PDFViewerApplication.open(dataURIToUInt8Array(sanitizeB64(plaintextContents)));
+            }
+
+            breadcrumb('[PDF VIEWER] Started listening for changes');
+            pdfChangesInterval = setInterval(checkPDFChanges, 1000);
+            resolve();
+        };
+    });
+
+}
+
+/**
+ * Every 1 second, checks the PDF in the previewer for changes
+ */
+async function checkPDFChanges() {
+    var annotations; 
+    var modified = false;
+    try {
+        annotations = await PDFViewerApplication.pdfDocument.annotationStorage;
+    } catch (e) {}
+    
+    if (!annotations) { return; }
+    
+    modified = annotations._modified; 
+    
+    if (annotations.size > 0 && modified) {
+        $("#file-viewer").addClass("modified");       
+    } else {
+        $("#file-viewer").removeClass("modified");
+    }
+
+}
+
+
+var savingChangesToPDF = false;
+async function saveChangesToPDF() {
+    
+    if (savingChangesToPDF) { return false; }
+
+    $("#file-viewer").addClass("saving"); 
+    $("#pdfSaveChanges").addClass("loading"); 
+    hidePopup('popup-save-file-changes');
+    
+    savingChangesToPDF = true;
+
+    var annotations; 
+
+    try {
+        annotations = await PDFViewerApplication.pdfDocument.annotationStorage;
+    } catch (e) {}
+    
+    // nothing to save, abort
+    if (!annotations) { return true; }
+    if (annotations.size <= 0) { return true; }
+
+
+    var filename = await getDocNameFromCatalog(activeFileID);
+    if (!filename) { filename = "Document.pdf"; }
+
+    //
+    //
+    // READ PDF FILE'S CONTENT AS A BUFFER
+    //
+    //
+    var fileBuffer;
+    try {
+        breadcrumb('[PDF VIEWER] Attempting to save changes');
+        breadcrumb('[PDF VIEWER] Reading PDF file buffer');
+        
+        // returns a buffer
+        fileBuffer = await PDFViewerApplication.pdfDocument.saveDocument();
+        breadcrumb('[PDF VIEWER] Read PDF file buffer.');
+    } catch (error) {
+        err('[PDF VIEWER] Failed to read PDF file buffer / saveDocument.', error);
+        return;
+    }
+    
+    activityHappened();
+    if (!fileBuffer) { err(); return false; }
+
+
+
+    //
+    //
+    // ENCRYPT THE FILE
+    // THIS MIMICS THE uploader.js encryptAndUploadFile
+    //
+    //
+    var fileCiphertext;
+    try {
+        fileCiphertext = await encryptUint8Array(new Uint8Array(fileBuffer), [theKey]);
+    } catch (error) {
+        err('[PDF VIEWER] Failed to encrypt PDF file', error);
+        return;
+    }  
+
+    activityHappened();
+    if (!fileCiphertext || isEmpty(fileCiphertext)) { err(); return false; }
+
+
+
+
+    // 
+    // 
+    // UPLOAD FILE (WE WILL ALWAYS UPLOAD THESE AS IF THEY'RE -V3, AND TAG THEM WITH A META : "modified" : timestamp)
+    // WHEN OPENING PDFS WE'LL CHECK AND SEE IF THE FILE HAS "MODIFIED". IF IT DOES, WE'LL OPEN IT LIKE V3. 
+    // 
+    // 
+    var fileUpload;
+
+    try {
+        fileUpload = await uploadFile(JSON.stringify(fileCiphertext), activeFileID + ".crypteefile", true);
+    } catch (error) {
+        err('[PDF VIEWER] Failed to upload encrypted PDF file', error);
+        return false;
+    }
+
+    if (!fileUpload) { err(); return false; }
+    var pdfGen = parseInt(fileUpload.generation);
+
+    //
+    //
+    // SAVE ITS META
+    //
+    //
+
+    var metaSavedToServer, metaSavedToCatalog;
+    var pdfMeta = { modified : pdfGen || (new Date()).getTime() * 1000 };
+    metaSavedToServer = await setDocMeta(activeFileID, pdfMeta);
+    metaSavedToCatalog = await setDocMetaInCatalog(activeFileID, pdfMeta);
+    activityHappened();
+
+    // this is only a problem if the file isn't v3 – 
+    // technically speaking, we can make do without the modified tag in non v3 files, 
+    // so we won't abort here unnecessarily 
+    // and won't panic the user
+    if ((!metaSavedToServer || !metaSavedToCatalog) && !activeFileID.endsWith("-v3")) {
+        err('[PDF VIEWER] Failed to save v1/v2 PDF file meta to server or catalog.', error);
+        return false;
+    }
+
+    $("#file-viewer").removeClass("saving");
+    $("#file-viewer").removeClass("modified");
+    $("#pdfSaveChanges").removeClass("loading");
+    removeSaveFromUploadsPanel(activeFileID);
+
+    savingChangesToPDF = false;
+
+    return true;
+    
+    function err(msg, error) {
+        msg = msg || "";
+        if (msg) {
+            handleError(msg, error);
+            createPopup("Cryptee wasn't able to save / encrypt / upload your changes to this PDF. Chances are this means the PDF is write-protected, or there's some type of corruption. We recommend downloading this PDF and filling it out using another PDF editor.","error");
+        }
+        $("#file-viewer").removeClass("saving");
+        $("#pdfSaveChanges").removeClass("loading");
+        savingChangesToPDF = false;
+    }
+
+}
+
+function saveChangesToPDFAndClose() {
+    saveChangesToPDF().then((saved)=>{
+        if (saved) {
+            closeFileViewer(true);
+        }
+    });
+}

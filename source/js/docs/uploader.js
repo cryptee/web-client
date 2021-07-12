@@ -466,10 +466,10 @@ async function encryptAndUploadFile(uploadID, targetFID) {
     } else {
         // it's some other file format
         var fileBuffer = await readFileAs(upload.plaintextFile, "arrayBuffer");
-        if (!fileBuffer) { return err("[UPLOAD] Couldn't read file as array buffer", error); }
+        if (!fileBuffer) { return err("[UPLOAD] Couldn't read file as array buffer"); }
         
         var fileCiphertext = await encryptUint8Array(new Uint8Array(fileBuffer), [theKey]);
-        if (!fileCiphertext) { return err("[UPLOAD] Couldn't encrypt file", error); }
+        if (!fileCiphertext) { return err("[UPLOAD] Couldn't encrypt file"); }
         
         fileUpload = await uploadFile(JSON.stringify(fileCiphertext), uploadID + ".crypteefile", true);
     }
@@ -609,7 +609,7 @@ async function encryptAndUploadFile(uploadID, targetFID) {
         error = error || {};
         error.uploadID = uploadID;
         handleError(msg, error);
-        uploadQueue[uploadID].status = "error";
+        if (uploadQueue[uploadID]) { uploadQueue[uploadID].status = "error"; }
         $("#upload-"+uploadID).find(".status").html("error");
         return false;
     }

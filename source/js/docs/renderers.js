@@ -43,9 +43,15 @@ async function refreshDOM(autoRefresh) {
         var recentDocs = await getRecentDocsFromCatalog();
 
         // sort recents by time
-        recentDocs.sort(gensort);
+        recentDocs.sort(gensort).reverse();
         
-        // render recents
+        // render recents 
+        
+        // for blank editor, we'll render recents only after this index (the most recent 3)
+        var blankEditorRecentsThreshold = recentDocs.length - 3;
+        if (blankEditorRecentsThreshold < 0) { blankEditorRecentsThreshold = 0; }
+        var recentCount = 0;
+
         for (var recentDoc of recentDocs) {
             var docElem = $(`#recents > .doc[did="${recentDoc.docid}"]`);
 
@@ -62,11 +68,11 @@ async function refreshDOM(autoRefresh) {
                 if (!docElem.length) {
                     // add recent doc to sidebar
                     var docHTML = renderDoc(recentDoc, folders);
-                    $("#recents").append(docHTML);
+                    $("#recents").prepend(docHTML);
 
                     // add recent doc to blank editor recent docs list if there's less than 3
-                    if ($(`#blank-editor-recents`).children().length < 3) {
-                        $("#blank-editor-recents").append(docHTML);
+                    if ($(`#blank-editor-recents`).children().length < 3 && recentCount >= blankEditorRecentsThreshold) {
+                        $("#blank-editor-recents").prepend(docHTML);
                     }
 
                 } else { 
@@ -77,7 +83,7 @@ async function refreshDOM(autoRefresh) {
 
             // if the parent of the doc is archived, remove it from recents
             if (!isEmpty(folders[rootFolderParentIDOfDoc]) && folders[rootFolderParentIDOfDoc].archived) { docElem.remove(); }
-
+            recentCount++;
         }
 
         // get all root folders from our folders object

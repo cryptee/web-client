@@ -130,22 +130,7 @@ async function loadAlbum(aid) {
     lightbox.on('slideChange', lightboxPhotoChanged);
 
     // PREPARE NAVBAR 
-
-    resetNavbar();
-
-    if (activeAlbumID === "home") {
-        navbarForGallery();
-    } else {
-        navbarForAlbum();
-    }
-
-    var numberOfPhotosInAlbum = (albums[activeAlbumID].photos || []).length || 0;
-    if (numberOfPhotosInAlbum <= 0) {
-        navbarForNoPhotos();
-    }
-
-
-
+    updateAlbumNavbar();
 
     /// Once everything's added to DOM, add their intersection observers. and draw timeline
     setTimeout(function () {
@@ -190,7 +175,23 @@ async function loadAlbum(aid) {
 }
 
 
+/**
+ * Resets / updates the album navbar according to the type of the album and the number of photos in the album
+ */
+function updateAlbumNavbar() {
+    resetNavbar();
 
+    if (activeAlbumID === "home") {
+        navbarForGallery();
+    } else {
+        navbarForAlbum();
+    }
+
+    var numberOfPhotosInAlbum = (albums[activeAlbumID].photos || []).length || 0;
+    if (numberOfPhotosInAlbum <= 0) {
+        navbarForNoPhotos();
+    }
+}
 
 
 
@@ -418,7 +419,7 @@ async function decryptAlbumTitles(aid) {
     }
 
     var album = albums[aid];
-    if (!album) {
+    if (!album || isEmpty(album)) {
         handleError("[DECRYPT ALBUM TITLES] Can't decrypt. Album doesn't exist.", {aid : aid});
         return false;
     }
@@ -1606,7 +1607,7 @@ async function deleteSelectedPhotos() {
     
     var albumThumbDeleted = false;
     photosToDelete.forEach(pid => {
-        delete albums[activeAlbumID].photos[pid];
+        deleteFromArray(albums[activeAlbumID].photos, pid);
         delete photos[pid];
         delete favorites[pid];
         $("#" + pid).remove();
@@ -1637,6 +1638,7 @@ async function deleteSelectedPhotos() {
     hideActiveModal();
     stopModalProgress("modal-delete-selections");
     clearSelections();
+    updateAlbumNavbar();
     
     getUpdatedRemainingStorage();
     return true;
@@ -2162,7 +2164,7 @@ async function moveSelectedPhotos() {
         photos[pid].aid = toAID;
 
         // delete photos from source album
-        delete albums[fromAID].photos[pid];
+        deleteFromArray(albums[fromAID].photos, pid);
 
         // delete photos from dom
         $("#" + pid).remove();

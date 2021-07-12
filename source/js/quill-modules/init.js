@@ -30,7 +30,10 @@ Quill.register(Bold, true);
 Italic.tagName = 'i';
 Quill.register(Italic, true);
 
-
+// for splitting words use the "w" attribute
+var WordAttribute = new Parchment.Attributor.Attribute('w', 'w', { scope: Parchment.Scope.INLINE });
+Parchment.register(WordAttribute);
+Quill.register(WordAttribute, true);
 
 
 ////////////////////////////////////////////////
@@ -93,7 +96,7 @@ function androidPredictiveKeyboardNewlineFix(delta, oldDelta, source) {
 
 
 
-var fonts = ['Alef', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Josefin Sans', 'Markazi', 'Montserrat', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
+var fonts = ['Arimo', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Inter', 'Josefin Sans', 'Markazi', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
 var fontNames = [];
 var fontStyles = "";
 var fontOptions = "";
@@ -285,7 +288,8 @@ quill.clipboard.addMatcher('crypteetablecell', (node, delta) => {  return delta;
 // TAG & FILE ELEMENT MATCHERS
 quill.clipboard.addMatcher('crypteetag', (node, delta) =>       {  return delta; });
 quill.clipboard.addMatcher('crypteefile', (node, delta) =>      {  return delta; });
-quill.clipboard.addMatcher('crypteefolder', (node, delta) =>      {  return delta; });
+quill.clipboard.addMatcher('crypteefolder', (node, delta) =>    {  return delta; });
+quill.clipboard.addMatcher('crypteepagebreak', (node, delta) => {  return delta; });
 
 // REGULAR SPAN / DIV ELEMENT MATCHERS
 quill.clipboard.addMatcher('span', (node, delta) =>             {  return delta; });
@@ -401,8 +405,11 @@ function updateVisibleViewport(range) {
 
     // STEP 3 – SCROLL THE EDITOR TO THE CURSOR (EVEN IF IT'S BEHIND THE TOOLBAR / KEYBOARD)
     // now let's make the editor scroll to the selection while typing / when tapped on, and make sure it's not behind the keyboard.
+
+    // this is to prevent regular viewport scrolls from triggering auto-scroll.
+    // since those scrolls don't send a range, auto-scroll starts fighting regular user scrolls = and goes to quill.range.index = 0 = top of the doc.
     if (!range || isEmpty(range)) { return; }
-    scrollEditorAccordingToVisibleViewport(range);
+    autoScrollWhileTyping(range);
 }
 
 var keyboardVisibilityTimeout;
@@ -411,6 +418,7 @@ function cropEditorAccordingtoVisibleViewport() {
     // this is timed out by 20ms, because reporting is inconsistent across browsers if you measure right away. But seems to be working if you measure in a few ms.
     // we'll try to keep this under 33ms (30fps for best visual performance / calculation tradeoff)
     // If you go above 33ms, it looks croppy / choppy.
+    if (isPaperMode()) { return; }
 
     clearTimeout(keyboardVisibilityTimeout);
     clearTimeout(editorCropTimeout);
@@ -419,37 +427,16 @@ function cropEditorAccordingtoVisibleViewport() {
         var viewport = window.visualViewport || { height : window.innerHeight };
         var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation    
 
-        if (keyboardHeight > 0) {
-            // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.   
-            $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
-        } else {
-            // keyboard will be in correct position 200ms later, crop the editor afterwards to prevent a 299ms cropped jumpy look.
-            editorCropTimeout = setTimeout(function () {
+            if (keyboardHeight > 0) {
+                // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.   
                 $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
-            }, 200);
-        }
+            } else {
+                // keyboard will be in correct position 200ms later, crop the editor afterwards to prevent a 299ms cropped jumpy look.
+                editorCropTimeout = setTimeout(function () {
+                    $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
+                }, 200);
+            }
     }, 20);
-}
-
-function scrollEditorAccordingToVisibleViewport(range) {
-    // wait until the soft keyboard is open to calculate editor and viewport height correctly
-    setTimeout(function () {
-        
-        var viewport = window.visualViewport || { height : window.outerHeight };
-        var keyboardHeight = window.outerHeight - viewport.height;
-        var selectionBounds; 
-        try { selectionBounds = quill.getBounds(range.index, range.length); } catch (e) {}
-        selectionBounds = selectionBounds || { top : 0 };
-        var selectionOffset = window.outerHeight - selectionBounds.top;
-        var keyboardAndToolbarHeight = keyboardHeight + 96;
-    
-        if (keyboardAndToolbarHeight >= selectionOffset) {
-            var editorOffset = $(".ql-editor").scrollTop();
-            var targetOffset = editorOffset + 96;
-            $('.ql-editor')[0].scrollTo({ top: targetOffset, left: 0, behavior: 'smooth' });
-        }
-         
-    }, 100);
 }
 
 if (window.visualViewport) {
@@ -458,6 +445,56 @@ if (window.visualViewport) {
 }
 
 
+/**
+ * Soft keyboards don't send selection change while typing unless user moves the cursor. 
+ * Meaning that we have to manually track the text-changes, look at the cursor position, and scroll editor accordingly
+ * We can't just look at the selected paragraph, and see if it's offsetTop + height falls behind the keyboard :
+ * Because user could be typing in the middle of the paragraph as well. So instead we need to get Quill cursor bounds and calculate a scroll based on that. 
+ * @param {*} selectedNode 
+ * @returns         
+ */
+function autoScrollWhileTyping(range) {
+
+    // only for mobile
+    if (!isMobile) { return; }
+
+    // only for continuous mode
+    if (isPaperMode()) { return; }
+
+    setTimeout(function () {
+        
+        // first get quill's bounds
+        range = range || getLastSelectionRange();
+        if (!range || isEmpty(range)) { return; }
+        
+        // only while typing but not selecting text.
+        // so if the range is > 0, stop.
+        if (range.length > 0) { return; }
+
+        var bounds; 
+        try { bounds = quill.getBounds(range.index, range.length); } catch (e) {}
+        bounds = bounds || { top : 0 };
+        
+        // now get keyboard toolbar's top offset
+        var keyboardTopOffset = $("#mobileToolbar").offset().top;
+        
+        // now get editor's scrollTop offset
+        var editorOffset = $(".ql-editor").scrollTop();
+
+        // our cursor is at : editorOffset + bounds.top
+        var cursorScrollOffset = editorOffset + bounds.top;
+
+        // if we scroll the editor to cursorScrollOffset, 
+        // selection / cursor will be at the very top of the screen.
+        // and selection will be hidden behind the top toolbar. 
+        // So we'll instead scroll to the (cursor - keyboard + 96), 
+        // to keep the text 96px above the keyboard and scroll as the user types
+        
+        $('.ql-editor')[0].scrollTo({ top: cursorScrollOffset - keyboardTopOffset + 96, left: 0, behavior: 'smooth' });
+
+    }, 300);
+
+}
 
 
 
@@ -550,6 +587,32 @@ function getLastSelectionRange() {
     }
 }
 
+/**
+ * Returns the quill-child of the given node, so you can easily calculate only what's after it
+ * @param {*} node 
+ */
+ function findDOMNodesParentInQuill(node) {
+    
+    var parentOfNodeThatIsQuillsChild = node;
+    
+    // looks like if we select all with cmd + a / ctrl + a
+    // sometimes quill can return the "ql-editor" element itself.
+    // in these cases we want the first child, so we can iterate from 0
+
+    if (node.classList) {
+        if (node.classList.contains("ql-editor")) {
+            return parentOfNodeThatIsQuillsChild.children[0];
+        }
+    }
+
+    if (node.parentNode) {
+        if (!node.parentNode.classList.contains("ql-editor")) {
+            parentOfNodeThatIsQuillsChild = findDOMNodesParentInQuill(node.parentNode);
+        }
+    }
+
+    return parentOfNodeThatIsQuillsChild;
+}
 
 
 /**
@@ -566,6 +629,7 @@ function getSelectedCustomElementsInRange(range) {
         tables : [],
         files : [],
         folders : [],
+        pagebreaks : [],
         // etc
     };
     
@@ -592,6 +656,11 @@ function getSelectedCustomElementsInRange(range) {
                 selectedElements.folders.push(op.attributes.folder.fid);
             }
 
+            // crypteepagebreaks
+            if (op.insert.pagebreak) {
+                selectedElements.pagebreaks.push(op.attributes.pgno);
+            }
+
         }
     });
 
@@ -599,8 +668,31 @@ function getSelectedCustomElementsInRange(range) {
 }
 
 
+function checkIfQuillDeltaHasAttributeWithKey(delta, key) {
+    var hasAttribute = false;
+    delta = delta || { ops : [] };
+    delta.ops.forEach(function(op) {
+        if (hasAttribute) { return; }
+        if (op.attributes) { if (key in op.attributes) { hasAttribute = true; } }
+    });
+    return hasAttribute;
+}
 
+function checkIfQuillDeltaHasAnAPINewlineInsert(delta, source) {
+    var hasAnAPINewlineInsert = false;
+    
+    delta = delta || { ops : [] };
+    source = source || "user";
+    
+    if (source !== "api") { return false; }
 
+    delta.ops.forEach(function(op) {
+        if (hasAnAPINewlineInsert) { return; }
+        if (op.insert) { if (op.insert === "\n") { hasAnAPINewlineInsert = true; } }
+    });
+
+    return hasAnAPINewlineInsert;
+}
 
 
 
@@ -672,6 +764,9 @@ $('.ql-editor').on('click', 'crypteefile', function (event) {
     var did = theFile.attr("did");
     var filename = theFile.attr("filetitle");
     
+    // blur editor to hide soft keyboards
+    quill.blur();
+
     // start doc/file/attachment loading progress
     startDocOrFileProgress(did);
 
@@ -706,6 +801,9 @@ $('.ql-editor').on('click', 'crypteefolder', function (event) {
     event.preventDefault();
     var fid = theFolder.attr("fid");
     
+    // blur editor to hide soft keyboards
+    quill.blur();
+
     getFolderFromCatalog(fid).then((folder) => {
         if (!folder || isEmpty(folder)) {
             // folder doesn't exist in catalog. chances are it was an attachment, and it's ghosted or deleted etc. remove it.   
@@ -744,9 +842,39 @@ $(".ql-editor").on('scroll', throttleScroll(function (event) {
     hideTableContextualDropdown();
 
     updateVisibleViewport();
+
+    checkIfPageChanged();
 }, 100));
 
+// background-attachment:local is broken in Safari..... and apple hasn't fixed for 2+ years. 
+// https://bugs.webkit.org/show_bug.cgi?id=219324 
+// it seems like a hacky way to make it work is to disable/re-enable the background quickly
+// and set it to a color super close to the original, forcing the engine to re-render the bg
+// so that's what we do here. by triggering a fuck ton of scroll css update events. 
+// fuck you apple for underfunding the safari team.
 
+if (isSafari) {
+    breadcrumb("[PAPER MODE] Using Safari Background Attachment Local Override");
+    $(".ql-editor").addClass('safari');
+    $(".ql-editor").on('scroll', function() {
+        if (isPaperMode()) {
+            $(".ql-editor").addClass("safari-bg-hack");
+            // this should be good even for 120fps = <8.333ms/frame devices with promotion etc like ipad pros / iphone 13s etc 
+            setTimeout(function () { $(".ql-editor").removeClass("safari-bg-hack"); }, 5);
+        }    
+    });
+}
+
+// in CSS multicol last page's contents are aligned flush to right, with no right-padding.
+// on Chromium / WebKit etc, we solve this by adding margin-bottom to the last element,
+// on Firefox, we need this hack to solve the same problem.
+
+// thanks Violet for this hack 
+// https://stackoverflow.com/questions/51344754/giving-right-padding-to-overflowing-css-multi-column-layouts 
+if (isFirefox) {
+    breadcrumb("[PAPER MODE] Using Firefox last-page override with pseudo-after element");
+    $(".ql-editor").addClass('firefox');
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -772,6 +900,18 @@ quill.on('text-change', function (delta, oldDelta, source) {
     checkIfDocumentHasRemoteImages();
     
     androidPredictiveKeyboardNewlineFix(delta, oldDelta, source);
+
+    if (isMobile) { autoScrollWhileTyping(); }
+    
+    // Everything after this point is for paper mode
+    if (!isPaperMode()) { return; }
+    
+    setTimeout(function () {
+        var selectedNode = getSelectedNode();
+        calculatePaperOverflow(selectedNode);
+        setTimeout(function () { calculatePaperOverflow(selectedNode); }, 250);
+    }, 250);
+
 });
 
 
@@ -790,6 +930,7 @@ quill.on('selection-change', function (range, oldRange, source) {
         checkIfTableHasFocus();
         checkIfURLSelectedOnMobile();
         
+        selectPageBreaksIfAnyInRange(range, oldRange, source);
         selectFoldersIfAnyInRange(range, oldRange, source);
         selectTablesIfAnyInRange(range, oldRange, source);
         selectFilesIfAnyInRange(range, oldRange, source);
@@ -804,7 +945,7 @@ quill.on('selection-change', function (range, oldRange, source) {
         closeSidebarMenu();
     }
 
-    updateVisibleViewport(range);
+    updateVisibleViewport(range); // this will also call autoScrollWhileTyping
 });
 
 

@@ -176,6 +176,9 @@ async function loadedDocPrepareEditor(doc, did, docContents, connection, forceSa
     // there's been some activity. 
     activityHappened();
 
+    // quit paper mode before you set editor's contents to avoid an unnecessary calculation nightmare
+    disablePaperMode(true);
+
     // disable spell check before adding new text in. (ridiculously good for performance) 
     quill.root.spellcheck = false;
     $("#spellCheckerButton").removeClass("on");
@@ -207,6 +210,10 @@ async function loadedDocPrepareEditor(doc, did, docContents, connection, forceSa
 
     // quit viewing mode
     disableViewingMode();
+
+    if (doc.paper) {
+        enablePaperMode(doc.paper, doc.orientation, true);
+    }
     
     // quill.setContents will trigger somethingChanged() for the doc we've just opened. 
     // So we'll have to set that flag back

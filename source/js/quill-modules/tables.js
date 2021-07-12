@@ -91,9 +91,9 @@ CrypteeTableData.tagName = "crypteetabledata";
 //  TABLE CELL BLOT / DEFINITION 	 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-// crypteefile, crypteefolder = 
+// crypteefile, crypteefolder, CRYPTEEPAGEBREAK = 
 
-var itemsDisallowedInTableCells = ["header", "blockquote", "code-block", "list", "list-item", "indent", "formula", "video", "image", "", "file", "divider", "hr"];
+var itemsDisallowedInTableCells = ["header", "blockquote", "code-block", "list", "list-item", "indent", "formula", "video", "image", "", "file", "divider", "hr", "pagebreak"];
 var CrypteeTableCell = function (_Block) {
     _inherits(CrypteeTableCell, _Block);
 

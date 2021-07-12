@@ -80,6 +80,15 @@ main .appButton a span {
     line-height: 3rem;
 }
 
+.appButton[app="install"] img {
+    transform: rotate(45deg);
+    filter: invert(1);
+}
+
+.dm .appButton[app="install"] img {
+    filter: invert(0);
+}
+
 #welcome {
     grid-row: -2 / -1;
     grid-column: 2 / -1;
@@ -138,7 +147,8 @@ nav {
 #bottomNewsButton {
     position: absolute;
     bottom: 0;
-    right: 1.5rem;
+    right: 0rem;
+    padding-right: 1.5rem;
     text-align: right;
     line-height: 4rem;
     width: 4rem;
@@ -149,6 +159,143 @@ nav {
 }
 
 
+
+/* -----------------------------
+-------------------------------- 
+ 
+SPECIAL OFFERS 
+ 
+--------------------------------
+----------------------------- */
+
+#offerButton {
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+    background-color: var(--cryptee-green);
+    color: #FFF;
+    font-weight: 350;
+
+    width: calc(100% - 2rem);
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    text-align: justify;
+
+    padding: 1rem 1rem 0.75rem 1rem;
+    box-sizing: border-box;
+    margin-top: 0;
+
+    user-select: none;
+    cursor: pointer;
+
+    opacity: 1;
+    transition: 0.3s opacity ease 0.3s;
+}
+
+#offerButton:empty,
+#bottomNewsButton.unread + #offerButton {
+    pointer-events: none;
+    opacity: 0;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PWA INSTALL TIP 
+ 
+--------------------------------
+----------------------------- */
+
+#tips-install-pwa {
+    height: 24rem;
+}
+
+#tips-install-pwa h3 { margin-top: 0; }
+
+#tips-install-pwa small {
+    text-align: justify;
+    font-size: 0.876rem !important;
+    line-height: 1.25rem !important;
+}
+
+#tips-install-pwa strong { 
+    position: relative;
+    margin: 0.5rem 0;
+    display: block; 
+    width: 100%;
+}
+
+#tips-install-pwa strong:first-of-type {
+    margin-top: 0;
+}
+
+#tips-install-pwa #button-why {
+    width: 100%;
+    height: 17rem;
+    background-color: var(--cryptee-4);
+    border-radius: 0.5rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    
+    padding: 0 2rem 4.5rem 2rem;
+    transform: translateY(14rem);
+    transition-duration: 0.7s;
+    transition-property: transform, padding;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#tips-install-pwa #button-why small {
+    margin-top: 0 !important;
+    line-height: 3.125rem !important;
+    font-size: 0.8rem !important;
+    user-select: none !important;
+}
+
+#tips-install-pwa #button-why p {
+    text-align: justify;
+}
+
+#tips-install-pwa #button-why.open {
+    padding-top: 1rem;
+    transform: translateY(0);
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+NEWS BUTTON 
+ 
+--------------------------------
+----------------------------- */
+
+@keyframes newsBlink {
+    0%   { background-color: var(--cryptee-blue); }
+    50%  { background-color:  rgba(8,114,132, 0.5);  }
+    100% { background-color: var(--cryptee-blue); }
+}
+
+#topNewsButton              { background-color: transparent; border-radius: 0.5rem; }
+#topNewsButton.unread       { background-color: var(--cryptee-blue); padding: 0 1rem; }
+
+#bottomNewsButton           { background-color: transparent; border-top-left-radius: 1rem; }
+#bottomNewsButton.unread    { background-color: var(--cryptee-blue); }
+
+.newsButton.unread { 
+    opacity: 1 !important; 
+    color: #FFF; 
+    font-weight: bold;
+    animation: newsBlink 2s infinite ease-in-out forwards; 
+}
+
+
 /* -----------------------------
 -------------------------------- 
  
@@ -156,6 +303,16 @@ MEDIA QUERIES
  
 --------------------------------
 ----------------------------- */
+
+@media (min-width : 896px) {
+    #offerButton { 
+        left: 1rem;
+        right: 1rem;
+        margin: auto;
+        text-align: center; 
+        max-width: 864px;
+    }
+}
 
 @media (max-width : 448px) {
     body {
@@ -173,7 +330,19 @@ MEDIA QUERIES
 }
 
 
+@media (max-width : 374px) {
 
+    body {
+        grid-template-rows: 1rem 2rem 1rem 1fr 20rem 1fr 1rem 2rem 1rem;
+    }
+
+    #offerButton {
+        width: 100%;
+        left: 0;
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem 0.25rem 1rem;
+    }
+}
 
 
 

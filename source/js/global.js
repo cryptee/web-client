@@ -787,6 +787,16 @@ function removeByAttr(arr, attr, value){
   return arr;
 }
 
+/**
+ * Deletes an item from the array using splice
+ * @param {Array} array 
+ * @param {*} itemToRemove 
+ */
+function deleteFromArray(array, itemToRemove) {
+  var index = array.indexOf(itemToRemove);
+  if (index > -1) { array.splice(index, 1); }
+}
+
 
 /**
  * Determine if an array contains one or more items from another array.
@@ -894,6 +904,17 @@ function isClickInside(event, elementSelectors) {
   return clickInside;
 }
 
+
+/**
+ * Clamps a number between the given values (i.e. -50, 0, 100 = 0)
+ * @param {*} num 
+ * @param {*} min 
+ * @param {*} max 
+ * @returns 
+ */
+function clamp(num, min, max) { 
+  return Math.min(Math.max(num, min), max); 
+}
 
 
 
@@ -1503,6 +1524,60 @@ function underlineSearchResult(indices,string) {
 
 
 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	ZEPTO POLYFILLS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+// polyfill Zepto with outerHeight / outerWidth etc
+(function ($) {
+  ['width', 'height'].forEach(function (dimension) {
+      var Dimension = dimension.replace(/./, function (m) { return m[0].toUpperCase(); });
+      $.fn['outer' + Dimension] = function (margin) {
+          var elem = this;
+          if (!elem) { return null; }
+          
+          var size = elem[dimension]();
+          var sides = { 'width': ['left', 'right'], 'height': ['top', 'bottom'] };
+          sides[dimension].forEach(function (side) {
+              if (margin) size += parseFloat(elem.css('margin-' + side), 10);
+          });
+          return size;
+          
+      };
+  });
+})(Zepto);
+
+
+/**
+ * Gets the scrollbar width if it's visible
+ * @returns {Number} scrollbarWidth
+ */
+function getScrollbarWidth() {
+
+  // Creating invisible container
+  const outer = document.createElement('div');
+  outer.style.visibility = 'hidden';
+  outer.style.overflow = 'scroll'; // forcing scrollbar to appear
+  outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
+  document.body.appendChild(outer);
+
+  // Creating inner element and placing it in the container
+  const inner = document.createElement('div');
+  outer.appendChild(inner);
+
+  // Calculating difference between container's full width and the child width
+  const scrollbarWidth = (outer.offsetWidth - inner.offsetWidth);
+
+  // Removing temporary elements from the DOM
+  outer.parentNode.removeChild(outer);
+
+  return scrollbarWidth;
+
+}
 
 
 ////////////////////////////////////////////////

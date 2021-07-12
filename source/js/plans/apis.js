@@ -28,11 +28,13 @@ async function checkVAT(vatNumber) {
  * @param {*} billingDetails Billing info
  * @param {*} storagePlanID
  * @param {String} [vatNumber]
+ * @param {String} [usingPromoCode]
  */
-async function checkout(paymentMethodID, billingDetails, storagePlanID, vatNumber) {
+async function checkout(paymentMethodID, billingDetails, storagePlanID, vatNumber, usingPromoCode) {
     breadcrumb('[UPGRADE] Starting Checkout');
 
     vatNumber = vatNumber || "";
+    usingPromoCode = usingPromoCode || "";
 
     if (!storagePlanID)          { handleError("[CHECKOUT] Can't checkout without storagePlanID");   return false; }
     if (!paymentMethodID)        { handleError("[CHECKOUT] Can't checkout without paymentMethodID"); return false; }
@@ -43,6 +45,7 @@ async function checkout(paymentMethodID, billingDetails, storagePlanID, vatNumbe
         billingDetails  : billingDetails,
         storagePlanID   : storagePlanID,
         vatNumber       : vatNumber,
+        promoCode       : usingPromoCode
     };
 
     var apiResponse; 
@@ -104,4 +107,50 @@ async function switchPlans(planID) {
     
 
     return true;
+}
+
+/**
+ * Checks the percentage off you can get from a coupon code, 
+ * Invalid coupons also return 0,
+ * Server logs all invalid coupon inquiries by each user
+ * Too many / too frequent requests auto-terminate / ban user account
+ * @param {string} couponCode 
+ * @returns {Promise <Number>} percentoff
+ */
+async function checkPromoCode(promoCode) {
+    
+    promoCode = promoCode || "";
+
+    promoCode.toUpperCase();
+
+    if (!promoCode) { return 0; }
+    
+    breadcrumb('[CHECK PROMO] Checking promo code: ' + promoCode);
+    
+    var percentoff = 0;
+    var apiResponse;
+
+    try {
+        apiResponse = await api("payments-checkpromo", { p : promoCode }, {}, "POST");
+    } catch (error) {
+        handleError("[CHECK PROMO] API had an error.", error);
+        return percentoff;
+    }
+
+    if (!apiResponse) {
+        handleError("[CHECK PROMO] Returning 0%.");
+        return percentoff;
+    }
+
+    if (apiResponse.status !== 200) {
+        handleError("[CHECK PROMO] API had an error: " + apiResponse.status);
+        return percentoff;
+    }
+
+    percentoff = parseInt(apiResponse.data || 0);
+
+    breadcrumb('[CHECK PROMO] Returning ' + percentoff + "% for " + promoCode);
+
+    return percentoff;
+
 }

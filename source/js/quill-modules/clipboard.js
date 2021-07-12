@@ -18,6 +18,7 @@ var CrypteeClipboard = function (_Clipboard) {
         var range = this.quill.getSelection();
         var delta = new Delta().retain(range.index);
         var scrollTop = this.quill.scrollingContainer.scrollTop;
+        var scrollLeft = this.quill.scrollingContainer.scrollLeft;
         
         if (isFirefox) {
             if (e.clipboardData) {
@@ -34,10 +35,16 @@ var CrypteeClipboard = function (_Clipboard) {
 
         setTimeout(function() {
             delta = delta.concat(this.quill.clipboard.convert()).delete(range.length);
+            delta = processColorsInDelta(delta);
+            console.log(delta);
             this.quill.updateContents(delta, Quill.sources.USER);
             // range.length contributes to delta.length()
             this.quill.setSelection(delta.length() - range.length, Quill.sources.SILENT);
-            this.quill.scrollingContainer.scrollTop = scrollTop;
+            if (isPaperMode()) {
+                this.quill.scrollingContainer.scrollLeft = scrollLeft;
+            } else {
+                this.quill.scrollingContainer.scrollTop = scrollTop;
+            }
             this.quill.focus();
         }, 1);
     };
@@ -79,3 +86,28 @@ $(document).on('paste', function(e) {
         // you can handle other pasted things here
     }
 }); 
+
+/**
+ * This removes dark mode's background-color = #121212 and color : #FFFFFF from deltas in clipboard if there's any
+ * @param {*} delta 
+ */
+function processColorsInDelta(delta) {
+    
+    delta.ops.forEach(function(op) {
+        if (op.attributes) {
+            if (op.attributes.background === "#121212") {
+                delete op.attributes.background;
+            }
+            
+            if (op.attributes.color){
+                var color = op.attributes.color.toLowerCase();
+                if (color === "#ffffff" || color === "#fff" || color === "white") {
+                    delete op.attributes.color;
+                }
+            }
+        } 
+    });
+
+    return delta;
+
+}

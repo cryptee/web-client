@@ -198,8 +198,11 @@ function showModal(modalID) {
     
     if (modalID.length > 1) {
         var modal = $("#" + modalID);
-        modal.addClass("show");
-        modal.find("input:first-child").trigger("focus");
+        modal.removeClass("hidden");
+        setTimeout(function () {
+            modal.addClass("show");
+            modal.find("input:first-child").trigger("focus");
+        }, 10);
     }
 
     if (typeof hidePanels === 'function') { hidePanels(); }
@@ -219,6 +222,10 @@ function hideActiveModal() {
     modal.find("textarea").val("");
     modal.find("input").blur();
     modal.find("textarea").blur();
+    
+    
+    var animationDuration = parseFloat(modal.css("transition-duration")) * 1000;
+    setTimeout(function () { modal.addClass("hidden"); }, (animationDuration + 10));
 }
 
 $('.modal').on('click', 'button.close', function (event) {

@@ -1,4 +1,4 @@
-<div class="panel" id="panel-docfile" name="Document">
+<div class="panel hidden" id="panel-docfile" name="Document">
 
     <button class="white disabled-in-offline-mode disabled-for-reserved" onclick="prepareRenameModal(activeDocID);">
         <i class="ri-file-edit-fill"></i>
@@ -10,7 +10,7 @@
         <span>move to</span>
     </button>
 
-    <button class="white disabled-for-reserved disabled-while-saving" onclick="copySelectedDocument(activeDocID);" id="copyActiveDocButton">
+    <button class="white disabled-for-reserved disabled-while-saving" onclick="showCopyDocPanel(activeDocID);" id="copyActiveDocButton">
         <i class="ri-file-copy-2-fill"></i>
         <span>make a copy</span>
     </button>

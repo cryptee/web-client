@@ -1,22 +1,29 @@
-<div class="panel white" id="panel-pagesetup" name="Page Setup">
+<div class="panel white hidden" id="panel-pagesetup" name="Page Setup">
     <small>mode</small>
-    <p class="wide">continuous</p>
+    <p class="wide" id="continuous-mode-button" onclick="disablePaperMode();">continuous</p>
     
     <small></small>
-    <p class="wide gray">paper / print</p>
+    <p class="wide" id="paper-mode-button" onclick="enablePaperMode();">pdf / paper / print &nbsp; <span class="small yellow">beta</span></p>
 
     <b></b>
     <b></b>
 
     <small>size</small>
-    <p>a4</p>
-    <p class="gray">a3</p>
+    <p mode="a4" onclick="enablePaperMode('a4');">a4</p>
+    <p mode="a3" onclick="enablePaperMode('a3');">a3</p>
     
     <small></small>
-    <p class="gray">us letter</p>
-    <p class="gray">us legal</p>
+    <p mode="usletter" onclick="enablePaperMode('usletter');">us letter</p>
+    <p mode="uslegal"  onclick="enablePaperMode('uslegal');">us legal</p>
 
+    <!-- <b></b>
     <b></b>
+
+    <small>zoom</small>
+    <p mode="100" onclick="paperZoom('100');" class="paper-zoom-button">100%</p>
+    <p mode="fit" onclick="paperZoom('fit');" class="paper-zoom-button">fit</p> -->
+
+    <!-- <b></b>
     <b></b>
 
     <small>orientation</small>
@@ -43,6 +50,13 @@
 
     <small></small>
     <small>right</small>
-    <input class="darkback" type="text" placeholder="25mm">
+    <input class="darkback" type="text" placeholder="25mm"> -->
+
+    <b class="green-reminder"></b>
+    <i     class="green-reminder ri-leaf-fill green"></i>
+    <small class="green-reminder wide gray">
+        save our planet,<br>
+        use less paper if you can
+    </small>
 
 </div>

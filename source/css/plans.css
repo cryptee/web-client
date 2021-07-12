@@ -63,6 +63,9 @@ body {
     user-select: none;
 }
 
+/* override dark mode */
+input:not(.darkback) { color: #000 !important; }
+input:not(.darkback):focus { box-shadow: inset 0px -1px 0px black !important; }
 
 /* -----------------------------
 -------------------------------- 
@@ -151,6 +154,7 @@ PLANS
     border-radius: 0.5rem;
     box-shadow: 0 1rem 2rem rgba(0,0,0,0.15);
     background-color: #FFF;
+    position: relative;
 
     display: grid;
     grid-template-columns: 6rem 1fr;
@@ -308,7 +312,7 @@ body:not(.billing) #billing {
 }
 
 #chosenplan {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     opacity: 1;
     transition: 0.3s opacity ease;
 }
@@ -325,6 +329,27 @@ body:not(.billing) #billing {
     content: attr(cur) attr(price) "/mo billed annually";
 }
 
+#discount-tag {
+    color: var(--cryptee-green);
+    font-weight: 350;
+    line-height: 1.5rem;
+}
+
+#discount-tag::before {
+    float: left;
+    content: "\ebe7";
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+body:not([discount]) #discount-tag {
+    display: none !important;
+}
+
 #billing > *:not(#card) {
     margin-left: 4rem;
 }
@@ -332,6 +357,10 @@ body:not(.billing) #billing {
 #billing > input {
     margin-left: 4rem;
     width: calc(100% - 4rem);
+    opacity: 1;
+    transition-duration: 0.3s;
+    transition-property: opacity;
+    transition-timing-function: var(--cryptee-cb);
 }
 
 #billing input + small {
@@ -535,9 +564,47 @@ body:not(.billing) #billing {
     white-space: nowrap;
 }
 
-
 .already-have {
     display: none !important;
+}
+
+#coupon-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 3rem;
+    height: 3rem;
+    text-align: center;
+    color: #000;
+    opacity: 0.7;
+}
+
+body:not(.chooseplan) #coupon-button {
+    display: none !important;
+}
+
+body[discount] #coupon-button i::before {
+    content: "\ebe7";
+    color: var(--cryptee-green);
+}
+
+body[discount]::before {
+    background-color: var(--cryptee-green);
+    content: attr(discount) "% discount will be applied at checkout.";
+    color: #FFF;
+    padding: 0.5rem 1rem 0.325rem 1rem;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    border-top-left-radius: 0.5rem;
+    white-space: pre-wrap;
+    font-weight: 350;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    z-index: 2;
+
+    box-sizing: border-box;
+    max-width: 250px;
 }
 
 /* -----------------------------
@@ -566,8 +633,9 @@ body.processing #checkout-button::before {
     content: "processing...";
 }
 
+body.processing input,
 body.processing #card {
-    opacity: 0 !important;
+    opacity: 0.3 !important;
     pointer-events: none !important;
 }
 
@@ -706,7 +774,7 @@ MEDIA
 
 
 @media (max-width : 544px) {
-    body {  padding: 1rem 0; }
+    body {  padding: 1rem 0 3rem 0; }
     
     #select, #period { padding: 0 4rem; }
     #non-profit { padding: 0 2rem; }
@@ -743,6 +811,13 @@ MEDIA
         margin-right: 2rem !important;
     }
 
+    #chosenplan { margin-bottom: 1rem; }
+    #billing input + small {margin-bottom: 1rem;}
+
+    #chosenbilling[period="yr"]::before {
+        content: attr(cur) attr(price) "/mo billed yearly";
+    }
+    
 }
 
 
@@ -758,11 +833,7 @@ ENABLE HOVERS
 ----------------------------- */
 
 @media (-moz-touch-enabled: 0), (pointer:fine) { 
-
-    #logo:hover img {
-        opacity: 1 !important;
-    }
-
-
+    #logo:hover img { opacity: 1 !important; }
+    #coupon-button:hover { opacity: 1 !important; }
 }
 

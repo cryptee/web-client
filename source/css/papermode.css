@@ -1,0 +1,570 @@
+
+/* -----------------------------
+-------------------------------- 
+ 
+ALL NECESSARY EDITS FOR PAPER-MODE 
+ 
+--------------------------------
+----------------------------- */
+
+body[paper-stock] {
+    overscroll-behavior-x: none;
+}
+
+body[paper-stock] .ql-editor {
+    background-attachment: local; /* broken in safari https://bugs.webkit.org/show_bug.cgi?id=219324 */
+    background-size: 100% auto;
+    background-repeat: repeat;
+    transform-origin: top;
+
+    background-color: #FFF;
+    column-fill: auto;
+    box-sizing: border-box;
+    
+    scroll-snap-type: x proximity;
+    overscroll-behavior: contain;
+
+    overflow-y: hidden;
+}
+
+body[paper-stock] .ql-editor[scaleH^="0"] {
+    position: absolute;
+    transform-origin: top left;
+}
+
+body[paper-stock] .ql-editor[scaleH^="1"] {
+    transform-origin: top center;
+}
+
+body[paper-stock].bubble .ql-editor { top: 4rem; }
+
+body[paper-stock] .ql-editor > * {
+    scroll-snap-align: center;
+}
+
+body[paper-stock] [preview-overflow-marbot] {
+    margin-bottom: var(--preview-marbot);
+}
+
+/* first item has no margin-top, so we'll slide everything up by that much */
+body[paper-stock] .ql-editor > *:first-child { 
+    margin-top: 0 !important; 
+}
+
+/* hide video embeds */
+body[paper-stock] .ql-video { display: none !important; }
+
+/* and instead show page-breaks */
+body:not([paper-stock]) .ql-pagebreak { display: none !important; }
+
+/* firefox fix for the last page */
+body[paper-stock] .ql-editor.firefox::after {
+    content: '';
+    display: inline-block;
+}
+  
+crypteepagebreak {
+    display: block;
+    outline: 2px var(--cryptee-3) dashed;
+    transition: 0.3s outline ease;
+    position: relative;
+}
+
+crypteepagebreak::after {
+    content: "page break";
+    width: 90px;
+    display: block;
+    line-height: 0.5rem;
+    text-align: center;
+    color: var(--cryptee-3);
+    background-color: #FFF;
+    transition: 0.3s color ease;
+    position: absolute;
+    top: -0.25rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin: auto;
+}
+
+crypteepagebreak.selected { 
+    outline: 2px var(--cryptee-0) dashed; 
+}
+
+crypteepagebreak.selected::after { 
+    color: var(--cryptee-0); 
+}
+
+body:not([paper-stock]) crypteepagebreak {
+    display: none !important;
+}
+
+
+crypteetable.overflow { 
+    margin-top: 0 !important; 
+    display: flex;
+}
+crypteetablecell.overflow { 
+    margin-top: var(--preview-martop) !important; 
+    border-top: 1px solid #CCC !important;
+}
+
+/* in preview, to make it easy to see table is overflowing, use dashed lines on the right */
+
+.ql-editor:not(.pdf) crypteetable.overflow {
+    border-right: 1px dashed #CCC;
+}
+
+
+body[paper-stock] pre {
+    border: 1px solid var(--cryptee-1);
+    border-radius: 0.25rem !important;
+    white-space: pre-wrap !important;
+    display: block !important;
+}
+
+body[paper-stock] #splitFileViewerButton {
+    display: none !important;
+}
+
+body[paper-stock] #preview-beta-popup {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--cryptee-yellow);
+    height: 4rem;
+    line-height: 4rem;
+    padding-left: 1.5rem;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+PAGE NAVIGATION DOTS 
+ 
+--------------------------------
+----------------------------- */
+
+
+.ql-pagenav {
+    height: 4rem;
+    margin: auto;
+    counter-reset: pages;
+    display: flex;
+    justify-content: center;
+    padding-top: 1.5rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+body:not([paper-stock]) .ql-pagenav,
+body.bubble .ql-pagenav {
+    display: none !important;
+}
+
+.pagedot {
+    position: relative;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    margin: 0.325rem;
+    border-radius: 1rem;
+    transform: translateX(0);
+    transition-property: background-color, border-radius, transform;
+    transition-timing-function: linear;
+    transition-duration: 0.3s;
+    background-color: rgba(0,0,0,0.3);
+}
+
+.pagedot.active { 
+    border-radius: 0; 
+    background-color: rgba(0,0,0,1); 
+}
+
+.pagedot::before {
+    counter-increment: pages;                   /* Increment the value of section counter by 1 */
+    white-space: break-spaces;
+    content: counter(pages);
+    pointer-events: none;
+    line-height: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    position: absolute;
+    top: -1.25rem;
+    min-width: 1rem;
+    width: auto;
+    text-align: center;
+
+    opacity: 0;
+    transition: 0.5s opacity var(--cryptee-cb);
+}
+
+.pagedot:only-child {
+    opacity: 0.3;
+}
+
+.pagedot.active::before {
+    opacity: 1;
+}
+
+
+.pagedot.active + .pagedot.active {
+    transform: translateX(-0.5rem);
+}
+
+.dm .pagedot { background-color: rgba(255,255,255,0.3); }
+.dm .pagedot.active { background-color: rgba(255,255,255,1);  }
+.dm .pagedot::before { color: #FFF; }
+
+@media (-moz-touch-enabled: 0), (pointer:fine) { 
+    .pagedot:hover  { background-color: rgba(0,0,0,0.6); }
+    .dm .pagedot:hover  { background-color: rgba(255,255,255,0.6); }
+    .pagedot:only-child:hover,
+    .pagedot:hover::before {
+        opacity: 1;
+    }
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+PAPER SIZES 
+ 
+--------------------------------
+----------------------------- */
+
+body[paper-stock='a4'] .ql-editor { 
+    height: 297mm !important;
+    min-width: calc(210mm + var(--scrollbar-width));
+    max-width: calc(210mm + var(--scrollbar-width));
+    padding: 25mm;
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 210mm, #F5F5F5 210mm, #F5F5F5 220mm) local !important;
+
+    columns: auto 210mm;
+    column-gap: 60mm; /* margin + spacer + margin */
+}
+
+body[paper-stock='a3'] .ql-editor { 
+    height: 420mm !important;
+    min-width: calc(297mm + var(--scrollbar-width)); 
+    max-width: calc(297mm + var(--scrollbar-width)); 
+    padding: 25mm;
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 297mm, #F5F5F5 297mm, #F5F5F5 307mm) local !important;
+
+    columns: auto 297mm;
+    column-gap: 60mm; /* margin + spacer + margin */
+}
+
+body[paper-stock='uslegal'] .ql-editor,
+body[paper-stock='usletter'] .ql-editor { 
+    min-width: calc(8.5in + var(--scrollbar-width)); 
+    max-width: calc(8.5in + var(--scrollbar-width)); 
+    padding: 0.75in;
+    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF 8.5in, #F5F5F5 8.5in, #F5F5F5 9in) local !important;
+
+    columns: auto 8.5in;
+    column-gap: 2in; /* margin + spacer + margin */
+}
+
+body[paper-stock='usletter'] .ql-editor  { height: 11in !important; }
+body[paper-stock='uslegal']  .ql-editor  { height: 14in !important; }
+
+.dm body[paper-stock='a4'] .ql-editor { 
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 210mm, var(--oled-safe-black) 210mm, var(--oled-safe-black) 220mm) local !important;
+}
+
+.dm body[paper-stock='a3'] .ql-editor { 
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 297mm, var(--oled-safe-black) 297mm, var(--oled-safe-black) 307mm) local !important;
+}
+
+.dm body[paper-stock='uslegal'] .ql-editor,
+.dm body[paper-stock='usletter'] .ql-editor { 
+    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF 8.5in, var(--oled-safe-black) 8.5in, var(--oled-safe-black) 9in) local !important;
+}
+
+
+/* safari background attachment hack / fixes */
+body[paper-stock='a4'] .ql-editor.safari-bg-hack {
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 210mm, #F4F4F4 210mm, #F4F4F4 220mm) local !important;
+}
+
+body[paper-stock='a3'] .ql-editor.safari-bg-hack {
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 297mm, #F4F4F4 297mm, #F4F4F4 307mm) local !important;
+}
+
+
+body[paper-stock='uslegal'] .ql-editor.safari-bg-hack,
+body[paper-stock='usletter'] .ql-editor.safari-bg-hack {
+    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF 8.5in, #F4F4F4 8.5in, #F4F4F4 9in) local !important;
+}
+
+.dm body[paper-stock='a4'] .ql-editor.safari-bg-hack {
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 210mm, #090909 210mm, #090909 220mm) local !important;
+}
+
+.dm body[paper-stock='a3'] .ql-editor.safari-bg-hack {
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 297mm, #090909 297mm, #090909 307mm) local !important;
+}
+
+
+.dm body[paper-stock='uslegal'] .ql-editor.safari-bg-hack,
+.dm body[paper-stock='usletter'] .ql-editor.safari-bg-hack {
+    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF 8.5in, #090909 8.5in, #090909 9in) local !important;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+LAST-CHILD / LAST-PAGE 
+DUCT-TAPE FIXES  
+ 
+--------------------------------
+----------------------------- */
+
+/* last child needs 2page-sized margin bottom to add the virtual extra page  */
+
+body[paper-stock] .ql-editor.firefox > *:last-child { margin-bottom: 0!important; }
+
+body[paper-stock='a4'] .ql-editor:not(.firefox) > *:last-child { margin-bottom: 297mm !important; }
+body[paper-stock='a4'] .ql-editor.firefox::after { width: 185mm; }
+
+body[paper-stock='a3'] .ql-editor:not(.firefox) > *:last-child { margin-bottom: 420mm !important; }
+body[paper-stock='a3'] .ql-editor.firefox::after { width: 272mm; }
+
+body[paper-stock='usletter'] .ql-editor:not(.firefox) > *:last-child { margin-bottom: 11in !important; }
+body[paper-stock='usletter'] .ql-editor.firefox::after { width: 10.25in; }
+
+body[paper-stock='uslegal'] .ql-editor:not(.firefox) > *:last-child  { margin-bottom: 14in !important; }
+body[paper-stock='uslegal'] .ql-editor.firefox::after { width: 10.25in; }
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PAGENAV BUTTONS 
+ 
+--------------------------------
+----------------------------- */
+
+body[paper-stock='a4']       .ql-pagenav  { width: 210mm; }
+body[paper-stock='a3']       .ql-pagenav  { width: 297mm; }
+body[paper-stock='usletter'] .ql-pagenav  { width: 8.5in; }
+body[paper-stock='uslegal']  .ql-pagenav  { width: 8.5in; }
+
+
+body[paper-stock] .ql-editor[scale^="0"] ~ .ql-pagenav {
+    width: 100%;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+IMAGE SIZE RESTRICTIONS
+ 
+--------------------------------
+----------------------------- */
+
+/* 
+Images can't be taller than the ( page - top margin - bottom margin) 
+or else they'll get cropped and fucked up 
+*/
+
+body[paper-stock] .ql-editor img {
+    height: unset;
+    object-fit: cover;
+    max-width: var(--max-width, 100%);
+}
+
+body[paper-stock='a4']       .ql-editor img  { max-height: var(--max-height, 247mm); }
+body[paper-stock='a3']       .ql-editor img  { max-height: var(--max-height, 370mm); }
+body[paper-stock='usletter'] .ql-editor img  { max-height: var(--max-height, 9.5in); }
+body[paper-stock='uslegal']  .ql-editor img  { max-height: var(--max-height, 12.5in); }
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PAPER ORIENTATIONS 
+ 
+--------------------------------
+----------------------------- */
+
+body[paper-stock='a4'][paper-orientation="landscape"] .ql-editor        { max-width: 297mm; }
+body[paper-stock='a3'][paper-orientation="landscape"] .ql-editor        { max-width: 420mm; }
+body[paper-stock='usletter'][paper-orientation="landscape"] .ql-editor  { max-width: 11in; }
+body[paper-stock='uslegal'][paper-orientation="landscape"] .ql-editor   { max-width: 14in; }
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PDF CONVERSION 
+ 
+--------------------------------
+----------------------------- */
+
+body[paper-stock] .ql-editor.pdf {
+    background-image: none !important;
+    padding: 0 !important;
+    columns: unset !important;
+    background-color: transparent !important;
+    transform: scale(1) !important;
+    
+    width:      100% !important;
+    height:     100% !important;
+    min-width:  100% !important;
+    min-height: 100% !important;
+    max-width:  100% !important;
+    max-height: 100% !important;
+
+    overflow: hidden !important;
+}
+
+body[paper-stock] .ql-editor.pdf > *:first-child {
+    margin-top: 0 !important;
+}
+
+body[paper-stock] .ql-editor.pdf > *:last-child {
+    margin-bottom: 0 !important;
+}
+
+body[paper-stock] .ql-editor.pdf [preview-overflow-marbot] {
+    page-break-after: always;
+    margin-bottom: 0 !important;
+}
+
+body[paper-stock] .ql-editor.pdf [preview-overflow-marbot] {
+    margin-bottom: 0 !important;
+}
+
+body[paper-stock] .ql-editor.pdf [preview-overflow-martop] {
+    margin-top: 0 !important;
+}
+
+body[paper-stock] .ql-editor.pdf crypteetable {
+    width: 100%;
+    position: relative;
+    box-sizing: border-box !important;
+    margin-top: 0 !important;
+
+    /* borders may render strangely in scale:2 when taking a canvas screenshot so we use shadows instead */
+    /* border: none !important;  */
+
+    /* border top and right */
+    /* box-shadow: 0px -1px 0px #CCC, 1px 0px 0px #CCC !important;  */
+    
+    transition: none !important;
+}
+
+body[paper-stock] .ql-editor.pdf crypteetablecell {
+    width: calc(100% / var(--columns));
+    display: block;
+    box-sizing: border-box !important;
+    margin-top: 0 !important;
+    
+    /* borders may render strangely in scale:2 when taking a canvas screenshot so we use shadows instead */
+    /* border: none !important;  */
+    
+    /* border left and bottom */
+    /* box-shadow: -1px 0px 0px #CCC, 0px 1px 0px #CCC !important;  */
+    
+    transition: none !important;
+}
+
+body[paper-stock] .ql-editor.pdf crypteepagebreak {
+    outline: none !important;
+}
+
+body[paper-stock] .ql-editor.pdf crypteepagebreak::after {
+    display: none !important;
+}
+
+body[paper-stock] .ql-editor.pdf p a, 
+body[paper-stock] .ql-editor.pdf ul a, 
+body[paper-stock] .ql-editor.pdf ol a, 
+body[paper-stock] .ql-editor.pdf p a *, 
+body[paper-stock] .ql-editor.pdf ul a *, 
+body[paper-stock] .ql-editor.pdf ol a *, 
+body[paper-stock] .ql-editor.pdf .underline,
+body[paper-stock] .ql-editor.pdf .underline *,
+body[paper-stock] .ql-editor.pdf u, 
+body[paper-stock] .ql-editor.pdf u * {
+    text-decoration: 2px underline !important;
+}
+
+body[paper-stock] .ql-editor.pdf s,
+body[paper-stock] .ql-editor.pdf s * {
+    text-decoration: 2px line-through !important;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+PRINT OVERRIDES 
+ 
+--------------------------------
+----------------------------- */
+
+@media print {
+
+    body[paper-stock] .ql-editor {
+        background-image: none !important;
+        max-height: 100% !important;
+    }
+
+    body[paper-stock] .ql-editor > *:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    /* removes the scrollbar extra pixels */    
+    body[paper-stock='uslegal'] .ql-editor,
+    body[paper-stock='usletter'] .ql-editor { max-width: 8.5in !important; }
+    body[paper-stock='a4'] .ql-editor       { max-width: 210mm !important; }
+    body[paper-stock='a3'] .ql-editor       { max-width: 297mm !important; }
+
+    body[paper-stock='a3'] .ql-editor,
+    body[paper-stock='a4'] .ql-editor {
+        padding: 25mm 25mm 0 25mm !important;
+    }
+
+    body[paper-stock='uslegal'] .ql-editor,
+    body[paper-stock='usletter'] .ql-editor {
+        padding: 0.75in 0.75in 0 0.75in !important;
+    }
+
+    body[paper-stock] [preview-overflow-marbot] {
+        margin-bottom: 0 !important;
+    }
+    
+    body[paper-stock] crypteetable[preview-overflow-martop] {
+        display: inline-flex;
+    }
+
+    /* overriding where we can, because we're handing this in padding for each paper size */
+    @page { margin: 0; } 
+
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA QUERIES / SCREEN OVERRIDES 
+ 
+--------------------------------
+----------------------------- */

@@ -56,6 +56,8 @@ async function getAlbums() {
 
     function err(msg, error) {
         handleError(msg, error);
+        // there's no better place to show this sadly, so we had to put this error popup in the API file. But normally you shouldn't do this, and show these errors in the app's functions themselves.
+        createPopup("Couldn't get your albums due to a connectivity problem. Chances are this has to do with an ad-blocker / content-blocker extension. Please check your internet connection, try disabling your extensions, and try again. If this issue continues, reach out to our support via our helpdesk.", "error");
     }
 }
 
@@ -131,6 +133,8 @@ async function getAlbumPhotos(aid) {
 
     function err(msg, error) {
         handleError(msg, error);
+        // there's no better place to show this sadly, so we had to put this error popup in the API file. But normally you shouldn't do this, and show these errors in the app's functions themselves.
+        createPopup("Couldn't get photos due to a connectivity problem. Chances are this has to do with an ad-blocker / content-blocker extension. Please check your internet connection, try disabling your extensions, and try again. If this issue continues, reach out to our support via our helpdesk.", "error");
     }
 }
 
@@ -356,6 +360,8 @@ async function getTitles() {
 
     function err(msg, error) {
         handleError(msg, error);
+        // there's no better place to show this sadly, so we had to put this error popup in the API file. But normally you shouldn't do this, and show these errors in the app's functions themselves.
+        createPopup("Couldn't get photo/album names due to a connectivity problem. Chances are this has to do with an ad-blocker / content-blocker extension. Please check your internet connection, try disabling your extensions, and try again. If this issue continues, reach out to our support via our helpdesk.", "error");
     }
 }
 

@@ -332,7 +332,7 @@ async function downloadAndSaveFile(did) {
     var filename = docName(file);
 
     try {
-        if (file.isfile && did.endsWith("-v3")) {
+        if (file.isfile && (did.endsWith("-v3") || file.modified)) {
             // if it's a v3 upload, file is a blob
             saveAs(uInt8ArrayToBlob(fileContents, file.mime), filename);
         } else {

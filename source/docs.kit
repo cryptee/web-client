@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="../css/docs.css">
     <link rel="stylesheet" href="../css/quill-overrides.css">
     <link rel="stylesheet" href="../css/typography.css">
+    <link rel="stylesheet" href="../css/papermode.css">
     <link rel="stylesheet" href="../css/adapters.css">
 
 
@@ -106,6 +107,7 @@
     <!-- @import "imports/app/docs-panel-docinfo.kit" -->
     <!-- @import "imports/app/docs-panel-doctools.kit" -->
     <!-- @import "imports/app/docs-panel-pagesetup.kit" -->
+    <!-- @import "imports/app/docs-panel-saveas-pdf.kit" -->
     <!-- @import "imports/app/docs-panels.kit" -->
     
     <!-- @import "imports/app/docs-tips.kit" -->
@@ -166,20 +168,25 @@
 
     <!-- docx exports -->
     <script src="../js/lib/docx-5.4.1/index.min.js"></script>
-
-
+    
+    <!-- pdf exports -->
+    <script src="../js/lib/jspdf-2.4.0/jspdf.umd.min.js"></script>
+    <script src="../js/lib/html2canvas-1.3.2/html2canvas.min.js"></script>
+    <script src="../js/lib/html2pdf-0.10.1/html2pdf.min.js"></script>
 
     <script src="../js/lib/quill-1.3.7/quill.min.js"></script>
 
     <script src="../js/quill-modules/imports.js"></script>
     <script src="../js/quill-modules/clipboard.js"></script>
     <script src="../js/quill-modules/divider.js"></script>
+    <script src="../js/quill-modules/pagebreak.js"></script>
     <script src="../js/quill-modules/image-resize.js"></script>
     <script src="../js/quill-modules/image-format.js"></script>
     <script src="../js/quill-modules/crypteefile.js"></script>
     <script src="../js/quill-modules/crypteefolder.js"></script>
-    <script src="../js/quill-modules/history.js"></script>
     <script src="../js/quill-modules/crypteetag.js"></script>
+    <script src="../js/quill-modules/crypteepaper.js"></script>
+    <script src="../js/quill-modules/history.js"></script>
     <script src="../js/quill-modules/tables.js"></script>
     <script src="../js/quill-modules/markdown.js"></script>
     <script src="../js/quill-modules/magicurl.js"></script>

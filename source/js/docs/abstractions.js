@@ -341,9 +341,11 @@ async function confirmNewFolder() {
  * Makes a server assisted copy of the document
  * @param {string} did Document ID
  * @param {boolean} forImport If it's a copy for an import, we'll call the copy (Original) intead of (Copy)
+ * @param {string} newName optional new name for the new copy, this will be used if provided.
  */
-async function copyDocument(did, forImport) {
+async function copyDocument(did, forImport, newName) {
     forImport = forImport || false;
+    newName = newName || "";
 
     var originalDoc = await getDocFromCatalog(did);
 
@@ -357,10 +359,18 @@ async function copyDocument(did, forImport) {
     var annotation = " (Copy)";
     if (forImport) { annotation = " (Original)"; } 
 
-    if (originalDoc.isfile) {
-        copyName = titleFromFilename(originalName) + annotation + "." + extensionFromFilename(originalName);
+    if (!newName) {
+        if (originalDoc.isfile) {
+            copyName = titleFromFilename(originalName) + annotation + "." + extensionFromFilename(originalName);
+        } else {
+            copyName = originalName + annotation;
+        }
     } else {
-        copyName = originalName + annotation;
+        if (originalDoc.isfile) {
+            copyName = newName + "." + extensionFromFilename(originalName);
+        } else {
+            copyName = newName;
+        }
     }
 
     breadcrumb("[COPY DOC] Encrypting title of " + did);
@@ -408,11 +418,12 @@ async function copyDocument(did, forImport) {
 
 
 /**
- * Copies selected document, using either the ID from dropdown or from the active doc's panel
+ * Confirms copying selected document, using either the ID from copy document panel, from dropdown, or from the active doc's panel
  * @param {string} [did] doc id (optionally passed from active document panel, otherwise comes from doc dropdown)
  */
-async function copySelectedDocument(did) {
-    did = did || $("#dropdown-doc").attr("did");
+async function confirmCopyDoc(did) {
+    newName = ($("#copy-doc-input").val() || "").trim() || "";
+    did = did || $("#panel-copy-doc").attr("did") || $("#dropdown-doc").attr("did");
     
     if (!did) { 
         hideRightClickDropdowns();
@@ -420,11 +431,16 @@ async function copySelectedDocument(did) {
         return false; 
     }
 
-    $("#copyDocButton, #copyActiveDocButton").addClass("loading");
+    $("#copyDocButton, #copyActiveDocButton, #confirmCopyDocButton, #copy-doc-recos").addClass("loading");
+    $("#copy-doc-recos").find(".docreco").removeClass("selected");
+    $("#copy-doc-input").attr("disabled", true); 
+    $("#copy-doc-input").trigger("blur"); 
 
-    var copied = await copyDocument(did);
+    var copied = await copyDocument(did, false, newName);
 
-    $("#copyDocButton, #copyActiveDocButton").removeClass("loading");
+    $("#copyDocButton, #copyActiveDocButton, #confirmCopyDocButton, #copy-doc-recos").removeClass("loading");
+    $("#copy-doc-input").removeAttr("disabled");
+
     hideRightClickDropdowns();
     hidePanels();
 
@@ -433,15 +449,61 @@ async function copySelectedDocument(did) {
         return false;
     }
 
-    // if it's the active document, show the recents
+    // if it's the active document
     if (did === activeDocID) {
-        $("#recentsButton").trigger("click");
-    }
+        var fidOfActiveDoc = $("#activeDocFolderButton").attr("fid");
 
+        if (activeFolderID === fidOfActiveDoc) { 
+            // if the doc's folder is open, simply show the folder
+            openSidebarMenu();
+        } else {
+            // if the doc's folder isn't open, show it in recents
+            $("#recentsButton").trigger("click");
+        }
+    }
 
     return true;
 }
 
+/**
+ * Shows copy doc panel, for a document with ID coming either from active doc panel or inferred from the doc right click dropdown
+ * @param {string} [did] doc id (optionally passed from active document panel, otherwise comes from doc dropdown)
+ */
+async function showCopyDocPanel(did) {
+    did = did || $("#dropdown-doc").attr("did") || "";
+    
+    hideRightClickDropdowns();
+    hidePanels('panel-copy-doc');
+
+    var doc = await getDocFromCatalog(did);
+    var name = docName(doc) || "";
+
+    if (!doc) {
+        handleError("[COPY DOC] Failed to get original doc from catalog for copy.", {did:did});
+        return false;
+    }
+
+    var placeholderName;
+    var annotation = " (Copy)";
+
+    if (doc.isfile) {
+        placeholderName = titleFromFilename(name) + annotation;
+    } else {
+        placeholderName = name + annotation;
+    }
+
+    var targetFID = activeFolderID || "f-uncat";
+    var targetFolderName = await getFolderNameFromCatalog(targetFID);
+    $("#copy-doc-target-folder").text(targetFolderName);
+
+    $("#panel-copy-doc").attr("did", did);
+    $("#copy-doc-input").val(placeholderName);
+    $("#copy-doc-recos").html(docNameTimeRecommendations());
+    
+    togglePanel('panel-copy-doc');
+    $("#copy-doc-input").trigger("focus");
+    $("#copy-doc-input")[0].select();
+}
 
 
 ////////////////////////////////////////////////
@@ -456,11 +518,14 @@ async function copySelectedDocument(did) {
 function docName(doc) {
     var name; 
     
+    if (!doc || isEmpty(doc)) { return "Untitled Document"; }
+
     if (doc.untitled) {
         name = "Untitled Document";
     } else {
         name = doc.decryptedTitle || "";
     }
+
     if (doc.docid === "d-home") { name = "Home Document"; } // backwards compatibility with v1 & v2
     
     return name;
@@ -850,16 +915,55 @@ async function toggleDocumentEditLock(did, lock) {
 
 
 function lockEditor() {
-    quill.disable();
+    if (!mobilePaperMode) {
+        quill.disable();
+    }
     $("body").addClass("locked-doc");
     $("#lockEditsButton").addClass("on");
 }
 
 function unlockEditor() {
-    quill.enable();
+    if (!mobilePaperMode) {
+        quill.enable();
+    }
     $("body").removeClass("locked-doc");
     $("#lockEditsButton").removeClass("on");
 }
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	PAPER MODE META
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+/**
+ * Saves document's paper size & orientation to catalog and server. 
+ * This is not a super duper critical thing, since user can always re-enable it while viewing the doc. 
+ * It's more of a convenience thing. Since enabling paper mode adds a bunch of preview-classes, it changes the document's generation,
+ * thus updates the document, and forces all other devices to sync these pieces of meta even for offline docs 
+ * @param {String} did Document ID
+ * @param {('a4'|'a3'|'usletter'|'uslegal')} paperStock The paper stock size (i.e. A4, A3, US Letter or US Legal) 
+ * @param {('portrait'|'landscape')} orientation The paper orientation (portrait or landscape)
+ * @returns 
+ */
+async function saveDocumentPaperSizeAndOrientation(did, paperStock, orientation) {
+    breadcrumb('[PAPER] Saving Document Paper Size & Orientation in Catalog & DB');
+    
+    try {
+        await setDocMetaInCatalog(did, { paper : paperStock, orientation : orientation });
+        await setDocMeta(did, { paper : paperStock, orientation : orientation });    
+    } catch (error) {
+        handleError("[PAPER] Failed to save Paper Size & Orientation", error);    
+    }
+
+    breadcrumb('[PAPER] Saved Document Paper Size & Orientation in Catalog & DB');
+
+
+    return true;
+}
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1977,7 +2081,7 @@ async function disableViewingMode() {
 
     // check if doc was locked or not, and enable editor if it wasn't locked;
     var doc = await getDocFromCatalog(activeDocID);
-    if (!doc.islocked) { quill.enable(); }
+    if (!doc.islocked && !mobilePaperMode) { quill.enable(); }
 }
 
 
@@ -2010,7 +2114,7 @@ async function attachSelectedFileInline(did) {
     var name = await getDocNameFromCatalog(did);
 
     var attachmentTag = `<p><br></p><crypteefile did='${did}'></crypteefile><p><br></p>`;
-    quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, attachmentTag, "api");
+    quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, attachmentTag, "user");
     quill.setSelection(getLastSelectionRange().index + 2, "silent");
     $(`crypteefile[did="${did}"]`).attr("filetitle", name);
     hideRightClickDropdowns();
@@ -2038,7 +2142,7 @@ async function attachSelectedFolderInline(fid) {
     var name = await getFolderNameFromCatalog(fid);
 
     var attachmentTag = `<p><br></p><crypteefolder fid='${fid}'></crypteefolder><p><br></p>`;
-    quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, attachmentTag, "api");
+    quill.clipboard.dangerouslyPasteHTML(getLastSelectionRange().index, attachmentTag, "user");
     quill.setSelection(getLastSelectionRange().index + 2, "silent");
     $(`crypteefolder[fid="${fid}"]`).attr("foldertitle", name);
     hideRightClickDropdowns();

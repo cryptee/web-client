@@ -428,7 +428,7 @@
             }
           }
         }, i.getCurrentSize = function() {
-          return [i.img.width, Math.round(i.img.width / i.img.naturalWidth * i.img.naturalHeight)]
+          return [i.img.getAttribute("width") || i.img.width, i.img.getAttribute("height") || i.img.height]
         }, a = n, r(i, a)
       }
       return i(e, t), e
@@ -489,15 +489,60 @@
           })
         }, i.addBox = function(t) {
           var e = document.createElement("div");
-          Object.assign(e.style, i.options.handleStyles), e.style.cursor = t, e.style.width = i.options.handleStyles.width + "px", e.style.height = i.options.handleStyles.height + "px", e.addEventListener("mousedown", i.handleMousedown, !1), i.overlay.appendChild(e), i.boxes.push(e)
+          Object.assign(e.style, i.options.handleStyles), 
+          e.style.cursor = t, 
+          e.style.width = i.options.handleStyles.width + "px", 
+          e.style.height = i.options.handleStyles.height + "px", 
+          e.addEventListener("mousedown", i.handleMousedown, !1), 
+          i.overlay.appendChild(e), i.boxes.push(e)
         }, i.handleMousedown = function(t) {
-          i.dragBox = t.target, i.dragStartX = t.clientX, i.preDragWidth = i.img.width || i.img.naturalWidth, i.setCursor(i.dragBox.style.cursor), document.addEventListener("mousemove", i.handleDrag, !1), document.addEventListener("mouseup", i.handleMouseup, !1)
+          i.dragBox = t.target, 
+          i.dragStartX = t.clientX, 
+          i.dragStartY = t.clientY, 
+          i.preDragWidth = i.img.width || i.img.naturalWidth, 
+          i.preDragHeight = i.img.height || i.img.naturalHeight, 
+          i.setCursor(i.dragBox.style.cursor), 
+          document.addEventListener("mousemove", i.handleDrag, !1), 
+          document.addEventListener("mouseup", i.handleMouseup, !1)
         }, i.handleMouseup = function() {
           i.setCursor(""), document.removeEventListener("mousemove", i.handleDrag), document.removeEventListener("mouseup", i.handleMouseup)
         }, i.handleDrag = function(t) {
           if (i.img) {
-            var e = t.clientX - i.dragStartX;
-            i.dragBox === i.boxes[0] || i.dragBox === i.boxes[3] ? i.img.width = Math.round(i.preDragWidth - e) : i.img.width = Math.round(i.preDragWidth + e), i.requestUpdate()
+            var widthChange = t.clientX - i.dragStartX;
+            var heightChange = t.clientY - i.dragStartY;
+
+            var maxHeight = 99999999;  
+            var maxWidth = 99999999;
+
+            var aspectRatio = i.img.naturalWidth / i.img.naturalHeight;
+
+            if (isPaperMode()) {
+              // get the top offset of the image, measure remaining space on page, this will be our max height
+              
+              var topOffsetPX = i.img.offsetTop || paper.marginsPX;
+              var paperOverflowPointPX = paper.heightPX - paper.marginsPX - 32; // -32 to get one more line's worth of space after it & account for margins
+              maxHeight = paperOverflowPointPX - topOffsetPX; 
+              maxWidth = paper.widthPX - paper.marginsPX - paper.marginsPX;
+            }
+
+            if (i.dragBox === i.boxes[0] || i.dragBox === i.boxes[3]) {
+
+              i.img.width = Math.round((i.preDragWidth - widthChange) * aspectRatio);
+              i.img.height = Math.round((i.preDragWidth - widthChange) / aspectRatio);
+              
+            } else {
+              
+              var newWidth = clamp(Math.round((i.preDragWidth + widthChange) * aspectRatio), 50, maxWidth);
+              var newHeight = clamp(Math.round((i.preDragWidth + widthChange) / aspectRatio), 50, maxHeight) ;
+              
+              i.img.width = newWidth;
+              i.img.height = newHeight;
+              
+              i.img.style.setProperty("--max-width", newWidth + "px");
+              i.img.style.setProperty("--max-height", newHeight + "px");
+              
+              i.requestUpdate();
+            }
           }
         }, i.setCursor = function(t) {
           [document.body, i.img].forEach(function(e) {
