@@ -566,11 +566,12 @@ function hideURLBox() {
 
 function getSelectedNode() {
     var nativeRange = quill.selection.getNativeRange();
-    if (nativeRange) {
-        return nativeRange.native.commonAncestorContainer;
-    } else {
-        return null;
-    }
+    
+    if (!nativeRange || isEmpty(nativeRange)) { return null; }
+    
+    if (!nativeRange.native || isEmpty(nativeRange.native)) { return null; }
+
+    return nativeRange.native.commonAncestorContainer;
 }
 
 function getQuillIndexOfDOMNode(domNode) {
