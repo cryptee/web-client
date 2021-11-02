@@ -203,7 +203,7 @@ function enablePaperMode(paperStock, orientation, forDocLoad) {
     $("body").attr("paper-stock", paperStock);
     $("body").attr("paper-orientation", orientation);
     
-    paper = papers[paperStock];
+    paper = JSON.parse(JSON.stringify(papers[paperStock]));
     paper.orientation = orientation;
 
     // turns out when converting from mm to px, reading css height gives a more accurate value.
@@ -758,7 +758,8 @@ async function prepareDocumentPDF() {
 
     var paperStock = $("body").attr("paper-stock");
     var orientation = $("body").attr("paper-orientation");
-    if (paperStock.startsWith("us")) { paperStock.replace("us", ""); } 
+    var paperMargins = papers[paperStock].margins;
+    if (paperStock.startsWith("us")) { paperStock = paperStock.replace("us", ""); } 
 
     var jsPDFConfig = {
         unit: paper.unit, 
@@ -773,7 +774,7 @@ async function prepareDocumentPDF() {
 
     var pdfOptions = {
         enableLinks:  false,
-        margin:       paper.margins,
+        margin:       paperMargins,
         filename:     documentName + '.pdf',
         html2canvas:  { scale: 2 },
         pagebreak:    { mode : ['avoid-all'] },
@@ -834,6 +835,10 @@ async function prepareDocumentPDF() {
     joinWordsPDFExportComplete();
 
     pdfWorker = pdfWorker.save().then(()=>{
+        stopPDFExportProgress();
+    }).catch(function(error) {
+        handleError("[PAPER] [EXPORT] Failed to save PDF", error);
+        createPopup("failed to export your PDF. Chances are a content-blocker or browser-extension is causing this issue. Please disable your content-blockers, allow Cryptee to save/download files to your device if prompted by your browser, try again and reach out to our support via our helpdesk if this issue continues.", "error");
         stopPDFExportProgress();
     });
 

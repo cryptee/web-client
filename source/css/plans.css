@@ -588,7 +588,7 @@ body[discount] #coupon-button i::before {
     color: var(--cryptee-green);
 }
 
-body[discount]::before {
+body[discount]:not(.billing)::before {
     background-color: var(--cryptee-green);
     content: attr(discount) "% discount will be applied at checkout.";
     color: #FFF;
