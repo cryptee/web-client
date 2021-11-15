@@ -1166,63 +1166,6 @@ function promiseTimeout(promise, ms){
 
 
 
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-//	WAKE LOCK
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-
-// https://web.dev/wake-lock/
-
-// Check if screen Wake Lock API supported
-
-var isWakelockSupported = false;
-
-try {
-  if ('wakeLock' in navigator) { 
-    isWakelockSupported = true; 
-  }
-} catch (error) {}
-
-setSentryTag("wakeLockSupported", isWakelockSupported);
-
-// The wake lock sentinel.
-var wakeLock = null;
-
-/**
- * ENABLES / REQUESTS WAKE LOCK TO KEEP DEVICE AWAKE (I.E. DURING UPLOADS)
- */
-async function enableWakeLock() {
-  if (isWakelockSupported && !wakeLock) {
-
-    try {
-      wakeLock = await navigator.wakeLock.request('screen');
-      breadcrumb('[WAKE LOCK] Requested');
-      return true; 
-    } catch (error) {
-      breadcrumb('[WAKE LOCK] Failed / Rejected');
-      return false;
-    }
-    
-  } else {
-    return false;
-  }
-}
-
-/**
- * RELEASES WAKE LOCK TO LET DEVICE SLEEP
- */
-function disableWakeLock() {
-  if (isWakelockSupported && wakeLock) {
-  
-    wakeLock.release();
-    wakeLock = null;
-    breadcrumb('[WAKE LOCK] Released');
-    
-  }
-}
-
-
 
 /////////////////////////////////////////////////////////////////////////////////
 //////////////// OPENPGPJS SETUP ////////////////////////////////////////////////

@@ -495,31 +495,16 @@ function checkIfTableHasFocus() {
             
             var cell = getSelectedTableCellNode();
             if (cell) {
-                var cellIndex = $(cell).index();
-                var cellIndexString = cellIndex.toString();
-                var cellPosition = cell.getBoundingClientRect();
-                var cellTop = cellPosition.top;
-                var cellLeft = cellPosition.left;
-                var cellWidth = $(cell).width();
-                
-                var ctxLeft = cellLeft + cellWidth - 28 + "px";
-                var ctxTop = cellTop + 4 + "px";
-                selectedCellCoords = { 
-                    top : cellTop, 
-                    left : cellLeft, 
-                    width : cellWidth, 
-                    tableid : tableid 
-                };
 
-                if (selectedFormat.direction === "rtl" || selectedFormat.align === "right") {
-                    // user is using right align or RTL, show the contextual button on the left side of the cell instead.
-                    ctxLeft = cellLeft + 1 + "px";
-                }
+                var tableContextualButtonDelay = 50;
                 
-                $("#table-contextual-button").css({ transform: "translate3d("+ctxLeft+", "+ctxTop+", 0)" });
-                if (cellIndexString) { $("#table-contextual-button, #table-dropdown").attr("cellindex", cellIndexString); }
-                if (tableid) { $("#table-contextual-button, #table-dropdown").attr("tableid", tableid); }
-                $("#table-contextual-button").addClass("visible");
+                // to account for the auto-scroll (which hides table buttons / dropdowns etc)
+                if (isMobile) { tableContextualButtonDelay = 1000; }
+
+                setTimeout(function () {
+                    showTableContextualButton(tableid, cell, selectedFormat);        
+                }, tableContextualButtonDelay);
+
                 enableEditorToolbarTableMode();
             } else {
                 hideTableContextualButton();
@@ -1176,6 +1161,36 @@ $("#table-contextual-button").on('click', function(event) {
     tableInsertsEnabled = true;
 }); 
 
+function showTableContextualButton(tableid, cell, selectedFormat) {
+
+    var cellIndex = $(cell).index();
+    var cellIndexString = cellIndex.toString();
+    var cellPosition = cell.getBoundingClientRect();
+    var cellTop = cellPosition.top;
+    var cellLeft = cellPosition.left;
+    var cellWidth = $(cell).width();
+    
+    var ctxLeft = cellLeft + cellWidth - 28 + "px";
+    var ctxTop = cellTop + 4 + "px";
+    selectedCellCoords = { 
+        top : cellTop, 
+        left : cellLeft, 
+        width : cellWidth, 
+        tableid : tableid 
+    };
+
+    if (selectedFormat.direction === "rtl" || selectedFormat.align === "right") {
+        // user is using right align or RTL, show the contextual button on the left side of the cell instead.
+        ctxLeft = cellLeft + 1 + "px";
+    }
+    
+    $("#table-contextual-button").css({ transform: "translate3d("+ctxLeft+", "+ctxTop+", 0)" });
+    if (cellIndexString) { $("#table-contextual-button, #table-dropdown").attr("cellindex", cellIndexString); }
+    if (tableid) { $("#table-contextual-button, #table-dropdown").attr("tableid", tableid); }
+    $("#table-contextual-button").addClass("visible");
+
+}
+
 function hideTableContextualButton() {
     $("#table-contextual-button").removeClass("visible");
 }
@@ -1191,11 +1206,11 @@ function disableEditorToolbarTableMode() {
 }
 
 function showTableContextualDropdown() {
-    $("#table-dropdown").addClass("show");
+    $("#table-dropdown").removeClass("hidden");
 }
 
 function hideTableContextualDropdown() {
-    $("#table-dropdown").removeClass("show");
+    $("#table-dropdown").addClass("hidden");
 }
 
 $("#insert-table-row-above-button").on('mouseover', function() { toggleRowHighlight("insertAbove"); }); 

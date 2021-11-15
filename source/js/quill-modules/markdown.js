@@ -128,8 +128,10 @@ var MarkdownShortcuts = function () {
         var match = pattern.exec(text);
         if (!match) return;
         var size = match[0].length;
+
         // Need to defer this action https://github.com/quilljs/quill/issues/1134
         setTimeout(function () {
+          if (!_this.quill.getFormat()['code']) { return; }
           _this.quill.formatLine(selection.index, 0, 'header', size - 1);
           _this.quill.deleteText(selection.index - size, size);
           try { tribute.hideMenu(); } catch (error) {}
@@ -141,6 +143,7 @@ var MarkdownShortcuts = function () {
       action: function action(text, selection) {
         // Need to defer this action https://github.com/quilljs/quill/issues/1134
         setTimeout(function () {
+          if (!_this.quill.getFormat()['code']) { return; }
           _this.quill.formatLine(selection.index, 1, 'blockquote', true);
           _this.quill.deleteText(selection.index - 2, 2);
         }, 0);
@@ -155,7 +158,27 @@ var MarkdownShortcuts = function () {
           _this.quill.deleteText(selection.index - 4, 4);
         }, 0);
       }
-    }, {
+    }, 
+    {
+      name: 'code',
+      pattern: /(?:`)(.+?)(?:`)/g,
+      action: function action(text, selection, pattern, lineStart) {
+        var match = pattern.exec(text);
+
+        var annotatedText = match[0];
+        var matchedText = match[1];
+        var startIndex = lineStart + match.index;
+
+        if (text.match(/^([*_ \n]+)$/g)) return;
+
+        setTimeout(function () {
+          _this.quill.deleteText(startIndex, annotatedText.length);
+          _this.quill.insertText(startIndex, matchedText, { code: true });
+          _this.quill.format('code', false);
+        }, 0);
+      }
+    },
+    {
       name: 'bolditalic',
       pattern: /(?:\*|_){3}(.+?)(?:\*|_){3}/g,
       action: function action(text, selection, pattern, lineStart) {
@@ -168,6 +191,7 @@ var MarkdownShortcuts = function () {
         if (text.match(/^([*_ \n]+)$/g)) return;
 
         setTimeout(function () {
+          if (!_this.quill.getFormat()['code']) { return; }
           _this.quill.deleteText(startIndex, annotatedText.length);
           _this.quill.insertText(startIndex, matchedText, { bold: true, italic: true });
           _this.quill.format('bold', false);
@@ -186,6 +210,7 @@ var MarkdownShortcuts = function () {
         if (text.match(/^([*_ \n]+)$/g)) return;
 
         setTimeout(function () {
+          if (!_this.quill.getFormat()['code']) { return; }
           _this.quill.deleteText(startIndex, annotatedText.length);
           _this.quill.insertText(startIndex, matchedText, { bold: true });
           _this.quill.format('bold', false);
@@ -204,6 +229,7 @@ var MarkdownShortcuts = function () {
         if (text.match(/^([*_ \n]+)$/g)) return;
 
         setTimeout(function () {
+          if (!_this.quill.getFormat()['code']) { return; }
           _this.quill.deleteText(startIndex, annotatedText.length);
           _this.quill.insertText(startIndex, matchedText, { italic: true });
           _this.quill.format('italic', false);
@@ -222,27 +248,10 @@ var MarkdownShortcuts = function () {
         if (text.match(/^([*_ \n]+)$/g)) return;
 
         setTimeout(function () {
+          if (!_this.quill.getFormat()['code']) { return; }
           _this.quill.deleteText(startIndex, annotatedText.length);
           _this.quill.insertText(startIndex, matchedText, { strike: true });
           _this.quill.format('strike', false);
-        }, 0);
-      }
-    }, {
-      name: 'code',
-      pattern: /(?:`)(.+?)(?:`)/g,
-      action: function action(text, selection, pattern, lineStart) {
-        var match = pattern.exec(text);
-
-        var annotatedText = match[0];
-        var matchedText = match[1];
-        var startIndex = lineStart + match.index;
-
-        if (text.match(/^([*_ \n]+)$/g)) return;
-
-        setTimeout(function () {
-          _this.quill.deleteText(startIndex, annotatedText.length);
-          _this.quill.insertText(startIndex, matchedText, { code: true });
-          _this.quill.format('code', false);
         }, 0);
       }
     }, {
@@ -250,9 +259,10 @@ var MarkdownShortcuts = function () {
       pattern: /^(([-*]\s?){3})|([—*]-\s?)|([–*]-\s?)/g,
       action: function action(text, selection) {
         var startIndex = selection.index - text.length;
+        
         setTimeout(function () {
+          if (!_this.quill.getFormat()['code']) { return; }
           _this.quill.deleteText(startIndex, text.length);
-
           _this.quill.insertEmbed(startIndex + 1, 'hr', true, Quill.sources.USER);
           _this.quill.insertText(startIndex + 2, "\n", Quill.sources.SILENT);
           _this.quill.setSelection(startIndex + 2, Quill.sources.SILENT);
@@ -282,6 +292,8 @@ var MarkdownShortcuts = function () {
         var start = selection.index - matchedText.length - 1;
         if (startIndex !== -1) {
           setTimeout(function () {
+            if (!_this.quill.getFormat()['code-block']) { return; }
+            if (!_this.quill.getFormat()['code']) { return; }
             _this.quill.deleteText(start, matchedText.length);
             _this.quill.insertEmbed(start, 'image', hrefLink.slice(1, hrefLink.length - 1));
           }, 0);
@@ -298,6 +310,8 @@ var MarkdownShortcuts = function () {
         var start = selection.index - matchedText.length - 1;
         if (startIndex !== -1) {
           setTimeout(function () {
+            if (!_this.quill.getFormat()['code-block']) { return; }
+            if (!_this.quill.getFormat()['code']) { return; }
             _this.quill.deleteText(start, matchedText.length);
             _this.quill.insertText(start, hrefText.slice(1, hrefText.length - 1), 'link', hrefLink.slice(1, hrefLink.length - 1));
           }, 0);

@@ -2166,8 +2166,8 @@ async function attachSelectedFolderInline(fid) {
 function showEmbed(what) {
     if (what === "link") {
         $("#hyperlink-input").val("");
-        $("#hyperlink-input").trigger("focus");
         togglePanel("link-box");
+        setTimeout(function () { $("#hyperlink-input").trigger("focus"); }, 50);
     }
 
     if (what === "formula") {

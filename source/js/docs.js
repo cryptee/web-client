@@ -757,13 +757,7 @@ function sidebarOpened() {
     // on mobile / touch, if you blur when sidebar is opened, it'll hide the keyboard causing lag while swiping. so fire this only on desktop on mobile we're fine anyway. 
     if (!isTouch) { quill.blur(); }
 
-    if (isPaperMode()) {
-        setTimeout(function () {
-            breadcrumb('[PAPER] Sidebar opened, viewing area changed. Recalculating.');
-            paperZoom("fit");
-            setTimeout(function () { calculatePaperOverflow(); }, 100);
-        }, 750); 
-    }
+    sidebarOpenedClosedRecalcPaperOverflow();
 }
 
 /**
@@ -780,15 +774,23 @@ function sidebarClosed() {
     
     hidePanels();
 
+    sidebarOpenedClosedRecalcPaperOverflow();
+}
+
+// DOCUMENTS ARE LOADED WHILE THE SIDEBAR IS OPEN. 
+// THIS MEANS, THEIR SCREEN POSITION / SIZING ETC ARE ALL CALCULATED WHILE SIDEBAR IS OPEN. 
+// ON MOBILE, THIS MEANS PAPER-MODE DOCS WILL BE TINY FOR EXAMPLE. 
+// SO WE NEED TO RECALCULATE THE PAPER OVERFLOW AFTER SIDEBAR IS OPENED / CLOSED.
+
+function sidebarOpenedClosedRecalcPaperOverflow() {
     if (isPaperMode()) { 
         setTimeout(function () {
-            breadcrumb('[PAPER] Sidebar closed, viewing area changed. Recalculating.');
+            breadcrumb('[PAPER] Sidebar opened/closed, viewing area changed. Recalculating.');
             paperZoom("fit");
             setTimeout(function () { calculatePaperOverflow(); }, 100);
         }, 750);
     }
 }
-
 
 /**
  * Pins / Unpins sidebar, shrinks right slide, disables swiping nav, updates paper layout
@@ -1140,23 +1142,32 @@ function togglePanel(panelID) {
 function hidePanels(exceptID) {
 
     exceptID = exceptID || "";
-    
+    var panelsToHide;
+
     if (exceptID) {
-        $(".panel").not("#" + exceptID).not(".persistent").removeClass("show");
-        $("button[id^='panel-button']").not("#panel-button-" + exceptID.replace("panel-","")).removeClass("active");
         
-        // animation is 300ms, you can hide it afterwards 
-        setTimeout(function () { $(".panel").not("#" + exceptID).not(".persistent").addClass("hidden"); }, 310);
+        // custom exceptions + except persistent stuff
+        panelsToHide = $(".panel").not("#" + exceptID).not(".persistent");
+        $("button[id^='panel-button']").not("#panel-button-" + exceptID.replace("panel-","")).removeClass("active");
+
     } else {
-        $(".panel").removeClass("show");
+        
+        // except persistent stuff
+        panelsToHide = $(".panel").not(".persistent");
         $("button[id^='panel-button']").removeClass("active");
 
         resetPDFExporter();
         $("#panel-copy-doc").attr("did", "");
 
-        // animation is 300ms, you can hide it afterwards 
-        setTimeout(function () { $(".panel").not(".persistent").addClass("hidden"); }, 310);
     }
+
+    // general exceptions
+    panelsToHide = panelsToHide.not("#table-dropdown");
+    panelsToHide.removeClass("show");
+ 
+    // animation is 300ms, you can hide it afterwards 
+    setTimeout(function () { panelsToHide.addClass("hidden"); }, 310);
+
 }
 
 
@@ -1214,7 +1225,9 @@ $("#lockEditsButton").on('click', function(event) {
 
 $("#desktopToolbar").on('click', function(event) {
     var locked = $("body").hasClass("locked-doc");
-    if (locked) {
+    // on mobile the desktop toolbar has all document action buttons, 
+    // and it causes all buttons to unclock the editor. 
+    if (locked && !isMobile) {
         unlockEditor();
         toggleDocumentEditLock(activeDocID, false);
         event.preventDefault();

@@ -2853,7 +2853,7 @@ table of contents
     display: block;
 }
 
-#tableofcontents:empty::after {
+#tableofcontents:empty::before {
     content: "looks like you don't have any headings in your document. once you add headings to your document – which you can do using the 'H1', 'H2', 'H3' buttons in the editor – your headings will show up here in the table of contents. you can click on a heading here in the table of contents to scroll to the heading, and navigate through long documents";
     line-height: 1.5rem;
     font-weight: 350;

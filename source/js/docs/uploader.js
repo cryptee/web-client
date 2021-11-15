@@ -16,6 +16,7 @@ window.addEventListener('dragover',     handleDragOver,     false);
 if (!isCanvasBlocked()) {
     // ENABLE UPLOADS / DRAG & DROP IF CANVAS ISN'T BLOCKED
 
+    document.getElementById('upload-input').addEventListener('click', enableWakeLock, false);
     document.getElementById('upload-input').addEventListener('change', handleFileSelect, false);
 
     // ONLY ENABLE DRAG & DROP IF USER CAN UPLOAD FOLDERS.
