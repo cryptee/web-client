@@ -1131,7 +1131,6 @@ function togglePanel(panelID) {
     hidePanels(panelID);
     hideTips();
 
-    
 }
 
 
@@ -1141,19 +1140,24 @@ function togglePanel(panelID) {
  */
 function hidePanels(exceptID) {
 
+    console.log(arguments.callee.caller.toString());
+
     exceptID = exceptID || "";
-    var panelsToHide;
+
+    // except persistent panels
+    var panelsToHide = $(".panel").not(".persistent");
+
+    // except table dropdown
+    panelsToHide = panelsToHide.not("#table-dropdown");
 
     if (exceptID) {
         
         // custom exceptions + except persistent stuff
-        panelsToHide = $(".panel").not("#" + exceptID).not(".persistent");
+        panelsToHide = panelsToHide.not("#" + exceptID);
         $("button[id^='panel-button']").not("#panel-button-" + exceptID.replace("panel-","")).removeClass("active");
 
     } else {
         
-        // except persistent stuff
-        panelsToHide = $(".panel").not(".persistent");
         $("button[id^='panel-button']").removeClass("active");
 
         resetPDFExporter();
@@ -1161,8 +1165,6 @@ function hidePanels(exceptID) {
 
     }
 
-    // general exceptions
-    panelsToHide = panelsToHide.not("#table-dropdown");
     panelsToHide.removeClass("show");
  
     // animation is 300ms, you can hide it afterwards 
@@ -1580,10 +1582,12 @@ $("#blankEditor").on("click", "details", function(event) {
     $("#blankEditor").find("details").not(this).removeAttr("open");
 });
 
-$("#editorWrapper").on('click', function(event) {
-    hideRightClickDropdowns();
-    hidePanels();
-});
+// DON'T USE THIS. 
+// IT BREAKS DROPDOWNS / PANELS LIKE ADD TABLE ETC 
+// $("#editorWrapper").on('click', function(event) {
+//     hideRightClickDropdowns();
+//     hidePanels();
+// });
 
 $("#blankEditor").on("click", function(event) {
     hidePanels();

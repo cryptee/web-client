@@ -1132,7 +1132,7 @@ $("#table-picker").on('click', ".table-picker-cell",function(event) {
     hidePanels();
 });
 
-$('.cryptee-new-table').click(function () {
+$('.cryptee-new-table').on("click", function () {
     togglePanel("add-table");
 });
 
