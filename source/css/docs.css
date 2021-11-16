@@ -3383,7 +3383,14 @@ body.offline #newFolderButton {
 body.offline #upgrade { display: none; }
 body:not(.offline) #offline-badge {display: none; }
 
+body:not(.offline) #blankEditor .quick-offline {
+    display: none !important;
+}
 
+body.offline #blankEditor .quick-recent-docs,
+body.offline #blankEditor .quick-tips {
+    display: none !important;
+}
 
 
 
@@ -3416,7 +3423,7 @@ body.bubble #blankEditor > div {
 }
 
 body.bubble #blankEditor section {
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 body.bubble #blank-editor-recents,
@@ -3564,6 +3571,10 @@ body.bubble.locked-doc #desktopToolbar::before {
 body.bubble.locked-doc #panel-button-doctools {
     opacity: 0;
     pointer-events: none !important;
+}
+
+body.bubble #blankEditor .quick-offline p {
+    padding-right: 1.5rem;
 }
 
 /* -----------------------------
