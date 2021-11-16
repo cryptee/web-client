@@ -1140,8 +1140,6 @@ function togglePanel(panelID) {
  */
 function hidePanels(exceptID) {
 
-    console.log(arguments.callee.caller.toString());
-
     exceptID = exceptID || "";
 
     // except persistent panels

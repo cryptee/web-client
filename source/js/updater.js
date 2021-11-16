@@ -59,6 +59,10 @@ function showUpdateAvailable () {
   setTimeout(function () { $("#update-available").addClass("show"); }, 25);
 }
 
+function isUpdateAvailable() {
+    return $("#update-available").hasClass("show");
+}
+
 async function reloadForNewVersion() {
     
     // strangely sometimes serviceWorker passes as undefined 

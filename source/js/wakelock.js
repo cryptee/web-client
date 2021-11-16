@@ -17,10 +17,15 @@ function enableWakeLock() {
     if (!noSleep) { return false; }
 
     try {
-        noSleep.enable();
-        wakeLockEnabled = true;
-        breadcrumb('[WAKE LOCK] Requested');
-        return true;
+        if (document.visibilityState === 'visible') {
+            noSleep.enable();
+            wakeLockEnabled = true;
+            breadcrumb('[WAKE LOCK] Requested');
+            return true;
+        } else {
+            breadcrumb('[WAKE LOCK] Will not request, app not visible.');
+            return false;
+        }
     } catch (error) {
         breadcrumb('[WAKE LOCK] Failed / Rejected');
         return false;

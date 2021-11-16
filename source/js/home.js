@@ -137,21 +137,33 @@ function markNewsRead() {
 ////////////////////////////////////////////////
 
 key('h', function () {
+    // update first if necessary
+    if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
+
     $("#helpButton > a").trigger("click");
     return false;
 });
 
 key('a', function () {
+    // update first if necessary
+    if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
+
     $("#accountButton > a").trigger("click");
     return false;
 });
 
 key('d', function () {
+    // update first if necessary
+    if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
+
     $(".appButton[app='docs'] > a").trigger("click");
     return false;
 });
 
 key('p', function () {
+    // update first if necessary
+    if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
+
     $(".appButton[app='photos'] > a").trigger("click");
     return false;
 });
