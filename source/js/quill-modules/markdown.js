@@ -124,149 +124,88 @@ var MarkdownShortcuts = function () {
     this.matches = [{
       name: 'header',
       pattern: /^(#){1,6}\s/g,
-      action: function action(text, selection, pattern) {
-        var match = pattern.exec(text);
-        if (!match) return;
-        var size = match[0].length;
-
-        // Need to defer this action https://github.com/quilljs/quill/issues/1134
-        setTimeout(function () {
-          if (_this.quill.getFormat()['code']) { return; }
-          _this.quill.formatLine(selection.index, 0, 'header', size - 1);
-          _this.quill.deleteText(selection.index - size, size);
-          try { tribute.hideMenu(); } catch (error) {}
-        }, 0);
+      action: function action(text, selection, pattern, lineStart) {
+        headerAction(text, selection, pattern, lineStart, _this);
       }
     }, {
       name: 'blockquote',
       pattern: /^(>)\s/g,
-      action: function action(text, selection) {
-        // Need to defer this action https://github.com/quilljs/quill/issues/1134
-        setTimeout(function () {
-          if (_this.quill.getFormat()['code']) { return; }
-          _this.quill.formatLine(selection.index, 1, 'blockquote', true);
-          _this.quill.deleteText(selection.index - 2, 2);
-        }, 0);
+      action: function action(text, selection, pattern, lineStart) {
+        blockquoteAction(text, selection, pattern, lineStart, _this);
       }
     }, {
       name: 'code-block',
       pattern: /^`{3}(?:\s|\n)/g,
-      action: function action(text, selection) {
-        // Need to defer this action https://github.com/quilljs/quill/issues/1134
-        setTimeout(function () {
-          _this.quill.formatLine(selection.index, 1, 'code-block', true);
-          _this.quill.deleteText(selection.index - 4, 4);
-        }, 0);
+      action: function action(text, selection, pattern, lineStart) {
+        codeblockAction(text, selection, pattern, lineStart, _this);
       }
     }, 
     {
       name: 'code',
       pattern: /(?:`)(.+?)(?:`)/g,
       action: function action(text, selection, pattern, lineStart) {
-        var match = pattern.exec(text);
-
-        var annotatedText = match[0];
-        var matchedText = match[1];
-        var startIndex = lineStart + match.index;
-
-        if (text.match(/^([*_ \n]+)$/g)) return;
-
-        setTimeout(function () {
-          _this.quill.deleteText(startIndex, annotatedText.length);
-          _this.quill.insertText(startIndex, matchedText, { code: true });
-          _this.quill.format('code', false);
-        }, 0);
+        codeAction(text, selection, pattern, lineStart, _this);
       }
     },
     {
       name: 'bolditalic',
-      pattern: /(?:\*|_){3}(.+?)(?:\*|_){3}/g,
+      // bold italic with underscores
+      pattern: /(?:_){3}(.+?)(?:_){3}/g,
       action: function action(text, selection, pattern, lineStart) {
-        var match = pattern.exec(text);
-
-        var annotatedText = match[0];
-        var matchedText = match[1];
-        var startIndex = lineStart + match.index;
-
-        if (text.match(/^([*_ \n]+)$/g)) return;
-
-        setTimeout(function () {
-          if (_this.quill.getFormat()['code']) { return; }
-          _this.quill.deleteText(startIndex, annotatedText.length);
-          _this.quill.insertText(startIndex, matchedText, { bold: true, italic: true });
-          _this.quill.format('bold', false);
-        }, 0);
+        boldItalicAction(text, selection, pattern, lineStart, _this);
       }
-    }, {
+    }, 
+    {
+      name: 'bolditalic',
+      // bold italic with asterisk
+      pattern: /(?:\*){3}(.+?)(?:\*){3}/g,
+      action: function action(text, selection, pattern, lineStart) {
+        boldItalicAction(text, selection, pattern, lineStart, _this);
+      }
+    }, 
+    {
       name: 'bold',
-      pattern: /(?:\*|_){2}(.+?)(?:\*|_){2}/g,
+      // bold with underscores
+      pattern: /(?:_){2}(.+?)(?:_){2}/g,
       action: function action(text, selection, pattern, lineStart) {
-        var match = pattern.exec(text);
-
-        var annotatedText = match[0];
-        var matchedText = match[1];
-        var startIndex = lineStart + match.index;
-
-        if (text.match(/^([*_ \n]+)$/g)) return;
-
-        setTimeout(function () {
-          if (_this.quill.getFormat()['code']) { return; }
-          _this.quill.deleteText(startIndex, annotatedText.length);
-          _this.quill.insertText(startIndex, matchedText, { bold: true });
-          _this.quill.format('bold', false);
-        }, 0);
+        boldAction(text, selection, pattern, lineStart, _this);
       }
-    }, {
+    }, 
+    {
+      name: 'bold',
+      // bold with asterisk
+      pattern: /(?:\*){2}(.+?)(?:\*){2}/g,
+      action: function action(text, selection, pattern, lineStart) {
+        boldAction(text, selection, pattern, lineStart, _this);
+      }
+    }, 
+    {
       name: 'italic',
-      pattern: /(?:\*|_){1}(.+?)(?:\*|_){1}/g,
+      // italic with underscore
+      pattern: /(?:_){1}(.+?)(?:_){1}/g,
       action: function action(text, selection, pattern, lineStart) {
-        var match = pattern.exec(text);
-
-        var annotatedText = match[0];
-        var matchedText = match[1];
-        var startIndex = lineStart + match.index;
-
-        if (text.match(/^([*_ \n]+)$/g)) return;
-
-        setTimeout(function () {
-          if (_this.quill.getFormat()['code']) { return; }
-          _this.quill.deleteText(startIndex, annotatedText.length);
-          _this.quill.insertText(startIndex, matchedText, { italic: true });
-          _this.quill.format('italic', false);
-        }, 0);
+        italicAction(text, selection, pattern, lineStart, _this);
       }
-    }, {
+    }, 
+    {
+      name: 'italic',
+      // italic with asterisk
+      pattern: /(?:\*){1}(.+?)(?:\*){1}/g,
+      action: function action(text, selection, pattern, lineStart) {
+        italicAction(text, selection, pattern, lineStart, _this);
+      }
+    }, 
+    {
       name: 'strikethrough',
       pattern: /(?:~~)(.+?)(?:~~)/g,
       action: function action(text, selection, pattern, lineStart) {
-        var match = pattern.exec(text);
-
-        var annotatedText = match[0];
-        var matchedText = match[1];
-        var startIndex = lineStart + match.index;
-
-        if (text.match(/^([*_ \n]+)$/g)) return;
-
-        setTimeout(function () {
-          if (_this.quill.getFormat()['code']) { return; }
-          _this.quill.deleteText(startIndex, annotatedText.length);
-          _this.quill.insertText(startIndex, matchedText, { strike: true });
-          _this.quill.format('strike', false);
-        }, 0);
+        strikethroughAction(text, selection, pattern, lineStart, _this);
       }
     }, {
       name: 'hr',
       pattern: /^(([-*]\s?){3})|([—*]-\s?)|([–*]-\s?)/g,
-      action: function action(text, selection) {
-        var startIndex = selection.index - text.length;
-        
-        setTimeout(function () {
-          if (_this.quill.getFormat()['code']) { return; }
-          _this.quill.deleteText(startIndex, text.length);
-          _this.quill.insertEmbed(startIndex + 1, 'hr', true, Quill.sources.USER);
-          _this.quill.insertText(startIndex + 2, "\n", Quill.sources.SILENT);
-          _this.quill.setSelection(startIndex + 2, Quill.sources.SILENT);
-        }, 0);
+      action: function action(text, selection, pattern, lineStart) {
+        hrAction(text, selection, pattern, lineStart, _this);
       }
     }, 
     // {
@@ -434,6 +373,152 @@ var MarkdownShortcuts = function () {
       }
     }
   }]);
+
+  function boldItalicAction(text, selection, pattern, lineStart, _this) {
+    var match = pattern.exec(text);
+
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+    if (text.match(/^([*_ \n]+)$/g)) return;
+
+    setTimeout(function () {
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      _this.quill.deleteText(startIndex, annotatedText.length);
+      _this.quill.insertText(startIndex, matchedText, { bold: true, italic: true });
+      _this.quill.format('bold', false);
+      _this.quill.format('italic', false);
+    }, 0);
+  }
+
+  function boldAction(text, selection, pattern, lineStart, _this) {
+    var match = pattern.exec(text);
+
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+    if (text.match(/^([*_ \n]+)$/g)) return;
+
+    setTimeout(function () {
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      _this.quill.deleteText(startIndex, annotatedText.length);
+      _this.quill.insertText(startIndex, matchedText, { bold: true });
+      _this.quill.format('bold', false);
+    }, 0);
+  }
+
+  function italicAction(text, selection, pattern, lineStart, _this) {
+    var match = pattern.exec(text);
+
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+    if (text.match(/^([*_ \n]+)$/g)) return;
+
+    setTimeout(function () {
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      _this.quill.deleteText(startIndex, annotatedText.length);
+      _this.quill.insertText(startIndex, matchedText, { italic: true });
+      _this.quill.format('italic', false);
+    }, 0);
+  }
+
+  function strikethroughAction(text, selection, pattern, lineStart, _this) {
+    var match = pattern.exec(text);
+
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+    if (text.match(/^([*_ \n]+)$/g)) return;
+
+    setTimeout(function () {
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      _this.quill.deleteText(startIndex, annotatedText.length);
+      _this.quill.insertText(startIndex, matchedText, { strike: true });
+      _this.quill.format('strike', false);
+    }, 0);
+  }
+
+  function hrAction(text, selection, pattern, lineStart, _this) {
+
+    var match = pattern.exec(text);
+    
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+    setTimeout(function () {
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      _this.quill.deleteText(startIndex, text.length);
+      _this.quill.insertEmbed(startIndex + 1, 'hr', true, Quill.sources.USER);
+      _this.quill.insertText(startIndex + 2, "\n", Quill.sources.SILENT);
+      _this.quill.setSelection(startIndex + 2, Quill.sources.SILENT);
+    }, 0);
+  }
+
+  function codeAction(text, selection, pattern, lineStart, _this) {
+    var match = pattern.exec(text);
+
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+    if (text.match(/^([*_ \n]+)$/g)) return;
+
+    setTimeout(function () {
+      _this.quill.deleteText(startIndex, annotatedText.length);
+      _this.quill.insertText(startIndex, matchedText, { code: true });
+      _this.quill.format('code', false);
+    }, 0);
+  }
+
+  function codeblockAction(text, selection, pattern, lineStart, _this) {
+    // Need to defer this action https://github.com/quilljs/quill/issues/1134
+    setTimeout(function () {
+      _this.quill.formatLine(selection.index, 1, 'code-block', true);
+      _this.quill.deleteText(selection.index - 4, 4);
+    }, 0);
+  }
+
+  function blockquoteAction(text, selection, pattern, lineStart, _this) {
+    // Need to defer this action https://github.com/quilljs/quill/issues/1134
+
+    var match = pattern.exec(text);
+
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+    setTimeout(function () {
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      _this.quill.formatLine(selection.index, 1, 'blockquote', true);
+      _this.quill.deleteText(selection.index - 2, 2);
+    }, 0);
+  }
+
+  function headerAction(text, selection, pattern, lineStart, _this) {
+    var match = pattern.exec(text);
+    if (!match) return;
+    
+    var size = match[0].length;
+
+    var annotatedText = match[0];
+    var matchedText = match[1];
+    var startIndex = lineStart + match.index;
+
+
+    // Need to defer this action https://github.com/quilljs/quill/issues/1134
+    setTimeout(function () {
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      _this.quill.formatLine(selection.index, 0, 'header', size - 1);
+      _this.quill.deleteText(selection.index - size, size);
+      try { tribute.hideMenu(); } catch (error) {}
+    }, 0);
+  }
 
   return MarkdownShortcuts;
 }();

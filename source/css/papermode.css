@@ -241,9 +241,9 @@ body[paper-stock='a4'] .ql-editor {
     min-width: calc(210mm + var(--scrollbar-width));
     max-width: calc(210mm + var(--scrollbar-width));
     padding: 25mm;
-    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 210mm, #F5F5F5 210mm, #F5F5F5 220mm) local !important;
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF calc(210mm + var(--scrollbar-width)), #F5F5F5 calc(210mm + var(--scrollbar-width)), #F5F5F5 calc(220mm + var(--scrollbar-width))) local !important;
 
-    columns: auto 210mm;
+    columns: auto calc(210mm + var(--scrollbar-width));
     column-gap: 60mm; /* margin + spacer + margin */
 }
 
@@ -252,9 +252,9 @@ body[paper-stock='a3'] .ql-editor {
     min-width: calc(297mm + var(--scrollbar-width)); 
     max-width: calc(297mm + var(--scrollbar-width)); 
     padding: 25mm;
-    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 297mm, #F5F5F5 297mm, #F5F5F5 307mm) local !important;
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF calc(297mm + var(--scrollbar-width)), #F5F5F5 calc(297mm + var(--scrollbar-width)), #F5F5F5 calc(307mm + var(--scrollbar-width))) local !important;
 
-    columns: auto 297mm;
+    columns: auto calc(297mm + var(--scrollbar-width));
     column-gap: 60mm; /* margin + spacer + margin */
 }
 
@@ -263,9 +263,9 @@ body[paper-stock='usletter'] .ql-editor {
     min-width: calc(8.5in + var(--scrollbar-width)); 
     max-width: calc(8.5in + var(--scrollbar-width)); 
     padding: 0.75in;
-    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF 8.5in, #F5F5F5 8.5in, #F5F5F5 9in) local !important;
+    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF calc(8.5in + var(--scrollbar-width)), #F5F5F5 calc(8.5in + var(--scrollbar-width)), #F5F5F5 calc(9in + var(--scrollbar-width))) local !important;
 
-    columns: auto 8.5in;
+    columns: auto calc(8.5in + var(--scrollbar-width));
     column-gap: 2in; /* margin + spacer + margin */
 }
 
@@ -273,18 +273,20 @@ body[paper-stock='usletter'] .ql-editor  { height: 11in !important; }
 body[paper-stock='uslegal']  .ql-editor  { height: 14in !important; }
 
 .dm body[paper-stock='a4'] .ql-editor { 
-    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 210mm, var(--oled-safe-black) 210mm, var(--oled-safe-black) 220mm) local !important;
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF calc(210mm + var(--scrollbar-width)), var(--oled-safe-black) calc(210mm + var(--scrollbar-width)), var(--oled-safe-black) calc(220mm + var(--scrollbar-width))) local !important;
 }
 
 .dm body[paper-stock='a3'] .ql-editor { 
-    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF 297mm, var(--oled-safe-black) 297mm, var(--oled-safe-black) 307mm) local !important;
+    background: repeating-linear-gradient(90deg, #FFF 0mm, #FFF calc(297mm + var(--scrollbar-width)), var(--oled-safe-black) calc(297mm + var(--scrollbar-width)), var(--oled-safe-black) calc(307mm + var(--scrollbar-width))) local !important;
 }
 
 .dm body[paper-stock='uslegal'] .ql-editor,
 .dm body[paper-stock='usletter'] .ql-editor { 
-    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF 8.5in, var(--oled-safe-black) 8.5in, var(--oled-safe-black) 9in) local !important;
+    background: repeating-linear-gradient(90deg, #FFF 0in, #FFF calc(8.5in + var(--scrollbar-width)), var(--oled-safe-black) calc(8.5in + var(--scrollbar-width)), var(--oled-safe-black) calc(9in + var(--scrollbar-width))) local !important;
 }
 
+/* SCROLLBAR WIDTH IS ONLY A CONCERN IN WINDOWS / LINUX ETC */
+/* SO IN SAFARI SCROLLBAR WIDTH ISN'T RELEVANT = WE'RE NOT USING IT HERE TO KEEP THINGS SIMPLE */
 
 /* safari background attachment hack / fixes */
 body[paper-stock='a4'] .ql-editor.safari-bg-hack {

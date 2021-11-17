@@ -1766,7 +1766,7 @@ function sortFolder(docs, subfolders, activeFolder, sorttype) {
     // Extension Ascending
     if (sorttype === "extasc") {
         
-        sortedFolders = subfolders.sort(naturalSort);
+        sortedFolders = subfolders.sort(naturalSort).reverse();
         
         // if there's any sub-folders, add a section separator
         if (sortedFolders.length >= 1) {

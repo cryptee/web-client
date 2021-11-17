@@ -3570,7 +3570,6 @@ body.bubble.locked-doc #desktopToolbar::before {
 
 body.bubble.locked-doc #panel-button-doctools {
     opacity: 0;
-    pointer-events: none !important;
 }
 
 body.bubble #blankEditor .quick-offline p {
