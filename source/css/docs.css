@@ -1276,7 +1276,7 @@ DROPDOWNS
 .dropdown {
     position: absolute;
     top: 8rem;
-    left: 16.75rem;
+    left: 16.75rem; /* if you change this, update this in abstractions.js in showDocRightClickDropdown etc */
     min-width: 14rem;
     max-width: 17rem;
 
@@ -1997,6 +1997,7 @@ NEW FOLDER PANEL
     font-size: 1.5rem;
     line-height: 1.5rem;
     width: 1.5rem;
+    height: 1.5rem;
     vertical-align: middle;
     font-style: normal;
     color: #FFF;
@@ -2663,22 +2664,62 @@ URL BOX
     transform: translateY(0);
     transition: 0.5s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
 
-    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 2rem;
+    z-index: 3;
 }
 
 #urlbox a::before {
-    content: "visit";
+    content: "\ECAE";
+
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    display: inline-block;
+    margin-top: -0.5rem;
     margin-right: 1rem;
-    font-weight: 700;
+    vertical-align: bottom;
 }
 
 #urlbox a {
     display: block;
-    width: 100%;
+    width: calc(100% - 3rem);
+    height: 2rem;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     text-transform: lowercase;
+
+    grid-column: span 1;
+}
+
+#urlbox button {
+    line-height: 1rem;
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    grid-column: span 1;
+    border-radius: 2rem;
+ 
+    background-color: #116e32;
+    color: #FFF;
+    transform: scale(1);
+
+    transition-property: transform, color, background-color;
+    transition-timing-function: var(--cryptee-cb);
+    transition-duration: 0.5s;
+}
+
+#urlbox-copy-button.copied {
+    transform: scale(1.25);
+    background-color: #FFF;
+    color: #000;
+}
+
+#urlbox-copy-button.copied i::before {
+    content:"\EB7B";
 }
 
 #urlbox:not(.show) {
@@ -2697,6 +2738,9 @@ body:not(.bubble) #urlbox {
     color: #000;
 }
 
+#urlbox.insecure button {
+    background-color: #bd8a00;
+}
 /* -----------------------------
 -------------------------------- 
  

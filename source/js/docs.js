@@ -205,7 +205,7 @@ function hideFloaters() {
 }
 
 
-$("#moveFloat").on('swipeDown', function(event) {
+$("#moveFloat")[0].addEventListener('swiped-down', function(event) {
     hideFloater("moveFloat");
 }); 
 
@@ -909,7 +909,7 @@ $("body").on('click', '.goback', function(event) {
     hidePanels();
 });
 
-$("#activeFolder").on('swipeRight', function(event) {
+$("#activeFolder")[0].addEventListener('swiped-right', function(event) {
     loadParentFolder();
     hidePanels();
 }); 
@@ -943,7 +943,7 @@ $("#recentsButton").on('click', function(event) {
     }, 10);
 });
 
-$("#folders").on('swipeRight', function(event) {
+$("#folders")[0].addEventListener('swiped-right', function(event) {
     loadRecents();
     hideRightClickDropdowns();
     hidePanels();
@@ -1002,11 +1002,10 @@ $("body").on('click', '.doc > .icon', function(event) {
 $("body").on('contextmenu', '.doc', function(event) {
     var did = $(this).attr("did");
 
-    // if doc isn't selected
     if (selections.length > 0) {
-        showSelectionsRightClickDropdown(event.x, event.y);
+        showSelectionsRightClickDropdown(event.y);
     } else {
-        showDocRightClickDropdown(did, event.x, event.y);
+        showDocRightClickDropdown(did, event.y);
     }
 
     event.preventDefault();
@@ -1015,15 +1014,25 @@ $("body").on('contextmenu', '.doc', function(event) {
 $("body").on('click', '.doc > .more', function(event) {
     var did = $(this).parents(".doc").attr("did");
 
-    // if doc isn't selected
     if (selections.length > 0) {
-        showSelectionsRightClickDropdown(event.x, event.y);
+        showSelectionsRightClickDropdown(event.y);
     } else {
-        showDocRightClickDropdown(did, event.x, event.y);
+        showDocRightClickDropdown(did, event.y);
     }
 
     event.preventDefault();
 }); 
+
+$("body").on('click', '#fileViewerOptionsButton', function(event) {
+    var did = activeFileID;
+
+    clearSelections();
+    showDocRightClickDropdown(did, event.y, event.x);
+
+    event.preventDefault();
+}); 
+
+
 
 
 
@@ -1052,7 +1061,7 @@ $("body").on('click', '.subfolder > .more', function(event) {
 
 
 $("#selectionsFloat").on('click contextmenu', function(event) {
-    showSelectionsRightClickDropdown(event.x, event.y);
+    showSelectionsRightClickDropdown(event.y);
     event.preventDefault();
 }); 
 
@@ -1064,6 +1073,7 @@ $("body").on('click', function(event) {
 
     if (
         $(".dropdown").hasClass("show")                         &&     // if the dropdown is visible 
+        $(event.target).parents("#file-viewer-nav").length <= 0 &&     // if the click isn't inside file-viewer nav
         $(event.target).parents(".actionFloater").length <= 0   &&     // if the click isn't inside dropdown
         $(event.target).parents(".dropdown").length <= 0        &&     // if the click isn't inside dropdown
         $(event.target).parents(".more").length <= 0            &&     // if the click isn't on the context icon
@@ -1075,15 +1085,14 @@ $("body").on('click', function(event) {
         event.preventDefault();
     }
 
-    
-
 }); 
 
-$(".dropdown").on('swipeLeft', function(event) {
-    hideRightClickDropdowns();
-    hidePanels();
-}); 
-
+$(".dropdown").each(function () {
+    this.addEventListener('swiped-left', function(event) {
+        hideRightClickDropdowns();
+        hidePanels();
+    });
+});
 
 
 
@@ -1448,7 +1457,8 @@ $("#new-doc-recos, #copy-doc-recos").on('click', "time", function(event) {
     input.val(recommendation);
 });
 
-$("#panel-new-doc, #panel-copy-doc").on('swipeDown', function() { hidePanels(); }); 
+$("#panel-new-doc")[0].addEventListener('swiped-down', function() { hidePanels(); }); 
+$("#panel-copy-doc")[0].addEventListener('swiped-down', function() { hidePanels(); }); 
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1481,7 +1491,7 @@ $("#new-folder-input").on('keyup', function(event) {
     }
 }); 
 
-$("#panel-new-folder").on('swipeDown', function() {  hidePanels(); }); 
+$("#panel-new-folder")[0].addEventListener('swiped-down', function() {  hidePanels(); }); 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1591,6 +1601,9 @@ $("#blankEditor").on("click", function(event) {
     hidePanels();
 });
 
+$("#leftListWrapper").on("click", function(event) {
+    hidePanels();
+});
 
 
 

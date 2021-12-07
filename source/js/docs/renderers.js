@@ -259,7 +259,9 @@ async function refreshDOM(autoRefresh) {
     if (activeFileID) {
         var activeFile = await getDocFromCatalog(activeFileID);
         var activeFilename = docName(activeFile);
+        var activeExtension = extensionFromFilename(activeFilename);
         $("#active-filename").attr("name", activeFilename);
+        $("#file-viewer").attr("ext", activeExtension);
     } else {
         $("#active-filename").attr("name", "");
         $("#file-viewer").attr("ext", "");

@@ -20,9 +20,9 @@
         <div id="signup-wrap" step="1">
 
             <div id="step1">
-                <input class="full right" type="text"       autocomplete="off" id="email" placeholder="username or email">
+                <input class="full right" type="text"       autocomplete="off" spellcheck="false" name="email" id="email" placeholder="username or email">
                 <small class="full right blue" id="email-notice">please use a valid email</small>
-                <input class="full right" type="password"   autocomplete="off" id="pswrd" placeholder="choose a password">
+                <input class="full right" type="password"   autocomplete="new-password" spellcheck="false" name="password" id="pswrd" placeholder="choose a password">
                 <progress class="progress yellow" value="0" max="100" id="password-strength"></progress>
                 <small class="full right" id="password-strength-message"> &nbsp; </small>
                 <button class="bold right" id="next">sign up</button>
@@ -31,7 +31,7 @@
             </div>
 
             <div id="step2">
-                <input  tabindex="-1" class="full right" type="password"   autocomplete="off" id="key" placeholder="pick an encryption key">
+                <input  tabindex="-1" class="full right" type="password" autocomplete="new-password" spellcheck="false" id="key" placeholder="pick an encryption key">
                 <progress class="progress yellow" value="0" max="100" id="key-strength"></progress>
                 <button tabindex="-1" class="small right" id="keyinfo">what's an encryption key?</button>
                 <br><br><br><br>

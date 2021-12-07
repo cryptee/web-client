@@ -110,10 +110,6 @@ function stopTaggingPhotosProgress() {
 
 
 
-
-
-
-
 $(".contents").on('click', '.photo', function(event) {
     var photoID = $(this).attr("id");
     var shifted = event.shiftKey;
@@ -192,13 +188,20 @@ key('command+F, ctrl+F', function () {
 });
 
 key('esc', function () {
-    closeLightbox();
+    // clearing search also scrolls up. 
+    // and we may be using lightbox in search results (albeit very unlikely)
+    // so, this guarantees that if we press escape, and lightbox is visible, we won't clear search / scroll.
+    if (!$("#lightbox").hasClass("show")) {
+        clearSearch();
+    } else {
+        closeLightbox();
+    }
+    
     hideAllPopups();
     clearSelections();
     activityHappened();
     hideSorter();
     hideAlbumDropdownsExcept();
-    clearSearch();
     hideTagsPanel();
     return false;
 });
@@ -909,3 +912,27 @@ function hideTagsPanel() {
         $("#photos-tags-input").val("");
     }, 200);
 }
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	EDIT PHOTO / DESCRIPTION / TAGS / DATE
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+$("#photos-desc").on('keydown', function(event) {
+    
+    event = event || {};
+    
+    activityHappened();
+    
+    setTimeout(function(){
+    
+        if (event.key === "Escape") {
+            event.preventDefault();
+            $("#photo-desc").trigger("blur");
+        }
+        
+    },50);
+
+}); 

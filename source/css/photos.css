@@ -415,6 +415,11 @@ body:not(.loading):not(.starting).nav-favorites #gallery-button {
     pointer-events: initial !important;
 }
 
+
+body.nav-favorites #lightbox-info {
+    display: none !important;
+}
+
 /* selections */
 
 body:not(.loading):not(.starting).nav-selection #searchInput {
@@ -617,11 +622,10 @@ main:not(.scrolling):not(.browsing) .content.loading {
     transition: 0.75s opacity ease;
 }
 
-/* only onscreen elements and their images get the optimization */
+/* only onscreen elements get the optimization */
 /* since they're the only ones that will change their opacity */
 
-.contents > .onscreen,
-.contents > .onscreen img {
+.contents > .onscreen {
     will-change: opacity;
 }
 
@@ -724,6 +728,24 @@ body.highlight-deletions .photo.selected i::before {
     content: "\ec27";
 }
 
+.photo.onscreen {
+    transform: translateX(0) translateY(0) scale(1);
+    transform-origin: center;
+    transition: 0.3s transform var(--cryptee-cb);
+}
+
+.photo.in-lightbox {
+    transform: translateX(var(--xTransitionToCenter, 0)) translateY(var(--yTransitionToCenter, 0)) scale(2);
+    z-index: 2;
+}
+
+.photo.in-lightbox img {
+    opacity: 0;
+}
+
+.photo.in-lightbox i {
+    opacity: 0 !important;
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -1115,6 +1137,67 @@ LIGHTBOX
     background-color: var(--oled-safe-black);
 }
 
+.swiper-zoom-container::before {
+    content: "";
+    background: linear-gradient(10deg, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 55%);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20rem;
+    z-index: 2;
+
+    opacity: 0;
+    pointer-events: none !important;
+    transition: 1s opacity ease;
+}
+
+.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-zoom-container[description]:not([description=""])::before {
+    opacity: 1;
+}
+
+.swiper-zoom-container::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 16rem;
+    z-index: 2;
+    
+    opacity: 0;
+    pointer-events: none !important;
+    transition: 1s opacity ease;
+    
+    color: #FFF;
+    text-align: left;
+    padding: 0 50% 4rem 4rem;
+    box-sizing: border-box;
+    
+    display: flex;
+    align-self: flex-end;
+    align-content: flex-end;
+    justify-content: flex-start;
+    align-items: flex-end;
+
+    font-size: 1.25rem;
+    font-weight: 350;
+    line-height: 1.5rem;
+
+    text-transform: lowercase;
+}
+
+.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-zoom-container[description]:not([description=""])::after {
+    content: attr(description);
+    opacity: 1;
+}
+
+.swiper-slide-zoomed .swiper-zoom-container::before,
+.swiper-slide-zoomed .swiper-zoom-container::after {
+    display: none !important;
+}
+
+
 .lbox-photo {
     display: block;
     opacity: 1;
@@ -1140,9 +1223,9 @@ LIGHTBOX
 
 #lightbox-progress { 
     z-index: 13;
+    opacity: 0.2;
 }
 
-#popup-photo-info input, 
 #popup-album-info input {
     color: white;
     text-transform: uppercase;
@@ -1152,6 +1235,26 @@ LIGHTBOX
 #popup-photo-info input::-webkit-calendar-picker-indicator, 
 #popup-album-info input::-webkit-calendar-picker-indicator {
     filter: invert(1);
+}
+
+#popup-photo-info progress,
+#popup-album-info progress {
+    opacity: 1;
+}
+
+#popup-photo-info input, 
+#popup-photo-info textarea {
+    color: white;
+    text-transform: lowercase;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}
+
+#popup-photo-info textarea {
+    height: 4rem;
+    min-height: 4rem;
+    max-height: 4rem;
 }
 
 #popup-photo-info p {
@@ -1628,6 +1731,8 @@ MEDIA QUERIES
 @media (max-width : 1023px) {
     .album { width: 36rem; }
     .album img { width: 16rem; }
+
+    .swiper-zoom-container::after { padding: 0 4rem 4rem 4rem; }
 }
 
 @media (max-width : 703px) { 
@@ -1790,6 +1895,17 @@ MEDIA QUERIES
 
     #sorter small, #sorter i { max-width: 3rem; min-width: 3rem; }
     #sorter { padding-left: 1.5rem; }
+
+    .swiper-zoom-container::before { 
+        height: 12rem;
+    }
+
+    .swiper-zoom-container::after { 
+        height: 8rem;
+        font-size: 1rem;
+        padding: 0 2rem 2rem 2rem; 
+    }
+
 }
 
 

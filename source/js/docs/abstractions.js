@@ -975,10 +975,10 @@ async function saveDocumentPaperSizeAndOrientation(did, paperStock, orientation)
 /**
  * Shows right click dropdown for document with given ID
  * @param {string} did Document ID
- * @param {number} x mouseX
  * @param {number} y mouseY
+ * @param {number} [x] mouseX (optional, otherwise dropdown will appear on the left-side)
  */
-function showDocRightClickDropdown(did,x,y) {
+function showDocRightClickDropdown(did, y, x) {
     var alreadyShown = $("#dropdown-doc").hasClass("show");
     
     hideRightClickDropdowns();
@@ -1041,12 +1041,32 @@ function showDocRightClickDropdown(did,x,y) {
     y = y || 0;
 
     var wh = $(window).height();
+    var ww = $(window).width();
+
     var dh = $("#dropdown-doc").height();
+    var dw = $("#dropdown-doc").width();
+    
     if (wh - y < dh) { y = wh - dh - 32; }
     
+    if (x) {
+        if (ww - x < dw) { x = ww - dw - 32; }
+    }
+
     $("#dropdown-doc").attr("did", did);
     $("#dropdown-doc").addClass("show");
     $("#dropdown-doc").css({"top" : `${(y+16)}px`});
+    
+    if (x) {
+        $("#dropdown-doc").css({"left" : `${(x+16)}px`});
+    } else {
+        // from docs.css (.dropdown) if you change this, update it in CSS
+
+        if (ww < 544) {
+            $("#dropdown-doc").css({"left" : `5rem`});
+        } else {
+            $("#dropdown-doc").css({"left" : `16.75rem`});
+        }
+    }
 
     breadcrumb('[RIGHT CLICK] Showing dropdown for ' + did);
 }
@@ -1058,10 +1078,10 @@ function showDocRightClickDropdown(did,x,y) {
 /**
  * Shows right click dropdown for folder with given ID
  * @param {string} fid FolderID
- * @param {number} x mouseX
  * @param {number} y mouseY
+ * @param {number} [x] mouseX (optional, otherwise dropdown will appear on the left-side)
  */
-function showFolderRightClickDropdown(fid,x,y) {
+function showFolderRightClickDropdown(fid,y, x) {
     var alreadyShown = $("#dropdown-folder").hasClass("show");
 
     hideRightClickDropdowns();
@@ -1104,6 +1124,9 @@ function showFolderRightClickDropdown(fid,x,y) {
     var wh = $(window).height();
     var dh = $("#dropdown-folder").height();
     if (wh - y < dh) { y = wh - dh - 32; }
+
+    // there's one more button there so lets make sure this works even on smaller screens
+    if (forReserved) { y = y - 48; }
 
     $("#dropdown-folder").attr("fid", fid);
     $("#dropdown-folder").addClass("show");
@@ -1170,7 +1193,6 @@ function hideRightClickDropdowns() {
     $(".dropdown").removeAttr("did");
     $(".dropdown").removeAttr("fid");
     $(".dropdown").removeAttr("parent");
-    
     $(".dropdown").removeClass("show");
 }
 

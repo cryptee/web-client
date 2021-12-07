@@ -350,7 +350,7 @@ async function loadPhoto(pid) {
 
     setTimeout(function () {
         // wait for the DOM to update on slow devices. we're injecting b664 inline here. ugh. sorry. 
-        showLightbox();
+        showLightbox(pid);
         stopMainProgress();
     }, 20);
 
@@ -522,6 +522,32 @@ async function decryptTags(encryptedTags) {
 }
 
 
+/**
+ * Decrypts a given photo's encrypted description, and returns the decrypted description string.
+ * @param {String} pid Photo Id
+ * @returns {Promise <String>} plaintextDescription Decrypted Photo Description String
+ */
+async function decryptPhotoDescription(pid) {
+    
+    if (!pid) { return false; }
+    if (isEmpty(photos[pid])) { return false; }
+
+    var encryptedDescription = photos[pid].desc; 
+    if (!encryptedDescription) { return false; }
+
+    var plaintextDescription;
+    var plaintextDescriptionString;
+
+    try {
+        plaintextDescription = await decrypt(encryptedDescription, [theKey]);
+        plaintextDescriptionString = plaintextDescription.data;
+    } catch (error) { return false; }
+
+    photos[pid].decryptedDesc = plaintextDescriptionString;
+
+    return plaintextDescriptionString;
+
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -2362,4 +2388,141 @@ async function loadTagsOfPhoto(pid) {
     setTimeout(function () { $("#photos-tags-input").trigger("focus"); }, 100);
 
     return true;
+}
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	EDIT PHOTO / DESCRIPTION / DATE
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+async function savePhotoInfo() {
+    
+    var desc = desc || $("#photo-desc").val().trim();
+    var date = date || $("#photo-date").val().trim();
+
+    // at the moment we don't have a time picker, so we only allow changing dates, but not time, and we'll glue this time at the end.
+    var time = time || $("#photo-date").attr("time") || "";
+
+    var oldDesc = ($("#photo-desc").attr("placeholder").trim() || "");
+    var oldDate = $("#photo-date").attr("placeholder").trim();
+    
+    var pid;
+    try { pid = $("#popup-photo-info").attr("pid") || ""; } catch (e) {}
+
+    var aid; 
+    try { aid = $("#popup-photo-info").attr("aid") || ""; } catch (e) {}
+
+    if (!pid) { return err(); }
+    if (!aid) { return err(); }
+
+    // photo doesn't exist
+    if (isEmpty(photos[pid])) { return err(); }
+
+    startProgressWithID("progress-photo-info");
+   
+    // if the description changed somehow, save it
+    if (desc !== oldDesc) {
+
+        var setDescription;
+
+        try {
+            setDescription = await setPhotoDescription(aid, pid, desc);
+        } catch (error) { return err(); }
+        
+        if (!setDescription) { return err(); }
+        
+        $("#photo-desc").attr("placeholder", desc);
+        $(`.swiper-zoom-container[pid='${pid}']`).attr("description", desc);
+
+    }
+
+    // if the date changed, save it. 
+    if (date !== oldDate) {
+        
+        var exifDate = replaceAll(date, "-", ":") + " " + replaceAll(time, "-", ":");
+
+        var successfullySetPhotoMeta;
+        try {
+            successfullySetPhotoMeta = await setPhotoMeta(aid, pid, { date:exifDate });
+        } catch (error) { return err(); }
+
+        if (!successfullySetPhotoMeta) { return err(); }
+
+        $("#photo-date").attr("placeholder", date);
+
+    }
+    
+    stopProgressWithID("progress-photo-info");
+
+    return true;
+
+    function err() {
+        createPopup("Couldn't save your changes to this photo's information. Chances are this is a network problem or this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
+        stopProgressWithID("progress-photo-info");
+        return false;
+    }
+}
+
+
+
+/**
+ * Shows the edit photo info popup
+ */
+async function showEditPhotoPopup() {
+
+    if (activeAlbumID === "favorites") { return false; }
+
+    if (!activeAlbumID) {
+        handleError("[EDIT PHOTO POPUP] Can't edit photo info without Album ID.");
+        return false;
+    }
+
+    var pid = activePhotoID;
+
+    // photo doesn't exist
+    if (!pid) { 
+        handleError("[EDIT PHOTO POPUP] Can't edit photo info without Photo ID.");
+        return false; 
+    }
+
+    if (isEmpty(photos[pid])) { 
+        handleError("[EDIT PHOTO POPUP] Can't edit photo info. Photo doesn't exist in catalog.");
+        return false; 
+    }
+
+    var photoCurrentDesc = photos[pid].decryptedDesc || "";
+    
+    // currently you can't edit time in the date picker. so we remove that part. Plus it's perhaps for the better.
+    var photoCurrentDate = (replaceAll((photos[pid].date || "0000:00:00"), ":", "-") || "").split(" ")[0];
+
+    var photoCurrentTime = (replaceAll((photos[pid].date || "0000:00:00"), ":", "-") || "").split(" ")[1];
+
+    if (photoCurrentDesc) {
+        $("#photo-desc").attr("placeholder", photoCurrentDesc);
+    } else {
+        $("#photo-desc").attr("placeholder", "it was a great day...");
+    }
+
+    if (photoCurrentDate) {
+        $("#photo-date").attr("placeholder", photoCurrentDate);
+    } else {
+        $("#photo-date").attr("placeholder", "YYYY-MM-DD");
+    }
+
+    if (photoCurrentTime) {
+        $("#photo-date").attr("time", photoCurrentTime);
+    }
+
+    $("#photo-desc").val(photoCurrentDesc);
+    $("#photo-date").val(photoCurrentDate);
+
+    $("#popup-photo-info").attr("aid", activeAlbumID);
+    $("#popup-photo-info").attr("pid", pid);
+    
+    showPopup("popup-photo-info");
+
 }

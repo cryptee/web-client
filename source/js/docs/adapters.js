@@ -85,13 +85,13 @@ function maximizeFileViewer() {
 }
 
 
-$("#file-viewer-nav").on('swipeDown', function(event) {
+$("#file-viewer-nav")[0].addEventListener('swiped-down', function(event) {
     var cantMinimize = $("#file-viewer").hasClass("maximized") || $("#file-viewer").hasClass("loading") || $("body").hasClass("split");
     if (cantMinimize) { return; }
     $("#file-viewer").addClass("minimized");
 }); 
 
-$("#file-viewer-nav").on('swipeUp', function(event) {
+$("#file-viewer-nav")[0].addEventListener('swiped-up', function(event) {
     var cantMinimize = $("#file-viewer").hasClass("maximized") || $("#file-viewer").hasClass("loading") || $("body").hasClass("split");
     if (cantMinimize) { return; }
     $("#file-viewer").removeClass("minimized");
@@ -451,7 +451,7 @@ var PDFViewerApplication;
     var modified = doc.modified;
 
     $('#file-viewer-content').html(`
-        <iframe id="embeddedPDFViewer" src="../adapters/pdfjs-2.10.377/web/cryptee-viewer.html">
+        <iframe id="embeddedPDFViewer" src="../adapters/pdfjs-2.12.313/web/cryptee-viewer.html">
             <p>Looks like your browser does not support PDFs. Please download the PDF to view it</p>
         </iframe>
     `);

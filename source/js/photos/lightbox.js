@@ -42,15 +42,68 @@ $("#lightbox-next").on('click', function(event) {
     activityHappened();
 }); 
 
+/**
+ * Show lightbox, and optionally animate to a photo id
+ * @param {string} [pid] Photo ID to animate
+ */
+function showLightbox(pid) { 
+    
+    // if user clicks on the photo that's already open in the lightbox (in the active slide)
+    // then we won't get a slide-change event, and therefore won't have a zoom-in animation
+    // this is to buffer for that. 
+    // if the user clicks, and it's active slide, we call prep photo manually here.
+    var currentSlidePID = $(".swiper-slide-active").find("img").attr("pid");
+    if (pid === currentSlidePID) { preparePhotoBehindLightbox(pid); }
 
-function showLightbox() {    
     $("#lightbox").addClass("show");
-    $("#lightbox").on('swipeUp swipeDown', closeLightbox); 
+    $("#lightbox")[0].addEventListener('swiped-down', function() {  closeLightbox(); }); 
+    $("#lightbox")[0].addEventListener('swiped-up', function() {  closeLightbox(); }); 
 }
 
 function hideLightbox() {
-    $("#lightbox").off('swipeUp swipeDown');
+    $("#lightbox")[0].removeEventListener('swiped-down', function() {  closeLightbox(); }); 
+    $("#lightbox")[0].removeEventListener('swiped-up', function() {  closeLightbox(); }); 
+
     $("#lightbox").removeClass("show");
+    $(".in-lightbox").removeClass("in-lightbox");
+    hidePopup("popup-photo-info");
+}
+
+/**
+ * This prepares the photo behind the lightbox (zooms in & slides to photo) so that when user's opening lightbox, we zoom into photo, 
+ * and when user's closing lightbox we zoom out from it
+ * @param {String} pid Photo ID to highlight/prepare behind the lightbox
+ */
+function preparePhotoBehindLightbox(pid) {
+    if (!pid) { return; }
+
+    $(".in-lightbox").removeClass("in-lightbox");
+
+    var photo = $("#" + pid);
+    var photoOffsetLeft = photo.offset().left;
+    var photoOffsetTop = photo.offset().top + $("main").scrollTop();
+    var photoOffsetWidthAndHeight = photo.offset().width; // we know it's 16rem = 256px, and will be 2x but depending on how "rem" is interpreted, it's safer to read it
+    var ww = $(window).width();
+    var wh = $(window).height();
+
+    // each photo is 16rem, and scales up 2x so to center it we'll need to move them to : 
+    // x = half the window's width - photo width;
+    // y = half the window's height - photo height;
+    
+    var targetX = (ww / 2) - (photoOffsetWidthAndHeight / 2);
+    var targetY = (wh / 2) - (photoOffsetWidthAndHeight / 2) + $("main").scrollTop();
+
+    // and we'll need to move them from their current offset, by calculating the difference.
+    var xDifference = targetX - photoOffsetLeft;
+    var yDifference = targetY - photoOffsetTop;
+
+    $("#" + pid)[0].style.setProperty("--xTransitionToCenter", xDifference + "px");
+    $("#" + pid)[0].style.setProperty("--yTransitionToCenter", yDifference + "px");
+    
+    // it's okay if we don't remove these, css resets their transform to 0 anyway.
+    $("#" + pid).addClass("in-lightbox");
+    
+    setTimeout(function () { scrollToItem(pid); }, 300);
 }
 
 /**
@@ -73,6 +126,8 @@ function lightboxPhotoChanged() {
     // then check if previous & next slides have image, if not, load them.
     setTimeout(function () {
         
+        hidePopup("popup-photo-info");
+
         pid = $(".swiper-slide-active").find("img").attr("pid");
         
         if (!isios && !isipados) { history.pushState(pid, null, '/photos?photo='+pid); }
@@ -81,6 +136,18 @@ function lightboxPhotoChanged() {
         var thisPhoto = $("#" + pid);
         var nextPhotoID;
         var prevPhotoID;
+
+        // this will scroll to element behind the lightbox & zoom in
+        // so that 
+        // a) when the user closes lightbox, they'll be where they left.
+        // b) we can ensure that the next slide's thumbnail is always loaded.
+        // c) the photo is zoomed in, so if you're entering lightbox, we get a zoomin animation, and exiting, a zoom-out animation
+        // (we take next slide thumbs from the gallery, so if the thumb isn't loaded, we won't have a next slide thumb)  
+        preparePhotoBehindLightbox(pid);
+
+        // decrypt & load the photo's description to lightbox
+        // this happens in async
+        loadPhotoDescriptionToLightbox(pid); 
 
         var nextPhoto = thisPhoto.next(".photo");
         if (nextPhoto.length) {
@@ -106,18 +173,26 @@ function lightboxPhotoChanged() {
             $("#lightbox-favorite").removeClass("fav");
         }     
 
-        // this will scroll to element behind the lightbox. 
-        // so that 
-        // a) when the user closes lightbox, they'll be where they left.
-        // b) we can ensure that the next slide's thumbnail is always loaded.
-        // (we take next slide thumbs from the gallery, so if the thumb isn't loaded, we won't have a next slide thumb)  
-        scrollToItem(pid);
-
         activityHappened();
     }, 50);
 
 }
 
+async function loadPhotoDescriptionToLightbox(pid){
+
+    if (!pid) { return false; }
+    if (isEmpty(photos[pid])) { return false; }
+
+    breadcrumb('[LIGHTBOX] Will try loading photo description');
+    var plaintextDescription = await decryptPhotoDescription(pid);
+    if (!plaintextDescription) { return false; }
+
+    $(`.swiper-zoom-container[pid='${pid}']`).attr("description", plaintextDescription);
+
+    breadcrumb('[LIGHTBOX] Loaded Photo Description');
+
+    return true;
+}
 
 /**
  * Checks if the image is already in the lightbox cache
@@ -229,13 +304,16 @@ function closeLightbox() {
  * Gets triggered when lightbox's zoom changes 
  */
 function lightboxZoomChanged(event, scale) {
+    
+    $("#lightbox")[0].removeEventListener('swiped-down', function() {  closeLightbox(); }); 
+    $("#lightbox")[0].removeEventListener('swiped-up', function() {  closeLightbox(); }); 
+    
     // pinch in (zoom out) triggers swipedown, so we're only going to enable this once zoom gets back to 1
     if (scale === 1) {
         setTimeout(function () {
-            $("#lightbox").on('swipeUp swipeDown', closeLightbox); 
-        }, 10);
-    } else {
-        $("#lightbox").off('swipeUp swipeDown');
+            $("#lightbox")[0].addEventListener('swiped-down', function() {  closeLightbox(); }); 
+            $("#lightbox")[0].addEventListener('swiped-up', function() {  closeLightbox(); }); 
+        }, 25);
     }
 
     activityHappened();

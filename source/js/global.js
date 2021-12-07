@@ -860,7 +860,7 @@ function newUUID (len) {
 
 
 /**
- * Is Element Scrolled Into View
+ * Is Element Scrolled Into View & Fully Visible
  * @param {*} el element
  */
 function isScrolledIntoView(el) {
@@ -877,10 +877,10 @@ function isScrolledIntoView(el) {
       var elemBottom = rect.bottom;
       
       // Only completely visible elements return true:
-      // var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+      var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
       
       // Partially visible elements return true:
-      var isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+      // var isVisible = elemTop < window.innerHeight && elemBottom >= 0;
       return isVisible;
     } else {
       return false;

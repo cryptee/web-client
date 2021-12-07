@@ -102,7 +102,9 @@ STATES
 #file-viewer.minimized #splitFileViewerButton, 
 #file-viewer.closed #splitFileViewerButton,
 #file-viewer.minimized #maximizeFileViewerButton, 
-#file-viewer.closed #maximizeFileViewerButton {
+#file-viewer.closed #maximizeFileViewerButton,
+#file-viewer.minimized #fileViewerOptionsButton, 
+#file-viewer.closed #fileViewerOptionsButton {
     opacity: 0 !important;
     pointer-events: none !important;
 }
@@ -245,8 +247,7 @@ AUDIO
 #file-viewer[ext="mp3"] #minimizeFileViewerButton,
 #file-viewer[ext="mp3"] #maximizeFileViewerButton,
 #file-viewer[ext="mp3"] #splitFileViewerButton {
-    opacity: 0 !important;
-    pointer-events: none !important;
+    display: none !important;
 }
 
 #file-viewer-content > audio {
@@ -287,8 +288,7 @@ VIDEO
 #file-viewer[ext="mp4"] #minimizeFileViewerButton,
 #file-viewer[ext="mp4"] #maximizeFileViewerButton,
 #file-viewer[ext="mp4"] #splitFileViewerButton {
-    opacity: 0 !important;
-    pointer-events: none !important;
+    display: none !important;
 }
 
 #file-viewer-content > video {
@@ -309,7 +309,7 @@ PDF
 --------------------------------
 ----------------------------- */
 
-#file-viewer[ext="pdf"] #file-viewer-content iframe {
+#file-viewer[ext="pdf"] #file-viewer-content iframe, #embeddedPDFViewer {
     height: 100%;
     width: 100%;
 }
@@ -415,10 +415,24 @@ EPUB
 
 
 @media (max-width : 480px) {
-    #file-viewer { width: 100%; }
+    #file-viewer { 
+        width: 100%; 
+    }
 }
 
+@media (max-height : 640px) {
+    #file-viewer { 
+        height: 100%;
+    }
 
+    #maximizeFileViewerButton {
+        display: none !important;
+    }
+
+    #file-viewer.minimized {
+        transform: translateY(calc(100% - 4rem));
+    }
+}
 
 
 

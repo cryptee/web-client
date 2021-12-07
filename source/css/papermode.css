@@ -100,6 +100,19 @@ body:not([paper-stock]) crypteepagebreak {
 }
 
 
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+OVERFLOWS 
+ 
+--------------------------------
+----------------------------- */
+
+/* TABLE */
+
 crypteetable.overflow { 
     margin-top: 0 !important; 
     display: flex;
@@ -114,6 +127,22 @@ crypteetablecell.overflow {
 .ql-editor:not(.pdf) crypteetable.overflow {
     border-right: 1px dashed #CCC;
 }
+
+/* LISTS */
+
+.ql-editor > ul.overflow, 
+.ql-editor > ol.overflow {
+    margin-top: 0 !important; 
+}
+
+.ql-editor li.overflow { 
+    margin-top: var(--preview-martop) !important; 
+}
+
+
+
+
+
 
 
 body[paper-stock] pre {

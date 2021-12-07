@@ -208,21 +208,21 @@ p,li,table, select {
     line-height: 1.5rem;        /* 24px */
 }
 
-h3 {
+h3, .h3 {
     margin-top: 0.125rem;       /* 2px for josefine sans, to maintain vertical rhythm on grid */
     font-size: 1.325rem;        /* 16px for josefine sans, to maintain vertical rhythm on grid */
     line-height: 2rem;          /* 36px */
     letter-spacing: 0.125rem;   /*  2px */
 }
 
-h2 {
+h2, .h2 {
     margin-top: -0.5rem;
     font-size: 2rem;            /* 32px */
     line-height: 3rem;          /* 48px */
     letter-spacing: 0.25rem;    /*  4px  */
 }
 
-h1 {
+h1, .h1 {
     font-size: 3rem;            /* 48px */
     line-height: 4.5rem;        /* 72px */
     letter-spacing: 0.5rem;     /* 8px  */

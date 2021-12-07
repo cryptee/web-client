@@ -1,0 +1,1052 @@
+/* Copyright 2014 Mozilla Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* -----------------------------
+-------------------------------- 
+ 
+CRYPTEE PDF VIEWER THEME
+
+A custom PDF.js viewer for Cryptee.
+Copyright 2021, John Ozbay / Cryptee.
+ 
+--------------------------------
+----------------------------- */
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    position: fixed;
+    display: grid;
+    grid-template-columns: 8rem 1fr 12rem;
+    grid-template-rows: 4rem 6rem 1fr;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+main, #overlayContainer {
+    background-color: #242424;
+    position: relative;
+    grid-column: 1/-1;
+    grid-row: 2/4;
+    z-index: 1;
+}
+
+aside {
+    grid-column: 1/2;
+    grid-row: 2/4;
+    background-color: var(--oled-safe-black);
+    z-index: 5;
+
+    transform: translateX(0);
+    transition: 0.5s transform var(--cryptee-cb);
+}
+
+body:not(.sidebarOpen) #sidebarContainer {
+    transform: translateX(-12rem);
+    pointer-events: none !important;
+}
+
+#secondaryToolbar {
+    grid-column: 3/4;
+    padding: 1rem 0 1rem 2rem;
+    text-align: right;
+}
+
+#secondaryToolbar.hidden {
+    transform: translateX(14rem);
+    pointer-events: none !important;
+}
+
+#secondaryToolbar button {
+    font-size: 0.85rem;
+    color: var(--cryptee-3);
+    padding-right: 1.5rem;
+}
+
+#secondaryToolbar hr {
+    height: 0;
+    margin: 1rem 0;
+}
+
+#secondaryToolbar button.toggled {
+    color: white;
+    font-weight: 700;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+NAV 
+ 
+--------------------------------
+----------------------------- */
+
+body > nav {
+    grid-column: 1/-1;
+    grid-row: 1/2;
+    z-index: 10;
+}
+
+nav {
+    background-color: #242424;
+    display: flex;
+    padding: 0;
+}
+
+aside > nav {
+    background-color: var(--cryptee-0);
+}
+
+button {
+    margin-top: 0;
+}
+
+nav button {
+    min-width: 3rem;
+    width: 3rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+
+    opacity: 0.5;
+    transition: 0.3s opacity ease;
+}
+
+nav input {
+    width: 2.25rem;
+    margin-top: 1.25rem !important;
+    display: inline-block;
+    text-align: center
+}
+
+nav select {
+    width: 3.75rem;
+    max-width: 4.125rem !important;
+    margin-top: 1.25rem !important;
+    color: white;
+    text-indent: 0;
+}
+
+option { color : initial; }
+
+#sidebarToggle.toggled i::before {
+    content: "\EC13";
+}
+
+button.toggled {
+    opacity: 1;
+}
+
+#scaleSelectContainer { 
+    max-width: 4.125rem !important;
+    margin-right: 0.75rem;
+}
+
+#secondaryToolbarToggle {
+    padding-right: 0.5rem;
+    width: 3rem;
+}
+
+nav .nav-spacer {
+    flex-grow: 1;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+FIND
+ 
+--------------------------------
+----------------------------- */
+
+#findbar {
+    grid-row: 2/3;
+    grid-column: 1/-1;
+    z-index: 6;
+    background-color: var(--cryptee-0);
+    padding-left: 1rem;
+
+    transform: translateY(0);
+    transition: 0.5s transform var(--cryptee-cb);
+}
+
+#findbar.hidden {
+    transform: translateY(-8rem);
+    pointer-events: none !important;
+}
+
+.flex {
+    display: flex;
+    height: 3rem;
+}
+
+#findbar button {
+    width: 3rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+
+    opacity: 0.5;
+    transition: 0.3s opacity ease;
+}
+
+#findbar input {
+    margin-top: 1rem;
+}
+
+#findbar #findInput {
+    flex-grow: 1;
+}
+
+#findResultsCount, #findMsg {
+    color: white;
+    text-transform: lowercase;
+    margin-left: 1rem;
+    margin-top: 1.5rem;
+    text-align: right;
+    max-width: 8rem;
+}
+
+label {
+    color: white;
+    font-weight: 350;
+    text-transform: lowercase;
+    text-align: left;
+    margin-top: 0.25rem !important;
+    height: 1.5rem;
+    line-height: 2rem;
+    flex-grow: 1;
+    max-width: 33%;
+}
+
+input[type="checkbox"] {
+    margin: 0 !important;
+}
+
+input:checked + label::after, 
+input[checked] + label::after {
+    content: "\EB7A";
+    font-family: remixicon !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    display: inline-block;
+    margin-top: -1rem;
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+}
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+OVERLAYS 
+ 
+--------------------------------
+----------------------------- */
+
+#overlayContainer {
+    z-index: 4;
+    background: transparent;
+}
+
+#overlayContainer.hidden {
+    pointer-events: none !important;
+}
+
+#overlayContainer hr {
+    height : 0px !important;
+}
+
+#overlayContainer > div {
+    display: grid;
+    background-color: white;
+    padding: 4rem;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    margin: auto;
+
+    transform: translateY(0);
+    opacity: 1;
+    transition-duration: 0.5s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.5);
+}
+
+#overlayContainer > div.hidden {
+    transform: translateY(2rem);
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+#overlayContainer > div > .close {
+    transform: rotate(0deg);
+    transition-duration: 0.5s;
+    transition-property: transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#overlayContainer > div.hidden > .close {
+    transform: rotate(45deg);
+}
+
+/* password overlay */
+
+#passwordOverlay {
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    width: 12rem;
+    height: 12rem;
+}
+
+#passwordText, #password {
+    grid-column: span 2;
+}
+
+
+/* document properties */
+
+#documentPropertiesOverlay {
+    width: 12rem;
+    height: 24rem;
+}
+
+#documentPropertiesOverlay small {
+    text-transform: lowercase;
+    color: #000;
+}
+
+#documentPropertiesOverlay small::before {
+    content: attr(title);
+    margin-right:0.25rem;
+    color: var(--cryptee-2);
+}
+
+#documentPropertiesOverlay button {
+    filter: invert(1);
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+THUMBNAILS / OUTLINE 
+ 
+--------------------------------
+----------------------------- */
+
+#sidebarContent {
+    height: 100%;
+}
+
+#sidebarContent > div {
+    position: absolute;
+    top: 4rem;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+
+    opacity: 1;
+    transform: translateX(0);
+    transition-duration: 0.5s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#sidebarContent > div.hidden {
+    opacity: 0;
+    transform: translateX(-14rem);
+}
+
+#thumbnailView {
+    margin-bottom: 12rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#outlineView {
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+#outlineView a {
+    color: white;
+    font-weight: 350;
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.outlineItems,
+.outlineItem {
+    margin-bottom: 1rem;
+}
+
+.outlineItems > .outlineItem {
+    margin-left: 1rem;
+}
+
+.thumbnail {
+    opacity: 0.5;
+    transition: 0.5s opacity ease;
+}
+
+.thumbnail:hover {
+    opacity: 0.75;
+}
+
+.thumbnail.selected {
+    opacity: 1;
+}
+
+.thumbnailSelectionRing {
+    margin: auto;
+}
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+VIEWER 
+ 
+--------------------------------
+----------------------------- */
+
+
+.textLayer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    opacity: 0.2;
+    line-height: 1.0;
+}
+
+.textLayer>span {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+}
+
+.textLayer .highlight {
+    margin: -1px;
+    padding: 1px;
+    background-color: rgba(180, 0, 170, 1);
+    border-radius: 4px;
+}
+
+.textLayer .highlight.begin {
+    border-radius: 4px 0px 0px 4px;
+}
+
+.textLayer .highlight.end {
+    border-radius: 0px 4px 4px 0px;
+}
+
+.textLayer .highlight.middle {
+    border-radius: 0px;
+}
+
+.textLayer .highlight.selected {
+    background-color: rgba(0, 100, 0, 1);
+}
+
+.textLayer ::-moz-selection {
+    background: rgba(0, 0, 255, 1);
+}
+
+.textLayer ::selection {
+    background: rgba(0, 0, 255, 1);
+}
+
+.textLayer .endOfContent {
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 100%;
+    right: 0px;
+    bottom: 0px;
+    z-index: -1;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.textLayer .endOfContent.active {
+    top: 0px;
+}
+
+
+.annotationLayer section {
+    position: absolute;
+}
+
+.annotationLayer .linkAnnotation>a,
+.annotationLayer .buttonWidgetAnnotation.pushButton>a {
+    position: absolute;
+    font-size: 1em;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.annotationLayer .linkAnnotation>a:hover,
+.annotationLayer .buttonWidgetAnnotation.pushButton>a:hover {
+    opacity: 0.2;
+    background: rgba(255, 255, 0, 1);
+    box-shadow: 0px 2px 10px rgba(255, 255, 0, 1);
+}
+
+.annotationLayer .textAnnotation img {
+    position: absolute;
+    cursor: pointer;
+}
+
+.annotationLayer .textWidgetAnnotation input,
+.annotationLayer .textWidgetAnnotation textarea,
+.annotationLayer .choiceWidgetAnnotation select,
+.annotationLayer .buttonWidgetAnnotation.checkBox input,
+.annotationLayer .buttonWidgetAnnotation.radioButton input {
+    background-color: rgba(0, 54, 255, 0.13);
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    font-size: 9px;
+    height: 100%;
+    margin: 0;
+    padding: 0 3px;
+    vertical-align: top;
+    width: 100%;
+}
+
+.annotationLayer .choiceWidgetAnnotation select option {
+    padding: 0;
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton input {
+    border-radius: 50%;
+}
+
+.annotationLayer .textWidgetAnnotation textarea {
+    font: message-box;
+    font-size: 9px;
+    resize: none;
+}
+
+.annotationLayer .textWidgetAnnotation input[disabled],
+.annotationLayer .textWidgetAnnotation textarea[disabled],
+.annotationLayer .choiceWidgetAnnotation select[disabled],
+.annotationLayer .buttonWidgetAnnotation.checkBox input[disabled],
+.annotationLayer .buttonWidgetAnnotation.radioButton input[disabled] {
+    background: none;
+    border: 1px solid transparent;
+    cursor: not-allowed;
+}
+
+.annotationLayer .textWidgetAnnotation input:hover,
+.annotationLayer .textWidgetAnnotation textarea:hover,
+.annotationLayer .choiceWidgetAnnotation select:hover,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:hover,
+.annotationLayer .buttonWidgetAnnotation.radioButton input:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+}
+
+.annotationLayer .textWidgetAnnotation input:focus,
+.annotationLayer .textWidgetAnnotation textarea:focus,
+.annotationLayer .choiceWidgetAnnotation select:focus {
+    background: none;
+    border: 1px solid transparent;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked:before,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked:after,
+.annotationLayer .buttonWidgetAnnotation.radioButton input:checked:before {
+    background-color: rgba(0, 0, 0, 1);
+    content: '';
+    display: block;
+    position: absolute;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked:before,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked:after {
+    height: 80%;
+    left: 45%;
+    width: 1px;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked:before {
+    transform: rotate(45deg);
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked:after {
+    transform: rotate(-45deg);
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton input:checked:before {
+    border-radius: 50%;
+    height: 50%;
+    left: 30%;
+    top: 20%;
+    width: 50%;
+}
+
+.annotationLayer .textWidgetAnnotation input.comb {
+    font-family: monospace;
+    padding-left: 2px;
+    padding-right: 0;
+}
+
+.annotationLayer .textWidgetAnnotation input.comb:focus {
+    /*
+     * Letter spacing is placed on the right side of each character. Hence, the
+     * letter spacing of the last character may be placed outside the visible
+     * area, causing horizontal scrolling. We avoid this by extending the width
+     * when the element has focus and revert this when it loses focus.
+     */
+    width: 115%;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input,
+.annotationLayer .buttonWidgetAnnotation.radioButton input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0;
+}
+
+.annotationLayer .popupWrapper {
+    position: absolute;
+    width: 20em;
+}
+
+.annotationLayer .popup {
+    position: absolute;
+    z-index: 200;
+    max-width: 20em;
+    background-color: rgba(255, 255, 153, 1);
+    box-shadow: 0px 2px 5px rgba(136, 136, 136, 1);
+    border-radius: 2px;
+    padding: 6px;
+    margin-left: 5px;
+    cursor: pointer;
+    font: message-box;
+    font-size: 9px;
+    word-wrap: break-word;
+}
+
+.annotationLayer .popup>* {
+    font-size: 9px;
+}
+
+.annotationLayer .popup h1 {
+    display: inline-block;
+}
+
+.annotationLayer .popup span {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.annotationLayer .popup p {
+    border-top: 1px solid rgba(51, 51, 51, 1);
+    margin-top: 2px;
+    padding-top: 2px;
+}
+
+.annotationLayer .highlightAnnotation,
+.annotationLayer .underlineAnnotation,
+.annotationLayer .squigglyAnnotation,
+.annotationLayer .strikeoutAnnotation,
+.annotationLayer .freeTextAnnotation,
+.annotationLayer .lineAnnotation svg line,
+.annotationLayer .squareAnnotation svg rect,
+.annotationLayer .circleAnnotation svg ellipse,
+.annotationLayer .polylineAnnotation svg polyline,
+.annotationLayer .polygonAnnotation svg polygon,
+.annotationLayer .caretAnnotation,
+.annotationLayer .inkAnnotation svg polyline,
+.annotationLayer .stampAnnotation,
+.annotationLayer .fileAttachmentAnnotation {
+    cursor: pointer;
+}
+
+.pdfViewer .canvasWrapper {
+    overflow: hidden;
+}
+
+.pdfViewer .page {
+    direction: ltr;
+    width: 816px;
+    height: 1056px;
+    margin: 1px auto -8px auto;
+    position: relative;
+    overflow: visible;
+    border: 9px solid transparent;
+    background-clip: content-box;
+    -o-border-image: url(images/shadow.png) 9 9 repeat;
+    border-image: url(images/shadow.png) 9 9 repeat;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.pdfViewer.removePageBorders .page {
+    margin: 0px auto 10px auto;
+    border: none;
+}
+
+.pdfViewer.singlePageView {
+    display: inline-block;
+}
+
+.pdfViewer.singlePageView .page {
+    margin: 0;
+    border: none;
+}
+
+.pdfViewer.scrollHorizontal,
+.pdfViewer.scrollWrapped,
+.spread {
+    margin-left: 3.5px;
+    margin-right: 3.5px;
+    text-align: center;
+}
+
+.pdfViewer.scrollHorizontal,
+.spread {
+    white-space: nowrap;
+}
+
+.pdfViewer.removePageBorders,
+.pdfViewer.scrollHorizontal .spread,
+.pdfViewer.scrollWrapped .spread {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.spread .page,
+.pdfViewer.scrollHorizontal .page,
+.pdfViewer.scrollWrapped .page,
+.pdfViewer.scrollHorizontal .spread,
+.pdfViewer.scrollWrapped .spread {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.spread .page,
+.pdfViewer.scrollHorizontal .page,
+.pdfViewer.scrollWrapped .page {
+    margin-left: -3.5px;
+    margin-right: -3.5px;
+}
+
+.pdfViewer.removePageBorders .spread .page,
+.pdfViewer.removePageBorders.scrollHorizontal .page,
+.pdfViewer.removePageBorders.scrollWrapped .page {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.pdfViewer .page canvas {
+    margin: 0;
+    display: block;
+}
+
+.pdfViewer .page canvas[hidden] {
+    display: none;
+}
+
+.pdfViewer .page .loadingIcon {
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: url('images/loading-icon.gif') center no-repeat;
+}
+
+.pdfPresentationMode .pdfViewer {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.pdfPresentationMode .pdfViewer .page,
+.pdfPresentationMode .pdfViewer .spread {
+    display: block;
+}
+
+.pdfPresentationMode .pdfViewer .page,
+.pdfPresentationMode .pdfViewer.removePageBorders .page {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pdfPresentationMode:-ms-fullscreen .pdfViewer .page {
+    margin-bottom: 100% !important;
+}
+
+.pdfPresentationMode:-webkit-full-screen .pdfViewer .page {
+    margin-bottom: 100%;
+    border: 0;
+}
+
+.pdfPresentationMode:-moz-full-screen .pdfViewer .page {
+    margin-bottom: 100%;
+    border: 0;
+}
+
+.pdfPresentationMode:fullscreen .pdfViewer .page {
+    margin-bottom: 100%;
+    border: 0;
+}
+
+#viewerContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: none;
+    outline: none;
+    max-width: 100%;
+    width: 100%;
+}
+
+#viewerContainer.pdfPresentationMode:-ms-fullscreen {
+    top: 0px !important;
+    overflow: hidden !important;
+}
+
+#viewerContainer.pdfPresentationMode:-ms-fullscreen::-ms-backdrop {
+    background-color: rgba(0, 0, 0, 1);
+}
+
+#viewerContainer.pdfPresentationMode:-webkit-full-screen {
+    top: 0px;
+    border-top: 2px solid rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 1);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#viewerContainer.pdfPresentationMode:-moz-full-screen {
+    top: 0px;
+    border-top: 2px solid rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 1);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+#viewerContainer.pdfPresentationMode:-ms-fullscreen {
+    top: 0px;
+    border-top: 2px solid rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 1);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#viewerContainer.pdfPresentationMode:fullscreen {
+    top: 0px;
+    border-top: 2px solid rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 1);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+
+
+
+
+
+#viewer {
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    outline: none;
+}
+
+#viewer.textLayer-visible .textLayer {
+    opacity: 1.0;
+}
+
+#viewer.textLayer-visible .canvasWrapper {
+    background-color: rgba(128, 255, 128, 1);
+}
+
+#viewer.textLayer-visible .canvasWrapper canvas {
+    mix-blend-mode: screen;
+}
+
+#viewer.textLayer-visible .textLayer>span {
+    background-color: rgba(255, 255, 0, 0.1);
+    color: rgba(0, 0, 0, 1);
+    border: solid 1px rgba(255, 0, 0, 0.5);
+    box-sizing: border-box;
+}
+
+#viewer.textLayer-hover .textLayer>span:hover {
+    background-color: rgba(255, 255, 255, 1);
+    color: rgba(0, 0, 0, 1);
+}
+
+#viewer.textLayer-shadow .textLayer>span {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 1);
+}
+
+.grab-to-pan-grab {
+    cursor: url("images/grab.cur"), move !important;
+    cursor: -webkit-grab !important;
+    cursor: grab !important;
+}
+
+.grab-to-pan-grab *:not(input):not(textarea):not(button):not(select):not(:link) {
+    cursor: inherit !important;
+}
+
+.grab-to-pan-grab:active,
+.grab-to-pan-grabbing {
+    cursor: url("images/grabbing.cur"), move !important;
+    cursor: -webkit-grabbing !important;
+    cursor: grabbing !important;
+    position: fixed;
+    background: rgba(0, 0, 0, 0);
+    display: block;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 50000;
+    /* should be higher than anything else in PDF.js! */
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+PRINT 
+ 
+--------------------------------
+----------------------------- */
+
+
+#printContainer, #errorWrapper {
+    display: none;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+OVERRIDES / DISABLED FUNCTIONS 
+ 
+--------------------------------
+----------------------------- */
+
+#printContainer,
+#sidebarResizer,
+#fileNameField,
+#fileSizeField,
+#linearizedField,
+#openFile,
+#secondaryOpenFile,
+#print,
+#secondaryPrint,
+#download,
+#secondaryDownload,
+#scrollPage,
+#outlineOptionsContainer,
+#currentOutlineItem,
+#viewBookmark,
+#secondaryViewBookmark,
+#presentationMode,
+#loadingBar,
+#viewerContextMenu,
+#fileInput,
+#previous,
+#next,
+#pageUp,
+#pageDown,
+#findMsg,
+#viewAttachments,
+#viewLayers
+{
+    display: none;
+}
+
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MEDIA 
+ 
+--------------------------------
+----------------------------- */
+
+@media (max-width : 416px) { 
+    #zoomIn, #zoomOut {
+        display: none;
+    }
+}

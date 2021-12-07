@@ -42,10 +42,10 @@ var searchOptions = {
     keys: [ "type", "decryptedTitle", "decryptedTags" ]
 };
 
-
-
 async function search(term) {
-    
+        
+    if (term.length < 2) { return; }
+
     loadSearch();
     
     var allDocsAndFolders = await createSearchIndexFromCatalog(); 

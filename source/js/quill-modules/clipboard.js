@@ -36,7 +36,7 @@ var CrypteeClipboard = function (_Clipboard) {
         setTimeout(function() {
             delta = delta.concat(this.quill.clipboard.convert()).delete(range.length);
             delta = processColorsInDelta(delta);
-            console.log(delta);
+            // console.log(delta);
             this.quill.updateContents(delta, Quill.sources.USER);
             // range.length contributes to delta.length()
             this.quill.setSelection(delta.length() - range.length, Quill.sources.SILENT);

@@ -48,6 +48,9 @@ function scrollToItem(id) {
     var elemToScrollTo = $("#" + id)[0];
     if (!elemToScrollTo) { return; }
 
+    // only scroll to element if it's not already fully scrolled into & visible
+    if (isScrolledIntoView(elemToScrollTo)) { return; }
+
     var offset = $(elemToScrollTo).offset().top;
     var albumOffset = $("#albumContents").offset().top;
 

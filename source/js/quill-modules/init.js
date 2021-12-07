@@ -455,7 +455,7 @@ if (window.visualViewport) {
  */
 function autoScrollWhileTyping(range) {
 
-    // only for mobile
+    // only for mobile (on desktops this breaks things like table insertions, copy paste, table new rows etc, and things start jumping around. on mobile due to screen size being small these are all better)
     if (!isMobile) { return; }
 
     // only for continuous mode
@@ -557,6 +557,16 @@ function hideURLBox() {
     $("#urlbox").find("a").empty();
 }
 
+function copyURLFromURLBoxToClipboard() {
+    var url = $("#urlbox").find("a").attr("href");
+    navigator.clipboard.writeText(url);
+
+    $("#urlbox-copy-button").addClass("copied");
+    setTimeout(function () {
+        $("#urlbox-copy-button").removeClass("copied");
+    }, 3000);
+
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////

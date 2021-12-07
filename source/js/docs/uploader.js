@@ -364,6 +364,7 @@ async function runUploadQueue(where, predefinedTargetFID) {
         var activeDoc = await getDocFromCatalog(activeDocID);
         targetFID = activeDoc.fid;
         willEmbed = true;
+        breadcrumb('[UPLOAD] Will upload to ' + targetFID + " & embed upload(s) into the document.");
     }
 
     if (where === "explorer" && activeFolderID) {
@@ -371,8 +372,12 @@ async function runUploadQueue(where, predefinedTargetFID) {
         targetFID = activeFolderID;
     }
     
-    // if the activefolder isn't open (i.e. a sub folder is open but user is looking at recents instead, use inbox)
-    if ($("#leftListWrapper").attr("show") !== "folder") { targetFID = "f-uncat"; }
+    // IF we're not uploading to document, 
+    // or if there's no open active document, 
+    // AND if the activefolder isn't open (i.e. a sub folder is open but user is looking at recents instead, use inbox)
+    if ((where !== "document" || !activeDocID) && $("#leftListWrapper").attr("show") !== "folder") {
+        targetFID = "f-uncat";
+    }
 
     // if we still couldn't get a target folder, upload to inbox
     if (!targetFID) { targetFID = "f-uncat"; }
@@ -380,6 +385,8 @@ async function runUploadQueue(where, predefinedTargetFID) {
     // override document/explorer/activefolder stuff, if a predefined target fid is provided, 
     // i.e. while importing evernote notes, and we know where to upload stuff
     targetFID = predefinedTargetFID || targetFID;
+
+    breadcrumb('[UPLOAD] Will upload to ' + targetFID);
 
     // if we'll upload to inbox – does inbox exist? let's make sure before we try to upload anything.
     // if it doesn't exist, let's create it

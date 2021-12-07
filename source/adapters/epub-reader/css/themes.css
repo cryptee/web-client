@@ -32,8 +32,9 @@ strong {
 }
 
 svg {
-    height: "100%";
-    width: "auto";
+    height: 100%;
+    width: auto;
+    object-fit: contain;
 }
 
 body * {

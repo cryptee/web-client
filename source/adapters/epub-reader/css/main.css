@@ -147,6 +147,7 @@ body > nav {
 }
 
 nav button {
+  min-width: 3rem;
   width: 3rem;
   height: 4rem;
   line-height: 4rem;
@@ -166,11 +167,27 @@ nav button.active { opacity: 1; }
   font-size: 0.8rem;
   line-height: 4rem !important;
   user-select: none;
+
+  max-width: 100%;
+  max-height: 4rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+
+  display: flex;
 }
 
 #metainfo small {
   line-height: 4rem !important;
   display: inline-block;
+}
+
+#book-title {
+  max-height: 4rem;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 aside {

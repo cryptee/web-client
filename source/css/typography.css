@@ -323,9 +323,14 @@ QUOTES
 ----------------------------- */
 
 
-.ql-editor blockquote {
+.ql-editor blockquote:not(.ql-direction-rtl) {
     border-left: 2px solid var(--cryptee-2) !important;
     padding-left: 1rem;
+}
+
+.ql-editor blockquote.ql-direction-rtl {
+    border-right: 2px solid var(--cryptee-2) !important;
+    padding-right: 1rem;
 }
 
 

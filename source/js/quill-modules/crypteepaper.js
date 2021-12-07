@@ -301,9 +301,10 @@ async function disablePaperMode(forDocLoad) {
         
         // remove all fake / optical inline margins from elements
         $(".ql-editor").children().each(function(){ this.style.marginBottom = ""; });
-    
+        
+        $("[preview-overflow-marbot]").removeAttr("preview-overflow-marbot");
         // remove all overflow classes, margins and pageno from tables and pagebreaks
-        $("crypteetable, crypteetablecell, crypteepagebreak").removeClass("overflow").removeAttr("pgno preview-overflow-marbot").css({
+        $("crypteetable, crypteetablecell, crypteepagebreak, ul, ol, li").removeClass("overflow").removeAttr("pgno endpgno").css({
             "--preview-martop": "",
             "--preview-marbot": ""
         });
@@ -483,8 +484,42 @@ function checkIfPageChanged() {
  * @returns {Number} noPages
  */
 function numberOfPages() {
+
+    //
+    //
+    // IMPORTANT
+    //
+    //
+    // While this calculation :
+
+    // var lastElement = $(".ql-editor").children().last();
+    // return elementIsOnPageNo(lastElement);
+
+    // works for 99.999% of the stuff, even multi-page elements like tables,
+    // it does not work for things like lists. 
+    // the reason is because tables always have a new <p> element after them, 
+    // so even if the table is the last thing visible on the page, 
+    // the DOM has a <p> element in the editor, 
+    // so when we look at the last child, it's a <p> and we can calc no pages easily.
+
+    // BUT. With lists, this wouldn't work, since the root list element is on the page it starts. 
+    // so i.e. let's say we have two pages, Page 1 and Page 2. 
+    // List starts on PG1, but extends to PG2. it's DOM attribute will say "pgno = 1"
+    // Due to this, we had to introduce a new attribute for long grouped / container elements,
+    // like lists. endpgno = "2" etc.
+
+    // so if element isn't a list, simply return page no
+    // if element is a list, return its last row's page no
+
     var lastElement = $(".ql-editor").children().last();
-    return elementIsOnPageNo(lastElement);
+    var isElemList  = (lastElement[0].tagName === "UL" || lastElement[0].tagName === "OL");
+    if (!isElemList) {
+        return elementIsOnPageNo(lastElement);
+    } else {
+        var listEndPageNo = parseInt((lastElement.attr("endpgno") || lastElement.attr("pgno") || 1));
+        return listEndPageNo;
+    }
+
 }
 
 
@@ -557,10 +592,11 @@ function calculatePaperOverflow(selectedNode) {
         var isElemPageBreak = (this.tagName === "CRYPTEEPAGEBREAK");
         var isElemTableData = (this.tagName === "CRYPTEETABLEDATA");
         var isElemTable     = (this.tagName === "CRYPTEETABLE");
+        var isElemList      = (this.tagName === "UL" || this.tagName === "OL");
 
-        if (!isElemTable && !isElemTableData && !isElemPageBreak) { return; }
+        if (!isElemTable && !isElemTableData && !isElemPageBreak && !isElemList) { return; }
 
-        // It's a table / tabledata / page-break, let's do magic!
+        // It's a table / tabledata / page-break / list ... let's do magic!
 
         ////////////////////////////////////////////////
         ////////////////////////////////////////////////
@@ -580,6 +616,10 @@ function calculatePaperOverflow(selectedNode) {
 
         if (isElemPageBreak) {
             calculatePageBreakMargin(elem);
+        }
+
+        if (isElemList) {
+            breakListsIfNecessaryForPreview(elem);
         }
 
     });
@@ -695,11 +735,8 @@ function calculatePaperOverflow(selectedNode) {
         
     });
     
-    // now that things are on the page, let's do a second pass to iron out ~1px imperfections 
-
     function offsetRow(table, cellIndex, offsetPX) {
         var cellsInRow = table.children().slice(cellIndex, cellIndex + noColumns);
-        cellsInRow.addClass("overflow");
         cellsInRow.addClass("overflow").css("--preview-martop", offsetPX + "px");
     }
 
@@ -727,6 +764,119 @@ function calculatePageBreakMargin(pgbr) {
 
 }
 
+/**
+ * Lists may span multiple pages. So this function breaks lists optically to multiple pages to make them appear correct.
+ * @param {*} list
+ */
+function breakListsIfNecessaryForPreview(list) {
+        
+    var firstRow = list.children().first();
+    var lastRow = list.children().last();
+    var elemBeforeList = list.prev();
+
+    var lastPageNo = elementIsOnPageNo(firstRow); // we take this from the first item in the list to be safe.
+    var paperOverflowPointPX = paper.heightPX - paper.marginsPX;     
+    var contentHeightOnPageSoFarPX = firstRow[0].offsetTop; // where the list begins ( read from first row to be safe since it has zero height )
+    var moveTheWholeList = false;
+
+    list.addClass("overflow");
+    list.children().removeClass("overflow").css("--preview-martop", "").removeAttr("pgno");
+    list.children().each(function(rowIndex){
+
+        var row = $(this);
+
+        var rowHeightPX = this.clientHeight + parseInt(getComputedStyle(this).marginTop); // read the margin-top as well
+        // var rowOriginalMarginTop = rowHeightPX - this.clientHeight; // we'll need this later if the row is offset
+        var rowTopOffsetPX = elemTopOffsetPX(row);
+
+        if (rowIndex === 0) {
+            // check if the first row is already too tall for the page, 
+            // this means list itself will begin on the next page, 
+            // so we can add padding to the bottom of the element before the list, 
+            // and align / move the list to the following page first.
+            
+            if (contentHeightOnPageSoFarPX + rowHeightPX > paperOverflowPointPX) {
+                // list needs to start on new page, there's not enough room even for the first row on the current page.
+                moveTheWholeList = true;
+                list.attr("pgno", lastPageNo + 1);
+            }
+        }
+
+        if (contentHeightOnPageSoFarPX + rowHeightPX >= paperOverflowPointPX) {
+            // new page
+
+            // first, we need to move the row to the next page, so we can calculate its actual height.             
+            // we will offset the row with a large magic number to make sure it's definitely on the next page, but not on the top of the page
+            // 500 is the magic number, it's 500 because the smallest page we support A4 = ~1122.52px, and we want the element to be definitely on the next page
+            var magicNumber = 500;
+
+            offsetRow(row, magicNumber);
+
+            // now that row is on the next page, let's check its height again. 
+            // this time it will be correct
+            rowHeightPX = this.clientHeight + parseInt(getComputedStyle(this).marginTop); // read the margin-top as well
+
+            // now we know how far from the top this row is, thanks to the magic number helping us figure out the amount we need to offset it.
+            rowTopOffsetPX = elemTopOffsetPX(row);
+            var correctMarginTopPX = Math.ceil(Math.abs(rowTopOffsetPX - magicNumber - paper.marginsPX));
+            
+            // in Chromium & Webkit, sometimes, we can pack things tighter.
+            // not sure what causes this but had to add this in order to make list layouts work consistently across browsers 
+
+            if (correctMarginTopPX > rowHeightPX) { 
+
+                removeRowOffset(row);
+
+            } else {
+
+                if (rowIndex === 0 && moveTheWholeList) {
+                    try {
+                        elemBeforeList.attr("preview-overflow-marbot", true).css("--preview-marbot", correctMarginTopPX + "px");
+                    } catch (error) {
+                        handleError("[PAPER] List is element 0!", error);
+                        // list might be the first element. In this case, we're not going to add margin bottom to the element before the list.
+                    }
+                    removeRowOffset(row);
+                } else{
+                    // this is the correct amount of px we'll offset the new row to make sure it's aligned to the top of the next page
+                    offsetRow(row, correctMarginTopPX);
+                }
+
+                // this time we won't read the margin top, since that will give us a large margin top incl the offset. 
+                // we know we're already at the very top of the page, so we just need the actual height of the row (without its margin top)
+                contentHeightOnPageSoFarPX = paper.marginsPX + this.clientHeight;
+
+                lastPageNo++;
+
+            }
+
+        } else {
+            // same page
+            contentHeightOnPageSoFarPX = contentHeightOnPageSoFarPX + rowHeightPX;
+        }
+
+        // now that all the adjustments are complete, check the row's page and write to its attribute
+
+        $(this).attr("pgno", lastPageNo);
+
+    });
+
+    // take the first page the list from the last child of the list to be safe
+    var firstRowPageNo = firstRow.attr("pgno");
+    list.attr("pgno", firstRowPageNo);
+    
+    // take the last page the list from the last child of the list to be safe
+    var lastRowPageNo = lastRow.attr("pgno");
+    list.attr("endpgno", lastRowPageNo);
+
+    function offsetRow(row, offsetPX) {
+        row.addClass("overflow").css("--preview-martop", offsetPX + "px");
+    }
+
+    function removeRowOffset(row) {
+        row.removeClass("overflow").css("--preview-martop", "");
+    }
+}
 
 
 ////////////////////////////////////////////////
@@ -803,6 +953,7 @@ async function prepareDocumentPDF() {
         elem = handlePlacingWordsAndCustomElementsForPDF(elem, pages); 
         elem = handleBackgroundColorForPDF(elem);
         elem = handleSplittingTablesForPDF(elem, pages);
+        elem = handleSplittingListsForPDF(elem, pages);
         
         var pgno = parseInt(elem.attr("pgno") - 1);
         elem.appendTo(pages[pgno]);
@@ -949,6 +1100,68 @@ function handleSplittingTablesForPDF(elem, pages) {
     }
 }
 
+
+
+/**
+ * Splits lists into multiple pages. Takes a list, looks at its rows / which page they should go to, creates a new list for each page, and puts the rows in the correct pages. 
+ * @param {*} elem 
+ * @param {Array} pages array of divs for each page
+ */
+function handleSplittingListsForPDF(elem, pages) {
+    if (elem[0].tagName !== "OL" && elem[0].tagName !== "UL") { return elem; }
+
+    breadcrumb('[PAPER] [EXPORT] Splitting a list');
+    var list = elem;
+    var listTag = list[0].tagName;
+    var listChecked = list.attr("data-checked"); 
+    // 'true' for checked checklists, 
+    // 'false' for unchecked checklists, 
+    // undefined for other lists like bullets / numbered etc
+
+    var listStartPageNo = parseInt(list.attr("pgno"));
+    var listEndPageNo   = parseInt(list.attr("endpgno"));
+
+    // now create x number of lists for each page
+    // skip the first page, we'll return this instead
+    for (let pgno = listStartPageNo + 1; pgno <= listEndPageNo; pgno++) {   
+        var copyList = document.createElement(listTag);
+        
+        // it's a checklist, copy its status
+        if (listChecked && listChecked.length >= 0) { 
+            $(copyList).attr("data-checked", listChecked); 
+        }
+
+        $(copyList).attr("pgno", pgno);
+
+        cleanListRowsOfPage(pgno).appendTo(copyList);
+
+        $(copyList).appendTo(pages[pgno - 1]);
+
+    }
+
+    // we need to return only the starting page's list 
+    // (i.e. the original one, since it'll have only the first page's rows)
+    
+    // that's what will get added in the next line in prepareDocumentPDF like : 
+    // elem.appendTo(pages[pgno]);
+
+    list.removeClass("overflow");
+    cleanListRowsOfPage(listStartPageNo);
+
+    return list;
+
+    function cleanListRowsOfPage(pgno) {
+        return list.children(`[pgno='${pgno}']`)
+        .css("--preview-martop","")
+        .removeAttr("pgno")
+        .removeClass("overflow");
+    }
+
+}
+
+
+
+
 /**
  * Splits paragraphs into multiple pages. Takes a paragraph, looks at its children / words, which page they should go to, creates a new paragraph for each page, and puts the children in the correct pages' paragraphs. 
  * @param {*} elem 
@@ -959,6 +1172,9 @@ function handlePlacingWordsAndCustomElementsForPDF(elem, pages) {
     if (elem[0].tagName === "CRYPTEETABLE")     { return elem; }
     if (elem[0].tagName === "CRYPTEETABLEDATA") { return elem; }
     if (elem[0].tagName === "CRYPTEEPAGEBREAK") { return elem; }
+    if (elem[0].tagName === "CRYPTEEPAGEBREAK") { return elem; }
+    if (elem[0].tagName === "UL" || elem[0].tagName === "OL") { return elem; }
+
     
     breadcrumb('[PAPER] [EXPORT] Placing words & custom elements');
 
@@ -1037,8 +1253,9 @@ function splitWordsForPDFExport() {
         var isChildPageBreak = (child.tagName === "CRYPTEEPAGEBREAK");
         var isChildTableData = (child.tagName === "CRYPTEETABLEDATA");
         var isChildTable     = (child.tagName === "CRYPTEETABLE");
+        var isChildList      = (child.tagName === "UL" || child.tagName === "OL");
         var isChildKATEX     = (child.querySelectorAll(".ql-formula").length); 
-        if (isChildPageBreak || isChildTableData || isChildTable || isChildKATEX) { return; }
+        if (isChildPageBreak || isChildTableData || isChildTable || isChildList || isChildKATEX) { return; }
         
         var walker = document.createTreeWalker(child, NodeFilter.SHOW_TEXT, null, false);
         var textNodes = [];

@@ -1047,6 +1047,82 @@ async function tagPhotos(aid, photosToTag, tags) {
 }
 
 
+async function setPhotoDescription(aid, pid, plaintextDescription) {
+    
+    if (!aid) { return false; }
+    if (!pid) { return false; }
+
+    plaintextDescription = (plaintextDescription || "").toString();
+
+    breadcrumb("[SET PHOTOS DESC] Starting to set the description of photo:" + pid);
+
+    // photo doesn't exist!?
+    if (isEmpty(photos[pid])) {
+        handleError("[SET PHOTOS DESC] Can't set photos description. Photo doesn't exist!");
+        createPopup("Couldn't set the description of this photo. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
+        return false;
+    }
+
+    if (!aid) {
+        handleError("[SET PHOTOS DESC] Can't set photos description. No Album ID!");
+        return false;
+    }
+
+    if (aid === "favorites") {
+        handleError("[SET PHOTOS DESC] Can't set photos description from the favorites album.");
+        createPopup("At the moment it's not possible to set the description of a photo from the favorites album. Please first open the album containing the photo, and try to set the photo's description from there. We're working on improving this process and sorry about the inconvenience.", "error");
+        return false;
+    }
+
+    var encryptedDescriptionString = null;
+    // if there's a description, encrypt it, 
+    // if there's no description, we'll save null 
+    if (plaintextDescription.length >= 1) {
+        var encryptedDescription; 
+    
+        try {
+            breadcrumb('[SET PHOTOS DESC] Encrypting description of photo: ' + pid);
+            encryptedDescription = await encrypt(plaintextDescription, [theKey]);
+            breadcrumb('[SET PHOTOS DESC] Encrypted description of photo: ' + pid);
+        } catch (error) {
+            handleError("[SET PHOTOS DESC] Failed to encrypt description of photo: " + pid);
+            createPopup("Couldn't set the description of this photo. Chances are this is a network problem or this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
+            return false;
+        }
+    
+        if (!encryptedDescription || isEmpty(encryptedDescription)) {
+            handleError("[SET PHOTOS DESC] Failed to encrypt description of photo: " + pid);
+            createPopup("Couldn't set the description of this photo. Chances are this is a network problem or this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
+            return false;
+        }
+    
+        encryptedDescriptionString = encryptedDescription.data || "";
+    }
+
+    breadcrumb('[SET PHOTOS DESC] Setting description of photo: ' + pid + " to its meta.");
+
+    var setDescriptions;
+    try {
+        setDescriptions = await setPhotoMeta(aid, pid, { "desc" : encryptedDescriptionString });
+        photos[pid].decryptedDesc = plaintextDescription;
+        photos[pid].desc = encryptedDescriptionString;
+    } catch (error) {
+        handleError("[SET PHOTOS DESC] Failed to set description of photo: " + pid);
+        createPopup("Couldn't set the description of this photo. Chances are this is a network problem or this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
+        return false;
+    }
+
+    if (!setDescriptions) {
+        handleError("[SET PHOTOS DESC] Failed to set description of photo: " + pid);
+        createPopup("Couldn't set the description of this photo. Chances are this is a network problem or this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
+        return false;
+    }
+
+    breadcrumb('[SET PHOTOS DESC] Successfully set description of photo: ' + pid);
+
+    return true;
+}
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
