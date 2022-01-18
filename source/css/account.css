@@ -323,6 +323,27 @@ OVERVIEW
     display: none !important;
 }
 
+.username:not(:empty) + .email:empty {
+    display: none !important;
+}
+
+.username:not(:empty) + .email:empty + #verify-email-warning {
+    display: none !important;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+VERIFY EMAIL 
+ 
+--------------------------------
+----------------------------- */
+
+.email:not([unverified]) ~ #verify-email-warning {
+    display: none !important;
+}
+
 
 /* -----------------------------
 -------------------------------- 
@@ -335,21 +356,6 @@ CHANGE EMAIL
 #change-email-input:placeholder-shown ~ #change-email-button,
 #verify-pasword-for-email-change-input:placeholder-shown ~ #change-email-button {
     opacity: 0.3 !important;
-    pointer-events: none !important;
-}
-
-
-
-/* -----------------------------
--------------------------------- 
- 
-VERIFY EMAIL 
- 
---------------------------------
------------------------------ */
-
-.email:not([unverified]) ~ #verify-email-warning {
-    opacity: 0 !important;
     pointer-events: none !important;
 }
 
