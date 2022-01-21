@@ -1410,6 +1410,9 @@ function showEditAlbumPopup(aid) {
         return false;
     }
 
+    var albumIDToShow = (aid || "").replace("f-", "");
+    $("#popup-album-info").find(".albumid").text(albumIDToShow);
+
     updateEditAlbumPopupContents(aid);
     
     showPopup("popup-album-info");
@@ -2522,6 +2525,11 @@ async function showEditPhotoPopup() {
 
     $("#popup-photo-info").attr("aid", activeAlbumID);
     $("#popup-photo-info").attr("pid", pid);
+
+    // get doc id, display in dropdown for debugging in non-live environments
+    var photoIDToShow = (pid || "").replace("p-", "");
+    $("#popup-photo-info").find(".photoid").text(photoIDToShow);
+    
     
     showPopup("popup-photo-info");
 

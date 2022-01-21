@@ -996,7 +996,9 @@ function showDocRightClickDropdown(did, y, x) {
     var name = (docInDom.find(".name").text() || "").trim();
     $("#dropdown-doc").attr("name", name);
 
-
+    // get doc id, display in dropdown for debugging in non-live environments
+    var docIDToShow = (did || "").replace("d-", "");
+    $("#dropdown-doc").find(".docid").text(docIDToShow);
 
     // get extension to show image-only options 
     var ext = docInDom.attr("ext");
@@ -1091,7 +1093,9 @@ function showFolderRightClickDropdown(fid,y, x) {
     // if already shown, we just need to hide it anyway.
     if (alreadyShown) { return; }
     
-
+    // get folder id, display in dropdown for debugging in non-live environments
+    var folderIDToShow = (fid || "").replace("f-", "").replace("uncat", "inbox");
+    $("#dropdown-folder").find(".folderid").text(folderIDToShow);
 
     // customizations
 
@@ -1954,6 +1958,13 @@ async function prepareActiveDocumentInfoPanel(did, doc, contents) {
         $("#activeDocFolderButton").hide(); 
     }
 
+    // update doc id (for non-live environments)
+    var docIDToShow = (did || "").replace("d-", "");
+    $("#panel-docinfo").find(".docid").text(docIDToShow);
+    
+    // update folder id (for non-live environments)
+    var folderIDToShow = (doc.fid || "").replace("f-", "").replace("uncat", "inbox");
+    $("#panel-docinfo").find(".folderid").text(folderIDToShow);
 
     // updates the word & char counts
     updateCounts();

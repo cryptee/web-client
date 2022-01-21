@@ -2,16 +2,23 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 
-<!-- @import "webapp-head.kit" -->
-
+<!-- Don't preload italic, since it's below the fold, saves us ~500ms on loading time -->
 <link rel="preload" href="../fonts/JosefinSans-VariableFont_wght.ttf"        as="font" onload="this.onload=null;this.rel='font'" crossorigin="anonymous">
-<link rel="preload" href="../fonts/JosefinSans-Italic-VariableFont_wght.ttf" as="font" onload="this.onload=null;this.rel='font'" crossorigin="anonymous">
+<link               href="../fonts/JosefinSans-Italic-VariableFont_wght.ttf"           onload="this.onload=null;this.rel='font'" crossorigin="anonymous">
 
 <link rel="stylesheet" type="text/css" href="../css/global.css">
 <link rel="stylesheet" type="text/css" href="../css/www.css">
 
 <link rel="preload" href="../icons/remixicon.css"                            as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="../icons/remixicon.css"></noscript>
+
+<!-- 
+    DON'T MOVE THIS UP. 
+    THIS MAKES TONS OF IMAGE REQUESTS, CAUSING GOOGLEBOT'S REQUEST QUOTA TO FILL UP, 
+    CAUSING CSS AND FONT FILES NOT TO LOAD, AND THUS MAKING THE PAGE NOT-MOBILE-FRIENDLY
+    FUCKING STUPID SITUATION BUT HEY ... YOU LEARN SOMETHING NEW EVERY DAY... [FACEPALM]
+-->
+<!-- @import "webapp-head.kit" -->
 
 <meta name="description" content="<!-- $head-description? -->"/>
 

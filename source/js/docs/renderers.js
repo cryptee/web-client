@@ -374,6 +374,10 @@ function renderDoc(doc, folders) {
         active = "active";
     }
 
+    // LOCKED DOC
+    var locked = "";
+    if (doc.islocked) { locked = "locked"; }
+
     // TAGS
     var tags = "";
     if (doc.matchingTags) {
@@ -383,7 +387,7 @@ function renderDoc(doc, folders) {
     }
 
     var card = 
-    escapeTemplateHTML`<div class="doc ${selected} ${decrypting} ${active} ${isfile} ${isOffline}" did="${doc.docid}" gen="${(doc.generation || 0)}" ext="${extension}" name="${lcname}">
+    escapeTemplateHTML`<div class="doc ${selected} ${decrypting} ${active} ${isfile} ${isOffline} ${locked}" did="${doc.docid}" gen="${(doc.generation || 0)}" ext="${extension}" name="${lcname}">
         <button class="icon"><i class="${icon}"></i></button>
         <span class="info">
             <p class="name">${filename}</p>
@@ -669,5 +673,9 @@ function updateDocInDOM(doc, folders) {
     // ACTIVE DOC
     var isActive = (doc.docid === activeDocID || doc.docid === activeFileID);
     docElem.toggleClass("active", isActive);
+
+    // LOCKED DOC
+    var isLocked = doc.islocked || false;
+    docElem.toggleClass("locked", isLocked);
 
 }

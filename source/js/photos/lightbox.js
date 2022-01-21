@@ -80,6 +80,9 @@ function preparePhotoBehindLightbox(pid) {
     $(".in-lightbox").removeClass("in-lightbox");
 
     var photo = $("#" + pid);
+
+    if (!photo.length) { return; } // photo doesn't exist in DOM. abort here, or you'll get undefined in offset, and this whole thing crashes.
+
     var photoOffsetLeft = photo.offset().left;
     var photoOffsetTop = photo.offset().top + $("main").scrollTop();
     var photoOffsetWidthAndHeight = photo.offset().width; // we know it's 16rem = 256px, and will be 2x but depending on how "rem" is interpreted, it's safer to read it

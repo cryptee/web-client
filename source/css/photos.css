@@ -1264,6 +1264,17 @@ LIGHTBOX
     overflow-wrap: break-word;
 }
 
+body[env] #popup-photo-info .photoid,
+body[env] #popup-album-info .albumid {
+    font-family: monospace;
+    font-size: 0.75rem;
+    font-weight: 300;
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    user-select: all;
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1634,6 +1645,18 @@ button.radio[disabled] {
 }
 
 
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ENVIRONMENT SPECIFIC RULES 
+.. i.e. in beta, we show more info in doc panels
+
+--------------------------------
+----------------------------- */
+
+body:not([env]) .is-hidden-on-live-env { display: none !important; }
 
 
 

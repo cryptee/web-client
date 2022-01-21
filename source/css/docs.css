@@ -960,6 +960,22 @@ DOCUMENTS & SUBFOLDERS
 .doc.loading .info { opacity: 0.5 !important; }
 .doc.saving .info { opacity: 0.7 !important; }
 
+
+
+/* LOCKED DOC */
+
+.doc:not(.active).locked .when::before {
+    color: #FFF;
+    content: "\EECE";
+    margin-right: 0.5rem;
+    font-size: 0.75rem;
+    vertical-align: text-bottom;
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 /* OFFLINE DOC */
 
 .doc.offline:not(.selected):not(.loading):not(.decrypting):not(.selected):not(.saving) .icon:not(:hover) i {
@@ -1093,6 +1109,11 @@ body.offline .doc:not(.offline) .icon i::before {
     color: #FFF;
     font-weight: 350;
 }
+
+.doc.active.locked .when::before {
+    content: "edits locked, viewing now";
+}
+
 
 .doc.active .when::after {
     color: #FFF;
@@ -3795,6 +3816,21 @@ button.grab-attention i::after {
     100%      { transform: scale(0);    }
 }
 
+
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ENVIRONMENT SPECIFIC RULES 
+.. i.e. in beta, we show more info in doc panels
+
+--------------------------------
+----------------------------- */
+
+body:not([env]) .is-hidden-on-live-env { display: none !important; }
 
 
 

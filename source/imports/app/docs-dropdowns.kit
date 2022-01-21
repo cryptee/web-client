@@ -45,6 +45,11 @@
         <span>remove from offline storage</span>
     </button>
 
+    <button title="Document's ID" class="yellow is-hidden-on-live-env">
+        <i class="ri-file-unknow-fill"></i>
+        <span class="small docid copy-on-click"></span>
+    </button>
+
     <hr>
 
     <button class="red delete disabled-in-offline-mode disabled-while-saving" onclick="prepareDeleteDocsModal('rightclick')">
@@ -55,7 +60,6 @@
 </div>
 
 <div class="dropdown" id="dropdown-folder">
-    
     
     <button class="white for-inbox" onclick="showInboxPopup();">
         <i class="ri-question-fill"></i>
@@ -110,6 +114,11 @@
         <span>delete docs from offline storage</span>
     </button> -->
 
+    <button title="Folder's ID" class="yellow is-hidden-on-live-env">
+        <i class="ri-folder-unknow-fill"></i>
+        <span class="small folderid copy-on-click"></span>
+    </button>
+    
     <hr class="hide-for-activefolder">
 
     <button class="red delete disabled-in-offline-mode hide-for-activefolder" onclick="prepareDeleteFolderModal();">
