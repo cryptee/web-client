@@ -129,7 +129,8 @@ function createPopup(message, type, creationID, persist) {
         <p class="message justify">${message}</p>
     </div>`;
 
-    $("#create-popups-before-placeholder").before(popup);
+    // only create if a popup with that name doesn't already exist
+    if (!$("#popup-" + creationID).length) { $("#create-popups-before-placeholder").before(popup); }
 
     setTimeout(function () {
         showPopup("popup-"+creationID, message, type); 

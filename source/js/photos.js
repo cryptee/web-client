@@ -703,6 +703,9 @@ $(".sort-button").on('click', function(event) {
     hideSorter();
 }); 
 
+$("main").on('click', function(event) {
+    hideSorter();
+}); 
 
 
 

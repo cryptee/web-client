@@ -36,7 +36,12 @@ main {
     overflow-x: hidden;
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: none; /* to hide scrollbars in windows firefox */
+    -ms-overflow-style:none; /* to hide scrollbars in windows / IE / Edge etc */
 }
+
+main::-webkit-scrollbar { display: none; }
 
 nav {
     background-color: transparent;
@@ -401,6 +406,12 @@ body:not(.loading):not(.starting).nav-nophotos #selectall-button {
     pointer-events: none !important;
 }
 
+/* animate upload button in gallery or album without photos */
+body.nav-gallery:not(.loading):not(.starting).nav-nophotos .gallery .upload-button,
+body.nav-album:not(.loading):not(.starting).nav-nophotos .albums .upload-button {
+    animation: blinkForAttention 2s infinite ease forwards;
+}
+
 /* favorites */
 body:not(.loading):not(.starting).nav-favorites .bottom.buttons button,
 body:not(.loading):not(.starting).nav-favorites .top.buttons button {
@@ -465,6 +476,8 @@ body.nav-gallery #make-cover-button,
     pointer-events: none !important;
 }
 
+#make-cover-button { word-spacing: -2px; }
+
 /* tagging */
 
 body.tagging .photo.selected i {
@@ -507,7 +520,12 @@ TIMELINE
     margin-left: auto;
     max-width: 4rem;
     z-index: 2;
+
+    scrollbar-width: none; /* to hide scrollbars in windows firefox */
+    -ms-overflow-style:none; /* to hide scrollbars in windows / IE / Edge etc */
 }
+
+#timeline::-webkit-scrollbar { display: none; }
 
 #timeline small {
     float: right;

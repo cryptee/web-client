@@ -1001,11 +1001,16 @@ $("body").on('click', '.doc > .icon', function(event) {
 // DOCS RIGHT CLICKS & DROPDOWNS 
 $("body").on('contextmenu', '.doc', function(event) {
     var did = $(this).attr("did");
+    var isQuickRecent = $(this).parents("section").hasClass("quick-recent-docs") || false;
 
     if (selections.length > 0) {
         showSelectionsRightClickDropdown(event.y);
     } else {
-        showDocRightClickDropdown(did, event.y);
+        if (isQuickRecent) {
+            showDocRightClickDropdown(did, event.y, event.x);
+        } else {
+            showDocRightClickDropdown(did, event.y);
+        }
     }
 
     event.preventDefault();
@@ -1273,7 +1278,7 @@ $("#viewingModeButton").on('click', function(event) {
 ////////////////////////////////////////////////
 
 function showInlineAttachmentPopup() {
-    createPopup("to attach a file, document or folder, first find the file or folder you'd like to attach to this document using the menu on the left, either from its parent folder, or via search. then, right click on it <br>(or press <i class='ri-more-2-fill'></i>)<br> and press '<b>attach inline</b>'", "info");
+    createPopup("to attach / link a file, document or folder inline, first find the file or folder you'd like to attach to this document using the menu on the left, either from its parent folder, or via search. then, right click on it <br>(or press <i class='ri-more-2-fill'></i>)<br> and press '<b>attach inline</b>'", "info", "how-to-attach-info");
 }
 
 

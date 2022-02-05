@@ -3457,6 +3457,8 @@ body.offline #blankEditor .quick-tips {
     display: none !important;
 }
 
+/* sorts all offline recent documents on the top  */
+body.offline #recents .doc.offline { order: -1; }
 
 
 
@@ -3831,7 +3833,13 @@ ENVIRONMENT SPECIFIC RULES
 ----------------------------- */
 
 body:not([env]) .is-hidden-on-live-env { display: none !important; }
-
+.is-hidden-on-live-env .copy-on-click {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-flex;
+    max-width: 200px;
+}
 
 
 /* -----------------------------

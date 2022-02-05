@@ -3,14 +3,14 @@
     "@id": "https://crypt.ee/#webapplication",
     "@type": "WebApplication",
     "name": "Cryptee",
-    "description": "Cryptee is a safe, encrypted place to write personal documents, privately store photos and more.",
+    "description": "Cryptee is an encrypted secure photo storage service, and an encrypted documents editor to write personal docs, notes, journals, store files and more.",
     "applicationCategory": "BusinessApplication",
     "url": "https://crypt.ee/download",
     "downloadURL": "https://crypt.ee/download",
     "installURL": "https://crypt.ee/download",
-    "featureList": "Encrypted Documents, Personal Documents, Encrypted Photos, Private Photos, Photo Storage, Cloud Photo Storage, Private Photo Gallery, Encrypted Notes, Private Notes, Encrypted Storage, Zero-Knowledge Cloud Storage, Privacy, Security, Safety, Anonymity, Secure File Storage, Encrypted File Storage, Encrypted PDF, EPUB Reader, EBook Reader, Encryption, Deniability",
+    "featureList": "Encrypted Photos, Encrypted Documents, Secure Photo Storage, Encrypted Documents Editor, Encrypted Cloud Photo Storage, Personal Documents, Write Private Journals, Write Private Notes, Write Personal Documents, Write Personal Documents, Encrypted Storage, Zero-Knowledge Cloud Storage, Privacy, Security, Safety, Anonymity, Secure File Storage, Encrypted File Storage, Encrypted PDF, EPUB Reader, EBook Reader, Encryption, Deniability",
     "about": {
-        "description": "Cryptee is a safe, encrypted place to write personal documents, privately store photos and more."
+        "description": "Cryptee is an encrypted secure photo storage service, and an encrypted documents editor to write personal docs, notes, journals, store files and more."
     },
     "softwareVersion": "3.0.0",
     "operatingSystem": "All",

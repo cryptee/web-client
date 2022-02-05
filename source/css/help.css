@@ -486,7 +486,6 @@ ERROR REPORT / CONTACT
 
 
 
-
 /* -----------------------------
 -------------------------------- 
  
@@ -615,5 +614,25 @@ MEDIA
 
     main progress {
         top: 3rem;
+    }
+
+    #modal-bug, #modal-contact {
+        width: 100%;
+        height: 100%;
+        padding: 2rem;
+        max-width: 100%;
+        box-sizing: border-box;
+        grid-template-rows: auto auto 1rem 1fr 4rem;
+    }
+
+    #modal-bug textarea, 
+    #modal-contact textarea {
+        min-width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .modal section::after {
+        display: none !important;
     }
 }
