@@ -70,3 +70,688 @@
     </div>
     
 </div>
+
+
+<div class="tip" id="tips-search">
+    <button class="close" onclick="hideTips();"><img src="../assets/cross.svg" alt="close" title="close message"></button>
+
+    <div class="swiper-container" id="tips-search-swiper">
+        
+        <div class="swiper-wrapper">
+    
+            <section class="swiper-slide">
+
+                <h3>SEARCH TIPS &amp; EXAMPLES</h3>
+                
+                <p>cryptee has an intelligent search engine that helps you quickly find what you're looking for and fine-tune your search results. </p>
+                
+                <br>
+                <p>here are some tips &amp; examples for you to make the most out of cryptee's intelligent search engine.</p>
+
+            </section>    
+    
+
+            <section class="swiper-slide">
+
+                <h3>FUZZY SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> cost </p>
+                </div>
+                
+                <br>
+                
+                <p>will find everything that's <i>almost</i> like "cost". i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            <u>cost</u>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            <u>co</u>a<u>t</u>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            p<u>ost</u>
+                        </p>
+                    </div>
+    
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>
+                            <u>cost</u> 
+                            <span class="gray">estimates</span>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-excel-2-line"></i>
+                        <p>
+                            p<u>ost</u> 
+                            <span class="gray">codes.xls</span>
+                        </p>
+                    </div>
+                </div>
+
+            </section> 
+
+            <section class="swiper-slide">
+
+                <h3>FILE-TYPE SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> image </p>
+                </div>
+                
+                <br>
+                
+                <p>cryptee can recognize tens of thousands of different file extensions, so for example, it knows that an "image" can be "jpg", "png", "heic", "arw" etc. all you have to do is type "image", and cryptee will find all image files like :</p>
+                    
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-image-fill"></i>
+                        <p>
+                            screenshot 1.png
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-image-fill"></i>
+                        <p>
+                            taxi receipt.jpg
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-image-fill"></i>
+                        <p>
+                           evidence.heic
+                        </p>
+                    </div>
+                </div>
+
+            </section> 
+
+            <section class="swiper-slide">
+
+                <h3>FILE-TYPE SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> book </p>
+                </div>
+
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> novel </p>
+                </div>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> adobe </p>
+                </div>
+
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> office </p>
+                </div>
+
+                <br>
+                
+                <p>you can also type things like "book", "novel", "adobe", "office" etc and cryptee will find ".epub", ".pdf", or ".doc" files respectively. you can do this with hundreds of different keywords, for tens of thousands of different file extensions.</p>
+
+            </section> 
+            
+            
+
+            <section class="swiper-slide">
+
+                <h3>EXACT SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> <b>=</b>cost </p>
+                </div>
+                
+                <br>
+                
+                <p>will find items that are <i>exactly</i> and <i>only</i> "cost". i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            <u>cost</u>
+                        </p>
+                    </div>
+                </div>
+
+                <br>
+
+                <p>but it <i>will not</i> find:</p>
+                
+                <br>
+                
+                <div class="results">
+    
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>
+                            cost
+                            <span class="gray">estimates</span>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-excel-2-line"></i>
+                        <p>
+                            cost<span class="gray">.xls</span>
+                        </p>
+                    </div>
+
+                </div>
+
+            </section> 
+
+
+
+
+
+
+            <section class="swiper-slide">
+
+                <h3>SPECIFIED SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> class notes </p>
+                </div>
+                
+                <br>
+                
+                <p>will find items that have <i>both</i> "class" <b>and</b> "notes". i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>
+                            <u>class</u> <u>notes</u>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            <u>notes</u> <span class="gray">for monday's</span> <u>class</u>
+                        </p>
+                    </div>
+                </div>
+
+                <br>
+
+                <p>but it <i>will not</i> find:</p>
+                
+                <br>
+                
+                <div class="results">
+    
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            <span class="gray">meeting</span>
+                            notes
+                        </p>
+                    </div>
+
+                </div>
+
+            </section> 
+
+
+
+            <section class="swiper-slide">
+
+                <h3 style="letter-spacing:0.05rem;">EXACT WITH SPACES</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> <b> ="</b>class notes<b>"</b> </p>
+                </div>
+                
+                <br>
+                
+                <p>will find items that are <i>exactly</i> and <i>only</i> "class notes". i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>
+                            <u>class notes</u>
+                        </p>
+                    </div>
+
+                </div>
+
+                <br>
+
+                <p>but it <i>will not</i> find:</p>
+                
+                <br>
+
+                <div class="results">
+
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            notes <span class="gray">for monday's</span> class
+                        </p>
+                    </div>
+    
+                    <div class="result">
+                        <i class="ri-file-excel-2-line"></i>
+                        <p>
+                            class notes<span class="gray">.xls</span>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>
+                            <span class="gray">other</span> notes
+                        </p>
+                    </div>
+
+                </div>
+
+            </section> 
+            
+            
+
+            <section class="swiper-slide">
+
+                <h3>BROADEN SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> class <b>|</b> notes </p>
+                </div>
+                
+                <br>
+                
+                <p>will find items that have "class" <b>or</b> "notes". i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>
+                            <u>class</u> <u>notes</u>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            <u>notes</u> <span class="gray">for monday's</span> <u>class</u>
+                        </p>
+                    </div>
+    
+                    <div class="result">
+                        <i class="ri-file-excel-2-line"></i>
+                        <p>
+                            <u>class</u>
+                            <span class="gray">schedule.xls</span>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            meeting <u>notes</u>
+                        </p>
+                    </div>
+
+                </div>
+
+            </section> 
+
+
+
+            <section class="swiper-slide">
+
+                <h3>EXCLUDE FROM SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> project <b>!</b>presentation </p>
+                </div>
+                
+                <br>
+                
+                <p>will find items that have "project", <b>excluding</b> results that contain "presentation". i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>
+                            client <u>project</u>s
+                        </p>
+                    </div>
+                </div>
+
+                <br>
+
+                <p>but these will be <i>excluded</i>:</p>
+                
+                <br>
+
+                <div class="results">
+    
+                    <div class="result">
+                        <i class="ri-file-ppt-2-line"></i>
+                        <p>
+                            project presentation<span class="gray">.ppt</span>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-folder-fill"></i>
+                        <p>project presentations </p>
+                    </div>
+
+                </div>
+
+            </section> 
+
+
+
+
+            <section class="swiper-slide">
+
+                <h3>PREFIX SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> <span style="font-size: 1.5rem;">^</span>han </p>
+                </div>
+                
+                <br>
+                
+                <p>will only find items that <b>start</b> with "han" i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-file-ppt-line"></i>
+                        <p>
+                            <u>han</u>nah's <span class="gray">cv.pdf</span>
+                        </p>
+                    </div>
+                </div>
+
+                <br>
+
+                <p>but the following will be <i>excluded</i>, since they <i>don't</i> start with "han", although they contain "han":</p>
+                
+                <br>
+
+                <div class="results">
+    
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p><span class="gray">weekly report for</span> han<span class="gray">nah</span></p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-ppt-line"></i>
+                        <p>
+                            <span class="gray">meg</span>han<span class="gray">'s cv.pdf</span>
+                        </p>
+                    </div>
+
+                </div>
+
+            </section> 
+
+
+
+
+            <section class="swiper-slide">
+
+                <h3 style="letter-spacing:0rem; font-size: 1.125rem;">EXCLUDE PREFIX SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> cv <b>!</b><span style="font-size: 1.5rem;">^</span>han </p>
+                </div>
+                
+                <br>
+                
+                <p>will only find items that have "cv" and <b>don't start</b> with "han" i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+    
+                    <div class="result">
+                        <i class="ri-file-ppt-line"></i>
+                        <p>
+                            <span class="gray">meg</span><u>han</u><span class="gray">'s cv.pdf</span>
+                        </p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-ppt-line"></i>
+                        <p>
+                            <span class="gray">jo</span><u>han</u><span class="gray">na's cv.pdf</span>
+                        </p>
+                    </div>
+
+                </div>
+
+                <br>
+
+                <p>but the following will be <i>excluded</i>, since it <i>does</i> start with "han", although it contains "cv" &amp; "han":</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-file-ppt-line"></i>
+                        <p>
+                            han<span class="gray">nah's cv.pdf</span>
+                        </p>
+                    </div>
+                </div>
+
+            </section> 
+
+
+
+            <section class="swiper-slide">
+
+                <h3 style="letter-spacing:0rem; font-size: 1.125rem;">POSTFIX/SUFFIX SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> beth$ </p>
+                </div>
+                
+                <br>
+                
+                <p>will only find items that <b>end</b> with "beth" i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-file-text-line"></i>
+                        <p>
+                            <span class="gray">meeting with</span> eliza<u>beth</u>
+                        </p>
+                    </div>
+                </div>
+
+                <br>
+
+                <p>but the following will be <i>excluded</i>, since they <i>don't</i> end with "beth", although they contain "beth":</p>
+                
+                <br>
+
+                <div class="results">
+    
+                    <div class="result">
+                        <i class="ri-file-ppt-line"></i>
+                        <p>beth<span class="gray">any's cv.pdf</span></p>
+                    </div>
+
+                    <div class="result">
+                        <i class="ri-file-ppt-line"></i>
+                        <p><span class="gray">sheet music – </span> beth<span class="gray"> orton.pdf</span></p>
+                    </div>
+
+                </div>
+
+            </section> 
+
+
+
+            <section class="swiper-slide">
+
+                <h3 style="letter-spacing:0rem;">EXTENSION SEARCH</h3>
+                
+                <div class="search">
+                    <i class="ri-search-line"></i>
+                    <p> .doc$ </p>
+                </div>
+                
+                <br>
+                
+                <p>will only find files with ".doc" extensions i.e.:</p>
+                
+                <br>
+
+                <div class="results">
+                    <div class="result">
+                        <i class="ri-file-word-2-line"></i>
+                        <p>
+                            non-disclosure agreement<u>.doc</u>
+                        </p>
+                    </div>
+                </div>
+
+                <br>
+
+                <p>but the following will be <i>excluded</i>, since it <i>doesn't</i> have a ".doc" extension, although it contains ".doc" in its name:</p>
+                
+                <br>
+
+                <div class="results">
+    
+                    <div class="result">
+                        <i class="ri-movie-line"></i>
+                        <p><span class="gray">trailer</span>.doc<span class="gray">tor.strange.mp4</span></p>
+                    </div>
+
+                </div>
+
+            </section> 
+
+
+            <section class="swiper-slide">
+
+                <h3>SEARCH HOTKEYS &AMP; SHORTCUTS</h3>
+                
+                <p>once you've found what you're looking for, you can use :</p>
+                
+                <br>
+
+                <p>– your keyboard's arrow keys ( &uarr; &darr; ) to navigate the search results</p>
+
+                <br>
+
+                <p>– press <b>enter/return</b> (&#9166;) to open the selected search result</p>
+
+                <br>
+
+                <p>– press <b>shift</b> + &#9166; to attach/link the selected search result into your currently open document</p>
+
+            </section> 
+
+
+            <section class="swiper-slide">
+
+                <h3>NEED MORE WAYS TO SEARCH?</h3>
+                                
+                <p>if you need more ways to search, contact us via our helpdesk. we might be able to make your dreams come true. unless, that dream is: finding documents by searching for their text contents. this is sadly <b>mathematically</b> <b>impossible</b> due to how on-device encryption works. you can read more about why this is the case <span class="green" onclick="goToHelpdesk();">in our help center</span>. (search for an article using this keyword: <i>"text content"</i>)</p>
+
+            </section>  
+
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        </div>
+    
+        <div class="tips-pagination"></div>
+        <button class="tips-next"><i class="ri-arrow-right-line"></i></button>
+
+    </div>
+    
+</div>

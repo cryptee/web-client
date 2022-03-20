@@ -407,10 +407,10 @@ body:not(.loading):not(.starting).nav-nophotos #selectall-button {
 }
 
 /* animate upload button in gallery or album without photos */
-body.nav-gallery:not(.loading):not(.starting).nav-nophotos .gallery .upload-button,
+/* body.nav-gallery:not(.loading):not(.starting).nav-nophotos .gallery .upload-button,
 body.nav-album:not(.loading):not(.starting).nav-nophotos .albums .upload-button {
     animation: blinkForAttention 2s infinite ease forwards;
-}
+} */
 
 /* favorites */
 body:not(.loading):not(.starting).nav-favorites .bottom.buttons button,
@@ -866,7 +866,7 @@ ALBUM
     font-size: 1.5rem;
     text-align: center;
 
-    transform: rotate(0deg) translate3d(0,0,0);
+    transform: rotate(-45deg) translate3d(0,0,0);
     transition: 0.15s opacity linear, 0.3s transform var(--cryptee-cb);
     
     font-family: 'remixicon' !important;
@@ -883,11 +883,7 @@ ALBUM
 }
 
 .album i::before {
-    content: "\EA13";
-}
-
-.album .dropdown.show ~ i {
-    transform: rotate(45deg) translate3d(0,0,0);
+    content: "\EF77";
 }
 
 /* -----------------------------
@@ -1078,7 +1074,7 @@ LIGHTBOX
     width: 100%;
     height: 100%;
     background-color: var(--cryptee-0);
-    z-index: 11;
+    z-index: 9;
     transition: 0.5s opacity var(--cryptee-cb);
     
     opacity: 0;

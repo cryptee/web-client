@@ -1,25 +1,32 @@
-<div class="popup dark corner" id="popup-photo-info">
+<div class="popup interactive dark corner" id="popup-photo-info">
     
     <button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button>
     
     <p class="message">
-
         <b class="h3 uppercase">PHOTO INFO</b><br><br>
         
-        <b>description &nbsp; <small class="right">max 100 characters</small></b><br>
-        <textarea class="darkback" type="text" id="photo-desc" value="" placeholder="it was a great day..." maxlength="100" rows="3" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea><br><br>
+        <small>description – max 100 characters</small><br>
+        <textarea class="darkback" type="text" id="photo-desc" value="" placeholder="it was a great day..." maxlength="100" rows="3" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea><br>
 
         <!-- <b>tags &nbsp; <small class="right">max 100 characters</small></b><br>
         <input class="darkback" type="text" id="photo-tags" value="" placeholder="#vacation #holiday …" maxlength="100"><br><br> -->
 
-        <b>date</b><br>
-        <input class="darkback" type="date" id="photo-date" value="" placeholder="YYYY-MM-DD"><br><br>
+        <small>date</small><br>
+        <input class="darkback" type="date" id="photo-date" value="" placeholder="YYYY-MM-DD">
         
+        <button id="save-photo-info-button" class="green show-on-change" onclick="savePhotoInfo();">
+            <i class="ri-check-fill"></i>
+            <span>save changes</span>
+        </button>
+        
+        <!-- <button onclick="deletePhotoFromInfoPopup();" class="red hide-on-change">
+            <i class="ri-delete-bin-fill"></i>
+            <span>delete photo</span>
+        </button>
+         -->
         <small class="gray is-hidden-on-live-env copy-on-click photoid"></small>
-
-        <button id="save-photo-info-button" class="white bold" onclick="savePhotoInfo();">save</button>
-        
         <progress id="progress-photo-info" class="progress white" value="0" max="100"></progress>  
+
     </p>
 
 </div>

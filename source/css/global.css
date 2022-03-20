@@ -509,7 +509,9 @@ summary {
     box-shadow: none;
 }
 
-
+input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+}
 
 
 
@@ -624,6 +626,10 @@ POP-UPS / MESSAGES / ETC
     margin-top: -0.25rem;
 }
 
+.popup p.message small:first-child {
+    margin-top: 0;
+}
+
 .popup.sliding {
     padding:2rem 0;
 }
@@ -698,6 +704,69 @@ POP-UPS / MESSAGES / ETC
 .popup.corner.minimized + .popup.corner.minimized   + .popup.corner.show        + .popup.corner,
 .popup.corner.minimized + .popup.corner.minimized   + .popup.corner.minimized   + .popup.corner {
     transform: translate3d(-72rem,0,0);
+}
+
+/* interactive popup  with inputs and buttons (i.e. album info, photo info etc) */
+
+.popup.interactive p.message button {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.5rem;
+    line-height: 2rem;
+    padding: 0.25rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    
+    opacity: 1;
+    transition: 0.3s background-color ease, 0.3s color ease, 0.3s opacity ease;
+}
+
+.popup.interactive p.message button i {
+    float: left;
+    margin-right: 0.75rem;
+    line-height: 2.5rem;
+}
+
+.popup.interactive.dark p.message button {
+    background-color: #303030;
+    color: #FFF;
+}
+
+.popup.interactive p.message button.red {
+    background-color: #650101;
+    color: #FFF;
+}
+
+.popup.interactive p.message button.green {
+    background-color: #0e5828;
+    color: #FFF;
+}
+
+.popup.interactive p.message button.yellow {
+    background-color: #7e5d01;
+    color: #FFF;
+}
+
+.popup.interactive p.message input + button {
+    margin-top: 1rem;
+}
+
+.popup.interactive:not(.changed) button.show-on-change {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+.popup.interactive.changed button.hide-on-change {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+/* to align the delete icon better optically */
+.popup.interactive p.message button.red span {
+    margin-top: 0.125rem;
+    display: inline-block;
 }
 
 /* -----------------------------
@@ -1471,16 +1540,16 @@ TIPS / GUIDES
 .tip .tips-pagination {
     display: flex;
     height: 1rem;
-    width: calc(100% - 3rem) !important;
+    width: calc(100% - 1rem) !important;
     justify-content: left;
     flex-direction: row;
     z-index: 1;
 }
 
 .tip .swiper-pagination-bullet {
-    width: 0.5rem;
-    height: 0.5rem;
-    margin-top: 0.25rem;
+    width: 0.5rem !important;
+    height: 0.5rem !important;
+    margin: 0.25rem 4px 0 4px !important;
     
     transform: scale(1);
     background-color: var(--cryptee-2);
@@ -1521,8 +1590,8 @@ TIPS / GUIDES
 
     top: auto;
     left: auto;
-    bottom: -0.75rem;
-    right: -1rem;
+    bottom: 0;
+    right: 0;
     position: absolute;
     margin: 0;
     width: 3rem;
@@ -1537,7 +1606,7 @@ TIPS / GUIDES
 
 .tip .tips-next.swiper-button-disabled {
     pointer-events: none !important;
-    transform: scale(1) translateX(1rem);
+    transform: scale(0) translateX(1rem);
 }
 
 .tip.hidden { display: none !important; }
@@ -1690,6 +1759,11 @@ ENABLE HOVERS
     .tip .tips-next:not(.swiper-button-disabled):hover {
         transform: scale(1.25) translateX(0);
     }
+
+    .popup.interactive.dark p.message button:hover { background-color: #484848; }
+    .popup.interactive p.message button.red:hover { background-color: var(--cryptee-red); }
+    .popup.interactive p.message button.green:hover { background-color: var(--cryptee-green); }
+    .popup.interactive p.message button.yellow:hover { background-color: var(--cryptee-yellow); }
 }
 
 

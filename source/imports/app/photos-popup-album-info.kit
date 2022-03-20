@@ -1,22 +1,33 @@
-<div class="popup dark corner" id="popup-album-info">
+<div class="popup interactive dark corner" id="popup-album-info">
     <button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button>
     <p class="message">
-        <b>album name:</b>
-        <input class="darkback" type="text" id="album-name" value="" placeholder="album name"><br><br>
+        <small>album name:</small>
+        <input class="darkback" type="text" id="album-name" value="" placeholder="album name"><br>
 
-        <b>album date:</b><br>
-        <input class="darkback" type="date" id="album-date" value="" placeholder="YYYY-MM-DD"><br><br>
+        <small>album date:</small><br>
+        <input class="darkback" type="date" id="album-date" value="" placeholder="YYYY-MM-DD">
         
-        <b onclick="showChangeCoverPopup();" class="clickable">
-            <span>change album cover</span>
-            <i style="float:right;" class="ri-arrow-right-up-line"></i>
-        </b>
+        <button onclick="showChangeCoverPopup();">
+            <i class="ri-repeat-line"></i>
+            <span>change cover</span>
+        </button>
 
+        <button onclick="ghostAlbumFromInfoPopup();">
+            <i class="ri-eye-off-fill"></i>
+            <span>make ghost album</span>
+        </button>
+
+        <button id="save-album-info-button" class="green show-on-change" onclick="editAlbumInfo();">
+            <i class="ri-check-fill"></i>
+            <span>save changes</span>
+        </button>
+        
+        <button onclick="deleteAlbumFromInfoPopup();" class="red hide-on-change">
+            <i class="ri-delete-bin-fill"></i>
+            <span>delete album</span>
+        </button>
+        
         <small class="gray is-hidden-on-live-env copy-on-click albumid"></small>
-
-        <br><br><br><br>
-        <button id="save-album-info-button" class="white bold" onclick="editAlbumInfo();">save</button>
-        
         <progress id="progress-album-info" class="progress white" value="0" max="100"></progress>  
     </p>
 </div>

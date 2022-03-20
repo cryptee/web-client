@@ -121,7 +121,45 @@ var MarkdownShortcuts = function () {
     this.options = options;
 
     this.ignoreTags = ['PRE'];
-    this.matches = [{
+    this.matches = [
+    {
+      name: 'image',
+      pattern: /(?:!\[(.+?)\])(?:\((.+?)\))/g,
+      action: function action(text, selection, pattern) {
+        var startIndex = text.search(pattern);
+        var matchedText = text.match(pattern)[0];
+        // const hrefText = text.match(/(?:!\[(.*?)\])/g)[0]
+        var hrefLink = text.match(/(?:\((.*?)\))/g)[0];
+        var start = selection.index - matchedText.length - 1;
+        if (startIndex !== -1) {
+          setTimeout(function () {
+            if (_this.quill.getFormat()['code-block']) { return; }
+            if (_this.quill.getFormat()['code']) { return; }
+            _this.quill.deleteText(start, matchedText.length);
+            _this.quill.insertEmbed(start, 'image', hrefLink.slice(1, hrefLink.length - 1));
+          }, 0);
+        }
+      }
+    }, {
+      name: 'link',
+      pattern: /(?:\[(.+?)\])(?:\((.+?)\))/g,
+      action: function action(text, selection, pattern) {
+        var startIndex = text.search(pattern);
+        var matchedText = text.match(pattern)[0];
+        var hrefText = text.match(/(?:\[(.*?)\])/g)[0];
+        var hrefLink = text.match(/(?:\((.*?)\))/g)[0];
+        var start = selection.index - matchedText.length - 1;
+        if (startIndex !== -1) {
+          setTimeout(function () {
+            if (_this.quill.getFormat()['code-block']) { return; }
+            if (_this.quill.getFormat()['code']) { return; }
+            _this.quill.deleteText(start, matchedText.length);
+            _this.quill.insertText(start, hrefText.slice(1, hrefText.length - 1), 'link', hrefLink.slice(1, hrefLink.length - 1));
+          }, 0);
+        }
+      }
+    },
+    {
       name: 'header',
       pattern: /^(#){1,6}\s/g,
       action: function action(text, selection, pattern, lineStart) {
@@ -220,43 +258,7 @@ var MarkdownShortcuts = function () {
     //     }, 0);
     //   }
     // }, 
-    {
-      name: 'image',
-      pattern: /(?:!\[(.+?)\])(?:\((.+?)\))/g,
-      action: function action(text, selection, pattern) {
-        var startIndex = text.search(pattern);
-        var matchedText = text.match(pattern)[0];
-        // const hrefText = text.match(/(?:!\[(.*?)\])/g)[0]
-        var hrefLink = text.match(/(?:\((.*?)\))/g)[0];
-        var start = selection.index - matchedText.length - 1;
-        if (startIndex !== -1) {
-          setTimeout(function () {
-            if (_this.quill.getFormat()['code-block']) { return; }
-            if (_this.quill.getFormat()['code']) { return; }
-            _this.quill.deleteText(start, matchedText.length);
-            _this.quill.insertEmbed(start, 'image', hrefLink.slice(1, hrefLink.length - 1));
-          }, 0);
-        }
-      }
-    }, {
-      name: 'link',
-      pattern: /(?:\[(.+?)\])(?:\((.+?)\))/g,
-      action: function action(text, selection, pattern) {
-        var startIndex = text.search(pattern);
-        var matchedText = text.match(pattern)[0];
-        var hrefText = text.match(/(?:\[(.*?)\])/g)[0];
-        var hrefLink = text.match(/(?:\((.*?)\))/g)[0];
-        var start = selection.index - matchedText.length - 1;
-        if (startIndex !== -1) {
-          setTimeout(function () {
-            if (_this.quill.getFormat()['code-block']) { return; }
-            if (_this.quill.getFormat()['code']) { return; }
-            _this.quill.deleteText(start, matchedText.length);
-            _this.quill.insertText(start, hrefText.slice(1, hrefText.length - 1), 'link', hrefLink.slice(1, hrefLink.length - 1));
-          }, 0);
-        }
-      }
-    }];
+    ];
 
     // Handler that looks for insert deltas that match specific characters
     this.quill.on('text-change', function (delta, oldContents, source) {

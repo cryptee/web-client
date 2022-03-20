@@ -20,7 +20,7 @@ function prepBeforeLoadingAlbumOrFavorites() {
     startMainProgress();
 
     hideSorter();
-    hideAlbumDropdownsExcept();
+    hideAllPopups();
     clearSelections();
     clearSearch();
 
@@ -289,8 +289,8 @@ async function loadPhoto(pid) {
     startMainProgress(true); // true means, contents shouldn't fade
 
     hideSorter();
+    hideAllPopups();
     clearSearch(true);
-    hideAlbumDropdownsExcept();
     
     var imgDataURL;
     
@@ -1176,56 +1176,6 @@ function selectedPhotos() {
 }
 
 
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-//	ALBUM RIGHT CLICKS & DROPDOWNS
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-
-
-/**
- * Shows / Hides an album's dropdown
- * @param {string} albumID 
- */
-function toggleAlbumDropdown(albumID) {
-
-    if ($(`.dropdown[aid="${albumID}"]`).length >= 1) { 
-        hideAlbumDropdownsExcept();
-    } else {
-        hideAlbumDropdownsExcept(albumID);
-    
-        $(`.album[id="${albumID}"]`).prepend(
-        `<div class="dropdown" aid="${albumID}">
-            <button id="edit-album-button"   aid="${albumID}" onclick="showEditAlbumPopup('${albumID}');">edit</button>
-            <button id="ghost-album-button"  aid="${albumID}" onclick="showGhostAlbumModal('${albumID}');">ghost</button>
-            <button id="delete-album-button" aid="${albumID}" onclick="showDeleteAlbumModal('${albumID}');" class="red">delete</button>
-        </div>`);
-
-        setTimeout(function () {
-            $(`.album[id="${albumID}"]`).find(".dropdown").addClass("show");
-        }, 10);
-    }
-
-}
-
-
-/**
- * Hides all album dropdowns except an optional one.
- * @param {string} albumID 
- */
-function hideAlbumDropdownsExcept(albumID) {
-    albumID = albumID || "";
-
-    $(".album > .dropdown").not(`.dropdown[aid="${albumID}"]`).removeClass("show");
-    
-    setTimeout(function () {
-        $(".album > .dropdown").not(`.dropdown[aid="${albumID}"]`).remove();
-    }, 300);
-    
-}
-
-
-
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1348,7 +1298,7 @@ function cancelDownloads() {
  */
 async function selectAndDownloadActivePhoto() {
     $("#lightbox-download").addClass("loading");
-    await downloadAndSavePhoto(activePhotoID);
+    await downloadAndSavePhoto(activePhotoID());
     $("#lightbox-download").removeClass("loading");
 }
 
@@ -1407,6 +1357,13 @@ function showEditAlbumPopup(aid) {
 
     if (!albums[aid] || isEmpty(albums[aid])) {
         handleError("[EDIT ALBUM POPUP] Can't edit album. Album doesn't exist.", {aid:aid});
+        return false;
+    }
+
+    // add a mini UX change to make it clear one album's popup closed, and another opened.
+    if ($("#popup-album-info").hasClass("show")) { 
+        hideAllPopups(); 
+        setTimeout(function () { showEditAlbumPopup(aid); }, 1050);
         return false;
     }
 
@@ -1529,7 +1486,17 @@ async function editAlbumInfo(aid, name, date) {
 
 }
 
+function deleteAlbumFromInfoPopup() {
+    var albumID = $("#popup-album-info").attr("aid");
+    hidePopup("popup-album-info");
+    showDeleteAlbumModal(albumID);
+}
 
+function ghostAlbumFromInfoPopup() {
+    var albumID = $("#popup-album-info").attr("aid");
+    hidePopup("popup-album-info");
+    showGhostAlbumModal(albumID);
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1634,6 +1601,16 @@ async function deleteSelectedPhotos() {
         return false;
     }
     
+    // delete them from lightbox (otherwise they'll appear as blank in lightbox)
+    // separate loop from the one below, because we need photos' DOM indexes, 
+    // and in the loop below we'll remove them from DOM.
+    photosToDelete.forEach(pid => {
+        var slideIndex = getPhotoIndex(pid);
+        lbox.removeSlide(slideIndex);
+    });
+    
+    lbox.update();
+
     var albumThumbDeleted = false;
     photosToDelete.forEach(pid => {
         deleteFromArray(albums[activeAlbumID].photos, pid);
@@ -1674,7 +1651,13 @@ async function deleteSelectedPhotos() {
 
 }
 
-
+function deletePhotoFromInfoPopup() {
+    var pid = $("#popup-photo-info").attr("pid");
+    clearSelections();
+    togglePhotoSelection(pid);
+    showDeleteSelectionsModal();
+    hideAllPopups();
+}
 
 /**
  * Deletes selected album
@@ -1726,6 +1709,12 @@ async function deleteSelectedAlbum() {
         handleError("[DELETE ALBUM] Failed to update home titles after deleting album", error);
     }
 
+    // album deleted from within the album itself, load home
+    if (aid === activeAlbumID) {
+        await loadAlbum("home");
+    }
+
+    activityHappened();
     stopMainProgress();
     hideActiveModal();
     stopModalProgress("modal-delete-album");
@@ -1898,6 +1887,8 @@ async function makeGhostAlbum() {
         return false; 
     }
     
+    if (aid === activeAlbumID) { startMainProgress(); }
+
     startModalProgress("modal-ghost");
 
     // #1 HASH THE TITLE 
@@ -1954,10 +1945,16 @@ async function makeGhostAlbum() {
         handleError("[GHOST ALBUM] Failed to update home titles after ghosting album", error);
     }
 
-    activityHappened();
 
-    stopModalProgress("modal-ghost");
+    // album ghosted from within the album itself, load home
+    if (aid === activeAlbumID) {
+        await loadAlbum("home");
+    }
+
+    activityHappened();
+    stopMainProgress();
     hideActiveModal();
+    stopModalProgress("modal-ghost");
     $("#ghost-input").val("");
     
     return true;
@@ -2484,9 +2481,9 @@ async function showEditPhotoPopup() {
         return false;
     }
 
-    var pid = activePhotoID;
+    var pid = activePhotoID();
 
-    // photo doesn't exist
+    // photo doesn't exist or lightbox isn't open.
     if (!pid) { 
         handleError("[EDIT PHOTO POPUP] Can't edit photo info without Photo ID.");
         return false; 

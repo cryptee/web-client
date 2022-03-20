@@ -1026,17 +1026,17 @@ function preventTableFromBreaking(delta, oldDelta, source) {
             // Let's find out more about the table first. 
             var tableid = getTableIDAtCursor();
             var tableInfo = getCellRowAndCol(tableid);
-            var columns = tableInfo.columns;
-            var rows = tableInfo.rows;
-            var cells = columns * rows;
             var table = $("crypteetable[tableid='"+tableid+"']");
-
             
             // if the table is still there
-            if (table) {
+            if (table && !isEmpty(tableInfo)) {
                 // but its missing some children, this means user used a software keyboard 
                 // and pressed backspace / delete and deleted some cells
                 
+                var columns = tableInfo.columns;
+                var rows = tableInfo.rows;
+                var cells = columns * rows;
+
                 if (table.children().length < cells) {
                     
                     // TABLE IS MISSING CELLS. INSERT THE SAME NUMBER OF NEWLINES TO FIX IT.

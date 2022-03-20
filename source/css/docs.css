@@ -443,6 +443,84 @@ LEFT MENU
     opacity: 1;
 }
 
+#searchTips {
+    grid-column: 16 / 17;
+    grid-row: 2 / 4;
+    z-index: 4;
+    margin: 0;
+    
+    height: 2rem;
+    line-height: 2rem;
+    
+    text-align: center;
+
+    will-change: opacity;
+    opacity: 0;
+    transition: 0.3s opacity ease;
+}
+
+#searchTips i {
+    width: 1rem;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 1rem;
+}
+
+#searchInput:focus + #searchTips {
+    opacity: 0.7;
+}
+
+#searchTips.active { opacity: 1 !important; }
+
+#tips-search .search, #tips-search .result {
+    background-color: #eaeaea;
+    font-weight: 350;
+    border-radius: 3rem;
+    padding: 0 0.5rem;
+    line-height: 1.5rem;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#tips-search .result {
+    border-radius: 0;
+    background-color: var(--cryptee-4);
+}
+
+#tips-search .results {
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: var(--cryptee-4);
+}
+
+#tips-search .result:not(:last-child) {
+    border-bottom: 1px solid #e8e8e8;
+}
+
+#tips-search .search p, #tips-search .result p {
+    display: inline-block;
+    margin-top: 0;
+    line-height: 2rem;
+}
+
+#tips-search .search i, #tips-search .result i {
+    float: left;
+    line-height: 2rem;
+    width: 1.5rem;
+    text-align: center;
+    margin-right: 0.25rem;
+}
+
+#tips-search .search + .search {
+    margin-top: 0.25rem;
+}
+
+#tips-search del {
+    text-decoration: line-through;
+}
+
+
 
 /* mozilla treats placeholder colors differently. */
 @-moz-document url-prefix() {
@@ -3917,11 +3995,13 @@ ENABLE HOVERS
      
     --------------------------------
     ----------------------------- */
-    
+    #searchInput:hover + #searchTips,
     #searchInput:hover + #searchProgress {
         opacity: 0.5;
     }
 
+    #searchTips:hover,
+    #searchInput:focus + #searchTips:hover,
     #searchInput:hover:focus + #searchProgress {
         opacity: 1;
     }

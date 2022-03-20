@@ -328,7 +328,7 @@ function extractHashtags(string) {
   // if you write "#paris #paris2019", paris will replace the tag with <i>paris</i> <i>paris</i>2019, making "2019" get ignored in the highlighter
   // if you start from the longest tag, this won't be a problem
   string = string.toLowerCase();
-  return (string.match(/#[A-Za-z0-9]*/g) || []).sort(function(a, b){ return b.length - a.length; });
+  return (string.match(/#[A-Za-zÀ-ÿ0-9]*/g) || []).sort(function(a, b){ return b.length - a.length; });
 }
 
 

@@ -48,12 +48,11 @@ main.autorow {
     grid-auto-rows: 0.5rem;
 }
 
-article + br,
-article + br + br,
-main + br,
-main + br + br {     
+article + div,
+article + div + div,
+main + div,
+main + div + div {     
     display: block;
-    content: "";
     margin-top: calc(var(--r) * 0.5rem);
 }
 

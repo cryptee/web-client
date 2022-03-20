@@ -134,10 +134,7 @@ $(".contents").on('click', '.album', function(event) {
     var albumID = $(this).attr("id");
     
     if (event.target.tagName.toUpperCase() === "I") {
-        toggleAlbumDropdown(albumID);
-    } else if (event.target.tagName.toUpperCase() === "BUTTON") {
-        // handle the rest of the stuff (actual functionality) with dedicated functions
-        hideAlbumDropdownsExcept();
+        showEditAlbumPopup(albumID);
     } else {
         hideAllPopups();
         loadAlbum(albumID);
@@ -149,9 +146,11 @@ $(".contents").on('click', '.album', function(event) {
 // right click on album opens context menu
 $("#albumContents").on('contextmenu', '.album', function(event) {
     event.preventDefault();
+
     var albumID = $(this).attr("id");
-    toggleAlbumDropdown(albumID);
+    showEditAlbumPopup(albumID);
     activityHappened();
+
     return false;
 }); 
 
@@ -201,7 +200,6 @@ key('esc', function () {
     clearSelections();
     activityHappened();
     hideSorter();
-    hideAlbumDropdownsExcept();
     hideTagsPanel();
     return false;
 });
@@ -580,6 +578,13 @@ function doWeNeedHighResThumbs() {
 doWeNeedHighResThumbs();
   
 
+/**
+ * Checks the lightbox, and gets the active, currently visible photo's ID
+ */
+function activePhotoID() {
+    return $(".swiper-slide-active.swiper-slide-visible").find(".swiper-zoom-container").attr("pid") || $(".swiper-slide-active.swiper-slide-visible").find("img").attr("pid") || null;
+}
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 //	AUTH / STARTUP
@@ -755,10 +760,10 @@ $("#lightbox-favorite").on('click', function(event) {
     var isFav = $("#lightbox-favorite").hasClass("fav");
 
     if (isFav) {
-        unfavoritePhoto(activePhotoID);
+        unfavoritePhoto(activePhotoID());
         $("#lightbox-favorite").removeClass("fav");
     } else {
-        favoritePhoto(activePhotoID);
+        favoritePhoto(activePhotoID());
         $("#lightbox-favorite").addClass("fav");
     }
 }); 

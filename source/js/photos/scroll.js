@@ -26,7 +26,7 @@ $("main").on('scroll', throttleScroll(function(event) {
     updateTimelineWithItemsOnScreen();
 
     hideSorter();
-    hideAlbumDropdownsExcept();
+    hidePopup("popup-album-info");
     
 }, scrollThrottleTime));
 

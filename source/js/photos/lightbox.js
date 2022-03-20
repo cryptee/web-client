@@ -24,6 +24,8 @@ $(document).on('ready', function () {
         slidesPerColumn: 1,
         addSlidesBefore: 1,
         addSlidesAfter: 1,
+        watchSlidesProgress : true,
+        effect : "slide",
     });
 
     lbox = lightbox.virtual;
@@ -130,12 +132,13 @@ function lightboxPhotoChanged() {
     setTimeout(function () {
         
         hidePopup("popup-photo-info");
+        hideActiveModal();
+        clearSelections();
 
         pid = $(".swiper-slide-active").find("img").attr("pid");
         
         if (!isios && !isipados) { history.pushState(pid, null, '/photos?photo='+pid); }
 
-        activePhotoID = pid;
         var thisPhoto = $("#" + pid);
         var nextPhotoID;
         var prevPhotoID;
@@ -282,10 +285,9 @@ async function preloadLightboxImage(pid) {
  */
 function closeLightbox() {
     
-    activePhotoID = null;
-    
     hideLightbox();
-
+    hideActiveModal();
+    
     if (!isios && !isipados) {
         if (activeAlbumID === "home") {
             history.pushState("home", null, '/photos');

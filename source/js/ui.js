@@ -95,7 +95,7 @@ function showPopup(popupID, message, type) {
 
         popup.addClass("sliding");
         setTimeout(function () {
-            popup.removeClass("sliding");
+            popup.removeClass("sliding changed");
             popup.addClass("show");
         }, 500);
     }
@@ -148,7 +148,7 @@ function hidePopup(popupID) {
     if (popupID.length > 1) {
         var popup = $("#" + popupID);
         if (popup.hasClass("show")) {
-            popup.removeClass("show");
+            popup.removeClass("show changed");
             popup.addClass("sliding");
             setTimeout(function () {
                 popup.removeClass("sliding");
@@ -190,6 +190,24 @@ function hideAllPopups() {
 
     hideTips();
 }
+
+$('.popup.interactive > p > input, .popup.interactive > p > textarea').on('change keyup paste', function(event) {
+    var popup = $(this).parents(".popup");
+    var somethingChanged = false;
+    
+    popup.find("input, textarea").each(function(){
+        var oldValue = ($(this).attr("placeholder").trim() || "").toUpperCase();
+        var newValue = ($(this).val().trim()).toUpperCase();
+        if (!somethingChanged && newValue && newValue !== oldValue) { somethingChanged = true; }
+    });
+
+    popup.toggleClass("changed", somethingChanged);
+}); 
+
+$('.popup > p > input, .popup > p > textarea').on('keyup', function(event) {
+    var popupID = $(this).parents(".popup").attr("id");
+    if (event.key === "Escape") { hidePopup(popupID); }
+}); 
 
 
 ////////////////////////////////////////////////
@@ -289,9 +307,6 @@ function hideTips() {
     $(".tip").removeClass("show");
 }
 
-$('.tip').each(function () { this.addEventListener('swiped-down', function(event) { hideTips(); }); });
-key('esc', hideTips);
-
 // initialize swiper for tips
 var tipsConfig = {
     pagination: { el: '.tips-pagination', clickable: true },
@@ -301,6 +316,24 @@ var tipsConfig = {
     spaceBetween: 32,
     speed: 500,
 };
+
+function initializeTips() {
+    $('.tip').each(function () { 
+
+        var theTip = $(this);
+        var swiperID = $(this).find(".swiper-container").attr("id");
+        var tipSwiper = new Swiper ('#' + swiperID, tipsConfig);
+
+        key('left',  function () { if (theTip.hasClass("show")) { tipSwiper.slidePrev(); } });
+        key('right', function () { if (theTip.hasClass("show")) { tipSwiper.slideNext(); } });
+        key('space', function () { if (theTip.hasClass("show")) { tipSwiper.slideNext(); } });
+
+        this.addEventListener('swiped-down', function(event) { hideTips(); }); 
+
+    });
+}
+
+key('esc', hideTips);
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
