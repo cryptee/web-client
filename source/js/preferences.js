@@ -181,3 +181,18 @@ try {
     if (isNaN(inactivityTimeoutInMinutes)) { inactivityTimeoutInMinutes = 30; }
     $("#inactivityTimeoutInput").val(inactivityTimeoutInMinutes);
 } catch (e) {}
+
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	FONTS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+var defaultFont = "josefin-sans"; 
+try {
+    defaultFont = localStorage.getItem("defaultFont") || "josefin-sans";
+    if (!defaultFont) { defaultFont = "josefin-sans"; }
+} catch (e) {}

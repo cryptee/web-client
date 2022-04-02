@@ -75,7 +75,9 @@ option {
     white-space: nowrap;
 }
 
-
+input, textarea {
+    margin: 0;
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -143,6 +145,16 @@ GLOBAL VARIABLES, COLORS, TIMINGS ETC.
     /* 0.5s */
     --ios-keyboard-cb: cubic-bezier(0.38, 0.7, 0.125, 1);
     /* --ios-keyboard-cb: cubic-bezier(0.32, 0, 0.68, 1); */
+
+
+    /* FONT EXAMPLES IN EACH LANGUAGE / SCRIPT FAMILY */
+    /* https://en.wikipedia.org/wiki/Wikipedia:Language_recognition_chart */
+    --latin-extended-ex     : "\0178";
+    --cyrillic-script-ex    : "\042F";
+    --greek-script-ex       : "\03A9";
+
+    --arabic-script-ex      : "\064A";
+    --hebrew-script-ex      : "\05EA";
 }
 
 .green                    { color: var(--cryptee-green);  }
@@ -1514,6 +1526,10 @@ TIPS / GUIDES
     pointer-events: all;
 }
 
+.tip.hidden {
+    display: none !important;
+}
+
 .tip section p {
     text-transform: lowercase;
     text-align: justify;
@@ -1673,6 +1689,16 @@ ANIMATIONS
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
+
+
+
+
+
+
+
+
+
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1694,6 +1720,25 @@ MEDIA QUERIES
     .popup.corner { right: 0; }
 }
 
+
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+FEATURE TOGGLES 
+ 
+--------------------------------
+----------------------------- */
+
+body:not([pwa][navshare]) .show-for-navshare {
+    display: none !important;
+}
+
+body[pwa][navshare] .hide-for-navshare {
+    display: none !important;
+}
 
 
 

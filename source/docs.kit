@@ -6,21 +6,22 @@
 
     <title>Cryptee | Docs</title>
 
-    <link rel="stylesheet" href="../css/lib/swiper-bundle.min.css">
-    <link rel="stylesheet" href="../css/lib/quill.snow.css" />
-    <link rel="stylesheet" href="../css/lib/quill.bubble.css" />
-    <link rel="stylesheet" href="../css/lib/atom-one-light-10.1.2.css" />
-    <link rel="stylesheet" href="../css/lib/katex-0.12.0/katex.css" />
-    <link rel="stylesheet" href="../css/lib/tribute-5.1.3/tribute.css" />
+    <link rel="stylesheet"  href="../css/lib/swiper-bundle.min.css">
+    <link rel="stylesheet"  href="../css/lib/quill.snow.css" />
+    <link rel="stylesheet"  href="../css/lib/quill.bubble.css" />
+    
+    <link rel="preload"     href="../css/lib/atom-one-light-10.1.2.css"     as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload"     href="../css/lib/katex-0.12.0/katex.css"        as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload"     href="../css/lib/tribute-5.1.3/tribute.css"     as="style" onload="this.onload=null;this.rel='stylesheet'"/>
 
-    <!-- INSERT MORE CSS HERE -->
+    <!-- INSERT MORE LIB CSS HERE -->
 
-    <link rel="stylesheet" href="../css/docs.css">
-    <link rel="stylesheet" href="../css/quill-overrides.css">
-    <link rel="stylesheet" href="../css/typography.css">
-    <link rel="stylesheet" href="../css/papermode.css">
-    <link rel="stylesheet" href="../css/adapters.css">
-
+    <link rel="stylesheet"  href="../css/docs.css">
+    <link rel="preload"     href="../css/quill-overrides.css"               as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload"     href="../css/editor-fonts.css"                  as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet"  href="../css/typography.css">
+    <link rel="preload"     href="../css/papermode.css"                     as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet"  href="../css/adapters.css">
 
 </head>
 
@@ -102,6 +103,7 @@
     <!-- @import "imports/app/docs-dropdowns.kit" -->
     
     <!-- @import "imports/app/docs-panel-sort.kit" -->
+    <!-- @import "imports/app/docs-panel-fonts.kit" -->
     <!-- @import "imports/app/docs-panel-export.kit" -->
     <!-- @import "imports/app/docs-panel-docfile.kit" -->
     <!-- @import "imports/app/docs-panel-docinfo.kit" -->
@@ -140,42 +142,28 @@
     <input style="display:none!important;" type="file" id="upload-input" name="files[]" multiple/>
 
 
+    <!-- 
+
+        SCRIPTS WE NEED FOR THE APP
+
+    -->
 
     <!-- @import "imports/app/footer.kit" -->
     
     <script src="../js/lib/swiper-8.0.6/swiper-bundle.min.js"></script>
+    
 
-    <script src="../js/lib/exif-reader-3.12.3/exif-reader.js"></script>
+
+    
+    
+    <!-- 
+
+        SCRIPTS WE NEED FOR THE EDITOR
+
+    -->
     
     <script src="../js/lib/highlightjs-10.1.2/highlight.min.js"></script>
-    
-    <!-- markdown imports -->
-    <script src="../js/lib/showdown-1.9.1/showdown.min.js"></script>
-
-    <!-- markdown exports -->
-    <script src="../js/lib/turndown-7.0.0/turndown.js"></script>
-    <script src="../js/lib/turndown-7.0.0/turndown-plugin-gfm.js"></script>
-    
-    <!-- XML / EVERNOTE imports -->
-    <script src="../js/lib/xml2json/xml2json.js"></script>
-    
-    <!-- DOCX / WORD imports -->
-    <script src="../adapters/mammoth-1.4.16/mammoth.browser.min.js"></script>
-
-
-    <!-- zip imports / exports -->
-    <!-- <script src="../js/lib/jszip/jszip.min.js"></script> -->
-
-    <!-- docx exports -->
-    <script src="../js/lib/docx-5.4.1/index.min.js"></script>
-    
-    <!-- pdf exports -->
-    <script src="../js/lib/jspdf-2.4.0/jspdf.umd.min.js"></script>
-    <script src="../js/lib/html2canvas-1.3.2/html2canvas.min.js"></script>
-    <script src="../js/lib/html2pdf-0.10.1/html2pdf.min.js"></script>
-
     <script src="../js/lib/quill-1.3.7/quill.min.js"></script>
-
     <script src="../js/quill-modules/imports.js"></script>
     <script src="../js/quill-modules/clipboard.js"></script>
     <script src="../js/quill-modules/divider.js"></script>
@@ -201,6 +189,76 @@
 
 
 
+
+
+
+
+
+
+
+
+    <!-- 
+
+        SCRIPTS WE NEED FOR UPLOADS / IMPORTS / EXPORTS 
+        //THESE CAN BE DEFERRED. 
+
+        ---------------------------
+        < DEFER LOAD THESE SCRIPTS > 
+        ---------------------------
+
+    -->
+
+    <!-- exif reader -->
+    <script defer src="../js/lib/exif-reader-3.12.3/exif-reader.js"></script>
+
+    <!-- markdown imports -->
+    <script defer src="../js/lib/showdown-1.9.1/showdown.min.js"></script>
+
+    <!-- markdown exports -->
+    <script defer src="../js/lib/turndown-7.0.0/turndown.js"></script>
+    <script defer src="../js/lib/turndown-7.0.0/turndown-plugin-gfm.js"></script>
+    
+    <!-- XML / EVERNOTE imports -->
+    <script defer src="../js/lib/xml2json/xml2json.js"></script>
+    
+    <!-- DOCX / WORD imports -->
+    <script defer src="../adapters/mammoth-1.4.16/mammoth.browser.min.js"></script>
+
+
+    <!-- zip imports / exports -->
+    <!-- <script src="../js/lib/jszip/jszip.min.js"></script> -->
+
+    <!-- docx exports -->
+    <script defer src="../js/lib/docx-5.4.1/index.min.js"></script>
+    
+    <!-- pdf exports -->
+    <script defer src="../js/lib/jspdf-2.4.0/jspdf.umd.min.js"></script>
+    <script defer src="../js/lib/html2canvas-1.3.2/html2canvas.min.js"></script>
+    <script defer src="../js/lib/html2pdf-0.10.1/html2pdf.min.js"></script>
+
+
+    <!-- 
+        -----------------------------
+        < / DEFER LOAD THESE SCRIPTS >
+        -----------------------------
+    -->
+
+
+
+
+
+
+
+    
+
+    <!-- 
+
+        SCRIPTS FOR ALL OTHER APP LOGIC
+
+    -->
+
+
+
     <script src="../js/docs.js"></script>
     
     <script src="../js/docs/apis.js"></script> <!-- api operations--> 
@@ -212,7 +270,7 @@
     <script src="../js/docs/save-doc.js"></script> <!-- document saver / uploader -->
     <script src="../js/docs/sync.js"></script>     <!-- all sync operations --> 
     
-    <script src="../js/docs/html-to-docx.js"></script> <!-- docx pre-processor --> 
+    <script defer src="../js/docs/html-to-docx.js"></script> <!-- docx pre-processor --> 
     <script src="../js/docs/exporters.js"></script> <!-- all exporters --> 
     <script src="../js/docs/importers.js"></script> <!-- all importers --> 
     <script src="../js/docs/uploader.js"></script> <!-- file uploader --> 

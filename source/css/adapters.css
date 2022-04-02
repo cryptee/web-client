@@ -128,7 +128,7 @@ STATES
 
 
 /* SPLIT */
-@media (min-width : 1121px) {
+@media (min-width : 1172px) {
 
     body:not(.pinned).split #file-viewer:not(.loading) {
         height: 100%;
@@ -143,15 +143,15 @@ STATES
 }
 
 /* SPLIT */
-@media (min-width : 1696px) {
+@media (min-width : 1428px) {
 
-    body.split #file-viewer:not(.loading) {
+    body.split.pinned #file-viewer:not(.loading) {
         height: 100%;
-        width: 50%;
+        width: calc(50% - 160px + 2rem);
         box-shadow: none;
     }
 
-    body.split #splitFileViewerButton i::before {
+    body.split.pinned #splitFileViewerButton i::before {
         content : "\EFF3";
     }
 

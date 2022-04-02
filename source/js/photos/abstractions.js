@@ -1209,6 +1209,8 @@ async function startDownloads() {
 
     var batchSize = 2;
     var selections = selectedPhotos();
+    var isDownloadingMultiplePhotos = false;
+    if (selections.length > 1) { isDownloadingMultiplePhotos = true; }
 
     downloadingPhotos = true;
     downloadsCancelled = false;
@@ -1223,7 +1225,7 @@ async function startDownloads() {
             var firstPID = selections[index] || "";
             var secondPID = selections[index + 1] || "";
             $("#popup-download").find(".status").html(`DOWNLOADING ${index} / ${selections.length}`);
-            await Promise.all([downloadAndSavePhoto(firstPID), downloadAndSavePhoto(secondPID)]);
+            await Promise.all([downloadAndSavePhoto(firstPID, isDownloadingMultiplePhotos), downloadAndSavePhoto(secondPID, isDownloadingMultiplePhotos)]);
         }
     }
 
@@ -1241,10 +1243,15 @@ async function startDownloads() {
 /**
  * Downloads and saves a photo to disk
  * @param {string} pid Photo ID
+ * @param {*} isDownloadingMultiplePhotos (this will be passed = true, if we're downloading this photo as a part of a batch, which will force "save as", instead of showing the native share dialog in ios and android pwa) 
  */
-async function downloadAndSavePhoto(pid) {
+async function downloadAndSavePhoto(pid, isDownloadingMultiplePhotos) {
     if (!pid) { return false; } // likely the last in batch (an odd number)
     if (downloadsCancelled) { return false; } // download canceled;
+
+    // if we're downloading / saving multiple photos, 
+    // we'll need to force saveAs instead of showing the user the native share popup on ios/android PWA. 
+    isDownloadingMultiplePhotos = isDownloadingMultiplePhotos || false;
 
     breadcrumb(`[DOWNLOAD PHOTO] Downloading ${pid}`);
 
@@ -1266,10 +1273,10 @@ async function downloadAndSavePhoto(pid) {
     try {
         if (pid.endsWith("-v3")) {
             // if it's a v3 upload, img is a blob
-            saveAs(img, title);
+            saveAsOrShare(img, title, isDownloadingMultiplePhotos);
         } else {
             // if it's not a v3 upload, img is a b64
-            saveAs(dataURIToBlob(img), title);
+            saveAsOrShare(dataURIToBlob(img), title, isDownloadingMultiplePhotos);
         }
     } catch (error) {
         error.pid = pid;
@@ -1303,6 +1310,43 @@ async function selectAndDownloadActivePhoto() {
 }
 
 
+/**
+ * Displays the native navigator.share modal for the active photo
+ */
+async function openActivePhotoInAnotherApp() {
+    // active photo source can be a blob: url or a data: url. 
+    // first let's check which one. 
+    var activePhotoSrc = $(".swiper-slide-active.swiper-slide-visible").find("img").attr("src");
+    var photoBlob;
+
+    try {
+        if (activePhotoSrc.startsWith("data:")) {
+            photoBlob = dataURIToBlob(activePhotoSrc);
+        }
+        
+        if (activePhotoSrc.startsWith("blob:")) {
+            photoBlob = await fetch(activePhotoSrc).then(r => r.blob());
+        }
+    } catch (error) {
+        handleError("[OPEN PHOTO IN ANOTHER APP] Failed to get active photo blob from source.", error);
+        return;
+    }
+    
+    if (!photoBlob) {
+        handleError("[OPEN PHOTO IN ANOTHER APP] Photo source isn't data or blob. wtf? aborting.");
+        return;
+    }
+
+    var photoTitle;
+    
+    try {
+        photoTitle = photos[activePhotoID()].decryptedTitle || "Photo.jpg";
+    } catch (error) {
+        photoTitle = "Photo.jpg";
+    }
+
+    saveAsOrShare(photoBlob, photoTitle);
+}
 
 
 ////////////////////////////////////////////////
@@ -1831,16 +1875,17 @@ async function unfavoritePhoto(pid) {
 
     if (activeAlbumID === "favorites") {
         $("#" + pid).remove();
-    }
 
-    if ($("#lightbox").hasClass("show")) {
-        var slideIndex = getPhotoIndex(pid);
-        lbox.removeSlide(slideIndex);
-        if (lbox.slides.length <= 0) {
-            hideLightbox();
-            loadAlbum("home");
+        if ($("#lightbox").hasClass("show")) {
+            var slideIndex = getPhotoIndex(pid);
+            lbox.removeSlide(slideIndex);
+            if (lbox.slides.length <= 0) {
+                hideLightbox();
+                loadAlbum("home");
+            }
         }
     }
+    
 }
 
 

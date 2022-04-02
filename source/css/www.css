@@ -709,6 +709,57 @@ USE-CASES MORE
     background: linear-gradient(to bottom, #FFF 25%, var(--cryptee-4) 100%);
 }
 
+
+/* -----------------------------
+-------------------------------- 
+ 
+QUICK EXIT 
+ 
+--------------------------------
+----------------------------- */
+
+#quick-exit {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 100;
+    width: 100%;
+    max-height: 3.75rem;
+
+    background-color: var(--cryptee-red);
+    color: #FFF;
+    text-align: center;
+    cursor: pointer;
+
+    transition: 0.5s transform var(--cryptee-cb);
+    transform: translateY(0);
+}
+
+#quick-exit > span { 
+    font-size: 1rem;
+    line-height: 4rem;
+    float: right;
+    text-align: right;
+}
+
+#quick-exit > i {
+    float: right;
+    font-size: 1.325rem;
+    line-height: 3.875rem;
+    max-height: 3.75rem;
+    width: 2.75rem;
+    text-align: center;
+}
+
+.floatnav #quick-exit {
+    transform: translateY(3.75rem);
+}
+
+@media (max-width : 544px) {
+    #quick-exit { transform: translateY(4rem); max-height: 3.5rem; }
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1382,6 +1433,10 @@ ENABLE HOVERS
         padding-left: 0rem !important;
         transition-duration: 0.3s;
         transform: translateX(0);
+    }
+
+    #quick-exit:hover {
+        background-color: #e10000;
     }
 }
 

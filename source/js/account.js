@@ -231,11 +231,9 @@ async function exportAllMetadata() {
         return false;
     }
 
-    var allData;
     try {
-        allData = JSON.stringify(allDataRequest.data);
-        var blob = new Blob([allData], {type: "application/json;charset=utf-8"});
-        saveAs(blob, "Your Cryptee Metadata.json");
+        var blob = new Blob([JSON.stringify(allDataRequest.data)], {type: "application/json;charset=utf-8"});
+        saveAsOrShare(blob, "Your Cryptee Metadata.json");
     } catch (error) {
         handleError("[EXPORT ALL METADATA] Failed to export all data", error);
         createPopup("it seems we're having difficulty saving your data to your downloads folder. Please make sure your ad-blockers / browser settings aren't affecting your browser's download APIs and try again.", "error");

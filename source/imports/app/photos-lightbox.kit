@@ -1,17 +1,18 @@
 <!-- class="show" to show it -->
 <div id="lightbox"> 
-    <button class="lightbox-button" id="lightbox-close" onclick="closeLightbox()" title="close lightbox"><i class="ri-close-fill"></i></button>
-    <button class="lightbox-button hidden-below-tablet" id="lightbox-fullscreen" onclick="toggleFullScreen()" title="toggle fullscreen"><i class="ri-fullscreen-fill"></i></button>
-    
-    <button class="lightbox-button" id="lightbox-favorite" title="favorite/unfavorite photo"><i class="ri-heart-line"></i></button>
-    <button class="lightbox-button" id="lightbox-info" onclick="showEditPhotoPopup();" title="show/edit photo info"><i class="ri-information-fill"></i></button>
-    <button class="lightbox-button" id="lightbox-download" onclick="selectAndDownloadActivePhoto();" title="download photo"><i class="ri-download-fill"></i></button>
-
-    <button class="lightbox-button hidden-below-tablet" id="lightbox-previous" title="previous photo"><i class="ri-arrow-left-s-line"></i></button>
-    <button class="lightbox-button hidden-below-tablet" id="lightbox-next" title="next photo"><i class="ri-arrow-right-s-line"></i></button>
-    
     <progress   id="lightbox-progress" class="progress" value="0" max="100"></progress>
 
+    <button class="lightbox-button"                                             id="lightbox-close" onclick="closeLightbox()" title="close lightbox"><i class="ri-close-fill"></i></button>
+    <button class="lightbox-button hidden-below-tablet"                         id="lightbox-fullscreen" onclick="toggleFullScreen()" title="toggle fullscreen"><i class="ri-fullscreen-fill"></i></button>
+    
+    <button class="lightbox-button hidden-while-loading"                        id="lightbox-favorite"  title="favorite/unfavorite photo"><i class="ri-heart-line"></i></button>
+    <button class="lightbox-button hidden-while-loading"                        id="lightbox-info"      onclick="showEditPhotoPopup();" title="show/edit photo info"><i class="ri-information-fill"></i></button>
+    <button class="lightbox-button hidden-while-loading hide-for-navshare"      id="lightbox-download"  onclick="selectAndDownloadActivePhoto();" title="download photo"><i class="ri-download-fill"></i></button>
+    <button class="lightbox-button hidden-while-loading show-for-navshare"      id="lightbox-open-in"   onclick="openActivePhotoInAnotherApp();" title="open photo in another app"><i class="ri-share-circle-fill"></i></button>
+
+    <button class="lightbox-button hidden-below-tablet"                         id="lightbox-previous" title="previous photo"><i class="ri-arrow-left-s-line"></i></button>
+    <button class="lightbox-button hidden-below-tablet"                         id="lightbox-next" title="next photo"><i class="ri-arrow-right-s-line"></i></button>
+    
     <div id="lightbox-swipe-container"><div class="lightbox-wrapper"></div></div>
     <!-- <img src="https://images.unsplash.com/photo-1574691612770-2a792c7197a0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9"> -->
 </div>

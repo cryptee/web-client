@@ -15,6 +15,20 @@ setSentryTag("quill-ver", Quill.version);
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	PAPER MODE RELATED INIT
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+// for splitting words use the "w" attribute
+var WordAttribute = new Parchment.Attributor.Attribute('w', 'w', { scope: Parchment.Scope.INLINE });
+Parchment.register(WordAttribute);
+Quill.register(WordAttribute, true);
+
+
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 // 	 FONTS AND TYPOGRAPHY
@@ -30,10 +44,16 @@ Quill.register(Bold, true);
 Italic.tagName = 'i';
 Quill.register(Italic, true);
 
-// for splitting words use the "w" attribute
-var WordAttribute = new Parchment.Attributor.Attribute('w', 'w', { scope: Parchment.Scope.INLINE });
-Parchment.register(WordAttribute);
-Quill.register(WordAttribute, true);
+
+var fonts = ['Arimo', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Inter', 'Josefin Sans', 'Markazi', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
+var fontNames = [];
+
+fonts.forEach(function(font) { fontNames.push(font.toLowerCase().replace(/\s/g, "-")); });
+
+// Add fonts to whitelist
+
+Font.whitelist = fontNames;
+Quill.register(Font, true);
 
 
 ////////////////////////////////////////////////
@@ -96,30 +116,13 @@ function androidPredictiveKeyboardNewlineFix(delta, oldDelta, source) {
 
 
 
-var fonts = ['Arimo', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Inter', 'Josefin Sans', 'Markazi', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
-var fontNames = [];
-var fontStyles = "";
-var fontOptions = "";
 
-fonts.forEach(function(font) {
-  var fontName = font.toLowerCase().replace(/\s/g, "-");
-  var selected = "";
-  if (fontName === "josefin-sans") { selected = "selected"; }
 
-  fontNames.push(fontName);
-  fontStyles += ".ql-snow .ql-picker.ql-font .ql-picker-label[data-value=" + fontName + "]::before, .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=" + fontName + "]::before { content: '" + font + "'; font-family: '" + font + "', sans-serif; } .ql-font-" + fontName + "{ font-family: '" + font + "', sans-serif; }";
-  fontOptions += `<option value="${fontName}" ${selected}>${font}</option>`;
-});
 
-var node = document.createElement('style');
-node.innerHTML = fontStyles;
-document.body.appendChild(node);
-$(".ql-font").append(fontOptions);
 
-// Add fonts to whitelist
 
-Font.whitelist = fontNames;
-Quill.register(Font, true);
+
+
 
 
 ////////////////////////////////////////////////

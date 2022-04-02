@@ -1289,6 +1289,14 @@ body[env] #popup-album-info .albumid {
     user-select: all;
 }
 
+
+/* LIGHTBOX STATES */
+
+#lightbox-progress:not([value][max]) ~ .lightbox-button.hidden-while-loading {
+    pointer-events: none !important;
+    opacity: 0.15;
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1929,6 +1937,7 @@ MEDIA QUERIES
     #lightbox-favorite   { grid-column: 3/4; }
     /* #lightbox-info       { grid-column: 4/5; } */
     #lightbox-download   { grid-column: 4/5; }
+    #lightbox-open-in    { grid-column: 4/5; }
 
     #sorter small, #sorter i { max-width: 3rem; min-width: 3rem; }
     #sorter { padding-left: 1.5rem; }

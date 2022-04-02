@@ -104,60 +104,402 @@ TOOLBAR OVERRIDES
 /* -----------------------------
 -------------------------------- 
  
-FONT DROPDOWN 
+FONTS / FONT DROPDOWN 
  
 --------------------------------
 ----------------------------- */
 
-.ql-font,
-.ql-font .ql-picker-label {
-    text-align: left !important;
-    width: 2.25rem !important;
-    margin-right: 0.5rem !important;
+
+#panel-fonts {
+    top: var(--top-pos, 3.5rem);
+    left: var(--left-pos, 5rem);
+    right: auto;
+
+    width: 20rem;
+    min-height: 31.5rem;
+    border-radius: 1rem;
+    
+    background-color: #404040;
+    display: grid;
+    grid-template-columns: 1fr 3rem;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+
+    transform: translate3d(0, -1.5rem, 0);
 }
 
-.ql-font .ql-picker-label:before {
-    content: "\ED8D" !important;
-    display: inline-block;
+#panel-fonts.show {
+    transform: translate3d(0, 0, 0);
+}
+
+#panel-fonts > div { 
+    height: 100%;
+}
+
+#font-families-wrapper {
+    grid-column: 1/2;
+    z-index: 2;
+
+    padding: 0.5rem 0;
+    box-sizing: border-box;
+    background-color: #000;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+    border-radius: 1rem;
+
+    color: #FFF;
+}
+
+#font-sizes-wrapper {
+    grid-column: 2/3;
+    z-index: 1;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 8rem;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    row-gap: 0.5rem;
+}
+
+#font-sizes-wrapper > div {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 2rem;
+    background-color: #000;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#font-sizes-wrapper button {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    padding-top: 0.125rem !important;
+    color: #bbb;
+    background-color: none !important;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    border-radius: 2rem;
+    z-index: 2;
+
+    transition: 0.5s color var(--cryptee-cb);
+}
+
+#font-sizes-wrapper button i {
+    width: 2rem;
     line-height: 2rem;
     height: 2rem;
-    
-    font-size: 1rem;
-    font-family: 'remixicon' !important;
-    font-style: normal;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+}
+
+/* paragraph button */
+#font-sizes-wrapper button[value="p"] {
+    line-height: 1.5rem;
+    padding-bottom: 0.25rem !important;
+}
+
+.selection-highlight {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    background-color: #FFF;
+    border: 1px solid #FFF;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 1.5rem;
+    box-sizing: border-box;
+    transform: translateY(0);
+    transition: 0.5s transform var(--cryptee-cb), 0.5s background-color var(--cryptee-cb);
+}
+
+.paragraph-styles .selection-highlight {
+    top: auto;
+    bottom: 0.75rem;
+}
+
+#font-sizes-wrapper button[selected] { color : #000 !important; }
+
+
+/* font size */
+#font-sizes-wrapper button[selected][size="8px"]  ~ .selection-highlight { transform: translateY(0);     }
+#font-sizes-wrapper button[selected][size="10px"] ~ .selection-highlight { transform: translateY(2rem);  }
+#font-sizes-wrapper button[selected][size="13px"] ~ .selection-highlight { transform: translateY(4rem);  }
+#font-sizes-wrapper button[selected][size="16px"] ~ .selection-highlight { transform: translateY(6rem);  }
+#font-sizes-wrapper button[selected][size="18px"] ~ .selection-highlight { transform: translateY(8rem);  }
+#font-sizes-wrapper button[selected][size="20px"] ~ .selection-highlight { transform: translateY(10rem); }
+#font-sizes-wrapper button[selected][size="24px"] ~ .selection-highlight { transform: translateY(12rem); }
+#font-sizes-wrapper button[selected][size="30px"] ~ .selection-highlight { transform: translateY(14rem); }
+#font-sizes-wrapper button[selected][size="36px"] ~ .selection-highlight { transform: translateY(16rem); }
+#font-sizes-wrapper button[selected][size="40px"] ~ .selection-highlight { transform: translateY(18rem); }
+#font-sizes-wrapper button[selected][size="48px"] ~ .selection-highlight { transform: translateY(20rem); }
+
+/* paragraph styles */
+#font-sizes-wrapper button[selected]:not([value]):not([size]) ~ .selection-highlight  { transform: translateY(0);      }
+#font-sizes-wrapper button[selected][value="3"] ~ .selection-highlight    { transform: translateY(-2rem);  }
+#font-sizes-wrapper button[selected][value="2"] ~ .selection-highlight    { transform: translateY(-4rem);  }
+#font-sizes-wrapper button[selected][value="1"] ~ .selection-highlight    { transform: translateY(-6rem);  }
+
+#font-sizes-wrapper button[selected][size="16px"] { color: #bbb !important; }
+#font-sizes-wrapper button[selected][size="16px"] ~ .selection-highlight {  background-color: #000; }
+
+#font-families-wrapper .fonts-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#font-families-wrapper .labels {
+    line-height: 2rem;
+    height: 2rem;
+    padding: 0 1rem;
+}
+
+#font-families-wrapper .fonts-list + .labels {
+    padding-top: 0.5rem;
+    line-height: 1.5rem;
+}
+
+#font-families-wrapper .labels small {
+    margin-top: 0;
+    color: var(--cryptee-3);
+    line-height: 2rem;
+}
+
+#font-families-wrapper .labels small:nth-child(2) {
+    float: right;
+}
+
+#font-families-wrapper .fonts-list .font {
+    height: 2rem;
+    line-height: 2rem;
+    box-sizing: border-box;
     vertical-align: middle;
+    font-weight: 350;
+    padding: 0 0.25rem 0 1rem;
+    width: calc(100% - 0.5rem);
+    border-radius: 0 0.5rem 0.5rem 0;
+
+    display: grid;
+    grid-template-columns: 1fr 4.5rem;
+    grid-template-rows: 1fr;
+
+    background-color: transparent;
+    transition: 0.3s background-color ease;
+    
     cursor: pointer;
 }
 
-.ql-font .ql-picker-options {
-    display: grid !important;
+#font-families-wrapper .fonts-list .font[selected] {
+    background-color: #404040;
 }
 
-.ql-font .ql-picker-options span {
-    line-height: 2.5rem !important;
-    height: 2.5rem !important;
-    font-weight: 350;
+#font-families-wrapper .fonts-list .font button {
+    height: 1.5rem;
+    padding: 0;
+    color: #FFF;
+    font-size: 0.75rem;
+    grid-column: 2/3;
+    grid-row: 1/2;
+    text-align: center;
+    line-height: 1.625rem;
+    margin-top: 0.25rem;
+    background-color: #000;
+    border-radius: 6px;
+
+    opacity: 1;
+
+    transition: 0.3s opacity ease;
 }
 
-.ql-font .ql-picker-options span:last-child {
-    margin-bottom: 0.5rem;
+#font-families-wrapper .fonts-list .font button::before { content: "set default"; }
+#font-families-wrapper .fonts-list .font[default] button::before { content: "default"; }
+
+#font-families-wrapper .fonts-list .font:not([selected]):not([default]) button {
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
-.ql-font .ql-picker-options .ql-selected {
-    order: -1;
-    padding-bottom: 2.5rem !important;
-    border-bottom: 1px solid #000 !important;
-    color: #000 !important;
-    margin-left: -1rem;
-    padding-left: 1rem;
-    width: calc(100% + 2rem);
+#font-families-wrapper .fonts-list .font[default] button {
+    background-color: transparent;
+    pointer-events: none !important;
+    text-align: right;
+    padding-right: 0.25rem;
 }
 
-.dm .ql-font .ql-picker-options .ql-selected {
-    color: white !important;
+#font-families-wrapper .fonts-list .font .examples {
+    grid-column: 2/3;
+    grid-row: 1/2;
+    text-align: right;
+    padding-right: 0.25rem;
+    box-sizing: border-box;
+    color: #888;
+
+    transition: 0.3s color ease;
 }
+
+
+
+
+/* FONT PREVIEWS & OVERRIDES */
+
+
+.ql-editor, 
+.ql-tooltip {
+    font-family: "Josefin Sans"; 
+}
+
+/* DEFAULT / DOCUMENT FONTS  */
+.ql-editor[font="arial"]            { font-family: 'Arial', sans-serif; }
+.ql-editor[font="comic-sans-ms"]    { font-family: 'Comic Sans MS', sans-serif; }
+.ql-editor[font="courier"]          { font-family: 'Courier', sans-serif; }
+.ql-editor[font="georgia"]          { font-family: 'Georgia', sans-serif; }
+.ql-editor[font="helvetica"]        { font-family: 'Helvetica', sans-serif; }
+.ql-editor[font="josefin-sans"]     { font-family: 'Josefin Sans', sans-serif; }
+.ql-editor[font="palatino"]         { font-family: 'Palatino', sans-serif; }
+.ql-editor[font="tahoma"]           { font-family: 'Tahoma', sans-serif; }
+.ql-editor[font="times-new-roman"]  { font-family: 'Times New Roman', sans-serif; }
+.ql-editor[font="verdana"]          { font-family: 'Verdana', sans-serif; }
+.ql-editor[font="arimo"]            { font-family: 'Arimo', sans-serif; }
+.ql-editor[font="inter"]            { font-family: 'Inter', sans-serif; }
+.ql-editor[font="markazi"]          { font-family: 'Markazi', sans-serif; }
+
+/* USER-SELECTED OVERRIDES & DROPDOWNS */
+
+.ql-font-arial,
+#font-families-wrapper .fonts-list .font[font="arial"] .name,
+#font-families-wrapper .fonts-list .font[font="arial"] .examples {
+    font-family: 'Arial', sans-serif;
+}
+
+.ql-font-comic-sans-ms,
+#font-families-wrapper .fonts-list .font[font="comic-sans-ms"] .name,
+#font-families-wrapper .fonts-list .font[font="comic-sans-ms"] .examples {
+    font-family: 'Comic Sans MS', sans-serif;
+}
+
+.ql-font-courier,
+#font-families-wrapper .fonts-list .font[font="courier"] .name,
+#font-families-wrapper .fonts-list .font[font="courier"] .examples {
+    font-family: 'Courier', sans-serif;
+}
+
+.ql-font-georgia,
+#font-families-wrapper .fonts-list .font[font="georgia"] .name,
+#font-families-wrapper .fonts-list .font[font="georgia"] .examples {
+    font-family: 'Georgia', sans-serif;
+}
+
+.ql-font-helvetica,
+#font-families-wrapper .fonts-list .font[font="helvetica"] .name,
+#font-families-wrapper .fonts-list .font[font="helvetica"] .examples {
+    font-family: 'Helvetica', sans-serif;
+}
+
+.ql-font-josefin-sans,
+#font-families-wrapper .fonts-list .font[font="josefin-sans"] .name,
+#font-families-wrapper .fonts-list .font[font="josefin-sans"] .examples {
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.ql-font-palatino,
+#font-families-wrapper .fonts-list .font[font="palatino"] .name,
+#font-families-wrapper .fonts-list .font[font="palatino"] .examples {
+    font-family: 'Palatino', sans-serif;
+}
+
+.ql-font-tahoma,
+#font-families-wrapper .fonts-list .font[font="tahoma"] .name,
+#font-families-wrapper .fonts-list .font[font="tahoma"] .examples {
+    font-family: 'Tahoma', sans-serif;
+}
+
+.ql-font-times-new-roman,
+#font-families-wrapper .fonts-list .font[font="times-new-roman"] .name,
+#font-families-wrapper .fonts-list .font[font="times-new-roman"] .examples {
+    font-family: 'Times New Roman', sans-serif;
+}
+
+.ql-font-verdana,
+#font-families-wrapper .fonts-list .font[font="verdana"] .name,
+#font-families-wrapper .fonts-list .font[font="verdana"] .examples {
+    font-family: 'Verdana', sans-serif;
+}
+
+/* L10N FONTS */
+
+.ql-font-arimo,
+#font-families-wrapper .fonts-list .font[font="arimo"] .name,
+#font-families-wrapper .fonts-list .font[font="arimo"] .examples {
+    font-family: 'Arimo', sans-serif;
+}
+
+.ql-font-inter,
+#font-families-wrapper .fonts-list .font[font="inter"] .name,
+#font-families-wrapper .fonts-list .font[font="inter"] .examples {
+    font-family: 'Inter', sans-serif;
+}
+
+.ql-font-markazi,
+#font-families-wrapper .fonts-list .font[font="markazi"] .name,
+#font-families-wrapper .fonts-list .font[font="markazi"] .examples {
+    font-size: 20px;
+    font-family: 'Markazi', sans-serif;
+}
+
+/* FONT EXAMPLES */
+
+#font-families-wrapper .fonts-list .font[font="arimo"] .examples::after {
+    content: "Aä " var(--cyrillic-script-ex) " " var(--greek-script-ex) " " var(--hebrew-script-ex) !important;
+}
+
+#font-families-wrapper .fonts-list .font[font="inter"] .examples::after {
+    content: "Aä " var(--cyrillic-script-ex) " " var(--greek-script-ex) !important;
+}
+
+#font-families-wrapper .fonts-list .font[font="markazi"] .examples::after {
+    content: "Aä " var(--arabic-script-ex) !important;
+}
+
+
+
+/* MOBILE / BUBBLE OVERRIDES */
+
+body.bubble #panel-fonts {
+    top: auto;
+    bottom: 5rem;
+    left: 1rem;
+
+    transform: translate3d(0, 1.5rem, 0);
+    /* min-height: 16.5rem; */
+}
+
+body.bubble #panel-fonts.show {
+    transform: translate3d(0, 0, 0);
+}
+
+/* body.bubble #panel-fonts .font-sizes {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body.bubble #panel-fonts .font-sizes button {
+    display: none !important;
+}
+
+body.bubble #panel-fonts .fonts-list.system {
+    overflow-y: scroll;
+    max-height: 5rem;
+}
+
+body.bubble #panel-fonts .fonts-list.system .font[selected] {
+   order: -1; 
+} */
+
 
 /* -----------------------------
 -------------------------------- 
@@ -1560,6 +1902,24 @@ HOVERS
 
     .ql-editor img[src="//:0"]:hover,
     .ql-editor img[src="//:0"]:hover::before { background-color: #ffcc00; }
+
+    #font-sizes-wrapper button:hover {
+        background-color: transparent !important;
+        color: #fff;
+    }
+
+    #font-sizes-wrapper button[selected]:hover {
+        background-color: transparent !important;
+        color: #000;
+    }
+
+    #font-families-wrapper .fonts-list .font:not([selected]):hover {
+        background-color: #303030;
+    }
+
+    #font-families-wrapper .fonts-list .font:not([selected]):hover .examples {
+        color: #FFF;
+    }
 
 }
 

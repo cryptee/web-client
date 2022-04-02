@@ -3305,3 +3305,71 @@ async function summonGhostFolder(hash) {
     return true;
 
 }
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	DOCUMENT METADATA
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+/**
+ * Takes a plaintext document delta object (plaintextContents) and enriches it by adding in document metadata. (i.e. documentFont)
+ * @param {Object} plaintextContents 
+ * @param {Boolean} [isItForNewDoc] (forces things like using defaultFont vs getting the document's font from DOM) 
+ * @returns {Object} plaintextContents
+ */
+ function addDocumentMetadataToDelta(plaintextContents, isItForNewDoc) {
+
+    plaintextContents = plaintextContents || {};
+    isItForNewDoc = isItForNewDoc || false;
+
+    breadcrumb('[DOC META] Saving document metadata');
+
+    /**
+     * documentFont (a.k.a. device default font at the time of document creation / save)
+     */
+    var documentFont = $(".ql-editor").attr("font") || defaultFont;
+    if (isItForNewDoc) { documentFont = defaultFont; }
+    
+    plaintextContents.metadata = {
+        
+        "documentFont" : documentFont,
+        
+    };
+    
+    breadcrumb('[DOC META] Saved document metadata');
+    return plaintextContents;
+
+}
+
+/**
+ * Takes a plaintext document delta object (plaintextContents), and loads document's metadata into the DOM / Editor. (i.e. documentFont)
+ * @param {Object} plaintextContents 
+ * @returns {Object} plaintextContents
+ */
+function loadDocumentMetadataFromDelta(plaintextContents) {
+    
+    plaintextContents = plaintextContents || {};
+    
+    breadcrumb('[DOC META] Loading document metadata');
+    
+    // if we don't have any metadata, return defaults
+    if (isEmpty(plaintextContents.metadata)) { 
+        plaintextContents.metadata = {
+            documentFont : "josefin-sans", // for backwards compatibility with documents that don't have a font
+        };
+        breadcrumb('[DOC META] Document has no metadata will use defaults');
+    }
+    
+    // Load documentFont (a.k.a. device default font at the time of document creation / save)
+    $(".ql-editor").attr("font", plaintextContents.metadata.documentFont);
+    
+    // if quill throws a tantrum, start deleting these. 
+    // delete plaintextContents.metadata.documentFont;
+    
+    breadcrumb('[DOC META] Loaded document metadata');
+    return plaintextContents;
+
+}

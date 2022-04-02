@@ -626,21 +626,26 @@ authenticate(function(user){
 
 // LOADING ALBUMS / PHOTOS STARTS EVEN BEFORE WE START CHECKING FOR THE KEY
 // WE PREPARE A LIST OF ALBUMS & PREP VIRTUAL DOM. THIS WAY WE CAN SAVE TIME DOWNLOADING
+// ONCE IT'S DONE, WE SET THIS TO TRUE, AND STARTUP CONTINUES.
 
-var gettingAlbumPhotos = true; 
+var preStartupComplete = false; 
 
 async function preStartup() {
     
     var albumToLoad = getUrlParameter("album") || "home";
 
+    await Promise.all([getAlbums(), getAlbumPhotos(albumToLoad), getAlbumPhotos("favorites")]);
+    preStartupComplete = true; // ready for startup
+
     // load all albums' info (i.e. albumnames / dates etc)
-    await getAlbums();
+    // await getAlbums();
     
     // load album's photos (or if we're home, loads all photos without albums)
-    await getAlbumPhotos(albumToLoad);
+    // await getAlbumPhotos(albumToLoad);
 
     // load all favorites
-    await getAlbumPhotos("favorites");
+    // await getAlbumPhotos("favorites");
+
 }
 
 
@@ -655,7 +660,7 @@ async function startup() {
     var albumToLoad = getUrlParameter("album") || "home";
 
     // if we're still getting the album for the first time, wait before you load the album
-    if (gettingAlbumPhotos) { return setTimeout(startup, 100); }
+    if (!preStartupComplete) { return setTimeout(startup, 100); }
     
     if (albumToLoad === "favorites" || albumToLoad === "favourites") {
         await loadFavorites();

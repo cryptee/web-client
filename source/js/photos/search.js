@@ -1171,11 +1171,17 @@ async function displaySearchResults(sr) {
 
         sr.results.forEach(result => {
             var aid = photos[result.id].aid;
-            resultAlbums[aid] = (resultAlbums[aid] || 0) + 1;
+            if (aid !== "home") {
+                resultAlbums[aid] = (resultAlbums[aid] || 0) + 1;
+            } else {
+                resultsHTML.push(renderPhoto(result.id, true));
+            }
         });
 
         Object.keys(resultAlbums).forEach(aid => {
-            resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS"));
+            if (aid !== "home") {
+                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS"));
+            }
         });
         
     }

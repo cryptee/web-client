@@ -41,7 +41,7 @@ async function exportAsHTML(event) {
     }
 
     var blob = new Blob([processedHTML], {type: "text/html;charset=utf-8"});
-    saveAs(blob, exportTitle + ".html");
+    saveAsOrShare(blob, exportTitle + ".html");
 
     hidePanels();
 }
@@ -78,7 +78,7 @@ async function exportAsMarkdown() {
     var markdown = turndownConverter.turndown(processedHTML);
     
     var blob = new Blob([markdown], {type: "text/markdown; charset=UTF-8"});
-    saveAs(blob, documentName + ".md");
+    saveAsOrShare(blob, documentName + ".md");
     
     hidePanels();
 }
@@ -127,7 +127,7 @@ async function exportAsECD(useUserKey) {
 
     var title = documentName + ".ecd";
     var blob = new Blob([stringifiedEncryptedDocDelta], {type: "application/json;charset=utf-8"});
-    saveAs(blob, title);
+    saveAsOrShare(blob, title);
 
     hideActiveModal();
 
@@ -178,7 +178,7 @@ async function exportAsDOCX() {
         return false;
     } 
     
-    saveAs(docxBlob, documentName + ".docx");
+    saveAsOrShare(docxBlob, documentName + ".docx");
     
     hidePanels();
 
@@ -227,7 +227,8 @@ var downloadingFiles = false;
  * @param {string} [whatToDownload] Optionally provided, if we're downloading a right click'ed single doc, instead of selections.
  */
 async function downloadFiles(whatToDownload) {
-    
+    var isDownloadingAndSavingMultipleFiles = false;
+
     arrayOfDIDsToDownload = selections;
     if (arrayOfDIDsToDownload.length === 0) { 
         arrayOfDIDsToDownload = [$("#dropdown-doc").attr("did")]; 
@@ -244,6 +245,8 @@ async function downloadFiles(whatToDownload) {
         breadcrumb("[DOWNLOAD FILES] Nothing to download");
         return false;
     }
+
+    if (arrayOfDIDsToDownload.length > 1) { isDownloadingAndSavingMultipleFiles = true; }
 
     var connection = checkConnection();
     if (!connection) { 
@@ -273,7 +276,7 @@ async function downloadFiles(whatToDownload) {
             var firstDID = arrayOfDIDsToDownload[index] || "";
             var secondDID = arrayOfDIDsToDownload[index + 1] || "";
             $("#popup-download").find(".status").html(`DOWNLOADING ${index} / ${arrayOfDIDsToDownload.length}`);
-            await Promise.all([downloadAndSaveFile(firstDID), downloadAndSaveFile(secondDID)]);
+            await Promise.all([downloadAndSaveFile(firstDID, isDownloadingAndSavingMultipleFiles), downloadAndSaveFile(secondDID, isDownloadingAndSavingMultipleFiles)]);
         }
     }
 
@@ -303,11 +306,20 @@ async function downloadFiles(whatToDownload) {
 
 
 
-
-async function downloadAndSaveFile(did) {
+/**
+ * Download, decrypt and saveAs file.  
+ * @param {String} did 
+ * @param {*} isDownloadingAndSavingMultipleFiles (this will be passed = true, if we're downloading this file as a part of a batch, which will force "save as", instead of showing the native share dialog in ios and android pwa) 
+ * @returns 
+ */
+async function downloadAndSaveFile(did, isDownloadingAndSavingMultipleFiles) {
 
     if (!did) { return false; } // likely the last in the batch (i.e. an odd number)
     if (downloadsCancelled) { return false; } // downloads cancelled; 
+
+    // if we're downloading / saving multiple files, 
+    // we'll need to force saveAs instead of showing the user the native share popup on ios/android PWA. 
+    isDownloadingAndSavingMultipleFiles = isDownloadingAndSavingMultipleFiles || false;
 
     breadcrumb(`[DOWNLOAD FILES] Downloading ${did}`);
 
@@ -334,14 +346,14 @@ async function downloadAndSaveFile(did) {
     try {
         if (file.isfile && (did.endsWith("-v3") || file.modified)) {
             // if it's a v3 upload, file is a blob
-            saveAs(uInt8ArrayToBlob(fileContents, file.mime), filename);
+            saveAsOrShare(uInt8ArrayToBlob(fileContents, file.mime), filename, isDownloadingAndSavingMultipleFiles);
         } else {
             if (file.isfile) {
                 // if it's not a v3 upload, file is a b64
-                saveAs(dataURIToBlob(fileContents), filename);
+                saveAsOrShare(dataURIToBlob(fileContents), filename, isDownloadingAndSavingMultipleFiles);
             } else {
                 // if it's a doc, we'll save it as uecd 
-                saveAs(new Blob([JSON.stringify(fileContents)], {type: "application/json;charset=utf-8"}), filename + ".uecd");
+                saveAsOrShare(new Blob([JSON.stringify(fileContents)], {type: "application/json;charset=utf-8"}), filename + ".uecd", isDownloadingAndSavingMultipleFiles);
             }
         }
     } catch (error) {

@@ -188,6 +188,9 @@ async function loadedDocPrepareEditor(doc, did, docContents, connection, forceSa
     // https://github.com/cryptee/web-client/issues/102
     quill.setContents("");
     
+    // Load document metadata from the delta
+    docContents = loadDocumentMetadataFromDelta(docContents);
+
     // add delta into the editor. 
     try {
         quill.setContents(docContents);

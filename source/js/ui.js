@@ -300,11 +300,19 @@ $(".modal").on('keyup', 'input:first-child, input:last-child' , function(event) 
 
 function showTip(tipsID) {
     if (!tipsID) { return false; }
-    $("#" + tipsID).addClass("show");
+    var tip = $("#" + tipsID);
+    tip.removeClass("hidden");
+    setTimeout(function () {
+        tip.addClass("show");
+    }, 10);
 }
 
 function hideTips() {
-    $(".tip").removeClass("show");
+    var tip = $(".tip.show");
+    tip.removeClass("show");
+
+    var animationDuration = parseFloat(tip.css("transition-duration")) * 1000;
+    setTimeout(function () { tip.addClass("hidden"); }, (animationDuration + 10));
 }
 
 // initialize swiper for tips
@@ -512,16 +520,39 @@ $(document).on('ready', getLocale);
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-//	SET ENVIRONMENT CLASSES TO HTML & CSS
+//	SET ENVIRONMENT / FEATURE CLASSES & ATTRIBUTES TO HTML & CSS
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-function setEnvironmentClasses() {
+// This is for feature detection, changing appearance etc cross platform. 
+// i.e. for safari / pwa / navigator.share availability etc. 
+
+function setEnvironmentClassesAndAttributes() {
     if (env !== "prod" && env !== "beta") { $("body").attr("env", env); }
     else { $("body").removeAttr("env"); }
 }
 
-$(document).on('ready', setEnvironmentClasses); 
+$(document).on('ready', setEnvironmentClassesAndAttributes); 
+
+function setFeatureClassesAndAttributes() {
+
+    if (isInstalled) {
+        $("body").attr("pwa", 1); 
+    }
+    else { 
+        $("body").removeAttr("pwa"); 
+    }
+
+    if (navigator.share && navigator.canShare && (isAndroid || isios || isipados) && isInstalled) {
+        $("body").attr("navshare", 1);
+    } else {
+        $("body").removeAttr("navshare");
+    }
+
+}
+
+$(document).on('ready', setFeatureClassesAndAttributes); 
+
 
 
 ////////////////////////////////////////////////
@@ -546,6 +577,7 @@ $("body").on('click', '.copy-on-click', function(event) {
 ////////////////////////////////////////////////
 
 async function prepKeyModal() {
+
     var lastImgNo = 0;
     var numImages = 96;
     
@@ -562,19 +594,12 @@ async function prepKeyModal() {
     
     sessionStorage.setItem("imgno", imgNo);
 
-    var authorsURL = "https://static.crypt.ee/splash/bw-portrait/authors.json";
-    var authorName = "";
-    var authorURL = "";
-    try {
-        var authorsResponse = await axios.get(authorsURL);
-        var authors = authorsResponse.data;
-        var author = authors[imgNo];
-        authorName = author.author;
-        authorURL = author.author_url;
-    } catch (e) {}
+    var imgResponse = await fetch(apiROOT + "/api/splash/" + imgNo);
+    var authorName  = imgResponse.headers.get("author-name");
+    var imgBlob     = await imgResponse.blob();
+    var imgBlobURL  = URL.createObjectURL(imgBlob);
 
-    var imgURL = "https://static.crypt.ee/splash/bw-portrait/" + imgNo + ".jpg";
-    $("#key-image").attr("src", imgURL);
+    $("#key-image").attr("src", imgBlobURL);
     $("#key-image").on('load', function(event) {
         var img = $(this);
         setTimeout(function () {
@@ -582,14 +607,12 @@ async function prepKeyModal() {
         }, 100);
     }); 
     
-    $("#key-image-author").text("© " + authorName);
-    $("#image-author").text("© " + authorName);
+    if (authorName) {
+        $("#key-image-author").text("© " + authorName);
+        $("#image-author").text("© " + authorName);
+    }
 
 }
-
-prepKeyModal();
-
-
 
 
 

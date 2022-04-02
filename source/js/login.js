@@ -15,6 +15,7 @@
 
 $(window).on("load", function (event) {
     if (inIframe()) { iframeWarning(); }
+    prepKeyModal();
 });
 
 function iframeWarning() {
@@ -186,11 +187,18 @@ function disableGoogleButtonIfNecessary() {
 
 $("#g").on('click', loginWithGoogle);
 
-function loginWithGoogle() {
+async function loginWithGoogle() {
     startProgress();
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.addScope('email');
-    firebase.auth().signInWithPopup(provider).catch(function (error) {
+    
+    try {
+        if (isInWebAppiOS) {
+            await firebase.auth().signInWithRedirect(provider);
+        } else {
+            await firebase.auth().signInWithPopup(provider);
+        }
+    } catch (error) {
         if (error.code === "auth/web-storage-unsupported") {
             stopProgress();
             showPopup(
@@ -211,5 +219,6 @@ function loginWithGoogle() {
             breadcrumb('[LOGIN] Other error. Likely user closed google popup');
             showPopup("popup-login", `there seems to be an error logging you in. please try again shortly.`, "warning");
         }
-    });
+    }
+    
 }

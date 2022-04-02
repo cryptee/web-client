@@ -1192,6 +1192,121 @@ $("#rightSlide").on('click', function(event) {
     }
 }); 
 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	FONTS PANEL
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+var fontsPanelTimeout;
+/**
+ * Prepares and toggles the fonts panel (i.e. gets the font button location, active font etc)
+ */
+function toggleFontsPanel() {
+    
+    var defaultFontSize = "16px";
+
+    // STEP 1) GET THE FONT BUTTON POSITION
+    var left = $(".cryptee-fonts-button").offset().left;
+    var top  = $(".cryptee-fonts-button").offset().top;
+    $("#panel-fonts")[0].style.setProperty("--left-pos", left + "px");
+    $("#panel-fonts")[0].style.setProperty("--top-pos", (top + 32) + "px");
+
+    // STEP 2) GET THE CURRENTLY SELECTED FONT ( with a fallback to document's font )
+    var font = (quill.getFormat() || {}).font || $(".ql-editor").attr("font");
+
+    // STEP 3) SET THE FONT IN THE PANEL
+    $(".fonts-list").find(".font").removeAttr("selected");
+    $(".fonts-list").find(".font").removeAttr("default");
+    $(".fonts-list").find(`.font[font='${font}']`).attr("selected", true);
+    $(".fonts-list").find(`.font[font='${defaultFont}']`).attr("default", true);
+
+    // STEP 4) GET THE SELECTED FONT SIZE & PARAGRAPH (HEADER) STYLE
+    var header = (quill.getFormat() || {}).header || "p";
+    var size   = (quill.getFormat() || {}).size || defaultFontSize; // default is 16px
+    
+    // STEP 5) SET THE SIZE & PARAGRAPH STYLE IN THE PANEL
+    $("#font-sizes-wrapper").find("button").removeAttr("selected");
+    $("#font-sizes-wrapper").find(`button[size='${size}']`).attr("selected", true);
+    $("#font-sizes-wrapper").find(`button[value='${header}']`).attr("selected", true);
+    
+    // STEP 6) FOR BUBBLE/MOBILE, SCROLL UP THE FONTS LIST, AND BLUR EDITOR SO TEXT SELECTION IS REMOVED WHEN POPUP IS DISPLAYED
+    $(".fonts-list").scrollTop(0);
+    
+    if (isMobile) { 
+        quill.blur(); 
+        // you need a 500ms timeout because blurring quill closes all panels
+        clearTimeout(fontsPanelTimeout);
+        fontsPanelTimeout = setTimeout(function () {
+            togglePanel("panel-fonts");
+        }, 500);
+    } else {
+        togglePanel("panel-fonts");
+    }
+
+}
+
+$("#font-sizes-wrapper").on('click', "button", function(event) {
+    var size = $(this).attr("size");
+    var header = $(this).attr("value");
+    var range = lastSelectionRange;
+
+    $(this).removeAttr("selected");
+    $(this).siblings().removeAttr("selected");
+    $(this).attr("selected", true);
+
+    if (size) { quill.format("size", size); }
+    
+    if (header) { 
+        if (header !== "p") {
+            quill.formatLine(range.index, range.length, "header", header);
+            quill.format("size", false);
+        } else {
+            quill.formatLine(range.index, range.length, "header", false);
+        }
+    }
+    
+}); 
+
+$("#font-families-wrapper").on('click', ".font", function(event) {
+    var font = $(this).attr("font");
+    $(".fonts-list").find(".font").removeAttr("selected");
+    $(this).attr("selected", true);
+    quill.format("font", font);
+}); 
+
+$("#font-families-wrapper").on('click', ".font > button", function(event) {
+    var font = $(this).parents(".font").attr("font");
+    setDeviceDefaultFont(font);
+}); 
+
+function setDeviceDefaultFont(font) {
+    
+    font = font || "josefin-sans";
+    
+    try {
+    
+        localStorage.setItem("defaultFont", font);
+        
+        defaultFont = font;
+
+        $(".fonts-list").find(".font").removeAttr("default");
+        $(".fonts-list").find(`.font[font='${font}']`).attr("default", true);
+        $(".ql-editor").attr("font", font);        
+        
+        breadcrumb('[DEFAULT FONT] Successfully set device default font.');
+        
+        createPopup("successfully changed the default font. cryptee will remember your default font choice on this device from now on. your current document and all newly created documents will now use this default font.");
+
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 //	SPELL CHECKER

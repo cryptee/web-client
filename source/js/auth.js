@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////
 
 function showKeyModal() {
+    prepKeyModal();
     breadcrumb('[KEY] Showing key modal');
     $("#key-error").removeClass("shown");
     $("#modal-key").removeClass("hide");

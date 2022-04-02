@@ -72,8 +72,6 @@ async function getAlbumPhotos(aid) {
         return false;
     }
 
-    gettingAlbumPhotos = true; // for startup
-
     breadcrumb("[ALBUM PHOTOS] Getting album photos " + aid);
     
     var startedRequest = (new Date()).getTime();
@@ -126,8 +124,6 @@ async function getAlbumPhotos(aid) {
     var gotResponse = (new Date()).getTime();
 
     breadcrumb("[ALBUM PHOTOS] Got album photos in " + (gotResponse - startedRequest) + "ms");
-    
-    gettingAlbumPhotos = false; // for startup
 
     return true;
 

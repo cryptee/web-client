@@ -220,6 +220,9 @@ async function saveDoc(did, inBackground, plaintextContents) {
         return false;
     }
 
+    // add document metadata to the delta (i.e. document fonts etc)
+    plaintextContents = addDocumentMetadataToDelta(plaintextContents);
+
     // are we already trying to save the same doc? 
     // if so, add this save to the queue, and terminate. 
     // once ongoing save is complete, we'll go to queue, and run save again.
@@ -503,6 +506,9 @@ async function newDoc(parentFID, plaintextTitle, plaintextDeltas, did, inBackgro
         if (!hasAtLeastOneInsert) { plaintextDeltas = { ops: [ {insert: "\n"} ] }; }
     }
 
+    // make sure plaintextDeltas have the starter document meta defaults.
+    plaintextDeltas = addDocumentMetadataToDelta(plaintextDeltas, true);
+    
     var docUpload = {};
     var docGen, metaSavedToServer, metaSavedToCatalog;
 

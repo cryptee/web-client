@@ -33,11 +33,12 @@ async function reAuthUser(currentPass) {
         var result;   
         
         try {
-            // if (isInWebAppiOS || isInWebAppChrome) {
-                // result = firebase.auth().signInWithRedirect(provider);
-            // } else {
+            if (isInstalled) {
+                createPopup("For your own security, as a google-login user, you can only delete your account by first logging in to Cryptee using a browser (instead of this Progressive Web App [PWA]) so that someone who may have gained access to this device cannot delete your account easily.", "error");
+                return false;
+            } else {
                 result = await firebase.auth().signInWithPopup(provider);
-            // }
+            }
         } catch (error) {
             createPopup("Looks like Cryptee's having difficulty connecting to google to verify your identity. Chances are this is a network / connectivity issue. Please make sure your browser or ad-blocker is not configured to block connections to google and try again.", "error");
             return false;

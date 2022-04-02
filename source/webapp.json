@@ -53,5 +53,31 @@
       "sizes": "1792x896",
       "type": "image/jpeg"
     }    
+  ],
+  "shortcuts": [
+    {
+      "name": "Cryptee Documents",
+      "description": "Open Cryptee Documents",
+      "url": "/docs",
+      "icons": [
+        {
+          "src": "../assets/docs-maskable-icon.png",
+          "type": "image/png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Cryptee Photos",
+      "description": "Open Cryptee Photos",
+      "url": "/photos",
+      "icons": [
+        {
+          "src": "../assets/photos-maskable-icon.png",
+          "type": "image/png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }

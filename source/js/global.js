@@ -1013,34 +1013,39 @@ var browserWillHandleEXIFOrientation;
 
 // https://github.com/blueimp/JavaScript-Load-Image/commit/1e4df707821a0afcc11ea0720ee403b8759f3881
 // Check if browser supports automatic image orientation
-function determineBrowserEXIFOrientationTreatment() {
+async function determineBrowserEXIFOrientationTreatment() {
+    
+    var img = new Image();
+    
     // black 2x1 JPEG, with the following meta information set - EXIF Orientation: 6 (Rotated 90° CCW)
-    var testImageURL =
-        'data:image/jpeg;base64,/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA' +
-        'AAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA' +
-        'QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE' +
-        'BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/x' +
-        'ABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAA' +
-        'AAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q==';
-    var img = document.createElement('img');
-    img.onload = function () {
-        // Check if browser supports automatic image orientation:
-        browserWillHandleEXIFOrientation = img.width === 1 && img.height === 2;
-        if (browserWillHandleEXIFOrientation) {
-            // true == browser supports = don't rotate in js
-            breadcrumb('[EXIF Orientation] Will be handled by Browser');
-            setSentryTag("browser-handles-exif-orientation", "yes");
-        } else {
-            // false == browser doesn't support = rotate in js
-            breadcrumb('[EXIF Orientation] Will be handled by Cryptee');
-            setSentryTag("browser-handles-exif-orientation", "no");
-        }
-    };
-    img.src = testImageURL;
+    img.src = 'data:image/jpeg;base64,/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAAAAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/xABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAAAAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q==';
+
+    try {
+      breadcrumb("[EXIF Orientation] Decoding test image");
+      await img.decode();
+      breadcrumb("[EXIF Orientation] Decoded test image");
+    } catch (error) {
+      breadcrumb("[EXIF Orientation] Failed to decode test image");
+      return {};
+    }
+
+    // Check if browser supports automatic image orientation:
+    browserWillHandleEXIFOrientation = img.width === 1 && img.height === 2;
+    
+    if (browserWillHandleEXIFOrientation) {
+      // true == browser supports = don't rotate in js
+      breadcrumb('[EXIF Orientation] Will be handled by Browser');
+      setSentryTag("browser-handles-exif-orientation", "yes");
+    } else {
+      // false == browser doesn't support = rotate in js
+      breadcrumb('[EXIF Orientation] Will be handled by Cryptee');
+      setSentryTag("browser-handles-exif-orientation", "no");
+    }
+
 }
 
-determineBrowserEXIFOrientationTreatment();
-
+// DELAY CHECKING THIS, SO THAT IT'S DONE ONCE DOCUMENT'S READY. THIS IS ONLY USED DURING UPLOADS, SO NOT SUPER URGENT. 
+$(document).on('ready', determineBrowserEXIFOrientationTreatment);
 
 
 
@@ -1221,22 +1226,16 @@ if (!openpgp) {
  * @param {array} keys 
  * @returns {promise} promise with ciphertext
  */
-function encrypt(plaintext, keys) {
-  return new Promise(function (resolve, reject) {
+async function encrypt(plaintext, keys) {
 
-    var options = {
-      message: openpgp.message.fromText(plaintext),
-      passwords: keys,
-      armor: true
-    };
+  var options = {
+    message: openpgp.message.fromText(plaintext),
+    passwords: keys,
+    armor: true
+  };
 
-    openpgp.encrypt(options).then(function (ciphertext) {
-      resolve(ciphertext);
-    }).catch(function (error) {
-      reject(error);
-    });
+  return openpgp.encrypt(options);
 
-  });
 }
 
 /////////////////////////////////////////
@@ -1253,24 +1252,20 @@ function encrypt(plaintext, keys) {
  * @param {array} keys 
  * @returns {promise} promise with plaintext
  */
-function decrypt(ciphertext, keys) {
-  return new Promise(function (resolve, reject) {
-    openpgp.message.readArmored(ciphertext).then(function (msg) {
+async function decrypt(ciphertext, keys) {
+  
+  try {
 
-      var options = {
-        message: msg,
-        passwords: keys,
-        format: 'utf8'
-      };
+    var options = {
+      message: await openpgp.message.readArmored(ciphertext),
+      passwords: keys,
+      format: 'utf8'
+    };
+  
+    return openpgp.decrypt(options);
 
-      openpgp.decrypt(options).then(function (plaintext) {
-        resolve(plaintext);
-      }).catch(function (error) {
-        reject(error);
-      });
+  } catch (error) { throw error; }
 
-    });
-  });
 }
 
 /////////////////////////////////////////////////////////////
@@ -1286,22 +1281,20 @@ function decrypt(ciphertext, keys) {
  * @param {array} keys 
  * @returns {promise} promise with ciphertext uint8array
  */
-function encryptUint8Array(plaintext, keys) {
-  return new Promise(function (resolve, reject) {
-    var options = {
-      message: openpgp.message.fromBinary(plaintext),
-      passwords: keys,
-      // armor: false
-      armor: true
-    };
+async function encryptUint8Array(plaintext, keys) {
+  
+  var options = {
+    message: openpgp.message.fromBinary(plaintext),
+    passwords: keys,
+    // armor: false
+    armor: true
+  };
 
-    openpgp.encrypt(options).then(function(ciphertext) {
-      // resolve(ciphertext.message.packets.write()); //ciphertext Uint8Array
-      resolve(ciphertext); // ciphertext 
-    }).catch(function (error) {
-      reject(error);
-    });
-  });
+  return openpgp.encrypt(options);
+
+  // var ciphertext = await openpgp.encrypt(options);
+  // return ciphertext.message.packets.write() //ciphertext Uint8Array
+  
 }
 
 
@@ -1319,24 +1312,20 @@ function encryptUint8Array(plaintext, keys) {
  * @param {array} keys 
  * @returns {promise} promise with plaintext
  */
-function decryptToBinary(ciphertext, keys) {
-  return new Promise(function (resolve, reject) {
-    openpgp.message.readArmored(ciphertext).then(function (msg) {
+async function decryptToBinary(ciphertext, keys) {
+  
+  try {
 
-      var options = {
-        message: msg,
-        passwords: keys,
-        format: 'binary'
-      };
+    var options = {
+      message: await openpgp.message.readArmored(ciphertext),
+      passwords: keys,
+      format: 'binary'
+    };
+  
+    return openpgp.decrypt(options);
 
-      openpgp.decrypt(options).then(function (plaintext) {
-        resolve(plaintext);
-      }).catch(function (error) {
-        reject(error);
-      });
+  } catch (error) { throw error; }
 
-    });
-  });
 }
 
 
@@ -1522,6 +1511,94 @@ function getScrollbarWidth() {
 
 }
 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	WEB SHARE WRAPPER
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+/**
+ * Saves a file, or opens the share dialog for user to conveniently save / share it depending on OS. 
+ * On iOS and Android PWAs shows share dialog. On desktop PWA, this will download regularly. 
+ * @param {*} blob 
+ * @param {String} filename (full filename with extension i.e. : "file.pdf")
+ * @param {Boolean} [forceSaveAs] forces save as and disables sharing if passed (i.e. with multiple / bulk downloads)
+ * @param {Boolean} [shareText] passes on additional text to the share modal
+ */
+async function saveAsOrShare(blob, filename, forceSaveAs, shareText) {
+  var willShare = false;
+  forceSaveAs = forceSaveAs || false;
+  var shareObject = {};
+  
+  if (!blob || !filename) { 
+    handleError("[SAVE OR SHARE] Can't save or share without a blob or filename. aborting.");
+    return false; 
+  }
+  // if we're not forcing a saveAs
+  // if device has web share API enabled,
+  // if it's iOS PWA or Android PWA (if we're in the browser, it'll download to the default download folder anyhow so this is only for the PWA.)
+
+  if (!forceSaveAs && navigator.share && navigator.canShare && (isAndroid || isios || isipados) && isInstalled) { 
+    
+    try {
+
+      // convert the blob to file, then put it in the files array. 
+      // we'll always share one file at a time for better compat. 
+
+      shareObject = { title: filename, files: [ new File([blob], filename, { type: blob.type }) ] };
+      if (shareText) { shareObject.text = shareText; }
+      
+    } catch (e) {
+      console.error(e);
+      handleError("[SAVE OR SHARE] Failed to load file into files array, will use saveAs as fallback", e, "warning");
+    }
+
+    try {
+      
+      // if this device and browser's APIs allow sharing this filetype, 
+      // we'll use share dialog instead of download
+      if (navigator.canShare(shareObject)) { 
+        willShare = true; 
+        breadcrumb("[SAVE OR SHARE] Supported system and filetype, will use native share modal");
+      }
+      
+    } catch (error) {
+      console.error(error);
+      handleError("[SAVE OR SHARE] Failed to check if filetype can be shared, will use saveAs as fallback", error, "warning");
+    }
+
+  }
+  
+  if (!willShare) {
+
+    breadcrumb("[SAVE OR SHARE] Saving as...");
+    saveAs(blob, filename);
+
+  } else {
+    
+    try {
+    
+      breadcrumb("[SAVE OR SHARE] Displaying native share modal.");
+      await navigator.share(shareObject);
+    
+    } catch (error) {
+
+      error.filetype = blob.type;
+      error.extension = extensionFromFilename(filename);
+      
+      // if user didn't abort the share modal themselves, and we had some other error, use saveAs fallback instead.
+      if (error.name !== "AbortError") {
+        console.error(error);
+        handleError("[SAVE OR SHARE] Failed to share from navigator, will saveAs instead", error, "warning");
+        saveAs(blob, filename);
+      }
+
+    }
+
+  }
+  
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
