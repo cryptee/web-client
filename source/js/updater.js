@@ -134,14 +134,11 @@ async function reloadForNewVersion() {
 function updateCompleteLoadNewVersion() {
 
     breadcrumb("[UPDATER] Reloading for new version!");
+    try { sessionStorage.setItem("updateComplete", true); } catch (e) {}
 
-    window.location.reload();
+    window.location.href = "/home";
 
 }
-
-
-
-
 
 
 

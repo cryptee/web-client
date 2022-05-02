@@ -99,11 +99,13 @@ async function syncUP(docsToUpsync) {
         if (!isEmpty(docUpload)) {
             
             var docGen = parseInt(docUpload.generation);
+            var docSize = parseInt(docUpload.size);
             var docTags = await findAndEncryptDocumentTags(did, plaintextOfflineContents);
             var encryptedTags = docTags.tags;
             var decryptedTags = docTags.decryptedTags;        
 
             var docToUpload = { 
+                size : docSize,
                 generation : docGen, 
                 tags : encryptedTags 
             };
@@ -131,6 +133,7 @@ async function syncUP(docsToUpsync) {
 
             // update catalog
             metaSavedToCatalog = await setDocMetaInCatalog(did, {
+                size : docSize,
                 offline : docGen,
                 generation : docGen,
                 tags : encryptedTags,
@@ -167,7 +170,9 @@ async function syncDOWN(docsToDownsync) {
     // download online doc, decrypt, re-encrypt, and update catalog.offline
     for (var doc of docsToDownsync) {
         var madeOffline; 
-        var plaintextDocContents = await downloadDocumentOrFile(doc, true);
+        
+        var plaintextDocContents = await downloadAndDecryptFile(doc.docid, null, "crypteedoc", docName(doc), null, null, doc, true);
+        
         if (!isEmpty(plaintextDocContents)) {
             madeOffline = await saveDocToOfflineCatalog(doc, plaintextDocContents);
         }

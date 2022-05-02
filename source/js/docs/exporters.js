@@ -332,30 +332,22 @@ async function downloadAndSaveFile(did, isDownloadingAndSavingMultipleFiles) {
         return false;
     }
 
+    var filename = docName(file);
+    
+    if (!file.isfile) { filename = filename + ".uecd"; }
+
     var fileContents;
+
     try {
-        fileContents = await downloadDocumentOrFile(file, true);
+        fileContents = await downloadAndDecryptFile(did, null, "blob", filename, file.mime, null, file, true);
     } catch (error) {
         error.did = did;
-        handleError("[DOWNLOAD FILES] Failed to download file", error);
+        handleError("[DOWNLOAD FILES] Failed to download & decrypt file", error);
         return false;
     }
 
-    var filename = docName(file);
-
     try {
-        if (file.isfile && (did.endsWith("-v3") || file.modified)) {
-            // if it's a v3 upload, file is a blob
-            saveAsOrShare(uInt8ArrayToBlob(fileContents, file.mime), filename, isDownloadingAndSavingMultipleFiles);
-        } else {
-            if (file.isfile) {
-                // if it's not a v3 upload, file is a b64
-                saveAsOrShare(dataURIToBlob(fileContents), filename, isDownloadingAndSavingMultipleFiles);
-            } else {
-                // if it's a doc, we'll save it as uecd 
-                saveAsOrShare(new Blob([JSON.stringify(fileContents)], {type: "application/json;charset=utf-8"}), filename + ".uecd", isDownloadingAndSavingMultipleFiles);
-            }
-        }
+        saveAsOrShare(fileContents, filename, isDownloadingAndSavingMultipleFiles);
     } catch (error) {
         error.did = did;
         handleError("[DOWNLOAD FILES] Couldn't Save file", error);

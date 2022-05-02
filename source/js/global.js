@@ -43,51 +43,7 @@ if (isIOSChrome) {
    isGoogleChrome = false;
 }
 
-function detectIE() {
-    var ua = winNav.userAgent;
-  
-    var msie = ua.indexOf('MSIE ');
-    if (msie > 0) {
-      // IE 10 or older => return version number
-      return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-    }
-  
-    var trident = ua.indexOf('Trident/');
-    if (trident > 0) {
-      // IE 11 => return version number
-      var rv = ua.indexOf('rv:');
-      return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-    }
-  
-    var edge = ua.indexOf('Edge/');
-    if (edge > 0) {
-      // Edge (IE 12+) => return version number
-      return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
-    }
-  
-    // other browser
-    return false;
-}
-
-var isMSFT = false;
-if (detectIE() !== false) {
-  isMSFT = true;
-  alert("We've detected that you're using Internet Explorer or Edge for your web browser. \n\nCrypt.ee relies on multiple cutting edge web encryption technologies, and sadly Internet Explorer and Edge don't have some of these features. \n\nBefore you proceed any further, we recommend that you download either Google Chrome or Firefox as a web browser for your computer, otherwise we can't promise that Crypt.ee will work in your current browser.");
-}
-
-function iosVersion() {
-    if (/iP(hone|od|ad)/.test(navigator.platform)) {
-        try { 
-            var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-            var ver = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
-            return ver;
-        } catch (error) {
-            return false;
-        }
-    }
-}
-
-
+if (isSafari) { $("body").addClass("safari"); }
 if (isipados) { setSentryTag("ipados", "true"); }
 
 function inIframe () {
@@ -101,12 +57,10 @@ function inIframe () {
 setSentryTag("in-iframe", inIframe());
 
 
-
-function isRetina() {
-  return window.devicePixelRatio > 1;
-}
-
+function isRetina() { return window.devicePixelRatio > 1; }
 setSentryTag("retina", isRetina());
+
+
 
 function isTouchDevice() {
   const prefixes = ["", "-webkit-", "-moz-", "-o-", "-ms-"];
@@ -310,13 +264,6 @@ function getUrlParameter(urlParameter) {
 }
 
 
-/**
- * 
- * @param {String} string Parse a URL Slug
- */
-function parseSlug(string) {
-  return string.replace(/-/g, " ").replace(".html", "");
-}
 
 /**
  * Extracts hashtags from a given string. (i.e. "we went to #paris for a #business-trip" etc...)
@@ -403,7 +350,13 @@ function bytesize( object ) {
   return bytes;
 }
 
-
+/**
+ * Pads a given number to given noDigits (i.e. num = 5, digits = 2 = 05)
+ * @param {Number} num 
+ * @param {Number} digits 
+ * @returns paddedString
+ */
+function padZeroes(num, digits){ return String(num).padStart(digits, '0'); }
 
 /**
  * 
@@ -454,76 +407,29 @@ function timeSince(unixtime) {
   return interval + ' ' + intervalType;
 }
 
-/**
- * 
- * @param {String} string Create a URL slug like a-url-slug from a string like "A URL Slug"
- */
-function slugify(string) {
-  var a = 'àáäâãåăæçèéëêǵḧìíïîḿńǹñòóöôœṕŕßśșțùúüûǘẃẍÿź·/_,:;';
-  var b = 'aaaaaaaaceeeeghiiiimnnnoooooprssstuuuuuwxyz------';
-  var p = new RegExp(a.split('').join('|'), 'g');
-
-  return string.toString().toLowerCase()
-    .replace("</strong>","")
-    .replace("<strong>", "")
-    .replace(/\//g, "-")
-    .replace(/&nbsp;/g, "")
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(p, function(c) { b.charAt(a.indexOf(c))}) // Replace special characters
-    .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-    .replace(/\-\-+/g, '-') // Replace multiple - with single -
-    .replace(/^-+/, '') // Trim - from start of text
-    .replace(/-+$/, ''); // Trim - from end of text
-}
-
-/**
- * 
- * @param {string} str converts string to base64 url
- */
-function stringToB64URL(str) {
-  return btoa(encodeURI(str)).replace("/", "_");
-}
-
-/**
- * 
- * @param {string} str converts base64 url to string
- */
-function b64URLToString(str) {
-  return decodeURI(atob(str.replace("_", "/")));
-}
-
 
 
 /**
- * converts dataURI to Blob
- * @param {string} dataURI
- */
-function dataURIToBlob(dataURI) {
-  var spacelessDataURI = dataURI.replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
-  var binStr = decodeBase64(spacelessDataURI.split(',')[1]),
-    len = binStr.length,
-    arr = new Uint8Array(len);
-
-  for (var i = 0; i < len; i++) {
-    arr[i] = binStr.charCodeAt(i);
-  }
-
-  var typeAndCharset = spacelessDataURI.substring(spacelessDataURI.indexOf(":")+1, spacelessDataURI.indexOf(";base64"));
-  return new Blob([arr], {type : typeAndCharset});
-}
-
-
-/**
- * converts a dataURI to a File object
+ * converts a dataURI to a File object by using fetch and a blob
  * @param {string} dataURI 
  * @param {string} filename 
+ * @returns {Promise <File>}
  */
-function dataURIToFile(dataURI, filename) {
+async function dataURIToFile(dataURI, filename) {
   // a blob is almost a File()... we just need two more properties, and we can add them in blobToFile
-  return blobToFile(dataURIToBlob(dataURI), filename);
+  var blob = await dataURIToBlob(dataURI);
+  return blobToFile(blob, filename);
 }
 
+/**
+ * Converts a dataURI to a Blob
+ * @param {String} dataURI 
+ * @returns {Promise <Blob>}
+ */
+async function dataURIToBlob(dataURI) {
+  var spacelessDataURI = dataURI.replace(/\n/g, "").replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!! (also adding newlines just in case)
+  return (await fetch(spacelessDataURI)).blob(); 
+}
 
 /**
  * converts a blob to a File object
@@ -532,11 +438,18 @@ function dataURIToFile(dataURI, filename) {
  */
 function blobToFile(blob, filename) {
   // a blob is almost a File()... we just need two more properties
-  blob.lastModifiedDate = new Date();
-  blob.name = filename;
-  return blob;
+  return new File([blob], filename , { type:blob.type, lastModified:new Date().getTime() } )
 }
 
+
+/**
+ * Takes in a blob, and converts it to a stream we can use as plaintext source which we can later encrypt
+ * @param {*} blob 
+ * @returns {*} stream
+ */
+ function blobToStream(blob) {
+  return blob.stream ? blob.stream() : new Response(blob).body;
+}
 
 
 /**
@@ -551,31 +464,90 @@ function uInt8ArrayToBlob(uInt8Array, mimetype) {
 
 
 /**
- * Creates a File using a uInt8Array & mimetype
- * @param {*} uInt8Array 
- * @param {*} mimetype
+ * Converts a JSON Object to a Blob
+ * @param {Object} jsonObject 
+ * @returns {Blob} A Blob containing the JSON Object in UTF-8 with application/json mimetype
  */
-function uInt8ArrayToFile(uInt8Array, mimetype, filename) {
-  return blobToFile(new Blob([uInt8Array], {type : mimetype}), filename);
-}
-
-
-
-/**
- * Takes a blob, and returns an img src settable, objectURL
- * @param {*} blob a blob
- */
-function blobToObjectURL(blob) {
-  return (URL || webkitURL).createObjectURL(blob);
+function jsonToBlob(jsonObject) {
+  var str = JSON.stringify(jsonObject);
+  var bytes = new TextEncoder().encode(str);
+  return new Blob([bytes], { type: "application/json;charset=utf-8" });
 }
 
 /**
- * Converts an arraybuffer to uint8array
- * @param {*} buffer 
+ * Gets the array buffer of a Blob. For performance, it uses blob.arrayBuffer() which is async, therefore this returns a promise.
+ * @param {Blob} blob 
+ * @returns {Promise <ArrayBuffer>}
  */
-function arrayBufferToUint8Array(buffer) {
-  return new Uint8Array([buffer]);
+async function blobToArrayBuffer(blob) {
+  return await blob.arrayBuffer();
 }
+
+/**
+ * Gets the raw textual contents of a Blob. For performance, it uses blob.text() which is async, therefore this returns a promise.
+ * @param {Blob} blob 
+ * @returns {Promise <String>} Extracted Raw Text
+ */
+async function blobToText(blob) { 
+
+  var textContents;
+  
+  try {
+    textContents = await blob.text();
+  } catch (error) {
+    handleError("[BLOB TO TEXT] Failed to get TEXT from Blob via blob.text, using filereader", error, "warning");
+    textContents = await readFileAs(blob, "text");
+  }
+
+  return textContents; 
+  
+}
+
+/**
+ * Gets the JSON contents of a Blob. For performance, it uses blob.text() which is async, therefore this returns a promise.
+ * @param {Blob} blob 
+ * @returns {Promise <Object>} Extracted JSON Object
+ */
+async function blobToJSON(blob) { 
+  
+  var textContents;
+  var jsonContents;
+  var blobToTextFailed = false;
+  
+  try {
+    textContents = await blob.text();
+    jsonContents = JSON.parse(textContents);
+  } catch (error) {
+    handleError("[BLOB TO JSON] Failed to get JSON from Blob via blob.text, will use filereader", error, "warning");
+    blobToTextFailed = true;
+    jsonContents = {};
+  }
+  
+  if (blobToTextFailed) {
+    try {
+      textContents = await readFileAs(blob, "text");
+      jsonContents = JSON.parse(textContents);
+    } catch (error) {
+      handleError("[BLOB TO JSON] Failed to get JSON from Blob via file reader too, aborting!", error);
+      jsonContents = {};
+    }
+  }
+
+  return jsonContents;
+  
+}
+
+
+/**
+ * Revokes an object's URL once we're done with it (i.e. after image is loaded on the page), with error handling built in to save repetition in codebase.
+ * @param {String} url 
+ */
+function revokeObjectURL(url) { 
+  try { URL.revokeObjectURL(url); } catch (e) {}
+}
+
+
+
 
 
 function getImageMimetypeFromUint8Array(uInt8Array) {
@@ -611,6 +583,32 @@ function getImageMimetypeFromUint8Array(uInt8Array) {
   return type;
 }
 
+/**
+ * Creates an image blob from the canvas using the provided parameters. 
+ * @param {*} canvas Canvas Element to Use
+ * @param {number} quality (0 - 1)
+ * @param {('image/jpeg'|'image/png')} [format] defaults to image/jpeg  
+ * @returns {Promise <Blob>} imageBlob
+ */
+async function canvasToBlob(canvas, quality, format) {
+  
+  format = format || "image/jpeg";
+
+  breadcrumb('[CANVAS TO BLOB] Converting canvas to blob ...');
+
+  // safari doesn't support toBlob (or it does but doesn't have the quality parameter.)
+  // ugh. so we need to detect all safaris an others on iOS and convert to blob through dataURL.
+  if (isios || isipados || isSafari) {
+    breadcrumb('[CANVAS TO BLOB] Detected Safari. Will use fallback to .toDataURL().');
+    // takes about 60ms for a 15mb test img on dev machines
+    return dataURIToBlob(canvas.toDataURL(format, quality));
+  } else {
+    breadcrumb('[CANVAS TO BLOB] Detected non-Safari. Will use native toBlob().');
+    // takes about 40ms for a 15mb test img on dev machines
+    return new Promise(resolve => canvas.toBlob(resolve, format, quality));
+  }
+
+}
 
 /**
  * Escapes HTML Characters in a given string. i.e. things like (> < & etc etc)
@@ -704,88 +702,15 @@ function unescapeHTML(string) {
 function stripHTMLEntities(string) { return String(string).replace(/&/g, "").replace(/</g, "").replace(/>/g, "").replace(/"/g, "").replace(/'/g, "").replace(/\//g, ""); }
 
 
-/**
- * 
- * @param {string} base64 sanitizes Base64 to make it Web Safe
- */
-function sanitizeB64(base64) {
-  return base64.replace(/\n/g, "").replace(/\s/g, '');
-}
 
 
-/**
- * 
- * @param {string} s decode base64 (to be used instead of atob)
- */
-var decodeBase64 = function(s) {
-    var e={},i,b=0,c,x,l=0,a,r='',w=String.fromCharCode,L=s.length;
-    var A="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    for(i=0;i<64;i++){e[A.charAt(i)]=i;}
-    for(x=0;x<L;x++){
-        c=e[s.charAt(x)];b=(b<<6)+c;l+=6;
-        while(l>=8){((a=(b>>>(l-=8))&0xff)||(x<(L-2)))&&(r+=w(a));}
-    }
-    return r;
-};
 
-function decodeBase64Unicode(str) {
-    return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-}
-
-
-/**
- * Converts a uint8Array to a decoded string (i.e. a uint8Array html file to raw html string)
- * @param {*} uint8Array 
- */
-function decodeUint8Array(uint8Array) {
-  return new TextDecoder("utf-8").decode(uint8Array);
-}
-
-
-/**
- * Converts a dataURI to a UINT8 Array
- * @param {string} dataURI
- * @returns {*} UINT8ARRAY
- */
-function dataURIToUInt8Array(dataURI) {
-  var b64Marker = ';base64,';
-  var base64Index = dataURI.indexOf(b64Marker) + b64Marker.length;
-  var base64 = dataURI.substring(base64Index);
-  var raw = window.atob(base64);
-  var rawLength = raw.length;
-  var array = new Uint8Array(new ArrayBuffer(rawLength));
-
-  for(var i = 0; i < rawLength; i++) {
-    array[i] = raw.charCodeAt(i);
-  }
-  return array;
-}
 
 function dec2hex (dec) {
   return ('0' + dec.toString(16)).substr(-2);
 }
 
 
-
-
-
-/**
- * Remove an Object from Array by Attribute
- * @param {Array} arr 
- * @param {*} attr 
- * @param {*} value 
- */
-function removeByAttr(arr, attr, value){
-  var i = arr.length;
-  while(i--){
-     if( arr[i] && arr[i].hasOwnProperty(attr) && (arguments.length > 2 && arr[i][attr] === value ) ){
-         arr.splice(i,1);
-     }
-  }
-  return arr;
-}
 
 /**
  * Deletes an item from the array using splice
@@ -809,44 +734,10 @@ function findOne(haystack, needles) {
   });
 }
 
-/**
- * Lazy loading for all uncritical media assets. It checks for images that have [lazy-src] and replaces it with [src] to load them. 
- */
-function lazyLoadUncriticalAssets() {
-  [].forEach.call(document.querySelectorAll('img[lazy-src]'), function(img) {
-    img.setAttribute('src', img.getAttribute('lazy-src'));
-    img.onload = function() {
-      img.removeAttribute('lazy-src');
-    };
-  });
-}
 
-/**
- * Loads any given URL in a popup (i.e. Paddle's change payment method popup)
- * @param {string} url pop-up URL
- * @param {string} title pop-up title
- * @param {number} w popup width
- * @param {number} h popup height
- */
-function popupLoadURL(url, title, w, h) {
-  // Fixes dual-screen position                         Most browsers      Firefox
-  var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-  var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
 
-  var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-  var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
 
-  var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-  var top = ((height / 2) - (h / 2)) + dualScreenTop;
-  var newWindow = window.open(url, title, 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
 
-  // Puts focus on the newWindow
-  if (newWindow) {
-    if (window.focus) {
-      newWindow.focus();
-    }
-  }
-}
 
 /**
  * Generate new UUID (often used for things like unique doc or folder IDs)
@@ -890,19 +781,7 @@ function isScrolledIntoView(el) {
   }
 }
 
-/**
- * Determines whether if a click event was inside the given element(s) or not.
- * @param {*} event the click event
- * @param {array|string} elementSelectors string ('.box') or array of strings ['.box','#circle'] etc. 
- */
-function isClickInside(event, elementSelectors) {
-  var clickInside = false;
-  if (typeof elementSelectors === "string") { elementSelectors = [elementSelectors]; }
-  elementSelectors.forEach(element => {
-    clickInside = clickInside || $(element)[0].contains(event.target);
-  });
-  return clickInside;
-}
+
 
 
 /**
@@ -1000,6 +879,53 @@ function isOnline() {
 }
 
 
+/**
+ * Converts a filename and tries to extract mimetype from server using extension, locally or worst case from the server. 
+ * Security and privacy of this heavily depends on the quality of "extensionFromFilename" if it can't determine an extension from filename
+ * and instead passes a portion of the filename as the extension, we would be sending that to server.
+ * there is no solution to this problem, and we have to assume that the portion of a filename after the last dot is the extension. 
+ * so if a user has a filename like : "A.Long.Weird.Document", we'll send "Document" to server. 
+ * Though in Cryptee Docs, we store and use the actual mimetype of the file, so this is less of a concern for that. 
+ * Writing this only for future reference, as we don't have anything to worry about at the moment.
+ * @param {String} filename (i.e. voice memo.mp3 )
+ * @returns {Promise <String>} mimetype
+ */
+async function mimetypeFromFilename(filename) {
+  
+  var mimetype;
+
+  if (!filename) { return null; };
+  
+  var ext = extensionFromFilename(filename);
+  
+  if (!ext) { return null; }
+
+  // common ones to save 200ms roundtrip time
+  // image
+  if (ext === "jpg" || ext === "jpeg") { mimetype = "image/jpeg";       }
+  if (ext === "png")                   { mimetype = "image/png";        }
+  if (ext === "gif")                   { mimetype = "image/gif";        }
+  if (ext === "webp")                  { mimetype = "image/webp";       }
+
+  // audio
+  if (ext === "mp3")                   { mimetype = "audio/mpeg";       }
+  if (ext === "wav")                   { mimetype = "audio/x-wav";      }
+  
+  // video
+  if (ext === "mp4")                   { mimetype = "video/mp4";        }
+
+  // other
+  if (ext === "pdf")                   { mimetype = "application/pdf";  }
+  if (ext === "zip")                   { mimetype = "application/zip";  }
+
+  if (!mimetype) {
+    mimetype = await requestMIMEforExtension(ext);
+  }
+
+  return mimetype || null;
+
+}
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1047,6 +973,46 @@ async function determineBrowserEXIFOrientationTreatment() {
 // DELAY CHECKING THIS, SO THAT IT'S DONE ONCE DOCUMENT'S READY. THIS IS ONLY USED DURING UPLOADS, SO NOT SUPER URGENT. 
 $(document).on('ready', determineBrowserEXIFOrientationTreatment);
 
+function correctCanvasOrientationInOrientationContext(orientationContext, w, h, orientation) {
+  switch (orientation) {
+    case 2:
+      // horizontal flip
+      orientationContext.translate(w, 0);
+      orientationContext.scale(-1, 1);
+      break;
+    case 3:
+      // 180° rotate left
+      orientationContext.translate(w, h);
+      orientationContext.rotate(Math.PI);
+      break;
+    case 4:
+      // vertical flip
+      orientationContext.translate(0, h);
+      orientationContext.scale(1, -1);
+      break;
+    case 5:
+      // vertical flip + 90 rotate right
+      orientationContext.rotate(0.5 * Math.PI);
+      orientationContext.scale(1, -1);
+      break;
+    case 6:
+      // 90° rotate right
+      orientationContext.rotate(0.5 * Math.PI);
+      orientationContext.translate(0, -h);
+      break;
+    case 7:
+      // horizontal flip + 90 rotate right
+      orientationContext.rotate(0.5 * Math.PI);
+      orientationContext.translate(w, -h);
+      orientationContext.scale(-1, 1);
+      break;
+    case 8:
+      // 90° rotate left
+      orientationContext.rotate(-0.5 * Math.PI);
+      orientationContext.translate(-w, 0);
+      break;
+  }
+}
 
 
 
@@ -1058,19 +1024,25 @@ $(document).on('ready', determineBrowserEXIFOrientationTreatment);
 
 /**
  * Reads an arrayBuffer, and returns all the exif we need
- * @param {*} originalBuffer arrayBuffer for file
- * @returns {Object} exif
+ * @param {*} fileOrFileBuffer arrayBuffer for file
+ * @returns {Promise <Object>} exif
  */
-async function readEXIF(originalBuffer) {
+async function readEXIF(fileOrFileBuffer) {
     
   var tags = {}; 
   var exif = {};
 
-  if (!originalBuffer) { return exif; }
+  if (!fileOrFileBuffer) { return exif; }
 
   try {
       breadcrumb('[EXIF READER] Reading ...');
-      tags = ExifReader.load(originalBuffer);
+      if (fileOrFileBuffer instanceof File) {
+        // file api is async
+        tags = await ExifReader.load(fileOrFileBuffer);
+      } else {
+        // buffer api is sync
+        tags = ExifReader.load(fileOrFileBuffer);
+      }
   } catch (error) {
       breadcrumb("[EXIF READER] Failed to load tags", error);
       return exif;
@@ -1083,14 +1055,28 @@ async function readEXIF(originalBuffer) {
   if (tags.DateTimeOriginal)  { exif.DateTimeOriginal     = tags.DateTimeOriginal.value[0] || "";    }
   if (tags.Orientation)       { exif.Orientation          = tags.Orientation.value[0] || "";         }
   
+  breadcrumb('[EXIF READER] Read!');
+
   return exif;
 
 }
 
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	UPLOAD RELATED HELPERS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
-
+/**
+ * Takes in a filename, and returns an upload ID that can be used in the dom
+ * @param {String} filename (i.e. d-12345.crypteefile)
+ * @returns {String} uploadID (i.e. d-12345)
+ */
+function filenameToUploadID(filename) {
+  return (filename || "").split(".")[0];
+}
 
 ////////////////////////////////////////////////////
 /////////////////   CONSOLE GUARD   ////////////////
@@ -1171,248 +1157,6 @@ function promiseTimeout(promise, ms){
 
 
 
-
-/////////////////////////////////////////////////////////////////////////////////
-//////////////// OPENPGPJS SETUP ////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-
-var cryptoThreadsCount = 1;
-var multithreadedCrypto = false;
-
-if (navigator.hardwareConcurrency && canUseWorkers) {
-  cryptoThreadsCount = navigator.hardwareConcurrency;
-  setSentryTag("cryptoThreadsCount", cryptoThreadsCount);
-}
-
-try {
-  openpgp.config.aead_protect = true; // activate fast AES-GCM mode (not yet OpenPGP standard)
-  openpgp.config.aead_protect_version = 0;
-  openpgp.initWorker({path: '../js/lib/openpgpjs/openpgp.worker-4.5.3.min.js', n :cryptoThreadsCount }); // set the relative web worker path
-} catch (e) {
-  breadcrumb("Problem initializing openpgp in main js, failed in try/catch.");
-  handleError("Problem initializing openpgp in main js, failed in try/catch.", e, "warning");
-}
-
-if (!openpgp) {
-  breadcrumb("Problem initializing openpgp in main js.");
-  handleError("Problem initializing openpgp in main js, openpgp is undefined.", {}, "warning");
-} else {
-  var openpgpversion = openpgp.config.versionstring.split("v")[1];
-  setSentryTag("openpgp-ver", openpgpversion);
-
-  if (cryptoThreadsCount >= 2 && canUseWorkers) {
-    breadcrumb("[OpenPGPjs] Using " + cryptoThreadsCount + " worker thread(s)");
-    breadcrumb("[OpenPGPjs] Bypassing native WebCrypto for better multi-threaded performance");
-    openpgp.config.use_native = false;
-    multithreadedCrypto = true;
-  } else {
-    breadcrumb("[OpenPGPjs] Using " + cryptoThreadsCount + " worker thread(s), with native WebCrypto");
-  }
-
-}
-
-
-/////////////////////////////////////////
-// ENCRYPT PLAINTEXT USING KEYS
-//                               
-// A DROP-IN, SHORTHAND REPLACEMENT FOR    
-// OPENPGPJS's .encrypt
-// WORKS STARTING WITH OPENPGPJS V4.4.1
-//////////////////////////////////////////
-
-/**
- * Encrypts given plaintext string with the given keys, returns a promise with ciphertext
- * @param {string} plaintext 
- * @param {array} keys 
- * @returns {promise} promise with ciphertext
- */
-async function encrypt(plaintext, keys) {
-
-  var options = {
-    message: openpgp.message.fromText(plaintext),
-    passwords: keys,
-    armor: true
-  };
-
-  return openpgp.encrypt(options);
-
-}
-
-/////////////////////////////////////////
-// DECRYPT CIPHERTEXT USING KEYS
-//                               
-// A DROP-IN, SHORTHAND REPLACEMENT FOR    
-// OPENPGPJS's .decrypt
-// WORKS STARTING WITH OPENPGPJS V4.4.1
-//////////////////////////////////////////
-
-/**
- * Decrypts given ciphertext string with the given keys, returns a promise with plaintext
- * @param {string} ciphertext 
- * @param {array} keys 
- * @returns {promise} promise with plaintext
- */
-async function decrypt(ciphertext, keys) {
-  
-  try {
-
-    var options = {
-      message: await openpgp.message.readArmored(ciphertext),
-      passwords: keys,
-      format: 'utf8'
-    };
-  
-    return openpgp.decrypt(options);
-
-  } catch (error) { throw error; }
-
-}
-
-/////////////////////////////////////////////////////////////
-// ENCRYPT Uint8Array USING KEYS
-//
-// TAKES IN A UINT8ARRAY
-// RETURNS A Uint8Array
-/////////////////////////////////////////////////////////////
-
-/**
- * Encrypts the plaintext Uint8Array with the given keys, returns a promise with ciphertext Uint8Array 
- * @param {Uint8Array} plaintext
- * @param {array} keys 
- * @returns {promise} promise with ciphertext uint8array
- */
-async function encryptUint8Array(plaintext, keys) {
-  
-  var options = {
-    message: openpgp.message.fromBinary(plaintext),
-    passwords: keys,
-    // armor: false
-    armor: true
-  };
-
-  return openpgp.encrypt(options);
-
-  // var ciphertext = await openpgp.encrypt(options);
-  // return ciphertext.message.packets.write() //ciphertext Uint8Array
-  
-}
-
-
-
-/////////////////////////////////////////
-// DECRYPT CIPHERTEXT TO UINT8ARRAY USING KEYS
-//                               
-// TAKES IN A CIPHERTEXT    
-// AND RETURNS A UINT8ARRAY
-//////////////////////////////////////////
-
-/**
- * Decrypts given ciphertext string with the given keys, returns a promise with ciphertext Uint8Array
- * @param {string} ciphertext 
- * @param {array} keys 
- * @returns {promise} promise with plaintext
- */
-async function decryptToBinary(ciphertext, keys) {
-  
-  try {
-
-    var options = {
-      message: await openpgp.message.readArmored(ciphertext),
-      passwords: keys,
-      format: 'binary'
-    };
-  
-    return openpgp.decrypt(options);
-
-  } catch (error) { throw error; }
-
-}
-
-
-
-
-/////////////////////////////////////////////////////////////
-// HASH A STRING
-// 
-/////////////////////////////////////////////////////////////
-
-/**
- * Hashes a string using SHA 256 or 512
- * @param {string} str string to hash
- * @param {('256'|'512'))} strength SHA256 OR SHA512
- * @returns {promise} – promise with hashed string
- */
-function hashString (str, strength) {
-  return new Promise(function (resolve, reject) {
-    var uinta = openpgp.util.str_to_Uint8Array(str);
-    var algo = openpgp.crypto.hash.sha256(uinta);
-    strength = strength || "256";
-    if (strength === "512") { 
-      algo = openpgp.crypto.hash.sha512(uinta); 
-    }
-    algo.then(function (hashedUintA) {
-      var hashedStr = openpgp.util.Uint8Array_to_str(hashedUintA);
-      var hashedHex = openpgp.util.str_to_hex(hashedStr);
-      var result = hashedHex.split(" ").join("").split("\n").join("");
-      resolve(result);
-    }).catch(function (error) {
-      reject(error);
-    });
-  });
-}
-
-/**
- * generates a strong key
- * @returns {string} – a cryptographically strong string that can be used as a key
- */
-function generateStrongKey() {
-  var arr = new Uint8Array(1024);
-  crypto.getRandomValues(arr);
-  return Array.from(arr, dec2hex).join('');
-}
-
-
-/** 
- * Computes and returns and HMAC signature of a string, with the given key. (Uses SHA-256 and native WebCrypto).
- * @param {String} string 
- * @param {String} keyToUse 
- * @returns {Promise<String>} signature HMAC Signature
- */
-async function hmacString(string, keyToUse) {
-
-  try {
-  
-    var enc = new TextEncoder("utf-8");
-  
-    var hmacKey = await window.crypto.subtle.importKey( 
-      "raw", // format of the key = raw, (should be Uint8Array)
-      enc.encode(keyToUse), 
-      { name: "HMAC", hash: { name: "SHA-256" } },
-      false, // not going to export, so false
-      ["sign", "verify"] // what key should be able to do
-    );
-  
-    var signature = await window.crypto.subtle.sign( 
-      "HMAC", 
-      hmacKey, 
-      enc.encode(string)
-    );
-  
-    return Array.prototype.map.call(new Uint8Array(signature), x => ('00' + x.toString(16)).slice(-2)).join("");
-  
-  } catch (error) {
-
-    throw new Error(error);
-  
-  }
-
-}
-
-
-
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1545,8 +1289,11 @@ async function saveAsOrShare(blob, filename, forceSaveAs, shareText) {
 
       // convert the blob to file, then put it in the files array. 
       // we'll always share one file at a time for better compat. 
+      
+      var fileType = await mimetypeFromFilename(filename) || "text/plain";
 
-      shareObject = { title: filename, files: [ new File([blob], filename, { type: blob.type }) ] };
+      shareObject = { title: filename, files: [ new File([blob], filename, { type: fileType }) ] };
+      
       if (shareText) { shareObject.text = shareText; }
       
     } catch (e) {
@@ -1598,6 +1345,47 @@ async function saveAsOrShare(blob, filename, forceSaveAs, shareText) {
 
   }
   
+}
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	MEDIA SESSION API WRAPPER
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+/**
+ * Sets the native media controller UI properties for audio/video playback
+ * @param {String} title 
+ * @param {String} artworkURL 
+ * @param {String} artworkMimetype (i.e. image/jpg)
+ * @param {String} [artist] 
+ * @param {String} [album]
+ */
+function setMediaSessionAPIMetadata(title, artworkURL, artworkMimetype, artist, album) {
+  if (!'mediaSession' in navigator) { return null; }
+
+  title = title || "";
+  artist = artist || "";
+  album = album || "";
+  artworkURL = artworkURL || "";
+  artworkMimetype = artworkMimetype || "";
+
+  if (!title && !artworkURL && !artworkMimetype) { return null; }
+
+  var mediaMetadata = {
+    title: title,
+    artwork: [ { src: artworkURL, sizes: '512x512', type: artworkMimetype } ]
+  };
+
+  if (artist) { mediaMetadata.artist = artist; }
+  if (album) { mediaMetadata.album = album; }
+
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata(mediaMetadata);
+  } catch (e) {
+    handleError("[MEDIA SESSION] API likely not supported", e, "warning");
+  }
+
 }
 
 ////////////////////////////////////////////////

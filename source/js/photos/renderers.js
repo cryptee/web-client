@@ -112,15 +112,15 @@ function refreshAlbumInDOM(aid) {
 
 /**
  * Renders a photo with given ID, and returns its HTML
- * @param {string} pid Photo ID
+ * @param {string} id Photo ID
  * @returns {string} photoHTML Photo's HTML
  */
-function renderPhoto(pid, forSearch) {
-    var photo = photos[pid] || favorites[pid];
+function renderMedia(id, forSearch) {
+    var photo = photos[id] || favorites[id];
     forSearch = forSearch || false;
 
     if (!photo) {
-        handleError("[RENDER PHOTO] Photo doesn't exist in album's catalog.", { "pid" : pid });
+        handleError("[RENDER PHOTO] Media doesn't exist in album's catalog.", { "id" : id });
         return ""; 
     }
 
@@ -137,35 +137,22 @@ function renderPhoto(pid, forSearch) {
     var avgColor     = photo.pinky   || "54,54,54";                                         // "17,24,33"
 
     var thumbToken   = photo.ttoken  || "";
-    var thumbID      = convertID(pid, "t") || "";                                           // "t-12345"
+    var thumbID      = convertID(id, "t") || "";                                           // "t-12345"
     
     var selectionIcon = "<i></i>";
     if (activeAlbumID === "favorites" || forSearch) { selectionIcon = ""; }
 
+    var type = "photo";
+    if (id.startsWith("v-")) { type = "video"; }
+    if (id.startsWith("r-")) { type = "raw";   }
+
     return `
-    <div class="content photo" id="${pid}" name="${name}" datesort="${sortableDate}" exifDate="${exifDate}" thumb="${thumbID}" thumbToken="${thumbToken}" style="--bg:rgb(${avgColor})">
+    <div class="content media ${type}" id="${id}" name="${name}" datesort="${sortableDate}" exifDate="${exifDate}" thumb="${thumbID}" thumbToken="${thumbToken}" style="--bg:rgb(${avgColor})">
         ${selectionIcon}
         <img src="" alt thumb="${thumbID}">
     </div>`;
 }
 
-
-
-/**
- * Renders an upload with given id, name and status
- * @param {string} id upload id
- * @param {string} name filename
- * @param {string} status upload status (i.e. encrypting or something with percentage)
- */
-function renderUpload(id, name, status) {
-    name = name || "";
-    name = escapeHTML(name);
-    return `
-    <p class="upload" id="upload-${id}" status="${status}">
-        <span class="name">${name}</span><br>
-        <span class="status">${status}</span>
-    </p>`;
-}
 
 
 /**
@@ -181,4 +168,23 @@ function renderSearchHeader(title) {
     <div class="searchheader" style="--bg:rgb(0,0,0)">
         <h3 class="title">${title}</h3>
     </div>`;
+}
+
+
+/**
+ * Renders a photo/video for lightbox with given ID and returns its HTML
+ * @param {String} id 
+ */
+function renderLightboxMedia(id) {
+    var media; 
+    if (id.startsWith("p-")) {
+        media = `<div class='swiper-zoom-container' pid='${id}'><img class="lbox-photo" pid='${id}' draggable='false' src=""/></div>`;
+    } else {
+        media = `<div class="swiper-video-container" pid='${id}'>
+                    <video width="1920" height="1080" pid='${id}' class="lbox-video" poster="" autoplay>
+                        <source src="" type="video/mp4" pid='${id}'>
+                    </video>
+                </div>`;
+    }
+    return media;
 }

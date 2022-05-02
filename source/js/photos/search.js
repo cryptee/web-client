@@ -1129,7 +1129,7 @@ async function displaySearchResults(sr) {
             
             // if we have less than 100 results, show photos individually.
             sr.results.forEach(result => {
-                resultsHTML.push(renderPhoto(result.id, true));
+                resultsHTML.push(renderMedia(result.id, true));
             });
 
         } else {
@@ -1174,7 +1174,7 @@ async function displaySearchResults(sr) {
             if (aid !== "home") {
                 resultAlbums[aid] = (resultAlbums[aid] || 0) + 1;
             } else {
-                resultsHTML.push(renderPhoto(result.id, true));
+                resultsHTML.push(renderMedia(result.id, true));
             }
         });
 

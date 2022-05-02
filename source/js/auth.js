@@ -54,7 +54,7 @@ function hideKeyModal() {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUserPlan, thePaymentProcessor, loginMethod, keycheck;
+var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUserPlan, thePaymentProcessor, theUserCreatedAt, lastReadNews, loginMethod, keycheck;
 var usedStorage, allowedStorage, remainingStorage;
 var paddleCancelURL, paddleUpdateURL;
 
@@ -137,12 +137,13 @@ function createUserDBReferences(user) {
     // REFERENCES TO BE USED IN ALL APPS //
     ///////////////////////////////////////
   
-    theUser       = user;
-    theUserID     = theUser.uid;
-    theEmail      = theUser.email;
-    theUserJSON   = theUser.toJSON();
-    theUsername   = theUser.displayName;
-    emailVerified = theUser.emailVerified;
+    theUser          = user;
+    theUserID        = theUser.uid;
+    theEmail         = theUser.email;
+    theUserJSON      = theUser.toJSON();
+    theUsername      = theUser.displayName;
+    emailVerified    = theUser.emailVerified;
+    theUserCreatedAt = parseInt(theUserJSON.createdAt || "0");
   
     if (theUserJSON.providerData[0]) {
         providerId = theUserJSON.providerData[0].providerId;
@@ -161,6 +162,7 @@ function createUserDBReferences(user) {
 
     $('.username').val(theUsername);
     try { localStorage.setItem("username", (theUsername || theEmail)); } catch (e) {}
+    try { localStorage.setItem("user-createdat", theUserCreatedAt); } catch (e) {}
 
     if (!theEmail.endsWith("@users.crypt.ee")) {
         $('.email').text(theEmail);
@@ -599,6 +601,10 @@ function gotUserMeta(meta, stripe) {
         getPaymentMethodUpdateURL();
     }
 
+    if (meta.lastReadNews) {
+        lastReadNews = meta.lastReadNews || "";
+    }
+    
     updateUserInLS();
 }
 
@@ -647,6 +653,15 @@ function updateUserInLS() {
         } else {
             localStorage.removeItem("paymentProcessor"); 
         }
+
+        if (lastReadNews) {
+            localStorage.setItem("news", lastReadNews);
+        }
+
+        if (theUserCreatedAt) {
+            localStorage.setItem("user-createdat", theUserCreatedAt);
+        }
+        
 
         plansUpdated();
         gotPaymentProcessor();
@@ -701,6 +716,12 @@ function restoreUserFromLS() {
         gotPaymentProcessor();
 
         checkForSpecialOffers();
+
+        lastReadNews = localStorage.getItem("news");
+        
+        theUserCreatedAt = localStorage.getItem("user-createdat");
+        theUserCreatedAt = parseInt(theUserCreatedAt);
+        checkForCallouts();
 
     } catch (e) {
         breadcrumb("Couldn't get user from LS, LS likely disabled");    
@@ -896,6 +917,51 @@ function checkForSpecialOffers() {
 
 //     }
 // }
+
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	CALLOUTS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+function checkForCallouts() {
+    var createdDate = theUserCreatedAt;
+    
+    $(".callout").each(function(){
+
+        // first check if it's already called out on this device
+        var which = $(this).attr("which");
+        var calledOut = false;
+        try { calledOut = localStorage.getItem("called-out-" + which); } catch (e) {}
+        if (calledOut) { $(this).removeClass("show"); return; }
+
+        // if not called out already,
+        // if user's account creation date is before the callout date
+        // and the call out hasn't expired yet ( today <= callout until )
+        // then toggle the callout as necessary
+
+        var now = (new Date()).getTime();
+        var calloutUntil = $(this).attr("until");
+        var calloutUntilDate = new Date(calloutUntil).getTime();
+        var calloutForUsersBefore = $(this).attr("date");
+        var calloutForUsersBeforeDate = new Date(calloutForUsersBefore).getTime();
+
+        $(this).toggleClass("show", (createdDate <= calloutForUsersBeforeDate && now <= calloutUntilDate));
+    });
+}
+
+function markCalledOut(whichCallout) {
+    try { localStorage.setItem("called-out-" + whichCallout, true); } catch (e) {}
+}
+
+$(".callout").on('click', function(event) {
+    var which = $(this).attr("which");
+    markCalledOut(which);
+}); 
 
 
 

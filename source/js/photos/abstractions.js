@@ -111,13 +111,13 @@ async function loadAlbum(aid) {
             addToTimeline(item);
         }
 
-        if (id.startsWith("p-")) {
-            var photoHTML = renderPhoto(id);
+        if (id.startsWith("p-") || id.startsWith("v-") || id.startsWith("r-")) {
+            var photoHTML = renderMedia(id);
             albumContentsHTML.push(photoHTML);
             
             addToTimeline(item);
             
-            lightboxContentsHTML.push(`<div class='swiper-zoom-container' pid='${id}'><img class="lbox-photo" pid='${id}' draggable='false' src=""/></div>`);
+            lightboxContentsHTML.push(renderLightboxMedia(id));
         }
     });
 
@@ -127,7 +127,7 @@ async function loadAlbum(aid) {
     lbox.update();
 
     // now that all slides are in the lightbox, start listening for slideChange again.
-    lightbox.on('slideChange', lightboxPhotoChanged);
+    lightbox.on('slideChange', lightboxMediaChanged);
 
     // PREPARE NAVBAR 
     updateAlbumNavbar();
@@ -227,9 +227,9 @@ async function loadFavorites() {
     albumContentsHTML.push(albumHeaderHTML);
 
     albumContents.forEach(pid => {
-        var photoHTML = renderPhoto(pid);
+        var photoHTML = renderMedia(pid);
         albumContentsHTML.push(photoHTML);
-        lightboxContentsHTML.push(`<div class='swiper-zoom-container' pid='${pid}'><img class="lbox-photo" pid='${pid}' draggable='false' src=""/></div>`);
+        lightboxContentsHTML.push(renderLightboxMedia(pid));
     });
 
     $("#albumContents").append(albumContentsHTML.join(""));
@@ -238,7 +238,7 @@ async function loadFavorites() {
     lbox.update();
 
     // now that all slides are in the lightbox, start listening for slideChange again.
-    lightbox.on('slideChange', lightboxPhotoChanged);
+    lightbox.on('slideChange', lightboxMediaChanged);
 
     resetNavbar();
     navbarForFavorites();
@@ -275,13 +275,13 @@ async function loadFavorites() {
 
 
 /**
- * Loads a photo into the lightbox
+ * Loads a photo / video into the lightbox
  * @param {string} pid Photo ID
  */
-async function loadPhoto(pid) {
+async function loadMedia(pid) {
     
     if (!pid) {
-        handleError('[LOAD PHOTO] Failed to load. No PID.');
+        handleError('[LOAD MEDIA] Failed to load. No PID.');
         return false; 
     }
 
@@ -292,61 +292,47 @@ async function loadPhoto(pid) {
     hideAllPopups();
     clearSearch(true);
     
-    var imgDataURL;
+    var mediaDataURL;
     
     // don't download / decrypt if it's already in lightbox cache
-    if (!isImgInLightboxCache(pid)) {
-        try {
-            
+    if (!isMediaInLightboxCache(pid)) {
+        try {    
             if (extensionOfPhoto(pid) === "gif") {
                 // if it's a GIF, load original, since we don't have a lightbox image
-                if (pid.endsWith("-v3")) {
-                    imgBlob = await getPhoto(pid, "p");
-                    imgDataURL = blobToObjectURL(imgBlob);
-                } else {
-                    imgDataURL = await getPhoto(pid, "p");
-                }
+                mediaDataURL = await getMedia(pid, "p", "url");
             } else {
                 // if it's not a gif  
                 // – OR WE DON'T KNOW WHETHER IF IT'S A GIF OR NOT
                 // – THIS CAN HAPPEN IF SOMEONE FAVORITES A GIF. FAVORITES DON'T HAVE NAMES
                 // – SO WE WON'T KNOW THE PHOTO'S EXTENSION. 
 
-                // try loading lightbox size, if it fails, try loading original size.
-
-                imgDataURL = await getPhoto(pid, "l");
-                if (!imgDataURL) {
-                    if (pid.endsWith("-v3")) {
-                        imgBlob = await getPhoto(pid, "p");
-                        imgDataURL = blobToObjectURL(imgBlob);
-                    } else {
-                        imgDataURL = await getPhoto(pid, "p");
-                    }
-                }
-
+                // even for videos, first load the lightbox poster. 
+                // we'll start loading video AFTER the lightbox is shown
+                // try loading lightbox size, if it fails, get photo will auto-try and use original size.
+                mediaDataURL = await getMedia(pid, "l", "url");
             }
         } catch (error) {
             error.pid = pid;
-            handleError('[LOAD PHOTO] Failed to download/decrypt photo.', error);
+            handleError('[LOAD MEDIA] Failed to download/decrypt photo.', error);
             return false; 
         }
 
         // if for some reason we fail to get the large size let's use the thumb size, better this than nothing
-        imgDataURL = imgDataURL || $("img[thumb='"+thumbID+"']").attr("src");
+        mediaDataURL = mediaDataURL || $("img[thumb='"+thumbID+"']").attr("src");
     }
 
-    var photoIndex = getPhotoIndex(pid);
+    var photoIndex = getMediaIndex(pid);
 
     // this will make sure the div is now in DOM (and not just in virtual slider DOM) so that you can add the image into it
     lightbox.slideTo(photoIndex, null, false);   
     
     // not sure why but the first photo doesn't trigger slide-change, presumably because we're already on that slide on launch
     if (photoIndex === 0) {
-        lightboxPhotoChanged(); 
+        lightboxMediaChanged(); 
     }
 
     // if photo is in cache, and in fact in the swiper, there's no need to add it again. 
-    addImageToLightboxDOMIfNotAlreadyInCache(pid, imgDataURL);
+    addMediaToLightboxDOMIfNotAlreadyInCache(pid, mediaDataURL);
 
     setTimeout(function () {
         // wait for the DOM to update on slow devices. we're injecting b664 inline here. ugh. sorry. 
@@ -389,7 +375,7 @@ async function loadSearchResult(pid) {
     
     breadcrumb('[LOAD SEARCH RESULT] Loading Photo');
     // then load the photo from the album
-    await loadPhoto(pid);
+    await loadMedia(pid);
     
     breadcrumb('[LOAD SEARCH RESULT] Loaded Photo');
     return true;
@@ -1079,7 +1065,7 @@ function togglePhotoSelection(pid) {
  * @param {*} endIndex 
  */
 function selectPhotos(startIndex, endIndex) {
-    $(".photo").slice(startIndex, endIndex).addClass("selected");
+    $(".media").slice(startIndex, endIndex).addClass("selected");
     updateSelections();
 }
 
@@ -1088,7 +1074,7 @@ function selectPhotos(startIndex, endIndex) {
  * Selects all photos
  */
 function selectAll() {
-    $(".content.photo").addClass("selected");
+    $(".content.media").addClass("selected");
     updateSelections();
 }
 
@@ -1097,7 +1083,7 @@ function selectAll() {
  * Clears all photos selections
  */
 function clearSelections() {
-    $(".photo.selected").removeClass("selected");
+    $(".media.selected").removeClass("selected");
     updateSelections();
 
     if (!downloadingPhotos) {
@@ -1115,7 +1101,7 @@ function clearSelections() {
 function shiftSelectedPhoto(photoID) {
     var lastSelectedPhotoBeforeThisOne = 0;
             
-    $(".photo").forEach(photo => {
+    $(".media").forEach(photo => {
         var selected = $(photo).hasClass("selected");
         if ($(photo).index() < $("#"+photoID).index() && selected) {
             lastSelectedPhotoBeforeThisOne = ($(photo).index() || 1) - 1;
@@ -1130,7 +1116,7 @@ function shiftSelectedPhoto(photoID) {
  * Updates selections to reflect UI changes
  */
 function updateSelections() {
-    var noSelectedPhotos = $(".photo.selected").length;
+    var noSelectedPhotos = $(".media.selected").length;
     if (noSelectedPhotos >= 1) {
         navbarForSelectionModeOn();
     } else {
@@ -1165,7 +1151,7 @@ function updateSelections() {
 function selectedPhotos() {
     var selectedIDs = [];
 
-    $(".photo.selected").each(function(){
+    $(".media.selected").each(function(){
         var pid = $(this).attr("id");
         if (pid) {
             selectedIDs.push(pid);
@@ -1225,7 +1211,7 @@ async function startDownloads() {
             var firstPID = selections[index] || "";
             var secondPID = selections[index + 1] || "";
             $("#popup-download").find(".status").html(`DOWNLOADING ${index} / ${selections.length}`);
-            await Promise.all([downloadAndSavePhoto(firstPID, isDownloadingMultiplePhotos), downloadAndSavePhoto(secondPID, isDownloadingMultiplePhotos)]);
+            await Promise.all([downloadAndSaveMedia(firstPID, isDownloadingMultiplePhotos), downloadAndSaveMedia(secondPID, isDownloadingMultiplePhotos)]);
         }
     }
 
@@ -1241,46 +1227,50 @@ async function startDownloads() {
 
 
 /**
- * Downloads and saves a photo to disk
- * @param {string} pid Photo ID
- * @param {*} isDownloadingMultiplePhotos (this will be passed = true, if we're downloading this photo as a part of a batch, which will force "save as", instead of showing the native share dialog in ios and android pwa) 
+ * Downloads and saves a media to disk
+ * @param {string} pid Media ID
+ * @param {*} isDownloadingMultipleItems (this will be passed = true, if we're downloading this photo/video as a part of a batch, which will force "save as", instead of showing the native share dialog in ios and android pwa) 
  */
-async function downloadAndSavePhoto(pid, isDownloadingMultiplePhotos) {
+async function downloadAndSaveMedia(pid, isDownloadingMultipleItems) {
     if (!pid) { return false; } // likely the last in batch (an odd number)
     if (downloadsCancelled) { return false; } // download canceled;
 
     // if we're downloading / saving multiple photos, 
     // we'll need to force saveAs instead of showing the user the native share popup on ios/android PWA. 
-    isDownloadingMultiplePhotos = isDownloadingMultiplePhotos || false;
+    isDownloadingMultipleItems = isDownloadingMultipleItems || false;
+    
+    var isVideo = pid.startsWith("v-");
 
-    breadcrumb(`[DOWNLOAD PHOTO] Downloading ${pid}`);
+    breadcrumb(`[DOWNLOAD MEDIA] Downloading ${pid}`);
 
-    var img;
-
-    try {
-        img = await getPhoto(pid, "p");
-    } catch (error) {
-        error.pid = pid;
-        handleError("[DOWNLOAD PHOTO] Couldn't Download Photo", error);
-        return false;
-    }
-
-    var title = "Untitled.jpg"; 
-    if (!isEmpty(photos[pid])) {
-        title = photos[pid].decryptedTitle || "Untitled.jpg";
-    }
+    var mediaBlob;
 
     try {
-        if (pid.endsWith("-v3")) {
-            // if it's a v3 upload, img is a blob
-            saveAsOrShare(img, title, isDownloadingMultiplePhotos);
+        if (isVideo) {
+            mediaBlob = await getMedia(pid, "v", "blob");
         } else {
-            // if it's not a v3 upload, img is a b64
-            saveAsOrShare(dataURIToBlob(img), title, isDownloadingMultiplePhotos);
+            mediaBlob = await getMedia(pid, "p", "blob");
         }
     } catch (error) {
         error.pid = pid;
-        handleError("[DOWNLOAD PHOTO] Couldn't Save Photo", error);
+        handleError("[DOWNLOAD MEDIA] Couldn't Download Media", error);
+        return false;
+    }
+
+    var title;
+    if (isVideo) {
+        title = "Untitled.mp4";
+        if (!isEmpty(photos[pid])) { title = photos[pid].decryptedTitle || "Untitled.mp4"; }
+    } else {
+        title = "Untitled.jpg"; 
+        if (!isEmpty(photos[pid])) { title = photos[pid].decryptedTitle || "Untitled.jpg"; }
+    }
+
+    try {
+        saveAsOrShare(mediaBlob, title, isDownloadingMultipleItems);
+    } catch (error) {
+        error.pid = pid;
+        handleError("[DOWNLOAD MEDIA] Couldn't Save Media", error);
         return false;
     }
 
@@ -1303,9 +1293,9 @@ function cancelDownloads() {
 /**
  * Selects and downloads the active photo (to be used in the lightbox)
  */
-async function selectAndDownloadActivePhoto() {
+async function selectAndDownloadActiveMedia() {
     $("#lightbox-download").addClass("loading");
-    await downloadAndSavePhoto(activePhotoID());
+    await downloadAndSaveMedia(activePhotoID());
     $("#lightbox-download").removeClass("loading");
 }
 
@@ -1313,39 +1303,44 @@ async function selectAndDownloadActivePhoto() {
 /**
  * Displays the native navigator.share modal for the active photo
  */
-async function openActivePhotoInAnotherApp() {
+async function openActiveMediaInAnotherApp() {
     // active photo source can be a blob: url or a data: url. 
     // first let's check which one. 
-    var activePhotoSrc = $(".swiper-slide-active.swiper-slide-visible").find("img").attr("src");
-    var photoBlob;
+    var isVideo = (activePhotoID() || "").startsWith(("v-"));
+
+    var activeMediaSrc = $(".swiper-slide-active.swiper-slide-visible").find("img").attr("src") || $(".swiper-slide-active.swiper-slide-visible").find("source[type='video/mp4']").attr("src");
+
+    var mediaBlob;
 
     try {
-        if (activePhotoSrc.startsWith("data:")) {
-            photoBlob = dataURIToBlob(activePhotoSrc);
-        }
-        
-        if (activePhotoSrc.startsWith("blob:")) {
-            photoBlob = await fetch(activePhotoSrc).then(r => r.blob());
-        }
+        mediaBlob = await fetch(activeMediaSrc).then(r => r.blob());
     } catch (error) {
-        handleError("[OPEN PHOTO IN ANOTHER APP] Failed to get active photo blob from source.", error);
+        handleError("[OPEN MEDIA IN ANOTHER APP] Failed to get active media blob from source.", error);
         return;
     }
     
-    if (!photoBlob) {
-        handleError("[OPEN PHOTO IN ANOTHER APP] Photo source isn't data or blob. wtf? aborting.");
+    if (!mediaBlob) {
+        handleError("[OPEN MEDIA IN ANOTHER APP] Media source isn't data or blob. wtf? aborting.");
         return;
     }
 
-    var photoTitle;
+    var mediaTitle;
     
-    try {
-        photoTitle = photos[activePhotoID()].decryptedTitle || "Photo.jpg";
-    } catch (error) {
-        photoTitle = "Photo.jpg";
+    if (isVideo) {
+        try {
+            mediaTitle = photos[activePhotoID()].decryptedTitle || "Video.mp4";
+        } catch (error) {
+            mediaTitle = "Video.mp4";
+        }
+    } else {
+        try {
+            mediaTitle = photos[activePhotoID()].decryptedTitle || "Photo.jpg";
+        } catch (error) {
+            mediaTitle = "Photo.jpg";
+        }
     }
 
-    saveAsOrShare(photoBlob, photoTitle);
+    saveAsOrShare(mediaBlob, mediaTitle);
 }
 
 
@@ -1556,7 +1551,7 @@ async function newAlbum(name) {
 
     name = (name || "New Album").trim().toUpperCase();
     var aid = "f-" + newUUID(16);
-    var date = todaysEXIF();
+    var date = dateToExif();
     var pinky = "54,54,54";
 
     startMainProgress(true);
@@ -1649,7 +1644,7 @@ async function deleteSelectedPhotos() {
     // separate loop from the one below, because we need photos' DOM indexes, 
     // and in the loop below we'll remove them from DOM.
     photosToDelete.forEach(pid => {
-        var slideIndex = getPhotoIndex(pid);
+        var slideIndex = getMediaIndex(pid);
         lbox.removeSlide(slideIndex);
     });
     
@@ -1877,7 +1872,7 @@ async function unfavoritePhoto(pid) {
         $("#" + pid).remove();
 
         if ($("#lightbox").hasClass("show")) {
-            var slideIndex = getPhotoIndex(pid);
+            var slideIndex = getMediaIndex(pid);
             lbox.removeSlide(slideIndex);
             if (lbox.slides.length <= 0) {
                 hideLightbox();
@@ -2482,6 +2477,7 @@ async function savePhotoInfo() {
         
         $("#photo-desc").attr("placeholder", desc);
         $(`.swiper-zoom-container[pid='${pid}']`).attr("description", desc);
+        $(`.swiper-video-container[pid='${pid}']`).attr("description", desc);
 
     }
 
@@ -2569,7 +2565,7 @@ async function showEditPhotoPopup() {
     $("#popup-photo-info").attr("pid", pid);
 
     // get doc id, display in dropdown for debugging in non-live environments
-    var photoIDToShow = (pid || "").replace("p-", "");
+    var photoIDToShow = (pid || "").replace("p-", "").replace("v-", "");
     $("#popup-photo-info").find(".photoid").text(photoIDToShow);
     
     

@@ -6,8 +6,13 @@
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
+var maxFilesize = 500000000; // 500mb for now, will be increased as we test for edge cases
+var maxParallelUploads = 4; // for now, let's start with 4 to see how it goes. 
+
 var dragCounter = 0;
-$("#dropzone-what").html("PHOTOS");
+
+$("#dropzone-what").html("<span class='green'>PHOTOS &amp; VIDEOS</span>");
+$("#dropzone-limit").html("up to " + formatBytes(maxFilesize) + " per file");
 
 window.addEventListener('dragenter',    handleDragEnter,    false);
 window.addEventListener('dragend',      handleDragEnd,      false);
@@ -172,7 +177,6 @@ function traverseFileTree(item) {
 
 var uploadQueue = {};
 var uploadQueueOrder = [];
-var maxFilesize = 50000000; // 50mb for now, due to technical limits
 
 function addFileToUploadQueue(file) {
     var filename = (file.name || "").trim().toLowerCase(); // "photo.jpg"
@@ -187,17 +191,21 @@ function addFileToUploadQueue(file) {
     var status = "";
     var size = file.size; 
     var type = file.type;
-    var pid  = "p-" + newUUID() + "-v3";
+    var id;
     
     if (formatSupport === "unsupported-format") {
-        status = "unsupported format";
+        status = "unsupported format ( " + extension + " )";
         handleError('[UPLOAD PHOTO] Unsupported Format (' + extension + ")", {}, "info");
     } else if (size > maxFilesize) { 
-        status = "too large ( > 50mb )"; 
+        status = "too large ( over 500mb )"; 
         handleError('[UPLOAD PHOTO] Too Large (' + size + ")", {}, "info");
     }
     
-    uploadQueue[pid] = {
+    if (formatSupport === "supported-image-native") { id = "p-" + newUUID() + "-v4"; }
+    if (formatSupport === "supported-video-native") { id = "v-" + newUUID() + "-v4"; }
+    if (formatSupport === "unsupported-format")     { id = "unsupported-" + newUUID() + "-v4"; }
+
+    uploadQueue[id] = {
         plaintextFile : file,
         plaintextName : filename,
         support : formatSupport,
@@ -207,7 +215,11 @@ function addFileToUploadQueue(file) {
         status : status
     };
 
-    $("#uploads").append(renderUpload(pid, filename, status));
+    if (status) { 
+        $("#uploader-skipped-list").append(renderSkippedUpload(filename, status)); 
+    } else {
+        $("#uploader-progress-wrapper").append(renderUpload(id, status));
+    }
 }
 
 function checkFormatSupport(extension) {
@@ -230,9 +242,9 @@ function checkFormatSupport(extension) {
     // }
 
     // // videos we support natively
-    // else if (extension.match(/^(mp4)$/i)) {
-    //   return "supported-video-native";
-    // }
+    else if (extension.match(/^(mp4)$/i)) {
+      return "supported-video-native";
+    }
 
     // we don't support this yet, so don't upload to Photos.
     else { return "unsupported-format"; }
@@ -248,7 +260,6 @@ async function runUploadQueue() {
     breadcrumb('[UPLOAD] Initializing');
 
     setTimeout(function () { hideDropzone(); }, 500);
-    startProgressWithID("uploader-progress");
     showUploader();
 
     // request wake lock to keep device awake
@@ -265,8 +276,8 @@ async function runUploadQueue() {
     // if there isn't a status message, file is good to upload. 
 
     var numberOfUploadableItemsInQueue = 0;
-    for (var id in uploadQueue) {
-        var item = uploadQueue[id];
+    for (let id in uploadQueue) {
+        let item = uploadQueue[id];
         if (!item.status) { numberOfUploadableItemsInQueue++; }
     }
 
@@ -292,40 +303,62 @@ async function runUploadQueue() {
         aid = activeAlbumID;
     }
 
-    var uploadsHTML = [];
-
-    for (var pid in uploadQueue) {
-        uploadQueue[pid].aid = aid || "";
-        uploadQueueOrder.push(pid);
-        uploadsHTML.push(renderUpload(pid, uploadQueue[pid].plaintextName, uploadQueue[pid].status));
+    for (let id in uploadQueue) {
+        uploadQueue[id].aid = aid || "";
+        uploadQueueOrder.push(id);
     }
 
     breadcrumb('[UPLOAD] Queued ' + uploadQueueOrder.length + " file(s) for upload");
 
-    $("#uploader").addClass("uploading");
-    $("#uploads").html(uploadsHTML.join(""));
-
-    for (var index = 0; index < uploadQueueOrder.length; index+=2) {
-        
-        updateUploader(index, uploadQueueOrder.length);
-        
-        var upload1ID = uploadQueueOrder[index];
-        var upload2ID = uploadQueueOrder[index+1];
-
-        var uploadPromises = [];
-        if (upload1ID) { uploadPromises.push(processEncryptAndUploadPhoto(upload1ID, 1)); }
-        if (upload2ID) { uploadPromises.push(processEncryptAndUploadPhoto(upload2ID, 2)); }
-        
-        await Promise.all(uploadPromises);
-
-        // update titles of folder every two uploads
-        await updateAlbumTitles(aid);
-    }
+    var promiseToUploadEverythingInQueue = new PromisePool(promiseToUploadNextInQueue, maxParallelUploads);
+    await promiseToUploadEverythingInQueue.start();
 
     // release wake lock to let device sleep
     disableWakeLock();
 
     uploadQueueFinished(aid);
+
+}
+
+/**
+ * Promise generator for the upload queue
+ * @returns {Promise} processEncryptAndUploadPhoto
+ */
+function promiseToUploadNextInQueue() {
+    
+    // if everything we have in the queue are being uploaded, return null, we're done here.
+    var numberOfItemsInQueue = Object.keys(uploadQueue).length;
+    if (!numberOfItemsInQueue) { return null; }
+    
+    // if we still have some uploads in the queue, check to see if they're being uploaded, and return a promise to upload them.
+    var nextUploadID;
+    for (var uploadID in uploadQueue) { 
+        
+        if (uploadQueue[uploadID] && !uploadQueue[uploadID].uploading) {
+            nextUploadID = uploadID; 
+            break; 
+        }
+
+    }
+    
+    if (!nextUploadID) { return null; }
+
+    
+    // add this upload to active uploads right away so promise pool won't pick it up for upload again
+    uploadQueue[nextUploadID].uploading = true;
+    
+    if (uploadQueue[nextUploadID].support === "supported-image-native") {
+        return processEncryptAndUploadPhoto(nextUploadID);
+    }
+    
+    if (uploadQueue[nextUploadID].support === "supported-video-native") {
+        return processEncryptAndUploadVideo(nextUploadID);
+    }
+    
+    // if the format isn't supported, it's okay we can skip this now
+    if (uploadQueue[nextUploadID].support === "unsupported-format") { 
+        return new Promise(function(resolve){ resolve(true); }); 
+    }
 
 }
 
@@ -340,19 +373,25 @@ async function uploadQueueFinished(aid) {
     var issues = false;
     if (Object.keys(uploadQueue).length >= 1) { issues = true; }
 
+    $("#uploader-wrapper").addClass("done");
+
     if (!issues) {
         breadcrumb('[UPLOAD] Uploads completed without issues.');
+        $("#uploader-status-detail").text("uploads completed without any issues");
 
         if (aid && aid === activeAlbumID) {
             sortThings(getCurrentSort());
             updateAlbumNavbar();
         }
 
-        hideUploader();
+        setTimeout(function () { hideUploader(); }, 500);
     } else {
         breadcrumb('[UPLOAD] Uploads completed with issues.');
-        $("#uploader").removeClass("uploading");
-        stopProgressWithID("uploader-progress");
+        $("#uploader-status-detail").html("<span onclick='toggleSkippedUploads();'>some file(s) were not uploaded. click here for more info.</span>");
+
+        // if any one of the uploads weren't uploaded due to storage quota exceeded, show error state.
+        for (var uploadID in uploadQueue) { if (uploadQueue[uploadID].status === "exceeded") { updateUploaderState("error"); } }
+    
     }
 
     uploadQueue = {};
@@ -367,226 +406,165 @@ async function uploadQueueFinished(aid) {
 }
 
 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	CANVASES & PLAYERS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+// we create a new set of canvases / players for each parallel upload to prevent foot race between canvases or players and avoid collision
+var canvases = { 1 : {}, 2 : {}, 3 : {}, 4 : {} };
+var players  = { 1 : {}, 2 : {}, 3 : {}, 4 : {} };
+
+
+// we keep track of which canvas/player is in use, so thumbnail generators can pick a free one 
+var canvasesInUse = { 1 : false, 2 : false, 3 : false, 4 : false };
+var playersInUse  = { 1 : false, 2 : false, 3 : false, 4 : false };
+
+
+
+
+/**
+ * Chooses the first available canvas, marks it as in-use, and returns its no
+ * @returns {Number} canvasNoToUse
+ */
+function chooseAnAvailableCanvas() {
+    
+    var canvasNoToUse;
+
+    // pick next available canvas
+    for (var canvasNo in canvasesInUse) {
+        var isTaken = canvasesInUse[canvasNo];
+        if (!isTaken) { canvasNoToUse = canvasNo; break; }
+    }
+    
+    // mark canvas as taken
+    canvasesInUse[canvasNoToUse] = true;
+    
+    return canvasNoToUse; 
+}
+
+function doneWithCanvas(canvasNo) { canvasesInUse[canvasNo] = false; }
+
+
+
+
+
+/**
+ * Chooses the first available player, marks it as in-use, and returns its no
+ * @returns {Number} playerNoToUse
+ */
+function chooseAnAvailablePlayer() {
+    
+    var playerNoToUse;
+
+    // pick next available player
+    for (var playerNo in playersInUse) {
+        var isTaken = playersInUse[playerNo];
+        if (!isTaken) { playerNoToUse = playerNo; break; }
+    }
+    
+    // mark player as taken
+    playersInUse[playerNoToUse] = true;
+    
+    return playerNoToUse; 
+}
+
+function doneWithPlayer(playerNo) { playersInUse[playerNo] = false; }
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	UPLOAD PRE-PROCESSING
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
 /**
  * Read file, generate thumbnails, extract EXIF, encrypt thumbnails / original, upload photo, set photo meta (i.e. exif ) 
  * @param {string} uploadID The Upload ID
- * @param {*} canvasNo Canvas to use for the upload
  */
-async function processEncryptAndUploadPhoto(uploadID, canvasNo) {
+async function processEncryptAndUploadPhoto(uploadID) {
     
     activityHappened();
 
     var upload = uploadQueue[uploadID];
 
     // skip, because file is either too large or uses an unsupported format etc
-    if (!upload || isEmpty(upload)) { return false; }
-    if (upload.status) { return false; }
+    if (!upload || isEmpty(upload)) { return null; }
+    if (upload.status) { return null; }
 
     // skip, because already exceeded storage.
     if (remainingStorage <= 0) { return err("exceeded"); }
 
     breadcrumb('[UPLOAD] Processing ' + uploadID);
     
-    $("#upload-" + uploadID).attr("status", "uploading");
-    $("#upload-" + uploadID).find(".status").html("encrypting");
-
-    var originalBuffer;
-    try {
-        originalBuffer = await readFileAs(upload.plaintextFile, "arrayBuffer");
-    } catch (error) {
-        return err("[UPLOAD] Couldn't read file as array buffer", error);
-    }
+    // update uploader status
+    onUploadEncrypting(uploadID);
 
     activityHappened();
 
-    // generate thumbnails, generate dominant color and get date from exif using the original buffer
-    var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(originalBuffer, upload.type, canvasNo);
+    // choose and lock a canvas for this upload
+    var canvasNo = chooseAnAvailableCanvas();
+    assignUploadToSlotNo(uploadID, canvasNo);
 
-    if (isEmpty(thumbsAndMeta)) {
-        return err("[UPLOAD] Failed to generate thumbnails and meta of image file, aborting.");
-    }
+    // generate an additional fileKey for this photo (and its thumbnails etc)
+    var fileKeys = [theKey];
+    var { fileKey, wrappedKey } = await generateFileKey();
+    if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
 
-    // encrypt original from buffer
-    breadcrumb('[UPLOAD] Encrypting Original');
+    // generate thumbnails, generate dominant color and get date from exif using the original file (originalFile = upload.plaintextFile)
+    var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo);
 
-    var originalCiphertext; 
-    try {
-        originalCiphertext = await encryptUint8Array(new Uint8Array(originalBuffer), [theKey]);
-    } catch (error) {
-        return err("[UPLOAD] Couldn't encrypt original", error);
-    }
-
-    activityHappened();
-
-    // encrypt thumbnail from b64
-    var thumbnailCiphertext;
-    try {
-        thumbnailCiphertext = await encrypt(thumbsAndMeta.thumbnail, [theKey]);
-    } catch (error) {
-        return err("[UPLOAD] Couldn't encrypt thumbnail", error);
-    }
-
-    activityHappened();
-
-    var tid = convertID(uploadID, "t");
-    
-    // encrypt lightbox from b64
-    var lightboxCiphertext, lid;
-    if (!isGIF(upload.ext)) {
-        try {
-            lightboxCiphertext = await encrypt(thumbsAndMeta.lightbox, [theKey]);
-        } catch (error) {
-            return err("[UPLOAD] Couldn't encrypt lightbox", error);
-        }
-
-        lid = convertID(uploadID, "l");
-    }
-
-    activityHappened();
-    
-    var originalToken, lightboxToken, thumbnailToken;
-
-    try {
-        var originalSize = bytesize(originalCiphertext) || 0;
-        var thumbnailSize = bytesize(thumbnailCiphertext) || 0;
-        var lightboxSize = bytesize(lightboxCiphertext) || 0;
-        reflectUploadSize(uploadID, originalSize, thumbnailSize, lightboxSize);
-    } catch (error) {}
-
-    try {
-        var originalUpload = await uploadFile(JSON.stringify(originalCiphertext), uploadID + ".crypteefile");
-        if (originalUpload === "exceeded") { return err("exceeded"); }
-
-        originalToken = originalUpload.token;
-    } catch (error) {
-        return err("[UPLOAD] Failed to upload original", error);
-    }
-
-    if (!originalToken) {
-        return err("[UPLOAD] Failed to upload original");
-    }
-
-    try {
-        var thumbnailUpload = await uploadFile(JSON.stringify(thumbnailCiphertext), tid + ".crypteefile");
-        if (thumbnailUpload === "exceeded") { return err("exceeded"); }
-
-        thumbnailToken = thumbnailUpload.token;
-    } catch (error) {
-        return err("[UPLOAD] Failed to upload thumbnail", error);
-    }
-
-    if (!thumbnailToken) {
-        return err("[UPLOAD] Failed to upload thumbnail");
-    }
-
-    if (lid) {
-        try {
-            var lightboxUpload = await uploadFile(JSON.stringify(lightboxCiphertext), lid + ".crypteefile");
-            if (lightboxUpload === "exceeded") { return err("exceeded"); }
-
-            lightboxToken = lightboxUpload.token;
-        } catch (error) {
-            return err("[UPLOAD] Failed to upload lightbox", error);
-        }
-    }
-    
-    // write photo's meta 
-    var photoMeta = { id : uploadID, pinky : thumbsAndMeta.dominant };
-
-    if (originalToken)  { photoMeta.otoken = originalToken  || ""; }
-    if (thumbnailToken) { photoMeta.ttoken = thumbnailToken || ""; }
-    if (lightboxToken)  { photoMeta.ltoken = lightboxToken  || ""; }
-
-    if (thumbsAndMeta.date) {
-        photoMeta.date = thumbsAndMeta.date;
-    
-        try { photoMeta.year  = thumbsAndMeta.date.split(":")[0] || "";               } catch (error) {} 
-        try { photoMeta.month = thumbsAndMeta.date.split(":")[1] || "";               } catch (error) {} 
-        try { photoMeta.day   = thumbsAndMeta.date.split(":")[2].split(" ")[0] || ""; } catch (error) {} 
-        try { photoMeta.time  = thumbsAndMeta.date.split(' ')[1] || "";               } catch (error) {} 
-    }
-    
-    activityHappened();
-
-    // write photo's meta and set titles to its album (upload.aid)
-    var aid = upload.aid;
-
-    try {
-        await setPhotoMeta(aid, uploadID, photoMeta);
-    } catch (error) {
-        return err("[UPLOAD] Failed to set photo meta", error);
-    }
-
-    activityHappened();
-
-    photos[uploadID] = photoMeta;
-    photos[uploadID].decryptedTitle = upload.plaintextName;
-
-    try {
-        photos[uploadID].aid = aid;
-        albums[aid].photos = albums[aid].photos || [];
-        albums[aid].photos.push(uploadID);   
-    } catch (error) {
-        // for some reason, sometimes, rarely, albums[aid] may be undefined, although album was created. 
-        // still investigating what may cause this...
-        handleError("[UPLOAD] Upload completed, but couldn't add photo to virtual album", error, "warning");
-        createPopup("Unfortunately there was a problem adding and displaying the photos you've uploaded in an album. We recommend reloading this page and this issue should be resolved. Rarely, ad-blockers / content-blockers may cause issues like these during uploads.","error");
-    }
-
-    $("#upload-" + uploadID).attr("status", "done");
-
-    if (aid === activeAlbumID) {
-        $("#albumContents").append(renderPhoto(uploadID));
-        setTimeout(function () {
-            setupIntersectionObserver($("#" + uploadID)[0]);
-        }, 50);
-    }
-
-    delete uploadQueue[uploadID];
-
-    // done, once the second pair's upload is complete, we'll update album titles
-    return true;
+    return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo);
 
     function err(msg, error) {
         error = error || {};
         error.uploadID = uploadID;
         handleError(msg, error);
         uploadQueue[uploadID].status = "error";
-        $("#upload-"+uploadID).attr("status", "error");
-        $("#upload-"+uploadID).find(".status").html("error");
-        if (msg === "exceeded") { $("#upload-"+uploadID).find(".status").html("out of storage"); }
+        if (msg === "exceeded") {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
+            uploadQueue[uploadID].status = "exceeded";
+        } else {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg));
+        }
         
-        if (remainingStorage <= 0) { updateRemainingStorage(remainingStorage); }
-        return false;
+        if (remainingStorage <= 0) { 
+            updateRemainingStorage(remainingStorage); 
+        }
+
+        return null;
     }
     
 }
 
 
-// we create a new set of canvases for each parallel upload to prevent foot race / canvas collision
-var canvases = { 1 : {}, 2 : {} };
 
 /**
  * Reads the image as an arraybuffer, and returns an object with thumbnails' base64 & dominant color 
- * @param {*} originalBuffer arrayBuffer for file
+ * @param {File} originalFile the reference for the file that is being uploaded
  * @param {string} mimeType mimetype of file (i.e. image/jpg etc )
- * @param {string} canvasNo which canvas to use for rescaling
+ * @param {Number} canvasNo which canvas we will be using for this upload
  * @returns {Object} thumbnails object
  * @returns {string} thumbnails.lightbox B64 of Lightbox Size Image
  * @returns {string} thumbnails.thumbnail B64 of Thumbnail Size Image
  * @returns {string} thumbnails.dominant Dominant Color of Image
  * @returns {string} thumbnails.date Exif Date String
  */
-async function generateThumbnailsAndMetaOfImageFile(originalBuffer, mimeType, canvasNo) {
+async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canvasNo) {
     
-    breadcrumb("[UPLOAD] Generating Thumbnails");
+    breadcrumb("[UPLOAD] Generating Thumbnails. Will use canvas no: " + canvasNo);
 
     var sizes = { "lightbox" : 1920, "thumbnail" : 768 };
-    var qualities = { "lightbox": 0.7, "thumbnail": 0.4 };
-    var uploadObject = { "lightbox" : "", "thumbnail" : "", "date" : "", "dominant" : "" };
+    var qualities = { "lightbox": 0.75, "thumbnail": 0.5 };
+    var uploadObject = { "lightbox" : {}, "thumbnail" : {}, "date" : "", "dominant" : "" };
 
-    // read exif from original buffer (should take about 30ms, even for a 30mb file)
-    var exif = await readEXIF(originalBuffer);
+    // read exif from original file (should take about 30ms, even for a 30mb file)
+    var exif = await readEXIF(originalFile);
 
     var orientation;
     // if the browser won't handle orientation, and there's exif orientation data, use it to rotate pic.
@@ -602,9 +580,17 @@ async function generateThumbnailsAndMetaOfImageFile(originalBuffer, mimeType, ca
     canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
     canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d");
 
-    var blob    = new Blob([originalBuffer], {type: mimeType});
-    var img     = new Image();
-    img.src     = (URL || webkitURL).createObjectURL(blob);
+    var img = new Image();
+
+    var blobURL;
+
+    try {
+        blobURL = URL.createObjectURL(originalFile);
+        img.src = blobURL;
+    } catch (error) {
+        handleError("[UPLOAD] Failed to get image object url", error);
+        return "";
+    }
     
     try {
         breadcrumb("[UPLOAD] Decoding image");
@@ -626,44 +612,7 @@ async function generateThumbnailsAndMetaOfImageFile(originalBuffer, mimeType, ca
         canvases[canvasNo].orientationCanvas.height = width;
     }
 
-    switch (orientation) {
-        case 2:
-            // horizontal flip
-            canvases[canvasNo].orientationContext.translate(width, 0);
-            canvases[canvasNo].orientationContext.scale(-1, 1);
-            break;
-        case 3:
-            // 180° rotate left
-            canvases[canvasNo].orientationContext.translate(width, height);
-            canvases[canvasNo].orientationContext.rotate(Math.PI);
-            break;
-        case 4:
-            // vertical flip
-            canvases[canvasNo].orientationContext.translate(0, height);
-            canvases[canvasNo].orientationContext.scale(1, -1);
-            break;
-        case 5:
-            // vertical flip + 90 rotate right
-            canvases[canvasNo].orientationContext.rotate(0.5 * Math.PI);
-            canvases[canvasNo].orientationContext.scale(1, -1);
-            break;
-        case 6:
-            // 90° rotate right
-            canvases[canvasNo].orientationContext.rotate(0.5 * Math.PI);
-            canvases[canvasNo].orientationContext.translate(0, -height);
-            break;
-        case 7:
-            // horizontal flip + 90 rotate right
-            canvases[canvasNo].orientationContext.rotate(0.5 * Math.PI);
-            canvases[canvasNo].orientationContext.translate(width, -height);
-            canvases[canvasNo].orientationContext.scale(-1, 1);
-            break;
-        case 8:
-            // 90° rotate left
-            canvases[canvasNo].orientationContext.rotate(-0.5 * Math.PI);
-            canvases[canvasNo].orientationContext.translate(-width, 0);
-            break;
-    }
+    correctCanvasOrientationInOrientationContext(canvases[canvasNo].orientationContext, width, height, orientation);
 
     canvases[canvasNo].orientationContext.drawImage(img, 0, 0);
 
@@ -688,7 +637,7 @@ async function generateThumbnailsAndMetaOfImageFile(originalBuffer, mimeType, ca
             canvases[canvasNo].resizedCanvas.height = canvases[canvasNo].originalCanvas.height * ratio;
     
             canvases[canvasNo].resizedContext.drawImage(canvases[canvasNo].originalCanvas, 0, 0, canvases[canvasNo].originalCanvas.width, canvases[canvasNo].originalCanvas.height, 0, 0, canvases[canvasNo].resizedCanvas.width, canvases[canvasNo].resizedCanvas.height);
-            uploadObject[size] = canvases[canvasNo].resizedCanvas.toDataURL("image/jpeg", qualities[size]);
+            uploadObject[size] = await canvasToBlob(canvases[canvasNo].resizedCanvas, qualities[size], "image/jpeg");
         }
     }
 
@@ -701,58 +650,413 @@ async function generateThumbnailsAndMetaOfImageFile(originalBuffer, mimeType, ca
 
     breadcrumb("[UPLOAD] Generated Dominant");
 
+    revokeObjectURL(blobURL);
+
     return uploadObject;
 
 }
 
-/**
- * Reflects the upload progress / size in the uploader
- */
-function reflectUploadSize(uploadID, originalSize, thumbnailSize, lightboxSize) {
-    $("#upload-" + uploadID).attr("origTotal", originalSize);
-    $("#upload-" + uploadID).attr("origLoaded", "0");
 
-    $("#upload-" + uploadID).attr("thumbTotal", thumbnailSize);
-    $("#upload-" + uploadID).attr("thumbLoaded", "0");
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	VIDEO PRE-PROCESSING
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
-    $("#upload-" + uploadID).attr("lightTotal", lightboxSize);
-    $("#upload-" + uploadID).attr("lightLoaded", "0");
+async function processEncryptAndUploadVideo(uploadID) {
+    
+    activityHappened();
+
+    var upload = uploadQueue[uploadID];
+
+    // skip, because file is either too large or uses an unsupported format etc
+    if (!upload || isEmpty(upload)) { return null; }
+    if (upload.status) { return null; }
+
+    // skip, because already exceeded storage.
+    if (remainingStorage <= 0) { return err("exceeded"); }
+
+    breadcrumb('[UPLOAD] Processing ' + uploadID);
+
+    // update uploader status
+    onUploadEncrypting(uploadID);
+
+    // choose and lock a canvas for this upload
+    var canvasNo = chooseAnAvailableCanvas();
+    assignUploadToSlotNo(uploadID, canvasNo);
+
+    // choose and lock a player for this upload
+    var playerNo = chooseAnAvailablePlayer();
+
+    var thumbsAndMeta = await generateThumbnailsAndMetaOfVideoFile(upload.plaintextFile, upload.type, canvasNo, playerNo);
+
+    return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, playerNo);
+
+    function err(msg, error) {
+        error = error || {};
+        error.uploadID = uploadID;
+        handleError(msg, error);
+        uploadQueue[uploadID].status = "error";
+
+        if (msg === "exceeded") {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
+            uploadQueue[uploadID].status = "exceeded";
+        } else {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg));
+        }
+        
+        if (remainingStorage <= 0) { 
+            updateRemainingStorage(remainingStorage); 
+        }
+
+        return null;
+    }
 }
 
 
 
-/**
- * shows the uploader
- */
-function showUploader() {
-    breadcrumb('[UPLOAD] Showing Uploader');
-    $("#uploader").addClass("show");
-    $("#uploader").addClass("uploading");
+async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canvasNo, playerNo) {
+    
+    breadcrumb("[UPLOAD] Generating Video Thumbnails. Will use canvas no: " + canvasNo + " and player no: " + playerNo);
+
+    var sizes        = { "lightbox" : 1920, "thumbnail" : 480, "thumbnail2" : 480, "thumbnail3" : 480 };
+    var qualities    = { "lightbox" : 0.75, "thumbnail" : 5 };
+    var uploadObject = { "lightbox" : {  }, "thumbnail" : { }, "date" : { }, "dominant" : { } };
+    
+    // read last modified date from original video file
+    var exifDate = "0000:00:00"; 
+    if (originalFile.lastModified) { exifDate = dateToExif(originalFile.lastModified); }
+    uploadObject.date = exifDate;
+
+    canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
+    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d");
+    canvases[canvasNo].originalCanvas = canvases[canvasNo].originalCanvas || document.createElement("canvas");
+    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d");
+    canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
+    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d");
+
+    breadcrumb('[UPLOAD] Preparing video player');
+
+    // choose / create player
+    players[playerNo].video = players[playerNo].video || document.createElement("video");
+    
+    // choose / create source
+    if (!players[playerNo].source) { 
+        players[playerNo].source = document.createElement("source");
+        players[playerNo].video.appendChild(players[playerNo].source);
+    }
+
+    var video = players[playerNo].video;
+    var source = players[playerNo].source;
+
+    // We don't want it to start playing yet, we also don't need it to be visible to user
+    video.style.display = "none";
+    video.autoplay = false;
+    video.muted = true;
+    video.loop = false;
+    video.currentTime = 0.01; // load first frame (~30fps)
+    
+    var blobURL;
+
+    try {
+        blobURL = URL.createObjectURL(originalFile);
+        source.setAttribute("src", blobURL);
+    } catch (error) {
+        handleError("[UPLOAD] Failed to get video object url", error);
+        return "";
+    }
+
+    video.load();
+    
+    breadcrumb("[UPLOAD] Decoding video");
+
+    // Video metadata is loaded
+    await new Promise(resolve => video.addEventListener('loadedmetadata', resolve));
+    await new Promise(resolve => video.addEventListener('loadeddata', resolve));
+
+    var width = video.videoWidth;
+    var height = video.videoHeight;
+    var duration = video.duration;
+    var thumbnailIncrement = duration / 3;
+
+    try {
+        canvases[canvasNo].orientationCanvas.width = width;
+        canvases[canvasNo].orientationCanvas.height = height;
+        // if (isFirefox && isAndroid) {
+        //     const bitmap = await createImageBitmap(video);
+        //     canvases[canvasNo].orientationContext.drawImage(bitmap, 0, 0);
+        // } else {
+            canvases[canvasNo].orientationContext.drawImage(video, 0, 0);
+        // }
+    } catch (error) {
+        handleError("[UPLOAD] Failed to draw video to canvas", error);
+    }
+
+    var gif; 
+    try {
+        gif = new GIF({ workers: 3, quality: 5, workerScript : "../js/lib/gifjs-0.2.0/gif.worker.js" });
+    } catch (error) {
+        handleError("[UPLOAD] Failed to init GIF lib / workers", error);
+    }
+    
+    for (var size in sizes) { 
+
+        try {
+            if (size.startsWith("thumbnail")) {
+                video.currentTime += thumbnailIncrement;
+                await new Promise(resolve => video.addEventListener('timeupdate', resolve, { once: true }));
+                // if (isFirefox && isAndroid) {
+                    // const bitmap = await createImageBitmap(video);
+                    // canvases[canvasNo].orientationContext.drawImage(bitmap, 0, 0);
+                // } else {
+                    canvases[canvasNo].orientationContext.drawImage(video, 0, 0);
+                // }
+            }
+    
+            // cycle through all sizes, and generate thumbnails
+            var maxWidthOrHeight = sizes[size]; // lightbox, thumbnail etc. 
+            var ratio = 1;
+    
+            if (canvases[canvasNo].orientationCanvas.width > maxWidthOrHeight) {
+                ratio = maxWidthOrHeight / canvases[canvasNo].orientationCanvas.width;
+            } else if (canvases[canvasNo].orientationCanvas.height > maxWidthOrHeight) {
+                ratio = maxWidthOrHeight / canvases[canvasNo].orientationCanvas.height;
+            }
+    
+            canvases[canvasNo].originalCanvas.width = canvases[canvasNo].orientationCanvas.width;
+            canvases[canvasNo].originalCanvas.height = canvases[canvasNo].orientationCanvas.height;
+    
+            canvases[canvasNo].originalContext.drawImage(canvases[canvasNo].orientationCanvas, 0, 0, canvases[canvasNo].orientationCanvas.width, canvases[canvasNo].orientationCanvas.height, 0, 0, canvases[canvasNo].originalCanvas.width, canvases[canvasNo].originalCanvas.height);
+    
+            canvases[canvasNo].resizedCanvas.width = canvases[canvasNo].originalCanvas.width * ratio; // this canvas gets a reduced size
+            canvases[canvasNo].resizedCanvas.height = canvases[canvasNo].originalCanvas.height * ratio;
+    
+            canvases[canvasNo].resizedContext.drawImage(canvases[canvasNo].originalCanvas, 0, 0, canvases[canvasNo].originalCanvas.width, canvases[canvasNo].originalCanvas.height, 0, 0, canvases[canvasNo].resizedCanvas.width, canvases[canvasNo].resizedCanvas.height);
+            
+            if (size.startsWith("thumbnail") && gif) {
+                gif.addFrame(canvases[canvasNo].resizedCanvas, { delay: 350, copy: true });
+            } else {
+                uploadObject[size] = await canvasToBlob(canvases[canvasNo].resizedCanvas, qualities[size], "image/jpeg");
+            }            
+        } catch (error) {
+            handleError("[UPLOAD] Failed to generate video variant size: " + size, error);
+        }
+
+    }
+
+    if (gif) {
+        try {
+            gif.render();
+            uploadObject.thumbnail = await new Promise(resolve => gif.on('finished', resolve));
+            breadcrumb("[UPLOAD] Generated Video Thumbnails");
+        } catch (error) {
+            handleError("[UPLOAD] Failed to generate video gif thumbnails", error);
+        }
+    }
+
+    try {
+        // generate dominant from thumbnails in canvas
+        var colorThief = new ColorThief();
+        var dominantColor = colorThief.getColor(canvases[canvasNo].resizedCanvas, canvases[canvasNo].resizedContext);
+        uploadObject.dominant = dominantColor.toString();
+        breadcrumb("[UPLOAD] Generated Video Dominant");
+    } catch (error) {
+        handleError("[UPLOAD] Failed to generate video dominant color", error);
+    }
+    
+    revokeObjectURL(blobURL);
+    video = null;
+    source = null;
+
+    return uploadObject;
+
 }
 
 
-/**
- * hides the uploader
- */
-function hideUploader() {
-    breadcrumb('[UPLOAD] Hiding Uploader');
-    $("#uploader").removeClass("show");
-    $("#uploader").removeClass("uploading");
-    setTimeout(function () {
-        $("#uploads").empty();
-    }, 500);
-}
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	ENCRYPT AND UPLOAD MEDIA 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
 /**
- * updates the uploader with the uploaded & total byte amounts to show the correct progress
- * @param {*} uploaded 
- * @param {*} total 
+ * Common media encrypt & uploader for a thumbnail, lightbox and original (used by both photos and videos)
+ * @param {String} uploadID 
+ * @param {Object} upload 
+ * @param {Object} thumbsAndMeta 
+ * @param {Number} canvasNo 
+ * @param {Number} [playerNo] 
+ * @returns 
  */
-function updateUploader(uploaded, total) {
-    $("#uploader-progress").attr("value", uploaded);
-    $("#uploader-progress").attr("max", total);
+async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, playerNo) {
+    
+    if (isEmpty(thumbsAndMeta) || !thumbsAndMeta.thumbnail || isEmpty(thumbsAndMeta.thumbnail)) {
+        return err("[UPLOAD] Failed to generate thumbnails / read meta of media file.");
+    }
 
-    $("#uploader-button").attr("uploaded", uploaded);
-    $("#uploader-button").attr("total", total);
+    // generate an additional fileKey for this photo (and its thumbnails etc)
+    var fileKeys = [theKey];
+    var { fileKey, wrappedKey } = await generateFileKey();
+    if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
+
+    // encrypt original file
+    breadcrumb('[UPLOAD] Encrypting Original');
+
+    var originalEncryptedFile; 
+    
+    try {
+        originalEncryptedFile = await streamingEncrypt(upload.plaintextFile, fileKeys);
+    } catch (error) {
+        return err("[UPLOAD] Couldn't encrypt original media", error);
+    }
+
+    addUploadVariantToUploader(uploadID, originalEncryptedFile.size);
+    activityHappened();
+
+    // encrypt thumbnail blob
+    var thumbnailEncryptedBlob;
+    try {
+        thumbnailEncryptedBlob = await streamingEncrypt(thumbsAndMeta.thumbnail, fileKeys);
+    } catch (error) {
+        return err("[UPLOAD] Couldn't encrypt thumbnail media", error);
+    }
+
+    var tid = convertID(uploadID, "t");
+    addUploadVariantToUploader(tid, thumbnailEncryptedBlob.size);
+    activityHappened();
+    
+    // encrypt lightbox from blob
+    var lightboxEncryptedBlob, lid;
+
+    if (!isGIF(upload.ext)) {
+        try {
+            lightboxEncryptedBlob = await streamingEncrypt(thumbsAndMeta.lightbox, fileKeys);
+        } catch (error) {
+            return err("[UPLOAD] Couldn't encrypt lightbox media", error);
+        }
+
+        lid = convertID(uploadID, "l");
+        addUploadVariantToUploader(lid, lightboxEncryptedBlob.size);
+        activityHappened();
+    }
+
+    var originalToken, lightboxToken, thumbnailToken;
+
+    try {
+        var originalUpload = await streamingUploadFile(originalEncryptedFile, uploadID + ".crypteefile");
+        if (typeof originalUpload === "string") { return err(originalUpload); }
+        originalToken = originalUpload.token;
+    } catch (error) {
+        return err("[UPLOAD] Failed to upload the encrypted original media", error);
+    }
+
+    if (!originalToken) { return err("[UPLOAD] Failed to upload the encrypted original media"); }
+
+    try {
+        var thumbnailUpload = await streamingUploadFile(thumbnailEncryptedBlob, tid + ".crypteefile");
+        if (typeof thumbnailUpload === "string") { return err(thumbnailUpload); }
+        thumbnailToken = thumbnailUpload.token;
+    } catch (error) {
+        return err("[UPLOAD] Failed to upload the encrypted thumbnail media", error);
+    }
+
+    if (!thumbnailToken) { return err("[UPLOAD] Failed to upload the encrypted thumbnail media"); }
+
+    if (lid) {
+        try {
+            var lightboxUpload = await streamingUploadFile(lightboxEncryptedBlob, lid + ".crypteefile");
+            if (typeof lightboxUpload === "string") { return err(lightboxUpload); }
+            lightboxToken = lightboxUpload.token;
+        } catch (error) {
+            return err("[UPLOAD] Failed to upload the encrypted lightbox media", error);
+        }
+    }
+    
+    // write media's meta 
+    var mediaMeta = { id : uploadID, pinky : thumbsAndMeta.dominant };
+
+    if (originalToken)         { mediaMeta.otoken     = originalToken     || ""; }
+    if (thumbnailToken)        { mediaMeta.ttoken     = thumbnailToken    || ""; }
+    if (lightboxToken)         { mediaMeta.ltoken     = lightboxToken     || ""; }
+    if (fileKey && wrappedKey) { mediaMeta.wrappedKey = wrappedKey        || ""; } // save the wrapped / encrypted fileKey
+
+    if (thumbsAndMeta.date) {
+        mediaMeta.date = thumbsAndMeta.date;
+    
+        try { mediaMeta.year  = thumbsAndMeta.date.split(":")[0] || "";               } catch (error) {} 
+        try { mediaMeta.month = thumbsAndMeta.date.split(":")[1] || "";               } catch (error) {} 
+        try { mediaMeta.day   = thumbsAndMeta.date.split(":")[2].split(" ")[0] || ""; } catch (error) {} 
+        try { mediaMeta.time  = thumbsAndMeta.date.split(' ')[1] || "";               } catch (error) {} 
+    }
+    
+    activityHappened();
+
+    // write photo's meta and set titles to its album (upload.aid)
+    var aid = upload.aid;
+
+    try {
+        await setPhotoMeta(aid, uploadID, mediaMeta);
+    } catch (error) {
+        return err("[UPLOAD] Failed to set photo's meta-information", error);
+    }
+
+    activityHappened();
+
+    photos[uploadID] = mediaMeta;
+    photos[uploadID].decryptedTitle = upload.plaintextName;
+
+    try {
+        photos[uploadID].aid = aid;
+        albums[aid].photos = albums[aid].photos || [];
+        albums[aid].photos.push(uploadID);   
+    } catch (error) {
+        // for some reason, sometimes, rarely, albums[aid] may be undefined, although album was created. 
+        // still investigating what may cause this...
+        handleError("[UPLOAD] Upload completed, but couldn't add photo to virtual album", error, "warning");
+        createPopup("Unfortunately there was a problem adding and displaying the photos you've uploaded in an album. We recommend reloading this page and this issue should be resolved. Rarely, ad-blockers / content-blockers may cause issues like these during uploads.","error");
+    }
+
+    onUploadComplete();
+
+    if (aid === activeAlbumID) {
+        $("#albumContents").append(renderMedia(uploadID));
+        setTimeout(function () {
+            setupIntersectionObserver($("#" + uploadID)[0]);
+        }, 50);
+    }
+
+    // done, update album titles
+    await updateAlbumTitles(aid);
+        
+    delete uploadQueue[uploadID];
+
+    // unlock canvas / player for the next upload
+    doneWithCanvas(canvasNo);
+    doneWithPlayer(playerNo);
+
+    // all set here
+    return true;
+
+    function err(msg, error) {
+        error = error || {};
+        error.uploadID = uploadID;
+        handleError(msg, error);
+        uploadQueue[uploadID].status = "error";
+
+        if (msg === "exceeded") {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
+            uploadQueue[uploadID].status = "exceeded";
+        } else {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg.replace("[UPLOAD] ", "")));
+        }
+        
+        if (remainingStorage <= 0) { 
+            updateRemainingStorage(remainingStorage); 
+        }
+
+        return null;
+    }
+    
+
 }
-

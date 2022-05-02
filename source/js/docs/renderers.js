@@ -227,10 +227,10 @@ async function refreshDOM(autoRefresh) {
 
             // gen / time
             var lastSaved = new Date(activeDoc.generation / 1000).toLocaleString("en-US", {
-                year:"numeric", 
-                month:"short", 
-                day : "numeric", 
-                hour : "numeric", 
+                year:    "numeric", 
+                month:   "short", 
+                day :    "numeric", 
+                hour :   "numeric", 
                 minute : "numeric", 
                 second : "numeric" 
             });
@@ -386,8 +386,14 @@ function renderDoc(doc, folders) {
         }
     }
 
+    // SIZE
+    var size = "";
+    if (doc.size){
+        size = formatBytes((doc.size || 0));
+    }
+
     var card = 
-    escapeTemplateHTML`<div class="doc ${selected} ${decrypting} ${active} ${isfile} ${isOffline} ${locked}" did="${doc.docid}" gen="${(doc.generation || 0)}" ext="${extension}" name="${lcname}">
+    escapeTemplateHTML`<div class="doc ${selected} ${decrypting} ${active} ${isfile} ${isOffline} ${locked}" did="${doc.docid}" gen="${(doc.generation || 0)}" ext="${extension}" name="${lcname}" size="${size}">
         <button class="icon"><i class="${icon}"></i></button>
         <span class="info">
             <p class="name">${filename}</p>
@@ -673,9 +679,15 @@ function updateDocInDOM(doc, folders) {
     // ACTIVE DOC
     var isActive = (doc.docid === activeDocID || doc.docid === activeFileID);
     docElem.toggleClass("active", isActive);
-
+    
     // LOCKED DOC
     var isLocked = doc.islocked || false;
     docElem.toggleClass("locked", isLocked);
+
+    // SIZE
+    if (doc.size) {
+        var size = formatBytes((doc.size || 0));
+        docElem.attr("size", size);
+    }
 
 }

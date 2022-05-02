@@ -359,11 +359,25 @@ async function copyDocument(did, forImport, newName) {
     var annotation = " (Copy)";
     if (forImport) { annotation = " (Original)"; } 
 
+    var annotatedFileName; 
+    if (!titleFromFilename(originalName).includes(annotation)) {
+        annotatedFileName = titleFromFilename(originalName) + annotation;
+    } else {
+        annotatedFileName = titleFromFilename(originalName);
+    }
+
+    var annotatedDocName; 
+    if (!originalName.includes(annotation)) {
+        annotatedDocName = originalName + annotation;
+    } else {
+        annotatedDocName = originalName;
+    }
+
     if (!newName) {
         if (originalDoc.isfile) {
-            copyName = titleFromFilename(originalName) + annotation + "." + extensionFromFilename(originalName);
+            copyName = annotatedFileName + "." + extensionFromFilename(originalName);
         } else {
-            copyName = originalName + annotation;
+            copyName = annotatedDocName;
         }
     } else {
         if (originalDoc.isfile) {
@@ -806,7 +820,8 @@ function toggleDocSelection(did) {
     }
 
     $("#no-selections").html(selections.length);
-
+    getTotalSizeOfAllSelectionsAndUpdateUI();
+    
     if (selections.length >= 1) {
         showFloater("selectionsFloat");
     } else {
@@ -989,12 +1004,17 @@ function showDocRightClickDropdown(did, y, x) {
     if (alreadyShown) { return; }
 
     // customizations
-
     
     // get doc name, and display in dropdown
     var docInDom = $(`.doc[did="${did}"]`).first();
     var name = (docInDom.find(".name").text() || "").trim();
     $("#dropdown-doc").attr("name", name);
+
+    // get doc size, and display in dropdown
+    var size = docInDom.attr("size") || "";
+    $("#dropdown-doc").attr("size", size);
+    $("#dropdown-doc > .filesize").attr("size", size);
+    if (!size) { getFilesizeSaveItAndUpdateUI(did, true); }
 
     // get doc id, display in dropdown for debugging in non-live environments
     var docIDToShow = (did || "").replace("d-", "");
@@ -1150,6 +1170,7 @@ function showFolderRightClickDropdown(fid,y, x) {
  * @param {number} y mouseY
  */
 function showSelectionsRightClickDropdown(x,y) {
+
     var alreadyShown = $("#dropdown-selections").hasClass("show");
 
     hideRightClickDropdowns();
@@ -1165,14 +1186,6 @@ function showSelectionsRightClickDropdown(x,y) {
         $("#dropdown-selections").removeClass("ios-multi-download");
     }
 
-
-
-
-
-
-
-
-
     x = x || 0;
     y = y || 0;
 
@@ -1185,6 +1198,8 @@ function showSelectionsRightClickDropdown(x,y) {
     $("#dropdown-selections").addClass("show");
     $("#dropdown-selections").css({"top" : `${(y+16)}px`});
 
+    getTotalSizeOfAllSelectionsAndUpdateUI();
+
     breadcrumb('[RIGHT CLICK] Showing dropdown for selections: ' + selections.toString());
 
 }
@@ -1196,6 +1211,8 @@ function showSelectionsRightClickDropdown(x,y) {
 function hideRightClickDropdowns() {
     $(".dropdown").removeAttr("did");
     $(".dropdown").removeAttr("fid");
+    $(".dropdown").removeAttr("size");
+    $(".dropdown > .filesize").removeAttr("size");
     $(".dropdown").removeAttr("parent");
     $(".dropdown").removeClass("show");
 }
@@ -2221,9 +2238,11 @@ function confirmEmbed(what) {
     
     if (what === "link") {
         var link = $("#hyperlink-input").val() || "";
-        if (link) {
-            quillSafelyFormat('link', link.trim());
-        }
+
+        // if the link doesn't have http (i.e. "www.google.com"), auto-add https
+        if (!link.startsWith("http")) { link = "https://" + link; }
+        
+        if (link) { quillSafelyFormat('link', link.trim()); }
     }
 
     if (what === "video") {
@@ -2278,18 +2297,10 @@ async function processEmbedImage(file, lastSelectionRangeIndex) {
 
     breadcrumb('[EMBED IMAGE] Reading embedded image');
 
-    var imgBuffer;
-    try {
-        imgBuffer = await readFileAs(file, "arrayBuffer");
-    } catch (error) {
-        handleError("[EMBED IMAGE] Couldn't read image file as array buffer", error);
-        return "";
-    }
-
     // read the file as buffer, optimize it, then convert to base64
     var base64;
     try {
-        base64 = await optimizeImageBuffer(imgBuffer);
+        base64 = await optimizeImageFile(file);
     } catch (error) {
         handleError("[EMBED IMAGE] Failed to read file", error);
         createPopup("failed to read / embed image file. chances are your image file is corrupted or in a format not supported by your browser. Please make sure your image file is <b>jpg</b>, <b>png</b> or <b>gif</b>, and if your browser has any privacy extensions or preferences enabled that could affect the use of its File APIs, please disable these temporarily and try again.", "error");
@@ -2311,6 +2322,7 @@ async function processEmbedImage(file, lastSelectionRangeIndex) {
     quill.clipboard.dangerouslyPasteHTML(lastSelectionRangeIndex, `<img src="${base64}" class="embedded-image" alt="${filename}" draggable="false" />`);
     
     hideEmbeddingImageProgress();
+    breadcrumb('[EMBED IMAGE] Embedded image!');
 
     return true;
 
@@ -2320,12 +2332,17 @@ async function processEmbedImage(file, lastSelectionRangeIndex) {
  * Reads an image file as buffer, and returns a b64 string of the optimized image that is ready to embed in the editor. 
  * @param {File} imageFile 
  */
-async function optimizeImageBuffer(imgBuffer) {
+async function optimizeImageFile(imgFile) {
 
     breadcrumb('[EMBED IMAGE] Optimizing embedded image');
 
+    if (!imgFile) {
+        handleError("[EMBED IMAGE] Can't optimize image without an image File... ");
+        return "";
+    }
+
     // read exif from original buffer (should take about 30ms, even for a 30mb file)
-    var exif = await readEXIF(imgBuffer);
+    var exif = await readEXIF(imgFile);
 
     var orientation;
 
@@ -2340,23 +2357,12 @@ async function optimizeImageBuffer(imgBuffer) {
     var orientationContext = orientationCanvas.getContext("2d");
     
     var img = new Image();
-    var blob;
+
+    var blobURL;
+
     try {
-        var uint8img = arrayBufferToUint8Array(imgBuffer);
-        var type     = getImageMimetypeFromUint8Array(uint8img);
-        blob         = new Blob([imgBuffer], {type: type});
-    } catch (error) {
-        handleError("[EMBED IMAGE] Failed to get image buffer / blob", error);
-        return "";
-    }
-    
-    if (!blob) {
-        handleError("[EMBED IMAGE] Failed to get image blob");
-        return "";
-    }
-    
-    try {
-        img.src = (URL || webkitURL).createObjectURL(blob);
+        blobURL = URL.createObjectURL(imgFile);
+        img.src = blobURL;
     } catch (error) {
         handleError("[EMBED IMAGE] Failed to get image object url", error);
         return "";
@@ -2382,44 +2388,7 @@ async function optimizeImageBuffer(imgBuffer) {
         orientationCanvas.height = width;
     }
 
-    switch (orientation) {
-        case 2:
-            // horizontal flip
-            orientationContext.translate(width, 0);
-            orientationContext.scale(-1, 1);
-            break;
-        case 3:
-            // 180° rotate left
-            orientationContext.translate(width, height);
-            orientationContext.rotate(Math.PI);
-            break;
-        case 4:
-            // vertical flip
-            orientationContext.translate(0, height);
-            orientationContext.scale(1, -1);
-            break;
-        case 5:
-            // vertical flip + 90 rotate right
-            orientationContext.rotate(0.5 * Math.PI);
-            orientationContext.scale(1, -1);
-            break;
-        case 6:
-            // 90° rotate right
-            orientationContext.rotate(0.5 * Math.PI);
-            orientationContext.translate(0, -height);
-            break;
-        case 7:
-            // horizontal flip + 90 rotate right
-            orientationContext.rotate(0.5 * Math.PI);
-            orientationContext.translate(width, -height);
-            orientationContext.scale(-1, 1);
-            break;
-        case 8:
-            // 90° rotate left
-            orientationContext.rotate(-0.5 * Math.PI);
-            orientationContext.translate(-width, 0);
-            break;
-    }
+    correctCanvasOrientationInOrientationContext(orientationContext, width, height, orientation);
 
     orientationContext.drawImage(img, 0, 0);
 
@@ -2442,6 +2411,8 @@ async function optimizeImageBuffer(imgBuffer) {
 
     resizedContext.drawImage(originalCanvas, 0, 0, originalCanvas.width, originalCanvas.height, 0, 0, resizedCanvas.width, resizedCanvas.height);
     
+    setTimeout(function () { revokeObjectURL(blobURL); }, 500);
+
     return resizedCanvas.toDataURL("image/jpeg", 0.95); // the whole point is to draw it on canvas, and re-capture, resulting in a png->jpg conversion with some optimization
 
 }
@@ -2487,29 +2458,32 @@ async function embedImageFromCryptee(did) {
         return false; 
     }
 
+    var plaintextFilename = docName(file);
     var fileContents;
+
     try {
-        fileContents = await downloadDocumentOrFile(file, true);
+        fileContents = await downloadAndDecryptFile(selectedDID, null, "file", plaintextFilename, file.mime, null, file, true);
     } catch (error) {
         error.did = selectedDID;
-        handleError("[EMBED IMAGE FROM CRYPTEE] Failed to download file", error);
-        createPopup(`Failed to connect / download your image to embed. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        handleError("[EMBED IMAGE FROM CRYPTEE] Couldn't download / decrypt image", error);
+        createPopup(`Failed to connect / download / decrypt your image to embed. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
         $("#embedImageFromCrypteeButton").removeClass("loading");
         hideRightClickDropdowns();
         hidePanels();
         return false;
     }
-
-    var filename = docName(file);
+    
+    if (!fileContents) {
+        handleError("[EMBED IMAGE FROM CRYPTEE] Couldn't download / decrypt image", { did : selectedDID });
+        createPopup(`Failed to connect / download / decrypt your image to embed. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        $("#embedImageFromCrypteeButton").removeClass("loading");
+        hideRightClickDropdowns();
+        hidePanels();
+        return false;
+    }
     
     try {
-        if (selectedDID.endsWith("-v3")) {
-            // if it's a v3 upload, file is a uint8array – so make it a blob, then a file and pass it onto our embedder
-            processEmbedImage(blobToFile(uInt8ArrayToBlob(fileContents, file.mime), filename));
-        } else {
-            // if it's not a v3 upload, file is a datauri, so convert from that to blob to file and pass it onto our embedder
-            processEmbedImage(blobToFile(dataURIToBlob(fileContents), filename));
-        }
+        processEmbedImage(fileContents);
     } catch (error) {
         error.did = selectedDID;
         handleError("[EMBED IMAGE FROM CRYPTEE] Couldn't embed image", error);
@@ -2652,7 +2626,7 @@ async function makeDocumentAvailableOffline(did) {
         if (docState(activeDocID).changed) { await saveDoc(); }
         docContents = quill.getContents();
     } else {
-        docContents = await downloadDocumentOrFile(doc, true);
+        docContents = await downloadAndDecryptFile(did, null, "crypteedoc", null, null, null, doc, true);
     }
 
     if (!docContents || isEmpty(docContents)) {
@@ -3372,4 +3346,163 @@ function loadDocumentMetadataFromDelta(plaintextContents) {
     breadcrumb('[DOC META] Loaded document metadata');
     return plaintextContents;
 
+}
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	FILE KEY / WRAPPED KEY
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+/**
+ * Checks if a doc has a filekey from catalog, and generates a new one if necessary. 
+ * @param {String} did (d-12345)
+ */
+async function generateDocFileKeyIfNecessary(did) {
+    
+    did = did || "";
+    
+    if (!did) { 
+        handleError("[FILEKEY] Can't check if doc has file key without a did");
+        return false; 
+    }
+
+    var existingFileKey, generatedFileKey, fileKey, wrappedKey;
+    var existingWrappedKey = await getDocWrappedKeyFromCatalog(did);
+    
+    if (existingWrappedKey) {
+        existingFileKey = await unwrapFileKey(existingWrappedKey);
+    } else {
+        // generate an additional fileKey for this doc
+        generatedFileKey = await generateFileKey();
+    }
+
+    if (existingFileKey) {
+        fileKey = existingFileKey;
+        wrappedKey = existingWrappedKey;
+    } else {
+        fileKey = generatedFileKey.fileKey;
+        wrappedKey = generatedFileKey.wrappedKey;
+    }
+
+    return { fileKey : fileKey, wrappedKey : wrappedKey };
+
+}
+
+
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	GET FILE SIZES & SAVE TO CATALOG ETC
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+/**
+ * Gets the filesize of a doc/file, saves it to catalog & server, then updates the DOM & UI with the filesize (i.e. dropdowns, info panels etc)
+ * @param {String} did 
+ * @param {Boolean} alsoRefreshDOM 
+ * @returns 
+ */
+async function getFilesizeSaveItAndUpdateUI(did, alsoRefreshDOM) {
+
+    // this is a purely cosmetic feature, so in the interest of avoiding noisy errors etc, 
+    // we're not doing any intense error handling. 
+    alsoRefreshDOM = alsoRefreshDOM || false;
+
+    // abort without a did
+    if (!did) { return null; }
+
+    var doc = await getDocFromCatalog(did);    
+
+    // abort without a doc or size
+    if (isEmpty(doc)) { return null; }
+    if (doc.size) { return null; }
+
+    breadcrumb('[FILESIZE] Requesting filesize of : ' + did);
+
+    // set the file id 
+    var fileID; 
+    if (doc.isfile) { 
+        fileID = did + ".crypteefile"; 
+    } else {
+        fileID = did + ".crypteedoc";
+    }
+
+    // get the file meta
+    var fileMeta = await getDownloadAuth(fileID);
+    
+    // abort without file meta
+    if (!fileMeta) { return null; }
+    if (!fileMeta.size) { return null; }
+
+    // got the size!
+    var size = parseInt(fileMeta.size);
+    
+    breadcrumb('[FILESIZE] Got the filesize of : ' + did + " (" + size + ")");
+
+    // set document meta in catalog
+    try { await setDocMetaInCatalog(did, { size : size }); } catch (e) {}
+
+    // refresh dom, so that we have a place in DOM to grab the size from
+    if (alsoRefreshDOM) {
+        await refreshDOM();
+    }
+
+    // update dropdown / other places where this info may be shown
+    
+    // get doc name, and display in dropdown
+    var docInDom = $(`.doc[did="${did}"]`).first();
+    
+    var sizeFromDOM = docInDom.attr("size") || "";
+    console.log(sizeFromDOM);
+    $(`#dropdown-doc[did="${did}"]`).attr("size", sizeFromDOM);
+    $(`#dropdown-doc[did="${did}"] > .filesize`).attr("size", sizeFromDOM);
+
+    // now that ui is handled, you can set doc meta in server 
+    try { await setDocMeta(did, { size : size }); } catch (e) {}
+
+    return size;
+
+}
+
+
+/**
+ * Gets the filesize of all doc/file selections, saves them to catalog & server, then updates the DOM & UI with the filesize (i.e. dropdowns, info panels etc)
+ */
+async function getTotalSizeOfAllSelectionsAndUpdateUI() {
+    
+    if (selections.length < 1) { return; }
+
+    $("#selections-size").text("");
+
+    // among the selections, find out which ones have (or don't have) sizes in catalog 
+    var sizes = await getDocSizesFromCatalog(selections);
+    
+    var promisesToGetSizesFromServer = [];
+    
+    for (const did in sizes) {
+        if (sizes[did] === null) {
+            promisesToGetSizesFromServer.push(
+                new Promise( async (resolve, reject) => { sizes[did] = await getFilesizeSaveItAndUpdateUI(did); resolve(); })
+            );
+        }
+    }
+
+    await Promise.all(promisesToGetSizesFromServer);
+
+    // add up sizes
+    var total = Object.values(sizes).reduce((x, y) => (x || 0) + (y || 0));
+
+    var formattedTotal = "± " + formatBytes(total);
+
+    $(`#dropdown-selections`).attr("size", formattedTotal);
+    $(`#dropdown-selections > .filesize`).attr("size", formattedTotal);
+    $("#selections-size").text(formattedTotal);
+
+    refreshDOM();
+
+    return total;
+    
 }

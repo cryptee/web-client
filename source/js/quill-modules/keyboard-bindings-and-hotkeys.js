@@ -368,7 +368,7 @@ key('command+/, ctrl+/', function () {
 });
 
 key('command+., ctrl+.', function () {
-    openSidebarMenu();
+    toggleSidebarMenu();
     return false;
 });
 

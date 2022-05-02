@@ -11,6 +11,7 @@
     <!-- INSERT MORE CSS HERE -->
 
     <link rel="stylesheet" href="../css/photos.css">
+    <link rel="stylesheet" href="../css/uploader.css">
 
 </head>
 
@@ -111,7 +112,7 @@
 
     <!-- @import "imports/app/photos-lightbox.kit" -->
     
-    <!-- @import "imports/app/photos-uploader.kit" -->
+    <!-- @import "imports/app/uploader.kit" -->
 
     <!-- @import "imports/app/dropzone.kit" -->
     
@@ -144,7 +145,7 @@
     <!-- @import "imports/app/modal-canvas-blocked.kit" -->
 
     <!-- <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png" webkitdirectory directory multiple/> -->
-    <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png" multiple/>
+    <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png, .gif, .mp4" multiple/>
 
 
 
@@ -158,14 +159,16 @@
     <!-- <script src="../js/lib/swiper-6.1.2/swiper-bundle.min.js"></script> -->
     <script src="../js/lib/swiper-8.0.6/swiper-bundle.min.js"></script>
 
-    <script src="../js/lib/exif-reader-3.12.3/exif-reader.js"></script>
+    <script src="../js/lib/exif-reader-4.5.0/exif-reader.js"></script>
     <script src="../js/lib/color-thief-2.0/color-thief.js"></script>
+    <script src="../js/lib/gifjs-0.2.0/gif.js"></script>
 
     <script src="../js/photos.js"></script>
 
     <script src="../js/photos/apis.js"></script> <!-- api operations--> 
     <script src="../js/photos/abstractions.js"></script> <!-- all api abstractions & shortcuts--> 
     <script src="../js/photos/renderers.js"></script> <!-- all api abstractions & shortcuts--> 
+    <script src="../js/uploader.js"></script> <!-- common uploader ui / events etc --> 
     <script src="../js/photos/uploader.js"></script> <!-- uploader / drag and drop etc --> 
     <script src="../js/photos/lightbox.js"></script> <!-- all lightbox related things --> 
     <script src="../js/photos/scroll.js"></script> <!-- all scroll / dom virtualization --> 

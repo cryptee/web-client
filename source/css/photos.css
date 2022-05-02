@@ -380,6 +380,11 @@ NAV BUTTONS & STATES & SELECTIONS
 ---------------------------------
 ------------------------------ */
 
+.upload-button {
+    opacity: 1;
+    color: var(--cryptee-green);
+}
+
 #delete-button { color: var(--cryptee-red); }
 
 /* default gallery state */
@@ -405,12 +410,6 @@ body:not(.loading):not(.starting).nav-nophotos #selectall-button {
     opacity: 0 !important;
     pointer-events: none !important;
 }
-
-/* animate upload button in gallery or album without photos */
-/* body.nav-gallery:not(.loading):not(.starting).nav-nophotos .gallery .upload-button,
-body.nav-album:not(.loading):not(.starting).nav-nophotos .albums .upload-button {
-    animation: blinkForAttention 2s infinite ease forwards;
-} */
 
 /* favorites */
 body:not(.loading):not(.starting).nav-favorites .bottom.buttons button,
@@ -480,11 +479,11 @@ body.nav-gallery #make-cover-button,
 
 /* tagging */
 
-body.tagging .photo.selected i {
+body.tagging .media.selected i {
     background-color: var(--cryptee-green);
 }
 
-body.tagging .photo.selected i::before {
+body.tagging .media.selected i::before {
     content: "\F023";
 }
 
@@ -676,7 +675,7 @@ PHOTO / MEDIA ITEM
 --------------------------------
 ----------------------------- */
 
-.photo {
+.media {
 
     float: left;    
     width: 16rem;
@@ -690,12 +689,12 @@ PHOTO / MEDIA ITEM
     user-select: none;
 }
 
-.photo img {
+.media img {
     width: 100%;
     height: 100%;
 }
 
-.photo i {
+.media i {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -721,47 +720,47 @@ PHOTO / MEDIA ITEM
     background-color: var(--cryptee-0);
 }
 
-.photo i::before {
+.media i::before {
     content: "\eb7a";
 }
 
-.photo.selected i {
+.media.selected i {
     opacity: 1;
     background-color: var(--cryptee-green);
     transform: scale(0.9);
 }
 
-.photo.loading i {
+.media.loading i {
     opacity: 0;
     transform: scale(1);
     pointer-events: none;
 }
 
 
-body.highlight-deletions .photo.selected i {
+body.highlight-deletions .media.selected i {
     background-color: var(--cryptee-red);
 }
 
-body.highlight-deletions .photo.selected i::before {
+body.highlight-deletions .media.selected i::before {
     content: "\ec27";
 }
 
-.photo.onscreen {
+.media.onscreen {
     transform: translateX(0) translateY(0) scale(1);
     transform-origin: center;
     transition: 0.3s transform var(--cryptee-cb);
 }
 
-.photo.in-lightbox {
+.media.in-lightbox {
     transform: translateX(var(--xTransitionToCenter, 0)) translateY(var(--yTransitionToCenter, 0)) scale(2);
     z-index: 2;
 }
 
-.photo.in-lightbox img {
+.media.in-lightbox img {
     opacity: 0;
 }
 
-.photo.in-lightbox i {
+.media.in-lightbox i {
     opacity: 0 !important;
 }
 
@@ -1092,7 +1091,7 @@ LIGHTBOX
     pointer-events: all;
 }
 
-.lightbox-button {
+.lightbox-button, .lightbox-player-button {
     width: 4rem;
     height: 4rem;
     line-height: 4rem;
@@ -1105,6 +1104,42 @@ LIGHTBOX
     transition: 0.3s opacity linear;
 }
 
+.lightbox-player-button { line-height: 4.25rem; }
+
+#lightbox-player-controls {
+    transform: translateY(0);
+    transition-duration: 1s;
+    transition-property: transform, opacity;
+    transition-timing-function: var(--cryptee-cb);
+
+    display: grid;
+    grid-template-columns: 4rem 4rem 1fr;
+    grid-template-rows: 4rem;
+
+    background-color: var(--cryptee-0);
+    grid-column: 1/-1;
+    grid-row: -2/-1; 
+    z-index: 12;
+}
+
+#lightbox-player-progress {
+    grid-column: 3/-1;
+    grid-row: 1/2; 
+    padding: 0.5rem 1.5rem 0.5rem 1rem;
+    z-index: 12;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    gap: 8px; /* intentionally fixed px, and not rem, for calculations */
+}
+
+#lightbox-playpause.playing i::before { content: "\EFD7"; }
+#lightbox-volume.muted i::before { 
+    content: "\F29D";
+    color: var(--cryptee-yellow);
+}
+
 #lightbox-close      { grid-column: 1/2; }
 #lightbox-fullscreen { grid-column: 2/3; }
 
@@ -1114,6 +1149,7 @@ LIGHTBOX
 
 #lightbox-previous   { grid-column: 7/8;}
 #lightbox-next       { grid-column: 8/9;}
+
 
 #lightbox-previous.disabled,
 #lightbox-next.disabled {
@@ -1151,6 +1187,7 @@ LIGHTBOX
     background-color: var(--oled-safe-black);
 }
 
+.swiper-video-container::before,
 .swiper-zoom-container::before {
     content: "";
     background: linear-gradient(10deg, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 55%);
@@ -1166,10 +1203,12 @@ LIGHTBOX
     transition: 1s opacity ease;
 }
 
-.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-zoom-container[description]:not([description=""])::before {
+.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-zoom-container[description]:not([description=""])::before,
+.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-video-container[description]:not([description=""])::before {
     opacity: 1;
 }
 
+.swiper-video-container::after,
 .swiper-zoom-container::after {
     content: "";
     position: absolute;
@@ -1201,11 +1240,16 @@ LIGHTBOX
     text-transform: lowercase;
 }
 
-.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-zoom-container[description]:not([description=""])::after {
+.swiper-video-container::after { padding: 0 50% 5rem 1.75rem; }
+
+.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-video-container[description]:not([description=""])::after,
+.swiper-slide-active:not(.swiper-slide-zoomed) .swiper-zoom-container[description]:not([description=""])::after  {
     content: attr(description);
     opacity: 1;
 }
 
+.swiper-slide-zoomed .swiper-video-container::before,
+.swiper-slide-zoomed .swiper-video-container::after,
 .swiper-slide-zoomed .swiper-zoom-container::before,
 .swiper-slide-zoomed .swiper-zoom-container::after {
     display: none !important;
@@ -1219,9 +1263,17 @@ LIGHTBOX
     will-change: opacity;
 }
 
-.lbox-photo[src=""] {
-    opacity: 0;
+.lbox-video {
+    display: block;
+    opacity: 1;
+    transition: 0.3s opacity ease;
+    will-change: opacity;
+    height: calc(100% - 4rem);
+    width: 100%;
 }
+
+.lbox-photo[src=""] { opacity: 0; }
+/* .lbox-video:not(.loaded) { opacity: 0; } */
 
 .lightbox-wrapper {
 	width: 100%;
@@ -1289,13 +1341,31 @@ body[env] #popup-album-info .albumid {
     user-select: all;
 }
 
+#popup-photo-info[pid^="v-"] b.h3::before { content: "VIDEO INFO"; }
+#popup-photo-info[pid^="p-"] b.h3::before { content: "PHOTO INFO"; }
 
-/* LIGHTBOX STATES */
 
+/* -----------------------------
+-------------------------------- 
+
+LIGHTBOX STATES 
+
+--------------------------------
+----------------------------- */
+
+/* LOADING */
 #lightbox-progress:not([value][max]) ~ .lightbox-button.hidden-while-loading {
     pointer-events: none !important;
     opacity: 0.15;
 }
+
+/* VIDEO PLAYER BUTTONS */
+#lightbox-progress:not([value][max]) ~ #lightbox-player-controls,
+#lightbox:not(.video) #lightbox-progress[value][max] ~ #lightbox-player-controls {
+    pointer-events: none !important;
+    transform: translateY(4rem) !important;
+}
+
 
 /* -----------------------------
 -------------------------------- 
@@ -1488,166 +1558,6 @@ PANELS / TAGS
     content: "decrypting tags ...";
 }
 
-/* -----------------------------
--------------------------------- 
- 
-UPLOADER 
- 
---------------------------------
------------------------------ */
-
-#uploader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    background-color: black;
-    z-index: 101;
-    color: white;
-
-    opacity: 1;
-    transition: 0.5s opacity var(--cryptee-cb);
-
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr) minmax(0, 1fr);
-    grid-template-rows: minmax(0,1fr) 512px minmax(0,1fr);
-}
-
-#uploader section {
-    grid-column: 2/3;
-    grid-row: 2/3;
-    background-color: #121212;
-    padding: 2rem 0 2rem 2rem;
-    position: relative;
-    overflow: hidden;
-}
-
-#uploads {
-    height: calc(100% - 10rem);
-    overflow: scroll;
-}
-
-#uploader h2 {
-    margin-bottom: 1rem;
-}
-
-#uploader-button {
-    position: absolute;
-    bottom: 2rem;
-    left: 2rem;
-    color: white;
-}
-
-#uploader-button::after {
-    content: attr(uploaded) " / " attr(total);
-    opacity: 0.5;
-}
-
-#uploader progress {
-    width: 100%;
-    margin-bottom: 2rem;
-    opacity: 1;
-    filter: invert(1);
-}
-
-#uploader progress:indeterminate {
-    filter: invert(0);
-}
-
-#uploader img { 
-    filter: invert(1);
-    opacity: 0.05;
-    height: 10rem;
-    width: 10rem;
-
-    position: absolute;
-    right: 10rem;
-    top: 2rem;
-
-    pointer-events: none !important;
-
-    transform: rotate(0deg) translateX(8rem) rotate(0deg);
-    animation: uploaderMoon 60s infinite linear forwards;
-}
-
-#uploader.show.uploading img {
-    animation-play-state: running;
-}
-
-#uploader.show:not(.uploading) img,
-#uploader:not(.show) img {
-    animation-play-state: paused;
-}
-
-#uploader:not(.show) {
-    pointer-events: none !important;
-    opacity: 0;
-}
-
-#uploader.uploading #uploader-button {
-    pointer-events: none !important;
-}
-
-#uploader:not(.uploading) #uploader-button:after {
-    content: "close";
-    font-weight: 600;
-    opacity: 1;
-}
-
-#uploader .upload {
-    margin-top: 0;
-    margin-bottom: 0;
-    width: 100%;
-    height: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    transition: 0.3s height ease, 0.3s margin ease;
-}
-
-#uploader .upload .status {
-    opacity: 0.5;
-}
-
-#uploader.uploading .upload[status="uploading"] {
-    height: 3rem;
-    margin-bottom: 1rem;
-}
-
-#uploader:not(.uploading) .upload[status="too large ( > 50mb )"],
-#uploader:not(.uploading) .upload[status="unsupported format"],
-#uploader:not(.uploading) .upload[status="error"] {
-    margin-bottom: 0;
-    height: 4.5rem;
-}
-
-#uploader:not(.uploading) .upload[status="too large ( > 50mb )"] .status,
-#uploader:not(.uploading) .upload[status="unsupported format"] .status,
-#uploader:not(.uploading) .upload[status="error"]  .status{
-    opacity: 0.7;
-    color: var(--cryptee-red);
-}
-
-
-
-
-@keyframes uploaderMoon {
-    from {
-        transform: rotate(0deg) translateX(8rem) rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg) translateX(8rem) rotate(-360deg);
-    }
-}
-
-
-
-
-
 
 /* -----------------------------
 -------------------------------- 
@@ -1668,6 +1578,33 @@ button.radio[disabled] {
 
 
 
+/* -----------------------------
+-------------------------------- 
+ 
+VIDEO PLAYER PROGRESS 
+ 
+--------------------------------
+----------------------------- */
+
+#lightbox-player-progress b {
+    width: 16px; /* intentionally fixed px, and not rem, for calculations */
+    height: 16px; /* intentionally fixed px, and not rem, for calculations */
+    margin: 1rem 0;
+    background-color: #242424;
+    border-radius: 16px;
+    opacity: 1;
+
+    transition-duration: 1s;
+    transition-property: transform, background-color, opacity;
+    transition-timing-function: linear;
+    transform: translateY(0) scale(1);
+
+    cursor: pointer;
+}
+
+#lightbox-player-progress:not([time]) b { transform: translateY(3rem) scale(1); pointer-events: none !important; }
+#lightbox-player-progress[time] b.played { background-color: #FFF; }
+#lightbox-player-progress[time] b.played + b:not(.played) { background-color: #444; }
 
 /* -----------------------------
 -------------------------------- 
@@ -1709,7 +1646,7 @@ ENABLE HOVERS
     #timeline small.sub:hover       { transform: translateX(1.5rem); }
     #timeline small:not(.sub):hover { transform: translateX(0.5rem); }
 
-    main:not(.scrolling):not(.browsing) .photo:not(.selected):not(.loading):hover i   { 
+    main:not(.scrolling):not(.browsing) .media:not(.selected):not(.loading):hover i   { 
         opacity:1; 
     }
     main:not(.scrolling):not(.browsing) .album:hover i                                { 
@@ -1729,6 +1666,8 @@ ENABLE HOVERS
         color: var(--cryptee-yellow);
         background-color: transparent;
     }
+
+    #lightbox-player-progress b:hover { transform: scale(1.2); background-color: var(--cryptee-3); }
 }
 
 @media (-moz-touch-enabled : 1), (pointer:coarse) {
@@ -1740,7 +1679,7 @@ ENABLE HOVERS
 
     #timeline.compact small:not(.sub) { transform: translateX(0.5rem); }
 
-    .photo i { 
+    .media i { 
         opacity:1 !important; 
         transform: scale(0.75) !important; 
         top: 0.5rem;
@@ -1797,7 +1736,7 @@ MEDIA QUERIES
         margin: 0;
     }
 
-    .photo { 
+    .media { 
         width: 25vw; 
         height: 25vw; 
         margin: 0;
@@ -1905,7 +1844,7 @@ MEDIA QUERIES
 
     .album { height: 12rem; }
 
-    .photo { 
+    .media { 
         width: 50vw; 
         height: 50vw; 
     }
@@ -1942,6 +1881,7 @@ MEDIA QUERIES
     #sorter small, #sorter i { max-width: 3rem; min-width: 3rem; }
     #sorter { padding-left: 1.5rem; }
 
+    .swiper-video-container::before,
     .swiper-zoom-container::before { 
         height: 12rem;
     }
@@ -1949,7 +1889,13 @@ MEDIA QUERIES
     .swiper-zoom-container::after { 
         height: 8rem;
         font-size: 1rem;
-        padding: 0 2rem 2rem 2rem; 
+        padding: 0 1.75rem 2rem 1.75rem; 
+    }
+
+    .swiper-video-container::after { 
+        height: 8rem;
+        font-size: 1rem;
+        padding: 0 1.75rem 5rem 1.75rem;
     }
 
 }

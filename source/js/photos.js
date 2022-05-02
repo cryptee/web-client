@@ -110,12 +110,12 @@ function stopTaggingPhotosProgress() {
 
 
 
-$(".contents").on('click', '.photo', function(event) {
+$(".contents").on('click', '.media', function(event) {
     var photoID = $(this).attr("id");
     var shifted = event.shiftKey;
 
     if (event.target.tagName.toUpperCase() !== "I" && !$("body").hasClass("nav-selection") && !$("body").hasClass("searching")) {
-        loadPhoto(photoID);
+        loadMedia(photoID);
     } else if ($("body").hasClass("searching")) {
         loadSearchResult(photoID);
     } else {
@@ -244,6 +244,9 @@ key('shift + up', function() {
     return false;
 });
 
+key('space', function() { playPauseActiveVideo(); });
+key('k', function() { playPauseActiveVideo(); });
+key('m', function() { muteUnmuteActiveVideo(); });
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -468,7 +471,7 @@ function sortableExifDate(dateString) {
     var month = "00";
     var day = "00";
     var time = "000000";
-    if (dateString) {
+    if (dateString && typeof dateString === "string") {
         if (dateString.indexOf(":") !== -1) {
             // Looks like not every camera manufacturer follows the standards. Some of these splits can throw undefined. [facepalm]
             year = yearFromEXIF(dateString);
@@ -496,13 +499,20 @@ function sortableExifDate(dateString) {
 
 
 /**
- * Gets today's EXIF
+ * Gets today's EXIF (or if provided with an epoch, gets an exif for the given date)
+ * @param {Number} dateEpoch 
  */
-function todaysEXIF() {
-    var today = new Date();
-    var currentDay = today.getUTCDate();
-    var currentMonth = today.getUTCMonth() + 1; // it's 0 based. jesus.
-    var currentYear = today.getFullYear();
+function dateToExif(dateEpoch) {
+    var date;
+    if (dateEpoch) {
+        date = new Date(dateEpoch);
+    } else {
+        date = new Date();
+    }
+    
+    var currentDay = date.getUTCDate();
+    var currentMonth = date.getUTCMonth() + 1; // it's 0 based. jesus.
+    var currentYear = date.getFullYear();
     return currentYear + ":" + ("0" + currentMonth).slice(-2) + ":" + ("0" + currentDay).slice(-2);
 }
 
@@ -582,7 +592,7 @@ doWeNeedHighResThumbs();
  * Checks the lightbox, and gets the active, currently visible photo's ID
  */
 function activePhotoID() {
-    return $(".swiper-slide-active.swiper-slide-visible").find(".swiper-zoom-container").attr("pid") || $(".swiper-slide-active.swiper-slide-visible").find("img").attr("pid") || null;
+    return $(".swiper-slide-active.swiper-slide-visible").find(".swiper-zoom-container").attr("pid") || $(".swiper-slide-active.swiper-slide-visible").find("img").attr("pid") || $(".swiper-slide-active.swiper-slide-visible").find("video").attr("pid") || null;
 }
 
 ////////////////////////////////////////////////

@@ -604,7 +604,8 @@ async function prepKeyModal() {
         var img = $(this);
         setTimeout(function () {
             img.addClass("loaded");
-        }, 100);
+            revokeObjectURL(imgBlobURL);
+        }, 150);
     }); 
     
     if (authorName) {

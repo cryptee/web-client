@@ -131,7 +131,7 @@ async function loadDoc(doc) {
         if (connection) {
             // there's no offline doc, or it's not recent, we're connected, so download newest from server.
             breadcrumb('[LOAD DOC] Downloading & Decrypting document: ' + did);
-            docContents = await downloadDocumentOrFile(doc);
+            docContents = await downloadAndDecryptFile(did, null, "crypteedoc", docName(doc), null, null, doc);
         } else {
             // there's no offline doc, or it's not recent, but we're not connected. so continue using outdated version. 
             breadcrumb('[LOAD DOC] Found an outdated offline version. Loading it: ' + did);
@@ -360,30 +360,18 @@ async function loadFile(doc, filename) {
         return false;
     }
     
-    // if either the previewer or the importer supports the file, download it
-    var fileContents;
-    if (previewerSupportedExtensions.includes(ext) || importerSupportedExtensions.includes(ext)) {
-        breadcrumb('[LOAD FILE] Downloading & Decrypting file: ' + did);
-        fileContents = await downloadDocumentOrFile(doc, true);
-
-        if (!fileContents || isEmpty(fileContents)) {
-            handleError("[LOAD FILE] Failed to load, got no contents.", {did:did});
-            createPopup(`Failed to load your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
-            failedToLoadFile(did);
-            return false;
-        }
-    }
+    // if either the previewer or the importer supports the file, download & decrypt it
 
     activityHappened();
     
     // LOAD PREVIEWER FOR SUPPORTED FORMAT (I.E. JPG, PDF) 
     if (previewerSupportedExtensions.includes(ext)) {
-        await loadFileIntoFileViewer(doc, fileContents, filename);
+        await loadFileIntoFileViewer(doc, filename);
     } 
     
     // START IMPORTER FOR SUPPORTED FORMAT
     else if (importerSupportedExtensions.includes(ext)) {
-        await importFile(doc, fileContents, filename);
+        await importFile(doc, filename);
     } 
 
     // SHOW UNSUPPORTED FILE / DOWNLOAD POPUP

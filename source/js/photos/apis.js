@@ -165,48 +165,17 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
 
     // DOWNLOAD ENCRYPTED THUMBNAIL
 
-    var encryptedThumbnail;
+    var decryptedThumbnailURL = await getMedia(thumbImgID, "t", "url");
 
-    try {
-        encryptedThumbnail = await downloadFile(thumbImgID, thumbToken);
-    } catch (error) {
-        error.imgID = thumbImgID;
-        error.token = thumbToken;
-        handleError("[GET THUMBNAIL] Couldn't download thumbnail.", error);
-        // wrapperElem.remove();
-        // TODO – FIX IMAGE / ALBUM ETC IF IT'S NOT LOADED –
-        return false;
-    }
+    // TODO : FIX IMAGE / ALBUM IF THUMB CAN'T BE FOUND FOR SOME REASON. 
+    // WE NOW INTELLIGENTLY FALLBACK TO LARGER SIZES AS NEEDED THOUGH. 
 
-    if (!encryptedThumbnail) {
-        handleError("[GET THUMBNAIL] Couldn't download thumbnail.", { imgID : thumbImgID, token : thumbToken });
-        // wrapperElem.remove();
-        // TODO – FIX IMAGE / ALBUM ETC IF IT'S NOT LOADED –
-        return false;
-    }
-
-    if (encryptedThumbnail === "aborted") { return false; }
+    // TODO : HANDLE ABORTING
+    // if (encryptedThumbnail === "aborted") { return false; }
     if (!wrapperElem.hasClass("onscreen")) { return false; }
 
-    // DECRYPT ENCRYPTED THUMBNAIL
-
-    var decryptedThumbnail;
-    try {
-        decryptedThumbnail = await decrypt(encryptedThumbnail, [theKey]);
-    } catch (error) {
-        error.imgID = thumbImgID;
-        error.token = thumbToken;
-        handleError("[GET THUMBNAIL] Couldn't decrypt thumbnail", error);
-        // wrapperElem.remove();
-        // TODO – FIX IMAGE / ALBUM ETC IF IT'S NOT LOADED –
-        return false;
-    }
-
-    // now we have the B64 in this
-    // decryptedThumbnail.data;
-
     var img = new Image();
-    img.src = decryptedThumbnail.data;
+    img.src = decryptedThumbnailURL;
     img.setAttribute("draggable", false);
     img.setAttribute("thumb", thumbImgID);
 
@@ -223,6 +192,7 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
     setTimeout(function () {
         wrapperElem.removeClass("loading");
         img = null;
+        revokeObjectURL(decryptedThumbnailURL);
     }, 50);
 
 }
@@ -231,9 +201,12 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
  * Downloads, decrypts and returns a decrypted Base64 or blob photo
  * @param {string} photoID The ID of the photo. could be pid, tid, lid etc 
  * @param {('p'|'t'|'l'|'v'|'r')} size The siize of the photo 
+ * @param {('url'|'blob')} outputFormat The output format of the photo (i.e. blob url or blob). Defaults to "url", as that's what we use the most.
  * @returns {*} img if the image is V1 or V2 upload, this is b66. If it's a v3 upload, thumb & lightbox sizes are b64, and original is a blob
  */
-async function getPhoto(photoID, size) {
+async function getMedia(photoID, size, outputFormat) {
+    outputFormat = outputFormat || "url";
+
     size = size || "l";
     
     if (!photoID) {
@@ -241,8 +214,15 @@ async function getPhoto(photoID, size) {
         return false;
     }
     
+    var pid;
+
     var id = convertID(photoID, size);
-    var pid = convertID(photoID, "p");
+    
+    if (photoID.startsWith("v-") || size === "v") {
+        pid = convertID(photoID, "size");
+    } else {
+        pid = convertID(photoID, "p");
+    }
     
     // technically we only need this for the token, and we can still download the photo without a token, by requesting a new token. 
     // it'll be slow, but it'd work. on the server side if we catch a moment like this, we'll generate fresh new tokens for these photos
@@ -251,61 +231,42 @@ async function getPhoto(photoID, size) {
     var localPhoto = photos[pid] || favorites[pid] || {}; 
 
     var token;
-    if (size === "p") { token = localPhoto.otoken || ""; }
-    if (size === "l") { token = localPhoto.ltoken || ""; }
-    if (size === "t") { token = localPhoto.ttoken || ""; }
+    if (size === "p" || size === "v") { token = localPhoto.otoken || ""; }
+    if (size === "l")                 { token = localPhoto.ltoken || ""; }
+    if (size === "t")                 { token = localPhoto.ttoken || ""; }
 
-    var encryptedPhoto;
-
-    try {
-        encryptedPhoto = await downloadFile(id, token);
-    } catch (error) {
-        error.photoID = photoID;
-        error.pid = pid;
-        error.size = size;
-        handleError("[GET PHOTO] Couldn't download photo", error);
-        return false;
-    }
-
-    if (!encryptedPhoto) {
-        handleError("[GET PHOTO] Couldn't download photo", { pid : pid });
-        return false;
-    }
-
-    if (encryptedPhoto === "aborted") { return false; }
+    // if (encryptedPhoto === "aborted") { return false; }
 
     var decryptedPhoto;
     
     try {
-        if (size === "p" && pid.endsWith("-v3")) {
-            // it's an original sized v3 upload which is binary
-            decryptedPhoto = await decryptToBinary(encryptedPhoto, [theKey]);
-        } else {
-            // it's a V1 & v2 upload, OR V3 thumb or lightbox, which are b64  
-            decryptedPhoto = await decrypt(encryptedPhoto, [theKey]);
-        }
+        decryptedPhoto = await downloadAndDecryptFile(id, token, outputFormat);
     } catch (error) {
         error.photoID = photoID;
         error.pid = pid;
         error.size = size;
-        handleError("[GET PHOTO] Couldn't decrypt photo", error);
+        handleError("[GET PHOTO] Couldn't download / decrypt / get photo", error);
         return false;
     }
 
-    if (size === "p" && pid.endsWith("-v3")) {
-        // it's an original sized v3 upload, we have the Uint8Array image in :
-        // decryptedPhoto.data
-
-        // get its true mimetype
-        var type = getImageMimetypeFromUint8Array(decryptedPhoto.data);        
-        return new Blob([decryptedPhoto.data], {type: type});
-
-    } else {
-        // it's a V1 & v2 upload, OR V3 thumb or lightbox.  
-        // now we have the B64 in this
-        // decryptedPhoto.data
-        return decryptedPhoto.data;
+    // couldn't find thumbnail size, auto-fallback to lightbox size
+    if (size === "t" && !decryptedPhoto) { 
+        handleError("[GET PHOTO] Couldn't download / decrypt / get thumbnail photo. Falling back to lightbox size.", { photoID : photoID, pid : pid, size : size });
+        return getMedia(photoID, "l", outputFormat); 
     }
+
+    // couldn't find lightbox size, auto-fallback to original size
+    if (size === "l" && !decryptedPhoto) { 
+        handleError("[GET PHOTO] Couldn't download / decrypt / get lightbox photo. Falling back to original size.", { photoID : photoID, pid : pid, size : size });
+        return getMedia(photoID, "p", outputFormat); 
+    }
+
+    if (size === "p" && !decryptedPhoto) {
+        handleError("[GET PHOTO] Couldn't download / decrypt / get original photo. Aborting.", { photoID : photoID, pid : pid, size : size });
+        return false;
+    }
+
+    return decryptedPhoto;
     
 }
 

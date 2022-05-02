@@ -11,7 +11,7 @@
                     <img src="../assets/logo-w.svg" alt="CRYPTEE">
                 </a>
                 <div>
-                    <h1><a href="/">CRYPTEE</a></h1>
+                    <p class="company-name"><a href="/">CRYPTEE</a></p>
                     <small>info @ crypt <strong>&middot;</strong> ee</small>
                 </div>
             </div>
@@ -68,17 +68,21 @@
             <p>
                 <a href="https://blog.crypt.ee" target="_blank" rel="noopener" class="external">blog &amp; news</a>
             </p>
-
-            <p>
-                <a href="/help">faq &amp; support</a>
-            </p>
-
+            
             <p>
                 <a href="/acknowledgements">acknowledgements</a>
+            </p>
+            
+            <p>
+                <a href="/help">help &amp; support center</a>
             </p>
 
             <p>
                 <a href="/help">feedback &amp; bug report</a>
+            </p>
+
+            <p>
+                <a href="/faq">frequently asked questions</a>
             </p>
         </div>
 
@@ -110,25 +114,64 @@
 <!-- WE NEED THIS FOR THE PWA INSTALL BANNER -->
 <script src="../js/register-worker.js"></script>
 <script>
+    
+    function scale(number, inMin, inMax, outMin, outMax) {
+        return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+    
     // a super basic lazy loader
     window.addEventListener('load', function(){
+        
         [].forEach.call(document.querySelectorAll('img[lazysrc]'), function(img) {
             img.setAttribute('src', img.getAttribute('lazysrc'));
             img.onload = function() { img.removeAttribute('lazysrc'); };
         });
-
+        
         [].forEach.call(document.querySelectorAll('.hero-img-carousel'), function(carousel) {
             carousel.setAttribute('loaded', 'true');
         });
     }, false);
-
-    // a super basic floating nav
+    
+    // floating nav
     window.addEventListener('scroll', function(){
-        if (document.documentElement.scrollTop >= 320) {
-            document.documentElement.classList.add("floatnav");
+        
+        var nav = document.querySelectorAll("nav")[0];
+        var qe  = document.querySelectorAll("#quick-exit")[0];
+        var st  = document.documentElement.scrollTop;
+        
+        if (st <= 320) {
+            
+            nav.style.setProperty("--y", (0 - st) + "px");
+            nav.style.setProperty("--o", scale(st, 0, 320, 0, 1));
+            nav.style.setProperty("--h", scale(st, 320, 0, 4, 8) + "rem");
+            nav.style.setProperty("--yo", scale(st, 320, 0, 16, 64) + "px");
+            nav.classList.remove("sticky");
+            nav.classList.remove("whitebg");
+
+            if (qe) { 
+                qe.style.setProperty("--y", (0 - st) + "px"); 
+            }
+
         } else {
-            document.documentElement.classList.remove("floatnav");
+            
+            nav.style.setProperty("--yo", "16px");
+            nav.style.setProperty("--y", "-320px");
+            nav.style.setProperty("--o", "1");
+            nav.style.setProperty("--h", "4rem");
+            nav.classList.add("sticky");
+
+            if (qe) { 
+                qe.style.setProperty("--y", "-64px"); 
+            }
+
+            if (st >= 512) { 
+                nav.classList.add("whitebg");
+            } else {
+                nav.classList.remove("whitebg");
+            }
+            
         }
+
     });
 
 </script>

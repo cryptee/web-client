@@ -1,0 +1,20 @@
+<div id="uploader-wrapper" class="<!-- $uploader-type? -->">
+    <div id="uploader">
+        <img draggable="false" ondragstart="return false;" src="../assets/logo-w.svg" alt="cryptee-logo">
+        
+        <button class="close" onclick="hideUploader();"><img src="../assets/cross.svg" alt="close" title="close uploader"></button>
+        
+        <b></b>
+        
+        <div class="status">
+            <p id="uploader-status"></p>
+            <p id="uploader-status-detail"></p>
+        </div>
+        
+        <div id="uploader-skipped-list"></div>
+
+        <button id="uploader-action-button" onclick="clickedUploaderActionButton();"><i class="ri-pause-fill"></i></button>
+
+        <div id="uploader-progress-wrapper"></div>
+    </div>
+</div>

@@ -129,8 +129,6 @@ function isPaperMode() {
     }
 }
 
-if (isSafari) { $("body").addClass("safari"); }
-
 
 
 /**

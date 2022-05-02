@@ -27,7 +27,6 @@
     <nav class="active">
         <button tab="overview">overview</button>
         <button tab="my-data">my data</button>
-        <button tab="docs-settings">docs settings</button>
         <button tab="security">login &amp; security</button>
         <button tab="app-preferences">app preferences</button>
         <button tab="plan-payments">plan &amp; payments</button>
@@ -54,15 +53,7 @@
     <section tab="my-data" subtab="metadata">      <!-- @import "imports/app/account-tab-my-data-metadata.kit" -->      </section>
     <section tab="my-data" subtab="files-photos">  <!-- @import "imports/app/account-tab-my-data-files-photos.kit" -->  </section>
     
-
-
-    <section tab="docs-settings">
-        <p class="gray">configure cryptee docs to your liking!</p>
-        <p>&nbsp;</p>
-        <button tab="docs-settings" subtab="storage-caches">storage &amp; caches</button>
-    </section>
     
-    <section tab="docs-settings" subtab="storage-caches"> <!-- @import "imports/app/account-tab-docs-settings-storage-caches.kit" --> </section>
 
 
 
@@ -75,7 +66,7 @@
         <button tab="security" subtab="encryption-key">change encryption key</button>
         <button tab="security" subtab="device">device security</button>
     </section>
-
+    
     <section tab="security" subtab="device">                <!-- @import "imports/app/account-tab-security-device.kit" -->              </section>
     <section tab="security" subtab="email">                 <!-- @import "imports/app/account-tab-security-email.kit" -->               </section>
     <section tab="security" subtab="password">              <!-- @import "imports/app/account-tab-security-password.kit" -->            </section>
@@ -86,16 +77,18 @@
 
 
     <section tab="app-preferences">
-        <p class="gray">customize cryptee to your liking! these preferences affect only this device</p>
+        <p class="gray">customize and configure cryptee to your liking! these preferences &amp; configurations affect only this device</p>
         <p>&nbsp;</p>
         <button tab="app-preferences" subtab="quick-start">quick start</button>
         <button tab="app-preferences" subtab="darkmode">dark mode</button>
         <button tab="app-preferences" subtab="timeout">inactivity timeout</button>
+        <button tab="app-preferences" subtab="docs-storage-caches">offline docs storage &amp; caches</button>
     </section>
     
-    <section tab="app-preferences" subtab="quick-start">   <!-- @import "imports/app/account-tab-app-preferences-quick-start.kit" -->   </section>
-    <section tab="app-preferences" subtab="darkmode">      <!-- @import "imports/app/account-tab-app-preferences-darkmode.kit" -->      </section>
-    <section tab="app-preferences" subtab="timeout">       <!-- @import "imports/app/account-tab-app-preferences-timeout.kit" -->       </section>
+    <section tab="app-preferences" subtab="quick-start">            <!-- @import "imports/app/account-tab-app-preferences-quick-start.kit" -->         </section>
+    <section tab="app-preferences" subtab="darkmode">               <!-- @import "imports/app/account-tab-app-preferences-darkmode.kit" -->            </section>
+    <section tab="app-preferences" subtab="timeout">                <!-- @import "imports/app/account-tab-app-preferences-timeout.kit" -->             </section>
+    <section tab="app-preferences" subtab="docs-storage-caches">    <!-- @import "imports/app/account-tab-app-preferences-docs-storage-caches.kit" --> </section>
 
 
 

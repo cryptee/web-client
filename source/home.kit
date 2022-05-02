@@ -25,6 +25,7 @@
             <a class="plain rememberKey" href="/photos">
                 <img src="../assets/circle.svg" alt="photos" draggable="false">
                 <span>photos</span>
+                <span class="callout" which="home-video" date="July 30, 2022" until="Jan 15, 2023">& videos</span>
             </a>
         </p>
 
@@ -52,9 +53,7 @@
     </main>
 
     <nav>
-        <p class="menuButton newsButton" id="topNewsButton">
-            <a class="plain external" href="https://blog.crypt.ee#to-cryptee" target="_blank" rel="noopener" title="news and product updates" onclick="markNewsRead();">news</a>
-        </p>
+        <p class="menuButton newsButton" id="topNewsButton" onclick="showLatestNewsCard();">news</p>
 
         <p class="menuButton" id="accountButton">
             <a class="plain" href="/account" title="account / settings">settings</a>
@@ -67,13 +66,21 @@
         <button class="menuButton" id="logoutButton" onclick="logOut();">log out</button>
     </nav>
     
-    <p id="bottomNewsButton" class="newsButton">
-        <a class="plain external" href="https://blog.crypt.ee#to-cryptee" target="_blank" rel="noopener" onclick="markNewsRead();">news</a>
-    </p>
+    <p id="bottomNewsButton" class="newsButton" onclick="showLatestNewsCard();">news</p>
 
     <a id="offerButton" class="offerButton" href="/plans"></a>
 
-
+    <aside id="news-card">
+        <div>
+            <button class="close" onclick="markNewsRead();"><img src="../assets/cross.svg" alt="close" title="close news"></button>
+            <strong>WHAT'S NEW</strong>
+            <p>excerpt</p>
+            <a class="more plain external" target="_blank" rel="noopener" title="news and product updates" onclick="markNewsRead();">
+                <span>read more</span>
+                <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+    </aside>
     
     <div id="create-popups-before-placeholder" style="display: none !important;"></div>
     

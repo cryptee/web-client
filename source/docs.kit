@@ -3,6 +3,7 @@
 
 <head>
     <!-- @import "imports/app/head.kit" -->
+    <!-- $uploader-type = compact -->
 
     <title>Cryptee | Docs</title>
 
@@ -22,6 +23,7 @@
     <link rel="stylesheet"  href="../css/typography.css">
     <link rel="preload"     href="../css/papermode.css"                     as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet"  href="../css/adapters.css">
+    <link rel="stylesheet"  href="../css/uploader.css">
 
 </head>
 
@@ -49,17 +51,18 @@
 
     <div id="dropzone">
         <div id="explorer-dropzone">
-            <span></span>
+            <button class="close" onclick="abortDropzone();"><img src="../assets/cross.svg" alt="close" title="close overlay"></button>
             <progress class="progress white" value="100" max="100"></progress>
             <h3>
                 DROP HERE TO UPLOAD<br>
-                IMAGES / FILES
+                FILES, IMAGES &amp; VIDEOS
             </h3>
             <p>into your currently open folder: </p>
             <p>
                 <i class="ri-folder-fill"></i>
                 <span id="dropzone-folder">Inbox</span>
             </p>
+            <p>max 500mb per file</p>
         </div>
         <div id="document-dropzone">
             <span></span>
@@ -111,6 +114,7 @@
     <!-- @import "imports/app/docs-panel-pagesetup.kit" -->
     <!-- @import "imports/app/docs-panel-saveas-pdf.kit" -->
     <!-- @import "imports/app/docs-panels.kit" -->
+    <!-- @import "imports/app/uploader.kit" -->
     
     <!-- @import "imports/app/docs-tips.kit" -->
     
@@ -209,7 +213,7 @@
     -->
 
     <!-- exif reader -->
-    <script defer src="../js/lib/exif-reader-3.12.3/exif-reader.js"></script>
+    <script defer src="../js/lib/exif-reader-4.5.0/exif-reader.js"></script>
 
     <!-- markdown imports -->
     <script defer src="../js/lib/showdown-1.9.1/showdown.min.js"></script>
@@ -273,6 +277,8 @@
     <script defer src="../js/docs/html-to-docx.js"></script> <!-- docx pre-processor --> 
     <script src="../js/docs/exporters.js"></script> <!-- all exporters --> 
     <script src="../js/docs/importers.js"></script> <!-- all importers --> 
+    
+    <script src="../js/uploader.js"></script> <!-- common uploader ui / events etc --> 
     <script src="../js/docs/uploader.js"></script> <!-- file uploader --> 
     <script src="../js/docs/search.js"></script> <!-- search --> 
     

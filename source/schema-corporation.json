@@ -16,8 +16,11 @@
         "streetAddress": "Svartlab OÜ, Narva mnt 5",
         "postalCode": "10117"
     },
+    "vatID" : "EE102012381",
     "email": "info@crypt.ee",
     "foundingDate": "2018-06-01",
+    "ethicsPolicy" : "https://crypt.ee/about",
+    "ownershipFundingInfo" : "https://crypt.ee/about",
     "sameAs": [
         "https://crypt.ee/#corporation",
         "https://blog.crypt.ee",
@@ -101,6 +104,7 @@
         "@id": "https://musicbrainz.org/artist/10c5c8eb-269c-4f54-aadf-f2b0bf00c542",
         "url": "https://johnozbay.com",
         "name": "John Ozbay",
+        "image": "https://crypt.ee/imgs/bio/chair/john-ozbay.jpg",
         "sameAs": [
             "https://johnozbay.com",
             "https://musicbrainz.org/artist/10c5c8eb-269c-4f54-aadf-f2b0bf00c542",

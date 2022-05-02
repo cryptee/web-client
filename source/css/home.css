@@ -29,8 +29,9 @@ body {
 }
 
 main {
-    grid-column: 2/3;
     grid-row: 5/6;
+    grid-column: 2/3;
+    overflow: hidden;
     background-color: #FFF;
 
     display: grid;
@@ -40,6 +41,9 @@ main {
 
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
     border-radius: 0.5rem;
+
+    opacity: 1;
+    transition: 0.5s opacity var(--cryptee-cb);
 }
 
 .dm main {
@@ -76,7 +80,7 @@ main .appButton a {
     width: 100%;
 }
 
-main .appButton a span {
+main .appButton a > span {
     line-height: 3rem;
 }
 
@@ -88,6 +92,14 @@ main .appButton a span {
 .dm .appButton[app="install"] img {
     filter: invert(0);
 }
+
+.callout {
+    color: var(--cryptee-green);
+    font-weight: bold;
+    opacity: 1;
+}
+
+.callout:not(.show) { opacity: 0; }
 
 #welcome {
     grid-row: -2 / -1;
@@ -101,6 +113,9 @@ b {
     grid-column: 2 / 3;
     background-color: black;
     height: 1px;
+
+    transform: translateX(0);
+    transition: 0.5s transform var(--cryptee-cb);
 }
 
 .dm b {
@@ -201,7 +216,6 @@ SPECIAL OFFERS
 }
 
 
-
 /* -----------------------------
 -------------------------------- 
  
@@ -271,16 +285,106 @@ PWA INSTALL TIP
 /* -----------------------------
 -------------------------------- 
  
-NEWS BUTTON 
+NEWS
  
 --------------------------------
 ----------------------------- */
 
-@keyframes newsBlink {
-    0%   { background-color: var(--cryptee-blue); }
-    50%  { background-color:  rgba(8,114,132, 0.5);  }
-    100% { background-color: var(--cryptee-blue); }
+#news-card {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+
+    z-index: 3;
+
+    max-height: 13.75rem;
+    margin-top: auto;
 }
+
+#news-card div {
+    max-width: 320px;
+    height: 14rem;
+    margin: 0 1.5rem 0 auto; 
+
+    transform: translateY(0);
+    transition: 0.7s transform var(--cryptee-cb);
+    
+    box-sizing: border-box;
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+
+    border-radius: 0.5rem 0.5rem 0 0;
+    box-shadow: 0 0rem 1rem rgba(0,0,0,0.2);
+    background-color: #FFF;
+    color: #000;
+
+    display: grid;
+    grid-template-columns: 1fr 1rem 1.5rem;
+    grid-template-rows: 1.5rem 1fr 3.25rem;
+}
+
+#news-card button.close img {
+    width: 1rem;
+    height: 1rem;
+    padding-left: 0.5rem;
+}
+
+#news-card button.close { 
+    margin: 0;
+    grid-column: 3/4;
+    grid-row: 1/2;
+    filter: invert(1);
+}
+
+#news-card a.more { 
+    display: block;
+    box-sizing: border-box;
+    
+    grid-column: 1/4;
+    grid-row: 3/4;
+    margin: 0 0 0 auto;
+    
+    text-align: right;
+    padding: 0.5rem 0.75rem 0.5rem 1rem;
+    height: 2.5rem;
+
+    transform: translateY(0.75rem) translateX(0.75rem);
+    transition: 0.85s transform var(--cryptee-cb);
+
+    border-radius: 0.5rem;
+    background-color: var(--cryptee-green);
+    color: #FFF;
+}
+
+#news-card a.more i {
+    margin-left: 0.5rem;
+    line-height: 1.5rem;
+}
+
+#news-card a.more span {
+    float: left;
+    line-height: 1.5rem;
+}
+
+#news-card p {
+    margin-top: 0;
+    grid-column: 1/-1;
+    grid-row: 2/3;
+    text-transform: lowercase;
+}
+
+#news-card strong {
+    display: block;
+    grid-column: 1/2;
+    grid-row: 1/2;
+    
+    line-height: 1.125rem;
+    height: 1.125rem;
+}
+
+body:not(.show-news) #news-card { pointer-events: none !important; }
+body:not(.show-news) #news-card div { transform: translateY(14rem); }
+body:not(.show-news) #news-card a.more { transform: translateY(14rem)  translateX(0.75rem); }
 
 #topNewsButton              { background-color: transparent; border-radius: 0.5rem; }
 #topNewsButton.unread       { background-color: var(--cryptee-blue); padding: 0 1rem; }
@@ -288,12 +392,7 @@ NEWS BUTTON
 #bottomNewsButton           { background-color: transparent; border-top-left-radius: 1rem; }
 #bottomNewsButton.unread    { background-color: var(--cryptee-blue); }
 
-.newsButton.unread { 
-    opacity: 1 !important; 
-    color: #FFF; 
-    font-weight: bold;
-    animation: newsBlink 2s infinite ease-in-out forwards; 
-}
+.newsButton { cursor: pointer; }
 
 
 /* -----------------------------
@@ -315,6 +414,7 @@ MEDIA QUERIES
 }
 
 @media (max-width : 448px) {
+    
     body {
         display: grid;
         grid-template-columns: minmax(4rem, 1fr) minmax(16rem, 20rem) 0;
@@ -327,8 +427,17 @@ MEDIA QUERIES
 
     #topNewsButton { display: none !important; }
     #bottomNewsButton { display: block !important; }
-}
+    
+    #news-card {
+        width: calc(100% - 4rem); max-width: 320px; 
+    }
 
+    #news-card div { 
+        margin: auto; 
+        border-radius: 1rem 0 0 0;
+    }
+
+}
 
 @media (max-width : 374px) {
 
@@ -344,6 +453,10 @@ MEDIA QUERIES
     }
 }
 
+@media (max-height : 768px) {
+    body.show-news main b { transform: translateX(20rem); }
+    body.show-news main { opacity: 0.7; }
+}
 
 
 

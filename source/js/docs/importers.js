@@ -33,7 +33,7 @@ var importerSupportedExtensions = ["htm", "html", "docx", "enex", "txt", "md", "
  * @param {Object} doc A Document Object 
  * @param {string} [filename] Optional filename (i.e. when we call this from an attachment, name of which may not be decrypted in the catalog)
  */
-async function importFile(doc, fileContents, filename) {
+async function importFile(doc, filename) {
     filename = filename || docName(doc);
     var ext = extensionFromFilename(filename);
 
@@ -41,34 +41,51 @@ async function importFile(doc, fileContents, filename) {
 
     // HTML FILES
     if (["htm", "html"].includes(ext)) {
-        await importHTMLFile(doc, fileContents);
+        try { 
+            var rawHTML = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            await importHTMLFile(doc, rawHTML);
+        } catch (error) { err(doc.docid, error); }
     }
 
     // TEXT / MARKDOWN FILES
     if (["txt", "md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "markdn", "mdtxt", "mdtext"].includes(ext)) {
-        await importTXTMDFile(doc, fileContents);
+        try { 
+            var rawTextMD = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            await importTXTMDFile(doc, rawTextMD);
+        } catch (error) { err(doc.docid, error); }
     }
     
     // CRYPTEEDOC / ECD FILES
     if (["crypteedoc", "ecd"].includes(ext)) {
-        await importECDFile(doc, fileContents);
+        try { 
+            var rawECD = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            await importECDFile(doc, rawECD);
+        } catch (error) { err(doc.docid, error); }
     }
     
     // UECD FILES
     if (["uecd"].includes(ext)) {
-        await importUECDFile(doc, fileContents);
+        try { 
+            var rawUECD = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            await importUECDFile(doc, rawUECD);
+        } catch (error) { err(doc.docid, error); }
     }
 
     // ENEX FILES
     if (["enex"].includes(ext)) {
-        await importENEXFile(doc, fileContents);
+        try { 
+            var rawENEX = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            await importENEXFile(doc, rawENEX);
+        } catch (error) { err(doc.docid, error); }
     }
 
     // DOCX FILES
     if (["docx"].includes(ext)) {
-        await importDOCXFile(doc, fileContents);
+        try { 
+            var docxBlob = await downloadAndDecryptFile(doc.docid, null, "blob", filename, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", null, doc, true); 
+            await importDOCXFile(doc, docxBlob);
+        } catch (error) { err(doc.docid, error); }
     }
-        
 
     // in adapters.js
     // CONSIDER LISTING FILES IN A ZIP DIRECTORY
@@ -119,14 +136,13 @@ var importingECD;
 /**
  * Imports / Converts an ECD File
  * @param {string} doc docID
- * @param {*} fileContents Plaintext / Uint8Array contents of file
+ * @param {*} rawECD Plaintext contents of file
  */
-async function importECDFile(doc, fileContents) {
+async function importECDFile(doc, armoredContents) {
     var did = doc.docid;
 
     breadcrumb('[ECD IMPORTER] Decoding File ' + did);
 
-    var armoredContents = decodeFileContents(doc, fileContents);
     if (!armoredContents) {
         handleError("[ECD IMPORTER] Failed to import", { did : did });
         createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
@@ -241,32 +257,18 @@ function cancelAndResetImportingECD() {
 /**
  * Imports / Converts / Loads an UECD (Unencrypted Cryptee Document) – and does the conversion for ECD files 
  * @param {*} doc document object
- * @param {*} fileContents Either stringified deltas of an ECD, or encoded fileContents of an UECD 
+ * @param {*} plaintextDeltas Either stringified deltas of an ECD, or stringified deltas of an UECD 
  */
-async function importUECDFile(doc, fileContents) {
+async function importUECDFile(doc, plaintextDeltas) {
     var did = doc.docid;
 
     // there's technically no such thing called a V3 UECD file. 
     // AS OF V3, UECD files are imported during upload as regular documents.
     // so here, we'll either import an V1/V2/V3 ECD file, or a V1/V2 UECD file.
     
-    // if this is an ECD file, it'll arrive as raw stringifiedDelta
-    // if this is an UECD file, you'll need to decode it. So check the doc's extension, and work from there. 
-
-    var filename = docName(doc);
-    var extension = extensionFromFilename(filename);
-    
-    var plaintextDeltas;
-
-    if (extension !== "ecd") {
-        // legacy, V1/V2 UECD file. needs decoding.
-        breadcrumb('[TXT / MD IMPORTER] Decoding File ' + did);
-
-        plaintextDeltas = decodeFileContents(doc, fileContents);
-    } else {
-        plaintextDeltas = fileContents;
-    }
-    
+    // if this is an v1/v2/v3 ECD file, it'll arrive as raw stringifiedDelta
+    // if this is an v1/v2/ UECD file, it'll also arrive as raw stringifiedDelta
+        
     if (!plaintextDeltas) {
         handleError("[(U)ECD IMPORTER] Failed to decode", { did : did });
         createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
@@ -329,14 +331,13 @@ async function importUECDFile(doc, fileContents) {
 /**
  * Imports / Converts / Sanitizes an HTML File to a CrypteeDoc
  * @param {string} doc docID
- * @param {*} fileContents Plaintext / Uint8Array contents of file
+ * @param {*} rawHTML Plaintext contents of file
  */
-async function importHTMLFile(doc, fileContents) {
+async function importHTMLFile(doc, rawHTML) {
     var did = doc.docid;
 
     breadcrumb('[HTML IMPORTER] Decoding File ' + did);
-
-    var rawHTML = decodeFileContents(doc, fileContents);
+    
     if (!rawHTML) {
         handleError("[HTML IMPORTER] Failed to import", { did : did });
         createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
@@ -387,15 +388,14 @@ async function importHTMLFile(doc, fileContents) {
 /**
  * Imports / Converts a TXT/MD File to a CrypteeDoc through HTML
  * @param {*} doc Document Object
- * @param {*} fileContents Plaintext / Uint8Array contents of file
+ * @param {*} rawTextMD Plaintext contents of file
  */
-async function importTXTMDFile(doc, fileContents) {
+async function importTXTMDFile(doc, rawTextMD) {
     var did = doc.docid;
 
     breadcrumb('[TXT / MD IMPORTER] Decoding File ' + did);
 
-    var rawText = decodeFileContents(doc, fileContents);
-    if (!rawText) {
+    if (!rawTextMD) {
         handleError("[TXT / MD IMPORTER] Failed to import", { did : did });
         createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
         return false;
@@ -405,7 +405,7 @@ async function importTXTMDFile(doc, fileContents) {
 
     var docContents;
     try {
-        docContents = convertTXTMDToDeltas(rawText);
+        docContents = convertTXTMDToDeltas(rawTextMD);
     } catch (error) {
         error.did = did;
         handleError("[TXT / MD IMPORTER] Failed to convert to quill deltas", error);
@@ -447,15 +447,14 @@ async function importTXTMDFile(doc, fileContents) {
 /**
  * Imports / Converts an ENEX file to Crypteedoc through HTML & Sanitizes the content as well
  * @param {*} doc document object
- * @param {*} fileContents Plaintext / Uint8Array contents of file
+ * @param {*} rawENEX Plaintext contents of ENEX file
  */
-async function importENEXFile(doc, fileContents) {
+async function importENEXFile(doc, rawENEX) {
     var did = doc.docid;
     
     breadcrumb('[ENEX IMPORTER] Decoding File ' + did);
     showPopup("popup-enote");
 
-    var rawENEX = decodeFileContents(doc, fileContents);
     if (!rawENEX) {
         handleError("[ENEX IMPORTER] Failed to import", { did : did });
         hidePopup("popup-enote");
@@ -519,8 +518,8 @@ async function importENEXFile(doc, fileContents) {
         }
 
         if (!attachmentName) { continue; }
-
-        addFileToUploadQueue(dataURIToFile(attachmentDataURI, attachmentName), attachmentDID);
+        var attachmentFile = await dataURIToFile(attachmentDataURI, attachmentName);
+        addFileToUploadQueue(attachmentFile, attachmentDID);
     }
 
     for (var noteDID in enexFile.notes) {
@@ -591,12 +590,13 @@ async function saveAndConvertFileToDocForImport(did, doc, contents) {
         handleError("[IMPORTER] Failed to save contents", {did:did});
         return false; 
     }
-
+    
     // STEP 2 : this was a file, now it will be a document, so we'll need to set a few pieces of meta, and remove a few pieces of meta. 
     
     breadcrumb('[IMPORTER] Setting converted file/doc meta' + did);
 
     var docGen = parseInt(docUpload.generation);
+    var docSize = parseInt(docUpload.size);
     var docTags = await findAndEncryptDocumentTags(did, contents);
     var encryptedTags = docTags.tags;
     var decryptedTags = docTags.decryptedTags; 
@@ -605,6 +605,7 @@ async function saveAndConvertFileToDocForImport(did, doc, contents) {
 
     metaSavedToServer = await setDocMeta(did, {
         mime:"", // remove since it's not a file anymore         
+        size : docSize, // because we always need the size
         isfile : false, // remove since it's not a file anymore
         generation : docGen, // add because it's not a file anymore
         tags : encryptedTags // add because it's not a file anymore
@@ -612,6 +613,7 @@ async function saveAndConvertFileToDocForImport(did, doc, contents) {
 
     metaSavedToCatalog = await setDocMetaInCatalog(did, {
         mime:"", // remove since it's not a file anymore        
+        size : docSize, // because we always need the size
         isfile : false, // remove since it's not a file anymore
         generation : docGen, // add because it's not a file anymore
         tags : encryptedTags, // add because it's not a file anymore
@@ -648,56 +650,6 @@ async function saveAndConvertFileToDocForImport(did, doc, contents) {
 
     return convertedDoc;
 }
-
-
-
-
-
-
-
-
-
-
-/**
- * Decodes a file's contents and returns raw contents. (i.e. takes a uint8array html file and returns raw html string like "<body>...</body>")
- * @param {Object} doc Document Object
- * @param {*} fileContents plaintext file contents (either uint8array or b64 string)
- */
-function decodeFileContents(doc, fileContents) {
-    var did = doc.docid;
-    var decodedRawContents = ""; 
-
-    if (did.endsWith("-v3")) {
-        // if it's a v3, it's a uint8array, we'll need a decoded raw html string
-
-        try {
-            decodedRawContents = decodeUint8Array(fileContents);
-        } catch (error) {
-            handleError("[IMPORTER] Error decoding v3 file", error);
-        }
-
-    } else {
-        // if it's a non v3, it's a B64, we'll need to decode it to get a raw html string
-        
-        try {
-            // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!!
-            var spacelessDataURI = fileContents.replace(/\s/g, ''); 
-            decodedRawContents = decodeBase64Unicode(spacelessDataURI.split(',')[1]);
-        } catch (error) {
-            handleError("[IMPORTER] Error decoding v1/2 file", error);
-        }
-
-    }
-
-    return decodedRawContents;
-}
-
-
-
-
-
-
-
 
 
 /**
@@ -1346,26 +1298,17 @@ function prepareENEXAttachmentFromResource(x2js, noteDID, resource) {
 /**
  * Imports / Converts a DOCX File to a CrypteeDoc through HTML
  * @param {*} doc Document Object
- * @param {*} fileContents Plaintext / Uint8Array contents of file
+ * @param {*} docxBlob Blob of DOCX File
  */
-async function importDOCXFile(doc, fileContents) {
+async function importDOCXFile(doc, docxBlob) {
     
     var did = doc.docid;
 
     breadcrumb('[DOCX IMPORTER] Decoding File ' + did);
     
-    // WE NEED DOCX FILES IN THE FORM OF A FILE, AS ARRAY BUFFER.
-    // SO DO THE NECESSARY CONVERSIONS
-    var fileArrayBuffer;
-    if (did.endsWith("-v3")) {
-        // fileContents === uInt8Array
-        var docxFile = uInt8ArrayToFile(fileContents, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", docName(doc));
-        fileArrayBuffer = await readFileAs(docxFile, "arrayBuffer");
-        
-    } else {
-        // fileContents === dataURL / b64
-        fileArrayBuffer = dataURIToUInt8Array(fileContents).buffer;
-    }
+    // WE NEED DOCX FILES IN THE FORM OF AN ARRAY BUFFER.
+    // SO CONVERT THE BLOB TO ARRAY BUFFER FIRST
+    var fileArrayBuffer = await blobToArrayBuffer(docxBlob);
 
     breadcrumb('[DOCX IMPORTER] Converting ' + did);
 

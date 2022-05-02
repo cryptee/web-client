@@ -287,7 +287,8 @@ async function saveDoc(did, inBackground, plaintextContents) {
     if (connection && !isEmpty(docUpload)) { 
 
         docGen = parseInt(docUpload.generation);
-        
+        docSize = parseInt(docUpload.size);
+
         // request wake lock to keep device awake
         enableWakeLock();
 
@@ -295,16 +296,26 @@ async function saveDoc(did, inBackground, plaintextContents) {
         var encryptedTags = docTags.tags;
         var decryptedTags = docTags.decryptedTags;        
 
-        metaSavedToServer = await setDocMeta(did, { 
+        var serverMeta = { 
+            size : docSize,
             generation : docGen,
             tags : encryptedTags 
-        });
+        };
 
-        metaSavedToCatalog = await setDocMetaInCatalog(did, {
+        var catalogMeta = { 
+            size : docSize,
             generation : docGen,
             tags : encryptedTags,
             decryptedTags : decryptedTags // for local catalog, to save a decryption cycle, we save the decrypted tags too
-        });
+        };
+
+        if (docUpload.wrappedKey) { 
+            serverMeta.wrappedKey = docUpload.wrappedKey; 
+            catalogMeta.wrappedKey = docUpload.wrappedKey; 
+        }
+
+        metaSavedToServer = await setDocMeta(did, serverMeta);
+        metaSavedToCatalog = await setDocMetaInCatalog(did, catalogMeta);
 
         // release wake lock to let device sleep
         disableWakeLock();
@@ -481,7 +492,7 @@ async function newDoc(parentFID, plaintextTitle, plaintextDeltas, did, inBackgro
     parentFID = parentFID || "f-uncat";
     plaintextDeltas = plaintextDeltas || {};
     plaintextTitle = plaintextTitle || "Untitled Document";
-    did = did || "d-" + newUUID() + "-v3";
+    did = did || "d-" + newUUID() + "-v4";
     inBackground = inBackground || false;
 
 
@@ -510,7 +521,7 @@ async function newDoc(parentFID, plaintextTitle, plaintextDeltas, did, inBackgro
     plaintextDeltas = addDocumentMetadataToDelta(plaintextDeltas, true);
     
     var docUpload = {};
-    var docGen, metaSavedToServer, metaSavedToCatalog;
+    var docGen, docSize, metaSavedToServer, metaSavedToCatalog;
 
     // THEN CHECK IF WE'RE CONNECTED.
     var connection = await checkConnection(); 
@@ -714,9 +725,11 @@ async function newDoc(parentFID, plaintextTitle, plaintextDeltas, did, inBackgro
         enableWakeLock();
 
         docGen = parseInt(docUpload.generation);
+        docSize = parseInt(docUpload.size);
 
         metaSavedToServer = await setDocMeta(did, {
             docid: did, 
+            size : docSize,
             fid : parentFID,
             generation : docGen, 
             tags : encryptedTags,
@@ -725,6 +738,7 @@ async function newDoc(parentFID, plaintextTitle, plaintextDeltas, did, inBackgro
 
         metaSavedToCatalog = await newDocInCatalog({
             docid: did,
+            size : docSize,
             fid : parentFID,
             generation : docGen,
             tags : encryptedTags,
@@ -859,25 +873,80 @@ async function findAndEncryptDocumentTags(did, plaintextContents) {
 async function encryptAndUploadDocument(did, plaintextContents, inBackground) {
 
     inBackground = inBackground || false;
-
-    if (!inBackground) { updateRightProgress(0, 100, "yellow"); }
-    if (inBackground) { addSaveToUploadsPanel(did); }
+    
+    if (!inBackground) { 
+        updateRightProgress(0, 100, "yellow"); 
+    } else {
+        onUploadEncrypting(did); 
+        showUploader();
+    }
 
     // request wake lock to keep device awake
     enableWakeLock();
+    activityHappened();
+    
+    // render upload in uploader
+    var uploadID = filenameToUploadID(did);
+    $("#uploader-progress-wrapper").append(renderUpload(uploadID));
+    
+    // choose and lock a slot for this upload
+    var slotNo = chooseAnAvailableSlot();
+    assignUploadToSlotNo(did, slotNo);
+    
+    var docUpload; 
+    
+    if (did.endsWith("-v4")) {
+        breadcrumb('[SAVE] Encrypting V4 document: ' + did);
+        docUpload = await encryptAndUploadV4Document(did, plaintextContents, inBackground);
+    } else {
+        breadcrumb('[SAVE] Encrypting V3 document: ' + did);
+        docUpload = await encryptAndUploadV3Document(did, plaintextContents, inBackground);
+    }
 
-    breadcrumb('[SAVE] Encrypting document: ' + did);
+    if (docUpload === "exceeded") {
+        handleError("[SAVE] Failed to upload document.");
+        return false;
+    }
+
+    if (!docUpload || isEmpty(docUpload)) {
+        handleError("[SAVE] Failed to upload document.");
+        createPopup("<b>Failed to save document!</b> Chances are this is a network problem. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.", "error");
+        return false;
+    }
+
+    doneWithSlot(slotNo);
+
+    // release wake lock to let device sleep
+    disableWakeLock();
+
+    return docUpload;
+
+}
+
+
+
+
+/**
+ * Encrypts and uploads a legacy V1,V2 or V3 document (for using in save / sync etc)
+ * @param {string} did document ID
+ * @param {*} plaintextContents contents you get from quill.getContents()
+ * @param {boolean} [inBackground] saving in background, so don't update progress bar.
+ */
+async function encryptAndUploadV3Document(did, plaintextContents, inBackground) {
     
     var encryptedStringifiedContents;
+    
     try {
         var stringifiedPlaintextContents = JSON.stringify(plaintextContents);
         var encryptedContents = await encrypt(stringifiedPlaintextContents, [theKey]);
         encryptedStringifiedContents = JSON.stringify(encryptedContents);
     } catch (error) {
         error.did = did;
-        handleError("[SAVE] Failed to encrypt document", error);
+        handleError("[SAVE] Failed to encrypt V3 document", error);
         return false;
     }
+
+    activityHappened();
 
     breadcrumb('[SAVE] Uploading document: ' + did);
 
@@ -891,25 +960,57 @@ async function encryptAndUploadDocument(did, plaintextContents, inBackground) {
         return false;
     }
     
-    if (docUpload === "exceeded") {
-        handleError("[SAVE] Failed to upload document.");
-        return false;
-    }
+    return docUpload;
 
-    if (!docUpload || isEmpty(docUpload)) {
-        handleError("[SAVE] Failed to upload document.");
+}
+
+
+
+
+/**
+ * Encrypts and uploads a V4 document (for using in save / sync etc)
+ * @param {string} did document ID
+ * @param {*} plaintextContents contents you get from quill.getContents()
+ * @param {boolean} [inBackground] saving in background, so don't update progress bar.
+ */
+async function encryptAndUploadV4Document(did, plaintextContents, inBackground) {
+    
+    // check if doc already has a wrappedKey, if not generate one : 
+    
+    var fileKeys = [theKey];
+    var { fileKey, wrappedKey } = await generateDocFileKeyIfNecessary(did); 
+    if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
+    
+    var encryptedDocBlob = await streamingEncrypt(jsonToBlob(plaintextContents), fileKeys);
+    if (!encryptedDocBlob) { return err("[SAVE] Failed to encrypt V4 document"); }
+
+    activityHappened();
+    
+    if (inBackground) { addUploadVariantToUploader(did, encryptedDocBlob.size); }
+
+    var docUpload; 
+    
+    try {
+        docUpload = await streamingUploadFile(encryptedDocBlob, did + ".crypteedoc", inBackground);
+    } catch (error) {
+        error.did = did;
+        handleError("[SAVE] Failed to encrypt V4 document", error);
         createPopup("<b>Failed to save document!</b> Chances are this is a network problem. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.", "error");
         return false;
     }
 
-    removeSaveFromUploadsPanel(did);
-
-    // release wake lock to let device sleep
-    disableWakeLock();
+    if (docUpload && wrappedKey) {
+        docUpload = docUpload || {};
+        docUpload.wrappedKey = wrappedKey;
+    }
 
     return docUpload;
 
 }
+
+
+
+
 
 
 

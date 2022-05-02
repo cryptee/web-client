@@ -18,7 +18,7 @@ First, let's get a few things out of the way.
 
 #### Security & Issues
 
-If you find any critical security issues, please reach out to us using `info @ crypt [dot] ee`. 
+If you find any critical security issues, please reach out to us using `security @ crypt [dot] ee`. 
 
 Otherwise, feel free to throw in your bug reports and issues here on github! The issues section is meme & emoji friendly. Please use fun GIFs. It'll cheer everyone up. We're going through a pandemic ffs, we can all use a good laughter. So issues/bug-reports/feature suggestions with relevant & fun memes and gifs will win some free storage on the house.  
 

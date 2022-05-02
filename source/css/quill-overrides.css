@@ -881,7 +881,7 @@ EDITOR OVERRIDES
 /* to fix scroll jump issues */
 /* https://github.com/quilljs/quill/issues/1374 */
 .ql-clipboard {
-    right: -100000px !important;
+    right: 0px !important;
     left: 0 !important;
     opacity: 0 !important;
     /* if you don't add this, browsers try to render the clipboard with the editor on the same layer, causing a massive 100,000px drawing overhead = resulting in ~450mb memory use. fucking hell */

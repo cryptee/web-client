@@ -54,3 +54,14 @@ process.nextTick = (function() {
 		}
 	};
 }());
+
+/**
+ * This polyfills native ReadableStreams, so we can use native streams from fetch etc them in OpenPGPjs. 
+ * At the moment this is required because OpenPGPjs doesn't play well with native readable streams. 
+ * OpenPGPjs is considering polyfilling this themselves soon tho. 
+ * Thanks firefox. arrggh.
+ * https://github.com/MattiasBuelens/web-streams-adapter
+ * https://github.com/openpgpjs/openpgpjs/issues/1121#issuecomment-657461238
+ * https://github.com/openpgpjs/openpgpjs/issues/1037#issuecomment-577396094
+ */
+const polyfilledReadableStream = WebStreamsAdapter.createReadableStreamWrapper(ReadableStream);

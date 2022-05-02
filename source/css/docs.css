@@ -379,6 +379,57 @@ LEFT MENU
     transition: 0.3s transform var(--cryptee-cb);
 }
 
+#selections-size {
+    float: right;
+    display: block;
+    background-color: #484848;
+    color: var(--cryptee-3);
+
+    width: 5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+
+    overflow: hidden;
+    text-align: center;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    margin-top: 0.75rem;
+    border-radius: 1.5rem;
+
+    pointer-events: none;
+    z-index: 2;
+
+    transition-property: width, opacity;
+    transition-duration: 1s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#selections-size:empty {
+    width: 1.5rem;
+    opacity: 0.5;
+}
+
+#selections-size:empty::before {
+    font-family: remixicon !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    content: "\EEC7";
+    animation: spin 0.5s linear infinite;
+    display: inline-block;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+
+    margin-top: -0.125rem;
+    vertical-align: middle;
+    font-style: normal;
+    color: #FFF;
+}
 
 /* SEARCH */
 
@@ -780,36 +831,49 @@ EMPTY SECTIONS IN LEFT SIDEBAR
 
 
 /* 5 seconds round */
-@keyframes blinkGroupForAttention1 {
-    0%        {opacity: 0.5;}
-    15%       {opacity: 1;}
-    30%, 100% {opacity: 0.5;}
+@keyframes blinkGroupForAttention1c {
+    0%        { color: #FFF;               }
+    15%       { color: var(--cryptee-green); }
+    30%, 100% { color: #FFF;               }
 }
 
-@keyframes blinkGroupForAttention2 {
-    0%, 30%   {opacity: 0.5;}
-    45%       {opacity: 1;}
-    60%, 100% {opacity: 0.5;}
+@keyframes blinkGroupForAttention2c {
+    0%, 30%   { color: #FFF;               }
+    45%       { color: var(--cryptee-green); }
+    60%, 100% { color: #FFF;               }
 }
 
-@keyframes blinkGroupForAttention3 {
-    0%, 60%   {opacity: 0.5;}
-    75%       {opacity: 1;}
-    90%, 100% {opacity: 0.5;}
+@keyframes blinkGroupForAttention3c {
+    0%, 60%   { color: #FFF;               }
+    75%       { color: var(--cryptee-green); }
+    90%, 100% { color: #FFF;               }
 }
 
-#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newDocButton {
-    animation: blinkGroupForAttention1 5s infinite ease forwards;
+@keyframes blinkGroupForAttention1o {
+    0%        { opacity: 0.5;               }
+    15%       { opacity: 1;                 }
+    30%, 100% { opacity: 0.5;               }
 }
 
-#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newFolderButton {
-    animation: blinkGroupForAttention2 5s infinite ease forwards;
+@keyframes blinkGroupForAttention2o {
+    0%, 30%   { opacity: 0.5;               }
+    45%       { opacity: 1;                 }
+    60%, 100% { opacity: 0.5;               }
 }
 
-#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #uploadFileButton {
-    animation: blinkGroupForAttention3 5s infinite ease forwards;
+@keyframes blinkGroupForAttention3o {
+    0%, 60%   { opacity: 0.5;               }
+    75%       { opacity: 1;                 }
+    90%, 100% { opacity: 0.5;               }
 }
 
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newDocButton i { animation: blinkGroupForAttention1c 5s infinite ease forwards; }
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newFolderButton i { animation: blinkGroupForAttention2c 5s infinite ease forwards; }
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #uploadFileButton i { animation: blinkGroupForAttention3c 5s infinite ease forwards; }
+
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newDocButton { animation: blinkGroupForAttention1o 5s infinite ease forwards; }
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #newFolderButton { animation: blinkGroupForAttention2o 5s infinite ease forwards; }
+#leftSlide.activeSlide #leftListWrapper[show="folder"].empty-folder ~ #explorerButtons #uploadFileButton { animation: blinkGroupForAttention3o 5s infinite ease forwards; }
 
 #leftListWrapper[show="recents"] #recents:empty:after {
     display: block;
@@ -823,8 +887,8 @@ EMPTY SECTIONS IN LEFT SIDEBAR
     opacity: 1;
 }
 
-
-#leftSlide.activeSlide #leftListWrapper[show="recents"].no-recents ~ #explorerButtons #newDocButton {
+#leftSlide.activeSlide #leftListWrapper[show="recents"].no-recents ~ #explorerButtons #newDocButton { opacity: 1; }
+#leftSlide.activeSlide #leftListWrapper[show="recents"].no-recents ~ #explorerButtons #newDocButton i {
     animation: blinkForAttention 2s infinite ease forwards;
 }
 
@@ -842,7 +906,8 @@ EMPTY SECTIONS IN LEFT SIDEBAR
 }
 
 
-#leftSlide.activeSlide #leftListWrapper[show="folders"].no-folders ~ #explorerButtons #newFolderButton {
+#leftSlide.activeSlide #leftListWrapper[show="folders"].no-folders ~ #explorerButtons #newFolderButton { opacity: 1; }
+#leftSlide.activeSlide #leftListWrapper[show="folders"].no-folders ~ #explorerButtons #newFolderButton i {
     animation: blinkForAttention 2s infinite ease forwards;
 }
 
@@ -1332,7 +1397,7 @@ DROPDOWNS
     top: 8rem;
     left: 16.75rem; /* if you change this, update this in abstractions.js in showDocRightClickDropdown etc */
     min-width: 14rem;
-    max-width: 17rem;
+    max-width: 18rem;
 
     background-color: #242424;
     z-index: 9;
@@ -1410,9 +1475,11 @@ DROPDOWNS
     user-select: none;
     display: block;
 
-    height: 1.5rem;
+    height: 2.75rem;
     line-height: 1.5rem;
-    width: calc(100% - 1.5rem);
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
     padding: 0.75rem 0.75rem 0.5rem 0.75rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1426,6 +1493,46 @@ DROPDOWNS
     opacity: 0.5;
 }
 
+.dropdown[size]:not([size="-"])[name]::before {
+    padding: 0.75rem 6.5rem 0.5rem 0.75rem;
+}
+
+.dropdown .filesize {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background-color: #484848;
+    width: 5rem;
+    height: 1.5rem;
+    margin-top: 0;
+    border-radius: 1.5rem;
+    opacity: 1;
+
+    pointer-events: none;
+    z-index: 2;
+
+    transition-property: width, opacity;
+    transition-duration: 2s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+.dropdown .filesize:not([size]),
+.dropdown .filesize[size=""] {
+    width: 1.5rem;
+    opacity: 0;
+}
+
+.dropdown .filesize[size]:not([size="-"])::after {
+    content: attr(size);
+    color: var(--cryptee-3);
+    width: 100%;
+    display: block;
+    overflow: hidden;
+    text-align: center;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 
 
 .dropdown:not(.for-offline-items) .show-for-offline-folder-or-doc { display: none; }
@@ -2202,100 +2309,6 @@ EMBEDDING IMAGE PANEL
 
 
 
-
-/* -----------------------------
--------------------------------- 
- 
-UPLOADER PANEL 
- 
---------------------------------
------------------------------ */
-
-#panel-uploads {
-    min-height: 0rem;
-    max-height: 10rem;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    pointer-events: none !important;
-}
-
-#panel-uploads:not(:empty) {
-    transform: translate3d(0,0,0);
-    opacity: 1;
-}
-
-#panel-uploads::before {
-    content: "ENCRYPTING / SAVING";
-    
-    margin-top: 0.25rem;         /* 8px spacing to match vertical rhythm on grid */
-    font-size: 1rem;            /* 16px */
-    line-height: 1.5rem;        /* 24px */
-    font-weight: 700;
-    
-    display: block;
-    height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: 0.5s opacity ease, 0.5s height ease;
-}
-
-#panel-uploads:not(:empty)::before {
-    height: 1.5rem;
-    opacity: 1;
-}
-
-#panel-uploads .upload {
-    display: grid;
-    grid-template-columns: 1fr 3.5rem;
-    grid-template-rows: 2.5rem 0.5rem;
-
-    transition: 0.5s opacity ease, 0.5s height ease;
-    height: 3rem;
-    opacity: 1;
-}
-
-#panel-uploads .upload[status="%100.00"],
-#panel-uploads .upload[status="%00.00"] {
-    opacity: 0;
-    height: 0;
-}
-
-#panel-uploads .upload:not([status^="%"]) p {
-    color: var(--cryptee-red);
-}
-
-#panel-uploads .upload:not([status^="%"]) .status {
-    margin-top: 0.25rem;
-}
-
-#panel-uploads[uploaded][total]::before {
-    content: "ENCRYPTING & UPLOADING (" attr(uploaded) "/" attr(total) ")";
-    font-size: 0.8rem;
-}
-
-#panel-uploads .status {
-    text-align: right;
-}
-
-#panel-uploads .progress {
-    grid-column: span 2;
-}
-
-#panel-uploads p {
-    text-transform: lowercase;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-
-/* corner popup next to uploader popup */
-#panel-uploads:not(:empty) ~ .popup.corner.created { transform: translate3d(-24rem,0,0); }
-#panel-uploads:not(:empty) ~ .popup.corner.created ~ .popup.corner.created { transform: translate3d(-48rem,0,0); }
-#panel-uploads:not(:empty) ~ .popup.corner.created ~ .popup.corner.created ~ .popup.corner.created { transform: translate3d(-72rem,0,0); }
-
-
-
 /* -----------------------------
 -------------------------------- 
  
@@ -2952,7 +2965,7 @@ table of contents
 }
 
 #tableofcontents:empty::before {
-    content: "looks like you don't have any headings in your document. once you add headings to your document – which you can do using the 'H1', 'H2', 'H3' buttons in the editor – your headings will show up here in the table of contents. you can click on a heading here in the table of contents to scroll to the heading, and navigate through long documents";
+    content: "looks like you don't have any headings in your document. once you add headings to your document – which you can do using the 'H1', 'H2', 'H3' buttons in the editor – your headings will show up here in the table of contents. you can click on a heading here in the table of contents to scroll to the heading inside your document, and navigate through long documents";
     line-height: 1.5rem;
     font-weight: 350;
 }
@@ -3466,6 +3479,9 @@ body.offline .panel .delete {
     background-color: transparent;
 }
 
+body.offline .dropdown .filesize {
+    opacity: 0 !important; 
+}
 
 body.offline .cryptee-attachfile,
 body.offline .ql-video {
@@ -3733,9 +3749,25 @@ DROPZONES
     margin-right: 0.5rem;
 }
 
-body.no-doc #document-dropzone {
-    display: none;
+body.no-doc #dropzone { grid-template-columns: 1fr; }
+body.no-doc #document-dropzone { display: none; }
+
+#dropzone button.close {
+    display: block;
+    opacity: 0.3;
+    height: 2rem;
+    width: 2rem;
+    margin: 0;
+
+    transform: rotate(45deg);
+    transition: 1s opacity ease 5s, 1s transform ease 5s;
 }
+
+#dropzone:not(.show) button.close {
+    opacity: 0;
+    transform: rotate(0);
+}
+
 
 /* -----------------------------
 -------------------------------- 
@@ -3862,7 +3894,7 @@ body:not([env]) .is-hidden-on-live-env { display: none !important; }
     white-space: nowrap;
     text-overflow: ellipsis;
     display: inline-flex;
-    max-width: 200px;
+    max-width: 100%;
 }
 
 
@@ -3971,6 +4003,12 @@ ENABLE HOVERS
     #explorerButtons button:hover,
     #sliderCaret:hover {
         opacity: 1 !important;
+    }
+
+    #explorerButtons button:hover,
+    #explorerButtons button:hover i {
+        animation-play-state: paused !important;
+        color: #FFF !important;
     }
 
     #sliderCaret:hover i {

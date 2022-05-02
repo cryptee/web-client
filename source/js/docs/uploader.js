@@ -72,6 +72,7 @@ function handleDragEnter(evt) {
     if (dragCounter === 0 && theKey && isEmpty(uploadQueue) && !isBodyActivity()) { 
         showDropzone(); 
     }
+    
     highlightDropzone(evt.target);
 
     dragCounter++;
@@ -82,7 +83,7 @@ function handleDragEnter(evt) {
 function handleDragLeave(evt) {
     dragCounter--;
     if (dragCounter === 0 && theKey && isEmpty(uploadQueue) && !isBodyActivity()) { hideDropzone(); }
-
+    
     evt.stopPropagation();
     evt.preventDefault();
 }
@@ -155,22 +156,10 @@ function stopDropzoneProgresses() {
 }
 
 
-function updateUploader(uploaded, total) {
-    if ((uploaded + "") && (total + "")) {
-        $("#panel-uploads").attr("uploaded", uploaded);
-        $("#panel-uploads").attr("total", total);
-    } else {
-        $("#panel-uploads").removeAttr("uploaded");
-        $("#panel-uploads").removeAttr("total");
-    }
+function abortDropzone() {
+    dragCounter = 0;
+    hideDropzone();
 }
-
-
-
-
-
-
-
 
 
 
@@ -180,7 +169,8 @@ async function handleDrop (evt, where) {
 
     if (!isEmpty(uploadQueue)) { 
         //already uploading
-        return true; 
+        createPopup("It seems like there are still some uploads in progress. Please wait for the ongoing uploads to complete before uploading more files.","info");
+        return false; 
     }
 
     dragCounter = 0;
@@ -188,7 +178,7 @@ async function handleDrop (evt, where) {
     if (!isFileAPIAvailable) { 
         createPopup("Unfortunately your browser or device seems to have File API blocked, which is what allows us to encrypt files on your device before uploading them. Without this feature enabled, unfortunately you can't upload anything to Cryptee.","error");
         hideDropzone();
-        return true; 
+        return false; 
     }
 
     hideDropzone();
@@ -211,6 +201,7 @@ async function handleFileSelect(evt) {
     
     if (!isEmpty(uploadQueue)) { 
         //already uploading
+        createPopup("It seems like there are still some uploads in progress. Please wait for the ongoing uploads to complete before uploading more files.","info");
         return true; 
     }
 
@@ -276,7 +267,15 @@ function traverseFileTree(item, where) {
 
 var uploadQueue = {};
 var uploadQueueOrder = [];
-var maxFilesize = 50000000; // 50mb for now, due to technical limits
+var maxFilesize = 500000000; // 500mb for now, will be increased as we test for edge cases
+
+// for now, let's start with 2 to see how it goes. 
+// Reason why this is 2 vs 4 like in Photos has to do with the fact that in Docs, 
+// you could be doing multiple other things during an upload (i.e. saving docs, downloading files etc)
+// we want to be reasonable and conservative with our memory use. 
+// we may some day increase this, or make saves and downloads watch for one another and queue up to consume less memory 
+// but until then, this is the best way to go.
+var maxParallelUploads = 2; 
 
 /**
  * Adds a file to the upload queue
@@ -297,10 +296,10 @@ function addFileToUploadQueue(file, did) {
     var status = "";
     var size = file.size; 
     var type = file.type;
-    did = did || "d-" + newUUID() + "-v3";
+    did = did || "d-" + newUUID() + "-v4";
     
     if (size > maxFilesize) { 
-        status = "too large (>50mb)"; 
+        status = "too large (>500mb)"; 
         handleError("[UPLOAD FILE] Too Large", { size : size }, "info");
     }
     
@@ -313,7 +312,8 @@ function addFileToUploadQueue(file, did) {
         status : status
     };
 
-    $("#panel-uploads").append(renderUpload(did, filename, 0, 0, status));
+    $("#uploader-progress-wrapper").append(renderUpload(did, status));
+    if (status) { $("#uploader-skipped-list").append(renderSkippedUpload(filename, status)); }
 }
 
 
@@ -332,6 +332,7 @@ async function runUploadQueue(where, predefinedTargetFID) {
     breadcrumb('[UPLOAD] Initializing');
 
     setTimeout(function () { hideDropzone(); }, 500);
+    showUploader();
 
     // is there anything in the queue even ... maybe it's empty? 
     var numberOfItemsInQueue = Object.keys(uploadQueue).length; 
@@ -398,29 +399,16 @@ async function runUploadQueue(where, predefinedTargetFID) {
     }
 
     // add files to queue
-    for (var did in uploadQueue) { uploadQueueOrder.push(did); }
+    for (var did in uploadQueue) { 
+        uploadQueue[did].targetFID = targetFID;
+        uploadQueueOrder.push(did); 
+    }
+
     breadcrumb('[UPLOAD] Queued ' + uploadQueueOrder.length + " file(s) for upload");
 
-    // run through the queue
-    for (var index = 0; index < uploadQueueOrder.length; index+=2) {
-        
-        updateUploader(index, uploadQueueOrder.length);
-        
-        var upload1ID = uploadQueueOrder[index];
-        var upload2ID = uploadQueueOrder[index+1];
+    var promiseToUploadEverythingInQueue = new PromisePool(promiseToUploadNextInQueue, maxParallelUploads);
+    await promiseToUploadEverythingInQueue.start();
 
-        var uploadPromises = [];
-
-        if (upload1ID) { uploadPromises.push(encryptAndUploadFile(upload1ID, targetFID)); }
-        if (upload2ID) { uploadPromises.push(encryptAndUploadFile(upload2ID, targetFID)); }
-        
-        await Promise.all(uploadPromises);
-
-        // update titles of folder every two uploads
-        await refreshDOM();
-
-    }
-    
     // release wake lock to let device sleep
     disableWakeLock();
 
@@ -432,27 +420,74 @@ async function runUploadQueue(where, predefinedTargetFID) {
 
 
 /**
+ * Promise generator for the upload queue
+ * @returns {Promise} processEncryptAndUploadPhoto
+ */
+ function promiseToUploadNextInQueue() {
+    
+    // if everything we have in the queue are being uploaded, return null, we're done here.
+    var numberOfItemsInQueue = Object.keys(uploadQueue).length;
+    if (!numberOfItemsInQueue) { return null; }
+    
+    // if we still have some uploads in the queue, check to see if they're being uploaded, and return a promise to upload them.
+    var nextUploadID;
+
+    for (var did in uploadQueue) { 
+        
+        if (uploadQueue[did] && !uploadQueue[did].uploading) {
+            nextUploadID = did; 
+            break; 
+        }
+
+    }
+    
+    if (!nextUploadID) { return null; }
+
+    // add this upload to active uploads right away so promise pool won't pick it up for upload again
+    uploadQueue[nextUploadID].uploading = true;
+    return encryptAndUploadFile(nextUploadID);
+
+}
+
+
+/**
  * Encrypt & Upload a selected/dropped file
  * @param {string} uploadID Upload / Document ID
- * @param {string} [targetFID] target upload folder
  */
-async function encryptAndUploadFile(uploadID, targetFID) {
+async function encryptAndUploadFile(uploadID) {
 
     var upload = uploadQueue[uploadID];
 
     // odd, but there's a very very slim chance it could happen, so terminate to be safe. 
     if (!upload || isEmpty(upload)) { return false; }
 
-    targetFID = targetFID || "f-uncat";
+    var targetFID = upload.targetFID || "f-uncat";
 
     // skip, because file is too large (or other error);
     if (upload.status) { return false; }
 
+    // skip, because already exceeded storage.
+    if (remainingStorage <= 0) { return err("exceeded"); }
+
     breadcrumb('[UPLOAD] Processing ' + uploadID);
+
+    // update uploader status
+    onUploadEncrypting(uploadID);
 
     activityHappened();
 
+
+    // choose and lock a slot for this upload
+    var slotNo = chooseAnAvailableSlot();
+    assignUploadToSlotNo(uploadID, slotNo);
+
+
+    // generate an additional fileKey for this file
+    var fileKeys = [theKey];
+    var { fileKey, wrappedKey } = await generateFileKey();
+    if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
     
+
 
 
 
@@ -463,27 +498,21 @@ async function encryptAndUploadFile(uploadID, targetFID) {
     //
     //
 
-    var fileUpload, plaintextFileContents;
+    var encryptedFile = await streamingEncrypt(upload.plaintextFile, fileKeys);
+    if (!encryptedFile) { return err("[UPLOAD] Couldn't encrypt file"); }
+    
+    addUploadVariantToUploader(uploadID, encryptedFile.size);
+
+    var uploadFilename; 
     if (upload.ext === "uecd") {
-        // it's an UECD file, which is a stringified, plaintext quill delta. upload this like a regular document save
-        plaintextFileContents = await readFileAs(upload.plaintextFile, "text");
-        try {
-            plaintextFileContents = JSON.parse(plaintextFileContents);
-        } catch (e) {}
-        fileUpload = await encryptAndUploadDocument(uploadID, plaintextFileContents, true);
+        uploadFilename = uploadID + ".crypteedoc";
     } else {
-        // it's some other file format
-        var fileBuffer = await readFileAs(upload.plaintextFile, "arrayBuffer");
-        if (!fileBuffer) { return err("[UPLOAD] Couldn't read file as array buffer"); }
-        
-        var fileCiphertext = await encryptUint8Array(new Uint8Array(fileBuffer), [theKey]);
-        if (!fileCiphertext) { return err("[UPLOAD] Couldn't encrypt file"); }
-        
-        fileUpload = await uploadFile(JSON.stringify(fileCiphertext), uploadID + ".crypteefile", true);
+        uploadFilename = uploadID + ".crypteefile";
     }
 
+    var fileUpload = await streamingUploadFile(encryptedFile, uploadFilename, true);
     if (!fileUpload) { return err("[UPLOAD] Failed to upload file"); }
-    if (fileUpload === "exceeded") { return err("[UPLOAD] Failed to upload file. Exceeded Storage Quota!"); }
+    if (fileUpload === "exceeded") { return err("exceeded"); }
 
     activityHappened();
 
@@ -503,9 +532,9 @@ async function encryptAndUploadFile(uploadID, targetFID) {
 
     try {
         if (upload.ext === "uecd") {
-            encryptedTitle = await encrypt(JSON.stringify(titleFromFilename(upload.plaintextName)), [theKey]);
+            encryptedTitle = await encrypt(JSON.stringify(titleFromFilename(upload.plaintextName)), fileKeys);
         } else {
-            encryptedTitle = await encrypt(JSON.stringify(upload.plaintextName), [theKey]);
+            encryptedTitle = await encrypt(JSON.stringify(upload.plaintextName), fileKeys);
         }
         encryptedStringifiedTitle = JSON.stringify(encryptedTitle);
     } catch (error) {
@@ -532,40 +561,29 @@ async function encryptAndUploadFile(uploadID, targetFID) {
     var metaSavedToServer, metaSavedToCatalog;
     
     enableWakeLock();
-    if (upload.ext === "uecd") {
+    
+    var docSize = parseInt(fileUpload.size);
 
+    if (upload.ext === "uecd") {
 
         var docGen = parseInt(fileUpload.generation);
         
-        var parsedPlaintextFileContents;
-        try {
-            parsedPlaintextFileContents = JSON.parse(plaintextFileContents);
-        } catch (e) {}
-        
-        var docTags = [];
-        
-        if (parsedPlaintextFileContents) {
-            docTags = await findAndEncryptDocumentTags(uploadID, parsedPlaintextFileContents);
-        }
-
-        var encryptedTags = docTags.tags;
-        var decryptedTags = docTags.decryptedTags;
-        
         metaSavedToServer = await setDocMeta(uploadID, {
+            size : docSize,
             docid: uploadID, 
             fid : targetFID,
             generation : docGen, 
-            tags : encryptedTags,
-            title : encryptedStringifiedTitle
+            title : encryptedStringifiedTitle,
+            wrappedKey : wrappedKey,
         });
 
         metaSavedToCatalog = await newDocInCatalog({
+            size : docSize,
             docid: uploadID,
             fid : targetFID,
             generation : docGen,
-            tags : encryptedTags,
+            wrappedKey : wrappedKey,
             title : encryptedTitle.data,
-            decryptedTags : decryptedTags, // for local catalog, to save a decryption cycle, we save the decrypted tags too
             decryptedTitle : titleFromFilename(upload.plaintextName), // for local catalog, to save a decryption cycle, we save the decrypted title too
         });
 
@@ -573,17 +591,21 @@ async function encryptAndUploadFile(uploadID, targetFID) {
 
         metaSavedToServer = await setDocMeta(uploadID, {
             isfile : true,
+            size : docSize,
             docid: uploadID, 
             fid : targetFID,
             mime : upload.type,
+            wrappedKey : wrappedKey,
             title : encryptedStringifiedTitle
         });
 
         metaSavedToCatalog = await newDocInCatalog({
             isfile : true,
+            size : docSize,
             docid: uploadID,            
             fid : targetFID,
             mime : upload.type,
+            wrappedKey : wrappedKey,
             title : encryptedTitle.data,
             decryptedTitle : upload.plaintextName, // for local catalog, to save a decryption cycle, we save the decrypted title too
         });
@@ -607,18 +629,26 @@ async function encryptAndUploadFile(uploadID, targetFID) {
 
     delete uploadQueue[uploadID];
 
-    // done, once the second pair's upload is complete, we'll refresh dom
+    doneWithSlot(slotNo);
+
+    // done, refresh dom
+    await refreshDOM();
+
     return true;
-
-
-
     
     function err(msg, error) {
         error = error || {};
         error.uploadID = uploadID;
         handleError(msg, error);
         if (uploadQueue[uploadID]) { uploadQueue[uploadID].status = "error"; }
-        $("#upload-"+uploadID).find(".status").html("error");
+        
+        if (msg === "exceeded") {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
+            if (uploadQueue[uploadID]) { uploadQueue[uploadID].status = "exceeded"; }
+        } else {
+            $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg));
+        }
+
         return false;
     }
 }
@@ -639,14 +669,19 @@ async function uploadQueueFinished(targetFID, embed) {
     targetFID = targetFID || "f-uncat";
     embed = embed || false;
 
-
     var issues = false;
     if (Object.keys(uploadQueue).length >= 1) { issues = true; }
 
     if (!issues) {
         breadcrumb('[UPLOAD] Uploads completed without issues.');
+        setTimeout(function () { hideUploader(); }, 500);
     } else {
+        $("#uploader-wrapper").addClass("done");
         breadcrumb('[UPLOAD] Uploads completed with issues.');
+        $("#uploader-status-detail").html("<span onclick='toggleSkippedUploads();'>some file(s) were not uploaded. click here for more info.</span>");
+
+        // if any one of the uploads weren't uploaded due to storage quota exceeded, show error state.
+        for (var uploadID in uploadQueue) { if (uploadQueue[uploadID].status === "exceeded") { updateUploaderState("error"); } }
     }
 
     if (uploadQueueOrder.length > 0) {
@@ -665,19 +700,10 @@ async function uploadQueueFinished(targetFID, embed) {
         }
     }
 
-
-
-    if (!issues) {
-        uploadQueueOrder.forEach(did => { $("#upload-" + did).remove(); });
-    } else {
-        createPopup(`Failed to encrypt/upload some of your file(s).<br><button class="white bold" onclick="$(this).parents('.popup').removeClass('minimizable'); $('#panel-uploads').empty();  hideAllPopups(); ">okay</button>`, "error", "", true);
-    }
-
     uploadQueue = {};
     uploadQueueOrder = [];
 
     stopDropzoneProgresses();
-    updateUploader("", "");
 
     refreshDOM();
 
@@ -686,3 +712,28 @@ async function uploadQueueFinished(targetFID, embed) {
 }
 
 
+
+// we keep track of which slot is in use, so uploading dots can pick a free one 
+var slotsInUse = { 1 : false, 2 : false, 3 : false, 4 : false };
+
+/**
+ * Chooses the first available slot, marks it as in-use, and returns its no
+ * @returns {Number} slotNoToUse
+ */
+function chooseAnAvailableSlot() {
+    
+    var slotNoToUse;
+
+    // pick next available canvas
+    for (var slotNo in slotsInUse) {
+        var isTaken = slotsInUse[slotNo];
+        if (!isTaken) { slotNoToUse = slotNo; break; }
+    }
+    
+    // mark slot as taken
+    slotsInUse[slotNoToUse] = true;
+    
+    return slotNoToUse; 
+}
+
+function doneWithSlot(slotNo) { slotsInUse[slotNo] = false; }

@@ -75,9 +75,9 @@ ColorThief.prototype.getColor = function(sourceImage, sourceCtx, quality) {
     var palette       = this.getPalette(sourceImage, sourceCtx, 5, quality);
     var dominantColor;
     try {
-      dominantColor = palette[0];
+        dominantColor = palette[0];
     } catch (e) {
-      dominantColor = [210,214,216];
+        dominantColor = [210,214,216];
     }
     return dominantColor;
 };

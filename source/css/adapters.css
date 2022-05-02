@@ -209,10 +209,18 @@ STATES
     animation: spin 0.4s linear infinite;
 }
 
-#file-viewer.loading #active-filename::before {
-    content: "Loading ...";
+#file-viewer.loading #active-filename {
+    min-width: 10rem;
 }
 
+#file-viewer.loading #active-filename::before {
+    content: "downloading & decrypting ... " attr(progress);
+}
+
+#file-viewer.loading #active-filename ~ button:not(:last-child) {
+    width: 0;
+    min-width: 0;
+}
 
 
 

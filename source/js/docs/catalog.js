@@ -367,6 +367,24 @@ async function getFolderNameFromCatalog(fid) {
 }
 
 
+/**
+ * Gets document wrappedKey from catalog
+ * @param {string} did DocumentID
+ * @returns {Promise<string>} name
+ */
+ async function getDocWrappedKeyFromCatalog (did) {
+    if (!did) {
+        handleError("[CATALOG] Can't get doc wrapped key without an ID");
+        return "";
+    }
+
+    var doc = await getDocFromCatalog(did);
+    if (!doc) { 
+        return ""; 
+    }
+    
+    return doc.wrappedKey || "";
+}
 
 
 
@@ -408,6 +426,58 @@ async function getDocGenFromCatalog (did) {
     
     if (!doc.generation) { return 0; }
     return parseInt(doc.generation);
+}
+
+
+
+/**
+ * Gets document size from catalog
+ * @param {string} did DocumentID
+ * @returns {Promise<number>} size
+ */
+ async function getDocSizeFromCatalog (did) {
+    if (!did) {
+        handleError("[CATALOG] Can't get doc size without an ID");
+        return "";
+    }
+
+    var doc = await getDocFromCatalog(did);
+    if (!doc) { 
+        return ""; 
+    }
+    
+    if (!doc.size) { return null; }
+    
+    return parseInt(doc.size);
+}
+
+
+
+/**
+ * Gets sizes of multiple documents from catalog
+ * @param {Array} docIDs Array of dids 
+ * @returns {Promise<Object>} sizesObject object[did] = size
+ */
+ async function getDocSizesFromCatalog (docIDs) {
+
+    if (!docIDs || !Array.isArray(docIDs)) {
+        handleError("[CATALOG] Can't get doc sizes without IDs");
+        return {};
+    }
+
+    var sizesObject = {};
+    var promisesToGetSizesFromCatalog = [];
+    
+    docIDs.forEach(did => {
+        promisesToGetSizesFromCatalog.push(
+            new Promise( async (resolve, reject) => { sizesObject[did] = await getDocSizeFromCatalog(did); resolve(); })
+        );
+    });
+
+    await Promise.all(promisesToGetSizesFromCatalog);
+
+    return sizesObject;
+
 }
 
 
@@ -838,6 +908,7 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
             "islocked",     // if we got doc lock from server, and it's not the same one we have in the catalog
             "modified",     // if we got a file from server, and it's modified = not the same one we have in the catalog
             "page",         // if we got the last epub page from server, and it's not the same one we have in the catalog
+            "size",         // if we got the size from server, and it's not the same one we have in the catalog
         ];
         
         propertiesToCheck.forEach(key => {
