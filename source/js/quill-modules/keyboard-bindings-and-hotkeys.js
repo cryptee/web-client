@@ -27,7 +27,7 @@ var quillkeyboardbindings = {
                 } else if (context.format.list) {
 
                     if (context.collapsed && context.empty && context.offset < 1) {
-                        quill.format('list', false);
+                        quillSafelyFormat('list', false);
                     } else {
                         return true;
                     }
@@ -35,7 +35,7 @@ var quillkeyboardbindings = {
                 } else if (context.format.blockquote) {
 
                     if (context.collapsed && context.empty && context.offset < 1) {
-                        quill.format('blockquote', false);
+                        quillSafelyFormat('blockquote', false);
                     } else {
                         return true;
                     }
@@ -89,19 +89,19 @@ var quillkeyboardbindings = {
 
             if (context.format.list) {
                 if (context.collapsed && context.empty && !context.offset) {
-                    quill.format('list', false);
+                    quillSafelyFormat('list', false);
                 } else {
                     return true;
                 }
             } else if (context.format.blockquote) {
                 if (context.collapsed && context.empty && !context.offset) {
-                    quill.format('blockquote', false);
+                    quillSafelyFormat('blockquote', false);
                 } else {
                     return true;
                 }
             } else if (context.format['code-block']) {
                 if (context.collapsed && context.empty && !context.offset) {
-                    quill.format('code-block', false);
+                    quillSafelyFormat('code-block', false);
                 } else {
                     return true;
                 }
@@ -301,12 +301,12 @@ key('command+shift+o, ctrl+shift+o', function () {
 });
 
 key('command+], ctrl+]', function () {
-    quill.format('indent', '+1');
+    quillSafelyFormat('indent', '+1');
     return false;
 });
 
 key('command+[, ctrl+[', function () {
-    quill.format('indent', '-1');
+    quillSafelyFormat('indent', '-1');
     return false;
 });
 
@@ -322,7 +322,7 @@ key('command+shift+k, ctrl+shift+k', function () {
 
 key('command+shift+6, ctrl+shift+6', function () {
 
-    var curFormat = quill.getFormat();
+    var curFormat = quillSafelyGetFormat();
 
     if (curFormat.list === "unchecked" || curFormat.list === "checked") {
         quill.removeFormat(getLastSelectionRange().index);
@@ -338,21 +338,21 @@ key('command+shift+6, ctrl+shift+6', function () {
 });
 
 key('command+shift+7, ctrl+shift+7', function () {
-    var curFormat = quill.getFormat();
+    var curFormat = quillSafelyGetFormat();
     if (curFormat.list === "ordered") {
         quill.removeFormat(getLastSelectionRange().index);
     } else {
-        quill.format('list', 'ordered');
+        quillSafelyFormat('list', 'ordered');
     }
     return false;
 });
 
 key('command+shift+8, ctrl+shift+8', function () {
-    var curFormat = quill.getFormat();
+    var curFormat = quillSafelyGetFormat();
     if (curFormat.list === "bullet") {
         quill.removeFormat(getLastSelectionRange().index);
     } else {
-        quill.format('list', 'bullet');
+        quillSafelyFormat('list', 'bullet');
     }
     return false;
 });
@@ -409,10 +409,10 @@ key('command+a, ctrl+a', function () {
 var quoteToggle = false;
 key('command+shift+9, ctrl+shift+9', function () {
     if (quoteToggle) {
-        quill.format('blockquote', false);
+        quillSafelyFormat('blockquote', false);
         quoteToggle = false;
     } else {
-        quill.format('blockquote', true);
+        quillSafelyFormat('blockquote', true);
         quoteToggle = true;
     }
     return false;
@@ -421,10 +421,10 @@ key('command+shift+9, ctrl+shift+9', function () {
 var codeToggle = false;
 key('command+shift+0, ctrl+shift+0', function () {
     if (codeToggle) {
-        quill.format('code-block', false);
+        quillSafelyFormat('code-block', false);
         codeToggle = false;
     } else {
-        quill.format('code-block', true);
+        quillSafelyFormat('code-block', true);
         codeToggle = true;
     }
     return false;

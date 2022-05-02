@@ -626,6 +626,7 @@ async function newDoc(parentFID, plaintextTitle, plaintextDeltas, did, inBackgro
         await loadedDocPrepareEditor(docToSave, did, plaintextDeltas, connection, true);
 
         // new docs are always LTR unless user changes it. for now.
+        // don't use quillSafelyFormat here, since we don't know what the selection range will look like.
         quill.format('direction', 'ltr');
         quill.format('align', 'left');
 

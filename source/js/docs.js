@@ -1215,7 +1215,7 @@ function toggleFontsPanel() {
     $("#panel-fonts")[0].style.setProperty("--top-pos", (top + 32) + "px");
 
     // STEP 2) GET THE CURRENTLY SELECTED FONT ( with a fallback to document's font )
-    var font = (quill.getFormat() || {}).font || $(".ql-editor").attr("font");
+    var font = (quillSafelyGetFormat() || {}).font || $(".ql-editor").attr("font");
 
     // STEP 3) SET THE FONT IN THE PANEL
     $(".fonts-list").find(".font").removeAttr("selected");
@@ -1224,16 +1224,15 @@ function toggleFontsPanel() {
     $(".fonts-list").find(`.font[font='${defaultFont}']`).attr("default", true);
 
     // STEP 4) GET THE SELECTED FONT SIZE & PARAGRAPH (HEADER) STYLE
-    var header = (quill.getFormat() || {}).header || "p";
-    var size   = (quill.getFormat() || {}).size || defaultFontSize; // default is 16px
+    var header = (quillSafelyGetFormat() || {}).header || "p";
+    var size   = (quillSafelyGetFormat() || {}).size || defaultFontSize; // default is 16px
     
     // STEP 5) SET THE SIZE & PARAGRAPH STYLE IN THE PANEL
     $("#font-sizes-wrapper").find("button").removeAttr("selected");
     $("#font-sizes-wrapper").find(`button[size='${size}']`).attr("selected", true);
     $("#font-sizes-wrapper").find(`button[value='${header}']`).attr("selected", true);
     
-    // STEP 6) FOR BUBBLE/MOBILE, SCROLL UP THE FONTS LIST, AND BLUR EDITOR SO TEXT SELECTION IS REMOVED WHEN POPUP IS DISPLAYED
-    $(".fonts-list").scrollTop(0);
+    // STEP 6) FOR BUBBLE/MOBILE, BLUR EDITOR SO TEXT SELECTION IS REMOVED WHEN POPUP IS DISPLAYED
     
     if (isMobile) { 
         quill.blur(); 
@@ -1251,20 +1250,19 @@ function toggleFontsPanel() {
 $("#font-sizes-wrapper").on('click', "button", function(event) {
     var size = $(this).attr("size");
     var header = $(this).attr("value");
-    var range = lastSelectionRange;
 
     $(this).removeAttr("selected");
     $(this).siblings().removeAttr("selected");
     $(this).attr("selected", true);
 
-    if (size) { quill.format("size", size); }
+    if (size) { quillSafelyFormat("size", size); }
     
     if (header) { 
         if (header !== "p") {
-            quill.formatLine(range.index, range.length, "header", header);
-            quill.format("size", false);
+            quillSafelyFormatLine("header", header);
+            quillSafelyFormat("size", false);
         } else {
-            quill.formatLine(range.index, range.length, "header", false);
+            quillSafelyFormatLine("header", false);
         }
     }
     
@@ -1272,9 +1270,12 @@ $("#font-sizes-wrapper").on('click', "button", function(event) {
 
 $("#font-families-wrapper").on('click', ".font", function(event) {
     var font = $(this).attr("font");
+
     $(".fonts-list").find(".font").removeAttr("selected");
     $(this).attr("selected", true);
-    quill.format("font", font);
+
+    quillSafelyFormat("font", font);
+    
 }); 
 
 $("#font-families-wrapper").on('click', ".font > button", function(event) {

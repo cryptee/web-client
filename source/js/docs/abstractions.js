@@ -2222,7 +2222,7 @@ function confirmEmbed(what) {
     if (what === "link") {
         var link = $("#hyperlink-input").val() || "";
         if (link) {
-            quill.format('link', link.trim());
+            quillSafelyFormat('link', link.trim());
         }
     }
 

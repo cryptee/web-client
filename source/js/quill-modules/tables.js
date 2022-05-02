@@ -361,8 +361,7 @@ function isCursorInTable() {
         }
 
     } else {
-        var lastSelRange = getLastSelectionRange();
-        var format = quill.getFormat(lastSelRange);
+        var format = quillSafelyGetFormat();
         if (format.crypteetable || format.crypteetablecell) {
             inTable = true;
         }
@@ -374,8 +373,7 @@ function isCursorInTable() {
 
 function getTableIDAtCursor() {
     var tableid;
-    var lastSelRange = getLastSelectionRange();
-    var format = quill.getFormat(lastSelRange);
+    var format = quillSafelyGetFormat();
     if (format.crypteetable) {
         tableid = format.crypteetable;
     }
@@ -487,8 +485,7 @@ var selectedCellCoords = {};
 function checkIfTableHasFocus() {
 
     try {
-        var lastSelRange = getLastSelectionRange();
-        var selectedFormat = quill.getFormat(lastSelRange);
+        var selectedFormat = quillSafelyGetFormat();
 
         if (selectedFormat.crypteetable) {
             var tableid = selectedFormat.crypteetable;
@@ -866,7 +863,7 @@ function handleTableEnter(range, context) {
 
 function handleUpIntoTheTable(range, context) {
     quill.setSelection(range.index - 1);
-    var format = quill.getFormat();
+    var format = quillSafelyGetFormat();
     var tableid = format.crypteetable;
     if (tableid) {
         var table = getTableRowAndColFromTableData(tableid);
@@ -881,7 +878,7 @@ function handleUpIntoTheTable(range, context) {
 }
 
 function handleDownIntoTheTable(range, context) {
-    var format = quill.getFormat();
+    var format = quillSafelyGetFormat();
     var tableFormat = quill.getFormat({index : range.index + 1, length : 1});
     var tableid = tableFormat.crypteetable || tableFormat.crypteetabledata.tableid;
     

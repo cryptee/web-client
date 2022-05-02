@@ -114,12 +114,58 @@ function androidPredictiveKeyboardNewlineFix(delta, oldDelta, source) {
 }
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	FORMATTING / SCROLL FIXES 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
+// These functions are here to safely get format by running quill.getFormat() / quill.format() etc without causing any scroll-jumping. 
+// Looks like Quill trying to get the last selection causes editor to jump. 
+// These functions prevent that by using Cryptee's getLastSelectionRange() function instead.
+// See https://github.com/cryptee/web-client/issues/150 for more details.
 
+/**
+ * Safely gets format by running quill.getFormat() without causing any scroll-jumping. 
+ * Looks like Quill trying to get the last selection causes editor to jump. 
+ * This function prevents that by using Cryptee's getLastSelectionRange() function instead.
+ * @returns {*} whatever quill.format() or quill.formatText() would return
+ */
+function quillSafelyGetFormat() {
+    return quill.getFormat(getLastSelectionRange());
+}
 
+/**
+ * Safely applies quill.format() or quill.formatText() without causing any scroll-jumping. 
+ * Looks like Quill trying to get the last selection causes editor to jump. 
+ * This function prevents that by using Cryptee's getLastSelectionRange() function instead.
+ * @param {*} key 
+ * @param {*} value 
+ * @returns {*} whatever quill.format() or quill.formatText() would return
+ */
+function quillSafelyFormat(key, value) {
+    var range = getLastSelectionRange();
+    if (!range.length) {
+        // no text is selected
+        return quill.format(key, value);
+    } else {
+        // some text is selected
+        return quill.formatText(range.index, range.length, key, value);
+    }
+}
 
-
-
+/**
+ * Safely applies quill.formatLine() without causing any scroll-jumping. 
+ * Looks like Quill trying to get the last selection causes editor to jump. 
+ * This function prevents that by using Cryptee's getLastSelectionRange() function instead.
+ * @param {*} key 
+ * @param {*} value 
+ * @returns {*} whatever quill.formatLine() would return
+ */
+function quillSafelyFormatLine(key, value) {
+    var range = getLastSelectionRange();
+    return quill.formatLine(range.index, range.length, key, value);
+}
 
 
 
@@ -332,7 +378,7 @@ var tribute = new Tribute({
 tribute.attach(document.getElementsByClassName('ql-editor'));
 
 function checkOrAddTag(tag, callback) {
-    var format = quill.getFormat();
+    var format = quillSafelyGetFormat();
     if (format['code-block'] || format.blockquote || format.bold || format.header === 1 || format.header === 2) {
         tribute.hideMenu();
         callback([]);
