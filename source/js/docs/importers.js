@@ -477,7 +477,7 @@ async function importENEXFile(doc, rawENEX) {
     // enexFile.notes ( an object indexed by Cryptee DIDs ) 
     // enexFile.attachments ( an object indexed by file hashes )
     // encrypt & upload these 2 - 3 at a time.
-    // we know their sumtotal size is smaller than 50mb, so we can work fast here. 
+    // we know their sumtotal size is smaller than 500mb, so we can work fast here. 
 
     // first upload attachments
     // this way by the time user sees the notes in the UI, 

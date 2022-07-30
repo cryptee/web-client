@@ -272,6 +272,7 @@ nav h1 {
     writing-mode: vertical-lr;
     margin: 1.25rem 1.25rem 0 auto;       /* 2px for josefine sans, to maintain vertical rhythm on grid */
     padding: 0 0 0 0;
+    float: right;
 }
 
 nav p {

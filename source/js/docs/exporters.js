@@ -235,7 +235,7 @@ async function downloadFiles(whatToDownload) {
     } 
 
     // download in a batch of 2 for now, since parallel decrypting more stuff could mess things up. 
-    // i.e. if a file/photo is 50mb, 2 of these would take ~100mb memory. 
+    // i.e. if a file/photo is 500mb, 2 of these would take ~100mb memory. 
     if (downloadingFiles) { 
         breadcrumb("[DOWNLOAD FILES] Already downloading");
         return false; 

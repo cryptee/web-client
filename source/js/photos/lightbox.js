@@ -136,9 +136,12 @@ function lightboxMediaChanged() {
         hidePopup("popup-photo-info");
         hideActiveModal();
         clearSelections();
-
+        
         var pid = $(".swiper-slide-active").find("img").attr("pid") || $(".swiper-slide-active").find("video").attr("pid");
         
+        // failsafe.
+        if (!pid) { return; }
+
         if (!isios && !isipados) { history.pushState(pid, null, '/photos?photo='+pid); }
 
         var thisMedia = $("#" + pid);
@@ -161,6 +164,11 @@ function lightboxMediaChanged() {
         resetAllVideos();
         $("#lightbox").toggleClass("video", pid.startsWith("v-"));
         videoEnteredLightbox(pid);
+
+        // if it's not a video, and photo is already in cache, stop progress = photo loaded
+        if (!pid.startsWith("v-") && isMediaInLightboxCache(pid)){ 
+            stopLightboxProgress();
+        }
 
         var nextPhoto = thisMedia.next(".media");
         if (nextPhoto.length) {
@@ -278,7 +286,12 @@ async function preloadLightboxImage(pid) {
         // already in cache, don't download & decrypt.
 
         // for videos, we have to keep progress running, since after the poster image we'll start loading videos
-        if (!pid.startsWith("v-")){ stopLightboxProgress(); }
+        // so if it's not a video, stop progress
+        // or if it's a video, but it's loaded, stop progress
+        if (!pid.startsWith("v-") || !isEmpty(loadedVideos[pid])){ 
+            stopLightboxProgress(); 
+        } 
+
         return true;
     }
 
@@ -400,7 +413,7 @@ var loadedVideos = {};
  * @param {String} id 
  */
 async function videoEnteredLightbox(id) {
-
+    
     // only for videos ofc
     if (!id.startsWith("v-")) { return; }
 
@@ -445,6 +458,11 @@ function startListeningToVideoEvents(id) {
     
     var videoID = id; // storing in a new variable to make it possible to pass into the listeners' callbacks below
 
+    if (isEmpty(loadedVideos[videoID])) { 
+        resetVideo(videoID);
+        return; 
+    }
+
     var video = loadedVideos[videoID].video;
     
     // if user navigated away already, don't play this video
@@ -466,6 +484,7 @@ function startListeningToVideoEvents(id) {
  * @returns {Boolean} isActive
  */
 function isVideoActive(id) { 
+    if (isEmpty(loadedVideos[id])) { return false; }
     return $(loadedVideos[id].video).parents(".swiper-slide").hasClass("swiper-slide-active"); 
 }
 
@@ -493,6 +512,8 @@ function videoOnPause(id) {
 
 
 function videoOnVolumeChange(id) {
+    if (isEmpty(loadedVideos[id])) { return false; }
+
     if (isVideoActive(id)) {
         var video = loadedVideos[id].video;
         $("#lightbox-volume").toggleClass("muted", video.muted);
@@ -505,6 +526,8 @@ function videoOnVolumeChange(id) {
  * @param {String} id 
  */
 function resetVideo(id) {
+    if (isEmpty(loadedVideos[id])) { return false; }
+    
     var video = loadedVideos[id].video;
     video.pause();
     video.currentTime = 0;
@@ -521,7 +544,11 @@ function resetAllVideos() {
 
 function playPauseActiveVideo() {
     if (!activePhotoID().startsWith("v-")) { return true; }
+    
+    if (isEmpty(loadedVideos[activePhotoID()])) { return true; }
+
     var video = loadedVideos[activePhotoID()].video;
+    
     if (!video) { return true; }
 
     if (video.paused || video.ended) {
@@ -536,7 +563,9 @@ $("#lightbox").on('click', 'video', playPauseActiveVideo);
 function muteUnmuteActiveVideo() {
 
     if (!activePhotoID().startsWith("v-")) { return true; }
-    
+
+    if (isEmpty(loadedVideos[activePhotoID()])) { return true; }
+
     var video = loadedVideos[activePhotoID()].video;
     
     if (video.muted) {
@@ -550,6 +579,8 @@ function muteUnmuteActiveVideo() {
 function currentTimeOfVideo(id) {
 
     if (!loadedVideos[id]) { return 0; }
+
+    if (isEmpty(loadedVideos[id])) { return 0; }
 
     var video = loadedVideos[id].video;
 
@@ -565,6 +596,8 @@ function playVideoFrom(clickedTime) {
 
     var activeID = activePhotoID() || "";
     if (!activeID.startsWith("v-")) { return true; }
+
+    if (isEmpty(loadedVideos[activePhotoID()])) { return true; }
 
     var video = loadedVideos[activePhotoID()].video;
     video.currentTime = parseInt(clickedTime) || 0;
