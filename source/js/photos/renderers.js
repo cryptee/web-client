@@ -181,7 +181,7 @@ function renderLightboxMedia(id) {
         media = `<div class='swiper-zoom-container' pid='${id}'><img class="lbox-photo" pid='${id}' draggable='false' src=""/></div>`;
     } else {
         media = `<div class="swiper-video-container" pid='${id}'>
-                    <video width="1920" height="1080" pid='${id}' class="lbox-video" poster="" autoplay>
+                    <video width="1920" height="1080" pid='${id}' class="lbox-video" poster="" autoplay playsinline>
                         <source src="" type="video/mp4" pid='${id}'>
                     </video>
                 </div>`;
