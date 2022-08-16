@@ -735,8 +735,16 @@ async function streamingDownloadFile(filename, token) {
     try {
         fileDownload = await fetch(downloadURL, fetchConfig);
     } catch (error) {
-        error.filename = filename;
-        handleError("[STREAMING DOWNLOAD] Failed to download!", error);
+        
+        var aborted = (error.message || "").startsWith("The user aborted a request.");
+        
+        if (!aborted) {
+            error.filename = filename;
+            handleError("[STREAMING DOWNLOAD] Failed to download!", error);
+        } else {
+            console.log("[STREAMING DOWNLOAD] Aborted download", filename);
+        }
+        
         return false;
     }
 
@@ -882,11 +890,25 @@ async function downloadAndDecryptV4File(fileID, fileToken, outputFormat, plainte
         delete ongoingDownloads[fileID];
         
     } catch (error) {
-        error.fileID = fileID;
-        error.outputFormat = outputFormat;
-        if (fileKeys.length > 1) { error.usingFileKey = true; }
-        handleError("[DOWNLOAD & DECRYPT] Failed to download & decrypt v4 file", error);
-        return false;
+        
+        var mostLikelyAborted = (error.message || "").startsWith('readMessage: must pass options object');
+        
+        if (!mostLikelyAborted) {
+            
+            error.fileID = fileID;
+            error.outputFormat = outputFormat;
+            if (fileKeys.length > 1) { error.usingFileKey = true; }
+            
+            handleError("[DOWNLOAD & DECRYPT] Failed to download & decrypt v4 file", error);
+            return false;
+            
+        } else {
+            
+            console.log("[DOWNLOAD & DECRYPT] Aborted downloading & decrypting v4 file", fileID);
+            return "aborted";
+
+        }
+
     }
     
     if (!plaintextBlob) {

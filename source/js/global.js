@@ -912,7 +912,7 @@ async function mimetypeFromFilename(filename) {
   if (ext === "wav")                   { mimetype = "audio/x-wav";      }
   
   // video
-  if (ext === "mp4")                   { mimetype = "video/mp4";        }
+  if (ext === "mp4" || ext === "mov")  { mimetype = "video/mp4";        }
 
   // other
   if (ext === "pdf")                   { mimetype = "application/pdf";  }

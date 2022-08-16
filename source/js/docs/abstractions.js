@@ -2134,8 +2134,36 @@ async function disableViewingMode() {
     if (!doc.islocked && !mobilePaperMode) { quill.enable(); }
 }
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	FOCUS MODE
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
+function enableFocusMode() {
+    
+    if (isPinned()) { rememberDocsWasPinned = true; }
 
+    $("#focusModeButton").addClass("on");
+    $("body").addClass("focus-mode");
+    $("#statusMessage").html("encrypting &amp; saving...");
+    swiper.allowSlidePrev = false;
+    
+    unPinSidebar();
+    closeSidebarMenu();
+
+}
+
+function disableFocusMode() {
+    $("#focusModeButton").removeClass("on");
+    $("body").removeClass("focus-mode");
+    swiper.allowSlidePrev = true;
+
+    if (rememberDocsWasPinned) {
+        openSidebarMenu();
+        pinSidebar();
+    }
+}
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -2473,8 +2501,13 @@ async function embedImageFromCryptee(did) {
         return false;
     }
     
-    if (!fileContents) {
-        handleError("[EMBED IMAGE FROM CRYPTEE] Couldn't download / decrypt image", { did : selectedDID });
+    if (!fileContents || fileContents === "aborted") {
+        if (aborted) {
+            handleError("[EMBED IMAGE FROM CRYPTEE] Download aborted", { did : selectedDID }, "info");
+        } else {
+            handleError("[EMBED IMAGE FROM CRYPTEE] Couldn't download / decrypt image", { did : selectedDID });
+        }
+
         createPopup(`Failed to connect / download / decrypt your image to embed. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
         $("#embedImageFromCrypteeButton").removeClass("loading");
         hideRightClickDropdowns();
@@ -2629,8 +2662,14 @@ async function makeDocumentAvailableOffline(did) {
         docContents = await downloadAndDecryptFile(did, null, "crypteedoc", null, null, null, doc, true);
     }
 
-    if (!docContents || isEmpty(docContents)) {
-        handleError("[MAKE DOC OFFLINE] Failed to make doc offline, got no contents.", {did:did});
+    if (!docContents || isEmpty(docContents) || docContents === "aborted") {
+        
+        if (aborted) {
+            handleError("[MAKE DOC OFFLINE] Aborted downloading doc contents to make it offline.", {did:did}, "info");
+        } else {
+            handleError("[MAKE DOC OFFLINE] Failed to make doc offline, got no contents.", {did:did});
+        }
+
         createPopup(`Failed to make <b>${docName(doc)}</b> available offline. Chances are this is a network problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
         
         $("#makeDocOfflineButton, #makeActiveDocOfflineButton").removeClass("loading");

@@ -155,6 +155,32 @@ $("button.radio[group='quickstart']").on('click', function(event) {
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
+// 	 APP RADIO BUTTON PREFERENCES
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+$("button.appPreference.radio").on('click', function(event) {
+    
+    var thisButtonGroup = $(this).attr("group");
+    
+    setTimeout(function () {
+        
+        if (!thisButtonGroup) { return; }
+
+        var app             = thisButtonGroup.split("-")[0];
+        var preferenceKey   = thisButtonGroup.replace(app + "-", "");
+        var preferenceValue = $("button.appPreference.radio.selected[group='"+thisButtonGroup+"']").attr("val");
+
+        setAppPreference(app, preferenceKey, preferenceValue);
+        
+    }, 10);
+
+}); 
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 //	REMEMBER KEY
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////

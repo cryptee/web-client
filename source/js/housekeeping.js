@@ -76,9 +76,10 @@ $(document).on("ready", function () {
         // CURRENTLY, HOUSEKEEPING.JS IS THE FIRST POINT OF ENTRY.
         // SO TEST FOR indexedDB & UUID Generation HERE, AND SET THE SENTRY TAG HERE.
         console.log("[IDB] Testing");
+        var now = (new Date()).getTime();
         var testID = newUUID(8);
-        var idbTest = new Dexie("idbTest");
-        idbTest.version(1).stores({ test: 'id' });
+        var idbTest = new Dexie("idbTest-" + now);
+        idbTest.version(now).stores({ test: 'id' });
         idbTest.test.put({ id : testID }).then(()=>{
             idbTest.test.get(testID).then((testIO)=>{
                 if (testIO.id !== testID) { 

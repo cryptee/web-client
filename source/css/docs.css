@@ -64,7 +64,7 @@ html.dm { background: var(--oled-safe-black); }
     z-index: 2;
 
     opacity: 1;
-    transition: 0.5s opacity ease;
+    transition: 0.5s opacity ease, 0.5s background-color ease;
 }
 
 #rightSlide {
@@ -164,7 +164,7 @@ LEFT MENU
     grid-column: 18 / 19;
 
     opacity: 0.5;
-    transition: 0.3s opacity ease;
+    transition: 0.3s opacity ease, 0.5s filter ease;
 }
 
 #logo img {
@@ -1552,6 +1552,7 @@ body.no-doc .dropdown .disabled-for-empty-editor,
 body.locked-doc .dropdown .disabled-for-empty-editor,
 body.loading-doc .dropdown .disabled-for-empty-editor,
 body.viewing-doc .dropdown .disabled-for-empty-editor,
+body.focus-mode .dropdown .disabled-for-empty-editor,
 #dropdown-selections.ios-multi-download .disabled-for-ios-multi-download {
     opacity: 0.2;
     pointer-events: none !important;
@@ -2979,13 +2980,10 @@ HOTKEYS MODAL
 --------------------------------
 ----------------------------- */
 
-.modal table {
+#modal-hotkeys table {
     width: 100%;
     font-size: 0.9rem;
 }
-
-
-
 
 /* -----------------------------
 -------------------------------- 
@@ -3366,7 +3364,7 @@ body.exporting-pdf #statusMessage {
 /* -----------------------------
 -------------------------------- 
  
-VIEWING MODE 
+VIEWING MODE & FOCUS MODE
  
 --------------------------------
 ----------------------------- */
@@ -3374,59 +3372,115 @@ VIEWING MODE
 
 
 body.viewing-doc #leftSlide:not(.activeSlide),
-body.viewing-doc #progress {
+body.viewing-doc #progress,
+body.focus-mode .fader {
     opacity: 0;
 }
 
-body.viewing-doc #desktopToolbar { 
+body.focus-mode #leftSlide {
+    background-color: rgba(0,0,0,0);
+}
+
+body.focus-mode #logo {
+    opacity: 0.2 !important;
+    pointer-events: none !important;
+}
+
+html:not(.dm) body.focus-mode #logo {
+    filter: invert(1) !important;
+}
+
+body.viewing-doc #desktopToolbar,
+body.focus-mode #desktopToolbar,
+body.focus-mode #leftSlide #explorerButtons button,
+body.focus-mode #leftSlide #sliderCaret { 
     opacity: 0 !important; 
     pointer-events: none !important;
 }
 
-body.viewing-doc #documentActionButtons {
+body.viewing-doc #documentActionButtons,
+body.focus-mode #documentActionButtons {
     overflow: visible;
 }
 
-body.viewing-doc #documentActionButtons #panel-button-doctools {
+body.viewing-doc #documentActionButtons #panel-button-doctools,
+body.focus-mode #documentActionButtons #panel-button-doctools {
     transform: translateY(-6.5rem);
 }
 
-body.viewing-doc #panel-doctools {
-    transform: translate3d(0,-3.25rem,0);
+body.viewing-doc #panel-doctools,
+body.focus-mode #panel-doctools {
+    transform: translate3d(0,-3.5rem,0);
 }
 
 body.viewing-doc #documentActionButtons button:not(#panel-button-doctools),
 body.viewing-doc #hotkeysButton,
-body.viewing-doc #helpButton {
+body.viewing-doc #helpButton,
+body.focus-mode #documentActionButtons button:not(#panel-button-doctools),
+body.focus-mode #hotkeysButton,
+body.focus-mode #helpButton {
     pointer-events: none !important;
 }
 
 body.viewing-doc #documentActionButtons button:not(#panel-button-doctools) i,
 body.viewing-doc #hotkeysButton i,
-body.viewing-doc #helpButton i { 
+body.viewing-doc #helpButton i,
+body.focus-mode #documentActionButtons button:not(#panel-button-doctools) i,
+body.focus-mode #hotkeysButton i,
+body.focus-mode #helpButton i { 
     opacity: 0 !important;
 }
 
-body.viewing-doc #documentActionButtons #panel-button-doctools i {
+body.viewing-doc #documentActionButtons #panel-button-doctools i,
+body.focus-mode #documentActionButtons #panel-button-doctools i {
     opacity: 0.2 !important;
 }
 
-body.viewing-doc #panel-doctools button:not(#viewingModeButton) {
+body.viewing-doc #panel-doctools button:not(#viewingModeButton),
+body.focus-mode #panel-doctools button:not(#focusModeButton),
+body.viewing-doc #panel-doctools hr,
+body.focus-mode #panel-doctools hr {
     display: none !important;
 }
 
+body.viewing-doc #panel-doctools button i:last-child,
+body.focus-mode #panel-doctools button i:last-child {
+    margin-top: 0 !important;
+}
+
+body.viewing-doc #panel-doctools button span,
+body.focus-mode #panel-doctools button span {
+    line-height: 3rem;
+}
+
 body.viewing-doc:not(.starting),
-body.viewing-doc.overflowBG:not(.starting) {
+body.viewing-doc.overflowBG:not(.starting),
+body.focus-mode:not(.starting),
+body.focus-mode.overflowBG:not(.starting) {
     background: var(--cryptee-4);
 }
 
 .dm body.viewing-doc:not(.starting),
-.dm body.viewing-doc.overflowBG:not(.starting) {
+.dm body.viewing-doc.overflowBG:not(.starting),
+.dm body.focus-mode:not(.starting),
+.dm body.focus-mode.overflowBG:not(.starting) {
     background: var(--oled-safe-black);
 }
 
+body.viewing-doc button[id^="panel-button"]:not(.active) i::before { content: "\F2C5"; }
+body.focus-mode button[id^="panel-button"]:not(.active) i::before { content: "\EC05"; }
 
+body.focus-mode #progress::-moz-progress-bar        { background: transparent !important; }
+body.focus-mode #progress::-webkit-progress-value   { background: transparent !important; }
 
+body.focus-mode #progress.yellow ~ #statusMessage {
+    opacity: 0.5 !important;
+}
+
+body.focus-mode #statusMessage {
+    text-align: center !important;
+    padding-left: 0 !important;
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -3629,7 +3683,8 @@ body.bubble #leftSlide.activeSlide #documentActionButtons button {
     pointer-events: none !important
 }
 
-body.bubble #viewingModeButton {
+body.bubble #viewingModeButton,
+body.bubble #focusModeButton {
     display: none !important;
 }
 

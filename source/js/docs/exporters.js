@@ -346,6 +346,16 @@ async function downloadAndSaveFile(did, isDownloadingAndSavingMultipleFiles) {
         return false;
     }
 
+    if (!fileContents) {
+        handleError("[DOWNLOAD FILES] Couldn't Save file", {did : did});
+        return false;
+    }
+
+    if (fileContents === "aborted") {
+        handleError("[DOWNLOAD FILES] Aborted download to save file", {did : did}, "info");
+        return false;
+    }
+
     try {
         saveAsOrShare(fileContents, filename, isDownloadingAndSavingMultipleFiles);
     } catch (error) {

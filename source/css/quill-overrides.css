@@ -1302,6 +1302,7 @@ crypteefile[filetitle$=".aiff"]::before {
 }
 
 crypteefile[filetitle$=".mp4"]::before,
+crypteefile[filetitle$=".mov"]::before,
 crypteefile[filetitle$=".3gp"]::before,
 crypteefile[filetitle$=".avi"]::before,
 crypteefile[filetitle$=".fvl"]::before,

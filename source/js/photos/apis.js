@@ -163,16 +163,26 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
 
     wrapperElem.addClass("loading");
 
+    // PICK THE CORRECT THUMBNAIL SIZE ACCORDING TO USER'S PREFERENCES
+    var thumbSizePreference;
+    if (appPreference.photos["high-res-thumbnails"] === "high") {
+        thumbSizePreference = "l"; // HIGH-RES
+    } else {
+        thumbSizePreference = "t"; // NORMAL-RES
+    }
+
+    // PICK THE CORRECT VIDEO THUMBNAIL TYPE ACCORDING TO USER'S PREFERENCES
+    if (appPreference.photos["video-thumbnails-type"] === "still") {
+        thumbSizePreference = "l"; // STILL
+    } else {
+        thumbSizePreference = "t"; // ANIMATED
+    }
+
     // DOWNLOAD ENCRYPTED THUMBNAIL
-
-    var decryptedThumbnailURL = await getMedia(thumbImgID, "t", "url");
-
-    // TODO : FIX IMAGE / ALBUM IF THUMB CAN'T BE FOUND FOR SOME REASON. 
-    // WE NOW INTELLIGENTLY FALLBACK TO LARGER SIZES AS NEEDED THOUGH. 
-
-    // TODO : HANDLE ABORTING
-    // if (encryptedThumbnail === "aborted") { return false; }
-    if (!wrapperElem.hasClass("onscreen")) { return false; }
+    var decryptedThumbnailURL = await getMedia(thumbImgID, thumbSizePreference, "url");
+    
+    if (!wrapperElem.hasClass("onscreen")) { doneLoading(); return false; }
+    if (!decryptedThumbnailURL) { doneLoading(); return false; }
 
     var img = new Image();
     img.src = decryptedThumbnailURL;
@@ -185,16 +195,20 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
         error.imgID = thumbImgID;
         error.token = thumbToken;
         handleError("[GET THUMBNAIL] Couldn't decode thumbnail", error);
+        doneLoading();
     }
 
     imgElem.replaceWith(img);
     
-    setTimeout(function () {
-        wrapperElem.removeClass("loading");
-        img = null;
-        revokeObjectURL(decryptedThumbnailURL);
-    }, 50);
+    doneLoading();
 
+    function doneLoading() {
+        setTimeout(function () {
+            wrapperElem.removeClass("loading");
+            img = null;
+            if (decryptedThumbnailURL) { revokeObjectURL(decryptedThumbnailURL); }
+        }, 50);
+    }
 }
 
 /**
@@ -234,9 +248,7 @@ async function getMedia(photoID, size, outputFormat) {
     if (size === "p" || size === "v") { token = localPhoto.otoken || ""; }
     if (size === "l")                 { token = localPhoto.ltoken || ""; }
     if (size === "t")                 { token = localPhoto.ttoken || ""; }
-
-    // if (encryptedPhoto === "aborted") { return false; }
-
+    
     var decryptedPhoto;
     
     try {
@@ -248,6 +260,8 @@ async function getMedia(photoID, size, outputFormat) {
         handleError("[GET PHOTO] Couldn't download / decrypt / get photo", error);
         return false;
     }
+    
+    if (decryptedPhoto === "aborted") { return false; }
 
     // couldn't find thumbnail size, auto-fallback to lightbox size
     if (size === "t" && !decryptedPhoto) { 

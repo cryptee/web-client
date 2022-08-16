@@ -196,3 +196,111 @@ try {
     defaultFont = localStorage.getItem("defaultFont") || "josefin-sans";
     if (!defaultFont) { defaultFont = "josefin-sans"; }
 } catch (e) {}
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	APP PREFERENCES
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+var defaultAppPreferences = {
+    "docs" : {},
+    "photos" : {
+        "high-res-thumbnails"   : "auto",
+        "video-thumbnails-type" : "animated"
+    },
+};
+
+var appPreference = { ...defaultAppPreferences };
+
+/**
+ * Gets an app preference (i.e. photos / high-res-thumbnails) from localStorage (or gets the default)
+ * @param {('photos'|'docs')} app 
+ * @param {String} preferenceKey (i.e. "high-res-thumbnails") 
+ * @returns preferenceValue
+ */
+function getAppPreference(app, preferenceKey) {
+    
+    if (!app || !preferenceKey) { return false; }
+    
+    // preference doesn't exist
+    if (isEmpty(defaultAppPreferences[app])) { 
+        handleError("[PREFERENCES] Can't get preference. App Preference doesn't exist!", { app : app, preferenceKey : preferenceKey });
+        return false; 
+    }
+
+    if (!defaultAppPreferences[app][preferenceKey]) { 
+        handleError("[PREFERENCES] Can't get preference. App Preference Key doesn't exist!", { app : app, preferenceKey : preferenceKey });
+        return false; 
+    }
+
+    var preferenceIndex = "preference-" + app + "-" + preferenceKey;
+
+    var preference;
+
+    try {
+        preference = localStorage.getItem(preferenceIndex);
+    } catch (error) {}
+    
+    if (!preference) {
+        preference = defaultAppPreferences[app][preferenceKey];
+    }
+    
+    return preference;
+
+}
+
+
+/**
+ * Sets an app preference (i.e. photos / high-res-thumbnails) to localStorage
+ * @param {('photos'|'docs')} app 
+ * @param {String} preferenceKey (i.e. "high-res-thumbnails") 
+ * @param {String} preferenceValue (i.e. "high") 
+ */
+ function setAppPreference(app, preferenceKey, preferenceValue) {
+    
+    if (!app || !preferenceKey || !preferenceValue) { 
+        handleError("[PREFERENCES] Can't save app preference without app / preference key or value", { app : app, preferenceKey : preferenceKey, preferenceValue : preferenceValue });
+        return false; 
+    }
+    
+    // preference doesn't exist
+    if (isEmpty(defaultAppPreferences[app])) { 
+        handleError("[PREFERENCES] Can't set preference. App Preference doesn't exist!", { app : app, preferenceKey : preferenceKey, preferenceValue : preferenceValue });
+        return false; 
+    }
+
+    var preferenceIndex = "preference-" + app + "-" + preferenceKey;
+
+    try {
+        localStorage.setItem(preferenceIndex, preferenceValue);
+        breadcrumb('[PREFERENCES] Successfully set app preference (' + app + "-" + preferenceKey + ":" + preferenceValue + ")");
+    } catch (error) {}
+    
+}
+
+function loadAppPreferences() {
+    
+    for (const appName in defaultAppPreferences) {
+        
+        const app = defaultAppPreferences[appName];
+        
+        for (const preferenceKey in app) {
+            
+            var preferenceValue = getAppPreference(appName, preferenceKey);
+
+            appPreference[appName][preferenceKey] = preferenceValue;
+
+            $("button.appPreference.radio[group='"+appName + "-" + preferenceKey+"'][val]").removeClass("selected");
+            $("button.appPreference.radio[group='"+appName + "-" + preferenceKey+"'][val='"+preferenceValue+"']").addClass("selected");
+
+        }
+
+    }
+
+    breadcrumb('[PREFERENCES] Loaded app preferences');
+
+}
+
+loadAppPreferences();

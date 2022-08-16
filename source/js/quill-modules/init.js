@@ -863,6 +863,7 @@ $('.ql-editor').on('click', 'crypteefolder', function (event) {
     
     // blur editor to hide soft keyboards
     quill.blur();
+    disableFocusMode();
 
     getFolderFromCatalog(fid).then((folder) => {
         if (!folder || isEmpty(folder)) {

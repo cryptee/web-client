@@ -43,6 +43,8 @@ async function importFile(doc, filename) {
     if (["htm", "html"].includes(ext)) {
         try { 
             var rawHTML = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            if (!rawHTML) { return err(doc.docid, "failed"); }
+            if (rawHTML === "aborted") { return err(doc.docid, "aborted"); }
             await importHTMLFile(doc, rawHTML);
         } catch (error) { err(doc.docid, error); }
     }
@@ -51,6 +53,8 @@ async function importFile(doc, filename) {
     if (["txt", "md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "markdn", "mdtxt", "mdtext"].includes(ext)) {
         try { 
             var rawTextMD = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            if (!rawTextMD) { return err(doc.docid, "failed"); }
+            if (rawTextMD === "aborted") { return err(doc.docid, "aborted"); }
             await importTXTMDFile(doc, rawTextMD);
         } catch (error) { err(doc.docid, error); }
     }
@@ -59,6 +63,8 @@ async function importFile(doc, filename) {
     if (["crypteedoc", "ecd"].includes(ext)) {
         try { 
             var rawECD = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            if (!rawECD) { return err(doc.docid, "failed"); }
+            if (rawECD === "aborted") { return err(doc.docid, "aborted"); }
             await importECDFile(doc, rawECD);
         } catch (error) { err(doc.docid, error); }
     }
@@ -67,6 +73,8 @@ async function importFile(doc, filename) {
     if (["uecd"].includes(ext)) {
         try { 
             var rawUECD = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            if (!rawUECD) { return err(doc.docid, "failed"); }
+            if (rawUECD === "aborted") { return err(doc.docid, "aborted"); }
             await importUECDFile(doc, rawUECD);
         } catch (error) { err(doc.docid, error); }
     }
@@ -75,6 +83,8 @@ async function importFile(doc, filename) {
     if (["enex"].includes(ext)) {
         try { 
             var rawENEX = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            if (!rawENEX) { return err(doc.docid, "failed"); }
+            if (rawENEX === "aborted") { return err(doc.docid, "aborted"); }
             await importENEXFile(doc, rawENEX);
         } catch (error) { err(doc.docid, error); }
     }
@@ -83,6 +93,8 @@ async function importFile(doc, filename) {
     if (["docx"].includes(ext)) {
         try { 
             var docxBlob = await downloadAndDecryptFile(doc.docid, null, "blob", filename, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", null, doc, true); 
+            if (!docxBlob) { return err(doc.docid, "failed"); }
+            if (docxBlob === "aborted") { return err(doc.docid, "aborted"); }
             await importDOCXFile(doc, docxBlob);
         } catch (error) { err(doc.docid, error); }
     }
@@ -94,6 +106,27 @@ async function importFile(doc, filename) {
     // CHECK 7Z / ITS ENCODING OPENS CORRECTLY ON LINUX 
 
     return true;
+
+    function err(did, error) {
+        var errObj = {};
+
+        try { if (error) { errObj = error; } } catch (e) {}
+
+        errObj.did = did;
+
+        if (error === "aborted") { 
+            handleError("[IMPORT FILE] Aborted downloading / decrypting file.", errObj, "info");
+        } else {
+            handleError("[IMPORT FILE] Failed to download / decrypt file, got no contents.", errObj);
+        }
+
+        createPopup(`Failed to import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        
+        failedToLoadFile(did);
+        
+        return false;
+    }
+
 }
 
 

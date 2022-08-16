@@ -289,13 +289,17 @@ VIDEO
 --------------------------------
 ----------------------------- */
 
-#file-viewer[ext="mp4"]:not(.minimized):not(.loading) {
+#file-viewer[ext="mp4"]:not(.minimized):not(.loading),
+#file-viewer[ext="mov"]:not(.minimized):not(.loading) {
     height: auto;
 }
 
 #file-viewer[ext="mp4"] #minimizeFileViewerButton,
 #file-viewer[ext="mp4"] #maximizeFileViewerButton,
-#file-viewer[ext="mp4"] #splitFileViewerButton {
+#file-viewer[ext="mp4"] #splitFileViewerButton
+#file-viewer[ext="mov"] #minimizeFileViewerButton,
+#file-viewer[ext="mov"] #maximizeFileViewerButton,
+#file-viewer[ext="mov"] #splitFileViewerButton {
     display: none !important;
 }
 

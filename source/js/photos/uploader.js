@@ -242,7 +242,7 @@ function checkFormatSupport(extension) {
     // }
 
     // // videos we support natively
-    else if (extension.match(/^(mp4)$/i)) {
+    else if (extension.match(/^(mp4|mov)$/i)) {
       return "supported-video-native";
     }
 
@@ -522,10 +522,12 @@ async function processEncryptAndUploadPhoto(uploadID) {
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo);
 
     function err(msg, error) {
+        
         error = error || {};
         error.uploadID = uploadID;
         handleError(msg, error);
         uploadQueue[uploadID].status = "error";
+
         if (msg === "exceeded") {
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
             uploadQueue[uploadID].status = "exceeded";
@@ -592,15 +594,31 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
         return "";
     }
     
+    var retryDecoding = false;
+
     try {
         breadcrumb("[UPLOAD] Decoding image");
         await img.decode();
         breadcrumb("[UPLOAD] Decoded image");
     } catch (error) {
-        handleError("[UPLOAD] Failed to decode image.", error);
+        handleError("[UPLOAD] Failed to decode image. Will retry", error);
+        retryDecoding = true;
+    }
+    
+    // timeout 500ms and retry decoding.
+    // Rarely, if you try to decode all 4 images simultaneously, decode may throw an error on low end devices.
+    if (retryDecoding) { await new Promise(resolve => setTimeout(resolve, 500)); }
+    
+    try {
+        breadcrumb("[UPLOAD] Decoding image [again]");
+        await img.decode();
+        breadcrumb("[UPLOAD] Decoded image [on second try]");
+    } catch (error) {
+        handleError("[UPLOAD] Failed to decode image. [again]", error);
+        revokeObjectURL(blobURL);
         return {};
     }
-
+    
     var width = img.width;
     var height = img.height;
 
@@ -1045,10 +1063,17 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
         uploadQueue[uploadID].status = "error";
 
         if (msg === "exceeded") {
+            
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
             uploadQueue[uploadID].status = "exceeded";
+
         } else {
+            
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg.replace("[UPLOAD] ", "")));
+            
+            // unlock canvas / player for the next upload if upload failed due to a reason other than exceed (i.e. failed to decode img)
+            doneWithCanvas(canvasNo);
+            doneWithPlayer(playerNo);
         }
         
         if (remainingStorage <= 0) { 

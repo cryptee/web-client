@@ -281,11 +281,13 @@ function onUploadSuccess(fileUpload, filename) {
 }
 
 /**
- * Called by uploader, when an upload is complete. After 1s, Checks to see if there's an upload in the uploader, and if not hides uploader. 
+ * Called by uploader, when an upload is complete. After 2s, Checks to see if there's an upload in the uploader, and if not hides uploader. 
  */
 function onUploadComplete() {
-    var noUploads = $(".upload[prog]").not("[prog='100']").length;
-    if (noUploads <= 0) { hideUploader(); }
+    setTimeout(function () {
+        var noUploads = $(".upload[prog]").not("[prog='100']").length;
+        if (noUploads <= 0) { hideUploader(); }
+    }, 2000);
 }
 
 function onUploaderOnline(fileUpload, filename) {

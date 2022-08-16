@@ -630,9 +630,9 @@ if (inactivityTimeoutInMinutes && !memorizedKey) {
 ////////////////////////////////////////////////
 
 
-function isPinned() {
-    return $("body").hasClass("pinned");
-}
+function isPinned() { return $("body").hasClass("pinned"); }
+function isViewingMode() { return $("body").hasClass("viewing-doc"); }
+function isFocusMode() { return $("body").hasClass("focus-mode"); }
 
 var rememberDocsWasPinned = false;
 
@@ -721,10 +721,10 @@ function toggleSidebarMenu() {
 
 
 /**
- * Opens the Sidebar Menu if it's not pinned
+ * Opens the Sidebar Menu if it's not pinned or in focus mode
  */
 function openSidebarMenu() {
-    if (!isPinned()) {
+    if (!isPinned() && !isFocusMode() && !isViewingMode()) {
         swiper.slideTo(0);
     }
 }
@@ -1379,6 +1379,25 @@ $("#viewingModeButton").on('click', function(event) {
         disableViewingMode();
     } else {
         enableViewingMode();
+    }
+
+}); 
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	FOCUS MODE
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+$("#focusModeButton").on('click', function(event) {
+    
+    var on = $(this).hasClass("on");
+
+    if (on) {
+        disableFocusMode();
+    } else {
+        enableFocusMode();
     }
 
 }); 

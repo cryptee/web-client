@@ -169,6 +169,8 @@ async function loadFileIntoFileViewer(doc, filename) {
     if (["jpg","jpeg","png","gif","svg","webp"].includes(ext)) {
         try { 
             var imgDataURL = await downloadAndDecryptFile(doc.docid, null, "url", filename, doc.mime, null, doc, true); 
+            if (!imgDataURL) { return err(doc.docid, "failed"); } 
+            if (imgDataURL === "aborted") { return err(doc.docid, "aborted"); } 
             await displayImageFile(doc, imgDataURL);
         } catch (error) { err(doc.docid, error); }
     }
@@ -177,6 +179,8 @@ async function loadFileIntoFileViewer(doc, filename) {
     else if (["mp3"].includes(ext)) {
         try { 
             var audioDataURL = await downloadAndDecryptFile(doc.docid, null, "url", filename, doc.mime, null, doc, true); 
+            if (!audioDataURL) { return err(doc.docid, "failed"); } 
+            if (audioDataURL === "aborted") { return err(doc.docid, "aborted"); } 
             await displayAudioFile(doc, audioDataURL);
         } catch (error) { err(doc.docid, error); }
     }
@@ -185,6 +189,8 @@ async function loadFileIntoFileViewer(doc, filename) {
     else if (["mp4","mov"].includes(ext)) {
         try { 
             var videoDataURL = await downloadAndDecryptFile(doc.docid, null, "url", filename, doc.mime, null, doc, true); 
+            if (!videoDataURL) { return err(doc.docid, "failed"); } 
+            if (videoDataURL === "aborted") { return err(doc.docid, "aborted"); } 
             await displayVideoFile(doc, videoDataURL);
         } catch (error) { err(doc.docid, error); }
     }
@@ -193,6 +199,8 @@ async function loadFileIntoFileViewer(doc, filename) {
     else if (["pdf"].includes(ext)) {
         try { 
             var pdfDataURL = await downloadAndDecryptFile(doc.docid, null, "url", filename, doc.mime, null, doc, true); 
+            if (!pdfDataURL) { return err(doc.docid, "failed"); } 
+            if (pdfDataURL === "aborted") { return err(doc.docid, "aborted"); } 
             await displayPDFFile(doc, pdfDataURL);
         } catch (error) { err(doc.docid, error); }
 
@@ -202,6 +210,8 @@ async function loadFileIntoFileViewer(doc, filename) {
     else if (["epub"].includes(ext)) {
         try { 
             var epubBlob = await downloadAndDecryptFile(doc.docid, null, "blob", filename, "application/epub+zip", null, doc, true); 
+            if (!epubBlob) { return err(doc.docid, "failed"); } 
+            if (epubBlob === "aborted") { return err(doc.docid, "aborted"); } 
             await displayEPUBFile(doc, epubBlob);
         } catch (error) { err(doc.docid, error); }
     }
@@ -221,9 +231,17 @@ async function loadFileIntoFileViewer(doc, filename) {
 
     function err(did, error) {
         var errObj = {};
+
         try { if (error) { errObj = error; } } catch (e) {}
+
         errObj.did = did;
-        handleError("[LOAD FILE] Failed to download / decrypt file, got no contents.", errObj);
+
+        if (error === "aborted") { 
+            handleError("[LOAD FILE] Aborted downloading / decrypting file.", errObj, "info");
+        } else {
+            handleError("[LOAD FILE] Failed to download / decrypt file, got no contents.", errObj);
+        }
+
         createPopup(`Failed to load your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
         failedToLoadFile(did);
         return false;
@@ -301,16 +319,16 @@ async function displayAudioFile(doc, audioDataURL) {
  */
 async function displayVideoFile(doc, videoDataURL) {
 
-    var filename = docName(doc);
-    var ext = extensionFromFilename(filename);
-    var mime = doc.mime || "video/" + ext;
+    // var filename = docName(doc);
+    // var ext = extensionFromFilename(filename);
+    // var mime = doc.mime || "video/mp4";
 
     var chrome = isChromium;
     if (chrome) { chrome = "chrome"; } else { chrome = ""; }
 
     $('#file-viewer-content').html(`
         <video controls controlsList="nodownload" class="${chrome}">
-            <source src='${videoDataURL}' type="${mime}">
+            <source src='${videoDataURL}' type="video/mp4">
             <p>Looks like your browser does not support MP4 playback. Please download the file to hear it</p>
         </video>
     `);

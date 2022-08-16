@@ -266,6 +266,7 @@ var quillkeyboardbindings = {
 
 // OPEN RECENTS
 key('alt+shift+r', function () {
+    if (isViewingMode() || isFocusMode()) { return false; }
     quill.blur();
     openSidebarMenu();
     hideRightClickDropdowns();
@@ -276,6 +277,7 @@ key('alt+shift+r', function () {
 
 // OPEN FOLDERS
 key('alt+shift+f', function () {
+    if (isViewingMode() || isFocusMode()) { return false; }
     quill.blur();
     openSidebarMenu();
     hideRightClickDropdowns();
@@ -292,6 +294,7 @@ key('alt+shift+m', function () {
 });
 
 key('command+shift+o, ctrl+shift+o', function () {
+    if (isViewingMode() || isFocusMode()) { return false; }
     quill.blur();
     openSidebarMenu();
     hideRightClickDropdowns();

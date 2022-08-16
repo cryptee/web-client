@@ -143,8 +143,12 @@ async function loadDoc(doc) {
     activityHappened();
 
     
-    if (!docContents) {
-        handleError("[LOAD DOC] Failed to load, got no contents.", {did:did});
+    if (!docContents || docContents === "aborted") {
+        if (docContents === "aborted") {
+            handleError("[LOAD DOC] Failed to load, aborted download.", {did:did}, "info");
+        } else {
+            handleError("[LOAD DOC] Failed to load, got no contents.", {did:did});
+        }
         createPopup(`Failed to load your document <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
         failedToLoadDoc(doc);
         return false;
@@ -211,8 +215,9 @@ async function loadedDocPrepareEditor(doc, did, docContents, connection, forceSa
         unlockEditor();
     }
 
-    // quit viewing mode
+    // quit viewing mode and focus mode
     disableViewingMode();
+    disableFocusMode();
 
     if (doc.paper) {
         enablePaperMode(doc.paper, doc.orientation, true);

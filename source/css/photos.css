@@ -1289,7 +1289,7 @@ LIGHTBOX
 
 #lightbox-progress { 
     z-index: 13;
-    opacity: 0.2;
+    opacity: 0.4;
 }
 
 #popup-album-info input {
