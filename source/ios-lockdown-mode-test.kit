@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- @import "imports/app/head.kit" -->
+
+    <title>Cryptee | iOS / Safari Lockdown Mode Detection Test (Proof of Concept)</title>
+
+    <link rel="stylesheet" href="../css/www.css">
+
+</head>
+
+<body class="www-body">
+    
+    <!-- $pricing-link = /#pricing -->
+    <!-- @import "imports/www/nav.kit" -->
+
+    <article id="faq-article">
+        <aside></aside>
+        
+            <section id="faq-grid">
+                <h2>IOS LOCKDOWN MODE DETECTION TEST PROOF OF CONCEPT</h2>
+                <p id="lockdown-mode-result"><strong>Testing ...</strong></p>
+                <b style="height: 16rem;"></b>
+
+                <details id="what-is-cryptee">
+                    <summary >What is Cryptee?</summary>
+                    <p class="justify">
+                        <span>
+                            Cryptee is a safety and privacy focused, encrypted and cross-platform personal data storage service. You can write personal documents, notes, journals, store photos, videos and all sorts of other files. 
+                            <br><br>
+                            On Cryptee your data is encrypted on your device and you hold the keys. So we can't read your documents, see your photos or videos, and no one else can either.
+                            <br><br>
+                            Cryptee has all the features you'd expect from a modern document editor, like live sync with unlimited devices, rich document editing, to-dos, markdown, hotkeys, code highlighting, latex math, embeds, attachments, support for tables, ability to attach and open pdf files, read epub ebooks, listen to audio-memos, as well as open and link other various file formats.
+                            <br><br>
+                        </span>
+                    </p>
+                </details>
+
+                <details id="what-is-cryptee">
+                    <summary>What does this proof of concept have anything to do with Cryptee?</summary>
+                    <p class="justify">
+                        <span>
+                            We started Cryptee in 2018 with a simple goal: to create a safe &amp; private space on the internet. A calm &amp; quiet place, where there are no trackers, no ads, no metrics or addictive features. 
+                            <br><br>
+                            In order to build tools that help keep you safe &amp; private, we spend a lot of our time and resources researching technological threats that could put you at risk.
+                            <br><br>
+                            While researching, we noticed that iOS 16's Lockdown Mode might make it one-step easier for websites or ads to identify / fingerprint users and visitors. So we decided to publish this proof-of-concept, share our findings with the world, and start a conversation around the topic.
+                            <br><br>
+                        </span>
+                    </p>
+                </details>
+
+                <details id="what-is-cryptee">
+                    <summary>Why did Cryptee publish this proof-of-concept?</summary>
+                    <p class="justify">
+                        <span>
+                            <strong>First, we would like to emphasize that we think Lockdown Mode is amazing, folks at Apple have done a great job, having Lockdown Mode is a great step-up, and if you are an at-risk user, you should absolutely enable Lockdown Mode.</strong>
+                            <br><br>
+                            We wanted to raise awareness of the fact that by enabling iOS 16's Lockdown Mode, users can make their devices more secure, but they also make their devices one-step easier to fingerprint by websites / ads.
+                            <br><br>
+                            While for some people this may be an acceptable tradeoff, for others — depending on their threat model and where they live — being fingerprinted / identified using their IP address associated with "using lockdown mode" may pose a risk.
+                            <br><br>
+                            It is our opinion that there isn't a perfect/right answer, nor a one-size-fits-all security/privacy solution that can possibly work for everyone. — and we see this every day with users of Cryptee, who all have different needs and threat-models.
+                            <br><br>
+                            With this proof-of-concept, our goal was to start a conversation around the topic of security/privacy trade-offs and what enabling Lockdown Mode could mean for at-risk users. 
+                            <br><br>
+                            Perhaps everyone's going to be okay with this trade-off, but we figured it's important to have this conversation first.
+                            <br><br>
+                        </span>
+                    </p>
+                </details>
+
+                <details id="what-is-cryptee">
+                    <summary>How worried should you be about this?</summary>
+                    <p class="justify">
+                        <span>
+                            It depends.
+                            <br><br>
+                            If you are an at-risk user, you probably know if you need iOS Lockdown Mode or not. 
+                            <br><br>
+                            Lockdown Mode is great for your <i>"security"</i>. By enabling Lockdown Mode, you disable tons of features that could potentially make your device more vulnerable.
+                            <br><br>
+                            All this safety comes at a cost of course, which is that these disabled features, may make your internet and mobile experience inconvenient and different as a side effect.
+                            <br><br>
+                            So if you want to stay extra-safe you have to make some trade-offs. 
+                            <br><br>  
+                            Some of these are <i>convenience</i> trade-offs, like not being able to tap on links shared with you on iMessages.
+                            <br><br>
+                            Others are <i>privacy</i> trade-offs. And the subtle difference between <i>"security"</i> and <i>"privacy"</i> in this context is extremely critical to understand in order to figure out if you should be worried about our research findings or not.
+                            <br><br>
+                            Imagine this: If you wanted to make your home extra-safe and secure, you could put a barbed-wire fence around your house, employ armed guards, dogs, etc. It would certainly make your house extra-safe. But it would also make your house stand out in the neighborhood and very easy to notice — even from a distance.   
+                            <br><br>
+                            Similarly, Lockdown Mode makes your device extremely safe, at the cost of making you a bit more noticable while browsing the internet. i.e. it disables fonts, the ability to play mp3 audio on the web, WebAssembly, WebGL, just-in-time compilation, gamepad features etc... Making it possible for websites to check to see if some of these features are disabled and determine if you're using Lockdown Mode. Since websites can also see if your IP address (if you're not using a VPN all the time), combination of these pieces of information can potentially make it possible for websites to identify / fingerprint you with ease. 
+                            <br><br>
+                            So if you are an at-risk person, and getting identified on the internet as someone who uses Lockdown Mode could pose risks to your wellbeing, it may be worth for you to look into taking further measures to keep yourself <i>private</i> while also keeping <i>safe</i> using lockdown mode.
+                        </span>
+                    </p>
+                </details>
+
+                <details id="what-is-cryptee">
+                    <summary>Can Apple do something to remedy this?</summary>
+                    <p class="justify">
+                        <span>
+                            Technically no. But they can make things harder for websites.
+                            <br><br>
+                            As we mentioned in the previous answer above, to detect Lockdown Mode, this proof-of-concept checks for features disabled by Lockdown Mode. — features which are disabled to keep you <i>safe</i> —.
+                            <br><br>
+                            And this <i>security</i> vs <i>privacy</i> trade-off is the exact reason why we wanted to build this proof-of-concept tool, and start a conversation around the differences between <i>security</i> and <i>privacy</i>, as well as the trade-offs worth considering when making extreme-security choices.
+                            <br><br>
+                            To make it harder for websites to associate Lockdown Mode use with your IP address and identify you, Apple could include and enable iCloud Private Relay by default in Lockdown Mode. This would help make your IP address blend in with the crowd. — However, sadly iCloud Private Relay is not available in all countries or regions.
+                        </span>
+                    </p>
+                </details>
+
+                <details id="what-is-cryptee">
+                    <summary>Can I do something to remedy this?</summary>
+                    <p class="justify">
+                        <span>
+                            Technically no, you cannot remedy this entirely.
+                            <br><br>
+                            You can make it harder for websites to identify you with your IP address, by using things like iCloud Private Relay or VPNs. However even this won't guarantee you won't get fingerprinted. i.e. Platforms like Facebook, TikTok, WeChat etc which may have your real name can detect you are using Lockdown Mode.
+                        </span>
+                    </p>
+                </details>
+
+                <details id="what-is-cryptee">
+                    <summary>What if I never use Safari or don't browse the internet on my phone?<br>Can <i>apps</i> detect if I'm using Lockdown Mode?</summary>
+                    <p class="justify">
+                        <span>
+                            While we haven't tried this yet, we think it's possible for apps to detect you're using Lockdown Mode as well. So avoiding the web isn't a solution either.
+                        </span>
+                    </p>
+                </details>
+
+            </section>
+
+        <aside></aside>
+        
+    </article>
+
+    <!-- @import "imports/app/footer.kit" -->
+
+    <script> 
+
+        function iOSversion() {
+            if (/iP(hone|od|ad)/.test(navigator.platform)) {
+                var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+                return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+            }
+        }
+
+        /**
+         * Checks to see if user has iOS Lockdown Mode enabled.
+         */
+        function detectIOSLockdownMode() {
+            if ((isios || isipados || isSafari) && iOSversion()[0] >= 16) {
+                breadcrumb('[LOCKDOWN MODE] Testing...');
+                fontSpy('remixicon', {
+                    glyphs: '\uf2d1\uf2d2\uf2d3\uf2d4\uf2d5\uf2d6\uf2d7\uf2d8\uf2d9',
+                    success: function () {
+                        // fonts loaded
+                        userIsNotInLockdownMode(); // not in ios / safari / lockdown mode
+                    },
+                    failure: function () {
+                        detectedIOSLockdownMode(); // in ios / safari / lockdown mode.
+                    }
+                });
+            } else {
+                userIsNotInLockdownMode(); // not in ios / safari / lockdown mode
+            }
+        }
+
+        /**
+        * Called when iOS Lockdown Mode is detected 
+        */
+        function detectedIOSLockdownMode() {
+            breadcrumb('[LOCKDOWN MODE] User is in lockdown mode!');
+            setSentryTag("ios-lockdown-mode", "true");
+            $("#lockdown-mode-result").text("You are using Safari in lockdown mode");
+            $("#lockdown-mode-result").addClass("bold red");
+        }
+
+        function userIsNotInLockdownMode() {
+            breadcrumb('[LOCKDOWN MODE] User is not in lockdown mode!');
+            setSentryTag("ios-lockdown-mode", "false");
+            $("#lockdown-mode-result").html("You are not using Safari in lockdown mode");
+        }
+
+        setTimeout(detectIOSLockdownMode, 3000); 
+        
+    </script>
+</body></html>

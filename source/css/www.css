@@ -336,7 +336,7 @@ HERO / GRID DECORATIONS
 }
 
 .grid-hero {
-    grid-column: 2/-1;
+    grid-column: 2/-2;
     grid-template-rows: 6rem 40rem;
     grid-template-columns: 4rem 1fr;
 }
