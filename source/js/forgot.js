@@ -23,7 +23,7 @@ async function sendForgotEmail() {
     $("#reset-button").addClass("loading");
 
     try {
-        await firebase.auth().sendPasswordResetEmail(emailAddress);
+        await firebase.sendPasswordResetEmail(firebase.getAuth(), emailAddress);
     } catch (error) {
         if (error.code === "auth/user-not-found") {
             createPopup("no account found with that email address. please try again", "warning");

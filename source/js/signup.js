@@ -274,12 +274,12 @@ async function startSignup() {
         
         if (!theUser) {
             
-            var provider = new firebase.auth.GoogleAuthProvider();
+            var provider = new firebase.GoogleAuthProvider();
             provider.addScope('email');
     
             var gUserCredentials;
             try {
-                gUserCredentials = await firebase.auth().signInWithPopup(provider);
+                gUserCredentials = await firebase.signInWithPopup(firebase.getAuth(), provider);
             } catch (error) {
                 googleSignupError(error);
                 return;
@@ -309,7 +309,7 @@ async function startSignup() {
 
         var userCredentials; 
         try {
-            userCredentials = await firebase.auth().createUserWithEmailAndPassword(chosenEmail, chosenPass);
+            userCredentials = await firebase.createUserWithEmailAndPassword(firebase.getAuth(), chosenEmail, chosenPass);
         } catch (error) {
             usernamePassSignupError(error);
             return;
@@ -385,7 +385,7 @@ async function createUserInDB() {
             // it's a username, try setting username
             
             try {
-                await theUser.updateProfile({ displayName : usernameOrEmail });
+                await firebase.updateProfile(theUser, { displayName : usernameOrEmail });
             } catch (error) {
                 handleError("[SIGNUP] Failed to save user's username", error, "warning");
             }
@@ -395,7 +395,7 @@ async function createUserInDB() {
             // it's an email, send verification email
             
             try {
-                await theUser.sendEmailVerification();
+                await firebase.sendEmailVerification(theUser);
             } catch (error) {
                 handleError("[SIGNUP] Failed to send verification email", error, "warning");
             }
@@ -511,7 +511,7 @@ async function saveWrappedKey(wrappedKey) {
 // SO ONCE WE GET AUTH, WE'LL HAVE TO HANDLE THESE 4 SCENARIOS GRACEFULLY.
 
 
-firebase.auth().onAuthStateChanged(function (user) {
+firebase.onAuthStateChanged(firebase.getAuth(), function (user) {
     if (!user) { return; } // got no user, carry on. 
 
     theUser = user;

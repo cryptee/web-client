@@ -119,18 +119,6 @@ function elemTopOffsetPX(elem) {
     return elem[0].offsetTop || paper.marginsPX;
 }
 
-
-
-function isPaperMode() {
-    if ($("body").attr("paper-stock")) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-
-
 /**
  * Creates a walker for the given tagName
  * @param {String} tagName
@@ -261,10 +249,6 @@ function enablePaperMode(paperStock, orientation, forDocLoad) {
         calculatePaperOverflow();
     }, 1000);
     
-    // if the user already enabled paper mode on any device ever at all, 
-    // i.e. when a doc loads in paper mode, 
-    // you won't ever have to grab their attention to this button again
-    paidAttentionTo("panel-button-pagesetup");
 }
 
 

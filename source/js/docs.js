@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
+var vtest = 4;
 
 /**
  * Scrolls a container to top, i.e. pass "folders" to scroll "#folders" to top.
@@ -447,6 +448,13 @@ function recentMonthsAgo(recentMonths) {
     return msAgo * 1000;
 }
 
+function isPaperMode() {
+    if ($("body").attr("paper-stock")) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 
@@ -543,7 +551,6 @@ var gotRecents = false;
 
 async function preStartup() {
 
-
     try {
         // TRY GETTING DOCS & FOLDERS FROM CATALOG
 
@@ -563,7 +570,6 @@ async function preStartup() {
                 setTimeout(function () { if (isTouch) {  $("html, body").addClass("overflowBG");  }  }, 500);
             }, 500);
         }
-
 
     } catch (error) {}
 
@@ -620,7 +626,6 @@ if (inactivityTimeoutInMinutes && !memorizedKey) {
 
 
 
-
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 // 	 SLIDER CONTROLLER & INITIALIZATION
@@ -671,7 +676,8 @@ $(document).on("ready", function () {
         }
     });
 
-
+    determineBrowserEXIFOrientationTreatment();
+    
     //	init getting tips swipers
     initializeTips();
 
@@ -749,7 +755,8 @@ function sidebarOpened() {
     
     sidebarOpen = true;
     
-    hideTableContextualButton();
+    // try catch, because when we're starting up, we're lazy loading editor and its features, and this doesn't exist yet.
+    try { hideTableContextualButton(); } catch (error) {}
     hidePanels();
 
     // on mobile / touch, if you blur when sidebar is opened, it'll hide the keyboard causing lag while swiping. so fire this only on desktop on mobile we're fine anyway. 
@@ -767,7 +774,9 @@ function sidebarClosed() {
     
     sidebarOpen = false;
     
-    hideTableContextualButton();
+    // try catch, because when we're starting up, we're lazy loading editor and its features, and this doesn't exist yet.
+    try { hideTableContextualButton(); } catch (error) {}
+
     hideRightClickDropdowns();
     
     hidePanels();
@@ -796,7 +805,9 @@ function sidebarOpenedClosedRecalcPaperOverflow() {
 function toggleSidebarPin() {
     $("body").toggleClass("pinned");
     swiper.update();
-    windowResizedRecalculatePaper();
+    
+    // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+    try { windowResizedRecalculatePaper(); } catch (e) {}
 
     if (isPinned()) {
         try { localStorage.setItem("docs-pinned", true); } catch (e) {}
@@ -812,7 +823,10 @@ function toggleSidebarPin() {
 function unPinSidebar() {
     $("body").removeClass("pinned");
     swiper.update();
-    windowResizedRecalculatePaper();
+    
+    // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+    try { windowResizedRecalculatePaper(); } catch (e) {}
+
     try { localStorage.removeItem("docs-pinned"); } catch (e) {}
 }
 
@@ -824,7 +838,10 @@ function pinSidebar() {
     if ($(window).width() > 896) {
         $("body").addClass("pinned");
         swiper.update();
-        windowResizedRecalculatePaper();
+        
+        // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+        try { windowResizedRecalculatePaper(); } catch (e) {}
+
         try { localStorage.setItem("docs-pinned", true); } catch (e) {}
     } else {
         unPinSidebar();
@@ -850,7 +867,10 @@ $(window).on('resize', function(event) {
         }
     }
 
-    if (isPaperMode()) { windowResizedRecalculatePaper(); }
+    if (isPaperMode()) { 
+        // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+        try { windowResizedRecalculatePaper(); } catch (e) {}
+    }
 }); 
 
 ////////////////////////////////////////////////
@@ -1170,7 +1190,8 @@ function hidePanels(exceptID) {
         
         $("button[id^='panel-button']").removeClass("active");
 
-        resetPDFExporter();
+        // try catch, because when we're starting up, we're lazy loading editor features, and this function doesn't exist yet
+        try { resetPDFExporter(); } catch (e) {}
         $("#panel-copy-doc").attr("did", "");
 
     }
@@ -1504,7 +1525,7 @@ function showDownloadPopup() {
 function showInboxPopup() {
     createPopup(
         `<b>Inbox</b> is a special type of folder, where all documents without folders go to. 
-        When you quickly create new documents, they'll be created in inbox. 
+        When you quickly create new documents, they will be created in inbox. 
         You can of course move these docs to other folders later if you wish.
         <i>You cannot rename, move, archive or ghost the inbox folder.</i>
         You can delete it like any other folder, but it will be re-created when necessary, if a new doc needs a home to live.`, "info");
@@ -1811,4 +1832,4 @@ function setupAttentionGrabbers(buttons) {
 
 // This will set up all attention grabbers. 
 // If user already paid attention they will be removed in document ready 
-setupAttentionGrabbers([ "panel-button-pagesetup" ]);
+setupAttentionGrabbers([]);

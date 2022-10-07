@@ -1,16 +1,31 @@
 <article id="hero">
+
+    <!-- this is intentionally mapped out as 2x being the original size, 3x -> 2x, and 4x -> 3x -->
+    <!-- on retina displays these display a bit better due to the roundedness of the image i think -->
+    <!-- we want these sharp. not shit. -->
+
+    <!-- <img id="hero-img" class="hero" type="image/jpeg" src="../imgs/hero/hero@2x.jpg"  srcset="../imgs/hero/hero@3x.jpg 2x, ../imgs/hero/hero@4x.jpg 3x" alt="Cryptee Encrypted Docs & Photos"> -->
     
-    <section class="grid-hero">
+    <picture>
+        <source type="image/webp" 
+            sizes="(min-width: 1420px) 133.35vw, (min-width: 900px) calc(175.4vw - 675px), (min-width: 720px) calc(180vw - 496px), calc(92vw + 312px)"    
+            srcset="
+    			../imgs/hero/hero@1x.webp 576w,
+    			../imgs/hero/hero@2x.webp 1152w,
+    			../imgs/hero/hero@3x.webp 1728w,
+    			../imgs/hero/hero@4x.webp 2304w
+    		">
+        <img type="image/jpeg" src="../imgs/hero/hero@2x.jpg" onload="this.classList.add('loaded');"
+            sizes="(min-width: 1420px) 133.35vw, (min-width: 900px) calc(175.4vw - 675px), (min-width: 720px) calc(180vw - 496px), calc(92vw + 312px)"    
+            srcset="
+    			../imgs/hero/hero@1x.jpg 576w,
+    			../imgs/hero/hero@2x.jpg 1152w,
+    			../imgs/hero/hero@3x.jpg 1728w,
+    			../imgs/hero/hero@4x.jpg 2304w
+    		" alt="Cryptee Encrypted Docs & Photos">
+    </picture>
 
-        <h2>A <span class="green">PRIVATE</span> HOME<BR>FOR ALL YOUR DIGITAL BELONGINGS</h2>
-
-        <img    id="hero-img" alt="Cryptee Photos & Videos" class="hero"
-                srcset="../imgs/hero/cryptee-photos-docs-hero-2022.jpg 1920w,
-                        ../imgs/hero/cryptee-photos-docs-hero-2022-xl.jpg 2400w,
-                        ../imgs/hero/cryptee-photos-docs-hero-2022-xxl.jpg 3000w"
-                sizes="100vw"
-                src="../imgs/hero/cryptee-photos-docs-hero-2022.jpg">
-    </section>
+    <h2>FINALLY, <BR>SOME <BR>PRIVACY.</h2>
         
 </article>
 
@@ -25,7 +40,7 @@
 
         <!-- PHOTOS COPY -->
         <p class="hero-product">
-            <span class="gray lowercase">Encrypted &amp; Secure</span>
+            <span class="gray lowercase" aria-disabled="true">Encrypted &amp; Secure</span>
             <span class="h3 uppercase">Photo &amp; Video Storage</span>
             <span class="lowercase">to store your photos &amp; videos privately</span>
         </p>
@@ -34,7 +49,7 @@
 
         <!-- DOCS COPY & SUB COPY-->
         <p class="hero-product">
-            <span class="gray lowercase">Encrypted &amp; Secure</span>
+            <span class="gray lowercase" aria-disabled="true">Encrypted &amp; Secure</span>
             <span class="h3 uppercase">Documents Editor</span>
             <span class="lowercase">to write personal doc<span class="hidden-for-phablets">ument</span>s, notes, journals, store files &amp; more</span>
         </p>        

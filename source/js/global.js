@@ -935,7 +935,7 @@ async function mimetypeFromFilename(filename) {
 
 
 
-var browserWillHandleEXIFOrientation;
+var browserWillHandleEXIFOrientation = false;
 
 // https://github.com/blueimp/JavaScript-Load-Image/commit/1e4df707821a0afcc11ea0720ee403b8759f3881
 // Check if browser supports automatic image orientation
@@ -969,9 +969,6 @@ async function determineBrowserEXIFOrientationTreatment() {
     }
 
 }
-
-// DELAY CHECKING THIS, SO THAT IT'S DONE ONCE DOCUMENT'S READY. THIS IS ONLY USED DURING UPLOADS, SO NOT SUPER URGENT. 
-$(document).on('ready', determineBrowserEXIFOrientationTreatment);
 
 function correctCanvasOrientationInOrientationContext(orientationContext, w, h, orientation) {
   switch (orientation) {
@@ -1144,17 +1141,26 @@ function inactivityTimeout () {
  */
 function promiseTimeout(promise, ms){
 
-  let timeout = new Promise((resolve, reject) => {
-    let id = setTimeout(() => { clearTimeout(id); reject('Timed out'); }, ms);
-  });
-
-  return Promise.race([ promise, timeout ]);
+  return Promise.race([promise, promiseToWait(ms) ]);
   
 }
 
 
 
-
+/**
+ * setTimeout, but with a promise. 
+ * so you can use it like await helpers.promiseToWait(1000);
+ * and the code in the next line will be executed 1s later.
+ * @param {Number} ms
+ * @param {*} callbackPromiseParamPassthrough
+ * @returns {Promise}
+ */
+function promiseToWait(ms, callbackPromiseParamPassthrough) {
+  let passthroughParam = callbackPromiseParamPassthrough;
+  return new Promise(resolve => setTimeout(function () {
+    resolve(passthroughParam);
+  }, ms));
+}
 
 
 
@@ -1388,13 +1394,60 @@ function setMediaSessionAPIMetadata(title, artworkURL, artworkMimetype, artist, 
 
 }
 
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	LAZY LOAD / PRELOAD ALL EDITOR ASSETS LIKS CSS, JS ETC 
+//  AFTER THE REST OF THE APP HAS LOADED
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+let uncriticalAssetsLazyLoadStartTime;
+let uncriticalAssetsLazyLoadEndTime;
+$(window).on("load", function () {
+  uncriticalAssetsLazyLoadStartTime = Date.now();
+  breadcrumb('[LAZY LOADER] LOADING UNCRITICAL ASSETS...');
+  lazyLoadUncriticalAssets();
+});
+
+function lazyLoadUncriticalAssets() {
+  $("link[loadafter='windowload']").each(function () {
+    let href = $(this).attr("lazyhref");
+    $(this).attr("href", href);
+    $(this).removeAttr("lazyhref");
+    $(this).removeAttr("loadafter");
+    breadcrumb('[LAZY LOADER] LOADING STYLE: ' + href);
+  });
+
+  const script = $("script[loadafter='windowload']")[0]; // since we'll keep calling this function each time the prev script loads, this will always give us the current one.
+
+  if (script) {
+    let src = $(script).attr("lazysrc");
+    $(script).removeAttr("lazysrc");
+    $(script).removeAttr("loadafter");
+    $(script).on("load", lazyLoadUncriticalAssets);
+    $(script).attr("src", src);
+    breadcrumb('[LAZY LOADER] LOADING SCRIPT: ' + src);
+  } else {
+    uncriticalAssetsLazyLoadEndTime = Date.now();
+    let lazyLoadTook = (uncriticalAssetsLazyLoadEndTime - uncriticalAssetsLazyLoadStartTime);
+    breadcrumb('[LAZY LOADER] LOADED ALL ASSETS. TOOK ' + lazyLoadTook + "MS");
+    setSentryTag("assets-lazy-loaded-time-ms", lazyLoadTook);
+  }
+    
+}
+
+
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 // 	 OTHER
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-$("a").on('click', function (event) {
+$("a").on('touchstart mousedown', function (event) {
   var href = $(this).attr('href');
 
   if ($(this).hasClass("rememberKey") && keyToRemember) {
@@ -1412,3 +1465,5 @@ $("a").on('click', function (event) {
   }
 
 });
+
+

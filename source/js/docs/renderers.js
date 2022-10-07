@@ -63,7 +63,20 @@ async function refreshDOM(autoRefresh) {
             // we want to check if the doc is nested inside an archive folder. so get the topmost folder, (which is what could be archived)
             // then see if it's archived.
 
-            if (!folders[recentDoc.fid] || !folders[rootFolderParentIDOfDoc].archived) { 
+            // if for some reason the topmost folder doesn't exist, ( !folders[rootFolderParentIDOfDoc] ) 
+            // — which could RARELY happen if network drops out etc while saving a folder etc —
+            // then we would be we're dealing with an orphan doc. then still display it under recents, as this is still our best bet to make this doc accessible.
+            
+            if (!folders[rootFolderParentIDOfDoc] && recentDoc.docid !== "d-home") {
+                handleError("[REFRESH DOM] Caught orphan doc, will still display in recents as last resort.", {
+                    doc : recentDoc,
+                    did : recentDoc.docid,
+                    fid : recentDoc.fid,
+                    rootFolderParentIDOfDoc : rootFolderParentIDOfDoc
+                });
+            }
+
+            if (!folders[recentDoc.fid] || !folders[rootFolderParentIDOfDoc] || !folders[rootFolderParentIDOfDoc].archived) { 
                 
                 if (!docElem.length) {
                     // add recent doc to sidebar

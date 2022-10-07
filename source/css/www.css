@@ -129,7 +129,7 @@ h2.balanced.spaced { margin-bottom: 4rem; }
 h1,h2,h3,h4 { word-break: break-word; }
 
 /* EQUIVALENT OF H3 – SMALLER FOR SEO SEMANTIC PURPOSES */
-.grid-hero h2, .grid-use-cases h2 {
+.grid-use-cases h2 {
     margin-top: 0.125rem;       /* 2px for josefine sans, to maintain vertical rhythm on grid */
     font-size: 1.325rem;        /* 16px for josefine sans, to maintain vertical rhythm on grid */
     line-height: 2rem;          /* 36px */
@@ -227,7 +227,7 @@ nav {
     padding-top: 0;
 
     display: grid;
-    grid-template-columns: 4rem 4rem 8rem 8rem 1fr 8rem 8rem 4rem;
+    grid-template-columns: 4rem 4rem 1fr 8rem 8rem 8rem 8rem 4rem;
     grid-template-rows: 4rem;
 
     background-color: rgba(245, 245, 245, var(--o));
@@ -246,6 +246,7 @@ nav aside {
     grid-template-rows: 1fr 4rem;
     transform: translateY(var(--y));
     filter: invert(0);
+    transition: 1s transform var(--cryptee-cb);
 }
 
 nav #logo {
@@ -320,9 +321,6 @@ nav.sticky.whitebg {
 nav + article { padding-top: 21.5rem; }
 nav + article:not(#hero) h2:first-child { text-align: center; }
 
-nav + article#hero,
-.use-cases-body article#hero { padding-top: 14rem;}
-
 /* -----------------------------
 -------------------------------- 
  
@@ -332,28 +330,54 @@ HERO / GRID DECORATIONS
 ----------------------------- */
 
 #hero {
-    grid-template-columns: 4rem 1fr 4rem;
+    padding-top: 0rem;
+    grid-template-columns: 2fr 4rem 24rem;
+    grid-template-rows: 4rem 4rem 27rem 10.5rem 27rem 4rem;
 }
 
-.grid-hero {
-    grid-column: 2/-2;
-    grid-template-rows: 6rem 40rem;
-    grid-template-columns: 4rem 1fr;
+#hero picture {
+    width: 200%;
+    height: 100%;
+    max-height: 72rem;
+    object-fit: contain;
+    object-position: right;
+    grid-row: 2/-1;
+    grid-column: 1/2;
+    transform: translateX(-50%);
+    background-color: var(--cryptee-4);
 }
 
-#hero img {
+#hero img, #hero source {
+    width: 100%;
+    height: 100%;
+    max-height: 72rem;
+    object-fit: contain;
+    object-position: right;
+
+    opacity: 0;
+    transition: 0.5s opacity ease;
+}
+
+#hero img.loaded {
+    opacity: 1;
+}
+
+.use-cases-body #hero {
+    grid-template-rows: 4rem 6rem 1fr 10.5rem 1fr 4rem;
+}
+
+.use-cases-body #hero img { 
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
-    grid-row: 2/3;
-    grid-column: 1/-1;
+    grid-row: 3/-1;
+    transform: translateX(0);
+    object-position: 50%;
 }
 
 #hero h2 {
-    /* margin-top: 0.5rem; */
-    grid-row: 1/2;
-    grid-column: 2/-1;
+    grid-row: 4/5;
+    grid-column: 3/-1;
     font-size: 2rem;
     line-height: 4rem;
 }
@@ -384,7 +408,7 @@ HERO / GRID DECORATIONS
 
 #europe-section {
     background-color: #121212;
-    padding: 8rem 0;
+    padding: 8rem 0 3rem 0;
     margin: 8rem 0;
     color: #F5F5F5;
 }
@@ -494,8 +518,11 @@ footer small {
 /* -----------------------------
 -------------------------------- 
  
-FEATURES / GRID
- 
+LINED FEATURES / GRID
+
+— THESE HAVE A THICK LINE ON TOP
+AND THEY ARE TEXT ONLY —
+
 --------------------------------
 ----------------------------- */
 
@@ -555,6 +582,62 @@ FEATURES / GRID
     width: 1.5rem;
 }
 
+
+/* -----------------------------
+-------------------------------- 
+ 
+VISUAL FEATURES / GRID
+
+— THESE HAVE A BOX AND IMAGES IN THEM —
+
+--------------------------------
+----------------------------- */
+
+.feature-visual-grid {
+    margin: 5rem 0 1rem 0;
+    grid-auto-rows: auto;
+    grid-auto-flow: dense;
+}
+
+.feature-visual {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    background-color: #222;
+    grid-template-rows: 4rem auto;
+    color: var(--cryptee-4);
+    overflow: hidden;
+}
+
+.feature-visual p {
+    padding: 0 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-visual picture, .feature-visual img, .feature-visual source {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    aspect-ratio: 16/7;
+}
+
+.feature-visual span { display: block; }
+.feature-visual span:last-child { color: #888; }
+
+.feature-visual.lg {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.feature-visual.lg picture, 
+.feature-visual.lg img, 
+.feature-visual.lg source {
+    height: 100%;
+    aspect-ratio: initial;
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -563,7 +646,12 @@ MEDIA MENTIONS / GRID
 --------------------------------
 ----------------------------- */
 
+.media-split {
+    margin-bottom: 4rem;
+}
+
 .media-logo {
+    max-width: 100%;
     height: 2rem;
     object-fit: contain;
     object-position: left;
@@ -589,6 +677,10 @@ MEDIA MENTIONS / GRID
 .media-logos {
     display: flex;
     flex-wrap: wrap;
+    column-gap: 1rem;
+    row-gap: 1rem;
+    gap: 1rem; /* as a fallback / for some browsers in case if they don't support col gap for flexbox */
+    text-align: center;
 }
 
 .media-logos a {
@@ -1006,7 +1098,7 @@ TYPOGRAPHIC GRID DETAILS
     column-gap: 4rem;
 }
 
-.long-paragraph p, .grid-hero p {
+.long-paragraph p {
     text-align: justify;
     margin-top: -1rem;
 }
@@ -1405,6 +1497,8 @@ PRESS KIT
 
 .press-kit-image img {
     width: 100%;
+    aspect-ratio: 3/2;
+    object-fit: cover;
 }
 
 .press-kit-image p span {
@@ -1439,10 +1533,6 @@ MEDIA QUERIES
 --------------------------------
 ----------------------------- */
 
-@media (min-width : 1920px) {
-    .grid-hero { grid-template-rows: 6rem 44rem;}
-}
-
 @media (max-width : 1152px) {
     #estonia-photos { margin: 0; }
 }
@@ -1455,6 +1545,10 @@ MEDIA QUERIES
 
     .grid-third > .twothird + b {
         display: none;
+    }
+
+    #hero {
+        grid-template-rows: 4rem 4rem 22rem 10.5rem 22rem 4rem;
     }
 
     .long-paragraph {
@@ -1495,6 +1589,8 @@ MEDIA QUERIES
         grid-column: span 1; 
         margin-top: 0;
     }
+
+    .feature-visual-grid b { display: none !important; }
 
     .index-download-os { 
         grid-column-start: 1;
@@ -1544,17 +1640,15 @@ MEDIA QUERIES
     #europe-section p { max-width: 26rem; margin-top: -0.5rem; }
     .hidden-for-phablets { display: none !important; }
     
-    .grid-hero { grid-template-rows: 4rem 36rem; }
-
-    #hero h2 {
-        margin-top: 0.5rem;
-        font-size: 1.325rem;
-        line-height: 2rem;
+    #hero {
+        grid-template-columns: 2fr 4rem minmax(16rem, 1fr);
+        grid-template-rows: 4rem 4rem 16rem 10.5rem 16rem 4rem;
     }
 
-    nav + article#hero, .use-cases-body article#hero {
-        padding-top: 16rem;
+    #hero picture, #hero img, #hero source {
+        max-height: 48rem;
     }
+
 }
 
 @media (max-width : 800px) {
@@ -1583,7 +1677,7 @@ MEDIA QUERIES
         height: 4rem;
         border-bottom: 2px solid #000;
         background-color: #FFF;
-        grid-template-columns: 3rem 0.25rem 1fr 1fr 0 1fr 1fr 1rem;
+        grid-template-columns: 3rem 0.25rem 0 1fr 1fr 1fr 1fr 1rem;
     }
 
     nav p { transform: translateY(1rem) !important;}
@@ -1601,13 +1695,35 @@ MEDIA QUERIES
         padding: 1.25rem 0;
     }
 
-    nav + article#hero, 
-    .use-cases-body article#hero {
-        padding-top: 10rem;
+    #hero {
+        display: block;
+        overflow: hidden;
+    }
+    
+    #hero picture {
+        display: block;
+        width: calc(100% + 16rem);
+        aspect-ratio: 1/1;
+        max-height: 72rem;
+        object-position: center;
+        transform: translateX(-20rem);
+        margin: 8rem 4rem 0 0;
+    }
+
+    #hero img, #hero source { 
+        max-height: 72rem;
+    }
+
+    #hero h2 {
+        margin-top: 4rem;
+        text-align: center;
+    }
+
+    #hero h2 br:last-child {
+        display: none;
     }
 
     nav + article { padding-top: 8rem; }
-
 
     #quick-exit {
         width: 100% !important;
@@ -1623,19 +1739,6 @@ MEDIA QUERIES
         float: left !important;
     }
 
-    .grid-hero { 
-        grid-column: 1/-1;
-        grid-template-rows: 6rem 36rem;
-    }
-
-    #quick-exit ~ article .grid-hero {
-        padding-top: 2rem;
-    }
-
-    .grid-hero h2 {
-        text-align: center;
-        padding: 0 2rem;
-    }
 
     .hero-product {
         text-align: center;
@@ -1668,10 +1771,18 @@ MEDIA QUERIES
         margin-top: 0;
     }
 
-    .grid-hero {
-        grid-template-columns: 0 1fr 0;
+    .feature-visual-grid { gap: 1rem !important; }
+    .feature-visual-grid h2 { 
+        grid-column: span 2 !important; 
+        text-align: center !important;
+        margin-bottom: 3rem !important;
     }
-    
+
+    .feature-visual-grid h2 + p {
+        grid-column: span 2 !important;
+        margin-bottom: 3rem !important;
+    }
+
     .media-split { grid-template-columns: 1fr; row-gap: 2rem; }
     .media-split .right { text-align: center; }
     .media-split h2 { margin-bottom: 2rem; text-align: center;}
@@ -1755,13 +1866,15 @@ MEDIA QUERIES
 
 @media (max-width : 544px) {
     
-    nav + article#hero, 
-    .use-cases-body article#hero {
-        padding-top: 10rem !important;
-    }
-
-    #quick-exit ~ article .grid-hero {
-        padding-top: 3rem;
+    #hero picture {
+        display: block;
+        grid-column: 1/-1;
+        grid-row: 3/6;
+        width: calc(100% + 18rem);
+        max-height: 72rem;
+        object-position: center;
+        transform: translateX(-20rem);
+        margin: 6rem 4rem 0 0;
     }
 
     .grid-half { 
@@ -1775,6 +1888,17 @@ MEDIA QUERIES
 
     .hero-img-carousel img {
         border-radius: 0 !important;
+    }
+
+    .feature-visual-grid { 
+        grid-template-columns: 1fr;
+        gap: 1rem !important; 
+    }
+
+    .feature-visual.lg,
+    .feature-visual-grid h2,
+    .feature-visual-grid h2 + p {
+        grid-column: span 1 !important;
     }
 
     img.hero {
@@ -1850,14 +1974,11 @@ MEDIA QUERIES
 }
 
 @media (max-width : 535px) {
-    nav + article#hero, 
-    .use-cases-body article#hero {
-        padding-top: 8rem !important;
-    }
-
     .grid-footer {
         grid-template-columns: 1fr;
     }
+
+
 }
 
 @media (max-width : 420px) {

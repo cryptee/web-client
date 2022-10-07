@@ -983,7 +983,10 @@ quill.on('text-change', function (delta, oldDelta, source) {
 quill.on('selection-change', function (range, oldRange, source) {
     if (!range) {
         // CURSOR LEFT EDITOR
-        hideTableContextualButton();
+        
+        // try catch, because when we're starting up, we're lazy loading editor and its features, and this doesn't exist yet.
+        try { hideTableContextualButton(); } catch (error) {}
+
         hideTableContextualDropdown();
     } else {
         lastSelectionRange = range;

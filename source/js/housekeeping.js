@@ -11,7 +11,8 @@ if (location.origin.includes("localhost"))          { env = "local";   }
 
 try {
     var sentryConfig = {
-        dsn: 'https://bbfa9a3a54234070bc0899a821e613b8@sentry.crypt.ee/149319',
+        dsn: "https://bbfa9a3a54234070bc0899a821e613b8@o69744.ingest.sentry.io/149319",
+        tunnel : "/api/errors",
         tracesSampleRate: 1.0,
         maxBreadcrumbs: 500,
         environment: "v3-" + env,

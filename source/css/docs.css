@@ -93,26 +93,27 @@ body.starting .swiper-container {
     pointer-events: none !important;
 }
 
+/* starting circle */
 body::after {
+    content: "";
     position: absolute;
     top: 1rem;
     left: 1rem;
     height: 2rem;
     width: 2rem;
-    background-color: #000;
     margin: auto;
     z-index: 998;
     border-radius: 2rem;
+    background-color: rgba(255,255,255,0);
+    transition: 1s background-color ease;
     animation: blinkOpacity 0.75s infinite ease forwards;
     animation-play-state: paused;
     pointer-events: none !important;
 }
 
-/* starting circle */
-body::after { background-color: white; }
-
 body.starting::after {
     content: "";
+    background-color: rgba(255,255,255,1);
     animation-play-state: running;
 }
 
@@ -430,6 +431,19 @@ LEFT MENU
     font-style: normal;
     color: #FFF;
 }
+
+/* kill animations if modal isn't visible */
+
+.swiper-slide:not(.activeSlide) #selectionsFloat #selections-size:empty::before,
+#selectionsFloat:not(.show) #selections-size:empty::before {
+    animation-play-state: paused;
+}
+
+.swiper-slide.activeSlide #selectionsFloat.show #selections-size:empty::before,
+#selectionsFloat.show #selections-size:empty::before {
+    animation-play-state: running;
+}
+
 
 /* SEARCH */
 
@@ -1499,26 +1513,28 @@ DROPDOWNS
 
 .dropdown .filesize {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background-color: #484848;
+    top: 0;
+    right: 0;
+    background: linear-gradient(90deg, rgba(54,54,54,0) 0%, #484848 100%);
+
     width: 5rem;
-    height: 1.5rem;
+    height: 2.75rem;
+    line-height: 3rem;
+
     margin-top: 0;
-    border-radius: 1.5rem;
     opacity: 1;
 
     pointer-events: none;
     z-index: 2;
 
-    transition-property: width, opacity;
+    transition-property: opacity;
     transition-duration: 2s;
     transition-timing-function: var(--cryptee-cb);
 }
 
 .dropdown .filesize:not([size]),
 .dropdown .filesize[size=""] {
-    width: 1.5rem;
+    /* width: 1.5rem; */
     opacity: 0;
 }
 

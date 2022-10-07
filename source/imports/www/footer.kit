@@ -78,10 +78,6 @@
             </p>
 
             <p>
-                <a href="/help">feedback &amp; bug report</a>
-            </p>
-
-            <p>
                 <a href="/faq">frequently asked questions</a>
             </p>
         </div>
@@ -121,7 +117,6 @@
     
     // a super basic lazy loader
     window.addEventListener('load', function(){
-        
         [].forEach.call(document.querySelectorAll('img[lazysrc]'), function(img) {
             img.setAttribute('src', img.getAttribute('lazysrc'));
             img.onload = function() { img.removeAttribute('lazysrc'); };

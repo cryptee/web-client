@@ -6,6 +6,25 @@
 
 var canUseWorkers = false;
 
+/**
+ * This is used to track the state of the outdated/old service worker which will be replaced once the new one kicks in. 
+ * For now only used during updater, if you use this after the updater, it will be for the new/current service worker.
+ * It can be : 
+ * 
+ * "parsed" = The initial state of a service worker after it is downloaded and confirmed to be runnable. A service worker is never updated to this state, only started up at this state.
+ * 
+ * "installing" = The service worker in this state is considered an installing worker.
+ * 
+ * "installed" = The service worker in this state is considered a waiting worker. 
+ * 
+ * "activating" = The service worker in this state is considered an active worker.
+ * 
+ * "activated" = The service worker in this state is considered an active worker ready to handle functional events.
+ * 
+ * "redundant" = A new service worker is replacing the current service worker, or the current service worker is being discarded due to an install failure.
+ */
+var serviceWorkerState = "parsed";
+
 if ('serviceWorker' in navigator) {
     canUseWorkers = true;
     window.addEventListener('load', function () { registerServiceWorker(); });
@@ -45,8 +64,9 @@ async function removeServiceWorker() {
  */
 async function registerServiceWorker() {
     
+    let registration;
     try {
-        await navigator.serviceWorker.register('../service-worker.js');
+        registration = await navigator.serviceWorker.register('../service-worker.js');
     } catch (e) {
         if (location.origin.includes("crypt.ee")) {
             
@@ -64,6 +84,22 @@ async function registerServiceWorker() {
         breadcrumb('[WORKER] Registered');
         setSentryTag("worker", "yes");
     } catch (e2) {}
+
+    let sw;
+
+    try {
+
+        sw = registration.installing || registration.waiting || registration.active;
+        
+        if (sw) {
+            serviceWorkerState = sw.state;
+            sw.addEventListener('statechange', (e) => { 
+                serviceWorkerState = e.target.state; 
+                breadcrumb('[WORKER STATE] ' + serviceWorkerState);
+            });
+        }
+
+    } catch (e3) {}
 
     return true;
  

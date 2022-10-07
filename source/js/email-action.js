@@ -1,4 +1,3 @@
-var auth = firebase.auth();
 var mode, actionCode;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -43,7 +42,7 @@ async function handleVerifyEmail() {
     $("#verify").show();
 
     try {
-        await auth.applyActionCode(actionCode);
+        await firebase.applyActionCode(firebase.getAuth(), actionCode);
     } catch (error) {
         handleError("[EMAIL ACTION] Invalid / Expired action code.", error, "warning");
         createPopup("For your own safety, these links have an expiry time.<br><br> Looks like this email verification link has expired or is invalid.<br><br> Please try verifying your email again.", "error");
@@ -75,7 +74,7 @@ async function handleResetPassword() {
     
     // Verify the password reset code is valid.
     try {
-        accountEmail = await auth.verifyPasswordResetCode(actionCode);
+        accountEmail = await firebase.verifyPasswordResetCode(firebase.getAuth(), actionCode);
     } catch (error) {
         handleError("[EMAIL ACTION] Invalid / Expired action code.", error, "warning");
         createPopup("For your own safety, password reset links have an expiry time.<br><br> Looks like this password reset link has expired or is invalid.<br><br> Please try resetting your password again.", "error");
@@ -104,7 +103,7 @@ async function handleRecoverEmail() {
     var restorationInfo;
 
     try {
-        restorationInfo = await auth.checkActionCode(actionCode);
+        restorationInfo = await firebase.checkActionCode(firebase.getAuth(), actionCode);
     } catch (error) {
         handleError("[EMAIL ACTION] Invalid / Expired action code.", error, "warning");
         createPopup("For your own safety, these links have an expiry time.<br><br> Looks like this link has expired or is no longer valid.", "error");
@@ -116,7 +115,7 @@ async function handleRecoverEmail() {
     restoredEmail = restorationInfo.data.email;
 
     try {
-        await auth.applyActionCode(actionCode);
+        await firebase.applyActionCode(firebase.getAuth(), actionCode);
     } catch (error) {
         handleError("[EMAIL ACTION] Invalid / Expired action code.", error, "warning");
         createPopup("For your own safety, these links have an expiry time.<br><br> Looks like this link has expired or is no longer valid.", "error");
@@ -142,7 +141,7 @@ async function sendPasswordResetEmail() {
     if (!restoredEmail) { return false; }
 
     try {
-        await auth.sendPasswordResetEmail(restoredEmail);    
+        await firebase.sendPasswordResetEmail(firebase.getAuth(), restoredEmail);    
     } catch (error) {
         handleError("[EMAIL ACTION] Failed to send password reset email", error, "warning");
         createPopup("We weren't able to send you a password reset email. Chances are this is a connectivity issue. We recommend logging into your account and changing your password right away.", "error");
@@ -266,7 +265,7 @@ async function resetPassword() {
     $("#reset-password-button").addClass("loading");
 
     try {
-        await auth.confirmPasswordReset(actionCode, newPassword);
+        await firebase.confirmPasswordReset(firebase.getAuth(), actionCode, newPassword);
     } catch (error) {
         createPopup("For your own safety, password reset links have an expiry time.<br><br> Looks like either this password reset link has expired or the password you've chosen is too weak.<br><br> Please try resetting your password again.", "error");
         $("#reset-password-button").remove();

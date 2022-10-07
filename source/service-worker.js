@@ -27,7 +27,6 @@ var live = (location.origin === "https://crypt.ee");
 
 
 
-
 // HERE'S A LIST OF FILES THAT WON'T BE CACHED, AND WILL ALWAYS BE REQUESTED FROM NETWORK
 var excludedPaths = [
     // paths
@@ -57,6 +56,11 @@ var cacheableHostnames = [
 ];
 
 
+
+
+
+
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 //	INSTALLATION
@@ -65,7 +69,7 @@ var cacheableHostnames = [
 
 async function installWorker(){
     
-    console.log('[WORKER] Installing');
+    console.log('[WORKER] Installing update', cacheName);
 
     var cache = await openCache();
     if (!cache) {
@@ -84,7 +88,7 @@ async function installWorker(){
         console.error("[WORKER] Failed to cache file(s)", e);
     })));
 
-    console.log('[WORKER] Installed');
+    console.log('[WORKER] Installed update', cacheName);
 
     return self.skipWaiting();
 
@@ -270,9 +274,6 @@ async function openCache() {
 
 self.addEventListener('fetch', (event) => { 
 
-    // USE THIS IF YOU NEED TO ROUTE SENTRY VIA /API, THE REST OF THE MAGIC RECIPE IS IN THE SERVER CENSORSHIP CIRCUMVENTION PROXIES FILE
-    // if (event.request.url.includes("https://sentry.crypt.ee")) { event.respondWith( handleSentry(event) ); }
-
     // bypass for post requests. 
     // XHR requests can check progress, but fetch can't. 
     // so if you 'fetch' POST requests using the service worker, you can't keep track of the upload progress in axios.
@@ -283,7 +284,8 @@ self.addEventListener('fetch', (event) => {
     if (isCacheBypassRequired(event)) { return; }
     
     // finally, use the worker / cache to serve
-    event.respondWith( handleFetch(event) ); 
+    event.respondWith( handleFetch(event) );
+
 });
 
 
@@ -296,7 +298,7 @@ self.addEventListener('fetch', (event) => {
 
 async function activateWorker() {
     
-    console.log('[WORKER] Activating');
+    console.log('[WORKER] Activating', cacheName);
 
     var keyList = await caches.keys();
     await Promise.all(keyList.map(function (key) { 
@@ -305,7 +307,7 @@ async function activateWorker() {
         }
     }));
     
-    console.log('[WORKER] Activated');
+    console.log('[WORKER] Activated', cacheName);
 
     return true;
 

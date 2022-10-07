@@ -781,6 +781,16 @@ POP-UPS / MESSAGES / ETC
     display: inline-block;
 }
 
+/* kill animations if popup isn't visible */
+
+.popup:not(.show) progress:indeterminate {
+    animation-play-state: paused;
+}
+
+.popup.show progress:indeterminate {
+    animation-play-state: running;
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1253,6 +1263,16 @@ MODALS
 .modal.hidden { display: none !important; }
 
 
+/* kill animations if modal isn't visible */
+
+.popup.hidden progress:indeterminate {
+    animation-play-state: paused;
+}
+
+.popup:not(.hidden) progress:indeterminate {
+    animation-play-state: running;
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1467,16 +1487,12 @@ UPDATE AVAILABLE
     animation: blinkEntirely 0.5s linear infinite;
 }
 
-
-
-
-#update-available p {
-    opacity: 1;
-    transition: 0.5s opacity var(--cryptee-cb);
+#update-available p::before {
+    content: "click here to reload & launch the new version of cryptee";
 }
 
-#update-available.loading p {
-    opacity: 0;
+#update-available.loading p::before {
+    content: ""; /* we'll instead set the progress in js now */
 }
 
 

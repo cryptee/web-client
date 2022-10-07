@@ -42,7 +42,7 @@ if (userEmail) {
     $("#billing-email").addClass("already-have"); 
     
     // hide its error messages
-    $("#billing-email").next().addClass("already-have");
+    $("#billing-email").next().html("");
 }
 
 // set current plan
@@ -78,13 +78,32 @@ $('#period').on('click', 'button', function (event) {
     $(this).addClass("active");
     var period = $(this).attr("period");
     $('#period').attr("period", period);
+
+    $("#period-toggle")[0].checked = (period === "mo");
 });
 
+$("#period-toggle").on('click', function(event) {
+    
+    var isMonthly = $("#period-toggle")[0].checked;
 
-$('#period').on('click', 'small', function (event) {
-    $('#period > button[period="yr"]').trigger("click");
-});
+    var period = "";
+    if (isMonthly) {
+        period = "mo";
+    } else {
+        period = "yr";
+    }
+    
+    $('#period > button').removeClass("active");
+    $("#period > button[period='"+period+"']").addClass("active");
+    $('#period').attr("period", period);
+}); 
 
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	PLAN SELECTION
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
 $('.plan').on('click', "button", function (event) {
     var plan = $(this).parents(".plan").attr("plan");
@@ -102,7 +121,7 @@ $('.plan').on('click', "button", function (event) {
 function chosenPlan(plan, period, price) {
     $("#billing").attr({ "plan": plan, "period": period, "price": price });
 
-    $("#chosenstorage").html(plan.replace("GB", ""));
+    $("#chosenstorage > .storage").html(plan.replace("GB", ""));
     $("#chosenbilling").attr("price", price);
     $("#chosenbilling").attr("period", period);
 
@@ -149,7 +168,7 @@ async function applyPromoCode(couponCode, percentOff) {
         breadcrumb('[PROMO CODE] Applied Promo Code: ' + couponCode + ' [' + percentOff + "% OFF]");
         usingPromoCode = couponCode;
         usingPercentOff = percentOff;
-        $("#discount-tag").text('"' + couponCode + '" (' + percentOff + "% OFF)");
+        $("#discount-tag").text('–' + percentOff + "%");
         $("body").attr("discount", percentOff);
     } else {
         breadcrumb('[PROMO CODE] No promo code provided / invalid promo code provided, wont apply promo code');
@@ -172,42 +191,96 @@ function removePromoCode() {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-function validateBillingInfo(checkout) {
-    checkout = checkout || false;
+function validateBillingInfo() {
     
-    var email = $("#billing-email").val().trim();
-    var name = $("#billing-name").val().trim();
-    var zip = $("#billing-zip").val().trim();
+    var name    = $("#billing-name").val().trim();
+    var email   = $("#billing-email").val().trim();
+    var country = $("#countries").val().trim();
+    var zip     = $("#billing-zip").val().trim();
 
-    if ((checkout && !email) || (!checkout && email && !isEmail(email))) {
-        $('#billing-email').trigger("focus");
-        $('#billing-email').addClass("error");
+    var billingInfoComplete = true;
+    
+    if (!stripeValidation.num || !stripeValidation.exp || !stripeValidation.cvc) {
+        $("#checkout-button").attr("disabled", true);
+        billingInfoComplete = false;
+        return false;
+    }    
+
+    if (!name) {
+        if ($('#billing-name').hasClass("focused")) {
+            $('#billing-name').addClass("error");
+        }
+
+        billingInfoComplete = false;
+        $("#checkout-button").attr("disabled", true);
+        return false;
+    } else {
+        $('#billing-name').removeClass("error");
+    }
+
+    if (!country || country === "XX") {
+        $('#countries').addClass("error");
+        billingInfoComplete = false;
+        $("#checkout-button").attr("disabled", true);
+        return false;
+    } else {
+        $('#countries').removeClass("error");
+    }
+    
+    if (!zip) {
+        if ($('#billing-zip').hasClass("focused")) {
+            $('#billing-zip').addClass("error");
+        }
+        billingInfoComplete = false;
+        $("#checkout-button").attr("disabled", true);
+        return false;
+    } else {
+        $('#billing-zip').removeClass("error");
+    }
+
+    if ((!email) || (email && !isEmail(email))) {
+        if ($('#billing-email').hasClass("focused")) {
+            $('#billing-email').addClass("error");
+        }
+        billingInfoComplete = false;
+        $("#checkout-button").attr("disabled", true);
         return false;
     } else {
         $('#billing-email').removeClass("error");
     }
     
-    if (checkout && !zip) {
-        $('#billing-zip').trigger("focus");
-        $('#billing-zip').addClass("error");
-        return false;
+    if (billingInfoComplete) {
+        $("#checkout-button").removeAttr("disabled");
+        return true;
     } else {
-        $('#billing-zip').removeClass("error");
+        $("#checkout-button").attr("disabled", true);
+        return false;
     }
-    
-    if (checkout && !name) {
-        $('#billing-name').trigger("focus");
-        $('#billing-name').addClass("error");
-        return false;
-    } else {
-        $('#billing-name').removeClass("error");
-    }  
 
-    return true;
 }
 
-$(".validate").on('change', validateBillingInfo);
+$("#countries").on('change', function (event) {
+    setTimeout(validateBillingInfo, 20);
+});
 
+$("#billing-name").on('keydown keypress paste copy cut change', function (event) {
+    setTimeout(validateBillingInfo, 20);
+}); 
+
+$("#billing-email").on('keydown keypress paste copy cut change', function (event) {
+    setTimeout(validateBillingInfo, 20);
+}); 
+
+$("#billing-zip").on('keydown keypress paste copy cut change', function (event) {
+    setTimeout(validateBillingInfo, 20);
+}); 
+
+$("#billing-name, #billing-email, #billing-zip").on('focus', function(event) {
+    let input = $(this);
+    setTimeout(function () {
+        input.addClass("focused");
+    }, 30);
+}); 
 
 
 
@@ -313,7 +386,9 @@ var elementStyles = {
         fontSize: '16px',
         textTransform: 'lowercase',
         fontSmoothing: 'antialiased',
-
+        textAlign: 'center',
+        height: '48px',
+        lineHeight: '50px',
         ':focus': { color: '#000' },
         '::placeholder': { color: placeholderColor },
         ':focus::placeholder': { color: placeholderColor },
@@ -344,7 +419,7 @@ cardNumber.on('change', function(event) {
     } else {
         stripeValidation.num = true;
     }
-    validateStripe();
+    validateBillingInfo();
 });
 
 cardExpiry.on('change', function(event) {
@@ -353,7 +428,7 @@ cardExpiry.on('change', function(event) {
     } else {
         stripeValidation.exp = true;
     }
-    validateStripe();
+    validateBillingInfo();
 });
 
 cardCvc.on('change', function(event) {
@@ -362,23 +437,8 @@ cardCvc.on('change', function(event) {
     } else {
         stripeValidation.cvc = true;
     }
-    validateStripe();
+    validateBillingInfo();
 });
-
-$("#billing-name").on('keydown keypress paste copy cut change', function(event) {
-    setTimeout(function () {
-        validateStripe();
-    }, 50);
-}); 
-
-function validateStripe() {
-    var billingNameForValidation = $("#billing-name").val().trim();
-    if (stripeValidation.num && stripeValidation.exp && stripeValidation.cvc && billingNameForValidation) {
-        $("#checkout-button").removeAttr("disabled");
-    } else {
-        $("#checkout-button").attr("disabled", true);
-    }
-}
 
 async function createPaymentMethod(billingDetails) {
     
@@ -421,7 +481,7 @@ var paymentIntentSecret;
 async function upgrade() {
     
     // VALIDATE THE FORM / AND DON'T CONTINUE IF IT'S NOT READY YET
-    var formValidated = validateBillingInfo(true); // true for checkout
+    var formValidated = validateBillingInfo(); // true for checkout
     if (!formValidated) { return false; }
 
     // CHECK IF WE'RE STILL VALIDATING THE VAT – AND ABORT IF WE ARE.

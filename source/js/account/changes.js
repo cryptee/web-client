@@ -23,54 +23,43 @@ async function reAuthUser(currentPass) {
     var credential;
     
     if (loginMethod === "password") {
-        credential = firebase.auth.EmailAuthProvider.credential(theUser.email, currentPass);
+
+        credential = firebase.EmailAuthProvider.credential(theUser.email, currentPass);
+
+        reauthenticated = true;
+
+        try {
+            await firebase.reauthenticateWithCredential(theUser, credential);
+        } catch (error) {
+            createPopup("Looks like you made a mistake with your current password, or we're having a connectivity issue. Please double check the current password you've typed, make sure your internet connection is stable, and try again.", "error");
+        }
+
     }
 
     if (loginMethod === "google.com") {
 
-        var provider = new firebase.auth.GoogleAuthProvider();
-        
-        var result;   
+        if (isInstalled) {
+            createPopup("For your own security, as a google-login user, you can only delete your account by first logging in to Cryptee using a browser (instead of this Progressive Web App [PWA]) so that someone who may have gained access to this device cannot delete your account easily.", "error");
+            return false;
+        }
         
         try {
-            if (isInstalled) {
-                createPopup("For your own security, as a google-login user, you can only delete your account by first logging in to Cryptee using a browser (instead of this Progressive Web App [PWA]) so that someone who may have gained access to this device cannot delete your account easily.", "error");
-                return false;
+            
+            var provider = new firebase.GoogleAuthProvider();
+            
+            if (isInWebAppiOS) {
+                await firebase.reauthenticateWithRedirect(theUser, provider);
             } else {
-                result = await firebase.auth().signInWithPopup(provider);
+                await firebase.reauthenticateWithPopup(theUser, provider);
             }
+            
         } catch (error) {
             createPopup("Looks like Cryptee's having difficulty connecting to google to verify your identity. Chances are this is a network / connectivity issue. Please make sure your browser or ad-blocker is not configured to block connections to google and try again.", "error");
             return false;
         }
-        
-        if (!result) {
-            createPopup("Looks like Cryptee's having difficulty connecting to google to verify your identity. Chances are this is a network / connectivity issue. Please make sure your browser or ad-blocker is not configured to block connections to google and try again.", "error");
-            return false;
-        }
-
-        if (!result.credential) {
-            createPopup("Looks like Cryptee's having difficulty connecting to google to verify your identity. Chances are this is a network / connectivity issue. Please make sure your browser or ad-blocker is not configured to block connections to google and try again.", "error");
-            return false;
-        }
-
-        if (!result.credential.accessToken) {
-            createPopup("Looks like Cryptee's having difficulty connecting to google to verify your identity. Chances are this is a network / connectivity issue. Please make sure your browser or ad-blocker is not configured to block connections to google and try again.", "error");
-            return false;
-        }
-
-        var token  = result.credential.accessToken;
-        credential = firebase.auth.GoogleAuthProvider.credential(null, token);
 
     }
 
-    reauthenticated = true;
-        
-    try {
-        await theUser.reauthenticateWithCredential(credential);
-    } catch (error) {
-        createPopup("Looks like you made a mistake with your current password, or we're having a connectivity issue. Please double check the current password you've typed, make sure your internet connection is stable, and try again.", "error");
-    }
 
     return true;
 
@@ -111,7 +100,7 @@ async function changeEmail() {
     }
     
     try {
-        await theUser.updateEmail(newEmail);
+        await firebase.updateEmail(theUser,newEmail);
     } catch (error) {
         if (error.code === "auth/email-already-in-use") {
             createPopup("Looks like this email address is already in use on Cryptee. Please double check you've typed the correct email address, or try another email address.", "error");
@@ -123,7 +112,7 @@ async function changeEmail() {
         return false;
     }
 
-    await theUser.sendEmailVerification(); 
+    await firebase.sendEmailVerification(theUser);
     
     createPopup("Email successfully set! Please check your email inbox (and spam folder just in case) for a verification mail.<br><br>From now on you will need to use your new email address <strong> ( " + newEmail + " ) </strong> to log in to Cryptee. ", "success");
     $("#change-email-button").removeClass("loading");
@@ -141,7 +130,7 @@ var reSentEmail = false;
 async function resendVerifyEmailLink() {
     hidePopup("popup-reverify");
     reSentEmail = true; 
-    await theUser.sendEmailVerification();
+    await firebase.sendEmailVerification(theUser);
     createPopup("Verification email sent! Please check your email (and spam folder just in case)", "success");
     $("#verify-email-warning").html("check your inbox for a verification email");
 }
@@ -272,7 +261,7 @@ async function changePassword() {
     }
 
     try {
-        theUser.updatePassword(newPassword);
+        firebase.updatePassword(theUser, newPassword);
     } catch (error) {
         createPopup("Looks we're having a connectivity issue, and couldn't change / update your password. Please make sure your internet connection is stable, your browser or ad-blocker is not configured to block any connections from Cryptee and try again.", "error");
         console.error(error);

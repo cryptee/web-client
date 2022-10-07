@@ -9,6 +9,7 @@ var lightbox;
 var lbox;
 
 $(document).on('ready', function () {
+
     lightbox = new Swiper('#lightbox-swipe-container', {
         // Optional parameters
         virtual: true,
@@ -31,6 +32,9 @@ $(document).on('ready', function () {
     lbox = lightbox.virtual;
 
     lightbox.on("zoomChange", lightboxZoomChanged);
+
+    determineBrowserEXIFOrientationTreatment();
+    
 });
 
 

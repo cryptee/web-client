@@ -138,7 +138,7 @@ function checkLoginForm() {
 function loginWithPassword(email, pswrd) {
     startProgress();
 
-    firebase.auth().signInWithEmailAndPassword(email, pswrd).catch(function (error) {
+    firebase.signInWithEmailAndPassword(firebase.getAuth(), email, pswrd).catch(function (error) {
         var errorCode = error.code;
         if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-email') {
             showPopup(
@@ -189,14 +189,14 @@ $("#g").on('click', loginWithGoogle);
 
 async function loginWithGoogle() {
     startProgress();
-    var provider = new firebase.auth.GoogleAuthProvider();
+    var provider = new firebase.GoogleAuthProvider();
     provider.addScope('email');
     
     try {
         if (isInWebAppiOS) {
-            await firebase.auth().signInWithRedirect(provider);
+            await firebase.signInWithRedirect(firebase.getAuth(), provider);
         } else {
-            await firebase.auth().signInWithPopup(provider);
+            await firebase.signInWithPopup(firebase.getAuth(), provider);
         }
     } catch (error) {
         if (error.code === "auth/web-storage-unsupported") {

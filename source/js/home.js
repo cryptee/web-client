@@ -145,11 +145,11 @@ async function getLatestNews(forceShowNewsCard) {
     
     var newsID      = latestNews.id;
     var newsURL     = DOMPurify.sanitize(latestNews.url, { ALLOWED_TAGS: [] });
-    var newsTitle   = DOMPurify.sanitize(latestNews.title, { ALLOWED_TAGS: [] });
-    // var newsExcerpt = DOMPurify.sanitize(latestNews.excerpt, { ALLOWED_TAGS: [] });
+    // var newsTitle   = DOMPurify.sanitize(latestNews.title, { ALLOWED_TAGS: [] });
+    var newsExcerpt = DOMPurify.sanitize(latestNews.excerpt, { ALLOWED_TAGS: [] });
     
     $(".newsButton").attr("hash", newsID); 
-    $("#news-card").find("p").text(newsTitle);
+    $("#news-card").find("p").text(newsExcerpt);
     $("#news-card").find("a.more").attr("href", newsURL + "#to-cryptee");
     
     if (lastReadNews !== newsID || forceShowNewsCard) { showLatestNewsCard(); }
@@ -209,7 +209,7 @@ key('d', function () {
     // update first if necessary
     if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
 
-    $(".appButton[app='docs'] > a").trigger("click");
+    $(".appButton[app='docs']").trigger("click");
     return false;
 });
 
@@ -217,7 +217,36 @@ key('p', function () {
     // update first if necessary
     if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
 
-    $(".appButton[app='photos'] > a").trigger("click");
+    $(".appButton[app='photos']").trigger("click");
+    return false;
+});
+
+key('u', function () {
+    // update first if necessary
+    if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
+
+    $(".appButton[app='upgrade']").trigger("click");
+    return false;
+});
+
+key('s', function () {
+    // update first if necessary
+    if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
+
+    $("#accountButton > a").trigger("click");
+    return false;
+});
+
+key('n', function () {
+    // update first if necessary
+    if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
+
+    $("#topNewsButton").trigger("click");
+    return false;
+});
+
+key('esc', function () {
+    $("#news-card > div > .close").trigger("click");
     return false;
 });
 

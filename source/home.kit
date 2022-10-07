@@ -12,62 +12,50 @@
 
     <img id="logo" src="../assets/logo-b.svg" alt="CRYPTEE" draggable="false" class="rememberKey">
     
+    <p id="displayName">
+        <span>welcome home,</span>
+        <span class="username"></span>
+    </p>
+
     <main>
 
-        <p class="appButton" app="docs">
-            <a class="plain rememberKey" href="/docs">
-                <img src="../assets/square.svg" alt="docs" draggable="false">
-                <span>documents</span>
-            </a>
-        </p>
-    
-        <p class="appButton" app="photos">
-            <a class="plain rememberKey" href="/photos">
-                <img src="../assets/circle.svg" alt="photos" draggable="false">
-                <span>photos</span>
-                <span class="callout" which="home-video" date="July 30, 2022" until="Jan 15, 2023">& videos</span>
-            </a>
-        </p>
+        <a class="appButton plain rememberKey" href="/docs" app="docs">
+            <img src="../assets/square.svg" alt="docs" draggable="false">
+            <span>DOCS</span>
+        </a>
 
-        <p class="appButton" app="install" style="display:none;" onclick="showTip('tips-install-pwa');">
-            <a class="plain clickable">
-                <img src="../assets/cross.svg" alt="install" draggable="false">
-                <span>install app</span>
-            </a>
-        </p>
+        <a class="appButton plain rememberKey" href="/photos" app="photos">
+            <img src="../assets/circle.svg" alt="photos" draggable="false">
+            <span>PHOTOS</span>
+            <!-- <span class="callout" which="home-video" date="July 30, 2022" until="Jan 15, 2023">& videos</span> -->
+        </a>
 
-        <p class="appButton green" app="upgrade" style="display:none;">
-            <a class="plain" href="/plans">
-                <img src="../assets/triangle.svg" alt="upgrade" draggable="false">
-                <span>upgrade</span>
-            </a>
-        </p>
+        <a class="appButton plain clickable" app="install" style="display:none;" onclick="showTip('tips-install-pwa');">
+            <img src="../assets/cross.svg" alt="install" draggable="false">
+            <span>INSTALL APP</span>
+        </a>
 
-        <b></b>
-
-        <p id="welcome">
-            welcome home<br>
-            <span id="displayName" class="username"></span>
-        </p>
+        <a class="appButton plain" href="/plans" app="upgrade" style="display:none;">
+            <img src="../assets/triangle.svg" alt="upgrade" draggable="false">
+            <span>UPGRADE</span>
+        </a>
 
     </main>
 
     <nav>
-        <p class="menuButton newsButton" id="topNewsButton" onclick="showLatestNewsCard();">news</p>
-
         <p class="menuButton" id="accountButton">
             <a class="plain" href="/account" title="account / settings">settings</a>
         </p>
+        
+        <p class="menuButton newsButton" id="topNewsButton" onclick="showLatestNewsCard();">news</p>
     
         <p class="menuButton" id="helpButton">
             <a class="plain" href="/help" title="get help">help</a>
         </p>
-    
+
         <button class="menuButton" id="logoutButton" onclick="logOut();">log out</button>
     </nav>
     
-    <p id="bottomNewsButton" class="newsButton" onclick="showLatestNewsCard();">news</p>
-
     <a id="offerButton" class="offerButton" href="/plans"></a>
 
     <aside id="news-card">

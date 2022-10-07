@@ -764,6 +764,41 @@ body.highlight-deletions .media.selected i::before {
     opacity: 0 !important;
 }
 
+.media.video::after {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    z-index: 2;
+
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 2.5rem;
+    line-height: 2.5rem;
+
+    font-size: 1.5rem;
+    text-align: center;
+
+    transform: scale(0.9);
+    transition: 0.15s opacity linear, 0.3s transform var(--cryptee-cb);
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    opacity: 0.5;
+    color: var(--cryptee-0);
+
+    content: "\F00A";
+
+    background-color: #FFF;
+}
+
+.media.video.selected::after {
+    transform: scale(0.9) !important;
+    opacity: 0.5 !important;
+}
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1012,10 +1047,19 @@ SEARCH
 }
 
 .searchheader .title {
-    color: var(--cryptee-3);
-    padding-bottom: 1rem;
+    color: var(--cryptee-1);
+    padding: 1.25rem 0 1rem 0;
     width: 100%;
     text-transform: uppercase;
+
+    border-top: 2px solid var(--cryptee-3);
+    border-bottom: 2px solid var(--cryptee-3);
+}
+
+.dm .searchheader .title {
+    color: var(--cryptee-4);
+    border-top: 2px solid var(--cryptee-1);
+    border-bottom: 2px solid var(--cryptee-1);
 }
 
 #searchContents .album::before {
@@ -1668,6 +1712,11 @@ ENABLE HOVERS
     }
 
     #lightbox-player-progress b:hover { transform: scale(1.2); background-color: var(--cryptee-3); }
+
+    .media.video:hover::after {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @media (-moz-touch-enabled : 1), (pointer:coarse) {
@@ -1806,6 +1855,12 @@ MEDIA QUERIES
         padding-top: 1rem;
         min-width: calc(100% - 2rem);
         width: calc(100% - 2rem);
+    }
+
+    .searchheader .title {
+        text-align: center;
+        border: none;
+        padding: 0 0 1rem 0;
     }
 
     #searchContents::after {

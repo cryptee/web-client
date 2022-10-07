@@ -1122,7 +1122,7 @@ async function displaySearchResults(sr) {
     if (sr.type === "tags") {
 
         if (sr.results.length > 0) {
-            resultsHTML.push(renderSearchHeader(`PHOTOS TAGGED WITH: ${sr.understood}`));
+            resultsHTML.push(renderSearchHeader(`PHOTOS/VIDEOS TAGGED WITH: ${sr.understood}`));
         }
 
         if (sr.results.length <= 100) {
@@ -1142,7 +1142,7 @@ async function displaySearchResults(sr) {
             });
     
             Object.keys(resultAlbums).forEach(aid => {
-                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS"));
+                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS/VIDEOS"));
             });
 
         }
@@ -1152,7 +1152,7 @@ async function displaySearchResults(sr) {
     if (sr.type === "name") {
 
         if (sr.results.length > 0) {
-            resultsHTML.push(renderSearchHeader(`ALBUMS MATCHING "${sr.understood}"`));
+            resultsHTML.push(renderSearchHeader(`ALBUMS MATCHING "${(sr.understood || "").replace("#", "")}"`));
         }
 
         sr.results.forEach(result => {
@@ -1166,7 +1166,7 @@ async function displaySearchResults(sr) {
     if (sr.type === "date") {
 
         if (sr.results.length > 0) {
-            resultsHTML.push(renderSearchHeader(`PHOTOS FROM ${sr.understood}`));
+            resultsHTML.push(renderSearchHeader(`PHOTOS/VIDEOS FROM ${sr.understood}`));
         }
 
         sr.results.forEach(result => {
@@ -1180,7 +1180,7 @@ async function displaySearchResults(sr) {
 
         Object.keys(resultAlbums).forEach(aid => {
             if (aid !== "home") {
-                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS"));
+                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS/VIDEOS"));
             }
         });
         

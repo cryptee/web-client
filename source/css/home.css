@@ -1,6 +1,6 @@
 body {
     display: grid;
-    grid-template-columns: minmax(4rem, 1fr) 20rem 1fr;
+    grid-template-columns: minmax(4rem, 1fr) minmax(12rem, 32rem) minmax(4rem, 1fr);
     grid-template-rows: 1rem 2rem 1rem 1fr 24rem 1fr 1rem 2rem 1rem;
 }
 
@@ -32,66 +32,79 @@ main {
     grid-row: 5/6;
     grid-column: 2/3;
     overflow: hidden;
-    background-color: #FFF;
 
-    display: grid;
-    grid-template-rows: 3rem 3rem 3rem 3rem 1fr 2rem 4rem;
-    grid-template-columns: 4rem minmax(12rem, 16rem);
-    padding-top: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
 
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
-    border-radius: 0.5rem;
+    column-gap: 3rem;
+    row-gap: 0;
 
     opacity: 1;
     transition: 0.5s opacity var(--cryptee-cb);
 }
 
-.dm main {
-    background-color: var(--cryptee-0);
-    box-shadow: none;
-    border-radius: 0;
-}
-
-
 main .appButton {
     margin-top: 0;
-    grid-column: 1/-1;
+    background-color: #FFF;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 400;
+    border-radius: 0.5rem;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 3rem;
+
+    box-shadow: 0 0 0 2px rgba(0,0,0,0); 
+    transition: 0.3s box-shadow var(--cryptee-cb);
+}
+
+.dm main .appButton {
+    background-color: var(--cryptee-0);
+}
+
+main .appButton[app="upgrade"] {
+    background-color: var(--cryptee-green);
+    border-radius: 4rem;
 }
 
 main .appButton img {
     height: 1rem;
     width: 1rem;
     object-fit: contain;
-    padding: 1rem 1.5rem;
+    padding: 1.5rem;
     float: left;
     user-select: none;
-
-    opacity: 0.2;
-    transition: 0.15s opacity linear;
 }
 
+main .appButton[app="upgrade"] img,
 .dm main .appButton img  {
     filter: invert(1);
 }
 
-main .appButton a {
-    display: block;
-    height: 100%;
-    width: 100%;
-}
-
-main .appButton a > span {
-    line-height: 3rem;
-}
-
-.appButton[app="install"] img {
+main .appButton[app="install"] img {
     transform: rotate(45deg);
     filter: invert(1);
 }
 
-.dm .appButton[app="install"] img {
+.dm main .appButton[app="install"] img {
     filter: invert(0);
 }
+
+main .appButton > span {
+    display: block;
+    line-height: 1.25rem;
+    width: 6rem;
+    padding-top: 5rem;
+    margin: 0 -1rem;
+}
+
+
+
+
 
 .callout {
     color: var(--cryptee-green);
@@ -124,11 +137,14 @@ b {
 
 
 #displayName {
+    grid-row: 8/9;
+    grid-column: 1/-1;
+    padding-left: 1.5rem;
     color: var(--cryptee-2);
     user-select: none;
     text-transform: lowercase;
 
-    width: calc(100% - 1rem);
+    width: calc(100% - 2.5rem);
     text-overflow: ellipsis;
     display: inline-block;
     white-space: nowrap;
@@ -159,18 +175,8 @@ nav {
     color: #FFF;
 }
 
-#bottomNewsButton {
-    position: absolute;
-    bottom: 0;
-    right: 0rem;
-    padding-right: 1.5rem;
-    text-align: right;
-    line-height: 4rem;
-    width: 4rem;
-
-    opacity: 0.4;
-    transition: 0.15s opacity linear;
-    display: none;
+.menuButton:first-child {
+    margin-left: 0;
 }
 
 
@@ -209,8 +215,7 @@ SPECIAL OFFERS
     transition: 0.3s opacity ease 0.3s;
 }
 
-#offerButton:empty,
-#bottomNewsButton.unread + #offerButton {
+#offerButton:empty {
     pointer-events: none;
     opacity: 0;
 }
@@ -386,12 +391,6 @@ body:not(.show-news) #news-card { pointer-events: none !important; }
 body:not(.show-news) #news-card div { transform: translateY(14rem); }
 body:not(.show-news) #news-card a.more { transform: translateY(14rem)  translateX(0.75rem); }
 
-#topNewsButton              { background-color: transparent; border-radius: 0.5rem; }
-#topNewsButton.unread       { background-color: var(--cryptee-blue); padding: 0 1rem; }
-
-#bottomNewsButton           { background-color: transparent; border-top-left-radius: 1rem; }
-#bottomNewsButton.unread    { background-color: var(--cryptee-blue); }
-
 .newsButton { cursor: pointer; }
 
 
@@ -415,26 +414,17 @@ MEDIA QUERIES
 
 @media (max-width : 448px) {
     
-    body {
-        display: grid;
-        grid-template-columns: minmax(4rem, 1fr) minmax(16rem, 20rem) 0;
-    }
-
-    main {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    #topNewsButton { display: none !important; }
-    #bottomNewsButton { display: block !important; }
-    
     #news-card {
-        width: calc(100% - 4rem); max-width: 320px; 
+        width: calc(100% - 1rem); max-width: 320px; 
     }
 
     #news-card div { 
         margin: auto; 
         border-radius: 1rem 0 0 0;
+    }
+
+    main {
+        grid-column: 1/-1;
     }
 
 }
@@ -450,6 +440,10 @@ MEDIA QUERIES
         left: 0;
         font-size: 0.85rem;
         padding: 0.5rem 1rem 0.25rem 1rem;
+    }
+
+    .menuButton {
+        margin-left: 1rem;
     }
 }
 
@@ -473,9 +467,17 @@ ENABLE HOVERS
 ----------------------------- */
 
 @media (-moz-touch-enabled: 0), (pointer:fine) {
-    #bottomNewsButton:hover, 
-    .appButton:hover img, 
+
+    .appButton:hover {
+        box-shadow: 0 0 0 2px rgba(0,0,0,1);
+    } 
+    
+    .appButton[app="upgrade"]:hover {
+        box-shadow: 0 0 0 2px rgba(21,132,60,1);
+    }
+
     .menuButton:hover {
         opacity: 1;
     }
+
 }

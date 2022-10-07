@@ -14,113 +14,103 @@
 
 </head>
 
-<body class="app-body fixed chooseplan">
+<body class="app-body chooseplan">
 <!-- <body class="app-body fixed billing"> -->
 
     <a id="logo" href="/home" draggable="false" ondragstart="return false;">
         <img src="../assets/logo-b.svg" alt="CRYPTEE">
     </a>
 
-    <p id="select">select a plan</p>
+    <h3 id="choose-plan">CHOOSE A PLAN</h3>
+    <h3 id="payment-info">PAYMENT INFO</h3>
 
-    <div id="period" period="mo">
-        <button period="yr" >yearly</button>
-        <button period="mo" class="active">monthly</button>
-        <small cur="€"></small>
+    <div id="period" period="yr">
+        <button period="yr" class="active">yearly</button>
+        <input type="checkbox" id="period-toggle">
+        <button period="mo">monthly</button>
     </div>
 
-    <div class="plan" plan="10GB">
-        <div class="plancard">
-            <span class="capacity">
+    <div id="plans">
+
+        <div class="plan" plan="10GB">
+        
+            <p class="prices">
+                <span class="price" mo="3" yr="3"></span><span class="euro">€</span> <span>per month</span>
+            </p>
+    
+            <button cur="€" mo="3" yr="3" class="capacity">
                 <h2 class="storage">10</h2>
                 <span class="gray">GB</span>
-            </span>
-    
-            <p class="description gray">
-                great for light document editing &amp; attaching files
-            </p>
-            
-            <div class="prices">
-                <h2 class="price" mo="3" yr="3"></h2>
-                <small class="gray">€<br>/m</small>
-            </div>
+            </button>
 
-            <button cur="€" mo="3" yr="3"></button>
         </div>
-    </div>
-
-    <div class="plan" plan="400GB">
-        <div class="plancard">
-            <span class="capacity">
+        
+        <div class="plan" plan="400GB">
+        
+            <p class="prices">
+                <span class="price" mo="11" yr="9"></span><span class="euro">€</span> <span>per month</span>
+                <span class="savings">save 24<span class="euro">€</span> <span>/ yr</span></span>
+            </p>
+    
+            <button cur="€" mo="11" yr="9" class="capacity">
                 <h2 class="storage">400</h2>
                 <span class="gray">GB</span>
-            </span>
-    
-            <p class="description gray">
-                ideal for photo libraries, lots of files &amp; documents
-            </p>
-            
-            <div class="prices">
-                <h2 class="price" mo="11" yr="9"></h2>
-                <small class="gray">€<br>/m</small>
-            </div>
+            </button>
 
-            <button cur="€" mo="11" yr="9"></button>
         </div>
-    </div>
-
-
-    <div class="plan" plan="2000GB">
-        <div class="plancard">
-            <span class="capacity">
+        
+        
+        <div class="plan" plan="2000GB">
+        
+            <p class="prices">
+                <span class="price" mo="30" yr="27"></span><span class="euro">€</span> <span>per month</span>
+                <span class="savings">save 36<span class="euro">€</span> <span>/ yr</span></span>
+            </p>
+    
+            <button cur="€" mo="30" yr="27" class="capacity">
                 <h2 class="storage">2000</h2>
                 <span class="gray">GB</span>
-            </span>
-    
-            <p class="description gray">
-                perfect for large photo libraries &amp; archives
-            </p>
-            
-            <div class="prices">
-                <h2 class="price"mo="30" yr="27"></h2>
-                <small class="gray">€<br>/m</small>
-            </div>
+            </button>
 
-            <button cur="€" mo="30" yr="27"></button>
         </div>
+        
     </div>
 
-    <p id="non-profit" class="gray">are you a non-profit / charity / tax-exempt organization? <br class="hidden-below-tablet">we got your back! <a href="help">contact us!</a><br></p>
 
     <div id="billing">
 
         <div id="chosenplan">
-            <h2 class="storage" id="chosenstorage"></h2>
-            <span class="gray">GB</span>
+            <h2 class="storage" id="chosenstorage">
+                <span class="storage"></span>
+                <span class="gray">GB</span>
+            </h2>
             <p class="gray" id="chosenbilling" cur="€"></p>
             <span id="discount-tag"></span>
         </div>
 
-        <input onchange="validateBillingInfo();" id="billing-email" type="email" placeholder="email for receipts*" autocomplete="billing email" name="email" spellcheck="false">
+        <p id="card-details">
+            <span>card details</span>
+            <i id="card-info" class="ri-information-line"></i>
+        </p>
+        
+        <div    id="card-pan"     class="stripe-input"></div>
+        <div    id="card-exp"     class="stripe-input"></div>
+        <div    id="card-cvc"     class="stripe-input"></div>
+        <input  id="billing-name" type="text" placeholder="cardholder name"  autocomplete="cc-name">
+       
+        <p id="billing-details">billing details</p>
+
+        <select tabindex="-1" id="countries">
+            <!-- @import "imports/country-options.kit" -->
+        </select>
+
+        <input  id="billing-zip"  type="text" placeholder="zip code" autocomplete="billing postal-code">
+
+        <input id="billing-email" type="email" placeholder="email for receipts"
+            autocomplete="billing email" name="email" spellcheck="false">
         <small>please type a valid email for receipts</small>
 
-        <div id="card">
-            <p>card details</p>
-            <i      id="card-info"    class="ri-information-line"></i>
-            <div    id="card-pan"     class="stripe-input"></div>
-            <div    id="card-exp"     class="stripe-input"></div>
-            <div    id="card-cvc"     class="stripe-input"></div>
-            <input  id="billing-zip"  type="text" placeholder="zip code" onchange="validateBillingInfo();" autocomplete="billing postal-code">
-            <input  id="billing-name" type="text" placeholder="cardholder name" onchange="validateBillingInfo();" autocomplete="cc-name">
-        </div>
-        
-        <p class="select" style="display: none !important;">
-            <select tabindex="-1" onchange="validateBillingInfo();" id="countries">
-                <!-- @import "imports/country-options.kit" -->
-            </select>
-        </p>
-
-        <input id="vat-number" type="text" tabindex="-1"  placeholder="add vat #" onchange="validateBillingInfo(); validateVAT();">            
+        <input id="vat-number" type="text" tabindex="-1"  placeholder="add vat #" onchange="validateVAT();">            
 
         <button id="checkout-button" class="bold green" onclick="upgrade();" disabled></button>
 
@@ -136,9 +126,9 @@
 
     <button id="coupon-button" title="enter coupon code" onclick="showPopup('popup-coupon');"><i class="ri-coupon-3-line"></i></button>
 
-    <div id="thanks">
+    <div id="thanks" class="plans-popup">
         <h2>THANK YOU</h2>
-        <p>thank you for helping us make the internet a safer &amp; more private place. we've successfully processed your payment.</p>
+        <p>thank you for helping us make the internet a safer &amp; more private place. we've successfully processed your payment, and your plan will be activated in a few seconds.</p>
         <br><br><br>
         <a class="close bold" href="home">
             <span>continue to home</span>
@@ -146,7 +136,7 @@
         </a>
     </div>
 
-    <div id="threeDSError">
+    <div id="threeDSError" class="plans-popup">
         <p class="bold">3D SECURE PAYMENT<br> VERIFICATION FAILED</p>
         <br>
         <p>we couldn't verify your payment.</p>
@@ -158,7 +148,7 @@
         </a>
     </div>
 
-    <div id="dbError">
+    <div id="dbError" class="plans-popup">
         <p class="bold">WAITING CONFIRMATION</p>
         <br>
         <p>looks like either your bank or our payment processor is taking a few extra minutes to confirm your payment.</p>
@@ -170,27 +160,27 @@
         </a>
     </div>
 
-    <div id="switch-confirm" planid="">
+    <div id="switch-confirm" planid="" class="plans-popup">
         <h2>SWITCH PLANS</h2>
         <p>you will be credited for the price difference, or billed only for the price difference if necessary.</p>
         <br>
 
-        <p class="close bold clickable" onclick="switchToPlan();">
+        <button onclick="switchToPlan();" class="close green">
             switch to <span id="switchname"></span>
-        </p>
+        </button>
         
         <br>
         <p class="close clickable" onclick="closeSwitcher();">cancel</p>
     </div>
 
-    <div id="switching">
+    <div id="switching" class="plans-popup">
         <h2>ACTIVATING NEW PLAN</h2>
         <p>one moment please</p>
         <br><br><br><br>
         <progress class="progress white" max="100"></progress>
     </div>
 
-    <div id="thanks-switch">
+    <div id="thanks-switch" class="plans-popup">
         <h2>THANK YOU</h2>
         <br>
         <p>thank you!<br>your new subscription plan will be activated shortly.</p>

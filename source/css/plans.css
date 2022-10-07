@@ -21,27 +21,30 @@ LAYOUT
 html, body {
     width: 100%;
     height: 100%;
+    overflow-x: hidden;
     background: var(--cryptee-4);
 }
 
 body {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(12rem,16rem) minmax(12rem,16rem) minmax(12rem,16rem) minmax(0, 1fr);
-    grid-template-rows: 1rem 2rem 1rem 1fr 2rem 1rem 1fr minmax(36rem, 1fr) 1fr 1rem 2rem 1fr 4rem;
-    column-gap: 4rem;
+    grid-template-columns: minmax(0, 1fr) repeat(5, 4rem) minmax(0, 1fr);
+    grid-template-rows: 1rem 2rem 1rem 1fr 4rem minmax(22rem, 1fr) 4rem 1fr 4rem;
 }
 
 #logo {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
+    grid-column: 1/2;
+    grid-row: 2/3;
     display: block;
+    margin-left: 1rem;
     width: 2rem;
     height: 2rem;
     user-drag: none; 
     user-select: none;
     outline: none;
     z-index: 5;
+
+    transition: 0.3s opacity;
+    transition-timing-function: var(--cryptee-cb);
 }
 
 #logo img {
@@ -54,13 +57,19 @@ body {
     user-select: none;
 }
 
-#select {
-    grid-column: 3/4;
-    grid-row: 2/3;
+#choose-plan, #payment-info {
+    grid-column: 2/7;
+    grid-row: 5/6;
     margin-top: 0;
-    line-height: 2rem;
-    opacity: 0.6;
+    line-height: 4.25rem;
     user-select: none;
+    text-align: center;
+    
+    transition: 0.75s opacity, 1.5s transform;
+    transition-timing-function: var(--cryptee-cb);
+    
+    opacity: 1;
+    transform: translateX(0);
 }
 
 /* override dark mode */
@@ -77,60 +86,105 @@ PERIODS
 
 
 #period {
-    grid-column: 3/4;
-    grid-row: 5/7;
-    display: flex;
-    flex-wrap: wrap;
+    grid-column: 2/7;
+    grid-row: 6/7;
+    display: grid;
+    height: 4rem;
+    grid-template-columns: minmax(7rem, 1fr) 4rem minmax(7rem, 1fr);
+    column-gap: 1rem;
+
+    border-bottom: 2px solid var(--cryptee-0);
+    border-top: 2px solid var(--cryptee-0);
+
+    transition: 0.3s border-top;
+    transition-timing-function: var(--cryptee-cb);
 }
 
 #period button {
-    height: 2rem;
-    line-height: 2rem;
+    height: 4rem;
+    line-height: 4rem;
     width: 100%;
-    min-width: 6rem;
-    max-width: 50%;
-    flex-grow: 1;
     margin-top: 0;
-    opacity: 0.65;
-    transition: 0.3s opacity, 0.3s box-shadow;
-    transition-timing-function: var(--cryptee-cb);
-    box-shadow: inset 0px -1px 0px transparent;
-}
 
-#period button.active {
-    box-shadow: inset 0px -1px 0px var(--cryptee-0);
     opacity: 1;
-}
-
-#period small {
-    flex-grow: 2;
-    max-width: 100%;
-    margin-top: 0;
-    opacity: 0;
-    transition: 0.3s opacity, 0.3s transform;
+    transition: 0.5s opacity, 0.5s transform;
     transition-timing-function: var(--cryptee-cb);
-    color: var(--cryptee-green);
-    transform: translateY(1rem);
-    user-select: none;
-    cursor: pointer;
-    pointer-events: none;
-}
-
-#period small::before {
-    content: "save up to " attr(cur) "36/yr";
-    font-weight: 700;
-}
-
-#period button.active + small {
-    opacity: 1;
     transform: translateY(0);
-    pointer-events: all;
 }
 
-body.paddle-yearly #period,
-body.paddle-yearly #non-profit {
+#period button[period='yr'] {
+    text-align: right !important;
+}
+
+#period button[period='yr']::before {
+    display: inline-block;
+    content: "billed ";
+    transform: translateX(-1rem);
+    opacity: 0;
+
+    transition: 0.5s opacity, 0.5s transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#period button[period='yr'].active::before {
+    transform: translateX(-0.4rem);
+    opacity: 1;
+}
+
+body.paddle-yearly #period {
     display: none !important;
 }
+
+#period-toggle {
+    position: relative;
+    appearance: none; 
+    outline: none;
+    width: 4rem;
+    height: 2rem;
+    padding: 0;
+    border-radius: 4rem; 
+    cursor: pointer;
+    margin: calc(1rem - 2px) -2px;
+    box-shadow: none !important;
+    border: 2px solid var(--cryptee-0);
+    box-sizing: content-box;
+
+    opacity: 1;
+    transition: 0.65s opacity, 0.65s transform;
+    transition-timing-function: var(--cryptee-cb);
+    transform: translateY(0);
+
+}
+
+#period-toggle:after {
+    content: "";
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    background-color: var(--cryptee-0);
+    border-radius: 50%; 
+
+    translate: 0;
+    transition: 0.3s translate ease;
+}
+
+#period-toggle:checked:after {
+    translate: 2rem;
+}
+
+#period-toggle[true],
+#period-toggle[false] {
+    background-color: var(--ui-3) !important;
+}
+
+#period-toggle[true]:checked::before   { content: attr(true); color: #FFF; }
+#period-toggle[false]:before           { content: attr(false); color: #FFF; }
+
+#period-toggle[true]:checked:before    { left: -4rem; }
+#period-toggle[false]:before           { left: -3rem; }
+
 
 /* -----------------------------
 -------------------------------- 
@@ -140,39 +194,43 @@ PLANS
 --------------------------------
 ----------------------------- */
 
-
+#plans {
+    opacity: 1;
+    grid-row: 6/8;
+    grid-column: 2/7;
+    margin-top: calc(4rem + 4px);
+}
 
 .plan {
-    grid-row: 8/9;
     opacity: 1;
-    transition: 0.3s opacity linear;
-    padding-top: 8rem;
-}
-
-.plancard {
-    padding: 1.5rem 1.5rem 1.5rem 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 1rem 2rem rgba(0,0,0,0.15);
-    background-color: #FFF;
-    position: relative;
-
     display: grid;
-    grid-template-columns: 6rem 1fr;
+    grid-row: 6/7;
+
+    transition: 0.5s opacity, 0.5s transform;
+    transition-timing-function: var(--cryptee-cb);
+
+    grid-template-columns: 1fr 7rem;
+    margin: 2rem 0;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #ddd;
 }
 
-.plancard .capacity {
-    grid-column: span 2;
+.capacity {
+    padding-top: 0.125rem;
 }
-
-.plan[plan="10GB"] { grid-column: 2/3; }
-.plan[plan="400GB"] { grid-column: 3/4; }
-.plan[plan="2000GB"] { grid-column: 4/5; }
 
 .storage {
     display: inline;
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     letter-spacing: 2px;
-    font-weight: 500;
+    font-weight: 350;
+}
+
+.storage + span.gray {
+    font-size: 0.75rem;
+    margin-left: -0.25rem;
+    color: #FFF;
+    opacity: 0.5;
 }
 
 .plan button {
@@ -187,46 +245,67 @@ PLANS
     text-align: center;
     border-radius: 0.5rem;
     box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.2);
+
     transition: max-width, color, box-shadow, background-color, margin;
     transition-duration: 0.3s;
     transition-timing-function: var(--cryptee-cb);
 }
 
-.plan .description {
-    margin-top: 1.5rem;
-    margin-bottom: 2rem;
-    grid-column: span 2;
-    max-width: 12rem;
+.plan[plan='10GB']   .price { min-width: 0.6rem; }
+.plan[plan='400GB']  .price { min-width: 0.75rem; }
+.plan[plan='2000GB'] .price { min-width: 1.25rem; }
+
+.plan .prices { 
+    margin-top: 0; 
+    transition: 0.5s opacity, 0.5s transform;
+    transition-timing-function: var(--cryptee-cb);
+    transform: translateY(0.825rem);
 }
 
-.plan .prices {
-    padding-top: 0.5rem;
+.plan .euro { font-size: 0.9rem; }
+
+.plan .prices span {
+    display: inline-block;
+    line-height: 1.5rem;
 }
 
-.plan .price {
-    display: inline;
-    font-size: 2.5rem;
-    line-height: 2.5rem;
-    letter-spacing: 2px;
-    font-weight: 500;
+.plan .prices .savings { 
+    opacity: 0;
+    display: block;
+    color: var(--cryptee-green);
+    transition: 0.5s opacity, 0.5s transform;
+    transition-timing-function: var(--cryptee-cb);
 }
 
-.plan .price + small { margin-top: 0rem; }
+#period[period="yr"] ~ #plans .plan:not([plan='10GB']) .prices {
+    transform: translateY(0rem);
+}
 
-#period[period="yr"] ~ .plan small {
+#period[period="yr"] ~ #plans .plan .prices .savings {
     opacity: 1;
-    transform: translateY(0);
 }
 
-.plan button::before { content: "select"; }
-
-#period[period="yr"] ~ .plan[current="yr"] button::before,
-#period[period="mo"] ~ .plan[current="mo"] button::before {
-    content: "your plan";
+#period[period="yr"] ~ #plans .plan[current="yr"] .capacity > * {
+    opacity: 1 !important;
+    color: var(--cryptee-2) !important;
 }
 
-#period[period="yr"] ~ .plan[current="yr"] button,
-#period[period="mo"] ~ .plan[current="mo"] button  {
+#period[period="yr"] ~ #plans .plan[current="yr"] .prices > span:not(.price):not(.savings),
+#period[period="mo"] ~ #plans .plan[current="mo"] .prices > span:not(.price):not(.savings) {
+    display: none !important;
+}
+
+#period[period="yr"] ~ #plans .plan[current="yr"] .price::before,
+#period[period="mo"] ~ #plans .plan[current="mo"] .price::before {
+    content: "current plan";
+}
+
+#period[period="yr"] ~ #plans .plan[current="yr"] .savings::before {
+    content: "you ";
+}
+
+#period[period="yr"] ~ #plans .plan[current="yr"] button,
+#period[period="mo"] ~ #plans .plan[current="mo"] button  {
     pointer-events: none;
     flex-grow: 1;
 
@@ -236,42 +315,77 @@ PLANS
     border: 1px solid var(--cryptee-3);
 }
 
-#period[period="yr"] ~ .plan[current="yr"] small,
-#period[period="mo"] ~ .plan[current="mo"] small {
+#period[period="yr"] ~ #plans .plan[current="yr"] small,
+#period[period="mo"] ~ #plans .plan[current="mo"] small {
     transform: translateY(0) !important;
     opacity: 0.5 !important;
     color: black;
 }
 
 
-#period[period="mo"] ~ .plan .price::before { content: attr(mo); }
-#period[period="yr"] ~ .plan .price::before { content: attr(yr); }
+#period[period="mo"] ~ #plans .plan .price::before { content: attr(mo); }
+#period[period="yr"] ~ #plans .plan .price::before { content: attr(yr); }
 
-body.paddle-yearly #period ~ .plan small {
-    color: var(--cryptee-2);
+body.paddle-yearly #plans {
+    margin-top: 0;
 }
 
-body.paddle-yearly #period ~ .plan small::before {
-    content: "billed annually";
-    font-weight: 700;
+body.paddle-yearly #plans .prices span:nth-child(3):after {
+    content: "*";
 }
 
-#non-profit {
-    grid-row: 10/12;
-    grid-column: 2/4;
-    opacity: 1;
-    transition: 0.3s opacity linear;
+body.paddle-yearly #plans::after {
+    content: "* billed annually";
+    font-weight: 350;
+    color: var(--cryptee-2)
 }
 
 
-body:not(.chooseplan) #non-profit,
-body:not(.chooseplan) #select,
-body:not(.chooseplan) #period button,
-body:not(.chooseplan) #period small,
-body:not(.chooseplan) .plan {
-    pointer-events: none;
+/* -----------------------------
+-------------------------------- 
+ 
+CHOSEN PLAN ANIMATION / TRANSITION
+ 
+--------------------------------
+----------------------------- */
+
+body.chooseplan #payment-info {
     opacity: 0;
+    pointer-events: none !important;
+    transform: translateX(16rem);
 }
+
+body:not(.chooseplan) #choose-plan {
+    opacity: 0;
+    pointer-events: none !important;
+    transform: translateX(-16rem);
+}
+
+body:not(.chooseplan) #period button {
+    opacity: 0;
+    pointer-events: none !important;
+    transform: translateY(-0.5rem);
+}
+
+body:not(.chooseplan) #period #period-toggle {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(-0.3rem) !important;
+}
+/* 
+body:not(.chooseplan) #period {
+    border-top: 2px solid transparent;
+} */
+
+body:not(.chooseplan) .plan {
+    opacity: 0;
+    pointer-events: none !important;
+    transform: translateY(-1rem);
+}
+
+body:not(.chooseplan) .plan:nth-child(1) { transition-delay: 0s; }
+body:not(.chooseplan) .plan:nth-child(2) { transition-delay: 0.075s; }
+body:not(.chooseplan) .plan:nth-child(3) { transition-delay: 0.150s; }
 
 /* -----------------------------
 -------------------------------- 
@@ -282,43 +396,57 @@ BILLING CARD
 ----------------------------- */
 
 #billing {
-    position: fixed;
-    display: block;
-    margin: auto;
-    z-index: 2;
+    display: grid;
+    grid-column: 2/7;
+    grid-row: 5/8;
 
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-
-    height: 36rem;
-    width: 22rem;
+    grid-template-columns: 11rem 5rem 4rem;
+    grid-auto-rows: max-content;
 
     padding: 4rem 0;
-
-    opacity: 1;
-    transform: translateY(0);
-
-    transition-duration: 0.5s;
-    transition-property: opacity, transform, padding, height;
-    transition-timing-function: var(--cryptee-cb);
 }
 
 body:not(.billing) #billing {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(1rem);
+    pointer-events: none !important;
 }
 
 #chosenplan {
-    margin-bottom: 2rem;
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    height: calc(4rem + 4px);
+    
     opacity: 1;
-    transition: 0.3s opacity ease;
+    transform: translateY(0);
+    transition: 0.3s opacity ease 0.5s, 0.3s transform var(--cryptee-cb) 0.5s;
+}
+
+body:not(.billing) #chosenplan {
+    opacity: 0;
+    transform: translateY(1rem);
+}
+
+#chosenstorage {
+    text-align: right;
+    grid-column: 2/3;
+    grid-row: 1/2;
+    line-height: 4.25rem;
+    height: calc(4rem + 2px);
+    margin-top: 0;
+}
+
+#chosenstorage .storage + span.gray {
+    color: #000;
+    letter-spacing: 0;
+    margin-left: -0.5rem;
 }
 
 #chosenbilling {
     margin-top: 0;
+    grid-column: 1/2;
+    grid-row: 1/2;
+    height: calc(4rem + 2px);
+    line-height: 4.25rem;
 }
 
 #chosenbilling[period="mo"]::before {
@@ -326,13 +454,19 @@ body:not(.billing) #billing {
 }
 
 #chosenbilling[period="yr"]::before {
-    content: attr(cur) attr(price) "/mo billed annually";
+    content: attr(cur) attr(price) "/mo billed yearly";
 }
 
 #discount-tag {
     color: var(--cryptee-green);
     font-weight: 350;
     line-height: 1.5rem;
+    grid-column: 1/-1;
+    grid-row: 1/2;
+    margin-top: 2.25rem;
+    height: 2rem;
+
+
 }
 
 #discount-tag::before {
@@ -345,29 +479,36 @@ body:not(.billing) #billing {
     line-height: 1.25rem;
     margin-right: 0.5rem;
 }
+ 
+body[discount] #chosenbilling {
+    height: 2.5rem;
+    line-height: 3rem;
+}
 
 body:not([discount]) #discount-tag {
-    display: none !important;
+    opacity: 0;
+    pointer-events: none !important;
 }
 
-#billing > *:not(#card) {
-    margin-left: 4rem;
-}
-
-#billing > input {
-    margin-left: 4rem;
-    width: calc(100% - 4rem);
-    opacity: 1;
-    transition-duration: 0.3s;
-    transition-property: opacity;
-    transition-timing-function: var(--cryptee-cb);
+#billing input {
+    padding-top: 0;
+    padding-left: 1rem;
+    text-align: left;
+    
+    transition: 0.3s box-shadow ease;
+    box-shadow: 0 0 0 2px transparent;
 }
 
 #billing input + small {
-    opacity: 1;
-    margin-bottom: 2rem;
+    margin: 0.25rem 0 2rem 0;
+    
+    grid-column: 1/-1;
+    text-align: center;
+
     color: var(--cryptee-red);
-    transform: translateY(-0.5rem);
+    
+    opacity: 1;
+    transform: translateY(0rem);
 
     transition-duration: 0.3s;
     transition-property: opacity, transform;
@@ -375,159 +516,165 @@ body:not([discount]) #discount-tag {
 }
 
 #billing input:not(.error) + small {
-    transform: translateY(-1rem);
+    transform: translateY(-0.5rem);
     opacity: 0;
 }
 
-#billing input.error { 
-    box-shadow: inset 0px -1px 0px var(--cryptee-red);
+#card-details, #billing-details {
+    grid-column: 1/-1;
+    line-height: 4rem;
+    margin-top: 0;
+    height: 4rem;
 }
 
-#card {
-    position: relative;
-
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
-    background-color: #FFF;
-    border-radius: 1rem;
-    width: 22rem;
-    height: 14rem;
-
-    margin-bottom: 2.5rem;
-    padding: 1rem 2rem 1rem 2rem;
-    margin-left: 2rem;
-
-    display: grid;
-    grid-template-columns: 4rem 2rem 8rem;
-    grid-auto-rows: 2.5rem;
-    row-gap: 1rem;
-    column-gap: 2rem;
-
+#card-info {
     opacity: 1;
+    cursor: pointer;
     transition: 0.3s opacity ease;
+    font-size: 1.125rem;
+    margin-top: -0.25rem;
 }
 
-#card p { 
-    grid-column: span 3; 
-}
-
-#card p:first-child {
-    margin-top: 0.75rem;
-}
-
-#card br { 
-    display: block;
-    grid-column: span 3; 
-}
-
-.stripe-input {
-    background-color: transparent;
-    box-shadow: inset 0px -1px 0px var(--cryptee-2);
-    padding-top: 0.5rem;
+.stripe-input, #billing input, #countries, #vat-number {
+    background-color: #FFF;
+    height: 3rem;
+    line-height: 3.25rem;
     font-size: 1rem;
-    line-height: 1.5rem;
-    height: 1.5rem;
     transition: 0.3s box-shadow ease;
+    box-shadow: 0 0 0 2px transparent;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
 }
 
-.stripe-input.focus {
-    box-shadow: inset 0px -1px 0px #000;
-}
+.stripe-input.focus   { box-shadow: 0 0 0 2px var(--cryptee-0) !important;   }
+.stripe-input.invalid { box-shadow: 0 0 0 2px var(--cryptee-red) !important; }
+#billing input.error  { box-shadow: 0 0 0 2px var(--cryptee-red) !important; }
 
 #card-pan {
-    grid-column: span 3;
+    grid-column: span 1;
+    width: calc(100% - 0.5rem);
 }
 
 #card-exp {
     grid-column: span 1;
+    width: calc(100% - 0.5rem);
 }
 
 #card-cvc {
     grid-column: span 1;
 }
 
-#billing-zip, #billing-name {
-    margin-top: -0.125rem !important;
-    padding-bottom: 0.125rem !important;
+#card-details, .stripe-input, #billing-name {
+    opacity: 1;
+    transform: translateY(0);
+    transition: 0.3s box-shadow ease, 0.3s opacity ease 0.6s, 0.3s transform var(--cryptee-cb) 0.6s !important;
+}
+
+body:not(.billing) #card-details,
+body:not(.billing) #billing-name,
+body:not(.billing) .stripe-input {
+    opacity: 0;
+    transform: translateY(1rem);
+}
+
+
+
+#countries {
+    width: calc(100% - 0.5rem);
+    padding: 0 1rem;
+    text-align: left;
+    text-indent: 0;
+    cursor: pointer;
+    text-transform: lowercase;
 }
 
 #billing-zip {
     margin-top: 0;
-    padding-top: 0.5rem;
+    padding-top: 0;
+    line-height: 2rem;
     grid-column: span 1;
-    color: #000 !important
+    color: #000 !important;
+    grid-column: span 2;
+    text-align: center !important;
+    padding-left: 0 !important;
 }
 
-#billing-name {
-    margin-top: 0;
-    padding-top: 0.5rem;
+#billing-name, #billing-email {
     grid-column: span 3;
+    margin-top: 0;
+    margin-bottom: 0 !important;
 }
 
-#card-info {
+/* override standard cryptee inputs */
+#billing-name, #billing-email, #billing-zip {
+    box-shadow: 0 0 0 2px transparent !important;
+}
+
+#billing-name:focus, 
+#billing-email:focus, 
+#billing-zip:focus {
+    box-shadow: 0 0 0 2px var(--cryptee-0) !important;
+}
+
+#billing-details, #countries, #billing-zip, #billing-email, #vat-number, #checkout-button {
     opacity: 1;
-    position: absolute;
-    top: 1.8rem;
-    left: 8rem;
-    cursor: pointer;
-    transition: 0.3s opacity ease;
-    font-size: 1.125rem;
+    transform: translateY(0);
+    transition: 0.3s box-shadow ease, 0.3s opacity ease 0.7s, 0.3s transform var(--cryptee-cb) 0.7s !important;
+}
+
+body:not(.billing) #billing-details, 
+body:not(.billing) #countries, 
+body:not(.billing) #billing-zip, 
+body:not(.billing) #billing-email, 
+body:not(.billing) #vat-number, 
+body:not(.billing) #checkout-button {
+    opacity: 0;
+    transform: translateY(2rem);
 }
 
 #checkout-button {
-    float: right;
-    margin: 1rem 0rem !important;
-    opacity: 1;
-    height: 3rem;
-    line-height: 1rem;
-
-    background-color: var(--cryptee-green);
-    color: white;
-    font-weight: 500;
-    padding: 0 1.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.25);
-
-    transition-duration: 0.5s;
-    transition-property: opacity;
-    transition-timing-function: var(--cryptee-cb);
+    transition-delay: 0s !important;
 }
 
-#checkout-button:focus {
-    margin-bottom: 0.5rem;
-    border-bottom: 1px solid var(--cryptee-green);
-}
 
-#checkout-button[disabled] {
-    opacity: 0.4;
-}
 
+/* -----------------------------
+-------------------------------- 
+ 
+VAT VALIDATION 
+ 
+--------------------------------
+----------------------------- */
 
 #vat-number {
-    margin: 1rem 0 1rem 4rem !important;
-
-    height: 3rem;
-    line-height: 3rem;
-    float: left;
-    width: 6rem !important;
-    max-width: 6rem !important;
-    
-    box-shadow: inset 0px -1px 0px transparent;
-
+    cursor: pointer;
     opacity: 1;
-    transition: 0.3s max-width ease, 0.3s opacity ease;
+    width: calc(100% - 0.5rem);    
+    background-color: rgba(255,255,255,0) !important;
+    transition: 0.3s background-color ease, 0.3s box-shadow ease;
+}
+
+#vat-number:focus, 
+#vat-number:not(:placeholder-shown) {
+    background-color: rgba(255,255,255,1) !important;
+    box-shadow: 0 0 0 2px var(--cryptee-0) !important;
+    border-radius: 0.5rem 0.5rem 0.5rem 0;
+    cursor: text;
+
 }
 
 #company {
-    padding-left: 4rem;
-    width: calc(100% - 8rem);
-    margin-left: 0rem !important;
-    height: 2rem;
-    overflow: hidden;
+    height: 3rem;
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 3rem 1fr;
     text-overflow: ellipsis;
     white-space: nowrap;
 
     opacity: 1;
     transition: 0.3s opacity ease;
+    margin-bottom: 2rem;
 }
 
 #company:not(.validating):not(.error):not(.validated) {
@@ -536,13 +683,22 @@ body:not([discount]) #discount-tag {
 }
 
 #company i {
-    margin-left: -2.75rem;
-    margin-right: 0.75rem;
+    padding: 0 0.5rem;
     width: 2rem;
     height: 2rem;
-    line-height: 2rem;
     font-size: 1.5rem;
     vertical-align: top;
+    text-align: center;
+    height: 4rem;
+    line-height: 4.75rem;
+    margin-top: -0.5rem;
+    background-color: #FFF;
+    z-index: 2;
+    border-left: 2px solid #000;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    margin-left: -2px;
+    border-radius: 0 0 0 0.5rem;
 }
 
 #company:not(.validated) i::before {
@@ -557,21 +713,65 @@ body:not([discount]) #discount-tag {
 }
 
 #company small {
-    padding-left: 0.25rem;
-    width: calc(100% - 0.25rem);
+    padding-left: 0rem;
+    padding-top: 0.75rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    background-color: #FFF;
+    border-bottom: 2px solid #000;
+    border-right: 2px solid #000;
+    border-top: 2px solid #000;
+    z-index: 3;
+    border-radius: 0 0.5rem 0.5rem 0;
 }
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+CHECKOUT BUTTON 
+ 
+--------------------------------
+----------------------------- */
+#checkout-button {
+    grid-column: span 2;
+    text-align: center;
+    opacity: 1;
+    height: 3rem;
+    width: 100%;
+    line-height: 3rem;
+
+    background-color: var(--cryptee-green);
+    color: white;
+    font-weight: 500;
+    padding: 0 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 2px rgba(14,88,40,0);
+    
+    transition-duration: 0.5s;
+    transition-property: opacity, border-color;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#checkout-button:focus {
+    box-shadow: 0 0 0 2px rgba(14,88,40,1);
+}
+
+#checkout-button[disabled] {
+    opacity: 0.4;
+}
+
+
 
 .already-have {
     display: none !important;
 }
 
 #coupon-button {
-    position: absolute;
-    top: 0;
-    right: 0;
+    grid-column: 6/8;
+    grid-row: 1/3;
+    margin: 0.5rem 0.5rem 0 auto;
     width: 3rem;
     height: 3rem;
     text-align: center;
@@ -579,6 +779,7 @@ body:not([discount]) #discount-tag {
     opacity: 0.7;
 }
 
+body[current] #coupon-button,
 body:not(.chooseplan) #coupon-button {
     display: none !important;
 }
@@ -616,7 +817,16 @@ PROCESSING PAYMENT
 ----------------------------- */
 
 body.processing #chosenplan {
-    opacity: 0;
+    pointer-events: none !important;
+}
+
+body.processing #card-details,
+body.processing #billing-details, 
+body.processing .stripe-input, 
+body.processing #billing-name,
+body.processing #countries,
+body.processing input {
+    pointer-events: none !important;
 }
 
 body.processing #checkout-button {
@@ -633,16 +843,10 @@ body.processing #checkout-button::before {
     content: "processing...";
 }
 
-body.processing input,
-body.processing #card {
-    opacity: 0.3 !important;
-    pointer-events: none !important;
-}
-
 body.processing #vat-number {
-    max-width: 0rem !important;
     pointer-events: none !important;
-    opacity: 0 !important;
+    opacity: 0.3 !important;
+    border-radius: 0.5rem !important;
 }
 
 body.processing #company {
@@ -659,7 +863,9 @@ THANK YOU
 --------------------------------
 ----------------------------- */
 
-#thanks, #threeDSError, #dbError, #thanks-switch, #switch-confirm, #switching {
+
+/* #thanks, #threeDSError, #dbError, #thanks-switch, #switch-confirm, #switching, */
+.plans-popup {
     background-color: var(--cryptee-green);
     color: #FFF;
 
@@ -673,7 +879,7 @@ THANK YOU
     left: 0;
     bottom: 0;
 
-    height: 14.75rem;
+    height: 18rem;
     width: 14.75rem;
 
     padding: 4rem;
@@ -686,6 +892,17 @@ THANK YOU
     transition-timing-function: var(--cryptee-cb);
 }
 
+.plans-popup button.green {
+    background-color: var(--cryptee-green);
+    color: #FFF;
+    padding: 1rem 2rem;
+    height: 3.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    text-align: center;
+}
+
 #threeDSError {
     background-color: var(--cryptee-yellow);
     color: #121212;
@@ -694,20 +911,17 @@ THANK YOU
 
 #switch-confirm, #switching {
     background-color: var(--cryptee-0);
+    height: 21rem;
 }
 
-#switch-confirm {
-    height: 16rem;
-}
-
-#thanks-switch {
-    height: 16rem;
+#thanks-switch, #thanks {
+    height: 21rem;
 }
 
 #dbError {
     background-color: var(--cryptee-blue);
     color: #FFF;
-    height: 23rem;
+    height: 20rem;
 }
 
 body:not(.thanks) #thanks,
@@ -722,6 +936,35 @@ body:not(.thanks-switch) #thanks-switch {
 }
 
 
+body.thanks #countries,
+body.thanks #payment-info,
+body.thanks #card-details,
+body.thanks #billing-details, 
+body.thanks .stripe-input, 
+body.thanks #billing-name,
+body.thanks #checkout-button,
+body.thanks input,
+body.threeds #countries,
+body.threeds #payment-info,
+body.threeds #card-details,
+body.threeds #billing-details, 
+body.threeds .stripe-input, 
+body.threeds #billing-name,
+body.threeds #checkout-button,
+body.threeds input,
+body.dberror #countries,
+body.dberror #payment-info,
+body.dberror #card-details,
+body.dberror #billing-details, 
+body.dberror .stripe-input, 
+body.dberror #billing-name,
+body.dberror #checkout-button,
+body.dberror input
+{
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 
 
 /* -----------------------------
@@ -732,94 +975,78 @@ MEDIA
 --------------------------------
 ----------------------------- */
 
-
-
-@media (max-width : 944px) {
-    body { column-gap: 2rem; }
+@media (max-height : 912px) {
+    body {
+        grid-template-rows: 1rem 2rem 1rem 0rem 4rem minmax(22rem, 1fr) 4rem 1fr 4rem;
+    }
 }
 
-@media (max-width : 832px) {
-    body { 
-        display: block;
-        padding: 1rem 4rem;
-        width: auto !important;
-        height: auto !important;
-        overflow: scroll !important;
-        position: initial !important;
-    }
-    
-    body.billing {
-        position: fixed !important;
-        height: 100% !important;
-        overflow: hidden;
-    }
-
-    #period, #select {
-        margin-bottom: 2rem;
-    }
+@media (max-width : 320px) {
 
     .plan {
-        padding-top: 4rem;
+        max-width: 16.75rem;
+        margin: 2rem auto;
+    }
+        
+    #choose-plan, #payment-info {
+        grid-row: 1/2;
+        font-size: 1.25rem; 
+        letter-spacing: 1px;
+        padding: 0 2rem; 
     }
 
-    #period, .plan {
-        max-width: 16rem;
-        margin: auto;
+    #period, #plans {
+        grid-row: 5/7;
     }
-    
-    #non-profit {
-        margin-top: 2rem;
-    }
-}
-
-
-@media (max-width : 544px) {
-    body {  padding: 1rem 0 3rem 0; }
-    
-    #select, #period { padding: 0 4rem; }
-    #non-profit { padding: 0 2rem; }
 
     #billing {
-        top: 0rem;
-        width: 100%;
-        padding-top: 6rem;
-        background-color: transparent;
+        padding: 0;
     }
 
-    #card {
-        grid-template-columns: 4rem 2rem 6rem;
+    #billing > *:not(input):not(.stripe-input):not(select):not(small):not(#checkout-button):not(#company) {
+        width: 18rem;
+        margin: 0 auto;
+    }
+
+    #billing input + small {
+        margin-bottom: 0rem !important;
+    }
+
+    #countries {
+        padding-left: 1rem;
     }
     
-    #billing-email, #company {
-        width: 16rem !important;
+    #card-pan,
+    #vat-number,
+    #countries { 
+        border-radius: 0 0.5rem 0.5rem 0 !important; 
     }
 
-    #checkout-button,
-    #vat-number {
-        margin-top: 0rem !important;
+    #billing-zip,
+    #card-cvc,
+    #checkout-button { 
+        border-radius: 0.5rem 0 0 0.5rem !important; 
     }
 
-    #checkout-button {
-        margin-right: calc(100% - 20rem) !important;
+    #billing-name,
+    #billing-email { 
+        border-radius: 0 !important; 
+    }
+
+    #company, #company small, #company i {
+        border-radius: 0 !important;
+    }
+
+    .plans-popup {
+        width: 14rem;
+        padding: 3rem;
+    }
+
+    #switch-confirm {
+        height: 21.5rem;
     }
 
 }
-
-@media (max-width : 352px) { 
-
-    #checkout-button {
-        margin-right: 2rem !important;
-    }
-
-    #chosenplan { margin-bottom: 1rem; }
-    #billing input + small {margin-bottom: 1rem;}
-
-    #chosenbilling[period="yr"]::before {
-        content: attr(cur) attr(price) "/mo billed yearly";
-    }
-    
-}
-
 
 
 
@@ -835,5 +1062,6 @@ ENABLE HOVERS
 @media (-moz-touch-enabled: 0), (pointer:fine) { 
     #logo:hover img { opacity: 1 !important; }
     #coupon-button:hover { opacity: 1 !important; }
+    #countries:hover { box-shadow: 0 0 0 2px var(--cryptee-3) !important; }
 }
 

@@ -73,7 +73,7 @@ function authenticate(authenticatedCallback, unauthenticatedCallback, errorCallb
     var authStartTime = (new Date()).getTime();
     breadcrumb('[AUTH] Re/Authenticating');
     
-    firebase.auth().onAuthStateChanged(function(user){
+    firebase.onAuthStateChanged(firebase.getAuth(), function(user){
         if (user) {
             // user logged in
             var authEndTime = (new Date()).getTime();
@@ -982,7 +982,7 @@ function logOut() {
     purgeOfflineStorage();
     purgeLocalCache();
 
-    firebase.auth().signOut().then(function () {
+    firebase.signOut(firebase.getAuth()).then(function () {
         
         purgeLocalAndSessionStorage();
         purgeOfflineStorage();

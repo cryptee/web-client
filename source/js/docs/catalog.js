@@ -934,6 +934,10 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
 
     serverFolders.forEach(folder => {
         var fid = folder.folderid;
+
+        // for some reason if there's no folderid, since this is the key we need for storing things, skip to avoid headaches
+        if (!fid) { return; } 
+        
         var catalogFolder = catalogFolders[fid] || {};
 
         if (
