@@ -437,8 +437,14 @@ function updateVisibleViewport(range) {
     // only for mobile. 
     if (!isMobile) { return; } 
     
-    // on android we don't need visualviewport, keyboard triggers window resize events
-    if (isios || isipados) { 
+
+    // on android keyboard used to trigger window resize events,
+    // but now it triggers visualviewport resize instead as of chrome 108, released in October 2022
+    // https://developer.chrome.com/blog/viewport-resize-behavior/
+    // so with the exception of Firefox Android, all browsers use visualViewport now
+    // on firefox this causes an extra tiny bit of animation but it's okay.
+    // leaving this if/else clause here in case if you ever need to re-enable it 
+    // if (isios || isipados || (isAndroid && !isFirefox)) { 
         
         // STEP 1 – Move the Toolbar on iOS    
         var viewport = window.visualViewport || { height : window.innerHeight };
@@ -450,7 +456,7 @@ function updateVisibleViewport(range) {
         // STEP 2 – Determine if keyboard is opening / closing, so you can crop the editor, and fire keyboard opened / closed events
         cropEditorAccordingtoVisibleViewport();
         
-    }
+    // }
 
     // STEP 3 – SCROLL THE EDITOR TO THE CURSOR (EVEN IF IT'S BEHIND THE TOOLBAR / KEYBOARD)
     // now let's make the editor scroll to the selection while typing / when tapped on, and make sure it's not behind the keyboard.

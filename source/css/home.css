@@ -1,7 +1,7 @@
 body {
     display: grid;
     grid-template-columns: minmax(4rem, 1fr) minmax(12rem, 32rem) minmax(4rem, 1fr);
-    grid-template-rows: 1rem 2rem 1rem 1fr 24rem 1fr 1rem 2rem 1rem;
+    grid-template-rows: 1rem 2rem 1rem 1fr 8rem 1fr 1rem 2rem 1rem;
 }
 
 .dm body {
@@ -47,7 +47,7 @@ main {
     transition: 0.5s opacity var(--cryptee-cb);
 }
 
-main .appButton {
+.appButton {
     margin-top: 0;
     background-color: #FFF;
     text-align: center;
@@ -62,16 +62,7 @@ main .appButton {
     transition: 0.3s box-shadow var(--cryptee-cb);
 }
 
-.dm main .appButton {
-    background-color: var(--cryptee-0);
-}
-
-main .appButton[app="upgrade"] {
-    background-color: var(--cryptee-green);
-    border-radius: 4rem;
-}
-
-main .appButton img {
+.appButton img {
     height: 1rem;
     width: 1rem;
     object-fit: contain;
@@ -80,21 +71,7 @@ main .appButton img {
     user-select: none;
 }
 
-main .appButton[app="upgrade"] img,
-.dm main .appButton img  {
-    filter: invert(1);
-}
-
-main .appButton[app="install"] img {
-    transform: rotate(45deg);
-    filter: invert(1);
-}
-
-.dm main .appButton[app="install"] img {
-    filter: invert(0);
-}
-
-main .appButton > span {
+.appButton > span {
     display: block;
     line-height: 1.25rem;
     width: 6rem;
@@ -102,9 +79,74 @@ main .appButton > span {
     margin: 0 -1rem;
 }
 
+footer {
+    grid-column: 1/-1;
+    grid-row: 6/7;
+    padding: 0 1rem;
+    
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 1rem;
+}
 
+.actionButton {
+    display: grid;
+    height: 3rem;
+    grid-template-columns: 3rem 1fr;
+    line-height: 3.25rem;
+    overflow: hidden;
+    width: 100%;
+    max-width: 20rem;
+    background-color: #FFF;
+    border-radius: 0.5rem;
 
+    opacity: 1;
+    transform: translateY(0);
+    transition-property: transform, opacity;
+    transition-duration: 0.5s;
+    transition-timing-function: var(--cryptee-cb);
+    margin: 0 auto;
+}
 
+.actionButton img {
+    width: 1rem;
+    padding: 1rem;
+}
+
+.actionButton[app="upgrade"] {
+    background-color: var(--cryptee-green) !important;
+    color: #FFF;
+}
+
+.actionButton[app="install"] img {
+    transform: rotate(45deg);
+    filter: invert(1);
+}
+
+.dm .actionButton[app="install"] img {
+    filter: invert(0);
+}
+
+.actionButton[app="upgrade"] img,
+.dm .appButton img {
+    filter: invert(1);
+}
+
+.dm .appButton,
+.dm .actionButton {
+    background-color: var(--cryptee-0);
+}
+
+.actionButton:not(.willBeShown) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(1rem);
+}
+
+.actionButton:nth-child(1) { transition-delay: 0.075s; }
+.actionButton:nth-child(2) { transition-delay: 0s; }
 
 .callout {
     color: var(--cryptee-green);
@@ -388,8 +430,10 @@ NEWS
 }
 
 body:not(.show-news) #news-card { pointer-events: none !important; }
-body:not(.show-news) #news-card div { transform: translateY(14rem); }
-body:not(.show-news) #news-card a.more { transform: translateY(14rem)  translateX(0.75rem); }
+body:not(.show-news) #news-card div { transform: translateY(16rem); }
+body:not(.show-news) #news-card a.more { transform: translateY(16rem)  translateX(0.75rem); }
+
+body.show-news .actionButton { opacity: 0; transform: translateY(1rem); }
 
 .newsButton { cursor: pointer; }
 
@@ -432,7 +476,7 @@ MEDIA QUERIES
 @media (max-width : 374px) {
 
     body {
-        grid-template-rows: 1rem 2rem 1rem 1fr 20rem 1fr 1rem 2rem 1rem;
+        grid-template-rows: 1rem 2rem 1rem 1fr 8rem 1fr 1rem 2rem 1rem;
     }
 
     #offerButton {

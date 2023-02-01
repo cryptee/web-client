@@ -23,7 +23,7 @@ function idleTimer() {
         if (isOnline()) {
             if (idleTime > 4) { saveDoc(); }
         } else {
-            if (idleTime > 2) { saveDoc(); }
+            if (idleTime > 1) { saveDoc(); }
         }
     }
 

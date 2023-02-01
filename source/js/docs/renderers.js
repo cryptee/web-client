@@ -214,6 +214,8 @@ async function refreshDOM(autoRefresh) {
             var activeDocName = docName(activeDoc);
             $("#panel-docinfo").find(".name").text(activeDocName);
 
+            // set document name in the browser tab
+            document.title = "Cryptee | " + activeDocName;
 
 
             // folder name & id

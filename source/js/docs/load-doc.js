@@ -6,7 +6,7 @@
 
 $("body").on('click', '.doc > .info', function(event) {
     var did = $(this).parent().attr("did");
-    clearSearchOnlyIfNecessary();
+    // clearSearchOnlyIfNecessary();
     prepareToLoadDoc(did);
 }); 
 

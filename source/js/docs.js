@@ -520,10 +520,10 @@ function startOffline() {
     //
 
     // since there's stuff in catalog, we'll use the left pane progress bar for syncs
-    setTimeout(function () {
+    // setTimeout(function () {
         hideBodyProgress();
         setTimeout(function () { if (isTouch) {  $("html, body").addClass("overflowBG");  }  }, 500);
-    }, 500);
+    // }, 500);
     
     //
     //
@@ -565,10 +565,10 @@ async function preStartup() {
             showBodyProgress("starting", "decrypting files & folders...");
         } else {
             // if there's stuff in catalog, we'll instead use the left pane progress bar as we sync
-            setTimeout(function () {
+            // setTimeout(function () {
                 hideBodyProgress();
                 setTimeout(function () { if (isTouch) {  $("html, body").addClass("overflowBG");  }  }, 500);
-            }, 500);
+            // }, 500);
         }
 
     } catch (error) {}
@@ -684,10 +684,11 @@ $(document).on("ready", function () {
     if (isMobile) {
         $("body").addClass("bubble");
         
-        setTimeout(function () {
-            swiper.update();
-            closeSidebarMenu();
-        }, 500);
+        // this makes it instant without waiting for the closeSidebar to animate
+        $(".swiper-wrapper").scrollLeft(320);
+        closeSidebarMenu();
+
+        setTimeout(function () { swiper.update(); }, 500);
     }
 
     ////////////////////////////////////////////////
@@ -701,6 +702,8 @@ $(document).on("ready", function () {
         pinSidebar();
     } else {
         unPinSidebar();
+        // this makes it instant without waiting for the closeSidebar to animate
+        $(".swiper-wrapper").scrollLeft(320); 
         closeSidebarMenu();
     }
 
@@ -760,7 +763,9 @@ function sidebarOpened() {
     hidePanels();
 
     // on mobile / touch, if you blur when sidebar is opened, it'll hide the keyboard causing lag while swiping. so fire this only on desktop on mobile we're fine anyway. 
-    if (!isTouch) { quill.blur(); }
+    try {
+        if (!isTouch) { quill.blur(); }
+    } catch (error) {}
 
     sidebarOpenedClosedRecalcPaperOverflow();
 }

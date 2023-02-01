@@ -511,10 +511,17 @@ async function processEncryptAndUploadPhoto(uploadID) {
     var canvasNo = chooseAnAvailableCanvas();
     assignUploadToSlotNo(uploadID, canvasNo);
 
+    // looks like if we try to decode all 4 at the same time, sometimes browsers don't like it and throw errors. 
+    // this is to make sure images never decode all at the same time. By the time we get to the 4th one, it's already 500ms past,
+    // and 4th one should go through without any delays
+    // in case if there's still issues, we have another 1000ms timeout in the generateThumbnailsAndMetaOfImageFile just to make sure
+    var waitXMSBeforeDecodingImage = (canvasNo - 1) * 250;
+    if (waitXMSBeforeDecodingImage) { await promiseToWait(waitXMSBeforeDecodingImage); }
+
     // generate an additional fileKey for this photo (and its thumbnails etc)
-    var fileKeys = [theKey];
-    var { fileKey, wrappedKey } = await generateFileKey();
-    if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
+    // var fileKeys = [theKey];
+    // var { fileKey, wrappedKey } = await generateFileKey();
+    // if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
 
     // generate thumbnails, generate dominant color and get date from exif using the original file (originalFile = upload.plaintextFile)
     var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo);
@@ -591,7 +598,7 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
         img.src = blobURL;
     } catch (error) {
         handleError("[UPLOAD] Failed to get image object url", error);
-        return "";
+        return {};
     }
     
     var retryDecoding = false;
@@ -605,19 +612,26 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
         retryDecoding = true;
     }
     
-    // timeout 500ms and retry decoding.
-    // Rarely, if you try to decode all 4 images simultaneously, decode may throw an error on low end devices.
-    if (retryDecoding) { await new Promise(resolve => setTimeout(resolve, 500)); }
-    
-    try {
-        breadcrumb("[UPLOAD] Decoding image [again]");
-        await img.decode();
-        breadcrumb("[UPLOAD] Decoded image [on second try]");
-    } catch (error) {
-        handleError("[UPLOAD] Failed to decode image. [again]", error);
-        revokeObjectURL(blobURL);
-        return {};
+    if (retryDecoding) {
+        
+        // timeout 500ms and retry decoding.
+        
+        // Rarely, if you try to decode all 4 images simultaneously, decode may throw an error on low end devices.
+        
+        await promiseToWait(500);
+
+        try {
+            breadcrumb("[UPLOAD] Decoding image [again]");
+            await img.decode();
+            breadcrumb("[UPLOAD] Decoded image [on second try]");
+        } catch (error) {
+            handleError("[UPLOAD] Failed to decode image. [again]", error);
+            revokeObjectURL(blobURL);
+            return {};
+        }
+
     }
+    
     
     var width = img.width;
     var height = img.height;
@@ -706,6 +720,13 @@ async function processEncryptAndUploadVideo(uploadID) {
     // choose and lock a player for this upload
     var playerNo = chooseAnAvailablePlayer();
 
+    // looks like if we try to decode all 4 at the same time, sometimes browsers don't like it and throw errors. 
+    // this is to make sure images/videos never decode all at the same time. By the time we get to the 4th one, it's already 500ms past,
+    // and 4th one should go through without any delays
+    // in case if there's still issues, we have another 1000ms timeout in the generateThumbnailsAndMetaOfImageFile just to make sure
+    var waitXMSBeforeDecodingImage = (canvasNo - 1) * 250;
+    if (waitXMSBeforeDecodingImage) { await promiseToWait(waitXMSBeforeDecodingImage); }
+
     var thumbsAndMeta = await generateThumbnailsAndMetaOfVideoFile(upload.plaintextFile, upload.type, canvasNo, playerNo);
 
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, playerNo);
@@ -781,7 +802,7 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
         source.setAttribute("src", blobURL);
     } catch (error) {
         handleError("[UPLOAD] Failed to get video object url", error);
-        return "";
+        return {};
     }
 
     video.load();

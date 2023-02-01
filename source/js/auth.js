@@ -58,6 +58,22 @@ var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUs
 var usedStorage, allowedStorage, remainingStorage;
 var paddleCancelURL, paddleUpdateURL;
 
+// we use sessionUser to bypass the initial auth call, and instead delay / wait for auth at getIdToken() calls. 
+// this allows us to improve startup UX by 500 - 1000ms 
+// and gives a better overall experience. 
+
+// downside of this is that there's a few functions on theUser we can't serialize and save to sessionStorage.
+// so we have to be super careful about these to prevent crashes in the future.
+// to check if we got server auth, we'll sue waitingForAuth. 
+
+var sessionUser;
+var waitingForAuth = true;
+
+try {
+    sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
+    if (!sessionUser) { breadcrumb('[AUTH] Likely not logged in, no session user found.'); }
+} catch (e) {}
+
 /**
  * Authenticate user. This is usually the first thing on every page.
  * @param {function} authenticatedCallback the callback function when the user is authenticated 
@@ -72,21 +88,38 @@ function authenticate(authenticatedCallback, unauthenticatedCallback, errorCallb
 
     var authStartTime = (new Date()).getTime();
     breadcrumb('[AUTH] Re/Authenticating');
+
+    if (sessionUser) { 
+        gotNewAuthState(sessionUser, true); 
+    }
     
-    firebase.onAuthStateChanged(firebase.getAuth(), function(user){
+    firebase.onAuthStateChanged(firebase.getAuth(), gotNewAuthState, function (error) {
+        if (error.code !== "auth/network-request-failed") {
+            handleError("[AUTH] Error Authenticating", error);
+        }
+        errorCallback(error);
+    });
+
+    function gotNewAuthState(user, isSessionUser) {
+        
+        // if this is not called by the sessionUser, then we know we got server auth, and we're not longer waiting for auth.
+        // this means, all pendingGetIdToken calls will go through now.
+        if (!isSessionUser) { waitingForAuth = false; }
+
         if (user) {
             // user logged in
             var authEndTime = (new Date()).getTime();
             var timeToAuth = (authEndTime - authStartTime) + "ms";
-            
-            breadcrumb("[AUTH] Logged In. Took " + timeToAuth);
+
+            if (!isSessionUser) { breadcrumb("[AUTH] Got server auth in " + timeToAuth); }
+
             setSentryTag("time-to-auth", timeToAuth);
-            
-            createUserDBReferences(user);
+
+            createUserDBReferences(user, isSessionUser);
 
             // CHECK IF USER HAS KEY, AND WE'RE DONE. 
             // IF USER DOESN'T HAVE KEY, WE'LL TAKE TO SIGNUP IN GETKEYCHECK
-            getKeycheck().then(()=>{
+            getKeycheck().then(() => {
                 getFreshToken(user);
                 authenticatedCallback(user);
             });
@@ -98,29 +131,109 @@ function authenticate(authenticatedCallback, unauthenticatedCallback, errorCallb
             breadcrumb('[AUTH] Not Logged In');
 
             unauthenticatedCallback();
-            
+
             purgeLocalAndSessionStorage();
             purgeOfflineStorage();
             purgeLocalCache();
         }
-    }, function (error) {
-        if (error.code !== "auth/network-request-failed") {
-            handleError("[AUTH] Error Authenticating", error);
-        }
-        errorCallback(error);
-    });
+    }
 }
 
 
 async function getFreshToken(user) {
-    breadcrumb("[AUTH] Getting a new token.");
+    
+    breadcrumb("[AUTH] Getting a fresh session token...");
+    
     try {
-        await user.getIdTokenResult(true);
+        
+        var idToken = (await user.getIdTokenResult(true)).token;
+        
+        breadcrumb("[AUTH] Got a fresh session token!");
+
+        // set the new idtoken to the user
+        theUser.latestIDToken = idToken;
+
+        // set the updated user to session storage
+        try { sessionStorage.setItem("sessionUser", JSON.stringify(theUser)); } catch (e) { }
+
     } catch (error) {
+        
         // this is most likely going to get triggered when user gets redirected away too quickly on login / home etc.
         breadcrumb("[AUTH] Error Getting Fresh Token");
+
     }
-    breadcrumb("[AUTH] Got a new token.");
+
+}
+
+/**
+ * This is a theUser.getIdToken substitute. It waits for server auth THEN returns the ID Token.
+ * This way all actions that require ID token / auth will wait for auth to complete, while we keep UX consistent.
+ * @returns {Promise<Object>} idToken
+ */
+async function getIdTokenOnceAuthenticated() {
+    
+    
+    // check if the latest token expired, (or is about to expire in 10 mins) and if not keep using it instead of getting a new token
+    if (theUser && theUser.latestIDToken) {
+        
+        // get current time
+        var now = Date.now();
+        var latestIDTokenExpires = 0;
+        
+        try {
+            // original expiry date - 10 minutes 
+            latestIDTokenExpires = (JSON.parse(atob(theUser.latestIDToken.split(".")[1])).exp * 1000) - (10 * (1000 * 60));
+        } catch (error) {
+            handleError("[AUTH] Failed to decode token to get expiry date", error);
+        }
+
+        var minsToExpiry = parseInt((latestIDTokenExpires - now) / 1000 / 60);
+        
+        if (now >= latestIDTokenExpires) {
+            // we need to get a new token and wait
+            breadcrumb(`[AUTH] We need a new token, latest token expired ${minsToExpiry} mins ago.`);
+        } else {
+            // we can continue using the existing token 
+            breadcrumb(`[AUTH] Will use existing id token, there is still ${minsToExpiry} mins before it expires`);
+            return theUser.latestIDToken;
+        }
+
+
+    } 
+
+
+    if (waitingForAuth) { 
+
+        // we still didn't get auth. wait 100ms then try again. 
+
+        await promiseToWait(100);
+        
+        return getIdTokenOnceAuthenticated();
+
+    } else {
+                
+        // we got auth, so let's get an id token from local or server. 
+        // Technically this will get token from local for 10 more mins before it expires, and the overlap is intentional.
+        // This allows us to make sure uploads / saves / long running stuff doesn't fuck stuff up during those 10mins etc
+
+        let idToken = await theUser.getIdToken();
+        
+        if (idToken !== theUser.latestIDToken) {
+            breadcrumb("[AUTH] Got a new session token!");
+        } else {
+            breadcrumb("[AUTH] Continuing to use the current session token!");
+        }
+
+        // set the new idtoken to the user
+        theUser.latestIDToken = idToken;
+        
+        // set the updated user to session storage
+        try { sessionStorage.setItem("sessionUser", JSON.stringify(theUser)); } catch (e) { }
+
+        return idToken;
+
+    }
+
 }
 
 ////////////////////////////////////////////////
@@ -131,18 +244,29 @@ async function getFreshToken(user) {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-function createUserDBReferences(user) {
+async function createUserDBReferences(user, isSessionUser) {
   
     ///////////////////////////////////////
     // REFERENCES TO BE USED IN ALL APPS //
     ///////////////////////////////////////
-  
-    theUser          = user;
-    theUserID        = theUser.uid;
-    theEmail         = theUser.email;
-    theUserJSON      = theUser.toJSON();
-    theUsername      = theUser.displayName;
-    emailVerified    = theUser.emailVerified;
+    
+    theUser                 = user;
+    theUserID               = theUser.uid;
+    theEmail                = theUser.email;
+    theUsername             = theUser.displayName;
+    emailVerified           = theUser.emailVerified;
+    
+    if (!isSessionUser) {
+        // if we got the user from the server 
+        theUserJSON             = theUser.toJSON();
+        theUser.latestIDToken   = await theUser.getIdToken();
+    } else {
+        // if we got the user from the session storage
+        theUserJSON  = theUser;
+    }
+    
+    try { sessionStorage.setItem("sessionUser", JSON.stringify(theUser)); } catch (e) {}
+
     theUserCreatedAt = parseInt(theUserJSON.createdAt || "0");
   
     if (theUserJSON.providerData[0]) {

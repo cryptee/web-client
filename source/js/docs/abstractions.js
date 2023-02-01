@@ -148,6 +148,8 @@ async function prepareRenameModal(id) {
     showModal("modal-rename");
     breadcrumb('[RENAME] Showing rename modal for ' + id);
     
+    if (!isMobile) { $("#rename-input")[0].select(); }
+
     hideRightClickDropdowns();
     hidePanels();
 

@@ -59,7 +59,8 @@ function secondTimeHome() {
 
     if (!theUserPlan || theUserPlan === "free") { 
         // show upgrade button for continued users
-        $(".appButton[app='upgrade']").show();  
+        $(".actionButton[app='upgrade']").show();
+        $(".actionButton[app='upgrade']").addClass("willBeShown");  
     }
 
     getLatestNews();
@@ -77,7 +78,8 @@ function checkForPWAAndDisplayInstallationButton() {
     // at this point, fuck it, I legit just want to stop recommending android firefox. ffs.
     if (isFirefox && isAndroid) { return; }
     
-    $(".appButton[app='install']").show();
+    $(".actionButton[app='install']").show();
+    $(".actionButton[app='install']").addClass("willBeShown");
 
     if (isios || isipados) {
         if (isSafari) { 
@@ -225,7 +227,7 @@ key('u', function () {
     // update first if necessary
     if (isUpdateAvailable()) { reloadForNewVersion(); return false; }
 
-    $(".appButton[app='upgrade']").trigger("click");
+    $(".actionButton[app='upgrade']").trigger("click");
     return false;
 });
 

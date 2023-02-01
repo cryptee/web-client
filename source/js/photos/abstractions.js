@@ -1412,6 +1412,9 @@ function showEditAlbumPopup(aid) {
     updateEditAlbumPopupContents(aid);
     
     showPopup("popup-album-info");
+
+    if (!isMobile) { $("#album-name")[0].select(); }
+    
 }
 
 $("#albumContents").on('click', "#albumheader", function () {

@@ -311,6 +311,9 @@ th { text-align: left; }
 .lowercase { text-transform: lowercase; }
 .uppercase { text-transform: uppercase; }
 .monospace { font-family: monospace; font-weight: 300; }
+small.monospace,
+.monospace.small { font-size: 0.65rem; }
+
 
 /* functions */
 
@@ -1107,10 +1110,6 @@ MODALS
 
 .modal.wide {
     width: 26rem;
-}
-
-.dm .modal {
-    background-color: var(--cryptee-0);
 }
 
 .modal:not(.show) {

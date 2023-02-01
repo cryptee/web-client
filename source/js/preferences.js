@@ -22,99 +22,28 @@ if (darkMode) {
         setSentryTag("color-scheme", "light");
     } catch (e) {}
 }
-
-function prepareForPrint() {
-    printMode = true;
-    darkModePrefBeforePrint = darkMode;
-    if (darkModePrefBeforePrint) {
-        breadcrumb('[PRINT] Preparing to print, editor was in dark mode');
-    } else {
-        breadcrumb('[PRINT] Preparing to print, editor was in light mode');
-    }
-    deactivateDarkMode();
-}
-
-var printMode = false;
-var darkModePrefBeforePrint;
+                                            
 try {
-    var printMediaQuery = window.matchMedia("print");
-
-    if (!isSafari && !isios && !isipados) {
-        printMediaQuery.addEventListener("change", (e) => { 
-            if (e.matches) {
-                prepareForPrint();
-            } else {
-                printMode = false;
-            }
-            
-        });
-    } else {
-        if (printMediaQuery) {
-            printMediaQuery.addListener((e) => {
-                if (e.matches) { 
-                    prepareForPrint();
-                } else {
-                    printMode = false;
-                }
-            });
-        }
-    }
-
-} catch (error) {
-    handleError("Couldn't add matchMedia listener for print mode", error);
-}
-
-try {
+    
+    // var printMediaQuery = window.matchMedia("print");
     var darkmodeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    
-    if (!isSafari && !isios && !isipados) {
-        darkmodeMediaQuery.addEventListener("change", (e) => {
-            if (e.matches && !printMode && darkModePrefBeforePrint) { turnDarkModeOn(); }
-        });
-    } else {
-        if (darkmodeMediaQuery) {
-            darkmodeMediaQuery.addListener((e) => {
-                if (e.matches && !printMode && darkModePrefBeforePrint) { turnDarkModeOn(); }
-            });
-        }
-    }
-    
-} catch (error) {
-    handleError("Couldn't add matchMedia listener for dark mode", error);
-}
-
-try {
     var lightmodeMediaQuery = window.matchMedia("(prefers-color-scheme: light)");
     
-    if (!isSafari && !isios && !isipados) {
-        lightmodeMediaQuery.addEventListener("change", (e) => {
-            if (e.matches && !printMode) { turnDarkModeOff(); }
-        });
-    } else {
-        if (lightmodeMediaQuery) {
-            lightmodeMediaQuery.addListener((e) => {
-                if (e.matches && !printMode) { turnDarkModeOff(); }
-            });
-        }
-    }
+    darkmodeMediaQuery.onchange = (e) => { if (e.matches) { turnDarkModeOn(); } };
+    lightmodeMediaQuery.onchange = (e) => { if (e.matches) { turnDarkModeOff(); } };
 
 } catch (error) {
-    handleError("Couldn't add matchMedia listener for dark mode", error);
+    handleError("Couldn't add matchMedia listener for light/dark mode", error);
 }
 
-
 function turnDarkModeOn() {
-    try {
-       localStorage.setItem("darkMode", 1);
-    } catch (error) {}
+    try { localStorage.setItem("darkMode", 1); } catch (error) {}
     darkMode = true;
     activateDarkMode();
 }
 
 function turnDarkModeOff() {
-    try {
-        localStorage.removeItem("darkMode");
-    } catch (error) {}
+    try { localStorage.removeItem("darkMode"); } catch (error) {}
     darkMode = false;
     deactivateDarkMode();
 }

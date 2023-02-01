@@ -56,8 +56,27 @@ Quill.register('modules/clipboard', CrypteeClipboard, true);
 
 $(document).on('paste', function(e) {
     
+    // 
+    // CONDITIONS TO ALLOW REGULAR PASTE AND RETURN
+    // 
+
     // this means the key screen is visible, and user's trying to paste to the key screen.
     if (!theKey) { return true; }
+    
+    // allow paste into the new doc name input
+    if ($("#new-doc-input").is(":focus")) { return true; }
+    
+    // allow paste into the copy doc name input
+    if ($("#copy-doc-input").is(":focus")) { return true; }
+    
+    // allow paste into the new folder name input
+    if ($("#new-folder-input").is(":focus")) { return true; }
+    
+    // allow paste into the rename doc/folder input
+    if ($("#rename-input").is(":focus")) { return true; }
+
+    // allow paste into the search input
+    if ($("#searchInput").is(":focus")) { return true; }
     
     var clipboardData = (e.originalEvent || e).clipboardData;
     if (!clipboardData) { return false; }
@@ -69,6 +88,10 @@ $(document).on('paste', function(e) {
         noOpenDocumentPopup();
         return false; 
     }
+
+    // 
+    // CONDITIONS TO HANDLE QUILL PASTE
+    // 
 
     var lastSelectionRangeIndex = getLastSelectionRange().index;
 

@@ -148,6 +148,7 @@ function loginWithPassword(email, pswrd) {
                 if you have an e-mail on file, please use that instead of your username, otherwise please try again`, 
                 "warning"
             );
+            breadcrumb('[LOGIN] Wrong pass / User Not Found / Invalid Email');
         } else if (errorCode === 'auth/user-disabled') {
             showPopup(
                 "popup-login", 
@@ -156,10 +157,22 @@ function loginWithPassword(email, pswrd) {
                 seems like this user is deactivated. please contact our support if you think this is a mistake`, 
                 "error"
             );
+            breadcrumb('[LOGIN] User Disabled');
+        } else if (errorCode === 'auth/network-request-failed') { 
+            showPopup("popup-login", `seems like your browser, ad-blocker, dns / vpn / network filter is blocking a connection either to ours or google's authentication server(s). please try disabling your ad / content blockers, dns / vpn / network filters (if you have any), check your internet connection and try again.`, "error");
+            breadcrumb('[LOGIN] No network (or login server blocked)');
+        } else if (errorCode === 'auth/too-many-requests') {
+            showPopup("popup-login", `due to unusual activity, the requests from this device, ip address or user are temporarily blocked. please try again after some time or contact our support team for more information.`, "error");
+            breadcrumb('[LOGIN] Unusual activity.');
+            handleError("[LOGIN] Unusual activity.");
+        } else if (errorCode === 'auth/web-storage-unsupported') {
+            showPopup("popup-login", `a feature required by cryptee to store account information locally in your browser to log you in seems to be missing, disabled or blocked. please try enabling localStorage, sessionStorage and IndexedDB, then try logging in again after restarting your browser. alternatively, try using another browser which supports these features.`, "error");
+            handleError("[LOGIN] Web Storage Unsupported");
         } else {
             showPopup( "popup-login",  `there seems to be an error logging you in. please try again shortly.`,  "warning" );
+            breadcrumb('[LOGIN] Other unknown error.');
+            handleError("[LOGIN] Unknown login error", error);
         }
-
         stopProgress();
         disableGoogleButtonIfNecessary();
     });

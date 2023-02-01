@@ -45,7 +45,7 @@ async function api(path, params, data, method, timeout) {
     // first get id token for getting auth for the api call
 
     try {
-        idToken = await theUser.getIdToken();
+        idToken = await getIdTokenOnceAuthenticated();
         // breadcrumb("[API] Got ID Token");
     } catch (error) {
         handleError("[API] Can't call /"+path+", couldn't get ID token", error);
@@ -139,7 +139,7 @@ async function uploadFile(rawTextContents, filename, inBackground) {
     // first get id token for getting auth for the upload
 
     try {
-        idToken = await theUser.getIdToken();
+        idToken = await getIdTokenOnceAuthenticated();
         // breadcrumb("[API] Got ID Token");
     } catch (error) {
         handleError("[API] Can't call /"+path+", couldn't get ID token", error);
@@ -553,7 +553,7 @@ async function streamingUploadFile(blob, filename, inBackground) {
     // 
 
     try {
-        idToken = await theUser.getIdToken();
+        idToken = await getIdTokenOnceAuthenticated();
         // breadcrumb("[API] Got ID Token");
     } catch (error) {
         handleError("[API] Can't call /"+path+", couldn't get ID token", error);
@@ -567,7 +567,6 @@ async function streamingUploadFile(blob, filename, inBackground) {
     // 
 
     var startStreamingUploadURL = apiROOT + "/api/chupload";
-    var uploadStarted = (new Date()).getTime();
     breadcrumb("[UPLOAD - STREAM] Stream uploading " + filename);
 
     var headers = { 
@@ -721,7 +720,7 @@ async function streamingDownloadFile(filename, token) {
         downloadURL.searchParams.set("t", token); 
     } else { 
         try {
-            var idToken = await theUser.getIdToken();
+            var idToken = await getIdTokenOnceAuthenticated();
             fetchConfig.headers = { "Authorization": "Bearer " + idToken };
             fetchConfig.withCredentials = true;
         } catch (error) {
@@ -1233,7 +1232,7 @@ async function submitForm(formName, data) {
 
     if (theUser) {
         try {
-            idToken = await theUser.getIdToken();
+            idToken = await getIdTokenOnceAuthenticated();
             // breadcrumb("[API] Got ID Token");
         } catch (error) {
             handleError("[API] Can't call /"+formName+", couldn't get ID token", error);

@@ -463,7 +463,7 @@ LEFT MENU
     opacity: 1;
 }
 
-#searchTips {
+#searchTips, #searchClear {
     grid-column: 16 / 17;
     grid-row: 2 / 4;
     z-index: 4;
@@ -479,15 +479,22 @@ LEFT MENU
     transition: 0.3s opacity ease;
 }
 
-#searchTips i {
+#searchTips i, #searchClear i {
     width: 1rem;
     height: 2rem;
     line-height: 2rem;
     font-size: 1rem;
 }
 
-#searchInput:focus + #searchTips {
+#searchInput:placeholder-shown:focus ~ #searchTips,
+#searchInput:not(:placeholder-shown) ~ #searchClear {
     opacity: 0.7;
+}
+
+#searchInput:not(:placeholder-shown) ~ #searchTips,
+#searchInput:placeholder-shown ~ #searchClear {
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 #searchTips.active { opacity: 1 !important; }
@@ -541,7 +548,6 @@ LEFT MENU
 }
 
 
-
 /* mozilla treats placeholder colors differently. */
 @-moz-document url-prefix() {
     #leftSlide ::placeholder { color: #ccc !important; }
@@ -570,7 +576,8 @@ LEFT MENU
     transition: 0.3s opacity ease;
 }
 
-#searchInput:focus + #searchProgress {
+#searchInput:not(:placeholder-shown) ~ #searchProgress,
+#searchInput:focus ~ #searchProgress {
     opacity: 1;
 }
 
@@ -1459,6 +1466,11 @@ DROPDOWNS
     background-color: var(--cryptee-green);
 }
 
+.dropdown hr {
+    border-top: 0 !important;
+    margin: 0 !important;
+}
+
 .dropdown i {
     margin-left: 0.25rem;
     margin-right: 0.75rem;
@@ -1634,6 +1646,11 @@ PANELS
     height: 3rem;
     line-height: 3rem;
     text-align: center;
+}
+
+.panel hr {
+    border-top: 0 !important;
+    margin: 0 !important;
 }
 
 .panel button small {
@@ -4044,13 +4061,15 @@ ENABLE HOVERS
      
     --------------------------------
     ----------------------------- */
-    #searchInput:hover + #searchTips,
+    #searchInput:hover:placeholder-shown ~ #searchTips,
+    #searchInput:hover:not(:placeholder-shown) ~ #searchClear,
     #searchInput:hover + #searchProgress {
         opacity: 0.5;
     }
 
     #searchTips:hover,
-    #searchInput:focus + #searchTips:hover,
+    #searchInput:focus:placeholder-shown ~ #searchTips:hover,
+    #searchInput:focus:not(:placeholder-shown) ~ #searchClear:hover,
     #searchInput:hover:focus + #searchProgress {
         opacity: 1;
     }

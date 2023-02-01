@@ -17,8 +17,8 @@
         <span class="username"></span>
     </p>
 
+    <!-- apps -->
     <main>
-
         <a class="appButton plain rememberKey" href="/docs" app="docs">
             <img src="../assets/square.svg" alt="docs" draggable="false">
             <span>DOCS</span>
@@ -29,18 +29,20 @@
             <span>PHOTOS</span>
             <!-- <span class="callout" which="home-video" date="July 30, 2022" until="Jan 15, 2023">& videos</span> -->
         </a>
+    </main>
 
-        <a class="appButton plain clickable" app="install" style="display:none;" onclick="showTip('tips-install-pwa');">
+    <!-- actions -->
+    <footer>
+        <a class="actionButton plain clickable" app="install" style="display:none;" onclick="showTip('tips-install-pwa');">
             <img src="../assets/cross.svg" alt="install" draggable="false">
             <span>INSTALL APP</span>
         </a>
-
-        <a class="appButton plain" href="/plans" app="upgrade" style="display:none;">
+        
+        <a class="actionButton plain" href="/plans" app="upgrade" style="display:none;">
             <img src="../assets/triangle.svg" alt="upgrade" draggable="false">
             <span>UPGRADE</span>
         </a>
-
-    </main>
+    </footer>
 
     <nav>
         <p class="menuButton" id="accountButton">
