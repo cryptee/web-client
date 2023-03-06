@@ -516,6 +516,7 @@ firebase.onAuthStateChanged(firebase.getAuth(), function (user) {
 
     theUser = user;
     theUserID = theUser.uid;
+    waitingForAuth = false; // this needs to be set to false here, or else we'll get stuck in an infinite loading screen due to how auth is handled and apis get the tokens now.
     setSentryUser(theUserID);
 
     // (scenario 1) user signed up using email
