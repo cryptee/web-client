@@ -1,0 +1,33 @@
+<div id="panel-contact" class="panel-help">
+    <h3>SEND A QUESTION / FEEDBACK</h3>
+    <p>how can we help you?</p>
+    
+    <section>
+        <input id="contact-form-email" type="email" placeholder="your contact email" name="email" spellcheck="false">
+        <textarea id="contact-form" cols="30" rows="10" placeholder="... how can I ... &#10;train my dog to fetch? ..."></textarea>
+    </section>
+
+    <progress id="sending-help-form" class="progress" value="0" max="100"></progress>
+    
+    <button class="action l md bold" onclick="sendContactForm();">send message</button>
+    <button class="action r sm" onclick="hideHelpPanel();">cancel</button>
+</div>
+
+<div id="panel-bug" class="panel-help">
+    <h3>REPORT AN ERROR</h3>
+    <p>
+        please walk us through the steps that lead to this error, so that we can find out the error and fix it quicker.
+        importantly, please let us know : your device, your operating system, your browser and its version and if you have any browser extensions / add-ons / content or ad-blockers / fingerprinting blockers.
+        finally, let us know if you're on a managed network (i.e. vpn / corporate / campus network etc) or have dns-based content filters (i.e. pi-hole, adguard, nextdns etc)
+    </p>
+
+    <section>
+        <input id="bug-report-form-email" type="email" placeholder="your contact email" name="email" spellcheck="false">
+        <textarea id="bug-report-form" cols="30" rows="10" placeholder="... I was writing my journal using Cryptee Docs on Windows 10 with Google Chrome v97, then my cat jumped onto my laptop and ..."></textarea>
+    </section>
+
+    <progress id="sending-bug-form" class="progress" value="0" max="100"></progress>
+
+    <button class="action l md bold" onclick="sendBugReport();">send error report</button>
+    <button class="action r sm" onclick="hideHelpPanel();">cancel</button>
+</div>

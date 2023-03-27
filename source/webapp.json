@@ -34,23 +34,23 @@
   "theme_color" : "rgb(255,255,255)",
   "screenshots": [
     {
-      "src": "../imgs/hero/cryptee-photos-docs-hero.jpg",
-      "sizes": "1792x896",
+      "src": "../imgs/hero/docs-photos-hero@3x.jpg",
+      "sizes": "1728 x1056",
       "type": "image/jpeg"
     },
     {
-      "src": "../imgs/hero/cryptee-docs-grid.jpg",
-      "sizes": "1792x896",
+      "src": "../imgs/features/docs-tables-checkboxes@3x.jpg",
+      "sizes": "1728 x1056",
       "type": "image/jpeg"
     },
     {
-      "src": "../imgs/hero/cryptee-photos-2.jpg",
-      "sizes": "1792x896",
+      "src": "../imgs/hero/photos-albums@3x.jpg",
+      "sizes": "1728 x1056",
       "type": "image/jpeg"
     },
     {
-      "src": "../imgs/hero/cryptee-docs-duo.jpg",
-      "sizes": "1792x896",
+      "src": "../imgs/hero/docs-side-by-side@3x.jpg",
+      "sizes": "1728 x1056",
       "type": "image/jpeg"
     }    
   ],

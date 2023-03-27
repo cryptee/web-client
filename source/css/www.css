@@ -371,6 +371,7 @@ HERO / GRID DECORATIONS
     height: 100%;
     object-fit: cover;
     grid-row: 3/-1;
+    grid-column: 1/2;
     transform: translateX(0);
     object-position: 50%;
 }
@@ -905,7 +906,7 @@ QUICK EXIT
     left: 0;
     z-index: 100;
     width: 4rem;
-    height: 20rem;
+    height: 13rem;
     writing-mode: vertical-lr;
 
     background-color: var(--cryptee-red);
@@ -1698,6 +1699,10 @@ MEDIA QUERIES
     #hero {
         display: block;
         overflow: hidden;
+    }
+
+    .use-cases-body #hero {
+        padding-top: 8rem;
     }
     
     #hero picture {

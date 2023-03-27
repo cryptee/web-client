@@ -261,7 +261,7 @@ key('esc', function() {
 });
 
 $("#searchInput").on('focus', function(event) {
-    hideActiveModal();
+    hideHelpPanel();
 }); 
 
 ////////////////////////////////////////////////
@@ -273,9 +273,9 @@ $("#searchInput").on('focus', function(event) {
 function openContact(which) {
     clearTopicResults();
     if (which === "bug") {
-        showModal("modal-bug");
+        showHelpPanel("panel-bug");
     } else {
-        showModal("modal-contact");
+        showHelpPanel("panel-contact");
     }
 }
 
@@ -293,7 +293,7 @@ async function sendBugReport() {
         return false;
     }
 
-    startModalProgress("modal-bug");
+    startHelpProgress("panel-bug");
     var submittedForm;
 
     try {
@@ -316,8 +316,8 @@ async function sendBugReport() {
         createPopup("Looks like we're having a difficulty submitting your bug report... Ohhh the irony... Chances are this is a connectivity issue. Your browser or ad-blocker may be blocking connections to our servers. Please check your internet connection, unblock connections to Cryptee from your ad-blocker and try again.", "error");
     }
 
-    stopModalProgress("modal-bug");
-    hideActiveModal();
+    stopHelpProgress("panel-bug");
+    hideHelpPanel();
     createPopup("Thank you for helping us fix cryptee's errors and get rid of its bugs! We've received your bug report and someone from our team will get back to you as quickly as humanly possible", "success");
     return true;
 
@@ -338,7 +338,7 @@ async function sendContactForm() {
         return false;
     }
 
-    startModalProgress("modal-contact");
+    startHelpProgress("panel-contact");
     var submittedForm;
 
     try {
@@ -363,9 +363,60 @@ async function sendContactForm() {
 
     }
 
-    stopModalProgress("modal-contact");
-    hideActiveModal();
+    stopHelpProgress("panel-contact");
+    hideHelpPanel();
     createPopup("Thank you contacting us! We've received your support question / feedback message and someone from our team will get back to you as quickly as humanly possible", "success");
     return true;
 
+}
+
+
+/**
+ * Shows the help contact / bug panel
+ * @param {String} which 
+ */
+function showHelpPanel(which) {
+    $("#" + which).addClass("show");
+}
+
+
+/**
+ * Hides the help contact / bug panel
+ */
+function hideHelpPanel() {
+    $(".panel-help").removeClass("show");
+}
+
+
+/**
+ * Starts progressing a help panel, its progress indicator, and disables its buttons etc.
+ * @param {String} panelID i.e. "panel-bug"
+ */
+function startHelpProgress(panelID) {
+    if (panelID.length > 1) {
+        var panel = $("#" + panelID);
+        panel.find("progress").removeAttr("max");
+        panel.find("progress").removeAttr("value");
+        panel.find("button").addClass("loading");
+        panel.find("input").trigger("blur");
+        panel.find("input").attr("disabled", true);
+        panel.find("textarea").attr("disabled", true);
+    }
+}
+
+
+
+/**
+ * Stops progressing a help panel, its progress indicator and re-enables its buttons etc.
+ * @param {string} panelID i.e. "panel-bug" 
+ */
+function stopHelpProgress(panelID) {
+    if (panelID.length > 1) {
+        var panel = $("#" + panelID);
+        panel.find("progress").attr("value", 0);
+        panel.find("progress").attr("max", 100);
+        panel.find("button").removeClass("loading");
+        panel.find("input").removeAttr("disabled");
+        panel.find("textarea").removeAttr("disabled");
+    }
 }

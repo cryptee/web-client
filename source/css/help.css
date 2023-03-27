@@ -20,6 +20,7 @@ article blockquote {
 article img {
     margin: 1rem 0;
     max-width: 100%;
+    height: auto;
 }
 
 article > *:last-child {
@@ -47,7 +48,7 @@ body {
     height: auto;
 }
 
-.dm body {
+html.dm, .dm body {
     background-color: var(--oled-safe-black);
     color: white;
 }
@@ -476,12 +477,94 @@ ERROR REPORT / CONTACT
     padding-left: 1rem;
 }
 
+.panel-help {
 
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
 
+    width: 100%;
+    min-width: 16rem;
+    max-width: 48rem;
 
+    height: 100%;
+    min-height: 16rem;
+    max-height: 32rem;
 
+    z-index: 99;
+    background-color: #FFF;
+    color: #000;
 
+    padding: 2rem;
+    box-sizing: border-box;
 
+    border-radius: 0.5rem;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2);
+
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+
+    transition-duration: 0.3s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+
+}
+
+.panel-help:not(.show) {
+    transform: translate3d(0, 2rem, 0) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.panel-help input, 
+.panel-help textarea {
+    min-width: 100%;
+    max-width: 100%;
+    max-height: 15rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    background-color: #FFF;
+    color: #000;
+    font-weight: 350;
+    
+    border-top: 1px solid #888;
+    border-left: 1px solid #888;
+    border-right: 1px solid #888;
+    
+    border-radius: 0.25rem;
+    min-height: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.panel-help textarea {
+    min-height: 9rem;
+}
+
+.panel-help textarea:focus, .panel-help input:focus {
+    border-color: #000 !important;
+    box-shadow: inset 0px -1px 0px #000 !important;
+}
+
+.panel-help section {
+    margin : 0.5rem 0;
+}
+
+.panel-help button {
+    color: #FFF;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+    line-height: 3rem;
+    height: 3rem;
+    border-radius: 0.25rem;
+}
+
+.panel-help button.md { background-color: var(--cryptee-green); }
+.panel-help button.sm { background-color: var(--cryptee-red); }
 
 
 
@@ -506,6 +589,10 @@ HOVERS
     *:not(.modal) > *[onclick]:hover {
         text-decoration: underline;
     }
+
+    .panel-help button:hover { text-decoration: none !important; }
+    .panel-help button.md:hover { background-color: rgba(29, 185, 84, 0.7); }
+    .panel-help button.sm:hover { background-color: rgba(204, 1, 1, 0.7); }
 }
 
 
