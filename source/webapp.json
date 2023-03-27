@@ -35,22 +35,22 @@
   "screenshots": [
     {
       "src": "../imgs/hero/docs-photos-hero@3x.jpg",
-      "sizes": "1728 x1056",
+      "sizes": "1728x1056",
       "type": "image/jpeg"
     },
     {
       "src": "../imgs/features/docs-tables-checkboxes@3x.jpg",
-      "sizes": "1728 x1056",
+      "sizes": "1728x1056",
       "type": "image/jpeg"
     },
     {
       "src": "../imgs/hero/photos-albums@3x.jpg",
-      "sizes": "1728 x1056",
+      "sizes": "172 x1056",
       "type": "image/jpeg"
     },
     {
       "src": "../imgs/hero/docs-side-by-side@3x.jpg",
-      "sizes": "1728 x1056",
+      "sizes": "172 x1056",
       "type": "image/jpeg"
     }    
   ],
