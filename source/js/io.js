@@ -953,6 +953,9 @@ async function downloadAndDecryptPhotos(fileID, fileToken, outputFormat, plainte
         if (fileKeys.length > 1) { err.usingFileKey = true; }
         handleError("[DOWNLOAD & DECRYPT] Failed to download photo/file", err);
         return false;
+    } else if (encryptedFile === "aborted") {
+        breadcrumb('[DOWNLOAD & DECRYPT] Aborted downloading photo/file');
+        return "aborted";
     }
 
     // breadcrumb('[DOWNLOAD & DECRYPT] [ ' + fileID + ' ] Downloaded.');
@@ -1203,6 +1206,7 @@ async function checkConnection() {
   if (retriedCheckConnection < 2) {
     breadcrumb("[CONNECTIVITY] Offline or can't reach APIs, trying again...");
     retriedCheckConnection++;
+    await promiseToWait(500);
     connected = await checkConnection();
   }
   
@@ -1212,7 +1216,14 @@ async function checkConnection() {
 
 }
 
-window.addEventListener('offline', checkConnection);
+async function keepCheckingConnection() {
+    let connected = await checkConnection();
+    if (connected) { return true; }
+    await promiseToWait(3000);
+    return keepCheckingConnection();
+}
+
+window.addEventListener('offline', keepCheckingConnection);
 window.addEventListener('online', checkConnection);
 
 

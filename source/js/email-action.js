@@ -7,13 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get the one-time code from the query parameter.
     actionCode = getUrlParameter('oobCode');
-
+    
     if (mode === "resetPassword") {
         handleResetPassword();
     } else if (mode === "recoverEmail") {
         handleRecoverEmail();
     } else if (mode === "verifyEmail") {
         handleVerifyEmail();
+    } else if (mode === "revertSecondFactorAddition") {
+        handleRevertSecondFactorAddition();
     } else {
         somethingWentWrong();
         if (mode) {
@@ -281,3 +283,40 @@ async function resetPassword() {
 }
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+// REVERT MFA 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+async function handleRevertSecondFactorAddition() {
+    
+    $("#verify").show();
+    $("#verify").find("h3").text("REMOVE MULTI-FACTOR AUTHENTICATION");
+
+    try {
+        await firebase.applyActionCode(firebase.getAuth(), actionCode);
+    } catch (error) {
+        handleError("[EMAIL ACTION] Invalid / Expired action code.", error, "warning");
+        createPopup("For your own safety, these links have an expiry time.<br><br> Looks like this Remove-MFA link has expired or is invalid.", "error");
+        $("#verify").find("progress").remove();
+        $("#verify-status").html("sorry, looks like this link has expired");
+        return false;
+    }
+    
+    $("#verify-status").html(`
+        all set!<br><br>
+        you have successfully removed multi-factor authentication from your account.<br><br>
+        our threat-defense team is notified and we'll be monitoring the security status of your account.<br><br>
+        if we detect a security anomaly on your account (such as malicious third-party actors trying to add multi-factor authentication to your account and lock you [the original owner] out)
+        our threat-defense team will take action and put a temporary block on your account. 
+        If you notice your access to your account is restricted or blocked, contact our support team, and our team will help you in re-gain access to your account, as well as improve its security.
+    `);
+
+    $("#verify").find("progress").remove();
+
+    return true;
+    
+
+}

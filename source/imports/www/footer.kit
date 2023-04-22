@@ -12,7 +12,7 @@
                 </a>
                 <div>
                     <p class="company-name"><a href="/">CRYPTEE</a></p>
-                    <small>info @ crypt <strong>&middot;</strong> ee</small>
+                    <small>info @ crypt &bull; ee</small>
                 </div>
             </div>
 
@@ -32,6 +32,13 @@
                     </small>
                 </div>
             </div>
+            
+            <br><br>
+
+            <div>
+
+            </div>
+            
         </div>
 
         <div class="column">
@@ -102,6 +109,21 @@
             </p>
         </div>
 
+        <div class="column wide">
+            <p>
+                <i>keeping you safe since 2017.</i>
+                <span class="right">
+                    <span>&copy; CRYPTEE&nbsp;</span>
+                    <span id="footer-year">2023></span>
+                </span>
+            </p>
+            <script>
+                let d = new Date();
+                let y = d.getFullYear();
+                let m = d.toLocaleString('en-US', { month: "short" }).toUpperCase();
+                document.getElementById("footer-year").textContent = y + " " + m;
+            </script>
+        </div>
     </div>
 
     <aside></aside>  <!-- spacing -->

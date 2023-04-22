@@ -171,6 +171,8 @@ body {
     color: var(--cryptee-1);
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 
@@ -635,6 +637,16 @@ POP-UPS / MESSAGES / ETC
     overflow: hidden;
     opacity: 0;
     transition: 0.5s max-height var(--cryptee-cb), 0.5s padding var(--cryptee-cb), 0.5s opacity ease;
+}
+
+.popup code {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    font-family: monospace;
+    word-wrap:break-word;
+    word-break: break-all;
+    hyphens:none;
 }
 
 .popup p > i[class^="ri-"] {
@@ -1162,6 +1174,7 @@ MODALS
 
 .modal section {
     width: 100%;
+    grid-row: 4/5;
     overflow-y: auto;
     padding-bottom: 2rem;
 }
@@ -1557,23 +1570,31 @@ TIPS / GUIDES
     display: none !important;
 }
 
-.tip section p {
+.tip article {
+    height: 100%;
+}
+
+.tip article p {
     text-transform: lowercase;
     text-align: justify;
     user-select: none;
 }
 
-.tip section ul {
+.tip article ul {
     margin-bottom: 1.75rem;
 }
-.tip section li {
+.tip article li {
     list-style-type: "– ";
 }
 
-.tip section h3 {
+.tip article h3 {
     text-transform: uppercase;
     margin-bottom: 1rem;
     user-select: none;
+}
+
+.tip .swiper-container {
+    height: 100%;
 }
 
 .tip .swiper-wrapper {
@@ -1583,10 +1604,14 @@ TIPS / GUIDES
 .tip .tips-pagination {
     display: flex;
     height: 1rem;
-    width: calc(100% - 1rem) !important;
+    width: calc(100% - 4rem) !important;
     justify-content: left;
     flex-direction: row;
     z-index: 1;
+
+    position: absolute;
+    left: 1rem !important;
+    bottom: 1rem !important;
 }
 
 .tip .swiper-pagination-bullet {
@@ -1619,12 +1644,21 @@ TIPS / GUIDES
     margin-right: 0.5rem;
     width: 1rem;
     height: 1rem;
+    transform: scale(1) rotate(0);
+    opacity: 1;
+    transition: 0.65s transform var(--cryptee-cb), 0.65s opacity var(--cryptee-cb);
 }
 
 .tip .close img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.tip .close.hide {
+    transform: scale(0.75) rotate(45deg);
+    pointer-events: none !important;
+    opacity: 0;
 }
 
 .tip .tips-next { 
@@ -1637,19 +1671,62 @@ TIPS / GUIDES
     right: 0;
     position: absolute;
     margin: 0;
+    padding: 0 1rem 0 1rem;
     width: 3rem;
     height: 3rem;
     line-height: 3rem;
     z-index: 25;
     text-align: center;
-
+    
+    opacity: 1;
     transform: scale(1) translateX(0);
-    transition: 0.3s transform var(--cryptee-cb);
+    transition: 0.65s transform var(--cryptee-cb), 0.5s opacity var(--cryptee-cb);
+}
+
+.tip button.tip-action-success {
+    top: auto;
+    left: auto;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+
+    width: 100%;
+    height: 3rem;
+    color: #FFF;
+    line-height: 3rem;
+    text-align: right;
+    padding-right: 1rem;
+    border-radius: 0.25rem;
+    background-color: var(--cryptee-green);
+}
+
+.tip .tips-next.custom {
+    width: auto;
+    bottom: -2rem;
+    right: -2rem;
+}
+
+.tip .tips-next.custom span {
+    float: left;
+    font-size: 1rem;
+    line-height: 2.825rem;
+    margin-right: 0.5rem;
 }
 
 .tip .tips-next.swiper-button-disabled {
     pointer-events: none !important;
-    transform: scale(0) translateX(1rem);
+    transform: scale(0.75) translateX(8rem);
+    opacity: 0;
+}
+
+.tip .tips-next i {
+    float: right;
+    line-height: 3.325rem;
+}
+
+.tip .swiper-slide-prev .tips-next {
+    pointer-events: none !important;
+    opacity: 0 !important;
 }
 
 .tip.hidden { display: none !important; }
@@ -1828,8 +1905,12 @@ ENABLE HOVERS
         background-color: var(--cryptee-1) !important;
     }
 
-    .tip .tips-next:not(.swiper-button-disabled):hover {
+    .tip .tips-next:not(.swiper-button-disabled):hover i {
         transform: scale(1.25) translateX(0);
+    }
+
+    .tip .tips-next:not(.swiper-button-disabled):hover span {
+        text-decoration: underline;
     }
 
     .popup.interactive.dark p.message button:hover { background-color: #484848; }

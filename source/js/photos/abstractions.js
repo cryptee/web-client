@@ -218,7 +218,6 @@ async function loadFavorites() {
 
     activeAlbumID = "favorites";
 
-    var albumContents = Object.keys(favorites);
     // now go through the array, render items and add to DOM
     var albumContentsHTML = [];
     var lightboxContentsHTML = [];
@@ -226,11 +225,27 @@ async function loadFavorites() {
     var albumHeaderHTML = renderAlbumHeader("favorites");
     albumContentsHTML.push(albumHeaderHTML);
 
-    albumContents.forEach(pid => {
-        var photoHTML = renderMedia(pid);
-        albumContentsHTML.push(photoHTML);
-        lightboxContentsHTML.push(renderLightboxMedia(pid));
+    var sortedFavorites = [];
+    for (const pid in favorites) {
+        let extendedFav = favorites[pid] || {};
+        extendedFav.id = pid;
+        sortedFavorites.push(extendedFav);       
+    }
+
+    sortedFavorites.sort(function (a, b) {
+        if (sortableExifDate(a.date) > sortableExifDate(b.date)) { // [1] = title, [2] = date
+            return -1;
+        } else {
+            return 1;
+        }
     });
+
+    for (const fav of sortedFavorites) {
+        if (!fav.id) { continue; } // failsafe
+        var photoHTML = renderMedia(fav.id);
+        albumContentsHTML.push(photoHTML);
+        lightboxContentsHTML.push(renderLightboxMedia(fav.id));
+    };
 
     $("#albumContents").append(albumContentsHTML.join(""));
 
@@ -243,7 +258,7 @@ async function loadFavorites() {
     resetNavbar();
     navbarForFavorites();
 
-    var numberOfPhotosInAlbum = albumContents.length || 0;
+    var numberOfPhotosInAlbum = sortedFavorites.length || 0;
     if (numberOfPhotosInAlbum <= 0) {
         navbarForNoPhotos();
     }
@@ -1013,7 +1028,7 @@ function scrollWithTimeline(timelineLabel, smooth) {
     
     if(!timelineLabel) { return false; }
 
-    var goto = timelineLabel.getAttribute("goto");
+    var goto = (timelineLabel.getAttribute("goto") || "").toLowerCase();
     
     if (!goto) { return false; }
     
@@ -1021,9 +1036,9 @@ function scrollWithTimeline(timelineLabel, smooth) {
 
     if (goto.startsWith("day")) {
         goto = goto.replace("day-", "");
-        firstElem = $("[datesort$='" + goto + "']")[0];
+        firstElem = $(".content[datesort$='" + goto + "']")[0];
     } else {
-        firstElem = $("[datesort^='" + goto + "']")[0] || $("[name^='" + goto + "']")[0];
+        firstElem = $(".content[datesort^='" + goto + "']")[0] || $(".content[name^='" + goto + "']")[0];
     }
 
     if (firstElem) {
@@ -1828,10 +1843,16 @@ function showDeleteSelectionsModal() {
 ////////////////////////////////////////////////
 
 /**
+ * This is an object where we keep track of freshly favorited photos' ids, so we can animate and show the fav icon when we close the lightbox
+ */
+var animateMediaFavoritesWhenLightboxClosed = {};
+
+/**
  * Favorites a photo given its ID
  * @param {string} pid photo id
  */
 async function favoritePhoto(pid) {
+
     if (!pid) {
         handleError("[FAVORITE PHOTO] Can't fav photo. No PhotoID!");
         return false;
@@ -1849,6 +1870,8 @@ async function favoritePhoto(pid) {
     if (isEmpty(photo)) { return false; }
 
     favorites[pid] = photo;
+    animateMediaFavoritesWhenLightboxClosed[pid] = "fav";
+
 }
 
 
@@ -1857,6 +1880,7 @@ async function favoritePhoto(pid) {
  * @param {string} pid photo id
  */
 async function unfavoritePhoto(pid) {
+    
     if (!pid) {
         handleError("[UNFAVORITE PHOTO] Can't un-fav photo. No PhotoID!");
         return false;
@@ -1870,6 +1894,7 @@ async function unfavoritePhoto(pid) {
     }
 
     delete favorites[pid];
+    animateMediaFavoritesWhenLightboxClosed[pid] = "unfav";
 
     if (activeAlbumID === "favorites") {
         $("#" + pid).remove();

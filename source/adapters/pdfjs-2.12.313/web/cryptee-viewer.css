@@ -64,7 +64,7 @@ body:not(.sidebarOpen) #sidebarContainer {
 
 #secondaryToolbar {
     grid-column: 3/4;
-    padding: 1rem 0 1rem 2rem;
+    padding: 0.5rem 0 0.5rem 0;
     text-align: right;
 }
 
@@ -74,14 +74,17 @@ body:not(.sidebarOpen) #sidebarContainer {
 }
 
 #secondaryToolbar button {
+    display: block;
+    text-align: right;
+    width: 100%;
     font-size: 0.85rem;
     color: var(--cryptee-3);
-    padding-right: 1.5rem;
+    padding-right: 0.5rem;
 }
 
 #secondaryToolbar hr {
     height: 0;
-    margin: 1rem 0;
+    margin: 0.5rem 0;
 }
 
 #secondaryToolbar button.toggled {
@@ -1029,7 +1032,7 @@ OVERRIDES / DISABLED FUNCTIONS
 #viewAttachments,
 #viewLayers
 {
-    display: none;
+    display: none !important;
 }
 
 

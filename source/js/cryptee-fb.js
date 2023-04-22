@@ -26,7 +26,12 @@ import {
     EmailAuthProvider,
     reauthenticateWithCredential,
     reauthenticateWithRedirect,
-    reauthenticateWithPopup
+    reauthenticateWithPopup,
+
+    TotpSecret,
+    multiFactor,
+    getMultiFactorResolver,
+    TotpMultiFactorGenerator,
 } from "firebase/auth";
 
 window.firebase.getAuth = getAuth;
@@ -51,6 +56,11 @@ window.firebase.EmailAuthProvider = EmailAuthProvider;
 window.firebase.reauthenticateWithCredential = reauthenticateWithCredential;
 window.firebase.reauthenticateWithRedirect = reauthenticateWithRedirect;
 window.firebase.reauthenticateWithPopup = reauthenticateWithPopup;
+
+window.firebase.TotpSecret = TotpSecret;
+window.firebase.multiFactor = multiFactor;
+window.firebase.getMultiFactorResolver = getMultiFactorResolver;
+window.firebase.TotpMultiFactorGenerator = TotpMultiFactorGenerator;
 
 var config = {
     apiKey: "AIzaSyBzI3Sr5lx_mhbmmlS8eehdUBfRXb7EyRk",

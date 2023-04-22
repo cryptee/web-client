@@ -297,6 +297,10 @@ $(".modal").on('keyup', 'input:first-child, input:last-child' , function(event) 
 //	TIPS / GUIDES INTERACTIONS & FUNCTIONS
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
+/**
+ * We use this object to map div ids of tips to their swiper elements to be able to refer to them easily later
+ */
+var tipsElements = {};
 
 function showTip(tipsID) {
     if (!tipsID) { return false; }
@@ -309,10 +313,12 @@ function showTip(tipsID) {
 
 function hideTips() {
     var tip = $(".tip.show");
+    var swiperID = tip.find(".swiper-container").attr("id");
+    if (!swiperID) { return; }
     tip.removeClass("show");
-
     var animationDuration = parseFloat(tip.css("transition-duration")) * 1000;
     setTimeout(function () { tip.addClass("hidden"); }, (animationDuration + 10));
+    setTimeout(function () { tipsElements[swiperID].slideTo(0); }, (animationDuration + 10));
 }
 
 // initialize swiper for tips
@@ -330,18 +336,38 @@ function initializeTips() {
 
         var theTip = $(this);
         var swiperID = $(this).find(".swiper-container").attr("id");
+        var swipingDisabled = $(this).attr("swiping-disabled");
+        if (swipingDisabled) { tipsConfig.allowTouchMove = false; }
+
         var tipSwiper = new Swiper ('#' + swiperID, tipsConfig);
 
-        key('left',  function () { if (theTip.hasClass("show")) { tipSwiper.slidePrev(); } });
-        key('right', function () { if (theTip.hasClass("show")) { tipSwiper.slideNext(); } });
-        key('space', function () { if (theTip.hasClass("show")) { tipSwiper.slideNext(); } });
+        tipsElements[swiperID] = tipSwiper;
 
-        this.addEventListener('swiped-down', function(event) { hideTips(); }); 
+        if (!swipingDisabled) {
+            key('left',  function () { if (theTip.hasClass("show")) { tipSwiper.slidePrev(); } });
+            key('right', function () { if (theTip.hasClass("show")) { tipSwiper.slideNext(); } });
+            key('space', function () { if (theTip.hasClass("show")) { tipSwiper.slideNext(); } });
+            this.addEventListener('swiped-down', function(event) { hideTips(); }); 
+        }
+
+        tipSwiper.on('slideChange', function(evt) { 
+            // check and prevent close if necessary
+            var preventClose = theTip.find("article").eq(evt.realIndex).attr("prevent-close");
+            if (preventClose) {
+                theTip.find(".close").addClass("hide");
+            } else {
+                theTip.find(".close").removeClass("hide");
+            }
+        });
 
     });
 }
 
-key('esc', hideTips);
+key('esc', function() {
+    var slide = $(".tip.show").find(".swiper-slide-active");
+    if (slide.attr("prevent-close")) { return; }
+    hideTips();
+});
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////

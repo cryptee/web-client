@@ -193,22 +193,39 @@ function handleError(errorTitle, data, level) {
         } else {
             console.warn(errorTitle);
         }
-        return; 
+        // return; 
     } else {
         console.log(errorTitle);
     }
 
     Sentry.withScope(function (scope) {
-        Object.keys(data).forEach(function (key) {
-            scope.setExtra(key, data[key]);
-        });
-
-        if (data.code) {
-            scope.setFingerprint([data.code]);
+        
+        if (data.code) { 
+            scope.setFingerprint([data.code]); 
         }
 
         scope.setLevel(level);
-        Sentry.captureMessage(errorTitle);
+        
+        scope.addEventProcessor((event, hint) => {
+            try {
+                data.originalError = event.exception.values[0].type + " : " + event.exception.values[0].value;
+                event.exception.values[0].type = errorTitle;
+                event.exception.values[0].value = data.originalError;
+            } catch (e) {
+                return event;
+            }
+            return event;
+        });
+
+        if (data.stack || isError(data)) {
+            Sentry.captureException(data, { extra : data });
+        } else {
+            if (!isEmpty(data)) {
+                Sentry.captureMessage(errorTitle, { extra : data });
+            } else {
+                Sentry.captureMessage(errorTitle);
+            }
+        }
     });
     
 }
@@ -250,4 +267,8 @@ function logTimeStart(name) {
 
 function logTimeEnd(name) {
     if (env !== "prod") { console.timeEnd(name); }
+}
+
+function isError(obj){
+    return Object.prototype.toString.call(obj) === "[object Error]";
 }

@@ -7,6 +7,8 @@ $(document).on('ready', function(event) {
     if (!tab && !subtab && $(window).width() > 960) {
         loadTab("overview");
     }
+
+    initializeTips();
 }); 
 
 
@@ -18,7 +20,6 @@ $(document).on('ready', function(event) {
 
 authenticate(function(user){
     // LOGGED IN
-
 }, function(){
     // NOT LOGGED IN
     if (willLoseAuthForDeletion) {
@@ -258,7 +259,7 @@ async function exportAllMetadata() {
     }
 
     try {
-        var blob = new Blob([JSON.stringify(allDataRequest.data)], {type: "application/json;charset=utf-8"});
+        var blob = new Blob([JSON.stringify(allDataRequest.data)], { type : "application/json;charset=utf-8" });
         saveAsOrShare(blob, "Your Cryptee Metadata.json");
     } catch (error) {
         handleError("[EXPORT ALL METADATA] Failed to export all data", error);

@@ -483,6 +483,7 @@ if (navigator.onLine) {
 }
 
 
+var preStartupInitiated = false;
 
 function startOnline() {
     breadcrumb('[STARTUP] Starting in online mode.');
@@ -491,6 +492,12 @@ function startOnline() {
     
     authenticate(function(user){
         // LOGGED IN
+
+        // no need to pre-start up twice. this function may get called twice due to auth firing twice 
+        // (i.e. once for sessionUser, and once for server auth user)
+        // resulting in double, unnecessary calls
+        if (preStartupInitiated) { return; }
+        preStartupInitiated = true;
 
         preStartup();
         checkKey(null, startedOffline); // rightKey will call startup();

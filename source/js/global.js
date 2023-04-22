@@ -611,6 +611,33 @@ async function canvasToBlob(canvas, quality, format) {
 }
 
 /**
+ * Helps us calculate the maximum allowed canvas size, and creates an aspect ratio accurate max canvas size we can use.
+ * We need this because iOS Safari limits max total canvas size to 16777216px (w*h), this is so that we can generate
+ * thumbnails etc without any issues however large photos may be. 
+ * @param {Number} width 
+ * @param {Number} height 
+ * @returns {Object} sizes
+ * @returns {Object} sizes.width
+ * @returns {Object} sizes.height
+ */
+function limitCanvasSize(width, height) {
+
+  // For now limiting to 2048 x 2048 (iOS max size is 4096x4096, but since we don't need more, we'll stick with this. prob better for mem use), 
+  let maximumPixels = 4194304;
+
+  const requiredPixels = width * height;
+  if (requiredPixels <= maximumPixels) return { width, height };
+
+  const scalar = Math.sqrt(maximumPixels) / Math.sqrt(requiredPixels);
+  return {
+      width: Math.floor(width * scalar),
+      height: Math.floor(height * scalar),
+  };
+
+}
+
+
+/**
  * Escapes HTML Characters in a given string. i.e. things like (> < & etc etc)
  * @param {String} string html string to escape characters
  */
@@ -1047,11 +1074,28 @@ async function readEXIF(fileOrFileBuffer) {
 
   if (isEmpty(tags)) { return exif; }
 
-  if (tags.DateTime)          { exif.DateTime             = tags.DateTime.value[0] || "";            }
-  if (tags.DateTimeDigitized) { exif.DateTimeDigitized    = tags.DateTimeDigitized.value[0] || "";   }
-  if (tags.DateTimeOriginal)  { exif.DateTimeOriginal     = tags.DateTimeOriginal.value[0] || "";    }
-  if (tags.Orientation)       { exif.Orientation          = tags.Orientation.value[0] || "";         }
+  if (tags.DateTime)          { exif.DateTime             = tags.DateTime.value[0] || "";                              }
+  if (tags.DateTimeDigitized) { exif.DateTimeDigitized    = tags.DateTimeDigitized.value[0] || "";                     }
+  if (tags.DateTimeOriginal)  { exif.DateTimeOriginal     = tags.DateTimeOriginal.value[0] || "";                      }
+  if (tags.Orientation)       { exif.Orientation          = tags.Orientation.value || tags.Orientation.value[0] || ""; }
+
+  let make     = ((tags.Make || {}).value || [])[0] || (tags.Make || {}).description || "Unknown";
+  let model    = ((tags.Model || {}).value || [])[0] || (tags.Model || {}).description || "Unknown";
+  let lens     = (tags.FocalLength || {}).description || "Unknown";
   
+  let aperture = (tags.FNumber || {}).description || (tags.ApertureValue || {}).description || "Unknown";
+  let exposure = (tags.ExposureTime || {}).description || "Unknown";
+  let whitebal = (tags.WhiteBalance || {}).description || "Unknown";
+  let iso      = (tags.ISOSpeed || {}).description || (tags.ISOSpeedRatings || {}).description || "Unknown";
+  
+  exif.make = make;
+  exif.model = model;
+  exif.lens = lens;
+  exif.aperture = aperture;
+  exif.exposure = exposure;
+  exif.whitebal = whitebal;
+  exif.iso = iso;
+
   breadcrumb('[EXIF READER] Read!');
 
   return exif;

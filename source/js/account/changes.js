@@ -12,8 +12,9 @@ var reauthenticated = false;
 /**
  * To be able to change anything like email / pass etc, we need to re-authenticate users. This function does that, and calls the actual change that needs to happen. 
  * @param {string} currentPassword
+ * @param {string} mfaCode
  */
-async function reAuthUser(currentPass) {
+async function reAuthUser(currentPass, mfaCode) {
     
     if (loginMethod === "password" && !currentPass) { 
         handleError("[REAUTH] Can't reauth a password-user without a password.");
@@ -31,7 +32,33 @@ async function reAuthUser(currentPass) {
         try {
             await firebase.reauthenticateWithCredential(theUser, credential);
         } catch (error) {
-            createPopup("Looks like you made a mistake with your current password, or we're having a connectivity issue. Please double check the current password you've typed, make sure your internet connection is stable, and try again.", "error");
+
+            var errorCode = error.code;
+            if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-email') {
+                createPopup("Looks like you made a mistake with your current password, or we're having a connectivity issue. Please double check the current password you've typed, make sure your internet connection is stable, and try again.", "error");
+                breadcrumb('[REAUTH] Wrong pass');
+            } else if (errorCode === 'auth/user-disabled') {
+                createPopup("Seems like we're having a difficulty authenticating you. Please make sure your internet connection is stable and try again.", "error");
+                breadcrumb('[REAUTH] User Disabled!');
+            } else if (errorCode === 'auth/network-request-failed') { 
+                createPopup("seems like your browser, ad-blocker, dns / vpn / network filter is blocking a connection either to ours or google's authentication server(s). please try disabling your ad / content blockers, dns / vpn / network filters (if you have any), check your internet connection and try again.", "error");
+                breadcrumb('[REAUTH] No network (or login server blocked)');
+            } else if (errorCode === 'auth/too-many-requests') {
+                createPopup("due to unusual activity, the requests from this device, ip address or user are temporarily blocked. please try authenticating again after some time or contact our support team for more information.", "error");
+                breadcrumb('[REAUTH] Unusual activity.');
+                handleError("[REAUTH] Unusual activity.");
+            } else if (errorCode === 'auth/web-storage-unsupported') {
+                createPopup("a feature required by cryptee to store account information locally in your browser to log you in seems to be missing, disabled or blocked. please try enabling localStorage, sessionStorage and IndexedDB, then try authenticating again after restarting your browser. alternatively, try using another browser which supports these features.", "error");
+                handleError("[REAUTH] Web Storage Unsupported");
+            } else if (errorCode === 'auth/multi-factor-auth-required') {
+                return reauthMFA(error, mfaCode);
+            } else {
+                createPopup("Looks like you made a mistake with your current password, or we're having a connectivity issue. Please double check the current password you've typed, make sure your internet connection is stable, and try again.", "error");
+                breadcrumb('[REAUTH] Other unknown error.');
+                handleError("[REAUTH] Unknown login error", error);
+            }
+            
+            return false;
         }
 
     }
@@ -65,6 +92,80 @@ async function reAuthUser(currentPass) {
 
 }
 
+/**
+ * Called when re-authenticating if the user is a multi-factor user. 
+ * @param {*} error 
+ * @param {*} mfaCode 
+ */
+async function reauthMFA(error, mfaCode) {
+
+    // get the hints, and check which MFA method we'll display. 
+    // for now we only use TOTP, so for now, "body.mfa" displays the TOTP form right away 
+    // but soon we'll add passkeys.
+    // when passkeys are ready, we'll display an mfa method picker,
+    // using the mfaHints array below. 
+    // tldr; 
+    // we're building this with passkeys in mind.
+    // it's weird for now, but for a good reason.
+
+    breadcrumb("[REAUTH] Starting reauth...");
+
+    let auth = firebase.getAuth();
+    let mfaHints = {};
+
+    let mfaResolver;
+    try {
+        mfaResolver = firebase.getMultiFactorResolver(auth, error);
+    } catch (error) {
+        createPopup("Looks like we're having a difficulty retrieving your multi-factor configuration or having a connectivity issue. Please make sure your internet connection is stable and try again in a few minutes.", "error");
+        handleError("[REAUTH] [MFA] Failed to get MFA resolver", error);
+        return false
+    }
+    
+    for (const hint of (mfaResolver.hints || [])) { mfaHints[hint.factorId] = hint; }
+    
+    let multiFactorAssertion;
+    
+    try {
+        multiFactorAssertion = firebase.TotpMultiFactorGenerator.assertionForSignIn(mfaHints["totp"].uid, mfaCode);
+    } catch (error) {
+        createPopup("Looks like we're having a difficulty retrieving your multi-factor configuration or having a connectivity issue. Please make sure your internet connection is stable and try again in a few minutes.", "error");
+        handleError("[REAUTH] [MFA] Failed to get multifactor assertion", error);
+        return false
+    }
+    
+    // let userCreds;
+    try {
+        // userCreds = 
+        await mfaResolver.resolveSignIn(multiFactorAssertion);
+    } catch (error) {
+        reauthWithMFAError(error);
+        return false
+    }    
+
+    breadcrumb("[REAUTH] Reauthenticated!");
+
+    return true;
+
+}
+
+async function reauthWithMFAError(error) {
+    
+    if (error.code === "auth/invalid-verification-code") {
+        createPopup("Looks like you made a mistake with your multi-factor authentication code, or we're having a connectivity issue. Please double check the code you've typed, make sure your internet connection is stable, and try again.", "error");
+    } else if (error.code === "auth/quota-exceeded") {
+        createPopup("seems like you've tried logging in too many times using multi factor authentication today. <br><br>for your own security, authentication actions for your account are temporarily restricted, please try again later", "error");
+        breadcrumb('[REAUTH] [MFA] Quota Exceeded!');
+    } else if (error.code === 'auth/network-request-failed') {
+        createPopup("seems like your browser, ad-blocker, dns / vpn / network filter is blocking a connection either to ours or google's authentication server(s). please try disabling your ad / content blockers, dns / vpn / network filters (if you have any), check your internet connection and try again.", "error");
+        breadcrumb('[REAUTH] [MFA] No network (or login server blocked)');
+    } else {
+        createPopup("Looks like you made a mistake with your multi-factor authentication code, or we're having a connectivity issue. Please double check the code you've typed, make sure your internet connection is stable, and try again.", "error");
+        breadcrumb('[REAUTH] [MFA] Other unknown error.');
+        handleError("[REAUTH] [MFA] Unknown error", error);
+    }
+   
+}
 
 
 ////////////////////////////////////////////////
@@ -114,7 +215,7 @@ async function changeEmail() {
 
     await firebase.sendEmailVerification(theUser);
     
-    createPopup("Email successfully set! Please check your email inbox (and spam folder just in case) for a verification mail.<br><br>From now on you will need to use your new email address <strong> ( " + newEmail + " ) </strong> to log in to Cryptee. ", "success");
+    createPopup("Email successfully set! Please check your email inbox (and spam folder just in case) for a verification mail.<br><br>From now on you will need to use your new email address <br><strong> " + newEmail + " </strong><br> to log in to Cryptee. ", "success");
     $("#change-email-button").removeClass("loading");
 
     return true;
@@ -123,7 +224,7 @@ async function changeEmail() {
 
 function showVerifyEmailPopup() {
     if (reSentEmail) { return false; } // so that we won't keep re-sending.
-    createPopup("a verification link has been sent to your email address. please click the link sent to your email address to verify your email.<br><br>If you haven't received the verification email, click below to re-send it. <br><br> <button class='bold white' onclick='resendVerifyEmailLink();'>resend email</button>", "error", "reverify");
+    createPopup("a verification link has been sent to your email address. please click the link sent to your email address to verify your email.<br><br>If you haven't received the verification email, click below to send it again. <br><br> <button class='bold white' onclick='resendVerifyEmailLink();'>re-send email</button>", "success", "reverify");
 }
 
 var reSentEmail = false;
@@ -249,11 +350,17 @@ async function changePassword() {
         return;
     }
 
-    
+    var mfaCode = $("#verify-mfa-code-to-change-password-input").val().trim();
+
+    let userMFAMethod = getUsersMFAMethod();
+    if (userMFAMethod && !mfaCode) { 
+        createPopup("To change your password, for your safety, you'll need to prove you are indeed who you say you are. To prove your identity please enter your multi-factor authentication code.", "warning");
+        return false; 
+    }
 
     $("#change-password-button").addClass("loading");
 
-    var reAuthorized = await reAuthUser(currentPass);
+    var reAuthorized = await reAuthUser(currentPass, mfaCode);
     if (!reAuthorized) { 
         // warning popups are sent in reauth already
         $("#change-password-button").removeClass("loading");
@@ -275,6 +382,7 @@ async function changePassword() {
     $("#change-password-current-password-input").val("");
     $("#change-password-input").val("");
     $("#verify-password-input").val("");
+    $("#verify-mfa-code-to-change-password-input").val("");
 
     return true;
 

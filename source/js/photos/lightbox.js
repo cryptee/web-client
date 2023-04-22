@@ -71,10 +71,19 @@ function hideLightbox() {
     $("#lightbox")[0].removeEventListener('swiped-down', function() {  closeLightbox(); }); 
     $("#lightbox")[0].removeEventListener('swiped-up', function() {  closeLightbox(); }); 
 
-    $("#lightbox").removeClass("show video");
+    $("#lightbox").removeClass("show video raw");
     $(".in-lightbox").removeClass("in-lightbox");
     hidePopup("popup-photo-info");
     resetAllVideos();
+
+    for (const pid in animateMediaFavoritesWhenLightboxClosed) {
+        if (animateMediaFavoritesWhenLightboxClosed[pid] === "fav") {
+            $("#" + pid).find("b").attr("fav", true);
+        } else {
+            $("#" + pid).find("b").removeAttr("fav");
+        }
+        delete animateMediaFavoritesWhenLightboxClosed[pid];
+    }
 }
 
 /**
@@ -164,6 +173,9 @@ function lightboxMediaChanged() {
         // this happens in async
         loadMediaDescriptionToLightbox(pid); 
 
+        // display exif if it's a RAW photo
+        loadMediaEXIFToLightbox(pid);
+
         // VIDEO RELATED LOADING
         resetAllVideos();
         $("#lightbox").toggleClass("video", pid.startsWith("v-"));
@@ -218,6 +230,70 @@ async function loadMediaDescriptionToLightbox(pid){
     breadcrumb('[LIGHTBOX] Loaded Photo Description');
 
     return true;
+}
+
+function loadMediaEXIFToLightbox(pid) {
+    
+    if (!pid) { return false; }
+    if (isEmpty(photos[pid])) { return false; }
+    if (!photos[pid].raw) { 
+        $("#lightbox").removeClass("raw");
+        return false; 
+    }
+    
+    breadcrumb('[LIGHTBOX] Will try loading exif of RAW photo');
+    
+    let photo = photos[pid];
+
+    let maker = (photo['exif-make'] || "").toLowerCase();
+    if (maker.includes("leica"))       { maker = 'leica'; }
+    if (maker.includes("hasselblad"))  { maker = 'hasselblad'; }    
+    $("#lightbox-exif-maker-logo").attr("maker", maker);
+    
+    if (photo['exif-model']) {
+        let model = (photo['exif-model'] || "").toLowerCase();
+        model = model.replace("leica", "");
+        $("#lightbox-exif-model").text(model);
+
+        if (model.includes("monochrom")) { 
+            $("#lightbox-exif-maker-logo").attr("mono", true);
+        } else {
+            $("#lightbox-exif-maker-logo").removeAttr("mono");
+        }
+    }
+    
+    if (photo['exif-lens'] && photo['exif-lens'] !== "unknown") {
+        $("#lightbox-exif-lens").text(photo['exif-lens']);
+    } else {
+        $("#lightbox-exif-lens").text("");
+    }
+
+    if (photo['exif-exposure'] && photo['exif-exposure'] !== "unknown") {
+        $("#lightbox-exif-exposure").text(photo['exif-exposure']);
+    } else {
+        $("#lightbox-exif-exposure").text("");
+    }
+
+    if (photo['exif-aperture'] && photo['exif-aperture'] !== "unknown") {
+        $("#lightbox-exif-aperture").text(photo['exif-aperture'].replace("f", "ƒ"));
+    } else {
+        $("#lightbox-exif-aperture").text("");
+    }
+        
+    if (photo['exif-iso'] && photo['exif-iso'] !== "unknown") {
+        $("#lightbox-exif-iso").text("iso " + photo['exif-iso'] || "");
+    } else {
+        $("#lightbox-exif-iso").text("");
+    }
+
+    // if (photo['exif-whitebal'] && photo['exif-whitebal'] !== "unknown") {
+    //     $("#lightbox-exif-whitebal").text("wb " + photo['exif-whitebal'] || "");
+    // } else {
+    //     $("#lightbox-exif-whitebal").text("");
+    // }
+    
+    $("#lightbox").addClass("raw");
+    
 }
 
 /**

@@ -71,6 +71,7 @@ var waitingForAuth = true;
 
 try {
     sessionUser = JSON.parse(sessionStorage.getItem("sessionUser"));
+    sessionUser.isSessionUser = true;
     if (!sessionUser) { breadcrumb('[AUTH] Likely not logged in, no session user found.'); }
 } catch (e) {}
 
@@ -302,6 +303,8 @@ async function createUserDBReferences(user, isSessionUser) {
         $(".email").attr("unverified", true);
     }
 
+    checkIfUserHasMFAAndShowCorrectFields();
+
     if (loginMethod === "google.com") {
         
         $(".for-pass-users").hide();
@@ -319,8 +322,21 @@ async function createUserDBReferences(user, isSessionUser) {
         }
 
     }
+
 }
 
+function checkIfUserHasMFAAndShowCorrectFields() {
+    let userMFAMethod = getUsersMFAMethod();
+    if (userMFAMethod) {
+        $(".show-for-mfa-enabled").show();
+        $(".show-for-mfa-disabled").hide();
+        setSentryTag("mfa", userMFAMethod);
+    } else {
+        $(".show-for-mfa-enabled").hide();
+        $(".show-for-mfa-disabled").show();
+        setSentryTag("mfa", false);
+    }
+}
 
 
 
@@ -1089,8 +1105,23 @@ $(".callout").on('click', function(event) {
 
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+// CHECK FOR MFA
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
-
+/**
+ * Checks the user's id token and returns a string with the user's MFA method
+ * @returns {('totp'|'phone')} mfaMethod
+ */
+function getUsersMFAMethod() {
+    try {
+        return firebase.multiFactor(theUser).enrolledFactors[0].factorId;
+    } catch (error) {
+        return false;
+    }
+}
 
 
 

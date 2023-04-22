@@ -202,6 +202,7 @@ function addFileToUploadQueue(file) {
     }
     
     if (formatSupport === "supported-image-native") { id = "p-" + newUUID() + "-v4"; }
+    if (formatSupport === "supported-image-utif")   { id = "p-" + newUUID() + "-v4"; }
     if (formatSupport === "supported-video-native") { id = "v-" + newUUID() + "-v4"; }
     if (formatSupport === "unsupported-format")     { id = "unsupported-" + newUUID() + "-v4"; }
 
@@ -224,7 +225,7 @@ function addFileToUploadQueue(file) {
 
 function checkFormatSupport(extension) {
     // images we support and can view & convert in browsers natively
-    if (extension.match(/^(jpg|jpeg|png|gif)$/i)) {
+    if (extension.match(/^(jpg|jpeg|png|gif|webp)$/i)) {
         return "supported-image-native";
     }
 
@@ -235,11 +236,16 @@ function checkFormatSupport(extension) {
     // ARW (Sony RAW)
     // RAF (Fuji RAW)
     // 3FR & FFF (Hasselblad RAW)
-    // DNG (Adobe RAW)
+    // DNG (Adobe RAW, Leica etc)
 
     // else if (extension.match(/^(tif|tiff|cr2|cr3|nef|arw|dng|3fr|fff)$/i)) {
     //   return "supported-image-utif";
     // }
+
+    // TIFF, DNG, 3FR (Leica & Hasselblad)
+    else if (extension.match(/^(tif|tiff|dng|3fr|fff)$/i)) {
+      return "supported-image-utif";
+    }
 
     // // videos we support natively
     else if (extension.match(/^(mp4|mov)$/i)) {
@@ -274,10 +280,11 @@ async function runUploadQueue() {
 
     // if there are files with issues / video files etc, they'll be added with a status message. 
     // if there isn't a status message, file is good to upload. 
-
+    var numberOfRAWItemsInQueue = 0;
     var numberOfUploadableItemsInQueue = 0;
     for (let id in uploadQueue) {
         let item = uploadQueue[id];
+        if (item.support === "supported-image-utif") { numberOfRAWItemsInQueue++; }
         if (!item.status) { numberOfUploadableItemsInQueue++; }
     }
 
@@ -310,7 +317,9 @@ async function runUploadQueue() {
 
     breadcrumb('[UPLOAD] Queued ' + uploadQueueOrder.length + " file(s) for upload");
 
-    var promiseToUploadEverythingInQueue = new PromisePool(promiseToUploadNextInQueue, maxParallelUploads);
+    let maxMemorySafeNumberOfParallelUploads = maxParallelUploads;
+    if ((isAndroid || isios || isipados) && numberOfRAWItemsInQueue) { maxMemorySafeNumberOfParallelUploads = 1; }
+    var promiseToUploadEverythingInQueue = new PromisePool(promiseToUploadNextInQueue, maxMemorySafeNumberOfParallelUploads);
     await promiseToUploadEverythingInQueue.start();
 
     // release wake lock to let device sleep
@@ -349,6 +358,10 @@ function promiseToUploadNextInQueue() {
     
     if (uploadQueue[nextUploadID].support === "supported-image-native") {
         return processEncryptAndUploadPhoto(nextUploadID);
+    }
+
+    if (uploadQueue[nextUploadID].support === "supported-image-utif") {
+        return processEncryptAndUploadPhoto(nextUploadID, true);
     }
     
     if (uploadQueue[nextUploadID].support === "supported-video-native") {
@@ -486,8 +499,9 @@ function doneWithPlayer(playerNo) { playersInUse[playerNo] = false; }
 /**
  * Read file, generate thumbnails, extract EXIF, encrypt thumbnails / original, upload photo, set photo meta (i.e. exif ) 
  * @param {string} uploadID The Upload ID
+ * @param {Boolean} isRAW Is the photo RAW (i.e. TIFF, DNG, 3FR etc)
  */
-async function processEncryptAndUploadPhoto(uploadID) {
+async function processEncryptAndUploadPhoto(uploadID, isRAW) {
     
     activityHappened();
 
@@ -515,7 +529,7 @@ async function processEncryptAndUploadPhoto(uploadID) {
     // this is to make sure images never decode all at the same time. By the time we get to the 4th one, it's already 500ms past,
     // and 4th one should go through without any delays
     // in case if there's still issues, we have another 1000ms timeout in the generateThumbnailsAndMetaOfImageFile just to make sure
-    var waitXMSBeforeDecodingImage = (canvasNo - 1) * 250;
+    var waitXMSBeforeDecodingImage = (canvasNo - 1) * 1000;
     if (waitXMSBeforeDecodingImage) { await promiseToWait(waitXMSBeforeDecodingImage); }
 
     // generate an additional fileKey for this photo (and its thumbnails etc)
@@ -524,7 +538,7 @@ async function processEncryptAndUploadPhoto(uploadID) {
     // if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
 
     // generate thumbnails, generate dominant color and get date from exif using the original file (originalFile = upload.plaintextFile)
-    var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo);
+    var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo, isRAW);
 
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo);
 
@@ -558,29 +572,45 @@ async function processEncryptAndUploadPhoto(uploadID) {
  * @param {File} originalFile the reference for the file that is being uploaded
  * @param {string} mimeType mimetype of file (i.e. image/jpg etc )
  * @param {Number} canvasNo which canvas we will be using for this upload
+ * @param {Boolean} isRAW is the image RAW (i.e. DNG, TIFF, 3FR etc), if so we'll process it differently
  * @returns {Object} thumbnails object
  * @returns {string} thumbnails.lightbox B64 of Lightbox Size Image
  * @returns {string} thumbnails.thumbnail B64 of Thumbnail Size Image
  * @returns {string} thumbnails.dominant Dominant Color of Image
  * @returns {string} thumbnails.date Exif Date String
  */
-async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canvasNo) {
+async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canvasNo, isRAW) {
     
     breadcrumb("[UPLOAD] Generating Thumbnails. Will use canvas no: " + canvasNo);
 
-    var sizes = { "lightbox" : 1920, "thumbnail" : 768 };
-    var qualities = { "lightbox": 0.75, "thumbnail": 0.5 };
+    var sizes = { "lightbox" : 2048, "thumbnail" : 768 };
+    var qualities = { "lightbox": 0.9, "thumbnail": 0.5 };
     var uploadObject = { "lightbox" : {}, "thumbnail" : {}, "date" : "", "dominant" : "" };
 
     // read exif from original file (should take about 30ms, even for a 30mb file)
     var exif = await readEXIF(originalFile);
-
     var orientation;
     // if the browser won't handle orientation, and there's exif orientation data, use it to rotate pic.
     if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
-    
+
     var exifDate = extractExifDateTime(exif);
     if (exifDate) { uploadObject.date = exifDate; }
+
+    if (isRAW) {
+        uploadObject.raw = true;
+        uploadObject.exif = {
+            "exif-make"        : exif.make,
+            "exif-model"       : exif.model,
+            "exif-lens"        : exif.lens,
+            "exif-aperture"    : exif.aperture,
+            "exif-exposure"    : exif.exposure,
+            "exif-whitebal"    : exif.whitebal,
+            "exif-iso"         : exif.iso,
+        };
+
+        // browsers can't seem to correct raw images' orientation
+        if (exif.Orientation) { orientation = exif.Orientation; }
+    }
 
     canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
     canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d");
@@ -593,48 +623,75 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
 
     var blobURL;
 
-    try {
-        blobURL = URL.createObjectURL(originalFile);
-        img.src = blobURL;
-    } catch (error) {
-        handleError("[UPLOAD] Failed to get image object url", error);
-        return {};
-    }
-    
-    var retryDecoding = false;
-
-    try {
-        breadcrumb("[UPLOAD] Decoding image");
-        await img.decode();
-        breadcrumb("[UPLOAD] Decoded image");
-    } catch (error) {
-        handleError("[UPLOAD] Failed to decode image. Will retry", error);
-        retryDecoding = true;
-    }
-    
-    if (retryDecoding) {
-        
-        // timeout 500ms and retry decoding.
-        
-        // Rarely, if you try to decode all 4 images simultaneously, decode may throw an error on low end devices.
-        
-        await promiseToWait(500);
+    if (isRAW) {
 
         try {
-            breadcrumb("[UPLOAD] Decoding image [again]");
-            await img.decode();
-            breadcrumb("[UPLOAD] Decoded image [on second try]");
+            breadcrumb("[UPLOAD] Converting RAW image file to array buffer");
+            let rawImgBuffer = await blobToArrayBuffer(originalFile); 
+            img = await rawImgBufferToImgBitmap(rawImgBuffer); 
+            // technically this returns an ImageBitmap, 
+            // but we only need width, and height for the purposes of this function, 
+            // and ImageBitmaps can be fed into canvases directly the same way as well, so it's cross compatible.
         } catch (error) {
-            handleError("[UPLOAD] Failed to decode image. [again]", error);
-            revokeObjectURL(blobURL);
+            handleError("[UPLOAD] Failed to read RAW image", error);
             return {};
         }
 
+        if (!img) {
+            handleError("[UPLOAD] Failed to read RAW image");
+            return {};
+        }
+
+    } else {
+        
+        try {
+            blobURL = URL.createObjectURL(originalFile);
+            img.src = blobURL;
+        } catch (error) {
+            handleError("[UPLOAD] Failed to get image object url", error);
+            return {};
+        }
+        
+        var retryDecoding = false;
+        
+        try {
+            breadcrumb("[UPLOAD] Decoding image");
+            await img.decode();
+            breadcrumb("[UPLOAD] Decoded image");
+        } catch (error) {
+            handleError("[UPLOAD] Failed to decode image. Will retry", error);
+            retryDecoding = true;
+        }
+        
+        if (retryDecoding) {
+            
+            // timeout 500ms and retry decoding.
+            
+            // Rarely, if you try to decode all 4 images simultaneously, decode may throw an error on low end devices.
+            
+            await promiseToWait(500);
+    
+            try {
+                breadcrumb("[UPLOAD] Decoding image [again]");
+                await img.decode();
+                breadcrumb("[UPLOAD] Decoded image [on second try]");
+            } catch (error) {
+                handleError("[UPLOAD] Failed to decode image. [again]", error);
+                revokeObjectURL(blobURL);
+                return {};
+            }
+    
+        }
+        
     }
     
-    
-    var width = img.width;
-    var height = img.height;
+    let limMaxCanvasSize = limitCanvasSize(img.width, img.height);
+    if (img.width !== limMaxCanvasSize.width || img.height !== limMaxCanvasSize.height) {
+        breadcrumb("[UPLOAD] Limited max canvas size. Image was too large.");
+    }
+
+    var width = limMaxCanvasSize.width;
+    var height = limMaxCanvasSize.height;
 
     canvases[canvasNo].orientationCanvas.width = width;
     canvases[canvasNo].orientationCanvas.height = height;
@@ -645,8 +702,8 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
     }
 
     correctCanvasOrientationInOrientationContext(canvases[canvasNo].orientationContext, width, height, orientation);
-
-    canvases[canvasNo].orientationContext.drawImage(img, 0, 0);
+    
+    canvases[canvasNo].orientationContext.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);    
 
     for (var size in sizes) { 
         // cycle through all sizes, and generate thumbnails (if the image is a gif, skip lightbox, since we'll play the original instead)
@@ -1014,6 +1071,8 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
     
     // write media's meta 
     var mediaMeta = { id : uploadID, pinky : thumbsAndMeta.dominant };
+    if (thumbsAndMeta.exif) { mediaMeta = { ...mediaMeta, ...thumbsAndMeta.exif }; }
+    if (thumbsAndMeta.raw)  { mediaMeta.raw = true; }
 
     if (originalToken)         { mediaMeta.otoken     = originalToken     || ""; }
     if (thumbnailToken)        { mediaMeta.ttoken     = thumbnailToken    || ""; }
@@ -1104,5 +1163,80 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
         return null;
     }
     
+
+}
+
+/**
+ * This takes in a raw image (dng, tiff etc buffer) and converts it to a data url we can use to generate thumbnails.
+ * Courtesy of UTIF.bufferToURI()
+ * @param {*} buffer 
+ * @returns {Promise<ImageBitmap>} imgBitmap
+ */
+async function rawImgBufferToImgBitmap(buffer) {
+    
+    let ifds;
+    try {
+        ifds = UTIF.decode(buffer);  //console.log(ifds);
+    } catch (error) {
+        handleError("[UPLOAD] Failed to decode RAW buffer / ifds", error);
+        return null;
+    }
+
+    let vsns = ifds;
+    let ma = 0;
+    let rawImgData = vsns[0]; 
+
+    if (ifds[0].subIFD) { vsns = vsns.concat(ifds[0].subIFD); }
+
+    for (let i = 0; i < vsns.length; i++) {
+        let img = vsns[i];
+        if (img["t258"] == null || img["t258"].length < 3) continue;
+        let ar = img["t256"] * img["t257"];
+        if (ar > ma) { ma = ar; rawImgData = img; }
+    }
+
+    try {
+        UTIF.decodeImage(buffer, rawImgData, ifds);
+    } catch (error) {
+        handleError("[UPLOAD] Failed to decode RAW image buffer", error);
+        return null;
+    }
+
+    ifds = null;
+
+    let limMaxCanvasSize = limitCanvasSize(rawImgData.width, rawImgData.height);
+
+    let rgba;
+    try {
+        rgba = UTIF.toRGBA8(rawImgData); 
+    } catch (error) {
+        handleError("[UPLOAD] Failed to extract rgba8 from RAW image", error);
+        return null;
+    }
+    
+    let imgd;
+    try {
+        imgd = new ImageData(new Uint8ClampedArray(rgba.buffer), rawImgData.width, rawImgData.height);
+    } catch (error) {
+        handleError("[UPLOAD] Failed to create RAW ImageData", error);
+        return null;
+    }
+    
+    rgba = null;
+
+    let imgBitmap; 
+    try {
+        imgBitmap = await createImageBitmap(imgd, {
+            resizeWidth: limMaxCanvasSize.width,
+            resizeHeight: limMaxCanvasSize.height
+        });
+    } catch (error) {
+        handleError("[UPLOAD] Failed to create RAW ImageBitmap", error);
+        return null;
+    }
+
+    imgd = null;
+    
+    return imgBitmap;
 
 }

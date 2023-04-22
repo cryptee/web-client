@@ -376,19 +376,62 @@ CHANGE PASSWORD
 
 
 
+/* -----------------------------
+-------------------------------- 
+ 
+MFA 
+ 
+--------------------------------
+----------------------------- */
 
+#mfa-tip-add-email,
+#mfa-tip-verify-email {
+    display: none;
+}
 
+/* if user doesn't have an email, display the add email tip */
+#email-for-mfa:placeholder-shown ~ #mfa-tip-add-email {
+    display: block !important;
+}
 
+/* if user has a verified email, display the verify email tip */
+#email-for-mfa[unverified='true']:not(:placeholder-shown) ~ #mfa-tip-verify-email {
+    display: block !important;
+}
 
+/* user doesn't have an email, hide the rest of the stuff */
+/* user's email is not verified, hide the rest of the stuff */
+#email-for-mfa:placeholder-shown ~ #mfa-tip-add-email ~ *,
+#email-for-mfa[unverified='true']:not(:placeholder-shown) ~ #mfa-tip-verify-email ~ * {
+    display: none !important;
+}
 
+#mfa-qr-code {
+    width: 16rem;
+    height: 16rem;
+    margin: 0.5rem 0 0 0;
+    position: relative;
+}
 
+#mfa-qr-code canvas { 
+    width: 100%;
+    height: 100%;
+}
 
-
-
-
-
-
-
+.mfa-recovery-code {
+    width: 100%;
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    font-family: monospace;
+    font-variant-numeric: slashed-zero;
+    font-feature-settings: 'zero' 1;
+    font-size: 1rem;
+    background-color: #363636;
+    color: #f5f5f5;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
 
 /* -----------------------------
 -------------------------------- 

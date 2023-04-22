@@ -144,12 +144,37 @@ function renderMedia(id, forSearch) {
 
     var type = "photo";
     if (id.startsWith("v-")) { type = "video"; }
-    if (id.startsWith("r-")) { type = "raw";   }
+    
+    var raw = "";
+    if (photo.raw) { raw = "raw='true'"; }
+
+    var maker = "";
+    if (photo['exif-make']) { 
+        maker = (photo['exif-make'] || "").toLowerCase();
+        if (maker.includes("leica"))       { maker = "maker='leica'"; }
+        if (maker.includes("hasselblad"))  { maker = "maker='hasselblad'"; }    
+    }
+
+    var model = "";
+    var mono = "";
+    if (photo['exif-model']) {
+        model = (photo['exif-model'] || "").toLowerCase();
+        model = `model='${model}'`;
+        if (model.includes("monochrom")) { mono = "mono='true'"; }
+    }
+
+    var rawTag = "";
+    if (raw) { rawTag = `<u ${maker} ${model} ${mono}>RAW</u>`; }
+
+    var favTag = `<b></b>`;
+    if (favorites[id]) { favTag=`<b fav="true"></b>`;}
 
     return `
-    <div class="content media ${type}" id="${id}" name="${name}" datesort="${sortableDate}" exifDate="${exifDate}" thumb="${thumbID}" thumbToken="${thumbToken}" style="--bg:rgb(${avgColor})">
+    <div class="content media ${type}" id="${id}" name="${name}" datesort="${sortableDate}" exifDate="${exifDate}" thumb="${thumbID}" thumbToken="${thumbToken}" style="--bg:rgb(${avgColor})" ${raw} ${maker}>
         ${selectionIcon}
         <img src="" alt thumb="${thumbID}">
+        ${rawTag}
+        ${favTag}
     </div>`;
 }
 

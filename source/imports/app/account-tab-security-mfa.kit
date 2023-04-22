@@ -1,0 +1,56 @@
+<details class="lowercase small show-for-mfa-disabled">
+    <summary class="bold">what is multi-factor authentication?</summary>
+
+    <p class="lowercase">
+        multi-factor authentication (mfa) is a multi-step account login process that requires you to enter more
+        information than just a password when logging in.
+    </p><br>
+
+    <p class="lowercase">
+        to learn more about multi-factor authentication, <a href="https://crypt.ee/help?article=multi-factor-authentication-2fa-mfa-totp">click here</a> to read our dedicated helpdesk article.
+    </p><br>
+
+    <hr>
+</details>
+
+<input type="email" class="email" style="display: none !important;" id="email-for-mfa" placeholder="-">
+
+<p id="mfa-tip-add-email">
+    looks like you're logging into cryptee with the username : <i class="username"></i>.<br><br>
+    to enable multi-factor authentication, you first have to add a verified email address to use for logging in to cryptee. <br><br>
+    this is to prevent malicious actors from registering to cryptee with an email address they don't own (i.e. your email address) before the actual owner (i.e. you) can, 
+    and then locking out the actual owner (you) by enabling multi-factor authentication.<br><br>
+    <a href="/account?s=security&ss=email">click here to add &amp; verify your email</a>
+</p>
+
+<p id="mfa-tip-verify-email">
+    looks like you're logging into cryptee with the email : <i class="email"></i>, but you haven't verified your email address yet.<br><br>
+    to enable multi-factor authentication, you first have to verify your email address.<br><br>
+    this is to prevent malicious actors from registering to cryptee with an email address they don't own (i.e. your email address) before the actual owner (i.e. you) can, 
+    and then locking out the actual owner (you) by enabling multi-factor authentication.<br><br>
+    <button onclick="showVerifyEmailPopup();" class="bold">click here to verify your email</button>
+</p>
+
+<p class="show-for-mfa-disabled">&nbsp;</p>
+
+<p class="show-for-mfa-disabled">
+    to set up a time-based one time password (totp) mfa, you will need to use an authenticator app like : microsoft authenticator, google authenticator or yubikey authenticator to get your mfa codes when prompted during login.
+    <br><br>
+    please enter your password to enable multi-factor authentication:
+    <br><br>
+    <input type="password" placeholder="enter your password" id="verify-pasword-to-enable-mfa-input" autocomplete="off" spellcheck="false">
+</p>
+
+<p class="show-for-mfa-enabled">
+    <span class="green">multi-factor authentication enabled</span>
+    please enter your password and multi-factor code to disable multi-factor authentication:
+    <br><br>
+    <input id="verify-pasword-to-disable-mfa-input" type="password" autocomplete="off" spellcheck="false" placeholder="enter your password">
+    <br><br>
+    <input id="verify-mfa-code-to-disable-mfa-input" class="totp show-for-mfa-enabled" inputmode="decimal" pattern="[0-9]*" autocomplete="one-time-code" max="6" type="text" placeholder="enter your mfa or recovery code"/>
+</p>
+
+<p>&nbsp;</p>
+
+<button onclick="showTOTPMFAEnroll()" class="bold show-for-mfa-disabled" id="setup-mfa-button">set up mfa</button>
+<button onclick="disableTOTPMFAEnroll()" class="bold show-for-mfa-enabled red" id="disable-mfa-button">disable mfa</button>

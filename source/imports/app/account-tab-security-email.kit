@@ -1,17 +1,28 @@
-<input type="email" placeholder="enter a login / recovery email" class="email" id="change-email-input" name="email" autocomplete="off" spellcheck="false">
+<input type="email" placeholder="enter a login / recovery email" class="email show-for-mfa-disabled" id="change-email-input" name="email" autocomplete="off" spellcheck="false">
 
-<p>&nbsp;</p>
+<p class="show-for-mfa-disabled">&nbsp;</p>
 
-<input type="password" placeholder="enter your password" id="verify-pasword-for-email-change-input" autocomplete="off" spellcheck="false">
+<input type="password" placeholder="enter your password" id="verify-pasword-for-email-change-input" autocomplete="off" spellcheck="false" class="show-for-mfa-disabled">
 
-<p>&nbsp;</p>
+<p class="show-for-mfa-disabled">&nbsp;</p>
 
-<small>
+<small class="show-for-mfa-disabled">
     if you have a login / recovery email set, you can only login using your email, and not your username. 
     while leaving this blank provides an added layer of anonymity, if you lose your account password
     you won't be able to receive a password recovery email.
 </small>
 
-<p>&nbsp;</p>
+<p class="show-for-mfa-disabled">&nbsp;</p>
 
-<button class="bold" id="change-email-button" onclick="changeEmail();">update email</button>
+<button class="bold show-for-mfa-disabled" id="change-email-button" onclick="changeEmail();">update email</button>
+
+<p class="show-for-mfa-enabled">
+    since you have multi-factor authentication enabled, and you have already verified your email, you cannot change your email.
+    <br><br>
+    if you would like to change your email, for your own security, you will first need to disable multi-factor authentication.
+    <br><br>
+    after you've changed your email, to re-enable multi-factor authentication, you'll need to re-verify your new email address.
+    <br><br>
+    this is to prevent malicious actors from registering to cryptee with an email address they don't own (i.e. your email address) before the actual owner (i.e. you) can, 
+    and then locking out the actual owner (you) by enabling multi-factor authentication.
+</p>

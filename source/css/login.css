@@ -1,152 +1,515 @@
 body {
     display: grid;
-    grid-template-columns: minmax(4rem, 1fr) minmax(20rem, 60rem) minmax(4rem, 1fr);
-    grid-template-rows: minmax(4rem, 1fr) minmax(24rem, 8fr) minmax(4rem, 1fr);
+    grid-template-columns: 1fr 23rem 1fr;
+    grid-template-rows: 1fr 23rem 1fr;
 }
 
-.dm body {
-    background-color: black;
-}
-
-.dm * {
-    color: white;
-}
-
-body > .full {
-    grid-column: span 1 / -1;
-}
-
-#key-image-placeholder {
-    grid-row: 1/-1;
-    grid-column: 4/5;
-    background-color: #222;
-}
-
-#key-image {
-    grid-row: 1/-1;
-    grid-column: 4/5;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: bottom;
-    border-radius: 0;
-    border-top-right-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
-}
-
-#image-author {
+#login-grid {
     grid-row: 2/3;
-    grid-column: 3/4;
-    text-transform: lowercase;
+    grid-column: 2/3;
+    background-color: white;
 
-    writing-mode: vertical-lr;
-    text-align: right;
-    margin-left: 0.25rem;
-    margin-top: 0;
-    
-    opacity: 0;
-    transition: 1s opacity ease 1s;
+    display: grid;
+    grid-template-columns: repeat(9, 2rem);
+    grid-template-rows: repeat(9, 2rem);
+    gap: 0.5rem;
+    padding: 0.5rem;
+
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    border-radius: 1.5rem;
 }
 
-#image-author:not(:empty) {
+.polkadot {
+    fill: #F8F8F8;
     opacity: 1;
+    z-index: 1;
+    transform: translateY(0) translateX(0);
+    transition: 1s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb), 2s fill linear;
+    width: 2rem;
+    height: 2rem;
 }
 
 #logo {
-    grid-row: 2/3;
-    grid-column: 2/3;
+    grid-row: 1/1;
+    grid-column: 1/1;
     text-align: center;
     user-select: none;
     outline: none;
 }
 
 #logo img {
-    margin: 1rem;
     width: 2rem;
     height: 2rem;
     object-fit: contain;
     user-select: none;
+    opacity: 0.2;
 }
 
-.dm #logo {
-    filter: invert(1);
+button, a {
+    opacity: 1;
+    padding: 0;
+    border-radius: 2rem;
+    line-height: calc(2rem + 2px);
+    box-sizing: border-box;
+    height: 2rem;
+    width: 2rem;
+    margin: 0;
+    text-align: center;
+
+    transition-property: width, color, background-color, transform, opacity;
+    transition-duration: 0.5s;
+    transition-timing-function: var(--cryptee-cb);
 }
 
-#login-grid {
-
-    grid-row: 2/3;
-    grid-column: 2/3;
-    background-color: white;
-
-    display: grid;
-    grid-template-columns: 4rem 12rem 4rem 1fr;
-    grid-template-rows: 4rem 4rem 1fr 8rem 1fr 4rem;
-
+#forgot, #signup {
+    opacity: 1;
+    background-color: #f0f0f0;
+    width: 4.5rem;
+    z-index: 2;
+    line-height: 2rem;
+    font-weight: 350;
     overflow: hidden;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
-    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    text-overflow: clip;
 }
 
-#login-grid .full {
-    grid-column: span 5;
-}
-
-.dm #login-grid {
-    background-color: var(--cryptee-0);
-    color: #FFF;
-}
-
-
-.bottom {
-    background-color: black;
-    grid-column: 1/4;
-    grid-row: 6 / -1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 4rem);
-}
-
-.bottom {
-    color: #FFF;
-    padding-top: 0.75rem;
-}
-
-.bottom a:focus {
-    outline: none;
-    box-shadow: none;
-    border-bottom: 1px solid #fff;
-}
-
-.dm .bottom {
-    background-color: var(--cryptee-0);
-    color: white;
-}
-
-.wrapper {
-    grid-column: 2/3;
-    grid-row: 4/5;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 4rem);
-}
-
-.wrapper .full {
-    grid-column: span 3;
+#recovery {
+    opacity: 1;
+    z-index: 3;
+    width: 9.5rem;
+    grid-row: 9/10;
+    grid-column: 2/6;
+    line-height: 2rem;
+    font-weight: 350;
+    overflow: hidden;
+    font-size: 0.9rem;
+    background-color: #F0F0F0;
+    white-space: nowrap;
+    text-overflow: clip;
 }
 
 input {
-    margin-top: 0;
+    opacity: 1;
+    margin: 0;
+    padding: 0 1rem;
+    height: 2rem;
+    width: 17rem;
+    line-height: 2rem;
+    border-radius: 2rem;
+    box-sizing: border-box;
+    box-shadow: none !important;
+    background-color: #484848;
+    font-weight: 350 !important;
+    color: #FFF;
+    z-index: 2;
 }
 
-button {
-    width: 4rem;
+input.totp-a,
+input.totp-b,
+input.totp-c,
+input.totp-d,
+input.totp-e,
+input.totp-f {
+    line-height: 2rem;
+    width: 2rem;
+    height: 2rem;
+    padding: 2px 0 0 0;
+    text-align: center;
+    background-color: #545454;
 }
+
+input.totp {
+    grid-row: 5/6;
+    grid-column: 2/8;
+    opacity: 0.001;
+    z-index: 4;
+}
+
+#mfa-hint {
+    width: 21.5rem;
+    grid-row: 3/4;
+    grid-column: 1/10;
+    white-space: nowrap;
+    text-overflow: clip;
+    margin-top: 0;
+    line-height: 2rem;
+    text-align: center;
+    overflow: hidden;
+}
+
+body.mfa #mfa-hint::after { content: "enter your 6-digit multi factor code"; }
+
+body.mfa #mfa-hint.error {
+    color: var(--cryptee-red);
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+body.mfa #mfa-hint.error::after          { content: "INCORRECT MULTI-FACTOR CODE! TRY AGAIN"; }
+body.mfa #mfa-hint.quota-exceeded::after { content: "TOO MANY ATTEMPTS! TRY AGAIN LATER"; }
+body.mfa #mfa-hint.network::after        { content: "NETWORK ERROR! PLEASE TRY AGAIN"; }
+
+#email {
+    grid-row: 3/4;
+    grid-column: 2/9;
+    text-align: left;
+    transform: translateX(0);
+}
+
+#pswrd {
+    width: 14.5rem;
+    grid-row: 4/5;
+    grid-column: 2/7;
+    text-align: left;
+    transform: translateX(0);
+}
+
+#recovery-input {
+    z-index: 9;
+    grid-row: 5/6;
+    width: 14.5rem;
+    grid-column: 2/7;
+    text-align: right;
+}
+
+#forgot {
+    grid-row: 9/10;
+    grid-column: 2/4;
+}
+
+#signup {
+    grid-row: 9/10;
+    grid-column: 4/6;
+}
+
+#g {
+    grid-row: 9/10;
+    grid-column: 9/10;
+    color: #363636;
+    padding-left: 1px;
+    background-color: #F0F0F0;
+}
+
+#login {
+    z-index: 4;
+    grid-row: 4/5;
+    grid-column: 8/9;
+    background-color: var(--cryptee-green);
+    color: #FFF;
+    transform: translateY(0);
+}
+
+body:not(.mfa) #email:not(:placeholder-shown)+#pswrd:not(:placeholder-shown) ~ #login {
+    animation: scaleBounce 0.5s ease-in-out 1;
+}
+
+input, button, a, small {
+    transition: 1s width var(--cryptee-cb), 
+                1s transform var(--cryptee-cb), 
+                0.75s opacity var(--cryptee-cb),
+                0.75s color var(--cryptee-cb), 
+                0.75s background-color var(--cryptee-cb) 0.75s;
+}
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+STATES 
+ 
+--------------------------------
+----------------------------- */
+
+input:focus  { background-color: #000; transition-delay: 0s !important; }
+#login:focus { outline: 2px #116e32 solid; }
+#g:focus     { outline: 2px #000 solid; }
+a:focus      { outline: 2px #000 solid; }
+
+*[disabled] {
+    color: transparent !important;
+    background-color: #f8f8f8 !important;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+INITIAL STATE 
+ 
+--------------------------------
+----------------------------- */
+
+body:not(.mfa) #recovery {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+body:not(.mfa) #mfa-hint { opacity: 0; }
+
+body:not(.mfa) .pass-a,
+body:not(.mfa) .pass-b,
+body:not(.mfa) .pass-c,
+body:not(.mfa) .pass-d,
+body:not(.mfa) .pass-e,
+body:not(.mfa) .pass-f {
+    opacity: 0 !important;
+}
+
+body:not(.mfa) .totp-a,
+body:not(.mfa) .totp-b,
+body:not(.mfa) .totp-c,
+body:not(.mfa) .totp-d,
+body:not(.mfa) .totp-e,
+body:not(.mfa) .totp-f {
+    background-color: #F8F8F8;
+    pointer-events: none !important;
+}
+
+body:not(.mfa) .totp { display: none !important; }
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+MFA 
+ 
+--------------------------------
+----------------------------- */
+
+
+body.mfa #email,
+body.mfa #pswrd {
+    width: 2rem;
+    background-color: #F8F8F8;
+    color: #F8F8F8;
+    pointer-events: none !important;
+}
+
+body.mfa #forgot {
+    width: 7rem;
+    color: #F8F8F8;
+    background-color: #F8F8F8;
+    pointer-events: none !important;
+}
+
+body.mfa #signup {
+    color: #F8F8F8;
+    background-color: #F8F8F8;
+    pointer-events: none !important;
+}
+
+body.mfa #recovery { transition-delay: 0.5s; }
+body.mfa #recovery::after { content: "use a recovery code"; }
+
+body.mfa #mfa-hint { transition-delay: 1.5s; transition-duration: 1s; }
+body.mfa #pswrd    { 
+    /* transform: translateX(-2.5rem);  */
+    transition-duration: 1s; 
+    transition-delay: 0s !important; 
+}
+body.mfa #email    { 
+    /* transform: translateX(-2.5rem);  */
+    transition-duration: 1s; 
+    transition-delay: 0.125s !important; 
+    opacity: 0 !important;
+}
+
+body.mfa .totp-a    { transition-delay: 0.5s; }
+body.mfa .totp-b    { transition-delay: 0.6s; }
+body.mfa .totp-c    { transition-delay: 0.7s; }
+body.mfa .totp-d    { transition-delay: 0.8s; }
+body.mfa .totp-e    { transition-delay: 0.9s; }
+body.mfa .totp-f    { transition-delay: 1.0s; }
+body.mfa .totp-x    { transition-delay: 1.3s; transform: translateY(2.5rem); }
+
+body.mfa .pass-a   { transition-delay: 1.5s; }
+body.mfa .pass-b   { transition-delay: 1.4s; }
+body.mfa .pass-c   { transition-delay: 1.3s; }
+body.mfa .pass-d   { transition-delay: 1.2s; }
+body.mfa .pass-e   { transition-delay: 1.1s; }
+body.mfa .pass-f   { transition-delay: 1.0s; }
+body.mfa .pass-g   { transition-delay: 1.1s; transform: translateX(-2.5rem); }
+
+body.mfa .totp-z   { transition-delay: 0s;   opacity: 0 !important;}
+body.mfa .msg-1a   { transition-delay: 0.6s; opacity: 0 !important;}
+body.mfa .msg-1b   { transition-delay: 0.7s; opacity: 0 !important;}
+body.mfa .msg-1c   { transition-delay: 0.8s; opacity: 0 !important;}
+body.mfa .msg-1d   { transition-delay: 0.9s; opacity: 0 !important;}
+body.mfa .msg-1e   { transition-delay: 1.0s; opacity: 0 !important;}
+body.mfa .msg-1f   { transition-delay: 1.0s; opacity: 0 !important;}
+body.mfa .totp-y   { transition-delay: 1.2s; opacity: 0 !important;}
+
+body.mfa #login    { transition-delay: 1.0s; transform: translateY(2.5rem); }
+/* digit 1 */
+.totp:focus + input:placeholder-shown { animation: totpBlink 1s ease-in-out infinite; } 
+/* digit 2 - 6 */
+.totp:focus ~ input:not(:placeholder-shown) + input:placeholder-shown { animation: totpBlink 1s ease-in-out infinite; }
+
+.totp:focus~input:not(:placeholder-shown) {
+    transition-delay: 0 !important;
+    animation: scaleBounce 0.5s ease-in-out 1;
+}
+/* all digits entered */
+.totp-a:not(:placeholder-shown) + 
+.totp-b:not(:placeholder-shown) + 
+.totp-c:not(:placeholder-shown) + 
+.totp-d:not(:placeholder-shown) + 
+.totp-e:not(:placeholder-shown) + 
+.totp-f:not(:placeholder-shown) ~ 
+#login {
+    transition-delay: 0s;
+    background-color: var(--cryptee-green);
+    color: #FFF;
+    animation: mfaLoginBounce 0.5s ease-in-out 1;
+    animation-delay: 0.15s;
+}
+
+/* normally after username/pass is entered this will be hidden, but adding as a backup to cover all cases */
+body.mfa #g { 
+    color: transparent !important;
+    pointer-events: none !important;
+    background-color: #f8f8f8 !important;
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+RECOVERY 
+ 
+--------------------------------
+----------------------------- */
+
+body.recovery .totp {
+    pointer-events: none !important;
+}
+
+body:not(.recovery) #recovery-input {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+
+body.recovery #recovery {
+    width: 12rem;
+    transform: translateX(-2.5rem);
+    transition-delay: 0s !important;
+}
+
+body.recovery #recovery::after { content: "\20EA\00a0\00a0 use authentication code"; }
+body.recovery #mfa-hint::after { content: "enter your recovery code to disable & reset mfa"; }
+
+body.recovery #recovery-input { transition-delay: 0.6s !important; }
+body.recovery .totp-a { transition-delay: 0s; width: 4.5rem;}
+body.recovery .totp-b { transition-delay: 0s; width: 4.5rem;}
+body.recovery .totp-c { transition-delay: 0s; width: 4.5rem;}
+body.recovery .totp-d { transition-delay: 0s; width: 4.5rem;}
+body.recovery .totp-e { transition-delay: 0s; width: 4.5rem;}
+body.recovery .totp-f { transition-delay: 0s; }
+
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+progressing 
+ 
+--------------------------------
+----------------------------- */
+
+body.progressing .polkadot:nth-of-type(1),
+body.progressing .polkadot:nth-of-type(2),
+body.progressing .polkadot:nth-of-type(3),
+body.progressing .polkadot:nth-of-type(4),
+body.progressing .polkadot:nth-of-type(5),
+body.progressing .polkadot:nth-of-type(6),
+body.progressing .polkadot:nth-of-type(7),
+body.progressing .polkadot:nth-of-type(8)
+{ 
+    transition-delay : 0s !important; 
+    animation: progressPolkadots 0.5s ease-in-out infinite !important; 
+}
+
+
+body.progressing .polkadot:nth-of-type(1)  { animation-delay: 0.1s !important; }
+body.progressing .polkadot:nth-of-type(2)  { animation-delay: 0.2s !important; }
+body.progressing .polkadot:nth-of-type(3)  { animation-delay: 0.3s !important; }
+body.progressing .polkadot:nth-of-type(4)  { animation-delay: 0.4s !important; }
+body.progressing .polkadot:nth-of-type(5)  { animation-delay: 0.5s !important; }
+body.progressing .polkadot:nth-of-type(6)  { animation-delay: 0.6s !important; }
+body.progressing .polkadot:nth-of-type(7)  { animation-delay: 0.7s !important; }
+body.progressing .polkadot:nth-of-type(8)  { animation-delay: 0.8s !important; }
+
+body.recovery.progressing #mfa-hint::after,
+body.mfa.progressing #mfa-hint::after { content: "checking code..." !important; }
+body.mfa.recovering #mfa-hint::after { content: "disabling mfa & logging you in..." !important; }
+
+/* -----------------------------
+-------------------------------- 
+ 
+QUOTA EXCEEDED 
+ 
+--------------------------------
+----------------------------- */
+
+body.quota-exceeded .totp-a,
+body.quota-exceeded .totp-b,
+body.quota-exceeded .totp-c,
+body.quota-exceeded .totp-d,
+body.quota-exceeded .totp-e,
+body.quota-exceeded .totp-f,
+body.quota-exceeded #login {
+    color: transparent !important;
+    background-color: #ffe6e6 !important;
+    pointer-events: none !important;
+}
+
+body.quota-exceeded #recovery {
+    width: 2rem !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body.quota-exceeded #forgot,
+body.quota-exceeded #signup {
+    width: 2rem !important;
+    color: #ffe6e6 !important;
+    background-color: #ffe6e6 !important;
+}
+
+body.quota-exceeded .polkadot {
+    transition-delay: 0s;
+    fill: #ffe6e6 !important;
+}
+
+body.quota-exceeded #pswrd,
+body.quota-exceeded #g {
+    background-color: #ffe6e6 !important;
+}
+
+body.quota-exceeded #logo img {
+    opacity: 1;
+}
+
+/* -----------------------------
+-------------------------------- 
+ 
+OTHER 
+ 
+--------------------------------
+----------------------------- */
+
+
 
 .popup {
     position: absolute;
     bottom: 0;
     left: 0;
     height: auto;
-    z-index: 2;
+    z-index: 99;
 }
 
 progress {
@@ -158,37 +521,45 @@ progress.show {
     opacity: 1;
 }
 
-button:not(.close):focus { border-bottom: 1px #000 solid; }
-.dm button:not(.close):focus { border-bottom: 1px white solid; }
 
-*[disabled] { 
-    opacity: 0.5;
+@keyframes totpBlink {
+    0%   { background-color: #545454; }
+    50%  { background-color: #000000; }
+    100% { background-color: #545454; }
 }
 
-
-
-/* -----------------------------
--------------------------------- 
- 
-MEDIA 
- 
---------------------------------
------------------------------ */
-
-@media (max-width : 576px) {
-    body {
-        grid-template-columns: 0.5fr 20rem 0.5fr;
-    }
-
-    #key-image, #image-author {
-        opacity: 0 !important;
-    }
-
-    .bottom {
-        background-color: transparent !important;
-        color: var(--cryptee-2);
-    }
+@keyframes scaleBounce {
+    0%   { transform: scale(1);  }
+    50%  { transform: scale(1.1);}
+    100% { transform: scale(1);  }
 }
 
+@keyframes progressPolkadots {
+    0%   { fill: #f8f8f8;   }
+    50%  { fill: #bbbbbb;   }
+    100% { fill: #f8f8f8;   }
+}
 
+@keyframes mfaLoginBounce {
+    0%   { transform: translateY(2.5rem) scale(1);  }
+    50%  { transform: translateY(2.5rem) scale(1.1);}
+    100% { transform: translateY(2.5rem) scale(1);  }
+}
 
+@media (max-width: 375px) {
+    body { zoom: 0.97 }
+}
+
+@media (max-width: 320px) {
+    
+    body { zoom: 0.89; }
+
+    #login-grid {
+        box-shadow: none;
+        border-radius: 0;
+        margin-left: -0.25rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+}

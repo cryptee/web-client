@@ -331,7 +331,7 @@ HERO / GRID DECORATIONS
 
 #hero {
     padding-top: 0rem;
-    grid-template-columns: 2fr 4rem 24rem;
+    grid-template-columns: 2fr 4rem minmax(24rem, 25%);
     grid-template-rows: 4rem 4rem 27rem 10.5rem 27rem 4rem;
 }
 
@@ -472,7 +472,9 @@ footer .column > p:first-of-type {
     margin: 1rem 0;
 }
 
-
+footer .column.wide {
+    grid-column: 1/-1;
+}
 
 
 
@@ -1983,6 +1985,17 @@ MEDIA QUERIES
         grid-template-columns: 1fr;
     }
 
+    footer .column.wide p {
+        text-align: center !important;
+    }
+
+    footer .column.wide i,
+    footer .column.wide > p > span {
+        display: block !important;
+        text-align: center !important;
+        float: none !important;
+        margin: 1rem 0;
+    }
 
 }
 

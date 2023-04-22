@@ -604,6 +604,13 @@ function activePhotoID() {
 checkConnection();
 
 authenticate(function(user){
+    
+    // no need to pre-start up twice. this function may get called twice due to auth firing twice 
+    // (i.e. once for sessionUser, and once for server auth user)
+    // resulting in double, unnecessary calls
+    if (preStartupInitiated) { return; }
+    preStartupInitiated = true;
+
     // LOGGED IN
     preStartup();
 
@@ -639,6 +646,7 @@ authenticate(function(user){
 // ONCE IT'S DONE, WE SET THIS TO TRUE, AND STARTUP CONTINUES.
 
 var preStartupComplete = false; 
+var preStartupInitiated = false;
 
 async function preStartup() {
     
@@ -664,6 +672,7 @@ async function preStartup() {
 // ON THAT SIGNAL WE PUSH THE VIRTUAL DOM TO REAL DOM
 
 var startedUp = false;
+var startupInitiatied = false;
 
 async function startup() {
 
@@ -672,6 +681,16 @@ async function startup() {
     // if we're still getting the album for the first time, wait before you load the album
     if (!preStartupComplete) { return setTimeout(startup, 100); }
     
+    // no need to start up twice. this function may get called twice due to auth firing twice 
+    // (i.e. once for sessionUser, and once for server auth user)
+    // resulting in albums appearing etc twice... 
+    // we technically nip it in the bud by preventhing this in prestartup.
+    // but there's always this 100ms timer that could create a foot race, so this is here to make sure
+    // we won't have a regression
+    if (startupInitiatied) { return; } 
+    
+    startupInitiatied = true;
+
     if (albumToLoad === "favorites" || albumToLoad === "favourites") {
         await loadFavorites();
     } else {

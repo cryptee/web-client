@@ -737,7 +737,8 @@ PHOTO / MEDIA ITEM
 }
 
 
-body.highlight-deletions .media.selected i {
+body.highlight-deletions .media.selected i,
+body.highlight-deletions .media.selected u {
     background-color: var(--cryptee-red);
 }
 
@@ -760,7 +761,8 @@ body.highlight-deletions .media.selected i::before {
     opacity: 0;
 }
 
-.media.in-lightbox i {
+.media.in-lightbox i, 
+.media.in-lightbox u {
     opacity: 0 !important;
 }
 
@@ -797,6 +799,110 @@ body.highlight-deletions .media.selected i::before {
 .media.video.selected::after {
     transform: scale(0.9) !important;
     opacity: 0.5 !important;
+}
+
+.media u {
+    text-decoration: none;
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    z-index: 2;
+
+    width: 2.25rem;
+    height: 1rem;
+    background-color: #000;
+    color: #FFF;
+    padding: 0.25rem 0.25rem 0.25rem 2rem;
+    font-size: 0.75rem;
+    line-height: 1.175rem;
+    border-radius: 1rem;
+
+    overflow: hidden;
+
+    background-repeat: no-repeat;
+    background-size : 1.5rem;
+    background-position : left;
+    transition: 0.3s padding ease 0.125s, 0.3s filter ease 0.3s;
+}
+
+.media u::before {
+    content: '';
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: var(--cryptee-2);
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 1.5rem;
+    text-align: center;
+    line-height: 1.675rem;
+    transition:  0.3s transform ease;
+    transform: translateX(0);
+}
+
+.media.selected u::before {
+    transform: translateX(-2rem);
+}
+
+.media u[maker='leica']::before {
+    background-color: var(--cryptee-red);
+    content: 'L';
+    /* background-image: url('../imgs/other-logos/leica.svg');     */
+}
+
+.media u[mono] { filter: saturate(0); }
+
+.media u[maker='hasselblad']::before {
+    content: 'H';
+    font-style: italic;
+    background-color: var(--cryptee-1);
+    /* background-image: url('../imgs/other-logos/hasselblad.svg'); */
+    /* background-position : 0.25rem; */
+}
+
+.media.selected u {
+    background-position: -2rem;
+    padding-left: 0.75rem;
+    background-color: var(--cryptee-green);
+    filter: saturate(1);
+}
+
+body:not(.nav-favorites) .media b { 
+
+    text-decoration: none;
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+
+    font-size: 1.5rem;
+    text-align: center;
+    
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    width: 1rem;
+    height: 1rem;
+    color: transparent;
+    background-color: transparent;
+
+    font-size: 0.75rem;
+    line-height: 1.175rem;
+    
+    transform: scale(0);
+    transition: 0.3s color ease 1s, 0.3s transform var(--cryptee-cb) 1s;
+
+}
+
+body:not(.nav-favorites) .media b::before { content : "\ee0e"; }
+
+/* show heart everywhere except in favorites, since we're already in favorites */
+body:not(.nav-favorites) .media b[fav] {
+    transform: scale(1);
+    color: var(--cryptee-red) !important;
 }
 
 /* -----------------------------
@@ -1026,6 +1132,34 @@ ALBUM CONTENTS VIEW
 /* DISABLE THE EDIT ALBUM FEATURES FOR FAVORITES */
 .nav-favorites #albumheader {
     pointer-events: none !important;
+}
+
+/* DISABLE THE EDIT ALBUM FEATURES FOR FAVORITES */
+.nav-favorites #albumheader h2::after {
+    
+    opacity: 1;
+
+    display:  inline;
+
+    font-family: 'remixicon' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+       
+    content : "\ee0e"; 
+
+    font-size: 1.65rem;
+    line-height: 3rem;
+    float: right;
+
+    color: var(--cryptee-red);
+    opacity: 0.5;
+}
+
+.nav-favorites .date { 
+    max-width: 100% !important; 
+    border-top: 0.125rem solid var(--cryptee-red) !important;
+    opacity: 0.5 !important;
 }
 
 /* -----------------------------
@@ -1372,7 +1506,7 @@ LIGHTBOX
     font-size: 14px;
     font-weight: 300;
     overflow-wrap: break-word;
-}
+} 
 
 body[env] #popup-photo-info .photoid,
 body[env] #popup-album-info .albumid {
@@ -1388,6 +1522,80 @@ body[env] #popup-album-info .albumid {
 #popup-photo-info[pid^="v-"] b.h3::before { content: "VIDEO INFO"; }
 #popup-photo-info[pid^="p-"] b.h3::before { content: "PHOTO INFO"; }
 
+
+#lightbox-exif-container {
+    grid-row: 2 / 3;
+    grid-column: 1 / -1;
+    height: 3rem;
+    width: calc(100% - 0.5rem);
+    z-index: 12;
+}
+
+#lightbox-exif-container u {
+    text-decoration: none;
+    
+    margin: 0.5rem 0 0 0.5rem;
+    width: auto;
+    height: 1rem;
+
+    display: inline-block;
+
+    background-color: var(--cryptee-0);
+    color: #666;
+    padding: 1rem ;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    border-radius: 1rem;
+    overflow: hidden;
+
+    transition: 0.3s all ease;
+
+    user-select: none;
+
+    transform: translateX(-1rem);
+    opacity: 0;
+}
+
+#lightbox.raw #lightbox-exif-container u {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+#lightbox-exif-container u span:not(#lightbox-exif-maker-logo) {
+    line-height: 1.25rem;
+    padding: 0 1rem;
+    display: inline-block;
+    color: #fff;
+}
+
+#lightbox-exif-container u span:last-child {
+    padding-right: 0.5rem !important;
+}
+
+#lightbox-exif-maker-logo {
+    float: left;
+    height: 1rem;
+    width: 1rem;
+    margin-right: 0.5rem;
+    background-repeat: no-repeat;
+    background-size : 1rem;
+    background-position : left;
+    transition: 0.3s background-position ease;
+}
+
+#lightbox-exif-maker-logo[maker='leica'] {
+    background-color: "#ED1C24";
+    /* background-image: url('../imgs/other-logos/leica.svg');     */
+}
+
+#lightbox-exif-maker-logo[mono] { filter: saturate(0); }
+
+#lightbox-exif-maker-logo[maker='hasselblad'] {
+    /* background-color: "#ED1C24"; */
+    /* background-image: url('../imgs/other-logos/hasselblad.svg'); */
+}
+
+#lightbox-exif-maker-logo:not([maker]) { display: none !important; }
 
 /* -----------------------------
 -------------------------------- 
@@ -1660,7 +1868,7 @@ ENVIRONMENT SPECIFIC RULES
 ----------------------------- */
 
 body:not([env]) .is-hidden-on-live-env { display: none !important; }
-
+.popup:not(.show) .is-hidden-on-live-env {user-select: none !important; -webkit-user-select: none !important;}
 
 
 
@@ -1850,6 +2058,11 @@ MEDIA QUERIES
         width: calc(100% - 2rem); 
     }
 
+    .nav-favorites #albumheader h2::after { 
+        font-size: 1.325rem;
+        line-height: 1.75rem;
+    }
+
     #albumheader .date, .searchheader .title {
         margin-left: 1rem;
         padding-top: 1rem;
@@ -1951,6 +2164,11 @@ MEDIA QUERIES
         height: 8rem;
         font-size: 1rem;
         padding: 0 1.75rem 5rem 1.75rem;
+    }
+
+    #lightbox-exif-model, #lightbox-exif-model + b { display: none !important; }
+    #lightbox-exif-container u span:not(#lightbox-exif-maker-logo) {
+        padding: 0 0.5rem;
     }
 
 }
