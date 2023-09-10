@@ -2144,8 +2144,6 @@ async function disableViewingMode() {
 
 function enableFocusMode() {
     
-    if (isPinned()) { rememberDocsWasPinned = true; }
-
     $("#focusModeButton").addClass("on");
     $("body").addClass("focus-mode");
     $("#statusMessage").html("encrypting &amp; saving...");
@@ -2160,11 +2158,6 @@ function disableFocusMode() {
     $("#focusModeButton").removeClass("on");
     $("body").removeClass("focus-mode");
     swiper.allowSlidePrev = true;
-
-    if (rememberDocsWasPinned) {
-        openSidebarMenu();
-        pinSidebar();
-    }
 }
 
 ////////////////////////////////////////////////

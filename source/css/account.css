@@ -427,8 +427,8 @@ MFA
     font-variant-numeric: slashed-zero;
     font-feature-settings: 'zero' 1;
     font-size: 1rem;
-    background-color: #363636;
-    color: #f5f5f5;
+    background-color: #363636 !important;
+    color: #f5f5f5 !important;
     border-radius: 0.25rem;
     margin-bottom: 1rem;
 }

@@ -204,7 +204,7 @@ var MarkdownShortcuts = function () {
     {
       name: 'bold',
       // bold with underscores
-      pattern: /(?:_){2}(.+?)(?:_){2}/g,
+      pattern: /(?:\s__|^__)(.+?)(?:__\s|__$)/g,
       action: function action(text, selection, pattern, lineStart) {
         boldAction(text, selection, pattern, lineStart, _this);
       }
@@ -212,7 +212,7 @@ var MarkdownShortcuts = function () {
     {
       name: 'bold',
       // bold with asterisk
-      pattern: /(?:\*){2}(.+?)(?:\*){2}/g,
+      pattern: /(?:\s\*\*|^\*\*)(.+?)(?:\*\*\s|\*\*$)/g,
       action: function action(text, selection, pattern, lineStart) {
         boldAction(text, selection, pattern, lineStart, _this);
       }
@@ -220,7 +220,7 @@ var MarkdownShortcuts = function () {
     {
       name: 'italic',
       // italic with underscore
-      pattern: /(?:_){1}(.+?)(?:_){1}/g,
+      pattern: /(?:\s_|^_)(.+?)(?:_\s|_$)/g,
       action: function action(text, selection, pattern, lineStart) {
         italicAction(text, selection, pattern, lineStart, _this);
       }
@@ -228,14 +228,14 @@ var MarkdownShortcuts = function () {
     {
       name: 'italic',
       // italic with asterisk
-      pattern: /(?:\*){1}(.+?)(?:\*){1}/g,
+      pattern: /(?:\s\*|^\*)(.+?)(?:\*\s|\*$)/g,
       action: function action(text, selection, pattern, lineStart) {
         italicAction(text, selection, pattern, lineStart, _this);
       }
     }, 
     {
       name: 'strikethrough',
-      pattern: /(?:~~)(.+?)(?:~~)/g,
+      pattern: /(?:\s~~|^~~)(.+?)(?:~~\s|~~$)/g,
       action: function action(text, selection, pattern, lineStart) {
         strikethroughAction(text, selection, pattern, lineStart, _this);
       }
@@ -385,8 +385,16 @@ var MarkdownShortcuts = function () {
 
     if (text.match(/^([*_ \n]+)$/g)) return;
 
+    
     setTimeout(function () {
+
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code-block']) { return; }
       if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['link']) { return; }
+      if (_this.quill.getFormat()['code-block']) { return; }
+      if (_this.quill.getFormat()['code']) { return; }
+      if (_this.quill.getFormat()['link']) { return; }
+
       _this.quill.deleteText(startIndex, annotatedText.length);
       _this.quill.insertText(startIndex, matchedText, { bold: true, italic: true });
       _this.quill.format('bold', false);
@@ -404,10 +412,23 @@ var MarkdownShortcuts = function () {
     if (text.match(/^([*_ \n]+)$/g)) return;
 
     setTimeout(function () {
+
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code-block']) { return; }
       if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['link']) { return; }
+      if (_this.quill.getFormat()['code-block']) { return; }
+      if (_this.quill.getFormat()['code']) { return; }
+      if (_this.quill.getFormat()['link']) { return; }
+
       _this.quill.deleteText(startIndex, annotatedText.length);
-      _this.quill.insertText(startIndex, matchedText, { bold: true });
+      if (startIndex === 0 || startIndex === lineStart) {
+        _this.quill.insertText(startIndex, matchedText, { bold: true });
+      } else {
+        _this.quill.insertText(startIndex, " " + matchedText + " ", { bold: true });
+      }
+
       _this.quill.format('bold', false);
+      
     }, 0);
   }
 
@@ -421,9 +442,21 @@ var MarkdownShortcuts = function () {
     if (text.match(/^([*_ \n]+)$/g)) return;
 
     setTimeout(function () {
+
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code-block']) { return; }
       if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['link']) { return; }
+      if (_this.quill.getFormat()['code-block']) { return; }
+      if (_this.quill.getFormat()['code']) { return; }
+      if (_this.quill.getFormat()['link']) { return; }
+
       _this.quill.deleteText(startIndex, annotatedText.length);
-      _this.quill.insertText(startIndex, matchedText, { italic: true });
+      if (startIndex === 0 || startIndex === lineStart) {
+        _this.quill.insertText(startIndex, matchedText + " ", { italic: true });
+      } else {
+        _this.quill.insertText(startIndex, " " + matchedText + " ", { italic: true });
+      }
+
       _this.quill.format('italic', false);
     }, 0);
   }
@@ -440,7 +473,15 @@ var MarkdownShortcuts = function () {
     setTimeout(function () {
       if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
       _this.quill.deleteText(startIndex, annotatedText.length);
-      _this.quill.insertText(startIndex, matchedText, { strike: true });
+      
+      if (startIndex === 0 || startIndex === lineStart) {
+        _this.quill.insertText(startIndex, matchedText, { strike: true });
+      } else {
+        _this.quill.insertText(startIndex, " ");
+        _this.quill.insertText(startIndex + 1, matchedText, { strike: true });
+        _this.quill.insertText(startIndex, " ");
+      }
+
       _this.quill.format('strike', false);
     }, 0);
   }
@@ -454,7 +495,14 @@ var MarkdownShortcuts = function () {
     var startIndex = lineStart + match.index;
 
     setTimeout(function () {
+      
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code-block']) { return; }
       if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['link']) { return; }
+      if (_this.quill.getFormat()['code-block']) { return; }
+      if (_this.quill.getFormat()['code']) { return; }
+      if (_this.quill.getFormat()['link']) { return; }
+
       _this.quill.deleteText(startIndex, text.length);
       _this.quill.insertEmbed(startIndex + 1, 'hr', true, Quill.sources.USER);
       _this.quill.insertText(startIndex + 2, "\n", Quill.sources.SILENT);
@@ -496,7 +544,14 @@ var MarkdownShortcuts = function () {
     var startIndex = lineStart + match.index;
 
     setTimeout(function () {
+      
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code-block']) { return; }
       if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['link']) { return; }
+      if (_this.quill.getFormat()['code-block']) { return; }
+      if (_this.quill.getFormat()['code']) { return; }
+      if (_this.quill.getFormat()['link']) { return; }
+
       _this.quill.formatLine(selection.index, 1, 'blockquote', true);
       _this.quill.deleteText(selection.index - 2, 2);
     }, 0);
@@ -515,7 +570,14 @@ var MarkdownShortcuts = function () {
 
     // Need to defer this action https://github.com/quilljs/quill/issues/1134
     setTimeout(function () {
+      
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['code-block']) { return; }
       if (_this.quill.getFormat(startIndex, annotatedText.length)['code']) { return; }
+      if (_this.quill.getFormat(startIndex, annotatedText.length)['link']) { return; }
+      if (_this.quill.getFormat()['code-block']) { return; }
+      if (_this.quill.getFormat()['code']) { return; }
+      if (_this.quill.getFormat()['link']) { return; }
+      
       _this.quill.formatLine(selection.index, 0, 'header', size - 1);
       _this.quill.deleteText(selection.index - size, size);
       try { tribute.hideMenu(); } catch (error) {}

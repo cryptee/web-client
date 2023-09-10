@@ -285,7 +285,7 @@ function onUploadSuccess(fileUpload, filename) {
  */
 function onUploadComplete() {
     setTimeout(function () {
-        var noUploads = $(".upload[prog]").not("[prog='100']").length;
+        var noUploads = $(".upload[prog]").not("[prog='100']").not("[prog='done']").length;
         if (noUploads <= 0) { hideUploader(); }
     }, 2000);
 }

@@ -1,7 +1,7 @@
 <div class="panel centered hidden" id="panel-new-doc">
     <h3>NEW DOCUMENT</h3>
     <p>what would you like to name it?</p>
-    <input type="text" id="new-doc-input" class="darkback" placeholder="untitled document" autocomplete="off">
+    <input type="search" id="new-doc-input" class="darkback" placeholder="untitled document" autocomplete="off">
     <div id="new-doc-recos"></div>
     <p id="new-doc-target-folder"></p>
     <button class="confirm" id="confirmNewDocButton" onclick="confirmNewDoc();"><img src="../assets/cross.svg" alt="close" title="create new document"></button>
@@ -10,7 +10,7 @@
 <div class="panel centered hidden" id="panel-copy-doc" did="">
     <h3>MAKE A COPY</h3>
     <p>what would you like to name it?</p>
-    <input type="text" id="copy-doc-input" class="darkback" placeholder="untitled document" autocomplete="off">
+    <input type="search" id="copy-doc-input" class="darkback" placeholder="untitled document" autocomplete="off">
     <div id="copy-doc-recos"></div>
     <p id="copy-doc-target-folder"></p>
     <button class="confirm" id="confirmCopyDocButton" onclick="confirmCopyDoc();"><img src="../assets/cross.svg" alt="close" title="copy document"></button>
@@ -19,14 +19,14 @@
 <div class="panel centered hidden" id="panel-new-folder">
     <h3>NEW FOLDER</h3>
     <p>what would you like to name it?</p>
-    <input type="text" id="new-folder-input" class="darkback" placeholder="untitled folder" autocomplete="off">
+    <input type="search" id="new-folder-input" class="darkback" placeholder="untitled folder" autocomplete="off">
     <button class="confirm" id="confirmNewFolderButton"><img src="../assets/cross.svg" alt="close" title="create new folder" onclick="confirmNewFolder();"></button>
 </div>
 
 <div class="panel centered hidden" id="link-box">
     <h3>ADD LINK</h3>
     <p>enter the link below</p>
-    <input type="text" id="hyperlink-input" class="darkback" placeholder="https://crypt.ee" autocomplete="off" name="url" spellcheck="false">
+    <input type="url" id="hyperlink-input" class="darkback" placeholder="https://crypt.ee" autocomplete="off" name="url" spellcheck="false">
     <button class="confirm"><img src="../assets/cross.svg" alt="close" title="add link" onclick="confirmEmbed('link');"></button>
 </div>
 

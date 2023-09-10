@@ -160,16 +160,12 @@ $("#pswrd").on('keyup', function(event) {
     if (event.key === "Enter") {
         checkLoginForm();
     }
-
-    disableGoogleButtonIfNecessary();
 }); 
 
 $("#email").on('keyup', function(event) {
     if (event.key === "Enter") {
         $("#pswrd").trigger("focus");
     }
-
-    disableGoogleButtonIfNecessary();
 }); 
 
 function checkLoginForm() {
@@ -395,21 +391,8 @@ function loginWithPassword(email, pswrd) {
             handleError("[LOGIN] Unknown login error", error);
         }
         stopProgress();
-        disableGoogleButtonIfNecessary();
     });
 }
-
-function disableGoogleButtonIfNecessary() {
-    var pswrd = ($("#pswrd").val() || "").trim();
-    var email = ($("#email").val() || "").trim();
-
-    if (email || pswrd) { 
-        $("#g").prop('disabled', true); 
-    } else {
-        $("#g").removeAttr("disabled");
-    }
-}
-
 
 
 ////////////////////////////////////////////////
@@ -423,8 +406,12 @@ $("#g").on('click', loginWithGoogle);
 
 async function loginWithGoogle() {
     startProgress();
+    
     var provider = new firebase.GoogleAuthProvider();
     provider.addScope('email');
+    
+    $("#pswrd").val("");
+    $("#email").val("");
     
     try {
         if (isInWebAppiOS) {

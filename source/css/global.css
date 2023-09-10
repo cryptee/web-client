@@ -480,7 +480,7 @@ select:-webkit-autofill:hover,
 select:-webkit-autofill:focus, 
 select:-webkit-autofill:active  {
     transition: background-color 5000s ease-in-out 0s;
-    -webkit-text-fill-color: #000;
+    -webkit-text-fill-color: #FFF;
 }
 
 input.darkback:-webkit-autofill,
@@ -1730,6 +1730,10 @@ TIPS / GUIDES
 }
 
 .tip.hidden { display: none !important; }
+
+.tip input {
+    color : #000 !important;
+}
 
 /* -----------------------------
 -------------------------------- 
