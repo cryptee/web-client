@@ -2144,13 +2144,13 @@ async function disableViewingMode() {
 
 function enableFocusMode() {
     
+    unPinSidebar();
+    closeSidebarMenu();
+
     $("#focusModeButton").addClass("on");
     $("body").addClass("focus-mode");
     $("#statusMessage").html("encrypting &amp; saving...");
     swiper.allowSlidePrev = false;
-    
-    unPinSidebar();
-    closeSidebarMenu();
 
 }
 

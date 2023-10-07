@@ -1437,6 +1437,8 @@ function printDocument() {
     } else {
         togglePanel('panel-pagesetup');
         enablePaperMode();
+        createPopup(`Automatically enabled print/pdf mode so that you can preview and edit your document in a paper-view. If you like the way things look like, click the print / pdf button once more time to export the document as a pdf and print it.`, "info");
+
     }
 }
 

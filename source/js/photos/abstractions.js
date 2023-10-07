@@ -1349,10 +1349,11 @@ async function openActiveMediaInAnotherApp() {
         }
     } else {
         try {
-            mediaTitle = photos[activePhotoID()].decryptedTitle || "Photo.jpg";
+            mediaTitle = titleFromFilename(photos[activePhotoID()].decryptedTitle) || "Photo";
         } catch (error) {
-            mediaTitle = "Photo.jpg";
+            mediaTitle = "Photo";
         }
+        mediaTitle = mediaTitle + ".jpg";
     }
 
     saveAsOrShare(mediaBlob, mediaTitle);

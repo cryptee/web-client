@@ -255,6 +255,7 @@ quillIcons.link                 = renderIcon("link-m");
 
 quillIcons.list.bullet          = renderIcon("list-unordered");
 quillIcons.list.check           = renderIcon("list-check-2");
+// quillIcons.list.check           = renderIcon("list-check-3"); // TODO : ENABLE AFTER JUNE 2024
 quillIcons.list.ordered         = renderIcon("list-ordered");
 quillIcons.script.sub           = renderIcon("subscript");
 quillIcons.script.super         = renderIcon("superscript");

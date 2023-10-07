@@ -378,7 +378,7 @@ async function getSummonAlbum(hashedTitleToSummon){
 async function getSyntacticSearchResults(references) {
     references = references || [];
 
-    if (references === []) { 
+    if (Array.isArray(references) && !references.length) { 
         breadcrumb("[SEARCH] No references found, won't query");
         return []; 
     }
@@ -429,7 +429,7 @@ async function getSyntacticSearchResults(references) {
 async function getTagsSearchResults(hmacs) {
     hmacs = hmacs || [];
 
-    if (hmacs === []) { 
+    if (Array.isArray(hmacs) && !hmacs.length) { 
         breadcrumb("[SEARCH] No hmacs found, won't query");
         return []; 
     }

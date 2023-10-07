@@ -480,9 +480,17 @@ select:-webkit-autofill:hover,
 select:-webkit-autofill:focus, 
 select:-webkit-autofill:active  {
     transition: background-color 5000s ease-in-out 0s;
-    -webkit-text-fill-color: #FFF;
+    -webkit-text-fill-color: #000;
 }
 
+.dm input:-webkit-autofill,
+.dm input:-webkit-autofill:hover, 
+.dm input:-webkit-autofill:focus, 
+.dm input:-webkit-autofill:active,
+.dm select:-webkit-autofill,
+.dm select:-webkit-autofill:hover,
+.dm select:-webkit-autofill:focus,
+.dm select:-webkit-autofill:active,
 input.darkback:-webkit-autofill,
 input.darkback:-webkit-autofill:hover, 
 input.darkback:-webkit-autofill:focus, 
@@ -531,6 +539,11 @@ input[type="date"]::-webkit-date-and-time-value {
 }
 
 
+/* clears the 'X' from Chrome */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { display: none; }
 
 
 
@@ -885,9 +898,13 @@ KEY MODAL
     margin-top: -1.5rem;
     text-align: right;
     padding-right: 4.5rem;
-    box-shadow: none !important;
     opacity: 1;
     transition: 0.25s opacity ease 0.25s;
+    box-shadow: inset 0 0 40px 40px var(--cryptee-4);
+}
+
+.dm #key-input {
+    box-shadow: inset 0 0 40px 40px var(--oled-safe-black);
 }
 
 
@@ -1794,6 +1811,19 @@ ANIMATIONS
     50%  {opacity: 0.75;}
     100% {opacity: 1;}
 }
+
+@keyframes loadingBGWipeVertical {
+    0% { background-position: 0% 200%; }
+	50% { background-position: 0% 100%; }
+	100% { background-position: 0% 0%; }
+}
+
+@keyframes loadingBGWipeHorizontal {
+    0% { background-position: 200% 0%; }
+	50% { background-position: 100% 0%; }
+	100% { background-position: 0% 0%; }
+}
+
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 

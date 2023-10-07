@@ -3887,6 +3887,9 @@ SPLIT VIEW MODE
     body[paper-stock].pinned #desktopToolbar { grid-row: 1/4; }
 }
 
+@media (max-width : 1267px) { 
+    body.pinned #desktopToolbar { grid-row: 1/4; }
+}
 
 
 /* -----------------------------

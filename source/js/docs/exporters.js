@@ -428,81 +428,104 @@ function getListLevelForExport(el) {
     var className = el.className || '0';
     return +className.replace(/[^\d]/g, '');
 }
+// Attempts to fix lists, because quill exports broken indented lists
+// https://github.com/quilljs/quill/issues/979
+// https://gist.github.com/Daenero/3442213dc5093dc10f30711edb529729
+// https://gist.github.com/Daenero/3442213dc5093dc10f30711edb529729?permalink_comment_id=3769242#gistcomment-3769242
 
 /**
  * This takes in an HTML from editor, and converts all lists in it to correctly nested lists using a correct syntax
  * @param {string} rawHTML HTML
+ * @returns {string} processedHTML
  */
 function preprocessListsForExport(rawHTML) {
-    var tempEl = document.createElement('div');
+    if (!rawHTML || rawHTML.length === 0) {
+        return rawHTML;
+    }
+
+    const tempEl = window.document.createElement('div');
     tempEl.setAttribute('style', 'display: none;');
     tempEl.innerHTML = rawHTML;
-    var startLi = '::startli::';
-    var endLi = '::endli::';
+
+    const listTypes = ['1', 'a', 'i'];
 
     ['ul', 'ol'].forEach((type) => {
-        var startTag = `::start${type}::`;
-        var endTag = `::end${type}::`;
-
         // Grab each list, and work on it in turn
         Array.from(tempEl.querySelectorAll(type)).forEach((outerListEl) => {
-            var listChildren = Array.from(outerListEl.children).filter((el) => el.tagName === 'LI');
+            const listChildren = Array.from(outerListEl.children).filter((el) => el.tagName === 'LI');
 
-            var lastLiLevel = 0;
-            var currentLiLevel = 0;
-            var difference = 0;
-            var checked = outerListEl.dataset.checked;
+            let lastLiLevel = 0;
 
-            // Now work through each li in this list
-            for (var i = 0; i < listChildren.length; i++) {
-                var currentLi = listChildren[i];
+            const parentElementsStack = [];
+            const root = document.createElement(type);
+
+            parentElementsStack.push(root);
+
+            listChildren.forEach((e, i) => {
+                const currentLiLevel = getQuillListLevel(e);
+                e.className = e.className.replace(getIndentClass(currentLiLevel), '');
+                const difference = currentLiLevel - lastLiLevel;
                 lastLiLevel = currentLiLevel;
-                currentLiLevel = getListLevelForExport(currentLi);
-                difference = currentLiLevel - lastLiLevel;
 
-                // if the list item is in a checked list, add checked checkbox input
-                if (checked === "true") {
-                    var checkedInput = document.createElement('input');
-                    checkedInput.setAttribute('type', 'checkbox');
-                    checkedInput.setAttribute('checked',"");
-                    currentLi.prepend(checkedInput);
-                }
-
-                // if the list item is in an unchecked checklist, add unchecked checkbox input
-                if (checked === "false") {
-                    var uncheckedInput = document.createElement('input');
-                    uncheckedInput.setAttribute('type', 'checkbox');
-                    currentLi.prepend(uncheckedInput);
-                }
-
-                // we only need to add tags if the level is changing
                 if (difference > 0) {
-                    currentLi.before((startLi + startTag).repeat(difference));
-                } else if (difference < 0) {
-                    currentLi.before((endTag + endLi).repeat(-difference));
+                    let currentDiff = difference;
+
+                    while (currentDiff > 0) {
+                        let lastLiInCurrentLevel = seekLastElement(parentElementsStack).lastElementChild;
+
+                        if (!lastLiInCurrentLevel) {
+                            lastLiInCurrentLevel = document.createElement('li');
+                            encode_addChildToCurrentParent(parentElementsStack, lastLiInCurrentLevel);
+                        }
+
+                        const newList = document.createElement(type);
+                        if (type === 'ol') { newList.setAttribute('type', listTypes[currentLiLevel % 3]); }
+                        lastLiInCurrentLevel.appendChild(newList);
+                        parentElementsStack.push(newList);
+
+                        currentDiff--;
+                    }
                 }
 
-                if (i === listChildren.length - 1) {
-                    // last li, account for the fact that it might not be at level 0
-                    currentLi.after((endTag + endLi).repeat(currentLiLevel));
+                if (difference < 0) {
+                    let currentDiff = difference;
+
+                    while (currentDiff < 0) {
+                        parentElementsStack.pop();
+
+                        currentDiff++;
+                    }
                 }
-            }
+
+                encode_addChildToCurrentParent(parentElementsStack, e);
+            });
+
+            outerListEl.innerHTML = root.innerHTML;
         });
     });
 
-    //  Get the content in the element and replace the temporary tags with new ones
-    var newContent = tempEl.innerHTML;
-    newContent = newContent.replace(/::startul::/g, '<ul>');
-    newContent = newContent.replace(/::endul::/g, '</ul>');
-    newContent = newContent.replace(/::startol::/g, '<ol>');
-    newContent = newContent.replace(/::endol::/g, '</ol>');
-    newContent = newContent.replace(/::startli::/g, '<li>');
-    newContent = newContent.replace(/::endli::/g, '</li>');
-
+    const newContent = tempEl.innerHTML;
     tempEl.remove();
-
     return newContent;
+
+    function seekLastElement(list) {
+        return list[list.length - 1];
+    }
+
+    function encode_addChildToCurrentParent(parentStack, child) {
+        const currentParent = seekLastElement(parentStack);
+        currentParent.appendChild(child);
+    }
+
+    function getQuillListLevel(el) {
+        const className = el.className || '0';
+        return +className.replace(/[^\d]/g, '');
+    }
+
+    function getIndentClass(level) { return `ql-indent-${level}`; }
+
 }
+
 
 
 

@@ -118,19 +118,25 @@ function processColorsInDelta(delta) {
     
     delta.ops.forEach(function(op) {
         if (op.attributes) {
-            if (op.attributes.background === "#121212") {
-                delete op.attributes.background;
-            }
-            
-            if (op.attributes.color){
-                var color = op.attributes.color.toLowerCase();
-                if (color === "#ffffff" || color === "#fff" || color === "white") {
-                    delete op.attributes.color;
-                }
-            }
+            if (shouldColorBeExcludedFromPaste(op.attributes.background)) { delete op.attributes.background; }
+            if (shouldColorBeExcludedFromPaste(op.attributes.color))      { delete op.attributes.color; }
         } 
     });
 
     return delta;
 
+}
+
+function shouldColorBeExcludedFromPaste(colorCode) {
+    colorCode = colorCode || "";
+    if (!colorCode) { return false; }
+
+    colorCode = colorCode.toLowerCase();
+    let excludedColorCodes = ["#000", "#000000", "#121212", "#fff", "#ffffff", "#f5f5f5", "black", "white"];
+    
+    if (excludedColorCodes.includes(colorCode)) {
+        return true;
+    } else {
+        return false;
+    }
 }

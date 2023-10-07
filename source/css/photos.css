@@ -608,7 +608,14 @@ body:not(.searching) #searchContents {
 }
 
 main:not(.scrolling):not(.browsing) .content.loading {
-    animation: loadingBlink 0.75s infinite ease forwards;    
+    background: linear-gradient(90deg, var(--bg), color-mix(in srgb, #fff 20%, var(--bg)), var(--bg));
+    animation: loadingBGWipeHorizontal 0.75s linear infinite;
+    background-size: 200% 200%;
+}
+
+main:not(.scrolling):not(.browsing) .content.loading[bgloadingpref='monochrome'] { 
+    background: linear-gradient(90deg, var(--bg), color-mix(in srgb, #FFF 10%, var(--bg)), var(--bg));
+    background-size: 200% 200%;
 }
 
 .content.loading:nth-child(2n)  { animation-delay: 0.03s !important; }
@@ -916,20 +923,23 @@ ALBUM
 .album {
     
     float: left;    
-    width: 56rem;
-    height: 16rem;
+    width: 36rem;
+    height: 20rem;
     margin: 0 0 4rem 4rem;
 
     background-color: var(--bg);
     position: relative;
     cursor: pointer;
     user-select: none;
+
+    overflow: hidden;
+
 }
 
 
 .album img {
     width: 36rem;
-    height: 100%;
+    height: 16rem;
 }
 
 /* album name */
@@ -939,31 +949,29 @@ ALBUM
     user-select: none;
 
     position: absolute;
-    bottom: 3.5rem;
-    right: 0rem;
-    margin-bottom: -0.5rem;
+    bottom: 0rem;
+    left: 0rem;
 
-    width: 12rem; /* minus padding */
-    height: 2rem;
-    padding: 1rem 4rem 0 0;
+    width: 30rem;
+    height: 4rem;
+    padding: 0 1.5rem;
 
     background-color: transparent;
-    color: var(--cryptee-0);
+    color: var(--c);
     
     /* EQUIVALENT OF BOLD P */
     font-weight: 700;
-    font-size: 1rem;
-    line-height: 2rem;
+    font-size: 0.85rem;
+    line-height: 4.25rem;
     
+    box-sizing: border-box;
+
     overflow: hidden;
     text-overflow: ellipsis;
     overflow-wrap: normal;
     white-space: nowrap;
 
-}
-
-.dm .album::after {
-    color: white;
+    transition: 0.5s width var(--cryptee-cb);
 }
 
 /* album date */
@@ -975,39 +983,37 @@ ALBUM
     bottom: 0rem;
     right: 0rem;
     
-    width: 16rem;
-    height: 100%;
-    padding: 0rem 0 0 4rem;
+    width: 36rem;
+    height: 4rem;
+    padding: 0 1.5rem; 
     
-    line-height: 20rem;
+    line-height: 4.25rem;
     font-weight: 350;
-    font-size: 1rem;
+    font-size: 0.85rem;
     letter-spacing: 0.1rem;
     
-    background-color: white;
-    color: rgba(54,54,54,0.3);
-}
+    box-sizing: border-box;
+    text-align: right;
+    color: var(--c);
 
-.dm .album::before {
-    background-color: var(--cryptee-0);
-    color: rgba(255, 255, 255, 0.5);
+    transition: 0.5s padding var(--cryptee-cb), 0.15s color var(--cryptee-cb);
 }
 
 .album i {
     position: absolute;
-    top: 0;
+    bottom: 0;
     right: 0;
     z-index: 2;
 
-    width: 3rem;
-    height: 3rem;
-    line-height: 3rem;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
 
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     text-align: center;
 
-    transform: rotate(-45deg) translate3d(0,0,0);
-    transition: 0.15s opacity linear, 0.3s transform var(--cryptee-cb);
+    transform: translate3d(3rem,0,0);
+    transition: 0.15s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
     
     font-family: 'remixicon' !important;
     font-style: normal;
@@ -1015,15 +1021,11 @@ ALBUM
     -moz-osx-font-smoothing: grayscale;
 
     opacity: 0;
-    color: var(--cryptee-0);
-}
-
-.dm .album i {
-    color: white;
+    color: var(--c);
 }
 
 .album i::before {
-    content: "\EF77";
+    content: "\EF76";
 }
 
 /* -----------------------------
@@ -1901,8 +1903,15 @@ ENABLE HOVERS
     main:not(.scrolling):not(.browsing) .media:not(.selected):not(.loading):hover i   { 
         opacity:1; 
     }
+    
     main:not(.scrolling):not(.browsing) .album:hover i                                { 
         opacity:1; 
+        transform: translate3d(0,0,0);
+    }
+
+    main:not(.scrolling):not(.browsing) .album:hover::before                          { 
+        padding: 0 3rem 0 1rem;
+        color: transparent;
     }
 
     #sorter i:hover { opacity:1; }
@@ -1946,12 +1955,18 @@ ENABLE HOVERS
     .album i {
         opacity: 1;
         font-size: 1.25rem;
-        height: 3.5rem;
+        height: 3.75rem;
         line-height: 3.5rem;
+        transform: translate3d(0,0,0);
     }
-
+    
     .album i::before {
         content: "\EF76";
+    }
+
+    .album::before {
+        color: transparent;
+        padding: 0 3rem 0 1rem;
     }
 
     .album .dropdown.show ~ i {
@@ -1968,11 +1983,12 @@ MEDIA QUERIES
  
 --------------------------------
 ----------------------------- */
+@media (min-width:1024px) and (max-width : 1343px) {
+    .album, .album img { width: 26rem; }
+    .album::after { width: 21rem; }
+}
 
 @media (max-width : 1023px) {
-    .album { width: 36rem; }
-    .album img { width: 16rem; }
-
     .swiper-zoom-container::after { padding: 0 4rem 4rem 4rem; }
 }
 
@@ -1988,15 +2004,26 @@ MEDIA QUERIES
     }
 
     .album { 
-        width: 100%; 
-        height: 16rem;
-        margin: 0;
+        width: calc(100% - 2rem); 
+        margin: 1rem 1rem 0 1rem;
+    }
+
+    .album::before, .album::after {
+        padding: 0 1rem;
+        line-height: 3.25rem;
+        height: 3rem;
+    }
+
+    .album i {
+        height: 3rem;
+        width: 3rem;
+        line-height: 3rem;
     }
 
     .media { 
-        width: 25vw; 
-        height: 25vw; 
-        margin: 0;
+        width: calc(25vw - 1.25rem); 
+        height: calc(25vw - 1.25rem); 
+        margin: 1rem 0 0 1rem;
     }
 
     nav .buttons button { width: 100%; }
@@ -2010,35 +2037,11 @@ MEDIA QUERIES
         width: calc(100% - 1rem);
     }
 
+    .album img { width: 100%; height: 17rem; }
     .album::after {
-        padding-right: 1rem;
-        width: calc(50% - 2.5rem);
-        margin-bottom: 0.75rem;
-        border-top: none;
-        text-align: left;
-        bottom: 0;
-        
+        width: calc(100% - 3rem);
     }
 
-    .album::before {
-        width: calc(50% - 1.5rem);
-        line-height: 25rem;
-        padding: 0 0 0 1.5rem;
-        background-color: var(--cryptee-4);
-        text-align: left;
-    }
-
-    .dm .album::before {
-        background-color: var(--oled-safe-black);
-    }
-
-    .album i { 
-        bottom:2.325rem; 
-        right: 0;
-    }
-    
-    .album img { width: 50%; }
-    
     .album .dropdown {
         height: 10.5rem;
         width: calc(50% - 5.5rem);
@@ -2110,11 +2113,13 @@ MEDIA QUERIES
 
 @media (max-width : 544px) {
 
-    .album { height: 12rem; }
+    .album { height: 16rem; }
+    .album img {height: 13rem; }
+    .album::after, .album::before { font-size: 0.85rem; }
 
     .media { 
-        width: 50vw; 
-        height: 50vw; 
+        width: calc(50vw - 1.5rem); 
+        height: calc(50vw - 1.5rem); 
     }
 
     .searchheader {
@@ -2123,15 +2128,7 @@ MEDIA QUERIES
     }
 
     .album { grid-column: span 2; grid-row: span 1; }
-    .album::before {
-        line-height: 17rem;
-    }
-    .album::after {
-        width: calc(50% - 2.5rem);
-        margin-bottom: 0.75rem;
-        padding-right: 1rem;
-    }
-
+    
     .album .dropdown {
         height: 6.5rem;
     }

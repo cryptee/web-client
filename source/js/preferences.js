@@ -136,8 +136,9 @@ try {
 var defaultAppPreferences = {
     "docs" : {},
     "photos" : {
-        "high-res-thumbnails"   : "auto",
-        "video-thumbnails-type" : "animated"
+        "high-res-thumbnails"         : "auto",
+        "video-thumbnails-type"       : "animated",
+        "cover-bg-dominant-color"     : "color"
     },
 };
 

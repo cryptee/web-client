@@ -1076,7 +1076,7 @@ async function searchTitles(term, searchID) {
 async function searchTags(term, searchID) {
     
     var typedTags = extractHashtags(term);
-    
+        
     if (!typedTags.length) { return { results : [], understood: "" }; }
     
     var tags = {};
@@ -1101,7 +1101,6 @@ async function searchTags(term, searchID) {
     }
     
     if (!hmacs.length) { return { results : [], understood: "" }; }
-
 
     breadcrumb("[SEARCH] Running tags search");
 

@@ -27,9 +27,32 @@ function renderAlbum(aid, photos) {
     var exifDate        = album.date  || "0000:00:00";              // "2019:07:03"
     var sortableDate    = sortableExifDate(exifDate);
     var prettyDate      = fancyDate(exifDate);                      // "NOV '20"
-    var avgColor        = album.pinky || "54,54,54";                // "17,24,33"
     var thumbToken      = album.ttoken || "";
     var thumbID         = album.thumb || "";                        // "t-12345"
+
+    var isDarkMode      = $("html").hasClass("dm");
+    var loadMonochromeBg = appPreference.photos["cover-bg-dominant-color"] === "monochrome";
+    
+    var bgLoadingPreference;
+
+    if (loadMonochromeBg || isMobile) {
+        var avgColor     = "20,20,20";
+        var nameColor    = "245,245,245";
+        bgLoadingPreference = "monochrome";
+    } else {
+        var avgColor     = album.pinky || "20,20,20";               // "17,24,33"
+
+        var nameContrast;   
+        if (!isDarkMode) {
+            nameContrast = calculateContrast([20,20,20], avgColor.split(",")).toFixed(3);
+        } else {
+            nameContrast = calculateContrast([255,255,255], avgColor.split(",")).toFixed(3);
+        }
+    
+        var nameColor = "20,20,20";
+        if (nameContrast < 3.0) { nameColor = "255,255,255"; }
+        bgLoadingPreference = "color";
+    }
 
     if (useHighResThumbnails && album.ltoken) {
         thumbID         = convertID(thumbID, "l") || "";            // "l-12345"
@@ -37,7 +60,7 @@ function renderAlbum(aid, photos) {
     }
 
     return `
-    <div class="content album" id="${aid}" name="${name}" date="${prettyDate}" datesort="${sortableDate}" exifDate="${exifDate}" photos="${photos}" thumb="${thumbID}" thumbToken="${thumbToken}"  style="--bg:rgb(${avgColor})">
+    <div class="content album" id="${aid}" name="${name}" date="${prettyDate}" datesort="${sortableDate}" exifDate="${exifDate}" photos="${photos}" thumb="${thumbID}" thumbToken="${thumbToken}"  style="--bg:rgb(${avgColor}); --c:rgb(${nameColor});" bgloadingpref="${bgLoadingPreference}">
         <i></i>
         <img src="" alt thumb="${thumbID}">
     </div>`;
