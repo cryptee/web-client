@@ -2736,7 +2736,10 @@ EDITOR TOOLBARS (DESKTOP & MOBILE)
     transition: 0.5s opacity var(--cryptee-cb);
 }
 
-
+/* ios pwa only */
+body.safari[pwa="1"] .ql-tooltip:not(.keyboard-visible) #mobileToolbar {
+    padding: 0 0 0.5rem 0.75rem;
+}
 
 /* -----------------------------
 -------------------------------- 

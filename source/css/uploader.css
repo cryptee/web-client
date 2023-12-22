@@ -142,17 +142,21 @@ UPLOADER
     margin-top: 0.75rem;
 }
 
-#uploader-progress-wrapper .upload {
+#uploader-progress-wrapper .upload-progress {
     display: grid;
     grid-row: 1/2;
     row-gap: 0.5rem;
     column-gap: 0.5rem;
     grid-template-columns: 1rem;
     grid-template-rows: repeat(12, 1rem);
-    grid-column: var(--slot);
 }
 
+#uploader-progress-wrapper .upload { display: none; }
 
+#uploader-progress-wrapper .upload-progress[slot="1"] { grid-column: 1/2; }
+#uploader-progress-wrapper .upload-progress[slot="2"] { grid-column: 2/3; }
+#uploader-progress-wrapper .upload-progress[slot="3"] { grid-column: 3/4; }
+#uploader-progress-wrapper .upload-progress[slot="4"] { grid-column: 4/5; }
 
 
 /* -----------------------------
@@ -200,7 +204,7 @@ PROGRESS
     100% { background-color: rgba(255,255,255,0.9);  }
 }
 
-#uploader .upload b { 
+#uploader .upload-progress b { 
     background-color: rgba(255, 255, 255, 1);
     border-radius: 1rem;
     opacity: 0;
@@ -214,127 +218,206 @@ PROGRESS
     animation-fill-mode: forwards;
 }
 
-#uploader .upload:nth-child(1n) b { animation-duration: 0.47s; }
-#uploader .upload:nth-child(2n) b { animation-duration: 0.53s; }
-#uploader .upload:nth-child(3n) b { animation-duration: 0.56s; }
-#uploader .upload:nth-child(4n) b { animation-duration: 0.50s; }
+#uploader .upload-progress[slot="1"] b { animation-duration: 0.47s; }
+#uploader .upload-progress[slot="2"] b { animation-duration: 0.53s; }
+#uploader .upload-progress[slot="3"] b { animation-duration: 0.56s; }
+#uploader .upload-progress[slot="4"] b { animation-duration: 0.50s; }
 
 /* ALL DOTS ANIMATION DELAY */
-#uploader .upload [prog="e"]  { animation-delay: 0.0s; transition-delay: 0.0s; }
-#uploader .upload [prog="0"]  { animation-delay: 0.1s; transition-delay: 0.1s; }
-#uploader .upload [prog="10"] { animation-delay: 0.2s; transition-delay: 0.2s; }
-#uploader .upload [prog="20"] { animation-delay: 0.3s; transition-delay: 0.3s; }
-#uploader .upload [prog="30"] { animation-delay: 0.4s; transition-delay: 0.4s; }
-#uploader .upload [prog="40"] { animation-delay: 0.5s; transition-delay: 0.5s; }
-#uploader .upload [prog="50"] { animation-delay: 0.6s; transition-delay: 0.6s; }
-#uploader .upload [prog="60"] { animation-delay: 0.7s; transition-delay: 0.7s; }
-#uploader .upload [prog="70"] { animation-delay: 0.8s; transition-delay: 0.8s; }
-#uploader .upload [prog="80"] { animation-delay: 0.9s; transition-delay: 0.9s; }
-#uploader .upload [prog="90"] { animation-delay: 1.0s; transition-delay: 1.0s; }
+#uploader .upload-progress [prog="e"]  { animation-delay: 0.0s; transition-delay: 0.0s; }
+#uploader .upload-progress [prog="0"]  { animation-delay: 0.1s; transition-delay: 0.1s; }
+#uploader .upload-progress [prog="10"] { animation-delay: 0.2s; transition-delay: 0.2s; }
+#uploader .upload-progress [prog="20"] { animation-delay: 0.3s; transition-delay: 0.3s; }
+#uploader .upload-progress [prog="30"] { animation-delay: 0.4s; transition-delay: 0.4s; }
+#uploader .upload-progress [prog="40"] { animation-delay: 0.5s; transition-delay: 0.5s; }
+#uploader .upload-progress [prog="50"] { animation-delay: 0.6s; transition-delay: 0.6s; }
+#uploader .upload-progress [prog="60"] { animation-delay: 0.7s; transition-delay: 0.7s; }
+#uploader .upload-progress [prog="70"] { animation-delay: 0.8s; transition-delay: 0.8s; }
+#uploader .upload-progress [prog="80"] { animation-delay: 0.9s; transition-delay: 0.9s; }
+#uploader .upload-progress [prog="90"] { animation-delay: 1.0s; transition-delay: 1.0s; }
 
 /* ALL DOTS EXCEPT CURRENT PROGRESS DOT */
-#uploader .upload[prog^="e"] b:not([prog="e"] ),
-#uploader .upload[prog^="0"] b:not([prog="0"] ),
-#uploader .upload[prog^="1"] b:not([prog="10"]),
-#uploader .upload[prog^="2"] b:not([prog="20"]),
-#uploader .upload[prog^="3"] b:not([prog="30"]),
-#uploader .upload[prog^="4"] b:not([prog="40"]),
-#uploader .upload[prog^="5"] b:not([prog="50"]),
-#uploader .upload[prog^="6"] b:not([prog="60"]),
-#uploader .upload[prog^="7"] b:not([prog="70"]),
-#uploader .upload[prog^="8"] b:not([prog="80"]),
-#uploader .upload[prog^="9"] b:not([prog="90"]) { opacity:0; transform: translateY(1.5rem); }
+#uploader .upload[slot="1"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="e"] ),
+#uploader .upload[slot="1"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="0"] ),
+#uploader .upload[slot="1"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="10"]),
+#uploader .upload[slot="1"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="20"]),
+#uploader .upload[slot="1"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="30"]),
+#uploader .upload[slot="1"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="40"]),
+#uploader .upload[slot="1"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="50"]),
+#uploader .upload[slot="1"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="60"]),
+#uploader .upload[slot="1"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="70"]),
+#uploader .upload[slot="1"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="80"]),
+#uploader .upload[slot="1"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="90"]),
+#uploader .upload[slot="2"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="e"] ),
+#uploader .upload[slot="2"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="0"] ),
+#uploader .upload[slot="2"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="10"]),
+#uploader .upload[slot="2"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="20"]),
+#uploader .upload[slot="2"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="30"]),
+#uploader .upload[slot="2"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="40"]),
+#uploader .upload[slot="2"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="50"]),
+#uploader .upload[slot="2"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="60"]),
+#uploader .upload[slot="2"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="70"]),
+#uploader .upload[slot="2"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="80"]),
+#uploader .upload[slot="2"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="90"]),
+#uploader .upload[slot="3"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="e"] ),
+#uploader .upload[slot="3"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="0"] ),
+#uploader .upload[slot="3"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="10"]),
+#uploader .upload[slot="3"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="20"]),
+#uploader .upload[slot="3"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="30"]),
+#uploader .upload[slot="3"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="40"]),
+#uploader .upload[slot="3"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="50"]),
+#uploader .upload[slot="3"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="60"]),
+#uploader .upload[slot="3"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="70"]),
+#uploader .upload[slot="3"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="80"]),
+#uploader .upload[slot="3"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="90"]),
+#uploader .upload[slot="4"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="e"] ),
+#uploader .upload[slot="4"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="0"] ),
+#uploader .upload[slot="4"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="10"]),
+#uploader .upload[slot="4"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="20"]),
+#uploader .upload[slot="4"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="30"]),
+#uploader .upload[slot="4"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="40"]),
+#uploader .upload[slot="4"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="50"]),
+#uploader .upload[slot="4"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="60"]),
+#uploader .upload[slot="4"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="70"]),
+#uploader .upload[slot="4"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="80"]),
+#uploader .upload[slot="4"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="90"]) { opacity:0; transform: translateY(1.5rem); }
 
-#uploader-wrapper.compact .upload[prog^="e"] b:not([prog="e"] ),
-#uploader-wrapper.compact .upload[prog^="0"] b:not([prog="0"] ),
-#uploader-wrapper.compact .upload[prog^="1"] b:not([prog="10"]),
-#uploader-wrapper.compact .upload[prog^="2"] b:not([prog="20"]),
-#uploader-wrapper.compact .upload[prog^="3"] b:not([prog="30"]),
-#uploader-wrapper.compact .upload[prog^="4"] b:not([prog="40"]),
-#uploader-wrapper.compact .upload[prog^="5"] b:not([prog="50"]),
-#uploader-wrapper.compact .upload[prog^="6"] b:not([prog="60"]),
-#uploader-wrapper.compact .upload[prog^="7"] b:not([prog="70"]),
-#uploader-wrapper.compact .upload[prog^="8"] b:not([prog="80"]),
-#uploader-wrapper.compact .upload[prog^="9"] b:not([prog="90"]) { transform: translateY(1rem); }
+#uploader-wrapper.compact .upload[slot="1"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="e"] ),
+#uploader-wrapper.compact .upload[slot="1"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="0"] ),
+#uploader-wrapper.compact .upload[slot="1"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="10"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="20"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="30"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="40"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="50"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="60"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="70"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="80"]),
+#uploader-wrapper.compact .upload[slot="1"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="90"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="e"] ),
+#uploader-wrapper.compact .upload[slot="2"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="0"] ),
+#uploader-wrapper.compact .upload[slot="2"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="10"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="20"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="30"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="40"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="50"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="60"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="70"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="80"]),
+#uploader-wrapper.compact .upload[slot="2"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="90"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="e"] ),
+#uploader-wrapper.compact .upload[slot="3"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="0"] ),
+#uploader-wrapper.compact .upload[slot="3"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="10"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="20"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="30"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="40"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="50"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="60"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="70"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="80"]),
+#uploader-wrapper.compact .upload[slot="3"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="90"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="e"] ),
+#uploader-wrapper.compact .upload[slot="4"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="0"] ),
+#uploader-wrapper.compact .upload[slot="4"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="10"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="20"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="30"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="40"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="50"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="60"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="70"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="80"]),
+#uploader-wrapper.compact .upload[slot="4"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="90"]) { transform: translateY(1rem); }
 
 /* ALL DOTS BELOW THE CURRENT PROGRESS POINT */
-#uploader .upload[prog^="e"]:not([prog="100"]) b[prog="e"] ~ b  { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="0"]:not([prog="100"]) b[prog="0"] ~ b  { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="1"]:not([prog="100"]) b[prog="10"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="2"]:not([prog="100"]) b[prog="20"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="3"]:not([prog="100"]) b[prog="30"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="4"]:not([prog="100"]) b[prog="40"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="5"]:not([prog="100"]) b[prog="50"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="6"]:not([prog="100"]) b[prog="60"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="7"]:not([prog="100"]) b[prog="70"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="8"]:not([prog="100"]) b[prog="80"] ~ b { transform: translateY(0); opacity: 0.35; }
-#uploader .upload[prog^="9"]:not([prog="100"]) b[prog="90"] ~ b { transform: translateY(0); opacity: 0.35; }
+#uploader .upload[slot="1"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="e"]  ~ b,
+#uploader .upload[slot="1"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="0"]  ~ b,
+#uploader .upload[slot="1"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="10"] ~ b,
+#uploader .upload[slot="1"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="20"] ~ b,
+#uploader .upload[slot="1"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="30"] ~ b,
+#uploader .upload[slot="1"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="40"] ~ b,
+#uploader .upload[slot="1"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="50"] ~ b,
+#uploader .upload[slot="1"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="60"] ~ b,
+#uploader .upload[slot="1"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="70"] ~ b,
+#uploader .upload[slot="1"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="80"] ~ b,
+#uploader .upload[slot="1"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="90"] ~ b,
+#uploader .upload[slot="2"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="e"]  ~ b,
+#uploader .upload[slot="2"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="0"]  ~ b,
+#uploader .upload[slot="2"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="10"] ~ b,
+#uploader .upload[slot="2"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="20"] ~ b,
+#uploader .upload[slot="2"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="30"] ~ b,
+#uploader .upload[slot="2"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="40"] ~ b,
+#uploader .upload[slot="2"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="50"] ~ b,
+#uploader .upload[slot="2"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="60"] ~ b,
+#uploader .upload[slot="2"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="70"] ~ b,
+#uploader .upload[slot="2"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="80"] ~ b,
+#uploader .upload[slot="2"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="90"] ~ b,
+#uploader .upload[slot="3"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="e"]  ~ b,
+#uploader .upload[slot="3"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="0"]  ~ b,
+#uploader .upload[slot="3"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="10"] ~ b,
+#uploader .upload[slot="3"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="20"] ~ b,
+#uploader .upload[slot="3"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="30"] ~ b,
+#uploader .upload[slot="3"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="40"] ~ b,
+#uploader .upload[slot="3"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="50"] ~ b,
+#uploader .upload[slot="3"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="60"] ~ b,
+#uploader .upload[slot="3"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="70"] ~ b,
+#uploader .upload[slot="3"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="80"] ~ b,
+#uploader .upload[slot="3"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="90"] ~ b,
+#uploader .upload[slot="4"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="e"]  ~ b,
+#uploader .upload[slot="4"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="0"]  ~ b,
+#uploader .upload[slot="4"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="10"] ~ b,
+#uploader .upload[slot="4"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="20"] ~ b,
+#uploader .upload[slot="4"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="30"] ~ b,
+#uploader .upload[slot="4"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="40"] ~ b,
+#uploader .upload[slot="4"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="50"] ~ b,
+#uploader .upload[slot="4"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="60"] ~ b,
+#uploader .upload[slot="4"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="70"] ~ b,
+#uploader .upload[slot="4"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="80"] ~ b,
+#uploader .upload[slot="4"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="90"] ~ b { transform: translateY(0); opacity: 0.35; }
 
 /* ALL DOTS EXCEPT CURRENT PROGRESS DOT */
-#uploader .upload[prog^="e"] b[prog="e"] ,
-#uploader .upload[prog^="0"] b[prog="0"] ,
-#uploader .upload[prog^="1"] b[prog="10"],
-#uploader .upload[prog^="2"] b[prog="20"],
-#uploader .upload[prog^="3"] b[prog="30"],
-#uploader .upload[prog^="4"] b[prog="40"],
-#uploader .upload[prog^="5"] b[prog="50"],
-#uploader .upload[prog^="6"] b[prog="60"],
-#uploader .upload[prog^="7"] b[prog="70"],
-#uploader .upload[prog^="8"] b[prog="80"],
-#uploader .upload[prog^="9"] b[prog="90"] { opacity: 1; }
-
-/* 100% / COMPLETION MOTION */
-#uploader-wrapper .upload[prog="100"] b[prog="e"],  #uploader-wrapper .upload[prog="done"] b[prog="e"]  { opacity: 0 !important; transition-delay: 0.000s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="0"],  #uploader-wrapper .upload[prog="done"] b[prog="0"]  { opacity: 0 !important; transition-delay: 0.125s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="10"], #uploader-wrapper .upload[prog="done"] b[prog="10"] { opacity: 0 !important; transition-delay: 0.250s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="20"], #uploader-wrapper .upload[prog="done"] b[prog="20"] { opacity: 0 !important; transition-delay: 0.325s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="30"], #uploader-wrapper .upload[prog="done"] b[prog="30"] { opacity: 0 !important; transition-delay: 0.450s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="40"], #uploader-wrapper .upload[prog="done"] b[prog="40"] { opacity: 0 !important; transition-delay: 0.575s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="50"], #uploader-wrapper .upload[prog="done"] b[prog="50"] { opacity: 0 !important; transition-delay: 0.700s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="60"], #uploader-wrapper .upload[prog="done"] b[prog="60"] { opacity: 0 !important; transition-delay: 0.825s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="70"], #uploader-wrapper .upload[prog="done"] b[prog="70"] { opacity: 0 !important; transition-delay: 0.950s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="80"], #uploader-wrapper .upload[prog="done"] b[prog="80"] { opacity: 0 !important; transition-delay: 1.075s !important; }
-#uploader-wrapper .upload[prog="100"] b[prog="90"], #uploader-wrapper .upload[prog="done"] b[prog="90"] { opacity: 0 !important; transition-delay: 1.200s !important; }
-
-#uploader-wrapper.compact .upload[prog="100"] b[prog="e"],  #uploader-wrapper.compact .upload[prog="done"] b[prog="e"]  { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="0"],  #uploader-wrapper.compact .upload[prog="done"] b[prog="0"]  { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="10"], #uploader-wrapper.compact .upload[prog="done"] b[prog="10"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="20"], #uploader-wrapper.compact .upload[prog="done"] b[prog="20"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="30"], #uploader-wrapper.compact .upload[prog="done"] b[prog="30"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="40"], #uploader-wrapper.compact .upload[prog="done"] b[prog="40"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="50"], #uploader-wrapper.compact .upload[prog="done"] b[prog="50"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="60"], #uploader-wrapper.compact .upload[prog="done"] b[prog="60"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="70"], #uploader-wrapper.compact .upload[prog="done"] b[prog="70"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="80"], #uploader-wrapper.compact .upload[prog="done"] b[prog="80"] { opacity: 0 !important; }
-#uploader-wrapper.compact .upload[prog="100"] b[prog="90"], #uploader-wrapper.compact .upload[prog="done"] b[prog="90"] { opacity: 0 !important; }
-
-#uploader .upload[prog="100"] b { 
-    animation-duration: 0.5s !important; 
-    transition-duration: 0.3s !important; 
-}
-
-#uploader .upload[prog="done"] b { 
-    animation-duration: 1s !important; 
-    transition-duration: 0.3s !important; 
-    transform: translateY(0) !important;
-}
-
-#uploader-wrapper .upload[prog="100"] b:not([prog="90"]),
-#uploader-wrapper .upload[prog="done"] b:not([prog="90"]) {
-    transform: translateY(-1.5rem) !important;
-}
-
-#uploader-wrapper.compact .upload[prog="100"] b:not([prog="90"]),
-#uploader-wrapper.compact .upload[prog="done"] b:not([prog="90"]) {
-    transform: translateY(-1rem) !important;
-}
-
-#uploader-wrapper.compact .upload[prog="100"]  b[prog="90"],
-#uploader-wrapper.compact .upload[prog="done"] b[prog="90"],
-#uploader-wrapper         .upload[prog="100"]  b[prog="90"],
-#uploader-wrapper         .upload[prog="done"] b[prog="90"] {
-    transform: translateY(0) !important;
-}
+#uploader .upload[slot="1"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="e"] ,
+#uploader .upload[slot="1"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="0"] ,
+#uploader .upload[slot="1"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="10"],
+#uploader .upload[slot="1"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="20"],
+#uploader .upload[slot="1"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="30"],
+#uploader .upload[slot="1"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="40"],
+#uploader .upload[slot="1"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="50"],
+#uploader .upload[slot="1"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="60"],
+#uploader .upload[slot="1"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="70"],
+#uploader .upload[slot="1"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="80"],
+#uploader .upload[slot="1"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="90"],
+#uploader .upload[slot="2"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="e"] ,
+#uploader .upload[slot="2"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="0"] ,
+#uploader .upload[slot="2"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="10"],
+#uploader .upload[slot="2"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="20"],
+#uploader .upload[slot="2"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="30"],
+#uploader .upload[slot="2"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="40"],
+#uploader .upload[slot="2"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="50"],
+#uploader .upload[slot="2"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="60"],
+#uploader .upload[slot="2"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="70"],
+#uploader .upload[slot="2"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="80"],
+#uploader .upload[slot="2"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="90"],
+#uploader .upload[slot="3"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="e"] ,
+#uploader .upload[slot="3"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="0"] ,
+#uploader .upload[slot="3"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="10"],
+#uploader .upload[slot="3"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="20"],
+#uploader .upload[slot="3"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="30"],
+#uploader .upload[slot="3"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="40"],
+#uploader .upload[slot="3"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="50"],
+#uploader .upload[slot="3"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="60"],
+#uploader .upload[slot="3"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="70"],
+#uploader .upload[slot="3"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="80"],
+#uploader .upload[slot="3"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="90"],
+#uploader .upload[slot="4"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="e"] ,
+#uploader .upload[slot="4"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="0"] ,
+#uploader .upload[slot="4"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="10"],
+#uploader .upload[slot="4"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="20"],
+#uploader .upload[slot="4"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="30"],
+#uploader .upload[slot="4"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="40"],
+#uploader .upload[slot="4"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="50"],
+#uploader .upload[slot="4"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="60"],
+#uploader .upload[slot="4"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="70"],
+#uploader .upload[slot="4"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="80"],
+#uploader .upload[slot="4"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="90"] { opacity: 1; }
 
 /* -----------------------------
 -------------------------------- 
@@ -345,8 +428,8 @@ STATES
 ----------------------------- */
 
 /* PENDING & DONE */
-/* .upload[prog="done"],
-.upload[prog="pending"] {
+/* .upload-progress[prog="done"],
+.upload-progress[prog="pending"] {
     display: none !important;
 } */
 
@@ -393,7 +476,7 @@ STATES
     grid-template-rows : 11rem;
 }
 
-#uploader-wrapper.compact .upload { 
+#uploader-wrapper.compact .upload-progress { 
     grid-template-columns: 0.5rem;
     grid-template-rows: repeat(12, 0.5rem);
 }
@@ -430,7 +513,7 @@ STATES
 #uploader-wrapper.paused #uploader-action-button                { background-color: var(--cryptee-yellow); }
 #uploader-wrapper.paused #uploader-action-button i::before      { content: "\F00A"; }
 #uploader-wrapper.paused #uploader-action-button i              { transform: scale(1.25); }
-#uploader-wrapper.paused .upload b { background-color: var(--cryptee-yellow) !important; }
+#uploader-wrapper.paused .upload-progress b                     { background-color: var(--cryptee-yellow) !important; }
 
 
 
@@ -443,7 +526,7 @@ STATES
 #uploader-wrapper.interrupted #uploader-action-button           { background-color: var(--cryptee-yellow); }
 #uploader-wrapper.interrupted #uploader-action-button i::before { content: "\F064"; }
 #uploader-wrapper.interrupted #uploader-action-button i         { transform: scale(1.25); }
-#uploader-wrapper.interrupted .upload b { background-color: var(--cryptee-yellow) !important; }
+#uploader-wrapper.interrupted .upload-progress b                { background-color: var(--cryptee-yellow) !important; }
 
 
 
@@ -484,37 +567,37 @@ STATES
 
 
 /* ERROR DOTS */
-#uploader-wrapper.error .upload b            { 
+#uploader-wrapper.error .upload-progress b            { 
     transition-duration: 1s;
     background-color: var(--cryptee-red) !important; 
 }
 
-#uploader-wrapper.error .upload b[prog="e"]  { transform: translateY(-1.5rem) !important; }
-#uploader-wrapper.error .upload b[prog="0"]  { transform: translateY(0rem)    !important; }
-#uploader-wrapper.error .upload b[prog="10"] { transform: translateY(1.5rem)  !important; }
-#uploader-wrapper.error .upload b[prog="20"] { transform: translateY(3.0rem)  !important; }
-#uploader-wrapper.error .upload b[prog="30"] { transform: translateY(4.5rem)  !important; }
-#uploader-wrapper.error .upload b[prog="40"] { transform: translateY(6.0rem)  !important; }
-#uploader-wrapper.error .upload b[prog="50"] { transform: translateY(7.5rem)  !important; }
-#uploader-wrapper.error .upload b[prog="60"] { transform: translateY(9.0rem)  !important; }
-#uploader-wrapper.error .upload b[prog="70"] { transform: translateY(10.5rem) !important; }
-#uploader-wrapper.error .upload b[prog="80"] { transform: translateY(12.0rem) !important; }
-#uploader-wrapper.error .upload b[prog="90"] { transform: translateY(13.5rem) !important; }
+#uploader-wrapper.error .upload-progress b[prog="e"]  { transform: translateY(-1.5rem) !important; }
+#uploader-wrapper.error .upload-progress b[prog="0"]  { transform: translateY(0rem)    !important; }
+#uploader-wrapper.error .upload-progress b[prog="10"] { transform: translateY(1.5rem)  !important; }
+#uploader-wrapper.error .upload-progress b[prog="20"] { transform: translateY(3.0rem)  !important; }
+#uploader-wrapper.error .upload-progress b[prog="30"] { transform: translateY(4.5rem)  !important; }
+#uploader-wrapper.error .upload-progress b[prog="40"] { transform: translateY(6.0rem)  !important; }
+#uploader-wrapper.error .upload-progress b[prog="50"] { transform: translateY(7.5rem)  !important; }
+#uploader-wrapper.error .upload-progress b[prog="60"] { transform: translateY(9.0rem)  !important; }
+#uploader-wrapper.error .upload-progress b[prog="70"] { transform: translateY(10.5rem) !important; }
+#uploader-wrapper.error .upload-progress b[prog="80"] { transform: translateY(12.0rem) !important; }
+#uploader-wrapper.error .upload-progress b[prog="90"] { transform: translateY(13.5rem) !important; }
 
-#uploader-wrapper.compact.error .upload b[prog="e"]  { transform: translateY(-1.0rem) !important;  }
-#uploader-wrapper.compact.error .upload b[prog="0"]  { transform: translateY(0.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="10"] { transform: translateY(1.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="20"] { transform: translateY(2.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="30"] { transform: translateY(3.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="40"] { transform: translateY(4.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="50"] { transform: translateY(5.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="60"] { transform: translateY(6.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="70"] { transform: translateY(7.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="80"] { transform: translateY(8.0rem)  !important;  }
-#uploader-wrapper.compact.error .upload b[prog="90"] { transform: translateY(9.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="e"]  { transform: translateY(-1.0rem) !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="0"]  { transform: translateY(0.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="10"] { transform: translateY(1.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="20"] { transform: translateY(2.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="30"] { transform: translateY(3.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="40"] { transform: translateY(4.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="50"] { transform: translateY(5.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="60"] { transform: translateY(6.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="70"] { transform: translateY(7.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="80"] { transform: translateY(8.0rem)  !important;  }
+#uploader-wrapper.compact.error .upload-progress b[prog="90"] { transform: translateY(9.0rem)  !important;  }
 
-#uploader-wrapper.error .upload:nth-child(3) b[prog="e"]  { transform: translateY(0rem) !important; opacity: 0.5 !important;}
-#uploader-wrapper.error .upload:nth-child(3) b[prog="10"] { transform: translateY(0rem) !important; opacity: 0.5 !important;}
+#uploader-wrapper.error .upload-progress[slot="3"] b[prog="e"]  { transform: translateY(0rem) !important; opacity: 0.5 !important;}
+#uploader-wrapper.error .upload-progress[slot="3"] b[prog="10"] { transform: translateY(0rem) !important; opacity: 0.5 !important;}
 
 /* corner popup next to uploader popup */
 #uploader-wrapper.compact.show ~ .popup.corner.created { transform: translate3d(-18rem,0,0); }

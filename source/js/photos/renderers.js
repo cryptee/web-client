@@ -30,7 +30,7 @@ function renderAlbum(aid, photos) {
     var thumbToken      = album.ttoken || "";
     var thumbID         = album.thumb || "";                        // "t-12345"
 
-    var isDarkMode      = $("html").hasClass("dm");
+    // var isDarkMode      = $("html").hasClass("dm");
     var loadMonochromeBg = appPreference.photos["cover-bg-dominant-color"] === "monochrome";
     
     var bgLoadingPreference;
@@ -42,12 +42,7 @@ function renderAlbum(aid, photos) {
     } else {
         var avgColor     = album.pinky || "20,20,20";               // "17,24,33"
 
-        var nameContrast;   
-        if (!isDarkMode) {
-            nameContrast = calculateContrast([20,20,20], avgColor.split(",")).toFixed(3);
-        } else {
-            nameContrast = calculateContrast([255,255,255], avgColor.split(",")).toFixed(3);
-        }
+        var nameContrast = calculateContrast([20,20,20], avgColor.split(",")).toFixed(3);
     
         var nameColor = "20,20,20";
         if (nameContrast < 3.0) { nameColor = "255,255,255"; }

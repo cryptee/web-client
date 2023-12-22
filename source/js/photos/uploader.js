@@ -219,7 +219,7 @@ function addFileToUploadQueue(file) {
     if (status) { 
         $("#uploader-skipped-list").append(renderSkippedUpload(filename, status)); 
     } else {
-        $("#uploader-progress-wrapper").append(renderUpload(id, status));
+        $("#uploader-progress-wrapper").prepend(renderUpload(id, status));
     }
 }
 
@@ -613,85 +613,34 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
     }
 
     canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
-    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d");
+    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d", { willReadFrequently: true });
     canvases[canvasNo].originalCanvas = canvases[canvasNo].originalCanvas || document.createElement("canvas");
-    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d");
+    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d", { willReadFrequently: true });
     canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
-    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d");
+    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d", { willReadFrequently: true });
 
-    var img = new Image();
+    let imgBitmap;
 
-    var blobURL;
-
-    if (isRAW) {
-
-        try {
-            breadcrumb("[UPLOAD] Converting RAW image file to array buffer");
-            let rawImgBuffer = await blobToArrayBuffer(originalFile); 
-            img = await rawImgBufferToImgBitmap(rawImgBuffer); 
-            // technically this returns an ImageBitmap, 
-            // but we only need width, and height for the purposes of this function, 
-            // and ImageBitmaps can be fed into canvases directly the same way as well, so it's cross compatible.
-        } catch (error) {
-            handleError("[UPLOAD] Failed to read RAW image", error);
-            return {};
+    try {
+        breadcrumb("[UPLOAD] Converting image file to image bitmap");
+        if (isRAW) {
+            imgBitmap = await rawImgFileToImgBitmap(originalFile);            
+        } else {
+            imgBitmap = await imgFileToImgBitmap(originalFile, exif);
         }
-
-        if (!img) {
-            handleError("[UPLOAD] Failed to read RAW image");
-            return {};
-        }
-
-    } else {
-        
-        try {
-            blobURL = URL.createObjectURL(originalFile);
-            img.src = blobURL;
-        } catch (error) {
-            handleError("[UPLOAD] Failed to get image object url", error);
-            return {};
-        }
-        
-        var retryDecoding = false;
-        
-        try {
-            breadcrumb("[UPLOAD] Decoding image");
-            await img.decode();
-            breadcrumb("[UPLOAD] Decoded image");
-        } catch (error) {
-            handleError("[UPLOAD] Failed to decode image. Will retry", error);
-            retryDecoding = true;
-        }
-        
-        if (retryDecoding) {
-            
-            // timeout 500ms and retry decoding.
-            
-            // Rarely, if you try to decode all 4 images simultaneously, decode may throw an error on low end devices.
-            
-            await promiseToWait(500);
-    
-            try {
-                breadcrumb("[UPLOAD] Decoding image [again]");
-                await img.decode();
-                breadcrumb("[UPLOAD] Decoded image [on second try]");
-            } catch (error) {
-                handleError("[UPLOAD] Failed to decode image. [again]", error);
-                revokeObjectURL(blobURL);
-                return {};
-            }
-    
-        }
-        
+        breadcrumb("[UPLOAD] Converted image file to image bitmap");
+    } catch (error) {
+        handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
+        return {};
     }
     
-    let limMaxCanvasSize = limitCanvasSize(img.width, img.height);
-    if (img.width !== limMaxCanvasSize.width || img.height !== limMaxCanvasSize.height) {
-        breadcrumb("[UPLOAD] Limited max canvas size. Image was too large.");
+    if (!imgBitmap) {
+        handleError("[UPLOAD] Failed to read image");
+        return {};
     }
 
-    var width = limMaxCanvasSize.width;
-    var height = limMaxCanvasSize.height;
+    var width = imgBitmap.width;
+    var height = imgBitmap.height;
 
     canvases[canvasNo].orientationCanvas.width = width;
     canvases[canvasNo].orientationCanvas.height = height;
@@ -703,7 +652,10 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
 
     correctCanvasOrientationInOrientationContext(canvases[canvasNo].orientationContext, width, height, orientation);
     
-    canvases[canvasNo].orientationContext.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);    
+    canvases[canvasNo].orientationContext.drawImage(imgBitmap, 0, 0, width, height, 0, 0, width, height);    
+
+    imgBitmap.close();
+    imgBitmap = null;
 
     for (var size in sizes) { 
         // cycle through all sizes, and generate thumbnails (if the image is a gif, skip lightbox, since we'll play the original instead)
@@ -731,15 +683,13 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
     }
 
     breadcrumb("[UPLOAD] Generated Thumbnails");
-
+    
     // generate dominant from thumbnails in canvas
     var colorThief = new ColorThief();
     var dominantColor = colorThief.getColor(canvases[canvasNo].resizedCanvas, canvases[canvasNo].resizedContext);
     uploadObject.dominant = dominantColor.toString();
 
     breadcrumb("[UPLOAD] Generated Dominant");
-
-    revokeObjectURL(blobURL);
 
     return uploadObject;
 
@@ -825,11 +775,11 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     uploadObject.date = exifDate;
 
     canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
-    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d");
+    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d", { willReadFrequently: true });
     canvases[canvasNo].originalCanvas = canvases[canvasNo].originalCanvas || document.createElement("canvas");
-    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d");
+    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d", { willReadFrequently: true });
     canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
-    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d");
+    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d", { willReadFrequently: true });
 
     breadcrumb('[UPLOAD] Preparing video player');
 
@@ -1169,14 +1119,16 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
 /**
  * This takes in a raw image (dng, tiff etc buffer) and converts it to a data url we can use to generate thumbnails.
  * Courtesy of UTIF.bufferToURI()
- * @param {*} buffer 
+ * @param {FileOrBlob} originalFlie  
  * @returns {Promise<ImageBitmap>} imgBitmap
  */
-async function rawImgBufferToImgBitmap(buffer) {
+async function rawImgFileToImgBitmap(originalFile) {
     
+    let rawImageBuffer = await blobToArrayBuffer(originalFile);
+
     let ifds;
     try {
-        ifds = UTIF.decode(buffer);  //console.log(ifds);
+        ifds = UTIF.decode(rawImageBuffer);  //console.log(ifds);
     } catch (error) {
         handleError("[UPLOAD] Failed to decode RAW buffer / ifds", error);
         return null;
@@ -1195,16 +1147,23 @@ async function rawImgBufferToImgBitmap(buffer) {
         if (ar > ma) { ma = ar; rawImgData = img; }
     }
 
+    vsns = null; 
+
     try {
-        UTIF.decodeImage(buffer, rawImgData, ifds);
+        UTIF.decodeImage(rawImageBuffer, rawImgData, ifds);
     } catch (error) {
         handleError("[UPLOAD] Failed to decode RAW image buffer", error);
         return null;
     }
 
+    rawImageBuffer = null;
     ifds = null;
 
     let limMaxCanvasSize = limitCanvasSize(rawImgData.width, rawImgData.height);
+
+    if (rawImgData.width !== limMaxCanvasSize.width || rawImgData.height !== limMaxCanvasSize.height) {
+        breadcrumb("[UPLOAD] Limited max canvas size. RAW image was too large.");
+    }
 
     let rgba;
     try {

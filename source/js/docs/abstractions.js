@@ -2379,29 +2379,24 @@ async function optimizeImageFile(imgFile) {
     var orientationCanvas = document.createElement("canvas");
     var orientationContext = orientationCanvas.getContext("2d");
     
-    var img = new Image();
-
-    var blobURL;
+    let imgBitmap;
 
     try {
-        blobURL = URL.createObjectURL(imgFile);
-        img.src = blobURL;
+        breadcrumb("[UPLOAD] Converting image file to image bitmap");
+        imgBitmap = await imgFileToImgBitmap(imgFile, exif);
+        breadcrumb("[UPLOAD] Converted image file to image bitmap");
     } catch (error) {
-        handleError("[EMBED IMAGE] Failed to get image object url", error);
+        handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
         return "";
     }
 
-    try {
-        breadcrumb("[EMBED IMAGE] Decoding image");
-        await img.decode();
-        breadcrumb("[EMBED IMAGE] Decoded image");
-    } catch (error) {
-        handleError("[EMBED IMAGE] Failed to decode image.", error);
+    if (!imgBitmap) {
+        handleError("[UPLOAD] Failed to read image");
         return "";
     }
 
-    var width = img.width;
-    var height = img.height;
+    var width = imgBitmap.width;
+    var height = imgBitmap.height;
 
     orientationCanvas.width = width;
     orientationCanvas.height = height;
@@ -2413,7 +2408,7 @@ async function optimizeImageFile(imgFile) {
 
     correctCanvasOrientationInOrientationContext(orientationContext, width, height, orientation);
 
-    orientationContext.drawImage(img, 0, 0);
+    orientationContext.drawImage(imgBitmap, 0, 0);
 
     var maxWidthOrHeight = 2592;
     var ratio = 1;
@@ -2434,8 +2429,6 @@ async function optimizeImageFile(imgFile) {
 
     resizedContext.drawImage(originalCanvas, 0, 0, originalCanvas.width, originalCanvas.height, 0, 0, resizedCanvas.width, resizedCanvas.height);
     
-    setTimeout(function () { revokeObjectURL(blobURL); }, 500);
-
     return resizedCanvas.toDataURL("image/jpeg", 0.95); // the whole point is to draw it on canvas, and re-capture, resulting in a png->jpg conversion with some optimization
 
 }

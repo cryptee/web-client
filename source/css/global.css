@@ -171,8 +171,10 @@ body {
     color: var(--cryptee-1);
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
+    
+    /* at some point we added this to address an ios bug, but looks like this may be fixed, so disabling, and hopefully won't need to re-enable this stupidity */
+    /* -webkit-user-select: none; */
+    /* user-select: none; */
 }
 
 

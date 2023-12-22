@@ -17,7 +17,7 @@ function hideUploader() {
     $("#uploader-wrapper").removeClass("show");
     setTimeout(function () {
         $("#uploader-wrapper").removeClass("paused error interrupted skipped done");
-        $("#uploader-progress-wrapper").empty();
+        $("#uploader-progress-wrapper > .upload").remove();
         $("#uploader-skipped-list").empty();
     }, 500);
 }
@@ -35,19 +35,7 @@ function toggleSkippedUploads() {
     status = status || "";
     var uploadID = filenameToUploadID(fileID);
     return `
-    <div class="upload" prog="pending" id="${uploadID}" status="${status}">
-        <b prog="90"></b>
-        <b prog="80"></b>
-        <b prog="70"></b>
-        <b prog="60"></b>
-        <b prog="50"></b>
-        <b prog="40"></b>
-        <b prog="30"></b>
-        <b prog="20"></b>
-        <b prog="10"></b>
-        <b prog="0"></b>
-        <b prog="e"></b>
-    </div>`;
+    <div class="upload" prog="pending" id="${uploadID}" status="${status}"></div>`;
 }
 
 function renderSkippedUpload(plaintextFilename, status) {
@@ -65,8 +53,7 @@ function renderSkippedUpload(plaintextFilename, status) {
  */
 function assignUploadToSlotNo(filename, slotNo) {
     var uploadID = filenameToUploadID(filename);
-    slotNo = parseInt(slotNo);
-    $(`.upload[id="${uploadID}"]`).css("--slot", slotNo + "/" + (slotNo + 1) );
+    $(`.upload[id="${uploadID}"]`).attr("slot", slotNo);
 }
 
 /**

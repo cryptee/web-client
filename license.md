@@ -1,4 +1,4 @@
-Copyright (c) 2017 - 2021 Svartlab OÜ Estonia / Cryptee  
+Copyright (c) 2017 - 2024 Svartlab OÜ Estonia / Cryptee  
 
 Email : info@svartlab.com / info@crypt.ee
 

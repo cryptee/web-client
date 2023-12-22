@@ -312,7 +312,7 @@ function addFileToUploadQueue(file, did) {
         status : status
     };
 
-    $("#uploader-progress-wrapper").append(renderUpload(did, status));
+    $("#uploader-progress-wrapper").prepend(renderUpload(did, status));
     if (status) { $("#uploader-skipped-list").append(renderSkippedUpload(filename, status)); }
 }
 

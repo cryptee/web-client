@@ -332,6 +332,17 @@ PWA INSTALL TIP
 /* -----------------------------
 -------------------------------- 
  
+IOS 17.4 (EU) HIDE INSTALL PWA BUTTON IF WE HAVE TO
+p.s. FUCK YOU APPLE. 
+
+--------------------------------
+----------------------------- */
+
+/* body[region="eu"].ios .actionButton[app='install'] { display: none !important; } */
+
+/* -----------------------------
+-------------------------------- 
+ 
 NEWS
  
 --------------------------------

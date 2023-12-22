@@ -465,6 +465,9 @@ FONTS / FONT DROPDOWN
     content: "Aä " var(--arabic-script-ex) !important;
 }
 
+#font-families-wrapper .font[default='true'] .examples { 
+    display : none !important;
+}
 
 
 /* MOBILE / BUBBLE OVERRIDES */

@@ -44,6 +44,7 @@ if (isIOSChrome) {
 }
 
 if (isSafari) { $("body").addClass("safari"); }
+if (isios)    { $("body").addClass("ios"); }
 if (isipados) { setSentryTag("ipados", "true"); }
 
 function inIframe () {
@@ -638,6 +639,38 @@ function limitCanvasSize(width, height) {
 
 
 /**
+ * Helps us convert a file or blob to an image object by means of using an image bitmap, and makes sure that we don't exceed the canvas size.
+ * Requires inputting exif data from the readEXIF function for the width/height parameters 
+ * @param {FileOrBlob} imgFile
+ * @param {Object} exif (from readEXIF)
+ * @returns {Promise<ImageBitmap>} imgBitmap
+ */
+async function imgFileToImgBitmap(imgFile, exif) {
+    
+  let limMaxCanvasSize = limitCanvasSize(exif.width, exif.height);
+
+  if (exif.width !== limMaxCanvasSize.width || imgFile.height !== limMaxCanvasSize.height) {
+      breadcrumb("Limited max canvas size. Image was too large.");
+  }
+
+  let imgBitmap;
+  try {
+      imgBitmap = await createImageBitmap(imgFile, {
+          resizeWidth: limMaxCanvasSize.width,
+          resizeHeight: limMaxCanvasSize.height
+      });
+  } catch (error) {
+      handleError("Failed to create ImageBitmap", error);
+      return null;
+  }
+
+  return imgBitmap;
+
+}
+
+
+
+/**
  * Escapes HTML Characters in a given string. i.e. things like (> < & etc etc)
  * @param {String} string html string to escape characters
  */
@@ -878,7 +911,8 @@ function escapeRegExp(string) {
  * @returns {string} extension an extension (i.e. jpg) in lowercase
  */
 function extensionFromFilename (filename) {
-  return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
+  var match = filename.match(/\.[0-9a-z]+$/i);
+  return match ? match[0].slice(1).toLowerCase() : "";
 }
 
 /**
@@ -998,6 +1032,9 @@ async function determineBrowserEXIFOrientationTreatment() {
 }
 
 function correctCanvasOrientationInOrientationContext(orientationContext, w, h, orientation) {
+  
+  orientation = parseInt(orientation || 0);
+
   switch (orientation) {
     case 2:
       // horizontal flip
@@ -1095,6 +1132,12 @@ async function readEXIF(fileOrFileBuffer) {
   exif.exposure = exposure;
   exif.whitebal = whitebal;
   exif.iso = iso;
+
+  let width = ((tags["Image Width"] || tags["Exif Image Width"] || tags["Width"]) || {}).value || 2048;
+  let height  = ((tags["Image Height"] || tags["Exif Image Height"] || tags["Height"]) || {}).value || 2048;
+  
+  exif.width  = width || "";
+  exif.height = height || "";
 
   breadcrumb('[EXIF READER] Read!');
 
@@ -1539,3 +1582,97 @@ $("a").on('touchstart mousedown', function (event) {
 });
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+// EU COUNTRY CODES LIST
+// p.s. FUCK YOU APPLE. 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+const euCountryCodesList = [
+  // EU 27:
+  "AT", // "Austria",
+  "BE", // "Belgium",
+  "BG", // "Bulgaria",
+  "HR", // "Croatia",
+  "CY", // "Cyprus",
+  "CZ", // "Czech Republic",
+  "DK", // "Denmark",
+  "EE", // "Estonia",
+  "FI", // "Finland",
+  "FR", // "France",
+  "DE", // "Germany",
+  "GR", // "Greece",
+  "HU", // "Hungary",
+  "IE", // "Ireland, Republic of (EIRE)",
+  "IT", // "Italy",
+  "LV", // "Latvia",
+  "LT", // "Lithuania",
+  "LU", // "Luxembourg",
+  "MT", // "Malta",
+  "NL", // "Netherlands",
+  "PL", // "Poland",
+  "PT", // "Portugal",
+  "RO", // "Romania",
+  "SK", // "Slovakia",
+  "SI", // "Slovenia",
+  "ES", // "Spain",
+  "SE", // "Sweden",
+
+  // Outermost Regions (OMR)
+  // https://en.wikipedia.org/wiki/Special_member_state_territories_and_the_European_Union#Outermost_regions
+  "GF", // "French Guiana",
+  "GP", // "Guadeloupe",
+  "MQ", // "Martinique",
+  "ME", // "Montenegro",
+  "YT", // "Mayotte",
+  "RE", // "Réunion",
+  "MF", // "Saint Martin",
+  // No Code, Azores
+  // No Code, Canary Islands
+  // No Code, Madeira
+
+  // Special Cases: Part of EU
+  // https://en.wikipedia.org/wiki/Special_member_state_territories_and_the_European_Union#Special_cases_in_Europe
+  "GI", // "Gibraltar",
+  "AX", // "Åland Islands",
+  // No Code, Büsingen am Hochrhein
+  // No Code, Campione d'Italia and Livigno
+  // No Code, Ceuta and Melilla
+  // No Code, UN Buffer Zone in Cyprus
+  // No Code, Helgoland
+  // No Code, Mount Athos
+
+  // Overseas Countries and Territories (OCT)
+  // https://en.wikipedia.org/wiki/Special_member_state_territories_and_the_European_Union#Overseas_countries_and_territories
+  "PM", // "Saint Pierre and Miquelon",
+  "GL", // "Greenland",
+  "BL", // "Saint Bartelemey",
+  "SX", // "Sint Maarten",
+  "AW", // "Aruba",
+  "CW", // "Curacao",
+  "WF", // "Wallis and Futuna",
+  "PF", // "French Polynesia",
+  "NC", // "New Caledonia",
+  "TF", // "French Southern Territories",
+  "AI", // "Anguilla",
+  "BM", // "Bermuda",
+  "IO", // "British Indian Ocean Territory",
+  "VG", // "Virgin Islands, British",
+  "KY", // "Cayman Islands",
+  "FK", // "Falkland Islands (Malvinas)",
+  "MS", // "Montserrat",
+  "PN", // "Pitcairn",
+  "SH", // "Saint Helena",
+  "GS", // "South Georgia and the South Sandwich Islands",
+  "TC", // "Turks and Caicos Islands",
+
+  // Microstates
+  // https://en.wikipedia.org/wiki/Microstates_and_the_European_Union
+  "AD", // "Andorra",
+  "LI", // "Liechtenstein",
+  "MC", // "Monaco",
+  "SM", // "San Marino",
+  "VA", // "Vatican City",
+
+];

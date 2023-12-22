@@ -314,10 +314,11 @@ function showTip(tipsID) {
 function hideTips() {
     var tip = $(".tip.show");
     var swiperID = tip.find(".swiper-container").attr("id");
-    if (!swiperID) { return; }
     tip.removeClass("show");
     var animationDuration = parseFloat(tip.css("transition-duration")) * 1000;
     setTimeout(function () { tip.addClass("hidden"); }, (animationDuration + 10));
+    
+    if (!swiperID) { return; }
     setTimeout(function () { tipsElements[swiperID].slideTo(0); }, (animationDuration + 10));
 }
 
@@ -537,6 +538,8 @@ async function getLocale() {
     if (detectedLocale === "GB") {
         $("#favorites-button").html(`fav<span class="hidden-tablet">ourit</span>es`);
     }
+    
+    if (euCountryCodesList.includes(loc)) { $("body").attr("region", "eu"); }
 
 }
 

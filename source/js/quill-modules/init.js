@@ -486,8 +486,10 @@ function cropEditorAccordingtoVisibleViewport() {
             if (keyboardHeight > 0) {
                 // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.   
                 $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
+                $(".ql-tooltip").removeClass("keyboard-visible");
             } else {
                 // keyboard will be in correct position 200ms later, crop the editor afterwards to prevent a 299ms cropped jumpy look.
+                $(".ql-tooltip").addClass("keyboard-visible");
                 editorCropTimeout = setTimeout(function () {
                     $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
                 }, 200);
