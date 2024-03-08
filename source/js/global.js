@@ -623,6 +623,9 @@ async function canvasToBlob(canvas, quality, format) {
  */
 function limitCanvasSize(width, height) {
 
+  width = parseInt((width || 0));
+  height = parseInt((height || 0));
+
   // For now limiting to 2048 x 2048 (iOS max size is 4096x4096, but since we don't need more, we'll stick with this. prob better for mem use), 
   let maximumPixels = 4194304;
 

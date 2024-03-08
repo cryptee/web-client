@@ -282,9 +282,11 @@ async function runUploadQueue() {
     // if there isn't a status message, file is good to upload. 
     var numberOfRAWItemsInQueue = 0;
     var numberOfUploadableItemsInQueue = 0;
+    var numberOfVideoItemsInQueue = 0;
     for (let id in uploadQueue) {
         let item = uploadQueue[id];
         if (item.support === "supported-image-utif") { numberOfRAWItemsInQueue++; }
+        if (item.support === "supported-video-native") { numberOfVideoItemsInQueue++; }
         if (!item.status) { numberOfUploadableItemsInQueue++; }
     }
 
@@ -319,6 +321,7 @@ async function runUploadQueue() {
 
     let maxMemorySafeNumberOfParallelUploads = maxParallelUploads;
     if ((isAndroid || isios || isipados) && numberOfRAWItemsInQueue) { maxMemorySafeNumberOfParallelUploads = 1; }
+
     var promiseToUploadEverythingInQueue = new PromisePool(promiseToUploadNextInQueue, maxMemorySafeNumberOfParallelUploads);
     await promiseToUploadEverythingInQueue.start();
 
@@ -784,8 +787,11 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     breadcrumb('[UPLOAD] Preparing video player');
 
     // choose / create player
-    players[playerNo].video = players[playerNo].video || document.createElement("video");
-    
+    if (!players[playerNo].video) {
+        players[playerNo].video = document.createElement("video")
+        players[playerNo].video.setAttribute("preload", "metadata")
+    }
+
     // choose / create source
     if (!players[playerNo].source) { 
         players[playerNo].source = document.createElement("source");
@@ -801,6 +807,9 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     video.muted = true;
     video.loop = false;
     video.currentTime = 0.01; // load first frame (~30fps)
+    
+    // on ios video needs to be set to autoplay for the uploads to work. 
+    if (isios || isipados) { video.autoplay = true; }
     
     var blobURL;
 

@@ -420,6 +420,7 @@ async function loginWithGoogle() {
             await firebase.signInWithPopup(firebase.getAuth(), provider);
         }
     } catch (error) {
+        console.error(error);
         if (error.code === "auth/web-storage-unsupported") {
             stopProgress();
             showPopup(

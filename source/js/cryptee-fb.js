@@ -62,9 +62,12 @@ window.firebase.multiFactor = multiFactor;
 window.firebase.getMultiFactorResolver = getMultiFactorResolver;
 window.firebase.TotpMultiFactorGenerator = TotpMultiFactorGenerator;
 
+let fbAuthDomain = location.host;
+if (location.host.startsWith("localhost")) { fbAuthDomain = "alfa.crypt.ee"; }
+
 var config = {
     apiKey: "AIzaSyBzI3Sr5lx_mhbmmlS8eehdUBfRXb7EyRk",
-    authDomain: "flare.crypt.ee",
+    authDomain: fbAuthDomain,
     projectId: "cryptee-54307"
 };
 

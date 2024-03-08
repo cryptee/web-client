@@ -48,6 +48,10 @@ html.dm { background: var(--oled-safe-black); }
     transition: 0.5s opacity ease;
 }
 
+.swiper-wrapper {
+    overscroll-behavior: none; 
+}
+
 .swiper-wrapper, .swiper-slide {
     will-change: transform;
 }
