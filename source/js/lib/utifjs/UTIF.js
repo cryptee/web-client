@@ -9,7 +9,7 @@ var UTIF = {};
 if (typeof module == "object") {module.exports = UTIF;}
 else {self.UTIF = UTIF;}
 
-function log() { if (typeof process=="undefined" || (process.env && process.env.NODE_ENV=="development")) console.log.apply(console, arguments);  }
+function log() { console.log.apply(console, arguments); }
 
 (function(UTIF){
 	
@@ -39,15 +39,18 @@ if(this.p>4){throw new W("Unsupported color mode")}var E=this.Y(h,f,n);if(this.p
 
 UTIF.encodeImage = function(rgba, w, h, metadata)
 {
-	var idf = { "t256":[w], "t257":[h], "t258":[8,8,8,8], "t259":[1], "t262":[2], "t273":[1000], // strips offset
-				"t277":[4], "t278":[h], /* rows per strip */          "t279":[w*h*4], // strip byte counts
+	var img = new Uint8Array(rgba);
+	var cmpr = (window && window.pako) ? 8 : 1;
+	if(cmpr==8) img=pako.deflate(img);
+	
+	var idf = { "t256":[w], "t257":[h], "t258":[8,8,8,8], "t259":[cmpr], "t262":[2], "t273":[1000], // strips offset
+				"t277":[4], "t278":[h], /* rows per strip */          "t279":[img.length], // strip byte counts
 				"t282":[[72,1]], "t283":[[72,1]], "t284":[1], "t286":[[0,1]], "t287":[[0,1]], "t296":[1], "t305": ["Photopea (UTIF.js)"], "t338":[1]
 		};
 	if (metadata) for (var i in metadata) idf[i] = metadata[i];
 	
 	var prfx = new Uint8Array(UTIF.encode([idf]));
-	var img = new Uint8Array(rgba);
-	var data = new Uint8Array(1000+w*h*4);
+	var data = new Uint8Array(1000+img.length);
 	for(var i=0; i<prfx.length; i++) data[i] = prfx[i];
 	for(var i=0; i<img .length; i++) data[1000+i] = img[i];
 	return data.buffer;
@@ -110,7 +113,7 @@ UTIF.decodeImage = function(buff, img, ifds)
 	if(cmpr==7 && img["t258"] && img["t258"].length>3)  img["t258"]=img["t258"].slice(0,3);
 
 	var bps = img["t258"]?img["t258"][0]:1;
-	var spp = img["t277"]?img["t277"][0]:1;
+	var spp = img["t277"]?img["t277"][0]:1;  //if(cmpr==7) spp=3; // jpg
 	var pco = img["t284"]?img["t284"][0]:1;  if(spp!=3) pco=1;  // planar configuration
 	if(pco==2) log("PlanarConfiguration 2 should not be used!");
 	
@@ -137,7 +140,7 @@ UTIF.decodeImage = function(buff, img, ifds)
 		var tx = Math.floor((img.width  + tw - 1) / tw);
 		var ty = Math.floor((img.height + th - 1) / th);
 		var tbuff = new Uint8Array(Math.ceil(tw*th*bipp/8)|0);
-		console.log("====", tx,ty);
+		// console.log("====", tx,ty);
 		for(var y=0; y<ty; y++)
 			for(var x=0; x<tx; x++)
 			{
@@ -631,6 +634,19 @@ UTIF.decode._decodeNikon = function(img,imgs, data, off, src_length, tgt, toff)
 	var getbithuff   = UTIF.decode._getbithuff;
 	
 	var mn = imgs[0].exifIFD.makerNote, md = mn["t150"]?mn["t150"]:mn["t140"], mdo=0;  //console.log(mn,md);
+	
+	if(mn["t147"] && mn["t147"][0]==2) {
+		var ppl = Math.ceil(raw_width/10); 
+		var bpl = ppl*16;
+		var rbpl = (raw_width*3)>>>1;
+		for(var y=0; y<height; y++) {
+			for(var pi=0; pi<ppl; pi++) {
+				for(var i=0; i<15; i++) tgt[y*rbpl+pi*15+i] = data[off+y*bpl+pi*16+i];
+			}
+		}
+		return;
+	}
+	
 	//console.log(md[0].toString(16), md[1].toString(16), tiff_bps);
 	var ver0 = md[mdo++], ver1 = md[mdo++];
 	if (ver0 == 0x49 || ver1 == 0x58)  mdo+=2110;
@@ -988,7 +1004,9 @@ UTIF.decode._decodeOldJPEG = function(img, data, off, len, tgt, toff)
 
 	var parser = new UTIF.JpegDecoder();  parser.parse(buff);
 	var decoded = parser.getData({"width":parser.width,"height":parser.height,"forceRGB":true,"isSourcePDF":false});
-	for (var i=0; i<decoded.length; i++) tgt[toff + i] = decoded[i];
+	var area = parser.width*parser.height;
+	if(img["t262"] && img["t262"][0]==1)   for (var i=0; i<area; i++) tgt[toff + i] = decoded[i*3];
+	else                                   for (var i=0; i<decoded.length; i++ ) tgt[toff + i] = decoded[i];
 
 	// PhotometricInterpretation is 6 (YCbCr) for JPEG, but after decoding we populate data in
 	// RGB format, so updating the tag value
@@ -1270,7 +1288,8 @@ UTIF._readIFD = function(bin, data, offset, ifds, depth, prm)
 				var obj = ifd.makerNote = subsub.pop();
 				for(var j=0; j<inds.length; j++) {
 					var k="t"+inds[j];  if(obj[k]==null) continue;
-					UTIF._readIFD(bin, mn, obj[k][0], subsub, depth+1, prm);
+					if(obj[k].length==1) UTIF._readIFD(bin, mn    , obj[k][0], subsub, depth+1, prm);
+					else                 UTIF._readIFD(bin, obj[k], 0        , subsub, depth+1, prm);
 					obj[k] = subsub.pop();
 				}
 				if(obj["t12288"]) {
@@ -1351,7 +1370,7 @@ UTIF.toRGBA8 = function(out, scl)
 	var intp = (out["t262"] ? out["t262"][0]: 2), bps = (out["t258"]?Math.min(32,out["t258"][0]):1);
 	if(out["t262"]==null && bps==1) intp=0;
 	
-	var smpls = out["t277"]?out["t277"][0] : (out["t258"]?out["t258"].length : [1,1,3,1,1,4,3][intp]);
+	var smpls = out["t277"]?out["t277"][0] : (out["t258"]?out["t258"].length : [1,1,3,1,1,4,3][intp]);  //if(out["t259"] && out["t259"][0]==7) smpls=3; // jpg
 	var sfmt  = out["t339"]?out["t339"][0] : null;  if(intp==1 && bps==32 && sfmt!=3) throw "e";  // sample format
 	var bpl = Math.ceil(smpls*bps*w/8);
 	

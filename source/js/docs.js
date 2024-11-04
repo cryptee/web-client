@@ -1193,6 +1193,7 @@ function togglePanel(panelID) {
     // hide all panels but this one
     hidePanels(panelID);
     hideTips();
+    if (isTouch) { quill.blur(); }
 
 }
 

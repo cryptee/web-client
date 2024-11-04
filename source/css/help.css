@@ -54,8 +54,8 @@ html.dm, .dm body {
 }
 
 .dm article {
-    background-color: var(--cryptee-1);
-    color: white;
+    background-color: var(--cryptee-1) !important;
+    color: white !important;
 }
 
 .dm .contactButton {
@@ -361,7 +361,8 @@ main {
 }
 
 article {
-    background-color: white;
+    background-color: white !important;
+    color: #FFF !important;
     margin-top: 2rem;
     height: calc(100% - 16rem);
     width: calc(100% - 8rem);
@@ -454,6 +455,15 @@ article > .loaded {
     line-height: 1.125rem;
 }
 
+article * {
+    color : #000 !important;
+    background-color: #FFF !important;
+}
+
+.dm article * {
+    color : #FFF !important;
+    background-color: var(--cryptee-1) !important;
+}
 
 
 /* -----------------------------

@@ -237,6 +237,11 @@ function showModal(modalID) {
 
     if (typeof hidePanels === 'function') { hidePanels(); }
     if (typeof hideViews === 'function') { hideViews(); }
+    
+    // this helps hide the keyboard when a modal opens up so that keyboard isn't covering tools / dropdowns etc.
+    if (location.pathname === "/docs" && isTouch) {
+        try { quill.blur(); } catch (error) {}
+    }
 
     hideTips();
 

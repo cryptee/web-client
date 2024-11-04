@@ -236,7 +236,7 @@ function checkFormatSupport(extension) {
     // ARW (Sony RAW)
     // RAF (Fuji RAW)
     // 3FR & FFF (Hasselblad RAW)
-    // DNG (Adobe RAW, Leica etc)
+    // DNG (Adobe RAW, Leica, Hasselblad, iPhone ProRAW etc)
 
     // else if (extension.match(/^(tif|tiff|cr2|cr3|nef|arw|dng|3fr|fff)$/i)) {
     //   return "supported-image-utif";
@@ -1142,7 +1142,10 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
 
 /**
  * This takes in a raw image (dng, tiff etc buffer) and converts it to a data url we can use to generate thumbnails.
- * Courtesy of UTIF.bufferToURI()
+ * Courtesy of UTIF.bufferToURI() — modified to fit modern day requirements
+ * For more info on TIFF tags, follow this:
+ * https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
+ * Good luck! It's pure chaos out there.
  * @param {FileOrBlob} originalFlie  
  * @returns {Promise<ImageBitmap>} imgBitmap
  */
@@ -1166,7 +1169,24 @@ async function rawImgFileToImgBitmap(originalFile) {
 
     for (let i = 0; i < vsns.length; i++) {
         let img = vsns[i];
-        if (img["t258"] == null || img["t258"].length < 3) continue;
+        
+        let imgCompression = img["t259"]?.[0];
+        
+        // skip if not oldJPEG Compression (6),
+        // skip if not newJPEG Compression (7),
+        if (imgCompression !== 6 && imgCompression !== 7) { continue; }
+
+        // check to make sure it's an RGB image. it should look like [8,8,8] for an 8 bit one, or [10,10,10] etc for a 10 bit one
+        // most modern cameras have an 8bit jpg in them, and we only need that. so we can skip the rest
+        // esp high resolution DSLRs etc, since it would be heavier to compute the final image etc and it's easier to use JPG
+
+        // We used to check for this, but it's somewhat problematic, because UTIF can't handle anything that's not 8bit.
+        // so leaving here for posterity, but it proved to be more reliable to check for 8bit only.
+        // if (img["t258"] == null || img["t258"]?.length < 3) { continue; }
+        
+        // skip non-8bit-RGB frames
+        if (img["t258"]?.length !== 3 || img["t258"].join(',') !== '8,8,8') { continue; }
+        
         let ar = img["t256"] * img["t257"];
         if (ar > ma) { ma = ar; rawImgData = img; }
     }

@@ -82,11 +82,11 @@ function checkForPWAAndDisplayInstallationButton() {
     $(".actionButton[app='install']").addClass("willBeShown");
 
     if (isios || isipados) {
-        if (isSafari) { 
-            $("#install-on-ios-safari").show(); 
-        } else {
-            $("#install-on-ios-other").show(); 
-        }
+        $("#install-on-ios-safari").show(); 
+        // if (isSafari) { 
+        // } else {
+        //     $("#install-on-ios-other").show(); 
+        // }
     } else {   
         $("#install-on-other").show();
     }

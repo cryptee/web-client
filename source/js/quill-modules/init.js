@@ -454,7 +454,16 @@ function updateVisibleViewport(range) {
         // STEP 1 – Move the Toolbar on iOS    
         var viewport = window.visualViewport || { height : window.innerHeight };
         var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation
-    
+
+        // Subtract the viewport offset to correct the positioning
+        // If you're scrolled down and tap onto an area that would otherwise be under the keyboard, 
+        // it used to make toolbar fly up on android. 
+        // this line fixes that. BUT, it breaks on iOS, and makes the toolbar hide behind the keyboard.
+        // So we'll need to make this Android only, and test it out, and see how it is on firefox and chrome etc.
+        if (isAndroid) { 
+            keyboardHeight += viewport.offsetTop || 0;
+        }
+
         $(".ql-tooltip").attr("style", `transform: translateY(${keyboardHeight}px)`);
         $(".ql-tooltip")[0].scrollTo({ left: 0, behavior : "smooth" });
 
@@ -487,17 +496,27 @@ function cropEditorAccordingtoVisibleViewport() {
         var viewport = window.visualViewport || { height : window.innerHeight };
         var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation    
 
-            if (keyboardHeight > 0) {
-                // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.   
+        // Subtract the viewport offset to correct the positioning
+        // If you're scrolled down and tap onto an area that would otherwise be under the keyboard, 
+        // it used to make toolbar fly up on android. 
+        // this line fixes that. BUT, it breaks on iOS, and makes the toolbar hide behind the keyboard.
+        // So we'll need to make this Android only, and test it out, and see how it is on firefox and chrome etc.
+        if (isAndroid) {
+            keyboardHeight += viewport.offsetTop || 0;
+        }
+
+        if (keyboardHeight > 0) {
+            // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.   
+            $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
+            $(".ql-tooltip").removeClass("keyboard-visible");
+        } else {
+            // keyboard will be in correct position 200ms later, crop the editor afterwards to prevent a 299ms cropped jumpy look.
+            $(".ql-tooltip").addClass("keyboard-visible");
+            editorCropTimeout = setTimeout(function () {
                 $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
-                $(".ql-tooltip").removeClass("keyboard-visible");
-            } else {
-                // keyboard will be in correct position 200ms later, crop the editor afterwards to prevent a 299ms cropped jumpy look.
-                $(".ql-tooltip").addClass("keyboard-visible");
-                editorCropTimeout = setTimeout(function () {
-                    $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
-                }, 200);
-            }
+            }, 200);
+        }
+        
     }, 20);
 }
 

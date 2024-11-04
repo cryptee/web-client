@@ -1197,6 +1197,8 @@ function showDocRightClickDropdown(did, y, x) {
     hideFloaters();
     hidePanels();
 
+    if (isTouch) { quill.blur(); }
+
     // if already shown, we just need to hide it anyway.
     if (alreadyShown) { return; }
 
@@ -1306,6 +1308,7 @@ function showFolderRightClickDropdown(fid,y, x) {
     hideRightClickDropdowns();
     hideFloaters();
     hidePanels();
+    if (isTouch) { quill.blur(); }
     
     // if already shown, we just need to hide it anyway.
     if (alreadyShown) { return; }
@@ -1372,6 +1375,7 @@ function showSelectionsRightClickDropdown(x,y) {
 
     hideRightClickDropdowns();
     hidePanels();
+    if (isTouch) { quill.blur(); }
 
     // if already shown, we just need to hide it anyway.
     if (alreadyShown) { return; }
