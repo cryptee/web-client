@@ -276,7 +276,12 @@ function loadMediaEXIFToLightbox(pid) {
     }
     
     if (photo['exif-lens'] && photo['exif-lens'] !== "unknown") {
-        $("#lightbox-exif-lens").text(photo['exif-lens']);
+        let lensVal = parseInt(photo['exif-lens']) || parseInt(photo['exif-lens'].replace("mm", "")) || 0;
+        if (lensVal) {
+            $("#lightbox-exif-lens").text(lensVal + "mm");
+        } else {
+            $("#lightbox-exif-lens").text(photo['exif-lens']);
+        }
     } else {
         $("#lightbox-exif-lens").text("");
     }
@@ -288,9 +293,23 @@ function loadMediaEXIFToLightbox(pid) {
     }
 
     if (photo['exif-aperture'] && photo['exif-aperture'] !== "unknown") {
-        $("#lightbox-exif-aperture").text(photo['exif-aperture'].replace("f", "ƒ"));
+        
+        let apertureVal = (parseFloat(photo['exif-aperture'].replace("f/","")).toFixed(1)) || 0;
+        
+        let aperture;
+        
+        if (apertureVal) {
+            aperture = "ƒ/" + apertureVal;
+        } else {
+            aperture = photo['exif-aperture'].replace("f","ƒ");
+        }
+
+        $("#lightbox-exif-aperture").text(aperture);
+
     } else {
+        
         $("#lightbox-exif-aperture").text("");
+
     }
         
     if (photo['exif-iso'] && photo['exif-iso'] !== "unknown") {

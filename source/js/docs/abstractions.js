@@ -895,6 +895,7 @@ function loadSearch() {
     hideRightClickDropdowns();
     hidePanels();
     refreshDOM();
+    if (isTouch) { quill.blur(); }
 }
 
 function loadRecents() {
@@ -905,6 +906,7 @@ function loadRecents() {
     hideRightClickDropdowns();
     hidePanels();
     refreshDOM();
+    if (isTouch) { quill.blur(); }
 }
 
 /**
@@ -918,6 +920,7 @@ function loadRootFolder() {
     hideRightClickDropdowns();
     hidePanels();
     refreshDOM();
+    if (isTouch) { quill.blur(); }
 }
 
 /**
@@ -961,6 +964,7 @@ async function loadFolder(fid) {
     breadcrumb('[LOAD FOLDER] Loading ' + fid);
     
     startLeftProgress();
+    if (isTouch) { quill.blur(); }
     
     // set active folder
     activeFolderID = fid;
@@ -1030,6 +1034,7 @@ function rootParentIDOfFolder(fid, folders) {
 function toggleDocSelection(did) {
     if (!did) { return; }
     if (did.startsWith("f-")) { return; }
+    if (isTouch) { quill.blur(); }
     
     var selectionIndex = selections.indexOf(did);
     if (selectionIndex >= 0) {

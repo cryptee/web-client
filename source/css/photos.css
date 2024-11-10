@@ -2436,8 +2436,8 @@ ENABLE HOVERS
     }
 
     .album::before {
-        color: transparent;
-        padding: 0 3rem 0 1rem;
+        color: var(--cryptee-2);
+        padding: 0 4rem 0 1rem;
     }
 
     .album .dropdown.show ~ i {
@@ -2456,7 +2456,7 @@ MEDIA QUERIES
 ----------------------------- */
 @media (min-width:1024px) and (max-width : 1343px) {
     .album, .album img { width: 26rem; }
-    .album::after { width: 21rem; }
+    .album::after { width: 19rem; }
 }
 
 @media (max-width : 1023px) {
