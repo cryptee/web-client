@@ -165,11 +165,24 @@ async function applyPromoCode(couponCode, percentOff) {
     percentOff = percentOff || await checkPromoCode(couponCode);
 
     if (percentOff > 0) { 
+        
         breadcrumb('[PROMO CODE] Applied Promo Code: ' + couponCode + ' [' + percentOff + "% OFF]");
+        
         usingPromoCode = couponCode;
         usingPercentOff = percentOff;
+        
         $("#discount-tag").text('–' + percentOff + "%");
         $("body").attr("discount", percentOff);
+
+        $(".price").each(function(index, item){
+            let yr = $(item).attr("yr");
+            let mo = $(item).attr("mo");
+            let discountedYr = yr - (yr * (percentOff / 100));
+            let discountedMo = mo - (mo * (percentOff / 100));
+            $(item).attr("discountedyr", discountedYr.toFixed(2));
+            $(item).attr("discountedmo", discountedMo.toFixed(2));
+        });
+
     } else {
         breadcrumb('[PROMO CODE] No promo code provided / invalid promo code provided, wont apply promo code');
         removePromoCode();

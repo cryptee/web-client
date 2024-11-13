@@ -339,18 +339,16 @@ async function runUploadQueue() {
 function promiseToUploadNextInQueue() {
     
     // if everything we have in the queue are being uploaded, return null, we're done here.
-    var numberOfItemsInQueue = Object.keys(uploadQueue).length;
-    if (!numberOfItemsInQueue) { return null; }
-    
-    // if we still have some uploads in the queue, check to see if they're being uploaded, and return a promise to upload them.
-    var nextUploadID;
-    for (var uploadID in uploadQueue) { 
-        
-        if (uploadQueue[uploadID] && !uploadQueue[uploadID].uploading) {
-            nextUploadID = uploadID; 
-            break; 
-        }
+    const uploadIDs = Object.keys(uploadQueue);
+    if (!uploadIDs.length) { return null; }
 
+    // if we still have some uploads in the queue, check to see if they're being uploaded, and return a promise to upload them.
+    let nextUploadID;
+    for (const uploadID of uploadIDs.reverse()) {
+        if (uploadQueue[uploadID] && !uploadQueue[uploadID].uploading) {
+            nextUploadID = uploadID;
+            break;
+        }
     }
     
     if (!nextUploadID) { return null; }

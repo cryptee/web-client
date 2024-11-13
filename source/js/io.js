@@ -218,7 +218,7 @@ async function uploadFile(rawTextContents, filename, inBackground) {
     breadcrumb("[UPLOAD] Upload Complete. ( " + filename + " ) Took " + uploadTime + "ms to upload " + formattedFilesize);
 
     // mark doc upload = done
-    $(`.upload[id="${uploadID}"]`).attr("prog", "done"); 
+    $(`.upload[id="${uploadID}"]`).attr("prog", 100); 
 
     // check if there's any other uploads left, or hide uploader
     onUploadComplete();
@@ -235,6 +235,11 @@ function uploadProgress(filename, loaded, total, inBackground) {
 
     var uploadID = filenameToUploadID(filename);
 
+    var isOriginal  = uploadID.startsWith("p-") || uploadID.startsWith("v-") || uploadID.startsWith("r-");
+    var isLightbox  = uploadID.startsWith("l-");
+    var isThumbnail = uploadID.startsWith("t-");
+    var isDocOrFile = uploadID.startsWith("d-");
+
     addUploadVariantToUploader(filename, total);
 
     if (location.pathname === "/docs") {
@@ -244,8 +249,16 @@ function uploadProgress(filename, loaded, total, inBackground) {
         showUploader();
     }
 
-    percentCompleted = ((loaded * 100) / total).toFixed(2).toString();
-    $(`.upload[id="${uploadID}"]`).attr("docorfile-progress", percentCompleted);
+    percentCompleted = Math.ceil(((loaded * 100) / total).toFixed(2));
+     
+    uploadID = uploadID.split('-')[1] + "-" + uploadID.split('-')[2];
+    uploadBytesizes[uploadID] = uploadBytesizes[uploadID] || {};
+
+    if (isOriginal)  { uploadBytesizes[uploadID].originalProgress = percentCompleted;  }
+    if (isLightbox)  { uploadBytesizes[uploadID].lightboxProgress = percentCompleted;  }
+    if (isThumbnail) { uploadBytesizes[uploadID].thumbnailProgress = percentCompleted; }
+    if (isDocOrFile) { uploadBytesizes[uploadID].docorfileProgress = percentCompleted; }
+        
     updateUploadProgress(filename);
 
     if (location.pathname === "/docs") {
@@ -664,7 +677,7 @@ async function streamingUploadFile(blob, filename, inBackground) {
                 
                 if (location.pathname === "/docs") {
                     // mark doc upload = done
-                    $(`.upload[id="${uploadID}"]`).attr("prog", "done"); 
+                    $(`.upload[id="${uploadID}"]`).attr("prog", 100); 
                     
                     // check if there's any other uploads left, or hide uploader
                     onUploadComplete();

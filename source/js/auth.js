@@ -813,7 +813,7 @@ function updateUserInLS() {
 
         plansUpdated();
         gotPaymentProcessor();
-        checkForSpecialOffers();
+        checkForSpecialOffersAndPrepareUpgradeMessaging();
 
         breadcrumb("[LS] Updated LS");
     } catch (e) {
@@ -863,7 +863,7 @@ function restoreUserFromLS() {
         thePaymentProcessor = localStorage.getItem("paymentProcessor"); 
         gotPaymentProcessor();
 
-        checkForSpecialOffers();
+        checkForSpecialOffersAndPrepareUpgradeMessaging();
 
         lastReadNews = localStorage.getItem("news");
         
@@ -1030,51 +1030,84 @@ async function getUpdatedRemainingStorage() {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-function checkForSpecialOffers() {
+var chosenMessage;
+
+/**
+ * This function checks for special offers (i.e. black friday, fall etc) and prepares the upgrade popup's messaging.
+ * For those of you reading our code on github, and might get excited thinking you have discovered a secret discount code system...
+ * This function is purely a cosmetic one for UI/UX to update the messaging for users. 
+ * Both our servers and stripe's servers enforce and verify discount codes, so you can't brute force / test codes using this way.
+ * Hoping this saves you some tinkering time. 
+ * But hey! how about this... if you're reading this on our github, follow us on github, send a message to our helpdesk using your github username before 2025, and mention that you saw this message.
+ * We'll give you a lifetime discount too.
+ * It's a dark and fucked up world out there, if this brings you a little bit of joy, then it's all worth it. 
+ */
+function checkForSpecialOffersAndPrepareUpgradeMessaging() {
     
-    // fall2021DiscountCampaign();
-    breadcrumb("[OFFERS] No special offers available.");
+    var isQualified = checkIfUserIsQualifiedForSpecialOffersOrPromos();
     
+    var messages = [
+        "need more storage for your bird pics?",
+        "your 'homework' folder belongs here.",
+        "tim's busy counting zeros.\nyour privacy counts more here.",
+        "your photos, minus the cloud-y drama.",
+        "your camera roll has seen enough.\ntime to go private.",
+        "photos spicier than your lunch?\nyou can store them here.",
+        "even newton didn't expect his fruit to fall this far from the privacy tree.",
+        "more storage space than your old camera bag with the broken zipper.",
+        "ready to give your files and photos a northern european winter retreat?",
+        "why keep your data in the valley\nwhen it could chill in in northern europe?",
+        "fancy storing your data near santa's workshop in northern europe?",
+        "tired of all the valley drama?\ntry european tranquility.",
+        "file storage as clean as nordic tap water.",
+    ];
+    
+    if (isQualified) {
+        breadcrumb("[OFFERS] Showing FALL 2024 special offer.");
+        if (location.pathname === "/plans") { applyPromoCode("FALL2024", 25); }
+    } else {
+        breadcrumb("[OFFERS] No special offers available.");
+        if (location.pathname === "/plans") { removePromoCode(); }
+    }
+        
+    if (!chosenMessage) {
+        let lastIndex = localStorage.getItem('lastPromoMessageIndex') || -1;
+        lastIndex = (parseInt(lastIndex) + 1) % messages.length || 0;
+        localStorage.setItem('lastPromoMessageIndex', lastIndex);
+    
+        chosenMessage = messages[lastIndex] || "we have discounts!";
+        
+        if (isQualified) {
+            chosenMessage = chosenMessage + "\nupgrade by 2025, get 25% off for life.";   
+        } else {
+            chosenMessage = chosenMessage;
+        }
+    }
+    
+    if (location.pathname === "/home") {
+        $('#upgrade-offer-text').text(chosenMessage);
+    }
+
 }
 
-// function fall2021DiscountCampaign() {
-//     var freeUserQuotaInBytes = 100000000; // 100mb
-//     var programEndsOn = 1640988000000; // Jan 1, 2022
-//     var now = (new Date()).getTime();
-//     var isQualified = (allowedStorage <= freeUserQuotaInBytes && now <= programEndsOn);
+/**
+ * Checks the current promo schedule, user's usage, signup time etc etc and returns either true or false if a user is qualified 
+ * @returns {boolean}
+ */
+function checkIfUserIsQualifiedForSpecialOffersOrPromos() {
+    
+    // if user hasn't logged in yet or something, than this should be false, to prevent showing upgrade popups
+    if (!allowedStorage) { return false; }
 
-//     var messages = [
-//         // "it's almost winter here in the north, and our office polar bear yaroslav needs a new scarf. upgrade by 2022, get 10% discount for life and help us keep yaroslav happy",
-//         "need a drink after the dumpster-fire that was 2021? drinks on us! upgrade before 2022 to have 10% discount for life.",
-//         "black ''fridays''? whole damn winter is dark here in northern europe. upgrade by 2022, get a 10% discount for life.",
-//     ];
+    var freeUserQuotaInBytes = 100000000; // 100mb
+    var programEndsOn = 1735682400000; // Jan 1, 2025
+    var now = (new Date()).getTime();
+    var isQualified = (allowedStorage <= freeUserQuotaInBytes && now <= programEndsOn);
+    // var isQualified = true; // for testing
 
-//     var message = messages[Math.floor((Math.random()*messages.length))];
+    return isQualified;
 
-//     if (isQualified) {
-
-//         if (location.pathname === "/home" && !$('#offerButton').text() && !$(".newsButton").hasClass("unread")) {
-//             $('#offerButton').text(message);
-//         }
-
-//         if (location.pathname === "/plans") {
-//             applyPromoCode("FALL2021", 10);
-//         }
-
-//     } else {
-
-//         if (location.pathname === "/home") {
-//             $('#offerButton').text("");
-//         }
-        
-//         if (location.pathname === "/plans") {
-//             removePromoCode();
-//         }
-
-//     }
-// }
-
-
+}
 
 
 ////////////////////////////////////////////////

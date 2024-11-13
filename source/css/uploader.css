@@ -248,6 +248,7 @@ PROGRESS
 #uploader .upload[slot="1"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="70"]),
 #uploader .upload[slot="1"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="80"]),
 #uploader .upload[slot="1"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="90"]),
+
 #uploader .upload[slot="2"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="e"] ),
 #uploader .upload[slot="2"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="0"] ),
 #uploader .upload[slot="2"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="10"]),
@@ -259,6 +260,7 @@ PROGRESS
 #uploader .upload[slot="2"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="70"]),
 #uploader .upload[slot="2"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="80"]),
 #uploader .upload[slot="2"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="90"]),
+
 #uploader .upload[slot="3"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="e"] ),
 #uploader .upload[slot="3"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="0"] ),
 #uploader .upload[slot="3"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="10"]),
@@ -270,6 +272,7 @@ PROGRESS
 #uploader .upload[slot="3"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="70"]),
 #uploader .upload[slot="3"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="80"]),
 #uploader .upload[slot="3"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="90"]),
+
 #uploader .upload[slot="4"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="e"] ),
 #uploader .upload[slot="4"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="0"] ),
 #uploader .upload[slot="4"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="10"]),
@@ -281,51 +284,6 @@ PROGRESS
 #uploader .upload[slot="4"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="70"]),
 #uploader .upload[slot="4"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="80"]),
 #uploader .upload[slot="4"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="90"]) { opacity:0; transform: translateY(1.5rem); }
-
-#uploader-wrapper.compact .upload[slot="1"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="e"] ),
-#uploader-wrapper.compact .upload[slot="1"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="0"] ),
-#uploader-wrapper.compact .upload[slot="1"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="10"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="20"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="30"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="40"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="50"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="60"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="70"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="80"]),
-#uploader-wrapper.compact .upload[slot="1"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="1"] b:not([prog="90"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="e"] ),
-#uploader-wrapper.compact .upload[slot="2"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="0"] ),
-#uploader-wrapper.compact .upload[slot="2"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="10"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="20"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="30"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="40"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="50"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="60"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="70"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="80"]),
-#uploader-wrapper.compact .upload[slot="2"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="2"] b:not([prog="90"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="e"] ),
-#uploader-wrapper.compact .upload[slot="3"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="0"] ),
-#uploader-wrapper.compact .upload[slot="3"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="10"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="20"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="30"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="40"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="50"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="60"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="70"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="80"]),
-#uploader-wrapper.compact .upload[slot="3"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="3"] b:not([prog="90"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="e"] ),
-#uploader-wrapper.compact .upload[slot="4"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="0"] ),
-#uploader-wrapper.compact .upload[slot="4"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="10"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="2"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="20"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="3"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="30"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="4"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="40"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="5"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="50"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="6"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="60"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="70"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="80"]),
-#uploader-wrapper.compact .upload[slot="4"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="4"] b:not([prog="90"]) { transform: translateY(1rem); }
 
 /* ALL DOTS BELOW THE CURRENT PROGRESS POINT */
 #uploader .upload[slot="1"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="e"]  ~ b,
@@ -339,6 +297,7 @@ PROGRESS
 #uploader .upload[slot="1"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="70"] ~ b,
 #uploader .upload[slot="1"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="80"] ~ b,
 #uploader .upload[slot="1"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="1"] b[prog="90"] ~ b,
+
 #uploader .upload[slot="2"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="e"]  ~ b,
 #uploader .upload[slot="2"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="0"]  ~ b,
 #uploader .upload[slot="2"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="10"] ~ b,
@@ -350,6 +309,7 @@ PROGRESS
 #uploader .upload[slot="2"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="70"] ~ b,
 #uploader .upload[slot="2"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="80"] ~ b,
 #uploader .upload[slot="2"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="2"] b[prog="90"] ~ b,
+
 #uploader .upload[slot="3"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="e"]  ~ b,
 #uploader .upload[slot="3"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="0"]  ~ b,
 #uploader .upload[slot="3"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="10"] ~ b,
@@ -361,6 +321,7 @@ PROGRESS
 #uploader .upload[slot="3"][prog^="7"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="70"] ~ b,
 #uploader .upload[slot="3"][prog^="8"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="80"] ~ b,
 #uploader .upload[slot="3"][prog^="9"]:not([prog="100"]) ~ .upload-progress[slot="3"] b[prog="90"] ~ b,
+
 #uploader .upload[slot="4"][prog^="e"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="e"]  ~ b,
 #uploader .upload[slot="4"][prog^="0"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="0"]  ~ b,
 #uploader .upload[slot="4"][prog^="1"]:not([prog="100"]) ~ .upload-progress[slot="4"] b[prog="10"] ~ b,
@@ -426,13 +387,6 @@ STATES
  
 --------------------------------
 ----------------------------- */
-
-/* PENDING & DONE */
-/* .upload-progress[prog="done"],
-.upload-progress[prog="pending"] {
-    display: none !important;
-} */
-
 
 /* SKIPPED */
 

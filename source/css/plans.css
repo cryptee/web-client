@@ -199,6 +199,7 @@ PLANS
     grid-row: 6/8;
     grid-column: 2/7;
     margin-top: calc(4rem + 4px);
+    transition: 0.5s margin ease;
 }
 
 .plan {
@@ -236,7 +237,7 @@ PLANS
 .plan button {
     margin-top: 0;
     margin-right: 0rem;
-    background-color: var(--cryptee-green);
+    background-image: var(--cryptee-upgrade-gradient);
     color: white;
     font-weight: 500;
     line-height: 1rem;
@@ -277,7 +278,7 @@ PLANS
     transition-timing-function: var(--cryptee-cb);
 }
 
-#period[period="yr"] ~ #plans .plan:not([plan='10GB']) .prices {
+body:not([discount]) #period[period="yr"] ~ #plans .plan:not([plan='10GB']) .prices {
     transform: translateY(0rem);
 }
 
@@ -295,13 +296,13 @@ PLANS
     display: none !important;
 }
 
+body[discount] #plans .savings {
+    display: none !important;
+}
+
 #period[period="yr"] ~ #plans .plan[current="yr"] .price::before,
 #period[period="mo"] ~ #plans .plan[current="mo"] .price::before {
     content: "current plan";
-}
-
-#period[period="yr"] ~ #plans .plan[current="yr"] .savings::before {
-    content: "you ";
 }
 
 #period[period="yr"] ~ #plans .plan[current="yr"] button,
@@ -326,6 +327,9 @@ PLANS
 #period[period="mo"] ~ #plans .plan .price::before { content: attr(mo); }
 #period[period="yr"] ~ #plans .plan .price::before { content: attr(yr); }
 
+body[discount] #period[period="mo"] ~ #plans .plan .price::before { content: attr(discountedmo); }
+body[discount] #period[period="yr"] ~ #plans .plan .price::before { content: attr(discountedyr); }
+
 body.paddle-yearly #plans {
     margin-top: 0;
 }
@@ -344,6 +348,21 @@ body.paddle-yearly #plans::after {
     opacity: 0.5;
     pointer-events: none !important;
 }
+
+.why-question {
+    color: var(--cryptee-1);
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1.5rem;
+
+    transition: 0.25s opacity ease;
+}
+
+.why-answer {
+    text-align: center;
+    transition: 0.25s opacity ease;
+}
+
 
 /* -----------------------------
 -------------------------------- 
@@ -376,10 +395,12 @@ body:not(.chooseplan) #period #period-toggle {
     pointer-events: none !important;
     transform: translateY(-0.3rem) !important;
 }
-/* 
-body:not(.chooseplan) #period {
-    border-top: 2px solid transparent;
-} */
+
+body:not(.chooseplan) .why-question,
+body:not(.chooseplan) .why-answer {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
 
 body:not(.chooseplan) .plan {
     opacity: 0;
@@ -638,10 +659,6 @@ body:not(.billing) #checkout-button {
     transform: translateY(2rem);
 }
 
-#checkout-button {
-    transition-delay: 0s !important;
-}
-
 
 
 /* -----------------------------
@@ -747,16 +764,12 @@ CHECKOUT BUTTON
     width: 100%;
     line-height: 3rem;
 
-    background-color: var(--cryptee-green);
+    background-image: var(--cryptee-upgrade-gradient);
     color: white;
     font-weight: 500;
     padding: 0 1.5rem;
     border-radius: 0.5rem;
     box-shadow: 0 0 2px rgba(14,88,40,0);
-    
-    transition-duration: 0.5s;
-    transition-property: opacity, border-color;
-    transition-timing-function: var(--cryptee-cb);
 }
 
 #checkout-button:focus {
@@ -794,23 +807,35 @@ body[discount] #coupon-button i::before {
     color: var(--cryptee-green);
 }
 
-body[discount]:not(.billing)::before {
-    background-color: var(--cryptee-green);
-    content: attr(discount) "% discount will be applied at checkout.";
+body:not(.billing)::before {
+    background: var(--cryptee-upgrade-gradient);
+    content: "your " attr(discount) "% discount is applied.";
     color: #FFF;
-    padding: 0.5rem 1rem 0.325rem 1rem;
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    border-top-left-radius: 0.5rem;
+    padding: 0rem 1rem;
+    grid-column: 2/7;
+    grid-row: 6/7;
+    text-align: center;
+    height: 0rem;
+    overflow: hidden;
+    border-radius: 0 0 0.5rem 0.5rem;
     white-space: pre-wrap;
     font-weight: 350;
     font-size: 0.75rem;
     line-height: 1rem;
     z-index: 2;
+    margin-top: 4rem;
 
+    transition: 0.5s height ease, 0.5s padding ease;
     box-sizing: border-box;
-    max-width: 250px;
+}
+
+body[discount]:not(.billing)::before {
+    height: 2rem !important;
+    padding: 0.5rem 1rem 0.325rem 1rem !important;
+}
+
+body[discount] #plans {
+    margin-top: calc(5.5rem + 4px);
 }
 
 /* -----------------------------

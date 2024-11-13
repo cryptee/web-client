@@ -1726,11 +1726,11 @@ $("#searchInput").on('keyup', function(event) {
     setTimeout(function () {
         
         var searchTerm = $("#searchInput").val().trim();
-
+        
         if (event.key === "Escape" || searchTerm === "") {
             
             event.preventDefault();
-            stopLeftProgress();
+            stopLeftProgress();            
             clearSearch(event.key === "Escape"); // if it's escape, we'll blur the search
 
         } else if ( event.key === "Enter" && event.shiftKey && searchHighlightIndex >= 0 && activeDocID ){
@@ -1794,6 +1794,15 @@ $("#searchInput").on('keyup', function(event) {
     }, 50);
 }); 
 
+$("#searchInput").on('change', function(event) {
+    var searchTerm = $("#searchInput").val().trim();
+        
+    if (searchTerm === "") {
+        event.preventDefault();
+        stopLeftProgress();            
+        clearSearch(true);
+    }
+});
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 //	GETTING STARTED

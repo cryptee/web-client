@@ -131,6 +131,8 @@ function updateCompletedSuccessfully() {
 
 async function getLatestNews(forceShowNewsCard) {
     
+    var willShowPromoBanner = checkIfUserIsQualifiedForSpecialOffersOrPromos();
+
     forceShowNewsCard = forceShowNewsCard || false;
 
     var latestNews = {};
@@ -144,7 +146,6 @@ async function getLatestNews(forceShowNewsCard) {
     if (isEmpty(latestNews)) { return; }
     if (!latestNews.id) { return; }
     
-    
     var newsID      = latestNews.id;
     var newsURL     = DOMPurify.sanitize(latestNews.url, { ALLOWED_TAGS: [] });
     // var newsTitle   = DOMPurify.sanitize(latestNews.title, { ALLOWED_TAGS: [] });
@@ -154,7 +155,7 @@ async function getLatestNews(forceShowNewsCard) {
     $("#news-card").find("p").text(newsExcerpt);
     $("#news-card").find("a.more").attr("href", newsURL + "#to-cryptee");
     
-    if (lastReadNews !== newsID || forceShowNewsCard) { showLatestNewsCard(); }
+    if ((!willShowPromoBanner && lastReadNews !== newsID) || forceShowNewsCard) { showLatestNewsCard(); }
 
 }
 

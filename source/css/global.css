@@ -107,10 +107,11 @@ GLOBAL VARIABLES, COLORS, TIMINGS ETC.
 ----------------------------- */
 
 :root {
-    --cryptee-green: #1DB954;
+    --cryptee-green: #1bac4e;
     --cryptee-yellow: #F2B202;
     --cryptee-red:#CC0101;
     --cryptee-blue: #087284;
+    --cryptee-upgrade-gradient: linear-gradient(-45deg, #168946 0%, #072C14 100%);
 
     /* 5 SHADES OF CRYPTEE */
 
@@ -1425,7 +1426,7 @@ VIEWS
 }
 
 .view-upgrade button:last-child {
-    background-color: #1aa84c;
+    background-image: linear-gradient(-45deg, #168946 0%, #072C14 100%);
     color: var(--cryptee-4);
     height: 3rem;
     width: 10rem;

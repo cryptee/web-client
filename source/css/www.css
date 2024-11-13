@@ -332,7 +332,7 @@ HERO / GRID DECORATIONS
 #hero {
     padding-top: 0rem;
     grid-template-columns: 2fr 4rem minmax(24rem, 25%);
-    grid-template-rows: 4rem 4rem 27rem 10.5rem 27rem 4rem;
+    grid-template-rows: 4rem 4rem 25rem 14.5rem 25rem 4rem;
 }
 
 #hero picture {

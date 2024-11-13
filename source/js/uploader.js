@@ -56,6 +56,8 @@ function assignUploadToSlotNo(filename, slotNo) {
     $(`.upload[id="${uploadID}"]`).attr("slot", slotNo);
 }
 
+let uploadBytesizes = {};
+
 /**
  * Adds the filesize of original/thumbnail/lightbox sized photos to dom for accurate percentage calculation
  * @param {String} filename (i.e. p-12345.crypteefile)
@@ -94,7 +96,9 @@ function addUploadVariantToUploader(filename, bytesize) {
     
     // this makes it so that it's variant size agnostic t- / l- / p- / v- / r- are all going to choose the correct element
     uploadID = uploadID.split('-')[1] + "-" + uploadID.split('-')[2];
-    $(`.upload[id$="${uploadID}"]`).attr(variant + "-bytesize", bytesize);
+
+    uploadBytesizes[uploadID] = uploadBytesizes[uploadID] || {};
+    uploadBytesizes[uploadID][variant] = bytesize;
 
     updateUploadProgress(filename);
 }
@@ -110,40 +114,32 @@ function updateUploadProgress(filename) {
     
     // this makes it so that it's variant size agnostic t- / l- / p- / v- / r- are all going to choose the correct element
     uploadID = uploadID.split('-')[1] + "-" + uploadID.split('-')[2];
-    var uploadElem = $(`.upload[id$="${uploadID}"]`);
-
-    // get bytesizes of each variant
-    var originalBytesize  = parseInt(uploadElem.attr("original-bytesize")) || 0;  
-    var lightboxBytesize  = parseInt(uploadElem.attr("lightbox-bytesize")) || 0;  
-    var thumbnailBytesize = parseInt(uploadElem.attr("thumbnail-bytesize")) || 0;
-    var docOrFileBytesize = parseInt(uploadElem.attr("docorfile-bytesize")) || 0;
-
-    // get progresses of each variant (in %)
-    var originalProgress  = parseFloat(uploadElem.attr("original-progress")) || 0;  
-    var lightboxProgress  = parseFloat(uploadElem.attr("lightbox-progress")) || 0;  
-    var thumbnailProgress = parseFloat(uploadElem.attr("thumbnail-progress")) || 0;
-    var docOrFileProgress = parseFloat(uploadElem.attr("docorfile-progress")) || 0;
+    uploadBytesizes[uploadID] = uploadBytesizes[uploadID] || {};
 
     // figure out how much of each variant is uploaded
-    var originalUploadedBytes  = ((originalBytesize  * originalProgress) / 100) || 0;
-    var lightboxUploadedBytes  = ((lightboxBytesize  * lightboxProgress) / 100) || 0;
-    var thumbnailUploadedBytes = ((thumbnailBytesize * thumbnailProgress) / 100) || 0;
-    var docOrFileUploadedBytes = ((docOrFileBytesize * docOrFileProgress) / 100) || 0;
+    var originalUploadedBytes  = (((uploadBytesizes[uploadID].original || 0)  * (uploadBytesizes[uploadID].originalProgress || 0)) / 100) || 0;
+    var lightboxUploadedBytes  = (((uploadBytesizes[uploadID].lightbox || 0)  * (uploadBytesizes[uploadID].lightboxProgress || 0)) / 100) || 0;
+    var thumbnailUploadedBytes = (((uploadBytesizes[uploadID].thumbnail || 0) * (uploadBytesizes[uploadID].thumbnailProgress || 0)) / 100) || 0;
+    var docOrFileUploadedBytes = (((uploadBytesizes[uploadID].docorfile || 0) * (uploadBytesizes[uploadID].docorfileProgress || 0)) / 100) || 0;
+
+    console.log(uploadBytesizes);
 
     // find total uploaded bytes (sum of all upload variants)
     var uploadedBytesize = (originalUploadedBytes + lightboxUploadedBytes + thumbnailUploadedBytes + docOrFileUploadedBytes) || 0;
     
     // find total bytesize (sum of all upload variants)
-    var totalBytesize    = (originalBytesize      + lightboxBytesize      + thumbnailBytesize      + docOrFileBytesize) || 0;
+    var totalBytesize    = ((uploadBytesizes[uploadID].original || 0) + (uploadBytesizes[uploadID].lightbox || 0) + (uploadBytesizes[uploadID].thumbnail || 0) + (uploadBytesizes[uploadID].docorfile || 0)) || 0;
 
     // and from that, calculate the total percentage of this upload
-    var totalPercentage  = ((100 * uploadedBytesize) / totalBytesize) || 0;
+    var totalPercentage  = Math.ceil((100 * uploadedBytesize) / totalBytesize) || 0;
 
     // reflect it to dom
-    uploadElem.attr("prog", padZeroes(parseInt(totalPercentage), 2));
-
-    updateTotalUploadProgress();
+    let currentProgress = parseInt($(`.upload[id$="${uploadID}"]`).attr("prog") || "0"); 
+    if (currentProgress !== 100) {
+        $(`.upload[id$="${uploadID}"]`).attr("prog", padZeroes(totalPercentage, 2));
+    }
     
+    updateTotalUploadProgress();
 
 }
 
@@ -154,11 +150,14 @@ function updateTotalUploadProgress() {
 
     $(".upload").each(function(){
         
-        var thisUploadProgress = $(this).attr("docorfile-progress") || $(this).attr("prog");
+        let uploadID = $(this).attr("id");
+
+        uploadID = uploadID.split('-')[1] + "-" + uploadID.split('-')[2];
+        uploadBytesizes[uploadID] = uploadBytesizes[uploadID] || {};
+        
+        var thisUploadProgress = (uploadBytesizes[uploadID].docorfileProgress || 0) || $(this).attr("prog");
 
         var thisUploadPercentage = parseFloat(thisUploadProgress) || 0;
-
-        if (thisUploadProgress === "done") { thisUploadPercentage = 100; } 
 
         var thisUploadIsXOfTotalPercentage = thisUploadPercentage / numberOfUploads;
 
@@ -229,16 +228,17 @@ function onUploadProgress(fileUpload, filename, filesize, progress) {
     var isThumbnail = uploadID.startsWith("t-");
     var isDocOrFile = uploadID.startsWith("d-");
     
-    var shortPercentage = filePercentage.toFixed(2);
+    var shortPercentage = Math.ceil(filePercentage.toFixed(2));
 
     // this makes it so that it's variant size agnostic t- / l- / p- / v- / r- are all going to choose the correct element
     uploadID = uploadID.split('-')[1] + "-" + uploadID.split('-')[2];
-    var uploadElem = $(`.upload[id$="${uploadID}"]`);
     
-    if (isOriginal)  { uploadElem.attr("original-progress",  shortPercentage); }
-    if (isLightbox)  { uploadElem.attr("lightbox-progress",  shortPercentage); }
-    if (isThumbnail) { uploadElem.attr("thumbnail-progress", shortPercentage); }
-    if (isDocOrFile) { uploadElem.attr("docorfile-progress", shortPercentage); }
+    uploadBytesizes[uploadID] = uploadBytesizes[uploadID] || {};
+    
+    if (isOriginal)  { uploadBytesizes[uploadID].originalProgress = shortPercentage;  }
+    if (isLightbox)  { uploadBytesizes[uploadID].lightboxProgress = shortPercentage;  }
+    if (isThumbnail) { uploadBytesizes[uploadID].thumbnailProgress = shortPercentage; }
+    if (isDocOrFile) { uploadBytesizes[uploadID].docorfileProgress = shortPercentage; }
     
     updateUploadProgress(filename);
 
