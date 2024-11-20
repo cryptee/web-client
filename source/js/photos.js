@@ -857,7 +857,7 @@ $("#searchInput").on('keydown', function (event) {
         $("#searchContents").attr("term", searchTerm);
         
 
-        if (event.key.startsWith("Arrow")) {
+        if (event.key?.startsWith("Arrow")) {
             event.preventDefault();
         } else if (event.key === "Meta" || event.key === "Shift") {
             event.preventDefault();

@@ -848,12 +848,17 @@ async function getSyntacticReferences(searchTerm) {
             reference = comboMonth.r;
             understood = comboMonth.u;
         }
-
-        if (reference === []) { return null; }
+        
+        if (!reference.length) { return null; }
 
         return { r : reference, u : understood };
 
     } else if (findOne(elements, ["last", "previous"])) {
+
+        if (findOne(elements, timesOfDay)) {
+            targetStartDate = dayago(1)[0];
+            targetEndDate = dayago(1)[1];
+        }
 
         if (elements.indexOf("week") > -1) {
             targetStartDate = weekago(1)[0];
@@ -871,7 +876,7 @@ async function getSyntacticReferences(searchTerm) {
             understood = targetStartDate + " – " + targetEndDate;
         }
 
-        if (reference === [] || elements.indexOf("year") > -1) {
+        if (!reference.length || elements.indexOf("year") > -1) {
             var lastYear = (thisYear - 1) + "";
             reference = referenceWhere(reference, 'year', '==', lastYear);
             understood = understood + "'" + lastYear + "'";
@@ -883,7 +888,13 @@ async function getSyntacticReferences(searchTerm) {
             understood = comboMonth.u;
         }
 
-        if (reference === []) { return null; }
+        comboSeason = combineWithSeason(elements, reference, understood);
+        if (comboSeason) {
+            reference = comboSeason.r;
+            understood = comboSeason.u;
+        }
+        
+        if (!reference.length) { return null; }
 
         return { r : reference, u : understood };
 
@@ -913,7 +924,7 @@ async function getSyntacticReferences(searchTerm) {
             understood = comboTimesOfDay.u;
         }
 
-        if (reference === []) { return null; }
+        if (!reference.length) { return null; }
 
         return { r : reference, u : understood };
 
@@ -986,7 +997,7 @@ function combineWithTimesOfDay(elements, reference, understood) {
         if (timeRange[0] !== "not-a-time") {
             reference = referenceWhere(reference, 'time', '>=', timeRange[0]);
             reference = referenceWhere(reference, 'time', '<=', timeRange[1]);
-            understood = understood + "'" + timeOfDay + "' (" + timeRange.join(" – ") + ")";
+            understood = understood + " '" + timeOfDay + "' (" + timeRange.join(" – ") + ")";
         }
 
         return { r: reference, u: understood };
@@ -1015,7 +1026,9 @@ async function searchDatesSyntactically(searchTerm, searchID) {
     breadcrumb("[SEARCH] Running syntactic search");
 
     var syntacticSearchResults = await getSyntacticSearchResults(references);
-        
+    
+    console.log("[SEARCH]", references, understood);
+    
     breadcrumb("[SEARCH] Syntactic search complete!");
 
     return { results : (syntacticSearchResults || []), understood: understood, searchID : searchID, type:"date" };
@@ -1121,7 +1134,7 @@ async function displaySearchResults(sr) {
     if (sr.type === "tags") {
 
         if (sr.results.length > 0) {
-            resultsHTML.push(renderSearchHeader(`PHOTOS/VIDEOS TAGGED WITH: ${sr.understood}`));
+            resultsHTML.push(renderSearchHeader(`RESULTS TAGGED WITH: ${sr.understood}`));
         }
 
         if (sr.results.length <= 100) {
@@ -1141,7 +1154,7 @@ async function displaySearchResults(sr) {
             });
     
             Object.keys(resultAlbums).forEach(aid => {
-                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS/VIDEOS"));
+                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " RESULTS"));
             });
 
         }
@@ -1165,7 +1178,7 @@ async function displaySearchResults(sr) {
     if (sr.type === "date") {
 
         if (sr.results.length > 0) {
-            resultsHTML.push(renderSearchHeader(`PHOTOS/VIDEOS FROM ${sr.understood}`));
+            resultsHTML.push(renderSearchHeader(`RESULTS FROM ${sr.understood}`));
         }
 
         sr.results.forEach(result => {
@@ -1179,7 +1192,7 @@ async function displaySearchResults(sr) {
 
         Object.keys(resultAlbums).forEach(aid => {
             if (aid !== "home") {
-                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " PHOTOS/VIDEOS"));
+                resultsHTML.push(renderAlbum(aid, resultAlbums[aid] + " RESULTS"));
             }
         });
         

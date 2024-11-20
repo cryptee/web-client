@@ -1332,7 +1332,7 @@ SEARCH
 
 #searchContents .album::before {
     content: attr(photos);
-    line-height: 8.5rem;
+    color: var(--cryptee-3);
 }
 
 #searchContents .album i {
