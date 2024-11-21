@@ -1326,13 +1326,14 @@ SEARCH
 
 .dm .searchheader .title {
     color: var(--cryptee-4);
-    border-top: 2px solid var(--cryptee-1);
+    border-top: none;
     border-bottom: 2px solid var(--cryptee-1);
 }
 
 #searchContents .album::before {
     content: attr(photos);
     color: var(--cryptee-3);
+    padding: 0 1rem;
 }
 
 #searchContents .album i {
@@ -2515,7 +2516,7 @@ MEDIA QUERIES
     }
 
     .album::after {
-        width: calc(100% - 6rem);
+        width: calc(100% - 7rem);
     }
 
     .album .dropdown {
