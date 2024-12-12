@@ -331,6 +331,13 @@ OVERVIEW
     display: none !important;
 }
 
+body[haspromo] .allowedStorageUnit:after {
+    content: " (with special lifetime promo)";
+}
+
+body[plan='gift'] .allowedStorageUnit:after {
+    content: " (special lifetime gift on the house)";
+}
 
 /* -----------------------------
 -------------------------------- 

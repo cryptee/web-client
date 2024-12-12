@@ -232,6 +232,8 @@ LEFT MENU
     pointer-events: none !important;
 }
 
+body[plan='gift'] #upgrade { display: none !important; }
+
 
 /* OFFLINE BADGE */
 
@@ -3113,6 +3115,7 @@ body:not(.bubble) #urlbox {
 #urlbox.insecure button {
     background-color: #bd8a00;
 }
+
 /* -----------------------------
 -------------------------------- 
  
@@ -3133,21 +3136,120 @@ EDITOR
 /* -----------------------------
 -------------------------------- 
  
-FILE VIEWER 
+COMMENTS 
  
 --------------------------------
 ----------------------------- */
+/* #region COMMENTS */
 
-#fileViewerWrapper {
-    grid-row: 1 / -1;
-    grid-column: 1 / -1;
 
-    opacity: 1;
-    transition: 0.5s opacity var(--cryptee-cb);
+#modal-comments {
+    padding: 1rem 0 0 1rem;
+    box-sizing: border-box;
+    width: 20rem;
+    height: 100%;
+    grid-template-rows: auto auto 1rem 1fr;
+}
+
+#modal-comments h3 {
+    margin: 0.125rem 0 0 0.5rem;
+}
+
+#commentslist {
+    overflow-y: scroll !important;
+    overflow-x: visible !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* to hide scrollbars in windows firefox */
+    -ms-overflow-style:none; /* to hide scrollbars in windows / IE / Edge etc */
+}
+
+#commentslist::after {
+    bottom: 0rem;
+    height: 4rem;
+}
+
+#commentslist::-webkit-scrollbar { display: none; }
+
+#commentslist .comment {
+    width: 100%;
+    max-width: 19rem;
+    margin-bottom: 1rem;
+    height: auto;
+    max-height: 20rem;
+    display: grid;
+    grid-template-columns: 1fr 2rem;
+    grid-template-rows: 2rem auto;
+    background-color: var(--cryptee-folder);
+    border: 1px solid var(--cryptee-folder);
+    border-radius: 1rem 0 0 1rem;
+    border-right: none !important;
+    padding: 1rem 1rem 1rem 1.5rem;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    transform: translateX(0);
+    transition: 0.3s max-height var(--cryptee-cb) 0.3s, 
+                0.3s padding var(--cryptee-cb) 0.3s, 
+                0.3s margin var(--cryptee-cb) 0.3s, 
+                0.3s transform ease;
+}
+
+#commentslist .comment time { 
+    width: 100%;
+    font-size: 0.85rem;
+    font-weight: 350;
+    color: var(--cryptee-3);
+    line-height: 2.25rem;
+}
+
+#commentslist .comment .delete {
+    width: 2rem;
+    height: 2rem;
+    background-color: var(--cryptee-1);
+    margin: 0;
+    text-align: center;
+    border-radius: 2rem;
+}
+
+#commentslist .comment .delete i {
+    margin-top: -1px;
+}
+
+#commentslist .comment textarea {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    max-height: 15.5rem;
+    grid-column: span 2;
+    min-height: 8rem;
+    font-weight: 350;
+    box-shadow: none !important;
+    resize : vertical;
+}
+
+#commentslist .comment.deleting {
+    max-height: 0;
+    margin: 0;
+    padding: 0 1rem 0 1.5rem;
+    transform: translateX(20rem);
+}
+
+#commentslist .comment.highlighted {
+    border: 1px solid var(--cryptee-yellow);
 }
 
 
+#commentslist:empty::before {
+    content: "this document doesn't have any comments.\a\a to add comments, select some text using your cursor, and press the 'add comment' button from the editor toolbar. alternatively, \a\a on windows/linux you can press: \a\a 'ctrl + alt + m' \a\a or on mac you can press: \a\a 'cmd + alt + m' \a";
+    font-weight: 350;
+    padding: 0 3rem 0 0.5rem;
+    line-height: 1.5rem;
+    display: block;
+    text-wrap: wrap;
+    white-space: break-spaces;
+}
 
+/* #endregion COMMENTS */
 
 /* -----------------------------
 -------------------------------- 
@@ -4072,7 +4174,7 @@ body.bubble #documentActionButtons button {
     will-change: transform;
     line-height: 2rem;
     height: 2rem;
-    width: 3rem;
+    width: 2.75rem;
 }
 
 body.bubble #documentActionButtons button:first-child {
@@ -4234,20 +4336,20 @@ SPLIT VIEW MODE
 ----------------------------- */
 
 @media (min-width : 1172px) {
-    body:not(.pinned).split #desktopToolbar { width: 50%; }
-    body:not(.pinned).split #editorWrapper { width: 50%; }
+    body:not(.pinned).split #desktopToolbar { width: calc(50% + 4rem); }
+    body:not(.pinned).split #editorWrapper { width: calc(50% + 4rem); }
 }
 
-@media (min-width : 1172px) and (max-width:1895px) { 
+@media (min-width : 1172px) and (max-width:1831px) { 
     body:not(.pinned).split #desktopToolbar { grid-row: 1/4; }
 }
 
 @media (min-width : 1428px) {
-    body.split.pinned #desktopToolbar { width: calc(50% - 32px + 2rem); }
-    body.split.pinned #editorWrapper { width: calc(50% - 32px + 2rem); }
+    body.split.pinned #desktopToolbar { width: calc(50% - 32px + 6rem); }
+    body.split.pinned #editorWrapper { width: calc(50% - 32px + 6rem); }
 }
 
-@media (min-width : 1428px) and (max-width:2151px) { 
+@media (min-width : 1428px) and (max-width:2087px) { 
     body.split.pinned #desktopToolbar { grid-row: 1/4; }
 }
 
@@ -4255,7 +4357,7 @@ SPLIT VIEW MODE
     body[paper-stock].pinned #desktopToolbar { grid-row: 1/4; }
 }
 
-@media (max-width : 1267px) { 
+@media (max-width : 1299px) { 
     body.pinned #desktopToolbar { grid-row: 1/4; }
 }
 
@@ -4565,12 +4667,18 @@ MEDIA QUERIES
  
 --------------------------------
 ----------------------------- */
-
-/* 70rem */
-@media (max-width : 1001px) {
-    #desktopToolbar {
+@media (max-width : 1064px) {
+    body:not(.bubble) #desktopToolbar {
         grid-row: 1/4;
-        width: 34rem; /* 544px */
+        min-width: 34rem;
+        margin: auto;
+    }
+}
+
+@media (max-width : 816px) {
+    body:not(.bubble) #desktopToolbar {
+        grid-row: 1/4;
+        min-width: 34rem;
         margin: auto;
     }
 
@@ -4585,9 +4693,10 @@ MEDIA QUERIES
 }
 
 @media (max-width : 703px) {
-    #desktopToolbar {
+    body:not(.bubble) #desktopToolbar {
         grid-row: 2/3;
         width: 100%;
+        min-width: 16rem;
     }
 
     #view-template-gallery { max-height: calc(100% - 4rem); }
@@ -4883,6 +4992,11 @@ ENABLE HOVERS
     .template .button-delete-template:hover {
         background-color: var(--cryptee-red);
     } 
+
+    .comment .delete:hover {
+        border-bottom: none !important;
+        background-color: var(--cryptee-red) !important;
+    }
 }
 
 

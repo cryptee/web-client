@@ -153,6 +153,8 @@ async function exportAsDOCX() {
     // this processes & nests tables for correct HTML syntax
     processedHTML = convertCrypteeTablesToHTMLTables(processedHTML);
 
+    processedHTML = convertCommentsToHTMLText(processedHTML);
+    
     var wordDoc;
 
     try {
@@ -591,4 +593,18 @@ function convertCrypteeTablesToHTMLTables(crypteeHTML) {
     tempEl.remove();
 
     return newContent;
+}
+
+/**
+ * This takes in an HTML from editor, and converts all <mark></mark> comments in it to html <span></span> comments.
+ * This is to work around limitations of docx conversions etc which don't understand mark tags 
+ * @param {string} crypteeHTML HTML
+ * @returns {string} webHTML HTML
+ */
+function convertCommentsToHTMLText(crypteeHTML) {
+
+    crypteeHTML = crypteeHTML.replace(/<mark>/g, '<span>');
+    crypteeHTML = crypteeHTML.replace(/<\/mark>/g, '</span>');
+    return crypteeHTML;
+
 }

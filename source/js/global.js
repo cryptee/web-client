@@ -660,10 +660,10 @@ async function imgFileToImgBitmap(imgFile, exif) {
   let orientation;
   if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
 
-  let imgBitmapOptions = { resizeWidth: limMaxCanvasSize.width, resizeHeight: limMaxCanvasSize.height };
+  let imgBitmapOptions = { resizeWidth: limMaxCanvasSize.width, resizeHeight: limMaxCanvasSize.height, resizeQuality : "high" };
   
   if (orientation > 4) {
-    imgBitmapOptions = { resizeWidth: limMaxCanvasSize.height, resizeHeight: limMaxCanvasSize.width };
+    imgBitmapOptions = { resizeWidth: limMaxCanvasSize.height, resizeHeight: limMaxCanvasSize.width, resizeQuality : "high" };
   }
   
   let imgBitmap;
@@ -963,41 +963,100 @@ function isOnline() {
  */
 async function mimetypeFromFilename(filename) {
   
-  var mimetype;
+    var mimetype;
 
-  if (!filename) { return null; };
-  
-  var ext = extensionFromFilename(filename);
-  
-  if (!ext) { return null; }
+    if (!filename) { return null; };
 
-  // common ones to save 200ms roundtrip time
-  // image
-  if (ext === "jpg" || ext === "jpeg") { mimetype = "image/jpeg";             }
-  if (ext === "png")                   { mimetype = "image/png";              }
-  if (ext === "gif")                   { mimetype = "image/gif";              }
-  if (ext === "webp")                  { mimetype = "image/webp";             }
-  if (ext === "dng")                   { mimetype = "image/x-adobe-dng";      }
-  if (ext === "tif" || ext === "tiff") { mimetype = "image/tiff";             }
-  if (ext === "3fr")                   { mimetype = "image/x-hasselblad-3fr"; }
-  if (ext === "fff")                   { mimetype = "image/x-hasselblad-fff"; }
+    var ext = extensionFromFilename(filename);
 
-  // audio
-  if (ext === "mp3")                   { mimetype = "audio/mpeg";       }
-  if (ext === "wav")                   { mimetype = "audio/x-wav";      }
-  
-  // video
-  if (ext === "mp4" || ext === "mov")  { mimetype = "video/mp4";        }
+    if (!ext) { return null; }
 
-  // other
-  if (ext === "pdf")                   { mimetype = "application/pdf";  }
-  if (ext === "zip")                   { mimetype = "application/zip";  }
+    // common ones to save 200ms roundtrip time
 
-  if (!mimetype) {
-    mimetype = await requestMIMEforExtension(ext);
-  }
+    const knownMimetypes = {
+        //////////
+        // IMAGES
+        //////////
+        // Canon
+        'cr2': 'image/x-canon-cr2',
+        'cr3': 'image/x-canon-cr3',
+        'crw': 'image/x-canon-crw',
+        // Nikon  
+        'nef': 'image/x-nikon-nef',
+        'nrw': 'image/x-nikon-nrw',
+        // Sony
+        'arw': 'image/x-sony-arw',
+        'srf': 'image/x-sony-srf',
+        'sr2': 'image/x-sony-sr2',
+        // Fujifilm
+        'raf': 'image/x-fuji-raf',
+        // Olympus
+        'orf': 'image/x-olympus-orf',
+        // Pentax
+        'pef': 'image/x-pentax-pef',
+        // Panasonic
+        'raw': 'image/x-panasonic-raw',
+        'rw2': 'image/x-panasonic-rw2',
+        'rwl': 'image/x-panasonic-raw',
+        // Sigma
+        'x3f': 'image/x-sigma-x3f',
+        // Hasselblad
+        '3fr': 'image/x-hasselblad-3fr',
+        'fff': 'image/x-hasselblad-fff',
+        // Phase One
+        'iiq': 'image/x-phaseone-iiq',
+        // Mamiya
+        'mef': 'image/x-mamiya-mef',
+        'mos': 'image/x-leaf-mos',
+        // Kodak
+        'dcr': 'image/x-kodak-dcr',
+        'k25': 'image/x-kodak-k25',
+        'kdc': 'image/x-kodak-kdc',
+        // Samsung
+        'srw': 'image/x-samsung-srw',
+        // Epson
+        'erf': 'image/x-epson-erf',
+        // Universal / Leica / Adobe etc
+        'dng': 'image/x-adobe-dng',
+        // Others
+        'bay': 'image/x-bay',
+        'cap': 'image/x-cap',
+        'eip': 'image/x-eip',
+        'mdc': 'image/x-minolta-mdc',
+        'tif': 'image/tiff',
+        'tiff': 'image/tiff',
+        'webp': 'image/webp',
+        'gif': 'image/gif',
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        
+        //////////
+        // AUDIO
+        //////////
+        'mp3' : 'audio/mpeg',
+        'wav' : 'audio/x-wav',
+        
+        //////////
+        // VIDEO
+        //////////
+        'mp4' : 'video/mp4',
+        'mov' : 'video/mp4',
+        
+        //////////
+        // OTHER
+        //////////
+        'pdf' : 'application/pdf',
+        'zip' : 'application/zip',
+    };
 
-  return mimetype || null;
+    mimetype = knownMimetypes[ext];
+    
+    if (!mimetype) {
+        mimetype = await requestMIMEforExtension(ext);
+    }
+
+    return mimetype || null;
 
 }
 
@@ -1159,7 +1218,7 @@ async function readEXIF(fileOrFileBuffer) {
   exif.height = height || "";
 
   breadcrumb('[EXIF READER] Read!');
-
+  
   return exif;
 
 }

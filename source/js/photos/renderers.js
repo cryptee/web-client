@@ -195,9 +195,25 @@ function renderMedia(id, forSearch) {
     var maker = "";
     if (photo['exif-make']) { 
         maker = (photo['exif-make'] || "").toLowerCase();
-        if (maker.includes("apple"))       { maker = "maker='apple'"; }    
-        if (maker.includes("leica"))       { maker = "maker='leica'"; }
-        if (maker.includes("hasselblad"))  { maker = "maker='hasselblad'"; }    
+        if (maker.includes("apple"))            { maker = "maker='apple'";       } //✅
+        else if (maker.includes("leica"))       { maker = "maker='leica'";       } //✅
+        else if (maker.includes("hasselblad"))  { maker = "maker='hasselblad'";  } //✅
+        else if (maker.includes("sony"))        { maker = "maker='sony'";        } //✅
+        else if (maker.includes("nikon"))       { maker = "maker='nikon'";       } //✅
+        else if (maker.includes("canon"))       { maker = "maker='canon'";       } //✅
+        else if (maker.includes("fuji"))        { maker = "maker='fuji'";        } //✅
+        else if (maker.includes("olympus"))     { maker = "maker='olympus'";     } //✅
+        else if (maker.includes("pentax"))      { maker = "maker='pentax'";      } //✅
+        else if (maker.includes("panasonic"))   { maker = "maker='panasonic'";   } //✅
+        else if (maker.includes("sigma"))       { maker = "maker='sigma'";       } //✅
+        else if (maker.includes("phase"))       { maker = "maker='phaseone'";    } //✅
+        else if (maker.includes("mamiya"))      { maker = "maker='mamiya'";      } //✅
+        else if (maker.includes("leaf"))        { maker = "maker='mamiya'";      } //✅
+        else if (maker.includes("kodak"))       { maker = "maker='kodak'";       } //✅
+        else if (maker.includes("samsung"))     { maker = "maker='samsung'";     } //✅
+        else if (maker.includes("epson"))       { maker = "maker='epson'";       } //✅
+        else if (maker.includes("minolta"))     { maker = "maker='minolta'";     } //✅
+        else if (maker.includes("dji"))         { maker = "maker='dji'";         } //✅
     }
 
     var model = "";

@@ -202,7 +202,7 @@ function addFileToUploadQueue(file) {
     }
     
     if (formatSupport === "supported-image-native") { id = "p-" + newUUID() + "-v4"; }
-    if (formatSupport === "supported-image-utif")   { id = "p-" + newUUID() + "-v4"; }
+    if (formatSupport === "supported-image-libraw")  { id = "p-" + newUUID() + "-v4"; }
     if (formatSupport === "supported-video-native") { id = "v-" + newUUID() + "-v4"; }
     if (formatSupport === "unsupported-format")     { id = "unsupported-" + newUUID() + "-v4"; }
 
@@ -215,7 +215,7 @@ function addFileToUploadQueue(file) {
         type : type,
         status : status
     };
-
+    
     if (status) { 
         $("#uploader-skipped-list").append(renderSkippedUpload(filename, status)); 
     } else {
@@ -231,20 +231,20 @@ function checkFormatSupport(extension) {
 
     // images we could try supporting, but need to convert for thumbnail first, and upload original alongside
     // TIFF,
-    // CR2 & CR3 (Canon RAW)
+    // CRW, CR2 & CR3 (Canon RAW)
     // NEF (Nikon RAW)
     // ARW (Sony RAW)
     // RAF (Fuji RAW)
     // 3FR & FFF (Hasselblad RAW)
-    // DNG (Adobe RAW, Leica, Hasselblad, iPhone ProRAW etc)
-
-    // else if (extension.match(/^(tif|tiff|cr2|cr3|nef|arw|dng|3fr|fff)$/i)) {
-    //   return "supported-image-utif";
-    // }
-
-    // TIFF, DNG, 3FR (Leica & Hasselblad)
-    else if (extension.match(/^(tif|tiff|dng|3fr|fff)$/i)) {
-      return "supported-image-utif";
+    // DNG (Adobe RAW, Leica, Hasselblad, iPhone ProRAW, DJI etc)
+    // ORF (Olympus RAW)
+    // RW2 (Panasonic RAW)
+    // RWL (Leica DLUX RAW)
+    // PEF (Pentax RAW)
+    // etc...
+    
+    else if (extension.match(/^(crw|cr2|cr3|nef|nrw|arw|srf|sr2|raf|orf|pef|raw|rw2|rwl|x3f|3fr|fff|iiq|mef|mos|dcr|k25|kdc|srw|erf|dng|bay|cap|eip|mdc|tif|tiff)$/i)) {
+        return "supported-image-libraw";
     }
 
     // // videos we support natively
@@ -285,7 +285,7 @@ async function runUploadQueue() {
     var numberOfVideoItemsInQueue = 0;
     for (let id in uploadQueue) {
         let item = uploadQueue[id];
-        if (item.support === "supported-image-utif") { numberOfRAWItemsInQueue++; }
+        if (item.support === "supported-image-libraw") { numberOfRAWItemsInQueue++; }
         if (item.support === "supported-video-native") { numberOfVideoItemsInQueue++; }
         if (!item.status) { numberOfUploadableItemsInQueue++; }
     }
@@ -361,8 +361,8 @@ function promiseToUploadNextInQueue() {
         return processEncryptAndUploadPhoto(nextUploadID);
     }
 
-    if (uploadQueue[nextUploadID].support === "supported-image-utif") {
-        return processEncryptAndUploadPhoto(nextUploadID, true);
+    if (uploadQueue[nextUploadID].support === "supported-image-libraw") {
+        return processEncryptAndUploadPhoto(nextUploadID);
     }
     
     if (uploadQueue[nextUploadID].support === "supported-video-native") {
@@ -500,9 +500,8 @@ function doneWithPlayer(playerNo) { playersInUse[playerNo] = false; }
 /**
  * Read file, generate thumbnails, extract EXIF, encrypt thumbnails / original, upload photo, set photo meta (i.e. exif ) 
  * @param {string} uploadID The Upload ID
- * @param {Boolean} isRAW Is the photo RAW (i.e. TIFF, DNG, 3FR etc)
  */
-async function processEncryptAndUploadPhoto(uploadID, isRAW) {
+async function processEncryptAndUploadPhoto(uploadID) {
     
     activityHappened();
 
@@ -539,7 +538,7 @@ async function processEncryptAndUploadPhoto(uploadID, isRAW) {
     // if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
 
     // generate thumbnails, generate dominant color and get date from exif using the original file (originalFile = upload.plaintextFile)
-    var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo, isRAW);
+    var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo, upload.support);
 
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo);
 
@@ -573,26 +572,56 @@ async function processEncryptAndUploadPhoto(uploadID, isRAW) {
  * @param {File} originalFile the reference for the file that is being uploaded
  * @param {string} mimeType mimetype of file (i.e. image/jpg etc )
  * @param {Number} canvasNo which canvas we will be using for this upload
- * @param {Boolean} isRAW is the image RAW (i.e. DNG, TIFF, 3FR etc), if so we'll process it differently
+ * @param {String} supportType is the image support type i.e. native or libraw etc... so if it's RAW (i.e. DNG, TIFF, 3FR etc) we'll process it differently
  * @returns {Object} thumbnails object
  * @returns {string} thumbnails.lightbox B64 of Lightbox Size Image
  * @returns {string} thumbnails.thumbnail B64 of Thumbnail Size Image
  * @returns {string} thumbnails.dominant Dominant Color of Image
  * @returns {string} thumbnails.date Exif Date String
  */
-async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canvasNo, isRAW) {
+async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canvasNo, supportType) {
     
     breadcrumb("[UPLOAD] Generating Thumbnails. Will use canvas no: " + canvasNo);
-
+    
     var sizes = { "lightbox" : 2048, "thumbnail" : 768 };
     var qualities = { "lightbox": 0.9, "thumbnail": 0.5 };
     var uploadObject = { "lightbox" : {}, "thumbnail" : {}, "date" : "", "dominant" : "" };
+    
+    let isRAW = supportType === "supported-image-libraw";
 
     // read exif from original file (should take about 30ms, even for a 30mb file)
     var exif = await readEXIF(originalFile);
-    var orientation;
+    
+    // var orientation;
     // if the browser won't handle orientation, and there's exif orientation data, use it to rotate pic.
-    if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
+    // if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
+
+    canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
+    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d", { willReadFrequently: true });
+    canvases[canvasNo].originalCanvas = canvases[canvasNo].originalCanvas || document.createElement("canvas");
+    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d", { willReadFrequently: true });
+    canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
+    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d", { willReadFrequently: true });
+
+    let imgBitmap;
+
+    try {
+        breadcrumb("[UPLOAD] Converting image file to image bitmap");
+        if (supportType === "supported-image-libraw") {
+            ({imgBitmap, exif} = await rawImgFileToImgBitmapWithLIBRAW(originalFile));
+        } else {
+            imgBitmap = await imgFileToImgBitmap(originalFile, exif);
+        }
+        breadcrumb("[UPLOAD] Converted image file to image bitmap");
+    } catch (error) {
+        handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
+        return {};
+    }
+    
+    if (!imgBitmap) {
+        handleError("[UPLOAD] Failed to read image");
+        return {};
+    }
 
     var exifDate = extractExifDateTime(exif);
     if (exifDate) { uploadObject.date = exifDate; }
@@ -610,34 +639,7 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
         };
 
         // browsers can't seem to correct raw images' orientation
-        if (exif.Orientation) { orientation = exif.Orientation; }
-    }
-
-    canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
-    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d", { willReadFrequently: true });
-    canvases[canvasNo].originalCanvas = canvases[canvasNo].originalCanvas || document.createElement("canvas");
-    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d", { willReadFrequently: true });
-    canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
-    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d", { willReadFrequently: true });
-
-    let imgBitmap;
-
-    try {
-        breadcrumb("[UPLOAD] Converting image file to image bitmap");
-        if (isRAW) {
-            imgBitmap = await rawImgFileToImgBitmap(originalFile);            
-        } else {
-            imgBitmap = await imgFileToImgBitmap(originalFile, exif);
-        }
-        breadcrumb("[UPLOAD] Converted image file to image bitmap");
-    } catch (error) {
-        handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
-        return {};
-    }
-    
-    if (!imgBitmap) {
-        handleError("[UPLOAD] Failed to read image");
-        return {};
+        // if (exif.Orientation) { orientation = exif.Orientation; }
     }
 
     var width = imgBitmap.width;
@@ -646,11 +648,11 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
     canvases[canvasNo].orientationCanvas.width = width;
     canvases[canvasNo].orientationCanvas.height = height;
 
-    if (isRAW && orientation > 4) {
-        canvases[canvasNo].orientationCanvas.width = height;
-        canvases[canvasNo].orientationCanvas.height = width;
-        correctCanvasOrientationInOrientationContext(canvases[canvasNo].orientationContext, width, height, orientation);
-    }
+    // if (isRAW && orientation > 4) {
+    //     canvases[canvasNo].orientationCanvas.width = height;
+    //     canvases[canvasNo].orientationCanvas.height = width;
+    //     correctCanvasOrientationInOrientationContext(canvases[canvasNo].orientationContext, width, height, orientation);
+    // }
 
     canvases[canvasNo].orientationContext.drawImage(imgBitmap, 0, 0, width, height, 0, 0, width, height);    
 
@@ -1139,105 +1141,119 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
 }
 
 /**
- * This takes in a raw image (dng, tiff etc buffer) and converts it to a data url we can use to generate thumbnails.
- * Courtesy of UTIF.bufferToURI() — modified to fit modern day requirements
+ * This takes in a raw image (cr2, cr3, arw etc buffer) and converts it to a data url we can use to generate thumbnails using LIBRAW.
  * For more info on TIFF tags, follow this:
  * https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
  * Good luck! It's pure chaos out there.
- * @param {FileOrBlob} originalFlie  
+ * @param {FileOrBlob} originalFile
+ * @param {*} exif
  * @returns {Promise<ImageBitmap>} imgBitmap
  */
-async function rawImgFileToImgBitmap(originalFile) {
-    
+async function rawImgFileToImgBitmapWithLIBRAW(originalFile) {
+
     let rawImageBuffer = await blobToArrayBuffer(originalFile);
 
-    let ifds;
-    try {
-        ifds = UTIF.decode(rawImageBuffer);  //console.log(ifds);
-    } catch (error) {
-        handleError("[UPLOAD] Failed to decode RAW buffer / ifds", error);
-        return null;
+    // first init
+    const librawid = libraw._libraw_init(0);
+    
+    breadcrumb("[RAW UNPACK] Initialized");
+    
+    // then alloc memory and set the image's buffer into memory
+    const dataPtr = libraw._malloc(rawImageBuffer.byteLength);
+    const dataHeap = new Uint8Array(libraw.HEAPU8.buffer, dataPtr, rawImageBuffer.byteLength);
+    dataHeap.set(new Uint8Array(rawImageBuffer));
+    breadcrumb("[RAW UNPACK] Allocated ");
+
+    // open buffer
+    const returnedcode = libraw._libraw_open_buffer(librawid, dataHeap.byteOffset, rawImageBuffer.byteLength);
+    if(returnedcode) { errored(`[RAW UNPACK] Failed to open buffer, return code = ${returnedcode}`); return { imgBitmap : null, exif : null }; }
+    breadcrumb("[RAW UNPACK] Opened buffer");
+    // do not cleanup memory here, you'll corrupt the jpg
+    
+    // Unpack thumbnail
+    const returnedcode2 = libraw._libraw_unpack_thumb(librawid);
+    if(returnedcode2) { errored(`[RAW UNPACK] Failed to unpack thumbnail, return code = ${returnedcode2}`); return { imgBitmap : null, exif : null }; }
+    breadcrumb("[RAW UNPACK] Unpacked thumbnail");
+
+    // Get thumbnail
+    const errmsg   = libraw._malloc(4);
+    const thumbPtr = libraw._libraw_dcraw_make_mem_thumb(librawid, errmsg);
+    const error    = libraw.HEAPU32[errmsg/4];
+
+    if(!thumbPtr || error) { errored(`[RAW UNPACK] Failed to make thumbnail`, error); return { imgBitmap : null, exif : null }; }
+
+    breadcrumb("[RAW UNPACK] Got thumbnail ");
+    
+    // Read the processed image struct - using proper offsets
+    const view = new DataView(libraw.HEAPU8.buffer, thumbPtr);
+    const dataSize = view.getUint32(12, true); // data_size at offset 12
+
+    // Get the actual thumbnail data
+    const thumbnail = new Uint8Array(libraw.HEAPU8.buffer, thumbPtr + 16, dataSize);
+    let thumbFile = new File([thumbnail], "thumb.jpg", { type: "image/jpeg" });
+    breadcrumb("[RAW UNPACK] Thumbnail Extracted");
+    // do not cleanup memory here, you'll corrupt the jpg
+
+    // all the exif we need from the RAW file is actually passed into the thumbnail now. yay wasm.
+    let exif = await readEXIF(thumbFile);
+    breadcrumb("[RAW UNPACK] EXIF Extracted");
+    
+    let imgBitmap = await imgFileToImgBitmap(thumbFile, exif); 
+    
+    cleanse();
+
+    return { imgBitmap , exif };
+    
+    function errored(msg, error) {
+        error = error || {};
+        handleError(msg, error);
+        cleanse();
     }
 
-    let vsns = ifds;
-    let ma = 0;
-    let rawImgData = vsns[0]; 
-
-    if (ifds[0].subIFD) { vsns = vsns.concat(ifds[0].subIFD); }
-
-    for (let i = 0; i < vsns.length; i++) {
-        let img = vsns[i];
-        
-        let imgCompression = img["t259"]?.[0];
-        
-        // skip if not oldJPEG Compression (6),
-        // skip if not newJPEG Compression (7),
-        if (imgCompression !== 6 && imgCompression !== 7) { continue; }
-
-        // check to make sure it's an RGB image. it should look like [8,8,8] for an 8 bit one, or [10,10,10] etc for a 10 bit one
-        // most modern cameras have an 8bit jpg in them, and we only need that. so we can skip the rest
-        // esp high resolution DSLRs etc, since it would be heavier to compute the final image etc and it's easier to use JPG
-
-        // We used to check for this, but it's somewhat problematic, because UTIF can't handle anything that's not 8bit.
-        // so leaving here for posterity, but it proved to be more reliable to check for 8bit only.
-        // if (img["t258"] == null || img["t258"]?.length < 3) { continue; }
-        
-        // skip non-8bit-RGB frames
-        if (img["t258"]?.length !== 3 || img["t258"].join(',') !== '8,8,8') { continue; }
-        
-        let ar = img["t256"] * img["t257"];
-        if (ar > ma) { ma = ar; rawImgData = img; }
+    function cleanse() {
+        try { if (librawid) { libraw._libraw_close(librawid); } } catch(e) {}
+        try { if (thumbPtr) { libraw._free(thumbPtr); } } catch(e) {}
+        try { if (errmsg)   { libraw._free(errmsg);} } catch(e) {}
+        try { if (dataPtr)  { libraw._free(dataPtr); } } catch(e) {}
+        try { rawImageBuffer = null; } catch (e) {}
+        try { thumbFile = null; } catch (e) {}
     }
+    
+}
 
-    vsns = null; 
-
-    try {
-        UTIF.decodeImage(rawImageBuffer, rawImgData, ifds);
-    } catch (error) {
-        handleError("[UPLOAD] Failed to decode RAW image buffer", error);
-        return null;
-    }
-
-    rawImageBuffer = null;
-    ifds = null;
-
-    let limMaxCanvasSize = limitCanvasSize(rawImgData.width, rawImgData.height);
-
-    if (rawImgData.width !== limMaxCanvasSize.width || rawImgData.height !== limMaxCanvasSize.height) {
-        breadcrumb("[UPLOAD] Limited max canvas size. RAW image was too large.");
-    }
-
-    let rgba;
-    try {
-        rgba = UTIF.toRGBA8(rawImgData); 
-    } catch (error) {
-        handleError("[UPLOAD] Failed to extract rgba8 from RAW image", error);
+/**
+ * This reads the jpg out of rawThumbnailData and determines its width/height using raw JPG headers.
+ * @param {ArrayBuffer}  
+ * @returns 
+ */
+function getJpegDimensions(rawThumbData) {
+    let offset = 0;
+    if (rawThumbData[0] !== 0xFF || rawThumbData[1] !== 0xD8) {
+        breadcrumb("[RAW UNPACK] Invalid JPEG");
         return null;
     }
     
-    let imgd;
-    try {
-        imgd = new ImageData(new Uint8ClampedArray(rgba.buffer), rawImgData.width, rawImgData.height);
-    } catch (error) {
-        handleError("[UPLOAD] Failed to create RAW ImageData", error);
-        return null;
+    offset += 2;
+    while (offset < rawThumbData.length) {
+        if (rawThumbData[offset] !== 0xFF) {
+            console.log("[RAW UNPACK] Invalid JPEG marker");
+            return null;
+        }
+        
+        const marker = rawThumbData[offset + 1];
+        if (marker === 0xC0 || marker === 0xC2) { // SOF0 or SOF2 marker
+            const height = (rawThumbData[offset + 5] << 8) | rawThumbData[offset + 6];
+            const width = (rawThumbData[offset + 7] << 8) | rawThumbData[offset + 8];
+            return { width, height };
+        }
+        
+        offset += ((rawThumbData[offset + 2] << 8) | rawThumbData[offset + 3]) + 2;
     }
-    
-    rgba = null;
+    return null;
+}
 
-    let imgBitmap; 
-    try {
-        imgBitmap = await createImageBitmap(imgd, {
-            resizeWidth: limMaxCanvasSize.width,
-            resizeHeight: limMaxCanvasSize.height
-        });
-    } catch (error) {
-        handleError("[UPLOAD] Failed to create RAW ImageBitmap", error);
-        return null;
-    }
-
-    imgd = null;
-    
-    return imgBitmap;
-
+function readRAWIParamString(ptr, maxLength) {
+    const bytes = new Uint8Array(libraw.HEAPU8.buffer, ptr, maxLength);
+    const nullIndex = bytes.indexOf(0);
+    return new TextDecoder().decode(bytes.slice(0, nullIndex >= 0 ? nullIndex : maxLength)).trim();
 }

@@ -253,12 +253,22 @@ function showModal(modalID) {
  */
 function hideActiveModal() {
     var modal = $(".modal.show");
+    let modalID = modal.attr("id");
+    
     modal.removeClass("show");
-    modal.find("input").val("");
-    modal.find("textarea").val("");
+
+    if (modalID !== "modal-comments") {
+        modal.find("input").val("");
+        modal.find("textarea").val("");
+    }
+
     modal.find("input").blur();
     modal.find("textarea").blur();
     
+    if (location.pathname === "/docs") {
+        $(`#commentslist > .comment`).removeClass("highlighted");
+        $(`.ql-editor .comment`).removeClass("selected");
+    }
     
     var animationDuration = parseFloat(modal.css("transition-duration")) * 1000;
     setTimeout(function () { modal.addClass("hidden"); }, (animationDuration + 10));

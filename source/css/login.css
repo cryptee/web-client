@@ -551,7 +551,7 @@ progress.show {
     body { zoom: 0.97 }
 }
 
-@media (max-width: 320px) {
+@media (max-width: 368px) {
     
     body { zoom: 0.89; }
 

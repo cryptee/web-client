@@ -60,40 +60,62 @@ TOOLBAR OVERRIDES
     font-size: 1rem !important;
 }
 
+.ql-formats .cryptee-new-comment {
+    padding: 0.65rem 0.5rem 0.5rem 0.5rem !important;
+}
+
+#mobileToolbar .cryptee-new-comment {
+    padding: 0.5rem 0.925rem !important;
+}
+
+.ql-formats .cryptee-new-comment svg,
+#mobileToolbar .cryptee-new-comment svg {
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.ql-formats .cryptee-new-comment.active svg g
+#mobileToolbar .cryptee-new-comment.active svg g {
+    stroke: var(--cryptee-yellow) !important;
+}
+
+#mobileToolbar .cryptee-new-comment path {
+    fill: #aaa !important;
+}
 
 .ql-formats * { 
     color: var(--cryptee-0); 
-    stroke: var(--cryptee-0);
     fill: var(--cryptee-0);
 }
 
 .dm .ql-formats * { 
     color: var(--cryptee-4); 
-    stroke: var(--cryptee-4);
     fill: var(--cryptee-4);
 }
 
 
 .ql-toolbar button.ql-active,
 .ql-toolbar .ql-picker-label.ql-active,
-.ql-toolbar .ql-picker-item.ql-selected {
-    color: var(--cryptee-green) !important;
-}
-
-
-
-
-
+.ql-toolbar .ql-picker-item.ql-selected,
 .ql-toolbar .ql-picker-label:focus .ql-stroke, 
 .ql-toolbar .ql-picker-label.ql-active .ql-stroke,
 .ql-toolbar .ql-picker-label:focus .ql-stroke-miter, 
 .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
 .ql-toolbar .ql-picker-label.ql-selected .ql-stroke-miter,
-.ql-toolbar .ql-active .ql-fill {
+.ql-toolbar .ql-active .ql-fill,
+.ql-toolbar button.ql-active i,
+.ql-toolbar .ql-picker-label.ql-active i,
+.ql-toolbar .ql-picker-item.ql-selected i,
+.ql-toolbar .ql-picker-label:focus .ql-stroke i, 
+.ql-toolbar .ql-picker-label.ql-active .ql-stroke i,
+.ql-toolbar .ql-picker-label:focus .ql-stroke-miter i, 
+.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter i,
+.ql-toolbar .ql-picker-label.ql-selected .ql-stroke-miter i,
+.ql-toolbar .ql-active .ql-fill i {
+    color: var(--cryptee-green) !important;
     stroke: var(--cryptee-green) !important;
 }
-
-
 
 
 
@@ -1925,6 +1947,90 @@ HR
 
 
 
+
+/* -----------------------------
+-------------------------------- 
+ 
+COMMENTS 
+ 
+--------------------------------
+----------------------------- */
+/* #region COMMENTS */
+
+.ql-editor mark[comment] {
+    background-color: transparent;
+    color: inherit;
+    border-bottom: 2.5px dashed var(--cryptee-yellow);
+}
+
+.ql-editor mark[comment].hascursor {
+    border-bottom: 2.5px solid var(--cryptee-yellow);
+}
+
+.ql-editor mark[comment].selected {
+    background-color: var(--cryptee-yellow);
+}
+
+.ql-editor mark[comment]::selection {
+    background: var(--cryptee-yellow);
+}
+
+#comment-floater {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 1.5rem;
+    width: 3rem;
+    background-color: var(--cryptee-yellow);
+    display: block;
+    z-index: 1;
+    border-radius: 3rem 0;
+    margin: 0;
+
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+
+    opacity: 1;
+    transform: translate(var(--x, 50vw), var(--y, 50vh));
+    transition: 0.15s opacity ease, 0.15s border-radius ease;
+}
+
+#comment-floater svg {
+    display: block;
+    margin: 0.625rem auto;
+    opacity: 1;
+    transition: 0.3s opacity ease;
+}
+
+#comment-floater::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -3px;
+    height: 2.5px;
+    width: 3px;
+    background-color: var(--cryptee-yellow);
+}
+
+#comment-floater.inverted {
+    border-radius: 0 3rem;
+}
+
+#comment-floater.inverted::before {
+    left: unset;
+    right: -3px;
+}
+
+#comment-floater:not(.shown) {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+body.comments-hidden .ql-editor mark[comment] {
+    border-bottom: none !important;
+}
+
+
+/* #endregion COMMENTS */
 
 
 

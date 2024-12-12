@@ -20,3 +20,25 @@ var BlockEmbed =        Quill.import('blots/block/embed');
 var fontSizeStyle =     Quill.import('attributors/style/size');
 
 var quillIcons =        Quill.import('ui/icons');
+
+// Lower index means deeper in the DOM tree, since not found (-1) is for embeds
+Inline.order = [
+    'cursor', //must be lower
+    'inline', 
+    'link', 
+    'w', // must be lower so we can break words better for pages (nest w as deep as possible)
+    'font',
+    'size',
+    'color', 
+    'background',
+    'bold', 
+    'italic', 
+    'strike', 
+    'underline', 
+    'script',
+    'code', 
+    'folder',
+    'file',
+    'tag',
+    'comment', //must be higher
+]

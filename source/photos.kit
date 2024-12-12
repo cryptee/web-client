@@ -13,6 +13,16 @@
     <link rel="stylesheet" href="../css/photos.css">
     <link rel="stylesheet" href="../css/uploader.css">
 
+    <script type="module"> 
+
+        import * as libraw from "../js/lib/libraw/libraw.js";
+        async function initLibraw(){ 
+            // all libraw functions are in here
+            window.libraw = await libraw.default(); 
+        }
+        initLibraw();
+
+    </script>
 </head>
 
 <body class="app-body fixed starting">
@@ -184,7 +194,7 @@
     <!-- @import "imports/app/modal-canvas-blocked.kit" -->
 
     <!-- <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png" webkitdirectory directory multiple/> -->
-    <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png, .gif, .webp, .mp4, .mov, .tif, .tiff, .dng, .3fr, .fff" multiple/>
+    <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept="cr2, cr3, crw, nef, nrw, arw, srf, sr2, raf, orf, pef, raw, rw2, rwl, x3f, 3fr, fff, iiq, mef, mos, dcr, k25, kdc, srw, erf, dng, bay, cap, eip, mdc, tif, tiff, webp, gif, png, jpg, jpeg, mp4, mov" multiple/>
 
 
 
@@ -201,7 +211,6 @@
     <script lazysrc="../js/lib/exif-reader-4.5.0/exif-reader.js" loadafter="windowload"></script>
     <script lazysrc="../js/lib/color-thief-2.0/color-thief.js"   loadafter="windowload"></script>
     <script lazysrc="../js/lib/gifjs-0.2.0/gif.js"               loadafter="windowload"></script>
-    <script lazysrc="../js/lib/utifjs/UTIF.js"                   loadafter="windowload"></script>
     
     <script src="../js/photos/apis.js"></script> <!-- api operations--> 
     <script src="../js/photos.js"></script>

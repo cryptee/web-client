@@ -122,8 +122,6 @@ function updateUploadProgress(filename) {
     var thumbnailUploadedBytes = (((uploadBytesizes[uploadID].thumbnail || 0) * (uploadBytesizes[uploadID].thumbnailProgress || 0)) / 100) || 0;
     var docOrFileUploadedBytes = (((uploadBytesizes[uploadID].docorfile || 0) * (uploadBytesizes[uploadID].docorfileProgress || 0)) / 100) || 0;
 
-    console.log(uploadBytesizes);
-
     // find total uploaded bytes (sum of all upload variants)
     var uploadedBytesize = (originalUploadedBytes + lightboxUploadedBytes + thumbnailUploadedBytes + docOrFileUploadedBytes) || 0;
     

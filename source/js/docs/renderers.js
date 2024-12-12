@@ -744,3 +744,23 @@ function updateDocInDOM(doc, folders) {
     }
 
 }
+
+/**
+ * Renders a comment from the Quill delta for the comments list.
+ * @param {*} comment 
+ */
+function renderComment(comment) {
+    //  {id: '1bf52c', time: '1732879197297', text: 'This is a comment'}
+    
+    let time = new Date(parseInt(comment.time)).toLocaleString("sv-SE") || "";
+    let text = atob(comment.text);
+    
+    let templateHTML = escapeTemplateHTML`<div class="comment" commentid="${comment.id}">
+        <time>${time}</time>
+        <button class="delete" tabindex="-1"><i class="ri-close-fill"></i></button>
+        <textarea class="darkback"  autocomplete="off" spellcheck="false" placeholder="your length comment goes here">${text}</textarea>
+    </div>`
+
+    return templateHTML;
+    
+}

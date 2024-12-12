@@ -433,6 +433,11 @@ key('command+shift+0, ctrl+shift+0', function () {
     return false;
 });
 
+key('command+alt+m, ctrl+alt+m', function () {
+    newComment();
+    return false;
+});
+
 key('command+enter, ctrl+enter', function () {
     if (!isCursorInTable() && isPaperMode()) {
         $(".ql-pagebreak").trigger("click");

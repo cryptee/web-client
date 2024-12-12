@@ -258,8 +258,7 @@ quillIcons.indent['-1']         = renderIcon("indent-decrease");
 quillIcons.link                 = renderIcon("link-m");
 
 quillIcons.list.bullet          = renderIcon("list-unordered");
-quillIcons.list.check           = renderIcon("list-check-2");
-// quillIcons.list.check           = renderIcon("list-check-3"); // TODO : ENABLE AFTER JUNE 2024
+quillIcons.list.check           = renderIcon("list-check-3");
 quillIcons.list.ordered         = renderIcon("list-ordered");
 quillIcons.script.sub           = renderIcon("subscript");
 quillIcons.script.super         = renderIcon("superscript");
@@ -353,7 +352,8 @@ quill.clipboard.addMatcher('div', (node, delta) =>              {  return delta;
 quill.clipboard.addMatcher('img', (node, delta) =>              { return handleExternalImages(node, delta); });
 
 
-
+// COMMENT ELEMENT PASTE MATCHER
+quill.clipboard.addMatcher('mark[comment]', (node, delta) =>    {  return handlePastingComments(node, delta); });
 
 
   
@@ -935,6 +935,7 @@ $(".ql-editor").on('scroll', throttleScroll(function (event) {
     hideTableContextualDropdown();
 
     updateVisibleViewport();
+    updateCommentButtonPosition();
 
     checkIfPageChanged();
 }, 100));
@@ -1020,19 +1021,25 @@ quill.on('selection-change', function (range, oldRange, source) {
         
         // try catch, because when we're starting up, we're lazy loading editor and its features, and this doesn't exist yet.
         try { hideTableContextualButton(); } catch (error) {}
-
+        $(".hascursor").removeClass("hascursor");
         hideTableContextualDropdown();
     } else {
         lastSelectionRange = range;
 
         checkIfTableHasFocus();
         checkIfURLSelectedOnMobile();
+        checkIfACommentIsSelected();
         
         selectPageBreaksIfAnyInRange(range, oldRange, source);
         selectFoldersIfAnyInRange(range, oldRange, source);
         selectTablesIfAnyInRange(range, oldRange, source);
         selectFilesIfAnyInRange(range, oldRange, source);
         
+        // this helps us add all sorts of interesting interactions to the editor using CSS based on where the cursor currently is 
+        $(".hascursor").removeClass("hascursor");
+        let nodeThatHasTheCursor = getSelectedNode();
+        nodeThatHasTheCursor.parentNode.classList.add("hascursor");
+
         if (range.length > 1) {
             selectionCounts();
         } else {

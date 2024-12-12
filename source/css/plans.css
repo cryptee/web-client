@@ -310,11 +310,17 @@ body[discount] #plans .savings {
     pointer-events: none;
     flex-grow: 1;
 
-    background-color: transparent;
+    background-image : none;
     color: var(--cryptee-2);
     box-shadow: none;
     border: 1px solid var(--cryptee-3);
 }
+
+#period[period="yr"] ~ #plans .plan[current="yr"] button span,
+#period[period="mo"] ~ #plans .plan[current="mo"] button span  {
+    color: var(--cryptee-2);
+}
+
 
 #period[period="yr"] ~ #plans .plan[current="yr"] small,
 #period[period="mo"] ~ #plans .plan[current="mo"] small {

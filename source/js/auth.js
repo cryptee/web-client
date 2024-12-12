@@ -702,6 +702,7 @@ async function getUserInfo() {
         // here for posterity if you need it
         // if (userInfo.data)   { gotUserData(userInfo.data); }
         if (userInfo.meta)   { gotUserMeta(userInfo.meta, userInfo.stripe); }
+        if (userInfo.promo)  { gotUserPromo(userInfo); }
 
         return userInfo;
 
@@ -758,6 +759,11 @@ function gotUserMeta(meta, stripe) {
 
 
 
+function gotUserPromo() {    
+    if (theUserPlan && theUserPlan !== "free") { 
+        $("body").attr("haspromo", "true");
+    }
+}
 
 
 

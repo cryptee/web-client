@@ -11,7 +11,7 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    z-index: 1;
+    z-index: 2;
 
     background-color: var(--cryptee-0);
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.25);
@@ -132,7 +132,7 @@ STATES
 
     body:not(.pinned).split #file-viewer:not(.loading) {
         height: 100%;
-        width: 50%;
+        width: calc(50% - 4rem);
         box-shadow: none;
     }
 
@@ -147,7 +147,7 @@ STATES
 
     body.split.pinned #file-viewer:not(.loading) {
         height: 100%;
-        width: calc(50% - 160px + 2rem);
+        width: calc(50% - 160px - 2rem);
         box-shadow: none;
     }
 

@@ -1,10 +1,5 @@
 <div class="panel white hidden" id="export-doc">
     
-    <button class="white" onclick="printDocument();">
-        <i class="ri-printer-fill"></i>
-        <span>print / pdf</span>
-    </button>
-    
     <button class="white" onclick="showModal('modal-export-ecd');">
         <i class="ri-file-lock-fill"></i>
         <span>encrypted cryptee doc<span class="hidden-tiny">ument</span></span>
@@ -20,6 +15,14 @@
     <button class="white" onclick="exportAsHTML(event);">
         <i class="ri-html5-fill"></i>
         <span>html</span>
+        <span class="small right green">best compatibility</span>
+    </button>
+    
+    <button class="white" onclick="printDocument();">
+        <i class="ri-printer-fill"></i>
+        <span>print / pdf</span>
+        <span class="small right yellow">beta</span>
+        <span class="small right">.pdf &nbsp; &nbsp; </span>
     </button>
     
     <button class="white" onclick="exportAsMarkdown();">

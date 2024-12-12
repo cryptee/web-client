@@ -3647,6 +3647,9 @@ function loadDocumentMetadataFromDelta(plaintextContents, doc) {
         disablePaperMode(true);
     }
 
+    // Load/Refresg comments 
+    loadOrRefreshComments(plaintextContents);
+
     // if quill throws a tantrum some day in the future, start deleting these. 
     // delete plaintextContents.metadata.documentFont;
     

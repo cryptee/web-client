@@ -540,6 +540,9 @@ body[paper-stock] .ql-editor.pdf s * {
     text-decoration: 2px line-through !important;
 }
 
+body[paper-stock] .ql-editor.pdf [comment] {
+    border: none !important;
+}
 
 /* -----------------------------
 -------------------------------- 

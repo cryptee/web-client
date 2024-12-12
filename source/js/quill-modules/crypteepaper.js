@@ -921,7 +921,35 @@ async function prepareDocumentPDF() {
         html2canvas:  { scale: 2 },
         pagebreak:    { mode : ['avoid-all'] },
         image:        { type: 'jpeg', quality: 0.98 },
-        jsPDF:        jsPDFConfig
+        jsPDF:        jsPDFConfig,
+        fontFaces: [
+            {
+                family: 'Inter',
+                src: [{ url: '../fonts/Inter-VariableFont_slnt_wght.ttf', format: 'truetype' }]
+            },
+            {
+                family: 'Arimo',
+                src: [{ url: '../fonts/Arimo-VariableFont_wght.ttf', format: 'truetype' }]
+            },
+            {
+                family: 'Arimo',
+                style: 'italic',
+                src: [{ url: '../fonts/Arimo-Italic-VariableFont_wght.ttf', format: 'truetype' }]
+            },
+            {
+                family: 'Markazi',
+                src: [{ url: '../fonts/MarkaziText-VariableFont_wght.ttf', format: 'truetype' }]
+            },
+            {
+                family: 'Josefin Sans',
+                src: [{ url: '../fonts/JosefinSans-VariableFont_wght.ttf', format: 'truetype' }]
+            },
+            {
+                family: 'Josefin Sans',
+                style: 'italic',
+                src: [{ url: '../fonts/JosefinSans-Italic-VariableFont_wght.ttf', format: 'truetype' }]
+            }
+        ]
     };
     
     // this splits all the words in the editor for the export, so we can check which page they're on.
@@ -1296,7 +1324,22 @@ function assignPagesToWordsForPDFExport() {
     var wordsWalker = document.createTreeWalker($(".ql-editor")[0], NodeFilter.SHOW_ELEMENT, wordsFilter, false);
     var words = [];
     while(wordNode = wordsWalker.nextNode()) { words.push(wordNode); }
-    words.forEach(word => { word.setAttribute("pgno", Math.ceil(px2mm(word.offsetLeft) / (paper.width + paper.opticalSeparator))); });
+    words.forEach(word => { 
+        // let offsetLeft = word.offsetLeft;
+        // let mmOffset = px2mm(offsetLeft);
+        // let pageCalc = Math.ceil(mmOffset / (paper.width + paper.opticalSeparator));
+        
+        // console.log({
+        //     word: word.textContent,
+        //     offsetLeft,
+        //     mmOffset,
+        //     pageCalc,
+        //     paperWidth: paper.width,
+        //     separator: paper.opticalSeparator
+        // });
+
+        word.setAttribute("pgno", Math.ceil(px2mm(word.offsetLeft) / (paper.width + paper.opticalSeparator))); 
+    });
     breadcrumb('[PAPER] [EXPORT] Assigned pages to words');
 }
 

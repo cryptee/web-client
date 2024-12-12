@@ -1000,6 +1000,138 @@ body.highlight-deletions .media.selected i::before {
     background-repeat: no-repeat;
 }
 
+.media u[maker='sony']::before {
+    background-color: #d46f47;
+    content: 'α';
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+}
+
+.media u[maker='nikon']::before {
+    background-color: #ffd300;
+    content: 'N';
+    font-style: italic;
+    font-weight: bolder;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+    text-indent: -1px;
+}
+
+.media u[maker='canon']::before {
+    background-color: var(--cryptee-red);
+    content: 'c';
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+    text-indent: -1px;
+}
+
+.media u[maker='panasonic']::before {
+    background-color: #1f56b3;
+    content: 'P';
+    font-weight: bolder;
+    color: #FFF;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+    text-indent: 1px;
+}
+
+.media u[maker='fuji']::before {
+    background-color: #FFF;
+    color: #000;
+    content: 'x';
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.125rem;
+    line-height: 1.45rem;
+}
+
+.media u[maker='olympus']::before {
+    background-color: #4e61bc;
+    color: #FFF;
+    content: 'O';
+    font-weight: bolder;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+    text-indent: 1px;
+}
+
+.media u[maker='pentax']::before {
+    background-color: #FFF;
+    content: 'P';
+    font-weight: bolder;
+    color: var(--cryptee-red);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+    text-indent: 1px;
+}
+
+.media u[maker='sigma']::before {
+    background-color: #FFF;
+    content: 'Σ';
+    font-weight: bolder;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+}
+
+.media u[maker='dji']::before,
+.media u[maker='phaseone']::before {
+    background-color: #FFF;
+    content: '1';
+    font-weight: bolder;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+}
+
+.media u[maker='dji']::before {
+    content: "d";
+}
+
+.media u[maker='mamiya']::before {
+    background-color: #FFF;
+    content: 'M';
+    font-weight: bolder;
+    color: var(--cryptee-red);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+}
+
+.media u[maker='kodak']::before {
+    background-color: var(--cryptee-yellow);
+    content: 'K';
+    font-weight: bolder;
+    color: var(--cryptee-red);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+}
+
+.media u[maker='epson']::before,
+.media u[maker='minolta']::before,
+.media u[maker='samsung']::before {
+    background-color: #4e61bc;
+    color: #FFF;
+    content: 'S';
+    font-weight: bolder;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.55rem;
+}
+
+.media u[maker='epson']::before { content: 'E'; }
+.media u[maker='minolta']::before { content: 'M'; }
+
+
 .media.selected u {
     background-position: -2rem;
     padding-left: 0.75rem;
@@ -1775,6 +1907,8 @@ UPGRADE TEXT
     line-height: 2.25rem;
     padding-left: 0.5rem;
 }
+
+body[plan='gift'] #upgrade { display: none !important; }
 
 
 /* -----------------------------
