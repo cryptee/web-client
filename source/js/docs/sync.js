@@ -199,10 +199,6 @@ async function syncTemplates() {
     let serverTemplates = await getTemplates();
     
     serverTemplates = serverTemplates || [];
-    if (!serverTemplates.length) {
-        handleError("[SYNC] Failed to get templates from server, aborting!");    
-        return false;
-    }
 
     breadcrumb(`[SYNC] Got ${serverTemplates.length} templates from server`);
 
