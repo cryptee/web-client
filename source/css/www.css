@@ -1536,8 +1536,33 @@ MEDIA QUERIES
 --------------------------------
 ----------------------------- */
 
+
+
+@media (max-width : 1440px) {
+    #hero {
+        grid-template-rows: 4rem 4rem 20rem 14.5rem 20rem 4rem
+    }
+}
+
+@media (max-width : 1280px) {
+    #hero {
+        grid-template-rows: 4rem 4rem 15rem 14.5rem 15rem 4rem
+    }
+}
+
+
 @media (max-width : 1152px) {
     #estonia-photos { margin: 0; }
+    
+    #hero {
+        grid-template-rows: 4rem 4rem 11rem 14.5rem 11rem 4rem
+    }
+}
+
+@media (max-width : 1088px) {
+    #hero {
+        grid-template-rows: 4rem 4rem 6rem 14.5rem 6rem 4rem
+    }
 }
 
 @media (max-width : 960px) { 
@@ -1551,7 +1576,12 @@ MEDIA QUERIES
     }
 
     #hero {
-        grid-template-rows: 4rem 4rem 22rem 10.5rem 22rem 4rem;
+        grid-template-columns: 2fr 4rem minmax(16rem, 1fr);
+        grid-template-rows: 4rem 4rem 14rem 10.5rem 14rem 4rem;
+    }
+
+    #hero picture, #hero img, #hero source {
+        max-height: 48rem;
     }
 
     .long-paragraph {
@@ -1636,22 +1666,44 @@ MEDIA QUERIES
     #john-name      { padding-top: 0; }
     #john-name img  { display: none; }
 
+    #hero {
+        display: block;
+        overflow: hidden;
+    }
+
+    .use-cases-body #hero {
+        padding-top: 8rem;
+    }
+    
+    #hero picture {
+        display: block;
+        width: calc(100% + 16rem);
+        aspect-ratio: 1/1;
+        max-height: 72rem;
+        object-position: center;
+        transform: translateX(-20rem);
+        margin: 8rem 4rem 0 0;
+    }
+
+    #hero img, #hero source { 
+        max-height: 72rem;
+    }
+
+    #hero h2 {
+        margin-top: 4rem;
+        text-align: center;
+    }
+
+    #hero h2 br:last-child {
+        display: none;
+    }
+
 }
 
 @media (max-width : 880px) {
     #europe-section br { display: none !important; }
     #europe-section p { max-width: 26rem; margin-top: -0.5rem; }
     .hidden-for-phablets { display: none !important; }
-    
-    #hero {
-        grid-template-columns: 2fr 4rem minmax(16rem, 1fr);
-        grid-template-rows: 4rem 4rem 16rem 10.5rem 16rem 4rem;
-    }
-
-    #hero picture, #hero img, #hero source {
-        max-height: 48rem;
-    }
-
 }
 
 @media (max-width : 800px) {
@@ -1698,36 +1750,10 @@ MEDIA QUERIES
         padding: 1.25rem 0;
     }
 
-    #hero {
-        display: block;
-        overflow: hidden;
-    }
-
-    .use-cases-body #hero {
-        padding-top: 8rem;
-    }
-    
     #hero picture {
-        display: block;
         width: calc(100% + 16rem);
-        aspect-ratio: 1/1;
-        max-height: 72rem;
-        object-position: center;
-        transform: translateX(-20rem);
-        margin: 8rem 4rem 0 0;
-    }
-
-    #hero img, #hero source { 
-        max-height: 72rem;
-    }
-
-    #hero h2 {
-        margin-top: 4rem;
-        text-align: center;
-    }
-
-    #hero h2 br:last-child {
-        display: none;
+        transform: translateX(-8rem);
+        margin: 4rem 4rem 0 0;
     }
 
     nav + article { padding-top: 8rem; }
@@ -1874,14 +1900,8 @@ MEDIA QUERIES
 @media (max-width : 544px) {
     
     #hero picture {
-        display: block;
-        grid-column: 1/-1;
-        grid-row: 3/6;
-        width: calc(100% + 18rem);
-        max-height: 72rem;
-        object-position: center;
-        transform: translateX(-20rem);
-        margin: 6rem 4rem 0 0;
+        width: calc(100% + 8rem);
+        transform: translateX(-4rem);
     }
 
     .grid-half { 
