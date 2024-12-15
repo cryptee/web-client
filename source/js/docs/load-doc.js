@@ -199,7 +199,10 @@ async function loadedDocPrepareEditor(doc, did, docContents, connection, forceSa
     activityHappened();
 
     // quit paper mode before you set editor's contents to avoid an unnecessary calculation nightmare
-    disablePaperMode(true);
+    try {
+        disablePaperMode(true);
+        // this is wrapped in a try catch because if user loads a doc super quickly I think this function isn't loaded / defined in async yet. 
+    } catch (e) {}
 
     // disable spell check before adding new text in. (ridiculously good for performance) 
     quill.root.spellcheck = false;

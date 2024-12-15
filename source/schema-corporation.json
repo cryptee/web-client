@@ -100,7 +100,7 @@
             }
         }
     ],
-    "founders": [{
+    "founder": [{
         "@type": "Person",
         "@id": "https://musicbrainz.org/artist/10c5c8eb-269c-4f54-aadf-f2b0bf00c542",
         "url": "https://johnozbay.com",

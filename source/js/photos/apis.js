@@ -171,11 +171,12 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
         thumbSizePreference = "t"; // NORMAL-RES
     }
 
-    // PICK THE CORRECT VIDEO THUMBNAIL TYPE ACCORDING TO USER'S PREFERENCES
-    if (appPreference.photos["video-thumbnails-type"] === "still") {
-        thumbSizePreference = "l"; // STILL
-    } else {
-        thumbSizePreference = "t"; // ANIMATED
+    if (wrapperElem.hasClass("video")) {
+        // still images from the first second of the video. 
+        // in the past "t" used to be a GIF, but it is now a still, because fuck encoding gifs in a browser 
+        // it made uploads really really slow, required us to use regular canvas vs offscreen canvas due to outdated gif encoding libs
+        // and we can now fully rely on offscreen canvas + createimagebitmap etc to make things more efficient.
+        thumbSizePreference = "l"; 
     }
 
     // DOWNLOAD ENCRYPTED THUMBNAIL

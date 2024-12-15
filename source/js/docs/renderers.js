@@ -212,53 +212,57 @@ async function refreshDOM(autoRefresh) {
             // docname
             var activeDoc = await getDocFromCatalog(activeDocID);
             var activeDocName = docName(activeDoc);
-            $("#panel-docinfo").find(".name").text(activeDocName);
-
-            // set document name in the browser tab
-            document.title = "Cryptee | " + activeDocName;
-
-
-            // folder name & id
             
-            if (activeDocID !== "d-home") {
+            if (activeDoc && !isEmpty(activeDoc)) {
+
+                $("#panel-docinfo").find(".name").text(activeDocName);
+    
+                // set document name in the browser tab
+                document.title = "Cryptee | " + activeDocName;
+    
+                // folder name & id
                 
-                var activeDocFolder = folders[activeDoc.fid];
-                var activeDocFoldername = folderName(activeDocFolder);
+                if (activeDocID !== "d-home") {
+                    
+                    var activeDocFolder = folders[activeDoc.fid];
+                    var activeDocFoldername = folderName(activeDocFolder);
+                    
+                    $("#panel-docinfo").find(".docfolder").text(activeDocFoldername);
+                    $("#activeDocFolderButton").attr("fid", activeDoc.fid);
+                    $("#activeDocFolderButton").show(); 
+    
+                } else {
+                    
+                    $("#panel-docinfo").find(".docfolder").empty();
+                    $("#activeDocFolderButton").attr("fid", "");
+                    $("#activeDocFolderButton").hide(); 
+    
+                }
                 
-                $("#panel-docinfo").find(".docfolder").text(activeDocFoldername);
-                $("#activeDocFolderButton").attr("fid", activeDoc.fid);
-                $("#activeDocFolderButton").show(); 
-
-            } else {
+    
+    
+    
+                // gen / time
+                var lastSaved = new Date(activeDoc.generation / 1000).toLocaleString("en-US", {
+                    year:    "numeric", 
+                    month:   "short", 
+                    day :    "numeric", 
+                    hour :   "numeric", 
+                    minute : "numeric", 
+                    second : "numeric" 
+                });
                 
-                $("#panel-docinfo").find(".docfolder").empty();
-                $("#activeDocFolderButton").attr("fid", "");
-                $("#activeDocFolderButton").hide(); 
+                $("#panel-docinfo").find(".time").html(lastSaved);
+    
+    
+    
+                // offline status 
+                if (activeDoc.offline) {
+                    $("#panel-docfile").addClass("for-offline-items");
+                } else {
+                    $("#panel-docfile").removeClass("for-offline-items");
+                }
 
-            }
-            
-
-
-
-            // gen / time
-            var lastSaved = new Date(activeDoc.generation / 1000).toLocaleString("en-US", {
-                year:    "numeric", 
-                month:   "short", 
-                day :    "numeric", 
-                hour :   "numeric", 
-                minute : "numeric", 
-                second : "numeric" 
-            });
-            
-            $("#panel-docinfo").find(".time").html(lastSaved);
-
-
-
-            // offline status 
-            if (activeDoc.offline) {
-                $("#panel-docfile").addClass("for-offline-items");
-            } else {
-                $("#panel-docfile").removeClass("for-offline-items");
             }
 
         } catch (error) {

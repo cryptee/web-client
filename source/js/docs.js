@@ -903,7 +903,7 @@ $(window).on('resize', function(event) {
         try { windowResizedRecalculatePaper(); } catch (e) {}
     }
 
-    updateCommentButtonPosition();
+    try { updateCommentButtonPosition(); } catch (e) {}
 }); 
 
 ////////////////////////////////////////////////

@@ -612,23 +612,53 @@ async function canvasToBlob(canvas, quality, format) {
 
 }
 
+
+/**
+ * Convert ImageBitmap to Blob with quality control
+ * @param {ImageBitmap} imgBitmap 
+ * @param {Number} quality - 0 to 1
+ * @param {String} format - 'image/jpeg' or 'image/png', falls back to image/jpeg 
+ * @returns {Promise<Blob>}
+ */
+async function imageBitmapToBlob(imgBitmap, quality, format) {
+    format = format || "image/jpeg";
+    
+    const canvas = new OffscreenCanvas(imgBitmap.width, imgBitmap.height);
+    const ctx = canvas.getContext('2d', { willReadFrequently: false });
+    
+    ctx.drawImage(imgBitmap, 0, 0);
+    
+    const blob = await canvas.convertToBlob({ type: format, quality });
+    
+    // Clean up
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = canvas.height = 0;
+    
+    return blob;
+}
+
+
 /**
  * Helps us calculate the maximum allowed canvas size, and creates an aspect ratio accurate max canvas size we can use.
  * We need this because iOS Safari limits max total canvas size to 16777216px (w*h), this is so that we can generate
  * thumbnails etc without any issues however large photos may be. 
+ * We use the term "canvas" here because iOS still keeps in mind the max allowed canvas size when doing imageBitmap resizing.
  * @param {Number} width 
  * @param {Number} height 
+ * @param {Number} maxWidthOrHeight
  * @returns {Object} sizes
  * @returns {Object} sizes.width
  * @returns {Object} sizes.height
  */
-function limitCanvasSize(width, height) {
+function limitImageSize(width, height, maxWidthOrHeight) {
 
   width = parseInt((width || 0));
   height = parseInt((height || 0));
 
-  // For now limiting to 2048 x 2048 (iOS max size is 4096x4096, but since we don't need more, we'll stick with this. prob better for mem use), 
+  // For now limiting the default to 2048 x 2048 (iOS max size is 4096x4096, but since we don't need more, we'll stick with this. prob better for mem use), 
   let maximumPixels = 4194304;
+
+  if (maxWidthOrHeight) { maximumPixels = maxWidthOrHeight * maxWidthOrHeight; }
 
   const requiredPixels = width * height;
   if (requiredPixels <= maximumPixels) return { width, height };
@@ -645,30 +675,32 @@ function limitCanvasSize(width, height) {
 /**
  * Helps us convert a file or blob to an image object by means of using an image bitmap, and makes sure that we don't exceed the canvas size.
  * Requires inputting exif data from the readEXIF function for the width/height parameters 
- * @param {FileOrBlob} imgFile
+ * We use the term "canvas" here because iOS still keeps in mind the max allowed canvas size when doing imageBitmap resizing.
+ * @param {(File|Blob|ImageBitmap)} img
  * @param {Object} exif (from readEXIF)
+ * @param {Number} resizedWidthOrHeight
  * @returns {Promise<ImageBitmap>} imgBitmap
  */
-async function imgFileToImgBitmap(imgFile, exif) {
+async function imgFileToImgBitmap(img, exif, resizedWidthOrHeight) {
 
-  let limMaxCanvasSize = limitCanvasSize(exif.width, exif.height);
-
-  if (exif.width !== limMaxCanvasSize.width || imgFile.height !== limMaxCanvasSize.height) {
-    breadcrumb("Limited max canvas size. Image was too large.");
+  let limMaxImageSize = limitImageSize(exif.width, exif.height, resizedWidthOrHeight);
+  
+  if (exif.width !== limMaxImageSize.width || img.height !== limMaxImageSize.height) {
+    breadcrumb("Limited max image size. Image was too large.");
   }
 
   let orientation;
   if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
 
-  let imgBitmapOptions = { resizeWidth: limMaxCanvasSize.width, resizeHeight: limMaxCanvasSize.height, resizeQuality : "high" };
+  let imgBitmapOptions = { resizeWidth: limMaxImageSize.width, resizeHeight: limMaxImageSize.height, resizeQuality : "high" };
   
   if (orientation > 4) {
-    imgBitmapOptions = { resizeWidth: limMaxCanvasSize.height, resizeHeight: limMaxCanvasSize.width, resizeQuality : "high" };
+    imgBitmapOptions = { resizeWidth: limMaxImageSize.height, resizeHeight: limMaxImageSize.width, resizeQuality : "high" };
   }
   
   let imgBitmap;
   try {
-    imgBitmap = await createImageBitmap(imgFile, imgBitmapOptions);
+    imgBitmap = await createImageBitmap(img, imgBitmapOptions);
   } catch (error) {
     handleError("Failed to create ImageBitmap", error);
     return null;
@@ -1107,50 +1139,6 @@ async function determineBrowserEXIFOrientationTreatment() {
       setSentryTag("browser-handles-exif-orientation", "no");
     }
 
-}
-
-function correctCanvasOrientationInOrientationContext(orientationContext, w, h, orientation) {
-  
-  orientation = parseInt(orientation || 0);
-
-  switch (orientation) {
-    case 2:
-      // horizontal flip
-      orientationContext.translate(w, 0);
-      orientationContext.scale(-1, 1);
-      break;
-    case 3:
-      // 180° rotate left
-      orientationContext.translate(w, h);
-      orientationContext.rotate(Math.PI);
-      break;
-    case 4:
-      // vertical flip
-      orientationContext.translate(0, h);
-      orientationContext.scale(1, -1);
-      break;
-    case 5:
-      // vertical flip + 90 rotate right
-      orientationContext.rotate(0.5 * Math.PI);
-      orientationContext.scale(1, -1);
-      break;
-    case 6:
-      // 90° rotate right
-      orientationContext.rotate(0.5 * Math.PI);
-      orientationContext.translate(0, -h);
-      break;
-    case 7:
-      // horizontal flip + 90 rotate right
-      orientationContext.rotate(0.5 * Math.PI);
-      orientationContext.translate(w, -h);
-      orientationContext.scale(-1, 1);
-      break;
-    case 8:
-      // 90° rotate left
-      orientationContext.rotate(-0.5 * Math.PI);
-      orientationContext.translate(-w, 0);
-      break;
-  }
 }
 
 

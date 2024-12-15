@@ -2628,23 +2628,10 @@ async function optimizeImageFile(imgFile) {
     // read exif from original buffer (should take about 30ms, even for a 30mb file)
     var exif = await readEXIF(imgFile);
 
-    // var orientation;
-
-    // if the browser won't handle orientation, and there's exif orientation data, use it to rotate pic.
-    // if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
-
-    var resizedCanvas = document.createElement("canvas");
-    var resizedContext = resizedCanvas.getContext("2d");
-    var originalCanvas = document.createElement("canvas");
-    var originalContext = originalCanvas.getContext("2d");
-    var orientationCanvas = document.createElement("canvas");
-    var orientationContext = orientationCanvas.getContext("2d");
-    
     let imgBitmap;
-
     try {
         breadcrumb("[UPLOAD] Converting image file to image bitmap");
-        imgBitmap = await imgFileToImgBitmap(imgFile, exif);
+        imgBitmap = await imgFileToImgBitmap(imgFile, exif, 2592); // Using 2592 as max width/height
         breadcrumb("[UPLOAD] Converted image file to image bitmap");
     } catch (error) {
         handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
@@ -2656,34 +2643,11 @@ async function optimizeImageFile(imgFile) {
         return "";
     }
 
-    var width = imgBitmap.width;
-    var height = imgBitmap.height;
-
-    orientationCanvas.width = width;
-    orientationCanvas.height = height;
-
-    orientationContext.drawImage(imgBitmap, 0, 0);
-
-    var maxWidthOrHeight = 2592;
-    var ratio = 1;
-
-    if (orientationCanvas.width > maxWidthOrHeight) {
-        ratio = maxWidthOrHeight / orientationCanvas.width;
-    } else if (orientationCanvas.height > maxWidthOrHeight) {
-        ratio = maxWidthOrHeight / orientationCanvas.height;
-    }
-
-    originalCanvas.width = orientationCanvas.width;
-    originalCanvas.height = orientationCanvas.height;
-
-    originalContext.drawImage(orientationCanvas, 0, 0, orientationCanvas.width, orientationCanvas.height, 0, 0, originalCanvas.width, originalCanvas.height);
-
-    resizedCanvas.width = originalCanvas.width * ratio; // this canvas gets a reduced size
-    resizedCanvas.height = originalCanvas.height * ratio;
-
-    resizedContext.drawImage(originalCanvas, 0, 0, originalCanvas.width, originalCanvas.height, 0, 0, resizedCanvas.width, resizedCanvas.height);
+    // Convert ImageBitmap to blob with quality control
+    const blob = await imageBitmapToBlob(imgBitmap, 0.95, 'image/jpeg');
     
-    return resizedCanvas.toDataURL("image/jpeg", 0.95); // the whole point is to draw it on canvas, and re-capture, resulting in a png->jpg conversion with some optimization
+    // Convert blob to base64
+    return readFileAs(blob, 'dataURL');
 
 }
 

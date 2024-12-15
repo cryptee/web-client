@@ -44,12 +44,12 @@
       "type": "image/jpeg"
     },
     {
-      "src": "../imgs/hero/photos-albums@3x.jpg",
+      "src": "../imgs/features/photos-albums@3x.jpg",
       "sizes": "172x1056",
       "type": "image/jpeg"
     },
     {
-      "src": "../imgs/hero/docs-side-by-side@3x.jpg",
+      "src": "../imgs/features/docs-side-by-side@3x.jpg",
       "sizes": "172x1056",
       "type": "image/jpeg"
     }    

@@ -320,7 +320,12 @@ async function runUploadQueue() {
     breadcrumb('[UPLOAD] Queued ' + uploadQueueOrder.length + " file(s) for upload");
 
     let maxMemorySafeNumberOfParallelUploads = maxParallelUploads;
+    
+    // these are here to reduce memory consumption on low power mobile devices. 
+    // We can technically handle 4 just fine, but better safe than sorry. out-of-memory crashes are not fun
+
     if ((isAndroid || isios || isipados) && numberOfRAWItemsInQueue) { maxMemorySafeNumberOfParallelUploads = 1; }
+    if ((isAndroid || isios || isipados)) { maxMemorySafeNumberOfParallelUploads = 3; } 
 
     var promiseToUploadEverythingInQueue = new PromisePool(promiseToUploadNextInQueue, maxMemorySafeNumberOfParallelUploads);
     await promiseToUploadEverythingInQueue.start();
@@ -430,9 +435,7 @@ async function uploadQueueFinished(aid) {
 
 
 // we create a new set of canvases / players for each parallel upload to prevent foot race between canvases or players and avoid collision
-var canvases = { 1 : {}, 2 : {}, 3 : {}, 4 : {} };
-var players  = { 1 : {}, 2 : {}, 3 : {}, 4 : {} };
-
+var players = { 1 : {}, 2 : {}, 3 : {}, 4 : {} };
 
 // we keep track of which canvas/player is in use, so thumbnail generators can pick a free one 
 var canvasesInUse = { 1 : false, 2 : false, 3 : false, 4 : false };
@@ -592,17 +595,6 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
     // read exif from original file (should take about 30ms, even for a 30mb file)
     var exif = await readEXIF(originalFile);
     
-    // var orientation;
-    // if the browser won't handle orientation, and there's exif orientation data, use it to rotate pic.
-    // if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
-
-    canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
-    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d", { willReadFrequently: true });
-    canvases[canvasNo].originalCanvas = canvases[canvasNo].originalCanvas || document.createElement("canvas");
-    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d", { willReadFrequently: true });
-    canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
-    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d", { willReadFrequently: true });
-
     let imgBitmap;
 
     try {
@@ -638,61 +630,57 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
             "exif-iso"         : exif.iso,
         };
 
-        // browsers can't seem to correct raw images' orientation
-        // if (exif.Orientation) { orientation = exif.Orientation; }
     }
 
     var width = imgBitmap.width;
     var height = imgBitmap.height;
 
-    canvases[canvasNo].orientationCanvas.width = width;
-    canvases[canvasNo].orientationCanvas.height = height;
-
-    // if (isRAW && orientation > 4) {
-    //     canvases[canvasNo].orientationCanvas.width = height;
-    //     canvases[canvasNo].orientationCanvas.height = width;
-    //     correctCanvasOrientationInOrientationContext(canvases[canvasNo].orientationContext, width, height, orientation);
-    // }
-
-    canvases[canvasNo].orientationContext.drawImage(imgBitmap, 0, 0, width, height, 0, 0, width, height);    
-
-    imgBitmap.close();
-    imgBitmap = null;
-
+    let thumbnailBitmap;
     for (var size in sizes) { 
+
+        let resizedImage;
+
         // cycle through all sizes, and generate thumbnails (if the image is a gif, skip lightbox, since we'll play the original instead)
         if (size === "thumbnail" || (size === "lightbox" && mimeType.toLowerCase() !== "image/gif")) {
             var maxWidthOrHeight = sizes[size]; // lightbox, thumbnail etc. 
-            var ratio = 1;
-    
-            if (canvases[canvasNo].orientationCanvas.width > maxWidthOrHeight) {
-                ratio = maxWidthOrHeight / canvases[canvasNo].orientationCanvas.width;
-            } else if (canvases[canvasNo].orientationCanvas.height > maxWidthOrHeight) {
-                ratio = maxWidthOrHeight / canvases[canvasNo].orientationCanvas.height;
-            }
-    
-            canvases[canvasNo].originalCanvas.width = canvases[canvasNo].orientationCanvas.width;
-            canvases[canvasNo].originalCanvas.height = canvases[canvasNo].orientationCanvas.height;
-    
-            canvases[canvasNo].originalContext.drawImage(canvases[canvasNo].orientationCanvas, 0, 0, canvases[canvasNo].orientationCanvas.width, canvases[canvasNo].orientationCanvas.height, 0, 0, canvases[canvasNo].originalCanvas.width, canvases[canvasNo].originalCanvas.height);
-    
-            canvases[canvasNo].resizedCanvas.width = canvases[canvasNo].originalCanvas.width * ratio; // this canvas gets a reduced size
-            canvases[canvasNo].resizedCanvas.height = canvases[canvasNo].originalCanvas.height * ratio;
-    
-            canvases[canvasNo].resizedContext.drawImage(canvases[canvasNo].originalCanvas, 0, 0, canvases[canvasNo].originalCanvas.width, canvases[canvasNo].originalCanvas.height, 0, 0, canvases[canvasNo].resizedCanvas.width, canvases[canvasNo].resizedCanvas.height);
-            uploadObject[size] = await canvasToBlob(canvases[canvasNo].resizedCanvas, qualities[size], "image/jpeg");
+            resizedImage = await imgFileToImgBitmap(imgBitmap, { width, height }, maxWidthOrHeight);
+            uploadObject[size] = await imageBitmapToBlob(resizedImage, qualities[size], "image/jpeg"); 
         }
+
+        if (size === "thumbnail") { 
+            thumbnailBitmap = resizedImage; 
+        } else {
+            resizedImage.close();
+            resizedImage = null;
+        }
+
     }
 
     breadcrumb("[UPLOAD] Generated Thumbnails");
     
-    // generate dominant from thumbnails in canvas
+    // create off screen canvas for color thief
+    const colorThiefCanvas = new OffscreenCanvas(thumbnailBitmap.width, thumbnailBitmap.height);
+    const colorThiefCtx = colorThiefCanvas.getContext('2d');
+    colorThiefCtx.drawImage(thumbnailBitmap, 0, 0);
+
+    // get image dominant color using color thief
     var colorThief = new ColorThief();
-    var dominantColor = colorThief.getColor(canvases[canvasNo].resizedCanvas, canvases[canvasNo].resizedContext);
+    var dominantColor = colorThief.getColor(colorThiefCanvas, colorThiefCtx);
     uploadObject.dominant = dominantColor.toString();
+    
+    // clean up colorthief offscreen canvas 
+    colorThiefCtx.clearRect(0, 0, colorThiefCanvas.width, colorThiefCanvas.height);
+    colorThiefCanvas.width = colorThiefCanvas.height = 0;
 
     breadcrumb("[UPLOAD] Generated Dominant");
+    
+    // clean up image bitmaps
+    imgBitmap.close();
+    imgBitmap = null;
 
+    thumbnailBitmap.close();
+    thumbnailBitmap = null;
+    
     return uploadObject;
 
 }
@@ -767,7 +755,7 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     
     breadcrumb("[UPLOAD] Generating Video Thumbnails. Will use canvas no: " + canvasNo + " and player no: " + playerNo);
 
-    var sizes        = { "lightbox" : 1920, "thumbnail" : 480, "thumbnail2" : 480, "thumbnail3" : 480 };
+    var sizes        = { "lightbox" : 1920, "thumbnail" : 480 };
     var qualities    = { "lightbox" : 0.75, "thumbnail" : 5 };
     var uploadObject = { "lightbox" : {  }, "thumbnail" : { }, "date" : { }, "dominant" : { } };
     
@@ -775,13 +763,6 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     var exifDate = "0000:00:00"; 
     if (originalFile.lastModified) { exifDate = dateToExif(originalFile.lastModified); }
     uploadObject.date = exifDate;
-
-    canvases[canvasNo].resizedCanvas = canvases[canvasNo].resizedCanvas || document.createElement("canvas");
-    canvases[canvasNo].resizedContext = canvases[canvasNo].resizedContext || canvases[canvasNo].resizedCanvas.getContext("2d", { willReadFrequently: true });
-    canvases[canvasNo].originalCanvas = canvases[canvasNo].originalCanvas || document.createElement("canvas");
-    canvases[canvasNo].originalContext = canvases[canvasNo].originalContext || canvases[canvasNo].originalCanvas.getContext("2d", { willReadFrequently: true });
-    canvases[canvasNo].orientationCanvas = canvases[canvasNo].orientationCanvas || document.createElement("canvas");
-    canvases[canvasNo].orientationContext = canvases[canvasNo].orientationContext || canvases[canvasNo].orientationCanvas.getContext("2d", { willReadFrequently: true });
 
     breadcrumb('[UPLOAD] Preparing video player');
 
@@ -805,7 +786,7 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     video.autoplay = false;
     video.muted = true;
     video.loop = false;
-    video.currentTime = 0.01; // load first frame (~30fps)
+    video.currentTime = 1; // get frame at 1 second
     
     // on ios video needs to be set to autoplay for the uploads to work. 
     if (isios || isipados) { video.autoplay = true; }
@@ -824,104 +805,65 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     
     breadcrumb("[UPLOAD] Decoding video");
 
-    // Video metadata is loaded
+    // Wait for video metadata and frame to load
     await new Promise(resolve => video.addEventListener('loadedmetadata', resolve));
     await new Promise(resolve => video.addEventListener('loadeddata', resolve));
 
-    var width = video.videoWidth;
-    var height = video.videoHeight;
-    var duration = video.duration;
-    var thumbnailIncrement = duration / 3;
+    // Create a single offscreen canvas for the frame capture
+    const frameCanvas = new OffscreenCanvas(video.videoWidth, video.videoHeight);
+    const frameCtx = frameCanvas.getContext('2d');
+    frameCtx.drawImage(video, 0, 0);
 
-    try {
-        canvases[canvasNo].orientationCanvas.width = width;
-        canvases[canvasNo].orientationCanvas.height = height;
-        // if (isFirefox && isAndroid) {
-        //     const bitmap = await createImageBitmap(video);
-        //     canvases[canvasNo].orientationContext.drawImage(bitmap, 0, 0);
-        // } else {
-            canvases[canvasNo].orientationContext.drawImage(video, 0, 0);
-        // }
-    } catch (error) {
-        handleError("[UPLOAD] Failed to draw video to canvas", error);
-    }
-
-    var gif; 
-    try {
-        gif = new GIF({ workers: 3, quality: 5, workerScript : "../js/lib/gifjs-0.2.0/gif.worker.js" });
-    } catch (error) {
-        handleError("[UPLOAD] Failed to init GIF lib / workers", error);
-    }
+    // Get ImageBitmap directly from the canvas
+    const frameBitmap = await createImageBitmap(frameCanvas);
     
-    for (var size in sizes) { 
-
+    // We can now dispose of the canvas
+    frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
+    frameCanvas.width = frameCanvas.height = 0;
+    
+    let thumbnailBitmap;
+    for (var size in sizes) {
         try {
-            if (size.startsWith("thumbnail")) {
-                video.currentTime += thumbnailIncrement;
-                await new Promise(resolve => video.addEventListener('timeupdate', resolve, { once: true }));
-                // if (isFirefox && isAndroid) {
-                    // const bitmap = await createImageBitmap(video);
-                    // canvases[canvasNo].orientationContext.drawImage(bitmap, 0, 0);
-                // } else {
-                    canvases[canvasNo].orientationContext.drawImage(video, 0, 0);
-                // }
-            }
-    
-            // cycle through all sizes, and generate thumbnails
-            var maxWidthOrHeight = sizes[size]; // lightbox, thumbnail etc. 
-            var ratio = 1;
-    
-            if (canvases[canvasNo].orientationCanvas.width > maxWidthOrHeight) {
-                ratio = maxWidthOrHeight / canvases[canvasNo].orientationCanvas.width;
-            } else if (canvases[canvasNo].orientationCanvas.height > maxWidthOrHeight) {
-                ratio = maxWidthOrHeight / canvases[canvasNo].orientationCanvas.height;
-            }
-    
-            canvases[canvasNo].originalCanvas.width = canvases[canvasNo].orientationCanvas.width;
-            canvases[canvasNo].originalCanvas.height = canvases[canvasNo].orientationCanvas.height;
-    
-            canvases[canvasNo].originalContext.drawImage(canvases[canvasNo].orientationCanvas, 0, 0, canvases[canvasNo].orientationCanvas.width, canvases[canvasNo].orientationCanvas.height, 0, 0, canvases[canvasNo].originalCanvas.width, canvases[canvasNo].originalCanvas.height);
-    
-            canvases[canvasNo].resizedCanvas.width = canvases[canvasNo].originalCanvas.width * ratio; // this canvas gets a reduced size
-            canvases[canvasNo].resizedCanvas.height = canvases[canvasNo].originalCanvas.height * ratio;
-    
-            canvases[canvasNo].resizedContext.drawImage(canvases[canvasNo].originalCanvas, 0, 0, canvases[canvasNo].originalCanvas.width, canvases[canvasNo].originalCanvas.height, 0, 0, canvases[canvasNo].resizedCanvas.width, canvases[canvasNo].resizedCanvas.height);
+            const maxWidthOrHeight = sizes[size];
+            const resizedBitmap = await imgFileToImgBitmap(frameBitmap, { width: frameBitmap.width, height: frameBitmap.height }, maxWidthOrHeight);
+            uploadObject[size] = await imageBitmapToBlob(resizedBitmap, qualities[size], "image/jpeg");
             
-            if (size.startsWith("thumbnail") && gif) {
-                gif.addFrame(canvases[canvasNo].resizedCanvas, { delay: 350, copy: true });
+            if (size === "thumbnail") {
+                thumbnailBitmap = resizedBitmap;
             } else {
-                uploadObject[size] = await canvasToBlob(canvases[canvasNo].resizedCanvas, qualities[size], "image/jpeg");
-            }            
+                resizedBitmap.close();
+            }
         } catch (error) {
             handleError("[UPLOAD] Failed to generate video variant size: " + size, error);
         }
-
     }
 
-    if (gif) {
-        try {
-            gif.render();
-            uploadObject.thumbnail = await new Promise(resolve => gif.on('finished', resolve));
-            breadcrumb("[UPLOAD] Generated Video Thumbnails");
-        } catch (error) {
-            handleError("[UPLOAD] Failed to generate video gif thumbnails", error);
-        }
-    }
+    try {        
+       
+        // Get dominant color from thumbnail
+        const colorCanvas = new OffscreenCanvas(thumbnailBitmap.width, thumbnailBitmap.height);
+        const colorCtx = colorCanvas.getContext('2d');
+        colorCtx.drawImage(thumbnailBitmap, 0, 0);
+        
+        const colorThief = new ColorThief();
+        uploadObject.dominant = colorThief.getColor(colorCanvas, colorCtx).toString();
 
-    try {
-        // generate dominant from thumbnails in canvas
-        var colorThief = new ColorThief();
-        var dominantColor = colorThief.getColor(canvases[canvasNo].resizedCanvas, canvases[canvasNo].resizedContext);
-        uploadObject.dominant = dominantColor.toString();
+        // Cleanup
+        colorCtx.clearRect(0, 0, colorCanvas.width, colorCanvas.height);
+        colorCanvas.width = colorCanvas.height = 0;
+        
         breadcrumb("[UPLOAD] Generated Video Dominant");
+        
     } catch (error) {
         handleError("[UPLOAD] Failed to generate video dominant color", error);
     }
     
     revokeObjectURL(blobURL);
+    thumbnailBitmap.close();
+    frameBitmap.close();
     video = null;
     source = null;
-
+    
     return uploadObject;
 
 }

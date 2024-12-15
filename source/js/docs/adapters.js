@@ -483,9 +483,10 @@ var PDFViewerApplication;
     var pdfjsframe = document.getElementById('embeddedPDFViewer');
 
     return new Promise(function(resolve, reject) {
-        pdfjsframe.onload = function() {
+        pdfjsframe.onload = async function() {
 
             PDFViewerApplication = pdfjsframe.contentWindow.PDFViewerApplication;
+            await PDFViewerApplication.initializedPromise;
             PDFViewerApplication.open(pdfDataURL);
             breadcrumb('[PDF VIEWER] Started listening for changes');
             pdfChangesInterval = setInterval(checkPDFChanges, 1000);

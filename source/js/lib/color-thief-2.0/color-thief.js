@@ -1,5 +1,5 @@
 /*!
- * Color Thief v2.0
+ * Color Thief v2.6.0 (but technically 2.1 — modified by John Ozbay @ Dec 2024 to bring it up to speed with 2.6.0 and use offscreen canvas instead for perf)
  * by Lokesh Dhakar - http://www.lokeshdhakar.com
  *
  * Thanks
@@ -26,21 +26,8 @@
 var CanvasImage = function (sourceCanvas, sourceCtx) {
     this.canvas  = sourceCanvas;
     this.context = sourceCtx;
-
-    document.body.appendChild(this.canvas);
-
     this.width  = this.canvas.width;
     this.height = this.canvas.height;
-
-    // this.context.drawImage(image, 0, 0, this.width, this.height);
-};
-
-CanvasImage.prototype.clear = function () {
-    this.context.clearRect(0, 0, this.width, this.height);
-};
-
-CanvasImage.prototype.update = function (imageData) {
-    this.context.putImageData(imageData, 0, 0);
 };
 
 CanvasImage.prototype.getPixelCount = function () {
@@ -49,10 +36,6 @@ CanvasImage.prototype.getPixelCount = function () {
 
 CanvasImage.prototype.getImageData = function () {
     return this.context.getImageData(0, 0, this.width, this.height);
-};
-
-CanvasImage.prototype.removeCanvas = function () {
-    this.canvas.parentNode.removeChild(this.canvas);
 };
 
 
@@ -135,9 +118,6 @@ ColorThief.prototype.getPalette = function(sourceCanvas, sourceCtx, colorCount, 
     // using median cut algorithm
     var cmap    = MMCQ.quantize(pixelArray, colorCount);
     var palette = cmap? cmap.palette() : null;
-
-    // Clean up
-    image.removeCanvas();
 
     return palette;
 };
