@@ -375,7 +375,7 @@ async function sendContactForm() {
 
     stopHelpProgress("panel-contact");
     hideHelpPanel();
-    createPopup("Thank you contacting us! We've received your support question / feedback message and someone from our team will get back to you as quickly as humanly possible", "success");
+    createPopup("Thank you for contacting us! We've received your support question / feedback message and someone from our team will get back to you as quickly as humanly possible", "success");
     return true;
 
 }

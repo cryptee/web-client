@@ -1580,6 +1580,37 @@ async function confirmMove() {
             hideFloater("moveFloat");
             return false;
         }
+
+        // CHECK FOR CYCLICAL MOVES IF NOT MOVING INTO ROOT. 
+        // IF YOU TRY TO MOVE ROOT/FOLDER1 INTO ROOT/FOLDER1[SOURCE]/FOLDER2/FOLDER3/FOLDER4[TARGET] THIS WOULD CREATE A CYCLIC STRUCTURE, SINCE YOU SHOULDN'T BE ABLE TO MOVE A ROOT FOLDER AS ITS NESTED OWN CHILD.
+        // WE PROTECT AGAINST THIS USING CSS/UI CODE, ADDING THIS AS AN EXTRA SAFETY NET.
+        // SO CHECK IF THE TARGET IS SOMEHOW A CHILD OF THE SOURCE FOLDER (arrayOfItemsToMove[0])
+        
+        if (targetFID) {
+            
+            let stillHaveMoreParents = true;
+            let lastParentOfTarget;
+
+            while (stillHaveMoreParents) {
+                let parentOfTheTargetFolder = await parentOfFolder(lastParentOfTarget || targetFID);
+                if (parentOfTheTargetFolder) {
+                    if (parentOfTheTargetFolder === arrayOfItemsToMove[0]) {
+                        breadcrumb("[MOVE FOLDER] Caught a cyclic/recursive move issue, will warn user");
+                        createPopup("You can't move a folder into itself. <br><br> To move files or folders, first right click on them (or press <i class='ri-more-2-fill'></i>) and press <b>'move to'</b>. Then, open the target folder you'd like to move things into. Finally, once you're in the target folder press the green <b>move here</b> button in the bottom.","info");
+                        hideFloater("moveFloat");
+                        return false;
+                    }
+                    lastParentOfTarget = parentOfTheTargetFolder;
+                } else {
+                    stillHaveMoreParents = false;
+                    break;
+                }
+            }
+
+        }
+        
+        breadcrumb('[MOVE FOLDER] No cyclic/recursive issues found, will proceed to move');
+        
     } else {
         // CHECK IF USER'S TRYING TO MOVE DOCS TO THE SAME FOLDER.
         var tryingToMoveDocstoSameFolder = false;

@@ -457,6 +457,15 @@ async function moveFolder(fidToMove, targetFID) {
         return false;
     }
 
+    // if not moving into root, check for a cyclic structure and stop.
+    if (targetFID) {
+        let parentOfTheTargetFolder = await parentOfFolder(targetFID);
+        if (parentOfTheTargetFolder && parentOfTheTargetFolder === fidToMove) {
+            handleError("[MOVE FOLDER] Can't move folder, this would create a cyclical folder structure.");
+            return false;
+        }
+    }
+
     breadcrumb("[MOVE FOLDER] Moving " + fidToMove + " to " + targetFID);
 
     var moved = await setFolderMeta(fidToMove, { parent : targetFID });

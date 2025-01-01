@@ -40,6 +40,8 @@ function prepBeforeLoadingAlbumOrFavorites() {
     scrollTop();
 }
 
+
+let lastLoadedAlbum;
 /**
  * Loads an album with given Album ID, and displays its photos
  * @param {string} aid Album ID
@@ -173,6 +175,15 @@ async function loadAlbum(aid) {
             history.pushState(activeAlbumID, null, '/photos?album='+activeAlbumID);
         }
     }
+
+    if (activeAlbumID !== "home") { 
+        lastLoadedAlbum = activeAlbumID; 
+    } else {
+        // scroll to album
+        scrollToItem(lastLoadedAlbum);
+        lastLoadedAlbum = null;
+    }
+    
 }
 
 
@@ -774,7 +785,6 @@ clearTimeline(true);
  * @param {boolean} force force-reset timeline object
  */
 function clearTimeline(force) {
-    if ( $(window).width() <= 703 ) { return; }
 
     clearingTimeline = true;
     $("#timeline").addClass("loading");
@@ -803,7 +813,6 @@ function clearTimeline(force) {
  * @param {*} an item to add to timeline
  */
 function addToTimeline(item) {
-    if ( $(window).width() <= 703 ) { return; }
 
     var name = item[1] || "Untitled";
     var exif = item[2] || "0000:00:00";
@@ -841,7 +850,6 @@ function addToTimeline(item) {
  * @param {('az-desc'|'az-asc'|'date-desc'|'date-asc')} sort the sort type to use for sorting the page / timeline
  */
 function drawTimeline(sort) {
-    if ( $(window).width() <= 703 ) { return; }
 
     sort = sort || "date-desc";
     
@@ -1030,7 +1038,6 @@ function renderTimelineLabel(label, whatToUse) {
  * Updates the timeline with items that are in viewport. (i.e. when user scrolls etc)
  */
 function updateTimelineWithItemsOnScreen() {
-    if ( $(window).width() <= 703 ) { return; }
     
     var using = $("#timeline").attr("type");
     var itemsOnScreen = $(".onscreen");

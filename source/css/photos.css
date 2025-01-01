@@ -19,7 +19,6 @@ html, body {
     overflow: hidden;
 }
 
-
 .dm body {
     background: var(--oled-safe-black);
     color: var(--cryptee-2);
@@ -680,6 +679,7 @@ TIMELINE
 #timeline small.sub:not(.active)        { transform: translateX(2rem); }
 #timeline small:not(.sub):not(.active)  { transform: translateX(1rem); }
 
+body.searching #timeline small,
 #timeline.loading small,
 #timeline small.loading {
     transform: translateX(4rem) !important;
@@ -2604,6 +2604,8 @@ MEDIA QUERIES
         column-gap: 0;
     }
 
+    .nav-gallery main #albumContents { max-width: calc(100% - 4rem);}
+
     .contents { 
         margin-left: 0;
         grid-column: 1/-1;
@@ -2700,7 +2702,8 @@ MEDIA QUERIES
         margin-bottom: 0;
     }
     
-    #help, #timeline { display: none !important; }
+    #help,
+    .nav-album #timeline { display: none !important; }
     
     #upgrade {
         background-color: var(--cryptee-4);
