@@ -318,6 +318,11 @@ key('command+s, ctrl+s', function () {
     return false;
 });
 
+key('command+y, ctrl+y', function () {
+    quill.history.redo();
+    return false;
+});
+
 key('command+shift+k, ctrl+shift+k', function () {
     showEmbed("formula");
     return false;

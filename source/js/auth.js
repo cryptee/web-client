@@ -796,7 +796,7 @@ function updateUserInLS() {
         
         updateRemainingStorage(remainingStorage);
         
-        if (theUserPlan && theUserPlan !== "free" && theUserPlan !== "gift") { 
+        if (theUserPlan) { 
             localStorage.setItem("plan", theUserPlan); 
         } else {
             localStorage.removeItem("plan");
@@ -924,7 +924,8 @@ function plansUpdated() {
     } else {
         $("body").removeAttr("plan");
         isPaidUser = false;
-    }
+    }    
+    
 }
 
 
@@ -1048,33 +1049,54 @@ var chosenMessage;
  * We'll give you a lifetime discount too.
  * It's a dark and fucked up world out there, if this brings you a little bit of joy, then it's all worth it. 
  */
-function checkForSpecialOffersAndPrepareUpgradeMessaging() {
+async function checkForSpecialOffersAndPrepareUpgradeMessaging() {
+        
+    console.log("[OFFERS] Checking offers...");
+    
+    // we need the locale to be able to decide if we'll show this or not, so skip unless we have locale
+    
+    if (location.pathname === "/home") {
+        await waitForBodyAttribute("region");
+    }
     
     var isQualified = checkIfUserIsQualifiedForSpecialOffersOrPromos();
     
     var messages = [
-        "need more storage for your bird pics?",
-        "your 'homework' folder belongs here.",
-        "tim's busy counting zeros.\nyour privacy counts more here.",
-        "your photos, minus the cloud-y drama.",
-        "your camera roll has seen enough.\ntime to go private.",
-        "photos spicier than your lunch?\nyou can store them here.",
-        "even newton didn't expect his fruit to fall this far from the privacy tree.",
-        "more storage space than your old camera bag with the broken zipper.",
-        "ready to give your files and photos a northern european winter retreat?",
-        "why keep your data in the valley\nwhen it could chill in in northern europe?",
-        "fancy storing your data near santa's workshop in northern europe?",
-        "tired of all the valley drama?\ntry european tranquility.",
-        "file storage as clean as nordic tap water.",
+        // "need more storage for your bird pics?",
+        // "your 'homework' folder belongs here.",
+        // "tim's busy counting zeros.\nyour privacy counts more here.",
+        // "your photos, minus the cloud-y drama.",
+        // "your camera roll has seen enough.\ntime to go private.",
+        // "photos spicier than your lunch?\nyou can store them here.",
+        // "even newton didn't expect his fruit to fall this far from the privacy tree.",
+        // "more storage space than your old camera bag with the broken zipper.",
+        // "ready to give your files and photos a northern european winter retreat?",
+        // "tired of all the valley drama?\ntry european tranquility.",
+        // "why keep your data in the valley\nwhen it could chill in europe?",
+        // "fancy storing your data near santa's workshop in northern europe?",
+        // "your data deserves better than\namerican fast food privacy policies.",
+        
+        "european security, tighter than the\ncork on a bottle of portuguese wine.",
+        "tired of american data buffets?\ntry our european privacy cuisine.",
+        "secure european storage\nas crisp as a french baguette.",
+        "european cloud storage,\nas sturdy as a dutch windmill.",
+        "european privacy & security,\nas strong as an italian espresso.",
+        "european cloud storage,\nas clean as nordic tap water.",
+        "european data sovereignty,\nas tasty as belgian chocolate.",
+        "european sanctuary for your data,\nas peaceful as a swedish forest.",
+        "privacy-first european storage,\nthat respects you & your neighbors",
+        "european security & design,\nas meticulous as danish furniture.",
     ];
     
     if (isQualified) {
-        breadcrumb("[OFFERS] Showing FALL 2024 special offer.");
-        if (location.pathname === "/plans") { applyPromoCode("FALL2024", 25); }
+        breadcrumb("[OFFERS] Showing EU special offer.");
+        if (location.pathname === "/plans") { try { applyPromoCode("EUROPEANSOLIDARITY", 10); console.log("[OFFERS] APPLIED PROMO CODE"); } catch (error) { } }
     } else {
         breadcrumb("[OFFERS] No special offers available.");
-        if (location.pathname === "/plans") { removePromoCode(); }
+        if (location.pathname === "/plans") { try { removePromoCode(); } catch (error) { } }
     }
+
+    
         
     if (!chosenMessage) {
         let lastIndex = localStorage.getItem('lastPromoMessageIndex') || -1;
@@ -1084,14 +1106,27 @@ function checkForSpecialOffersAndPrepareUpgradeMessaging() {
         chosenMessage = messages[lastIndex] || "we have discounts!";
         
         if (isQualified) {
-            chosenMessage = chosenMessage + "\nupgrade by 2025, get 25% off for life.";   
+            chosenMessage = chosenMessage + "\nupgrade by june, get 10% off for life.";   
         } else {
             chosenMessage = chosenMessage;
         }
     }
     
     if (location.pathname === "/home") {
+
         $('#upgrade-offer-text').text(chosenMessage);
+
+        var newSignup = false;
+        try { newSignup = sessionStorage.getItem("newsignup"); } catch (e) {}
+        
+        // if user is on a free plan and it's not a fresh new signup, show messaging
+                
+        if (!newSignup && theUserPlan === "free") { 
+            // show upgrade button for continued users                    
+            $(".actionButton[app='upgrade']").show();
+            $(".actionButton[app='upgrade']").addClass("willBeShown");  
+        }
+
     }
 
 }
@@ -1102,13 +1137,15 @@ function checkForSpecialOffersAndPrepareUpgradeMessaging() {
  */
 function checkIfUserIsQualifiedForSpecialOffersOrPromos() {
     
-    // if user hasn't logged in yet or something, than this should be false, to prevent showing upgrade popups
-    if (!allowedStorage) { return false; }
-
-    var freeUserQuotaInBytes = 100000000; // 100mb
-    var programEndsOn = 1735682400000; // Jan 1, 2025
+    // check if user is in EU region
+    const isEU = $("body").attr("region") === "eu";
+    
+    // var freeUserQuotaInBytes = 100000000; // 100mb
+    var programEndsOn = 1748725199000; // Jun 1, 2025
     var now = (new Date()).getTime();
-    var isQualified = (allowedStorage <= freeUserQuotaInBytes && now <= programEndsOn);
+    // var isQualified = (allowedStorage <= freeUserQuotaInBytes && now <= programEndsOn);
+    var isQualified = (theUserPlan === "free" && isEU && now <= programEndsOn);
+        
     // var isQualified = true; // for testing
 
     return isQualified;

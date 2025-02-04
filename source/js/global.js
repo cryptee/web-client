@@ -70,24 +70,6 @@ function isTouchDevice() {
   return window.matchMedia(queries.join(",")).matches;
 }
 
-function checkDOMRectBlocked() {
-  var isItBlocked = true;
-
-  try {
-    Element.prototype.getClientRects();
-  } catch(error) {
-    isItBlocked = false;
-  }
-
-  return isItBlocked;
-}
-
-var isDOMRectBlocked = checkDOMRectBlocked();
-
-setSentryTag("dom-rect-blocked", isDOMRectBlocked);
-
-
-
 
 function checkFileAPIs() {
   // Check for the various File API support. thx blockers.. 
@@ -902,17 +884,27 @@ function clamp(num, min, max) {
 
 
 /**
- * We don't like cookies. Nobody likes cookies. So we delete them all. On all page loads. Even if a partner, like Paddle or their JS files leave a cookie, it'll be deleted on each pageload.
+ * We don't like cookies. Nobody likes cookies. 
+ * So we delete them all. On all page loads. 
+ * Even if a partner, like Paddle or Stripe or their JS files leave a cookie, it'll be deleted on each pageload.
  */
 function deleteAllCookies() {
-  var cookies = document.cookie.split(";");
-  for (var i = 0; i < cookies.length; i++) {
-      var cookie = cookies[i];
-      var eqPos = cookie.indexOf("=");
-      var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  }
+    const cookies = document.cookie.split(';');
+    const pathList = ['/', '/subdirectory']; // all possible paths the cookies might use
+    const domain = window.location.hostname;
+    const domains = [domain, '.' + domain]; // handles both domain.com and .domain.com
+
+    cookies.forEach(cookie => {
+        const name = cookie.split('=')[0].trim();
+
+        pathList.forEach(path => {
+            domains.forEach(domain => {
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${domain}`;
+            });
+        });
+    });
 }
+
 deleteAllCookies();
 
 /**
@@ -1630,6 +1622,27 @@ function lazyLoadUncriticalAssets() {
     
 }
 
+
+// Helper function to wait for an attribute
+function waitForBodyAttribute(attributeName) {
+    return new Promise(resolve => {
+        if (document.body.hasAttribute(attributeName)) {
+            return resolve();
+        }
+        
+        const observer = new MutationObserver(mutations => {
+            if (document.body.hasAttribute(attributeName)) {
+                observer.disconnect();
+                resolve();
+            }
+        });
+        
+        observer.observe(document.body, { 
+            attributes: true,
+            attributeFilter: [attributeName]
+        });
+    });
+}
 
 
 ////////////////////////////////////////////////

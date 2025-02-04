@@ -3055,7 +3055,7 @@ async function prepareMakeOnlineModal(whatToRemove) {
 
         var notOnServer = "";
         if (!doc.generation || doc.offline > doc.generation) { 
-            notOnServer = "<span class='deleting-not-synced-tag'>not sync'ed to server!</span>"; 
+            notOnServer = "<span class='deleting-not-synced-tag'>not synced to server!</span>"; 
         } 
 
         $("#making-online-filenames").append(`<p>${name} ${active} ${notOnServer}</p>`);

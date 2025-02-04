@@ -608,7 +608,7 @@ VISUAL FEATURES / GRID
     height: 100%;
     border-radius: 0.5rem;
     background-color: #222;
-    grid-template-rows: 4rem auto;
+    grid-template-rows: 7rem 4rem;
     color: var(--cryptee-4);
     overflow: hidden;
 }
@@ -632,6 +632,7 @@ VISUAL FEATURES / GRID
 .feature-visual.lg {
     grid-column: span 2;
     grid-row: span 2;
+    grid-template-rows: 22rem 4rem;
 }
 
 .feature-visual.lg picture, 
@@ -1399,6 +1400,66 @@ FREQUENTLY ASKED QUESTIONS (FAQ)
     margin-top: 4rem;
 }
 
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ACTIVISM, ADVOCACY & RESEARCH PAGE 
+ 
+--------------------------------
+----------------------------- */
+/* #region ACTIVISM, ADVOCACY & RESEARCH PAGE */
+
+#aar-article { padding-top: 20rem; }
+
+#aar-article #about-grid div > h2 { 
+    margin-bottom: 2rem; 
+    writing-mode: lr; 
+    text-align: left;
+}
+
+.aside-aar { border-top: 2px solid #363636; }
+
+.aar-grid {
+    display: grid;
+    border-top: 2px solid #363636;
+    grid-template-columns: repeat(14, 4rem);
+    padding-top: 2rem;
+    row-gap: 0;
+}
+
+.aside-aar.no-border,
+.aar-grid.no-border {
+    border: none !important;
+}
+
+.aar-grid h2        { grid-column: span 4; }
+.aar-grid b.spacing { grid-column: span 5; }
+.aar-grid p         { grid-column: span 6; }
+
+#activism-advocacy-research p.with-border {
+    border-bottom: 2px dashed #363636 !important;
+    padding-bottom: 4rem !important;
+    margin-bottom: 4rem !important;
+}
+
+.aar-grid img.aar-hero { 
+    grid-column: span 9; 
+    height: 16rem;
+    object-fit: cover; 
+    margin-bottom: 4rem;
+}
+
+.aar-grid b.gap { 
+    grid-column: 1/-1; 
+    height: 8rem; 
+}
+
+/* #endregion ACTIVISM, ADVOCACY & RESEARCH PAGE */
+
+
+
 /* -----------------------------
 -------------------------------- 
  
@@ -1624,6 +1685,14 @@ MEDIA QUERIES
     }
 
     .feature-visual-grid b { display: none !important; }
+    .feature-visual picture, .feature-visual img, .feature-visual source {
+        height: auto;
+        width: 100%;
+        aspect-ratio: unset;
+    }
+
+    .feature-visual     { grid-template-rows: auto 4rem; }
+    .feature-visual.lg  { grid-template-rows: 22rem 4rem; }
 
     .index-download-os { 
         grid-column-start: 1;
@@ -1696,6 +1765,13 @@ MEDIA QUERIES
 
     #hero h2 br:last-child {
         display: none;
+    }
+
+    .aside-aar { border: none; }
+    
+    .aar-grid { 
+        grid-template-columns: 8rem 1fr; 
+        margin: auto;
     }
 
 }
@@ -1920,6 +1996,10 @@ MEDIA QUERIES
     .feature-visual-grid { 
         grid-template-columns: 1fr;
         gap: 1rem !important; 
+    }
+    
+    .feature-visual { 
+        grid-template-rows: auto 4rem !important; 
     }
 
     .feature-visual.lg,

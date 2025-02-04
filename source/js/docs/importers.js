@@ -59,10 +59,20 @@ async function importFile(doc, filename) {
         } catch (error) { err(doc.docid, error); }
     }
     
-    // CRYPTEEDOC / ECD FILES
-    if (["crypteedoc", "ecd"].includes(ext)) {
+    // ECD FILES
+    if (["ecd"].includes(ext)) {
         try { 
             var rawECD = await downloadAndDecryptFile(doc.docid, null, "rawtext", filename, doc.mime, null, doc, true);
+            if (!rawECD) { return err(doc.docid, "failed"); }
+            if (rawECD === "aborted") { return err(doc.docid, "aborted"); }
+            await importECDFile(doc, rawECD);
+        } catch (error) { err(doc.docid, error); }
+    }
+
+    // CRYPTEEDOC FILES
+    if (["crypteedoc"].includes(ext)) {
+        try { 
+            var rawECD = await downloadAndDecryptFile(doc.docid, null, "blob", filename, doc.mime, null, doc, true);
             if (!rawECD) { return err(doc.docid, "failed"); }
             if (rawECD === "aborted") { return err(doc.docid, "aborted"); }
             await importECDFile(doc, rawECD);
@@ -169,11 +179,11 @@ var importingECD;
 /**
  * Imports / Converts an ECD File
  * @param {string} doc docID
- * @param {*} rawECD Plaintext contents of file
+ * @param {*} armoredContents Plaintext contents of file OR a crypteedoc blob. depends on the file
  */
 async function importECDFile(doc, armoredContents) {
     var did = doc.docid;
-
+    
     breadcrumb('[ECD IMPORTER] Decoding File ' + did);
 
     if (!armoredContents) {
@@ -182,34 +192,52 @@ async function importECDFile(doc, armoredContents) {
         return false;
     }
 
-    var parsedArmor;
-    try {
-        parsedArmor = JSON.parse(armoredContents);
-        parsedArmor = parsedArmor.data;
-    } catch (error) {
-        error.did = did;
-        handleError("[ECD IMPORTER] Failed to parse", { did : did });
-    }
-
-    if (!parsedArmor) {
-        createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
-        return false;
-    }
-
     var plaintextContents;
-    try {
-        plaintextContents = await decrypt(parsedArmor, [theKey, keyToRemember]);
-    } catch (error) {}
 
+    if (typeof armoredContents === 'string') {
+
+        try {
+            
+            var parsedArmor;
+            try {
+                parsedArmor = JSON.parse(armoredContents);
+                parsedArmor = parsedArmor.data;
+            } catch (error) {
+                error.did = did;
+                handleError("[ECD IMPORTER] Failed to parse", { did : did });
+            }
+            
+            try {
+                plaintextContents = await decrypt(parsedArmor, [theKey, keyToRemember]);
+            } catch (error) {}
+            
+        } catch (error) {}
+
+    } else if (typeof armoredContents === 'object') {
+    
+        try {
+            plaintextContents = await streamingDecrypt(armoredContents.stream(), [theKey, keyToRemember], "application/octet-stream");
+        } catch (error) {
+            error.did = did;
+            handleError("[ECD IMPORTER] Failed to stream decrypt", { did : did });
+            // this could happen if we're dealing with a v3 cryptee doc, we tried stream decrypting, but since it's v3, we'll need it read as rawtext
+            return importECDFile(doc, await blobToText(armoredContents));
+        }
+
+    }
+    
     if (!plaintextContents) {
+        
         cancelAndResetImportingECD();
-
+        
         // USING DIFFERENT KEY, SHOW MODAL
+        breadcrumb("[ECD IMPORTER] Doc uses a different encryption key. Showing modal to ask for new key");
         importingECD = { doc : doc, ciphertext : parsedArmor };
         showModal("modal-import-ecd");
         return false;
-    }
 
+    }
+    
     await decryptAndImportECD({ doc : doc, plaintext : plaintextContents });
 
     return true;
@@ -248,12 +276,61 @@ async function decryptAndImportECD(ecd){
             // user entered key
             startModalProgress("modal-import-ecd");
 
+            breadcrumb("[IMPORT ECD] Attempting to [non-streaming] decrypt document ...");
+            
             try {
                 plaintextContents = await decrypt(ecd.ciphertext, [theKey, keyToRemember, ecdKey]);
-            } catch (error) {} 
+            } catch (error) {
+                handleError("[IMPORT ECD] Failed to decrypt", error, "warning");
+            } 
+            
+            if (isEmpty(plaintextContents)) {
+                breadcrumb("[IMPORT ECD] Failed to [non-streaming] decrypt document, trying [non-streaming] decrypt again, this time without integrity checks ...");
+                try {
+                    plaintextContents = await insecurelyDecrypt(ecd.ciphertext, [theKey, keyToRemember, ecdKey]);
+                    if (!isEmpty(plaintextContents)) {
+                        createPopup("Cryptee recovered this file by bypassing some integrity checks. This usually means the upload was interrupted (e.g. network issues/browser crash) so please double check the file's contents for accuracy, ensure stable internet connection and don't close the browser tab while uploading or re-upload / re-save important files if upload seems interrupted", "warning");
+                        handleError("[IMPORT ECD] Decrypted document without integrity checks! Warning user!");
+                    }
+                } catch (error) {
+                    handleError("[IMPORT ECD] Failed to decrypt, even without integrity checks", error, "warning");
+                } 
+            }
         }
     }
+    
+    if (!plaintextContents.data) {
+        
+        breadcrumb("[IMPORT ECD] Attempting to [streaming] decrypt document ...");
 
+        // if this is a crypteedoc, try
+        try {
+            plaintextContents = await streamingDecrypt(plaintextContents.stream(), [theKey, keyToRemember, ecdKey], "application/octet-stream");
+        } catch (error) {
+            handleError("[IMPORT ECD] Failed to streaming decrypt", error, "warning");
+        } 
+        
+        if (!plaintextContents) {
+            breadcrumb("[IMPORT ECD] Failed to [streaming] decrypt document, trying [streaming] decrypt again, this time without integrity checks ...");
+            try {
+                plaintextContents = await insecurelyStreamingDecrypt(plaintextContents.stream(), [theKey, keyToRemember, ecdKey], "application/octet-stream");
+                if (!isEmpty(plaintextContents)) {
+                    createPopup("Cryptee recovered this file by bypassing some integrity checks. This usually means the upload was interrupted (e.g. network issues/browser crash) so please double check the file's contents for accuracy, ensure stable internet connection and don't close the browser tab while uploading or re-upload / re-save important files if upload seems interrupted", "warning");
+                    handleError("[IMPORT ECD] Streaming decrypted document without integrity checks! Warning user!");
+                }
+            } catch (error) {
+                handleError("[IMPORT ECD] Failed to streaming decrypt, even without integrity checks", error, "warning");
+            } 
+        }
+
+        try {
+            plaintextContents = await blobToJSON(plaintextContents);
+        } catch (error) {
+            console.error("failed to convert blob to json", error);    
+        }
+
+    }
+        
     if (isEmpty(plaintextContents)) {
         stopModalProgress("modal-import-ecd");
         $("#modal-import-ecd").addClass("error");
@@ -266,9 +343,13 @@ async function decryptAndImportECD(ecd){
     $("#modal-import-ecd").removeClass("error");
     $("#ecd-import-status").html("decrypting / importing");
 
+    // FOR ECD DOCS,
     // NOW plaintextContents.data = stringified doc delta
     // which is basically what we'd have as a UECD file, so from here on, we're basically importing an UECD file.
-    await importUECDFile(ecd.doc, plaintextContents.data);
+
+    // FOR CRYPTEEDOCS (COULD BE V4, WE SHOULD LOOK INTO THIS)
+    // plaintextcontents = quill delta { ops : [], metadata : {}}
+    await importUECDFile(ecd.doc, plaintextContents.data || plaintextContents);
 
     cancelAndResetImportingECD();
     hideActiveModal();

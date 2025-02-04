@@ -97,7 +97,7 @@ footer {
     grid-template-columns: 3rem 1fr;
     line-height: 3.25rem;
     overflow: hidden;
-    width: 20rem;
+    width: 20.5rem;
     background-color: #FFF;
     border-radius: 0.5rem;
 
@@ -117,10 +117,34 @@ footer {
 .actionButton[app="upgrade"] {
     display: block;
     height: 8rem;
+    position: relative;
     padding: 0.5rem 1rem 1rem 1rem;
     box-sizing: border-box;
-    background-image: linear-gradient(-45deg, #168946 0%, #072C14 75%);
+    background-image: linear-gradient(-45deg, #003399 0%, #00194d 80%);
     color: #FFF;
+}
+
+.actionButton[app="upgrade"]::before {
+    content: "";
+    display: block;
+    background-image: url("../assets/eu-color.svg");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 2.65rem;
+    height: 2.65rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    opacity: 0;
+    transform: rotate(15deg);
+    transition: 0.5s opacity ease, 0.5s transform ease;
+}
+
+body[region="eu"] .actionButton[app="upgrade"]::before {
+    transform: rotate(0deg);
+    opacity: 1;
 }
 
 #upgrade-offer-text {

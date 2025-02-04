@@ -775,6 +775,7 @@ $(".filter-button").on('click', function(event) {
 function resetAlbumFilters() {
     $("body").removeAttr("filter-fav-only");
     $("body").removeAttr("filter-raw-only");
+    $("body").removeAttr("filter-video-only");
     $(".filter-button").removeClass("selected");
     updateLightboxSort();
 }

@@ -110,6 +110,35 @@ async function decrypt(ciphertext, keys) {
 
 }
 
+
+/**
+ * Attempts to decrypt a corrupted/incomplete ciphertext by bypassing integrity checks
+ * WARNING: This is unsafe and should only be used as last resort for recovery
+ * @param {string} ciphertext 
+ * @param {array} keys 
+ * @returns {promise} promise with plaintext
+ */
+async function insecurelyDecrypt(ciphertext, keys) {
+    try {
+        var options = {
+            message: await openpgp.message.readArmored(ciphertext),
+            passwords: keys,
+            format: 'utf8',
+            config: {
+                aead_protect: false,
+                integrity_protect: false,
+                ignore_mdc_error: true,
+                allow_unauthenticated_stream: true,
+                checksum_required: false,
+                tolerant: true
+            }
+        };
+
+        return openpgp.decrypt(options);
+
+    } catch (error) { throw error; }
+}
+
 /////////////////////////////////////////////////////////////
 // ENCRYPT Uint8Array USING KEYS
 //
@@ -238,6 +267,41 @@ async function streamingDecrypt(encryptedStream, keys, plaintextMimetype) {
   
 }
   
+
+/**
+ * Attempts to decrypt a corrupted/incomplete stream by bypassing integrity checks
+ * WARNING: This is unsafe and should only be used as last resort for recovery
+ * @param {*} encryptedStream 
+ * @param {array} keys 
+ * @param {String} plaintextMimetype
+ * @returns {Promise <Blob>} decryptedBlob
+ */
+async function insecurelyStreamingDecrypt(encryptedStream, keys, plaintextMimetype) {
+    try {
+
+        // refer to polyfilledReadableStream for more info on why we need this polyfill, and maybe remove in the future
+        if (isFirefox) { encryptedStream = polyfilledReadableStream(encryptedStream); }
+
+        const insecureConfig = {
+            allowUnauthenticatedStream: true,    // Allow streaming before integrity check
+            allowUnauthenticatedMessages: true,  // Allow messages without integrity protection
+            checksumRequired: false,             // Don't require armor checksum
+            ignoreMalformedPackets: true,        // Try to continue even with malformed packets
+            ignoreUnsupportedPackets: true,      // Skip unsupported packets
+        };
+
+        const decryptedStream = await openpgpV5.decrypt({
+            message: await openpgpV5.readMessage({ binaryMessage: encryptedStream, config: insecureConfig }),
+            passwords: keys,
+            format: 'binary',
+            config: insecureConfig
+        });
+
+        return new Response(decryptedStream.data, { headers: { 'Content-Type': plaintextMimetype } }).blob();
+
+    } catch (error) { throw error; }
+}
+
   
 /**
  * This generates an additional fileKey for an upload. For photos we use the same fileKey for all sizes (original, lightbox, thumbnail etc). 

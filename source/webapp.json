@@ -1,83 +1,107 @@
 {
-  "short_name": "Cryptee",
-  "name": "Cryptee",
-  "description": "Cryptee is a safe, encrypted place to write personal documents, store photos privately and more.",
-  "icons": [
-    {
-      "src": "../assets/masked-logo.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose" : "any"
-    },
-    {
-      "src": "../assets/maskable-logo.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose" : "maskable"
-    },
-    {
-      "src": "../assets/masked-logo.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose" : "any"
-    },
-    {
-      "src": "../assets/maskable-logo.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose" : "maskable"
-    }
-  ],
-  "start_url": "/home",
-  "display": "standalone",
-  "background_color": "rgb(255,255,255)",
-  "theme_color" : "rgb(255,255,255)",
-  "screenshots": [
-    {
-      "src": "../imgs/hero/docs-photos-hero@3x.jpg",
-      "sizes": "1728x1056",
-      "type": "image/jpeg"
-    },
-    {
-      "src": "../imgs/features/docs-tables-checkboxes@3x.jpg",
-      "sizes": "1728x1056",
-      "type": "image/jpeg"
-    },
-    {
-      "src": "../imgs/features/photos-albums@3x.jpg",
-      "sizes": "172x1056",
-      "type": "image/jpeg"
-    },
-    {
-      "src": "../imgs/features/docs-side-by-side@3x.jpg",
-      "sizes": "172x1056",
-      "type": "image/jpeg"
-    }    
-  ],
-  "shortcuts": [
-    {
-      "name": "Cryptee Documents",
-      "description": "Open Cryptee Documents",
-      "url": "/docs",
-      "icons": [
+    "short_name": "Cryptee",
+    "name": "Cryptee",
+    "description": "Cryptee is a safe, encrypted place to write personal documents, store photos privately and more.",
+    "icons": [
         {
-          "src": "../assets/docs-maskable-icon.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Cryptee Photos",
-      "description": "Open Cryptee Photos",
-      "url": "/photos",
-      "icons": [
+            "src": "../assets/masked-logo-192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+        },
         {
-          "src": "../assets/photos-maskable-icon.png",
-          "type": "image/png",
-          "sizes": "192x192"
+            "src": "../assets/maskable-logo-192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "maskable"
+        },
+        {
+            "src": "../assets/masked-logo-512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+        },
+        {
+            "src": "../assets/maskable-logo-512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        },
+        {
+            "src": "../assets/masked-logo.png",
+            "type": "image/png",
+            "sizes": "2000x2000",
+            "purpose": "any"
+        },
+        {
+            "src": "../assets/maskable-logo.png",
+            "type": "image/png",
+            "sizes": "2000x2000",
+            "purpose": "maskable"
         }
-      ]
-    }
-  ]
+    ],
+    "start_url": "/home",
+    "display": "standalone",
+    "background_color": "rgb(255,255,255)",
+    "theme_color": "rgb(255,255,255)",
+    "screenshots": [
+        {
+            "src": "../imgs/hero/docs-photos-hero@3x.jpg",
+            "form_factor": "wide",
+            "sizes": "1728x1056",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "../imgs/features/docs-tables-checkboxes@3x.jpg",
+            "form_factor": "wide",
+            "sizes": "1728x1056",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "../imgs/features/photos-albums@3x.jpg",
+            "sizes": "1728x1056",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "../imgs/features/docs-side-by-side@3x.jpg",
+            "sizes": "1728x1056",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "../imgs/install-screenshots/portrait-1.jpg",
+            "sizes": "700x933",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "../imgs/install-screenshots/portrait-2.jpg",
+            "sizes": "700x933",
+            "type": "image/jpeg"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Cryptee Documents",
+            "description": "Open Cryptee Documents",
+            "url": "/docs",
+            "icons": [
+                {
+                    "src": "../assets/docs-maskable-icon.png",
+                    "type": "image/png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Cryptee Photos",
+            "description": "Open Cryptee Photos",
+            "url": "/photos",
+            "icons": [
+                {
+                    "src": "../assets/photos-maskable-icon.png",
+                    "type": "image/png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
 }

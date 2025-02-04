@@ -570,7 +570,7 @@ async function decryptPhotoDescription(pid) {
 
 /**
  * This sorts the active active album's contents with the given sorting type, and returns a sorted array of albums / photos etc.
- * @param {('az-asc'|'az-desc'|'date-asc'|'date-desc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc')} sorttype Sorting Type
+ * @param {('az-asc'|'az-desc'|'date-asc'|'date-desc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc'|'video-asc'|'video-desc')} sorttype Sorting Type
  * @returns {Array} sortedAlbumContentsArray an array of sorted album contents (albums / photos etc.)
  */
 function getSortedActiveAlbumContents(sorttype) {
@@ -604,7 +604,8 @@ function getSortedActiveAlbumContents(sorttype) {
                     var photoDate = (photo.date || "").split("0000:00:00T00:00:00")[0] || "0000:00:00";
                     var photoIsFavorited = favorites[photoID]? true : false;
                     var photoIsRaw = photo.raw || false;
-                    titlesArray.push([photoID, photoTitle, photoDate, photoIsFavorited, photoIsRaw]);
+                    var photoIsVideo = photoID.startsWith("v-") || false;
+                    titlesArray.push([photoID, photoTitle, photoDate, photoIsFavorited, photoIsRaw, photoIsVideo]);
                 }
             });
         }
@@ -678,6 +679,22 @@ function getSortedActiveAlbumContents(sorttype) {
             if (aRaw === bRaw) return 0;
             return aRaw ? -1 : 1;
         });
+    } else if (sorttype === "video-asc") {
+        $(".sort-button[type='video-asc']").addClass("selected");
+        titlesArray.sort(function (a, b) {
+            var aVideo = a[5] === true;
+            var bVideo = b[5] === true;
+            if (aVideo === bVideo) return 0;
+            return aVideo ? 1 : -1;
+        });
+    } else if (sorttype === "video-desc") {
+        $(".sort-button[type='video-desc']").addClass("selected");
+        titlesArray.sort(function (a, b) {
+            var aVideo = a[5] === true;
+            var bVideo = b[5] === true;
+            if (aVideo === bVideo) return 0;
+            return aVideo ? -1 : 1;
+        });
     } else {
         // UNKNOWN SORT, use date-desc instead
         return getSortedActiveAlbumContents("date-desc");
@@ -694,7 +711,7 @@ function getSortedActiveAlbumContents(sorttype) {
 
 /**
  * Sorts all visible items (i.e. photos / albums etc) and updates the lightbox & timeline
- * @param {('az-desc'|'az-asc'|'date-desc'|'date-asc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc')} sorttype The sort order / type 
+ * @param {('az-desc'|'az-asc'|'date-desc'|'date-asc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc'|'video-asc'|'video-desc')} sorttype The sort order / type 
  */
 function sortThings(sorttype) {
     sorttype = sorttype || "date-desc";
@@ -741,6 +758,20 @@ function sortThings(sorttype) {
             var bRaw = $(b).attr("raw") === "true";
             if (aRaw === bRaw) return 0;
             return aRaw ? -1 : 1;
+        };
+    } else if (sorttype === "video-asc") {
+        sortFunction = function(a,b) {
+            var aVideo = $(a).hasClass("video") || false;
+            var bVideo = $(b).hasClass("video") || false;
+            if (aVideo === bVideo) return 0;
+            return aVideo ? 1 : -1;
+        };
+    } else if (sorttype === "video-desc") {
+        sortFunction = function(a,b) {
+            var aVideo = $(a).hasClass("video") || false;
+            var bVideo = $(b).hasClass("video") || false;
+            if (aVideo === bVideo) return 0;
+            return aVideo ? -1 : 1;
         };
     } else if (sorttype === "date-asc") {
         sortFunction = function(a,b) {

@@ -15,17 +15,20 @@ $('#signup').on('click', submitStep2);
 $("#bigg").on('click', skipStep1);
 
 $('#keyinfo').on('click', function() {
-    showPopup("popup-signup", "In addition to the login password, Cryptee also requires you to pick a data encryption key to encrypt &amp; decrypt your data on your device, so that it's accessible only by you. The key never leaves your device, and it's never sent to any servers.<br><br><br>");
+    showPopup("popup-signup", "In addition to the login password, Cryptee also requires you to pick a data encryption key to encrypt &amp; decrypt your data on your device, so that it's accessible only by you. The key never leaves your device, and it's never sent to any servers.");
+    $("#key").trigger("blur");
 }); 
 
 function passColor(color) {
-    $("#password-strength, #password-strength-message").removeClass("yellow red green"); 
-    $("#password-strength, #password-strength-message").addClass(color); 
+    $("#password-strength-message").removeClass("yellow red green"); 
+    $("#password-strength-message").addClass(color);
+    $("#pswrd").removeAttr("color");
+    $("#pswrd").attr("color", color); 
 }
 
 function keyColor(color) {
-    $("#key-strength").removeClass("yellow red green"); 
-    $("#key-strength").addClass(color); 
+    $("#key").removeAttr("color");
+    $("#key").attr("color", color); 
 }
 
 $(document).on('ready', function(event) {
@@ -60,30 +63,30 @@ $("#pswrd").on('keydown keypress paste copy cut change', function(event) {
 
         if (passScore === 0) {
             $("#password-strength-message").html("too weak");
-            $("#password-strength").attr("value", 5);
+            $("#pswrd").attr("strength", 255); // this is a css color alpha value
             passColor("red");
         }
         
         else if (passScore === 1) {
             $("#password-strength-message").html("weak");
-            $("#password-strength").attr("value", 10);
+            $("#pswrd").attr("strength", 128); // this is a css color alpha value
             passColor("red");
         }
         
         else if (passScore === 2) {
             $("#password-strength-message").html("fair");
-            $("#password-strength").attr("value", 40);
+            $("#pswrd").attr("strength", 255); // this is a css color alpha value
             passColor("yellow");
         }
         
         else if (passScore === 3) {
             $("#password-strength-message").html("good enough");
-            $("#password-strength").attr("value", 75);
+            $("#pswrd").attr("strength", 200); // this is a css color alpha value
             passColor("green");
         }
         
         else {
-            $("#password-strength").attr("value", 100);
+            $("#pswrd").attr("strength", 255); // this is a css color alpha value
             passColor("green");
             
             if (first64DigitsOfPassword.length >= 32) {
@@ -96,13 +99,13 @@ $("#pswrd").on('keydown keypress paste copy cut change', function(event) {
         // password must be at least 6 characters
         if (first64DigitsOfPassword.length < 6) {
             $("#password-strength-message").html("minimum 6 characters");
-            $("#password-strength").attr("value", 5);
+            $("#pswrd").attr("strength", 255);
             passColor("red");
         }
 
         if (first64DigitsOfPassword.length === 0) {
             $("#password-strength-message").html(" &nbsp; ");
-            $("#password-strength").attr("value", 0); 
+            $("#pswrd").attr("strength", 255); 
             passColor("red");
         }
 
@@ -126,37 +129,37 @@ $("#key").on('keydown keypress paste copy cut change', function(event) {
         keyScore = zxcvbn(first64DigitsOfKey).score;
 
         if (keyScore === 0) {
-            $("#key-strength").attr("value", 25);
+            $("#key").attr("strength", 255);
             $("#signup").attr("disabled", true); 
             keyColor("red");
         }
         
         else if (keyScore === 1) {
-            $("#key-strength").attr("value", 35);
+            $("#key").attr("strength", 255);
             $("#signup").removeAttr("disabled");
             keyColor("yellow");
         }
         
         else if (keyScore === 2) {
-            $("#key-strength").attr("value", 65);
+            $("#key").attr("strength", 100);
             $("#signup").removeAttr("disabled");
             keyColor("green");
         }
         
         else if (keyScore === 3) {
-            $("#key-strength").attr("value", 75);
+            $("#key").attr("strength", 200);
             $("#signup").removeAttr("disabled");
             keyColor("green");
         }
         
         else {
-            $("#key-strength").attr("value", 100);
+            $("#key").attr("strength", 255);
             $("#signup").removeAttr("disabled");
             keyColor("green");
         }
         
         if (first64DigitsOfKey.length === 0) {
-            $("#key-strength").attr("value", 0); 
+            $("#key").attr("strength", 255); 
             keyColor("red");
         }
 

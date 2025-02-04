@@ -556,7 +556,11 @@ async function getLocale() {
         $("#favorites-button").html(`fav<span class="hidden-tablet">ourit</span>es`);
     }
     
-    if (euCountryCodesList.includes(loc)) { $("body").attr("region", "eu"); }
+    if (euCountryCodesList.includes(loc)) { 
+        $("body").attr("region", "eu"); 
+    } else {
+        $("body").attr("region", "xx");
+    }
 
 }
 

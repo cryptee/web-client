@@ -232,7 +232,7 @@ var downloadingFiles = false;
 async function downloadFiles(whatToDownload) {
     var isDownloadingAndSavingMultipleFiles = false;
 
-    arrayOfDIDsToDownload = selections;
+    var arrayOfDIDsToDownload = selections;
     if (arrayOfDIDsToDownload.length === 0) { 
         arrayOfDIDsToDownload = [$("#dropdown-doc").attr("did")]; 
     } 
@@ -306,7 +306,67 @@ async function downloadFiles(whatToDownload) {
 
 }
 
+/**
+ * Downloads & saves an encrypted crypteefile/crypteedoc to disk. 
+ * This is mostly for backups / debugging etc. Still in testing, and won't make it to live environment for a while.
+ */
+async function directDownloadEncryptedFile() {
 
+    let didToDownload = $("#dropdown-doc").attr("did");
+    
+    if (downloadingFiles) { 
+        breadcrumb("[DIRECT DOWNLOAD FILES] Already downloading");
+        return false; 
+    }
+
+    if (!didToDownload) {
+        breadcrumb("[DIRECT DOWNLOAD FILES] Nothing to download");
+        return false;
+    }
+
+    var connection = checkConnection();
+    if (!connection) { 
+        breadcrumb("[DIRECT DOWNLOAD FILES] No internet connection.");
+        createPopup(`Failed to connect / download your files. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        return false; 
+    }
+
+    downloadingFiles = true;
+    downloadsCancelled = false;
+    $("#start-downloads-button").addClass("downloading");
+    $("#downloadFileButton").addClass("loading");
+    $("#directDownloadEncryptedFileButton").addClass("loading");
+    breadcrumb(`[DOWNLOAD FILES] Starting to direct download a file ... ${didToDownload}`);
+
+    startDocOrFileProgress(didToDownload);
+
+    // DOWNLOAD
+    let fileContents;
+    if (didToDownload.endsWith("-v4")) {
+        fileContents = await streamingDownloadFile(didToDownload + ".crypteedoc");
+        fileContents = await new Response(fileContents).blob();
+    } else {
+        fileContents = await downloadFile(didToDownload + ".crypteedoc");
+        // this is how we do for ecd as well, so mimicking here
+        fileContents = JSON.stringify({"data" : fileContents});
+        fileContents = new Blob([fileContents], {type: "application/json;charset=utf-8"}); 
+    }
+    
+    downloadingFiles = false;
+    downloadsCancelled = false;
+    $("#start-downloads-button").removeClass("downloading");
+    $("#downloadFileButton").removeClass("loading");
+    $("#directDownloadEncryptedFileButton").removeClass("loading");
+
+    stopDocOrFileProgress(didToDownload);
+
+    saveAsOrShare(fileContents, didToDownload + ".crypteedoc");
+
+    hideRightClickDropdowns();
+    hidePanels();
+    
+    return true;
+}
 
 
 /**

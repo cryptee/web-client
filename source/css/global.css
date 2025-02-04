@@ -323,7 +323,10 @@ small.monospace,
 /* functions */
 
 .clickable { user-select: none; cursor: pointer;}
-
+.super {
+    vertical-align: super;
+    font-size: smaller;
+}
 
 /* -----------------------------
 -------------------------------- 

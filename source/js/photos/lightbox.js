@@ -483,7 +483,7 @@ function lightboxZoomChanged(event, scale) {
 
 /**
  * Updates the sort order of lightbox if the album's sort order changes, to keep up with the order of things 
- * @param {('az-asc'|'az-desc'|'date-asc'|'date-desc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc')} sorttype Sorting Type 
+ * @param {('az-asc'|'az-desc'|'date-asc'|'date-desc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc'|'video-asc'|'video-desc')} sorttype Sorting Type 
  */
 function updateLightboxSort(sorttype) {
 
@@ -492,6 +492,7 @@ function updateLightboxSort(sorttype) {
     sorttype = sorttype || $(".sort-button.selected").attr("type");
 
     let filterRawOnly = $("body").attr("filter-raw-only")? true : false;
+    let filterVideoOnly = $("body").attr("filter-video-only")? true : false;
     let filterFavOnly = $("body").attr("filter-fav-only")? true : false;
 
     // remove all lightbox events to stop thousands of slideChange events from triggering.
@@ -507,8 +508,10 @@ function updateLightboxSort(sorttype) {
        
        var photo = photos[pid] || {};
        var isPhotoRaw = photo.raw || false;
+       var isVideo = pid.startsWith("v-") || false;
 
        if (filterRawOnly && !isPhotoRaw) { return; }
+       if (filterVideoOnly && !isVideo) { return; }
        if (filterFavOnly && !isPhotoFavorited) { return; }
        
        lightboxContentsHTML.push(renderLightboxMedia(pid));

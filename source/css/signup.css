@@ -1,14 +1,23 @@
 body {
     display: grid;
-    grid-template-columns: 1fr minmax(20rem, 40rem) 1fr;
-    grid-template-rows: minmax(4rem, 1fr) 24rem 1fr;
+    grid-template-columns: 1fr minmax(20rem, 37rem) 1fr;
+    grid-template-rows: minmax(4rem, 1fr) 37rem 1fr;
 }
 
 #splash {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 0.5rem;
+    grid-column: 2/3;
+    grid-row: 1/-1;
+    clip-path: url(#splash-mask-clip-path);
+}
+
+#splash-mask {
+    width: 100%;
+    height: 100%;
+    grid-column: 2/3;
+    grid-row: 1/-1;
 }
 
 #logo {
@@ -32,9 +41,9 @@ body {
     position: relative;
     
     display: grid;
-    grid-template-columns: 12rem 4rem 1fr;
+    grid-template-columns: 1fr 13rem;
 
-    padding: 4rem;
+    padding: 0;
     overflow: hidden;
     
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
@@ -43,18 +52,15 @@ body {
 
 #signup-wrap {
     position: relative;
-    max-height: 16rem;
+    padding: 4rem; 
     height: 100%;
     overflow: hidden;
-}
-
-#signup, #next, #bigg, #keyinfo {
-    float: right;
+    box-sizing: border-box;
 }
 
 #step1, #step2, #step3 {
     position: relative;
-    height: 16rem;
+    height: 29rem;
     overflow: hidden;
     transform: translate3d(0,0,0);
     transition: 1s transform ease, 0.3s opacity ease;
@@ -62,31 +68,87 @@ body {
 }
 
 #bigg {
+    text-align: left !important;
     font-weight: 350;
     position: absolute;
-    right: 0;
+    left: 2rem;
     bottom: 0;
 }
 
-input:first-child{
+#keyinfo { 
     margin-top: 0;
+    height: 4rem;
+    line-height: 4rem;
+    padding-left: 2rem;
+    width: 100%;
+}
+
+#key, #signup-info {
+    margin-top: 2.25rem;
 }
 
 input {
-    text-align: right;
-    width: calc(100% - 1px);
+    border-radius: 4rem;
+    background-color: var(--cryptee-4);
+    box-shadow: none !important;
+    border: 1px solid transparent;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: left;
+    margin-top: 0;
+    width: 100%;
+    padding-left: 2rem;
+    box-sizing: border-box;
+    transition: 0.3s border ease, 0.3s background-color ease;
 }
 
-/* mozilla treats progress bar colors differently. */
-@-moz-document url-prefix() {
-    input[type="password"]:not(:focus):not(:hover) { 
-        box-shadow: inset 0px -1px 0px transparent;
-    }
+input:focus {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
 }
 
-#keyinfo {
+input:hover {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+}
+
+small { 
     font-weight: 350;
-    margin-top: 0rem;
+    text-align: left !important;
+    margin-top: 0.25rem;
+    line-height: 1.5rem;
+    height: 2rem;
+    padding-left: 2rem;
+}
+
+input[color='red'][strength='255'] {
+    border: 1px solid #CC0101 !important;
+    background-color: #fde6e6 !important;
+}
+
+input[color='red'][strength='128'] {
+    border: 1px solid #ffa3a3 !important;
+    background-color: #fde6e6 !important;
+}
+
+input[color='yellow'][strength='255'] {
+    border: 1px solid #F2B202 !important;
+    background-color: #fff7e3 !important;
+}
+
+input[color='green'][strength='100'] {
+    border: 1px solid #76d598 !important;
+    background-color: #f5fbf7 !important;
+}
+
+input[color='green'][strength='200'] {
+    border: 1px solid #1DB954 !important;
+    background-color: #eefcf3 !important;
+}
+
+input[color='green'][strength='255'] {
+    border: 1px solid #00b540 !important;
+    background-color: #e3ffed !important;
 }
 
 #step2 .light {
@@ -98,7 +160,7 @@ input {
 }
 
 #step3 p:first-child {
-    margin-top: calc(11.25rem);
+    margin-top: calc(5rem);
 }
 
 #signup {
@@ -109,8 +171,8 @@ input {
 
 .popup {
     position: absolute;
-    top: 0;
-    left: 0;
+    bottom: 0;
+    left: 2rem;
     height: auto;
     z-index: 2;
 }
@@ -122,36 +184,37 @@ input {
     transition: 0.3s opacity var(--cryptee-cb);
 }
 
-#email-notice.show {
-    opacity: 1;
-}
-
-#password-strength, #key-strength {
-    transform: rotate(180deg);
-}
-
-#pswrd:not(:placeholder-shown),
-#key:not(:placeholder-shown) {
-    box-shadow: none !important;
-}
+#email-notice.show { opacity: 1; }
 
 #next, #signup {
+    
+    float: right;
+
+    border-radius: 4rem;
+    color: #FFF;
+    background-color: var(--cryptee-green);
+    box-shadow: none !important;
+    border: 1px solid transparent;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+    margin-top: 0;
+    width: 50%;
+    box-sizing: border-box;
+    transition: 0.3s opacity ease;
+
     opacity: 1;
-    border-bottom: 1px solid transparent;
     transition-duration: 0.3s;
     transition-property: opacity, border, color;
     transition-timing-function: var(--cryptee-cb);
 }
 
 #next:focus, #signup:focus  {
-    color: var(--cryptee-green);
-    border-bottom: 1px solid var(--cryptee-green);
+    background-color: #3d9e5f;
 }
 
 #password-strength-message {
-    margin-top: 0.25rem;
     display: block;
-    margin-bottom: 1.25rem;
 }
 
 
@@ -178,18 +241,65 @@ sliding animation
 #signup-wrap[step="2"] #step1,
 #signup-wrap[step="2"] #step2,
 #signup-wrap[step="2"] #step3 {
-    transform: translate3d(0,-16rem,0);
+    transform: translate3d(0,-29rem,0);
 }
 
 #signup-wrap[step="3"] #step1,
 #signup-wrap[step="3"] #step2,
 #signup-wrap[step="3"] #step3 {
-    transform: translate3d(0,-32rem,0);
+    transform: translate3d(0,-58rem,0);
+}
+
+.sm-a, .sm-b, .sm-c, .sm-d { 
+    transition: transform 1s ease; 
+}
+
+@media (min-width : 544px) {
+
+    #signup-wrap[step="2"] + #splash-mask .sm-a { transform: translateY(6.5rem); }
+    #signup-wrap[step="2"] + #splash-mask .sm-b { transform: translateY(-8rem); }
+    #signup-wrap[step="2"] + #splash-mask .sm-c { transform: translateY(12.5rem); }
+    #signup-wrap[step="2"] + #splash-mask .sm-d { transform: translateY(-10rem); }
+    
+    #signup-wrap[step="3"] + #splash-mask .sm-a:nth-child(odd) { animation: float-a 5.2s infinite ease-in-out; }
+    #signup-wrap[step="3"] + #splash-mask .sm-a:nth-child(even) { animation: float-a 4.3s infinite ease-in-out; }
+    
+    #signup-wrap[step="3"] + #splash-mask .sm-b:nth-child(odd) { animation: float-b 4.7s infinite ease-in-out; }
+    #signup-wrap[step="3"] + #splash-mask .sm-b:nth-child(even) { animation: float-b 5.5s infinite ease-in-out; }
+    
+    #signup-wrap[step="3"] + #splash-mask .sm-c:nth-child(odd) { animation: float-c 5.8s infinite ease-in-out; }
+    #signup-wrap[step="3"] + #splash-mask .sm-c:nth-child(even) { animation: float-c 4.5s infinite ease-in-out; }
+    
+    #signup-wrap[step="3"] + #splash-mask .sm-d:nth-child(odd) { animation: float-d 5s infinite ease-in-out; }
+    #signup-wrap[step="3"] + #splash-mask .sm-d:nth-child(even) { animation: float-d 4.1s infinite ease-in-out; }
+    
 }
 
 
+/* Animations that start from step 2 positions */
+@keyframes float-a { 
+    0% { transform: translateY(6.5rem); }
+    50% { transform: translateY(-8.5rem); }
+    100% { transform: translateY(6.5rem); }
+}
 
+@keyframes float-b {
+    0% { transform: translateY(-8rem); }
+    50% { transform: translateY(4rem); }
+    100% { transform: translateY(-8rem); }
+}
 
+@keyframes float-c {
+    0% { transform: translateY(12.5rem); }
+    50% { transform: translateY(-3rem); }
+    100% { transform: translateY(12.5rem); }
+}
+
+@keyframes float-d {
+    0% { transform: translateY(-10rem); }
+    50% { transform: translateY(5rem); }
+    100% { transform: translateY(-10rem); }
+}
 
 
 
@@ -204,30 +314,9 @@ MEDIA
 ----------------------------- */
 
 @media (max-width : 544px) {
-    body {
-        background-color: white;
-    }
+    body { background-color: white; }
     
-    input, #step3 { 
-        text-align: left !important; 
-    }
-
-    #password-strength, #key-strength {
-        transform: rotate(0deg);
-    }
-    
-    #signup, #next, #bigg, #keyinfo {
-        float: left;
-    }
-
-    #password-strength-message {
-        text-align: left;
-    }
-
-    #bigg, #signup  {
-        right: unset;
-        left: 0;
-    }
+    #step3 { text-align: left !important; }
 
     #signup-card {
         grid-template-columns: 1fr;

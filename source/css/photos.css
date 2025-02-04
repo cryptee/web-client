@@ -283,7 +283,7 @@ SORT POPUP / SORTER
     grid-template-columns: 1fr 3rem 3rem 3rem;
     grid-template-rows: repeat(4, 3rem);
     gap: 0.5rem;
-    height: 14.5rem;
+    height: 18rem;
     width: 17rem;
     margin: 4rem 4rem 0 auto;
     padding: 0.5rem 0.5rem 0.5rem 1.5rem;
@@ -345,10 +345,13 @@ SORT POPUP / SORTER
 }
 
 body[filter-fav-only] #sort-button,
+body[filter-video-only] #sort-button,
 body[filter-raw-only] #sort-button { opacity: 1; }
 
 body[filter-fav-only] #sort-button,
+body[filter-video-only] #sort-button,
 body[filter-raw-only] #sort-button { text-decoration: wavy underline;}
+
 
 
 /* -----------------------------
@@ -1176,8 +1179,9 @@ body:not(.nav-favorites) .media b[fav] {
     color: var(--cryptee-red) !important;
 }
 
-body[filter-fav-only] .media:not([fav]) { display: none !important; }
-body[filter-raw-only] .media:not([raw]) { display: none !important; }
+body[filter-fav-only]   .media:not([fav])  { display: none !important; }
+body[filter-raw-only]   .media:not([raw])  { display: none !important; }
+body[filter-video-only] .media:not(.video) { display: none !important; }
 
 
 /* -----------------------------

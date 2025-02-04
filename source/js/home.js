@@ -55,13 +55,7 @@ function firstTimeHome() {
 /**
  * Runs all the errands for a continued user ... i.e. show upgrade button
  */
-function secondTimeHome() {
-
-    if (!theUserPlan || theUserPlan === "free") { 
-        // show upgrade button for continued users
-        $(".actionButton[app='upgrade']").show();
-        $(".actionButton[app='upgrade']").addClass("willBeShown");  
-    }
+async function secondTimeHome() {
 
     getLatestNews();
 
@@ -131,6 +125,9 @@ function updateCompletedSuccessfully() {
 
 async function getLatestNews(forceShowNewsCard) {
     
+    // we wait here to see if we'll show the EU or rest of the world card
+    await waitForBodyAttribute("region");
+
     var willShowPromoBanner = checkIfUserIsQualifiedForSpecialOffersOrPromos();
 
     forceShowNewsCard = forceShowNewsCard || false;
@@ -154,6 +151,8 @@ async function getLatestNews(forceShowNewsCard) {
     $(".newsButton").attr("hash", newsID); 
     $("#news-card").find("p").text(newsExcerpt);
     $("#news-card").find("a.more").attr("href", newsURL + "#to-cryptee");
+    
+    lastReadNews = localStorage.getItem("news");
     
     if ((!willShowPromoBanner && lastReadNews !== newsID) || forceShowNewsCard) { showLatestNewsCard(); }
 

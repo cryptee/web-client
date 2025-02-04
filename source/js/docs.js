@@ -1533,7 +1533,7 @@ $("#tableofcontents").on('click', '.doctoc', function () {
 ////////////////////////////////////////////////
 
 function showOfflineInfoPopup() {
-    createPopup("while offline, you can create & edit new documents, and open offline-documents, however features that require internet will be disabled. your documents will be sync'ed once cryptee's re-connected to the internet. <span class='yellow'>please note that, for your safety, your changes will sync only while cryptee docs is open & connected to the internet.</span>", "dark");
+    createPopup("while offline, you can create & edit new documents, and open offline-documents, however features that require internet will be disabled. your documents will be synced once cryptee's re-connected to the internet. <span class='yellow'>please note that, for your safety, your changes will sync only while cryptee docs is open & connected to the internet.</span>", "dark");
 }
 
 function showDocNotAvailableOfflinePopup() {

@@ -20,29 +20,26 @@
         <div id="signup-wrap" step="1">
 
             <div id="step1">
-                <input class="full right" type="text"       autocomplete="off" spellcheck="false" name="email" id="email" placeholder="username or email">
-                <small class="full right blue" id="email-notice">please use a valid email</small>
-                <input class="full right" type="password"   autocomplete="new-password" spellcheck="false" name="password" id="pswrd" placeholder="choose a password">
-                <progress class="progress yellow" value="0" max="100" id="password-strength"></progress>
-                <small class="full right" id="password-strength-message"> &nbsp; </small>
-                <button class="bold right" id="next">sign up</button>
-
-                <button class="right gray" id="bigg">or sign up with google</button>
+                <input class="full" type="text"       autocomplete="off" spellcheck="false" name="email" id="email" placeholder="username or email">
+                <small class="full blue" id="email-notice">please use a valid email</small>
+                <input class="full" type="password"   autocomplete="new-password" spellcheck="false" name="password" id="pswrd" placeholder="choose a password">
+                <small class="full" id="password-strength-message"> &nbsp; </small>
+                <button class="bold" id="next">sign up</button>
+                <button class="gray" id="bigg">or sign up with google</button>
             </div>
 
             <div id="step2">
-                <input  tabindex="-1" class="full right" type="password" autocomplete="new-password" spellcheck="false" name="encryption-key" id="key" placeholder="pick an encryption key">
-                <progress class="progress yellow" value="0" max="100" id="key-strength"></progress>
-                <button tabindex="-1" class="small right" id="keyinfo">what's an encryption key?</button>
-                <br><br><br><br>
-                <small class="justify">
-                    <strong>if you ever lose this key, your data will be forever unrecoverable!</strong>
+                <input  tabindex="-1" class="full" type="password" autocomplete="new-password" spellcheck="false" name="encryption-key" id="key" placeholder="pick an encryption key">
+                <button tabindex="-1" id="keyinfo">what's an encryption key?</button>
+                <p class="justify" id="signup-info">
+                    <strong>if you ever lose this key, your data will be permanently lost with no way to recover it!</strong>
+                    <br>
                     by clicking sign up, you agree to our
                     <a tabindex="-1" class="bold" target="_blank" href="/terms">terms</a>.
-                    you can learn more about how we handle your data by reading our famously simple
+                    you can learn more about how we protect your data in our famously simple
                     <a tabindex="-1" class="bold" target="_blank" href="/privacy">privacy policy</a>.
-                </small>
-                <button class="bold right" id="signup" disabled>sign up</button>
+                </p>
+                <button class="bold" id="signup" disabled>sign up</button>
             </div>
 
             <div id="step3" class="right">
@@ -54,7 +51,45 @@
 
         </div>
 
-        <b class="hidden-below-tablet"></b>
+        <svg class="hidden-below-tablet" width="0" height="0" xmlns="http://www.w3.org/2000/svg" id="splash-mask">
+            <defs>
+                <clipPath id="splash-mask-clip-path">
+                    <!-- Top row A (Y: 0-128) -->
+                    <path d="M0 0H16V128H0V0Z" class="sm-a"/>
+                    <path d="M32 0H48V128H32V0Z" class="sm-a"/>
+                    <path d="M64 0H80V128H64V0Z" class="sm-a"/>
+                    <path d="M96 0H112V128H96V0Z" class="sm-a"/>
+                    <path d="M128 0H144V128H128V0Z" class="sm-a"/>
+                    <path d="M160 0H176V128H160V0Z" class="sm-a"/>
+                    <path d="M192 0H208V128H192V0Z" class="sm-a"/>
+                    
+                    <!-- Top row B (Y: 128-232) -->
+                    <path d="M16 128H32V232H16V128Z" class="sm-b"/>
+                    <path d="M48 128H64V232H48V128Z" class="sm-b"/>
+                    <path d="M80 128H96V232H80V128Z" class="sm-b"/>
+                    <path d="M112 128H128V232H112V128Z" class="sm-b"/>
+                    <path d="M144 128H160V232H144V128Z" class="sm-b"/>
+                    <path d="M176 128H192V232H176V128Z" class="sm-b"/>
+                    
+                    <!-- Bottom row A (Y: 232-392) -->
+                    <path d="M0 232H16V392H0V232Z" class="sm-c"/>
+                    <path d="M32 232H48V392H32V232Z" class="sm-c"/>
+                    <path d="M64 232H80V392H64V232Z" class="sm-c"/>
+                    <path d="M96 232H112V392H96V232Z" class="sm-c"/>
+                    <path d="M128 232H144V392H128V232Z" class="sm-c"/>
+                    <path d="M160 232H176V392H160V232Z" class="sm-c"/>
+                    <path d="M192 232H208V392H192V232Z" class="sm-c"/>
+                    
+                    <!-- Bottom row B (Y: 392-592) -->
+                    <path d="M16 392H32V592H16V392Z" class="sm-d"/>
+                    <path d="M48 392H64V592H48V392Z" class="sm-d"/>
+                    <path d="M80 392H96V592H80V392Z" class="sm-d"/>
+                    <path d="M112 392H128V592H112V392Z" class="sm-d"/>
+                    <path d="M144 392H160V592H144V392Z" class="sm-d"/>
+                    <path d="M176 392H192V592H176V392Z" class="sm-d"/>
+                </clipPath>
+            </defs>
+        </svg>
 
         <img class="hidden-below-tablet" src="../imgs/signup.jpg" alt="Sign Up Photo" id="splash">
 
