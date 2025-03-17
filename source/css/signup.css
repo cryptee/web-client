@@ -41,7 +41,7 @@ body {
     position: relative;
     
     display: grid;
-    grid-template-columns: 1fr 13rem;
+    grid-template-columns: 24rem 13rem;
 
     padding: 0;
     overflow: hidden;

@@ -117,7 +117,7 @@ function createPopup(message, type, creationID, persist) {
     creationID = creationID || (new Date()).getTime();
 
     var persistent = "";
-    var closeButton = '<button class="close"><img src="../assets/cross.svg" alt="close" title="close message"></button>';
+    var closeButton = '<button class="close"><img src="../assets/cross.svg" alt="close" title="close message" draggable="false"></button>';
     if (persist) { 
         persistent = "minimizable persistent"; 
         closeButton = `<button class="minimize"><img src="../assets/dash.svg" alt="minimize" title="minimize/maximize message"></button>`;

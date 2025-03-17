@@ -1190,7 +1190,7 @@ ABOUT
 #bio-grid {
     display: grid;
     grid-template-columns: 24rem 24rem;
-    grid-auto-rows: 24rem;
+    grid-template-rows: 24rem repeat(3, 20rem);
     column-gap: 8rem;
     row-gap: 8rem;
 }
@@ -1247,6 +1247,7 @@ ABOUT
 #about-estonia {
     background-image: url(../imgs/other-logos/ee.svg);
     background-repeat: repeat-x;
+    grid-template-columns: minmax(1rem, 1fr) minmax(0, 64rem) minmax(1rem, 1fr);
 }
 
 #about-estonia section {
@@ -1283,7 +1284,7 @@ ABOUT
 
 #estonia-photos {
     grid-column: span 2;
-    margin: 0 -8rem;
+    margin: 0rem;
     display: grid;
     grid-template-columns: 6fr 3fr 3fr;
 }
@@ -1310,7 +1311,7 @@ ABOUT
 }
 
 #about-faq h2 {
-    grid-column: 2/-1;
+    grid-column: 1/-1;
 }
 
 #about-faq #about-questions {
@@ -1448,7 +1449,21 @@ ACTIVISM, ADVOCACY & RESEARCH PAGE
     grid-column: span 9; 
     height: 16rem;
     object-fit: cover; 
-    margin-bottom: 4rem;
+    margin-bottom: 4rem
+}
+
+img.aar-inline {
+    display: inline-block;
+    object-fit: cover;
+    height: 16rem;
+    width: calc(100% + 4rem);
+    margin-top: 2rem;
+}
+
+img.aar-inline + small {
+    display: block;
+    text-align: right;
+    margin: 0 -4rem 2rem 0;
 }
 
 .aar-grid b.gap { 
@@ -1719,6 +1734,7 @@ MEDIA QUERIES
         margin: auto;
         row-gap: 4rem;
         grid-auto-rows: auto;
+        grid-template-rows: auto;
     }
 
 
@@ -1774,17 +1790,46 @@ MEDIA QUERIES
         margin: auto;
     }
 
+    #about-estonia #estonia-hero {
+        grid-column: span 2;
+        max-width: 32rem;
+        margin: -4rem auto 0 auto;
+    }
+
+    #about-estonia #estonia-story {
+        grid-column: span 2;
+        max-width: 24rem;
+        margin: 0 auto;
+    }
+
+    #about-faq {
+        grid-template-columns: minmax(4rem, 1fr) minmax(0, 48rem) minmax(4rem, 1fr);
+    }
+
+    #about-faq h2 {
+        grid-column: 1 / -1;
+        text-align: center;
+    }
+
 }
 
 @media (max-width : 880px) {
     #europe-section br { display: none !important; }
     #europe-section p { max-width: 26rem; margin-top: -0.5rem; }
     .hidden-for-phablets { display: none !important; }
-}
 
-@media (max-width : 800px) {
+    #about-faq h2 {
+        max-width: 24rem;
+        padding-left: 4rem;
+        text-align: left;
+    }
+
+    #about-faq {
+        grid-template-columns: minmax(1rem, 1fr) minmax(0, 32rem) minmax(1rem, 1fr);
+    }
+    
     #about-questions li {
-        grid-template-columns: 2rem 2rem 1fr; 
+        grid-template-columns: 4rem 2rem 1fr; 
         padding: 1rem 0 3rem 0;
         row-gap: 1rem; 
     }
@@ -2075,8 +2120,39 @@ MEDIA QUERIES
 
     #estonia-photos { grid-template-columns: 1fr 1fr; }
     #estonia-photos img:nth-child(2) { display: none; }
+
+    #about-faq h2 {
+        padding-left: 2rem;
+    }
+
+    #about-faq section {
+        max-width: 28rem;
+        margin:auto;
+        grid-template-columns: 1fr;
+    }
+
+    #about-questions li {
+        grid-template-columns: 2rem 2rem 1fr; 
+    }
+
+    #about-faq #about-questions p {
+        padding-right: 2rem;
+    }
+
+    #aar-article #about-grid h2,
+    #aar-article #about-grid p,
+    #activism-advocacy-research #about-grid div {
+        grid-column: 1/-1;
+    }
+
+    img.aar-inline {
+        width: 100%;
+    }
     
-    #about-faq h2 { margin-left: -2rem; } 
+    img.aar-inline + small {
+        margin: 0 0 2rem 0;
+    }
+    
 
 }
 
