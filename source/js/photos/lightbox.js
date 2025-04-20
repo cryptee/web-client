@@ -123,7 +123,7 @@ function prepareThumbnailBehindLightbox(pid) {
     // it's okay if we don't remove these, css resets their transform to 0 anyway.
     $("#" + pid).addClass("in-lightbox");
     
-    setTimeout(function () { scrollToItem(pid); }, 300);
+    setTimeout(function () { scrollToItem(pid); }, 500);
 }
 
 /**

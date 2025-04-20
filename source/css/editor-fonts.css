@@ -31,5 +31,8 @@ EDITOR TYPOGRAPHY
     font-weight: 1 999;
 }
 
-
-
+@font-face {
+    font-family: 'Inconsolata';
+    src: url('../fonts/Inconsolata-VariableFont_wdth.ttf') format("truetype-variations");
+    font-weight: 1 999;
+}

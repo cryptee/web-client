@@ -1721,7 +1721,7 @@ $("#panel-new-folder")[0].addEventListener('swiped-down', function() {  hidePane
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-$("#searchInput").on('keyup', function(event) {
+$("#searchInput").on('keyup paste', function(event) {
 
     activityHappened();
 
@@ -1805,6 +1805,7 @@ $("#searchInput").on('change', function(event) {
         clearSearch(true);
     }
 });
+
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 //	GETTING STARTED

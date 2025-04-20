@@ -34,53 +34,41 @@
         <a id="logo" href="/home" draggable="false" ondragstart="return false;" class="rememberKey">
             <img src="../assets/logo-b.svg" alt="CRYPTEE">
         </a>
-          
-        <div class="top buttons right-side gallery">
-            <button id="favorites-button">fav<span class="hidden-tablet">orit</span>es</button>
-            <button class="upload-button"><label for="upload-input">upload</label></button>
-        </div>
-        
-        <div class="top buttons right-side albums selected">
-            <button id="make-cover-button" onclick="makeSelectedPhotoAlbumCover();">make <span class="hidden-tablet">album</span> cover</button>
-            <button></button>
-        </div>
 
-        <div class="top buttons right-side albums unselected">
-            <button></button>
-            <button class="upload-button"><label for="upload-input">upload</label></button>
-        </div>
+        <button id="gallery-button">
+            <i class="ri-arrow-left-line"></i>
+            <span>gallery</span>
+        </button>
 
-        <div class="top buttons left-side albums selected">
-            <button></button>
-            <button id="tag-button" onclick="showTagsPanel();">tag</button>
-        </div>
+        <button id="sort-button" onclick="toggleSorter();">
+            <span class="hidden-below-tablet">sort / filter</span>
+            <i class="ri-filter-3-fill"></i>
+        </button>
 
-        <progress   id="main-progress" class="progress"></progress>
+        <button id="action-button" onclick="toggleActions();">
+            <i class="ri-add-fill"></i>
+        </button>
 
-        <div class="bottom buttons left-side gallery unselected">
-            <button id="new-album-button" onclick="newAlbum();">new<span class="hidden-below-tablet"> album</span></button>
-            <button id="summon-album-button" onclick="showModal('modal-summon')">summon<span class="hidden-tablet"> album</span></button>
-        </div>
-        
-        <div class="bottom buttons left-side albums unselected">
-            <button id="gallery-button"><span class="hidden-below-tablet">&lt; </span>gallery</button>
-            <button id="edit-album-button" onclick="showEditAlbumPopup();">edit<span class="hidden-below-tablet"> album</span></button>
-            <!-- <button id="summon-album-button">summon<span class="hidden-tablet"> album</span></button> -->
-        </div>
+        <div id="actions">
+            <label>
+                <p class="gray">what would you like to do?</p>
+                <b></b>
+            </label>
+            <label for="upload-input" onclick="toggleActions();">
+                <p>upload photos &amp; videos</p>
+                <i class="ri-upload-cloud-fill"></i>
+            </label>
 
-        <div class="bottom buttons right-side unselected">
-            <button id="selectall-button" onclick="selectAll();">select all</button>
-            <button id="sort-button" onclick="showSorter();">sort / filter</button>
-        </div>
+            <label onclick="newAlbum(); toggleActions();">
+                <p>create new album</p>
+                <i class="ri-folder-add-fill"></i>
+            </label>
 
-        <div class="bottom buttons left-side selected">
-            <button id="download-button" onclick="showDownloadSizePicker();">download</button>
-            <button id="move-button" onclick="showMoveModal();">move</button>
-        </div>
-        
-        <div class="bottom buttons right-side selected">
-            <button id="unselect-button" onclick="clearSelections();">unselect<span class="hidden-tablet"> all</span></button>
-            <button id="delete-button" onclick="showDeleteSelectionsModal();">delete</button>
+            <label onclick="showModal('modal-summon'); toggleActions();">
+                <p>summon album</p>
+                <i class="ri-eye-fill"></i>
+            </label>
+            
         </div>
 
         <div id="sorter">
@@ -90,8 +78,8 @@
             <i type="date-desc" class="sort-button ri-sort-desc"></i>
             <i type="date-asc"  class="sort-button ri-sort-asc"></i>
 
-            <small>name</small>
-            <b></b>
+            <small id="sorter-name">name</small>
+            <b id="sorter-name-filler"></b>
             <i type="az-desc" class="sort-button ri-sort-desc"></i>
             <i type="az-asc"  class="sort-button ri-sort-asc"></i>
 
@@ -105,7 +93,7 @@
             <i type="video-desc" class="sort-button ri-sort-desc"></i>
             <i type="video-asc"  class="sort-button ri-sort-asc"></i>
 
-            <small>favorites</small>
+            <small id="sorter-fav">favorites</small>
             <i type="fav-only" class="filter-button ri-filter-2-line"></i>
             <i type="fav-desc" class="sort-button ri-sort-desc"></i>
             <i type="fav-asc"  class="sort-button ri-sort-asc"></i>
@@ -139,6 +127,8 @@
 
         <b class="top background"></b>
         <b class="bottom background"></b>
+
+        <progress id="main-progress" class="progress"></progress>
         
     </nav>
 
@@ -167,6 +157,7 @@
     <!-- @import "imports/app/photos-lightbox.kit" -->
     
     <!-- @import "imports/app/photos-downloader.kit" -->
+    <!-- @import "imports/app/photos-selector.kit" -->
     <!-- @import "imports/app/uploader.kit" -->
 
     <!-- @import "imports/app/dropzone.kit" -->
@@ -199,7 +190,7 @@
     <!-- @import "imports/app/modal-canvas-blocked.kit" -->
 
     <!-- <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept=".jpg, .jpeg, .png" webkitdirectory directory multiple/> -->
-    <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept="cr2, cr3, crw, nef, nrw, arw, srf, sr2, raf, orf, pef, raw, rw2, rwl, x3f, 3fr, fff, iiq, mef, mos, dcr, k25, kdc, srw, erf, dng, bay, cap, eip, mdc, tif, tiff, webp, gif, png, jpg, jpeg, mp4, mov" multiple/>
+    <input style="display:none!important;" type="file" id="upload-input" name="files[]" accept="cr2, cr3, crw, nef, nrw, arw, srf, sr2, raf, orf, pef, raw, rw2, rwl, x3f, 3fr, fff, iiq, mef, mos, dcr, k25, kdc, srw, erf, dng, bay, cap, eip, mdc, tif, tiff, webp, gif, png, jpg, jpeg, mp4, mov, heic, heif" multiple/>
 
 
 
@@ -215,6 +206,7 @@
 
     <script lazysrc="../js/lib/exif-reader-4.5.0/exif-reader.js" loadafter="windowload"></script>
     <script lazysrc="../js/lib/color-thief-2.0/color-thief.js"   loadafter="windowload"></script>
+    <script lazysrc="../js/lib/heic-to/heic-to.js"               loadafter="windowload" exceptsafari="1"></script>
     
     <script src="../js/photos/apis.js"></script> <!-- api operations--> 
     <script src="../js/photos.js"></script>

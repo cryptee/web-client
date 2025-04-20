@@ -551,10 +551,6 @@ async function getLocale() {
     } catch (e) {}
     
     setSentryTag("locale", loc);
-
-    if (detectedLocale === "GB") {
-        $("#favorites-button").html(`fav<span class="hidden-tablet">ourit</span>es`);
-    }
     
     if (euCountryCodesList.includes(loc)) { 
         $("body").attr("region", "eu"); 

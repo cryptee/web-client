@@ -451,6 +451,31 @@ body[plan='gift'] #upgrade { display: none !important; }
 }
 
 
+/* -----------------------------
+-------------------------------- 
+ 
+AUTOCOMPLETE TRAP 
+
+this is a sad new addition to our left-panel to combat overly-eager browser autocomplete autofills.
+some browsers and bad pass manager extensions try to autofill the search input with emails, usernames, passwords etc
+which results in the search activating and hiding the left panel. 
+
+to solve this, we're adding in a hidden trap input which captures autocompleted stuff, and hopefully should prevent issues like this from happening.
+
+--------------------------------
+----------------------------- */
+/* #region AUTOCOMPLETE TRAP */
+
+#email-autocomplete-trap {
+    grid-column: 2 / -1;
+    grid-row: 1 / 2;
+    transform: translateY(-3rem);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* #endregion AUTOCOMPLETE TRAP */
+
 /* SEARCH */
 
 #searchInput {

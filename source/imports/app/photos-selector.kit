@@ -1,0 +1,35 @@
+<div id="photos-selector">
+    <small class="gray" id="selector-no-selected">nothing selected</small>
+    <div class="select-unselect">
+        <button onclick="selectAll();">select all</button>
+        <button onclick="clearSelections();">unselect all</button>
+    </div>
+
+    <div class="selection-actions">
+        <div class="cover" onclick="makeSelectedPhotoAlbumCover();">
+            <button><i class="ri-folder-image-fill"></i></button>
+            <small>set as cover</small>
+        </div>
+
+        <div class="download" onclick="showDownloadSizePicker();">
+            <button><i class="ri-download-cloud-fill"></i></button>
+            <small>download</small>
+        </div>
+
+        <div class="move"  onclick="showMoveModal();">
+            <button><i class="ri-folder-transfer-fill"></i></button>
+            <small>move</small>
+        </div>
+
+        <div class="tag" onclick="showTagsPanel();">
+            <button><i class="ri-hashtag"></i></button>
+            <small>tag</small>
+        </div>
+
+        <div class="delete" onclick="showDeleteSelectionsModal();">
+            <button><i class="ri-delete-bin-2-fill"></i></button>
+            <small>delete</small>
+        </div>
+
+    </div>
+</div>

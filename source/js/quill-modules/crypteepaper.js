@@ -941,6 +941,10 @@ async function prepareDocumentPDF() {
                 src: [{ url: '../fonts/MarkaziText-VariableFont_wght.ttf', format: 'truetype' }]
             },
             {
+                family: 'Inconsolata',
+                src: [{ url: '../fonts/Inconsolata-VariableFont_wdth.ttf', format: 'truetype' }]
+            },
+            {
                 family: 'Josefin Sans',
                 src: [{ url: '../fonts/JosefinSans-VariableFont_wght.ttf', format: 'truetype' }]
             },

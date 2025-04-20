@@ -1168,7 +1168,7 @@ async function readEXIF(fileOrFileBuffer) {
   }
 
   if (isEmpty(tags)) { return exif; }
-
+  
   if (tags.DateTime)          { exif.DateTime             = tags.DateTime.value[0] || "";                              }
   if (tags.DateTimeDigitized) { exif.DateTimeDigitized    = tags.DateTimeDigitized.value[0] || "";                     }
   if (tags.DateTimeOriginal)  { exif.DateTimeOriginal     = tags.DateTimeOriginal.value[0] || "";                      }
@@ -1191,8 +1191,8 @@ async function readEXIF(fileOrFileBuffer) {
   exif.whitebal = whitebal;
   exif.iso = iso;
 
-  let width = ((tags["Image Width"] || tags["Exif Image Width"] || tags["Width"]) || {}).value || 2048;
-  let height  = ((tags["Image Height"] || tags["Exif Image Height"] || tags["Height"]) || {}).value || 2048;
+  let width = ((tags["Image Width"] || tags["Exif Image Width"] || tags["PixelXDimension"] || tags["Width"]) || {}).value || 2048;
+  let height  = ((tags["Image Height"] || tags["Exif Image Height"] || tags["PixelYDimension"] || tags["Height"]) || {}).value || 2048;
   
   exif.width  = width || "";
   exif.height = height || "";
@@ -1608,6 +1608,14 @@ function lazyLoadUncriticalAssets() {
 
   if (script) {
     let src = $(script).attr("lazysrc");
+    
+    // if the script shouldn't be loaded for safari at all, remove the loadafter, and next time we call lazyLoadUncriticalAssets it won't be counted, so won't be loaded
+    if (isSafari && $(script).attr("exceptsafari")) {
+        $(script).remove();
+        lazyLoadUncriticalAssets();
+        return;
+    }
+
     $(script).removeAttr("lazysrc");
     $(script).removeAttr("loadafter");
     $(script).on("load", lazyLoadUncriticalAssets);

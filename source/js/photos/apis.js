@@ -143,6 +143,7 @@ async function getAlbumPhotos(aid) {
 async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
  
     imgElem = $(imgElem) || $(`img[thumb="${thumbImgID}"]`);
+    var isFavAlbum  = wrapperElem.getAttribute("id") === "favorites";
     wrapperElem = $(wrapperElem) || imgElem.parent();
 
     if (!thumbImgID) {
@@ -201,7 +202,22 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
 
     imgElem.replaceWith(img);
     
-    doneLoading();
+    if (!isFavAlbum) {
+        doneLoading();
+    } else {
+        checkAllImagesLoadedForFavAlbum();
+    }
+
+    function checkAllImagesLoadedForFavAlbum() {
+        const allImages = wrapperElem[0].querySelectorAll('img');
+        const totalImages = allImages.length;
+        let loadedImages = 0;
+        
+        for (const img of allImages) { if (img.complete) { loadedImages++; } }
+        
+        if (loadedImages === totalImages) { doneLoading(); }
+    }
+
 
     function doneLoading() {
         setTimeout(function () {

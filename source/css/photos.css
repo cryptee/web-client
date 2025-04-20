@@ -43,31 +43,6 @@ main {
 
 main::-webkit-scrollbar { display: none; }
 
-nav {
-    background-color: transparent;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) repeat(auto-fit, 16rem) minmax(0, 1fr);
-    grid-template-rows: 4rem 4rem;
-    column-gap: 4rem;
-    z-index: 9;
-}
-
-nav .background { 
-    grid-column: 1 / -1; 
-    transform: translate3d(0,0,0);
-    transition: 0.5s background-color var(--cryptee-cb), 0.5s transform var(--cryptee-cb); 
-}
-
-nav .top.background { grid-row: 1 / 2;    background-color : var(--cryptee-4); }
-nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
-
-.dm nav .top.background { grid-row: 1 / 2;    background-color : var(--oled-safe-black); }
-.dm nav .bottom.background { grid-row: 2 / 3; background-color : var(--oled-safe-black); }
-
 #help {
     position: absolute;
     bottom: 0;
@@ -93,14 +68,17 @@ nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
     user-select: none;
     outline: none;
     z-index: 2;
+
+    transform: translate3d(0,0,0);
+    opacity: 0.4;
+
+    transition : 0.3s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
 }
 
 #logo img {
     height: 100%;
     width: 100%;
     object-fit: contain;
-    opacity: 0.4;
-    transition: 0.3s opacity linear;
     user-drag: none; 
     user-select: none;
 }
@@ -131,28 +109,44 @@ nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
 }
 
 
-.progress {
-    grid-row: 2/3;
-    grid-column: 1/-1;
-    opacity: 0.2;
-    transition: 0.5s opacity var(--cryptee-cb);
-    z-index: 2;
+
+/* -----------------------------
+-------------------------------- 
+ 
+NAV LAYOUT
+ 
+--------------------------------
+----------------------------- */
+/* #region NAV */
+
+
+nav {
+    background-color: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 0 2rem 1fr 1fr 2rem 0;
+    grid-template-rows: 4rem 0;
+    column-gap: 1rem;
+    z-index: 9;
 }
 
-.dm .progress { filter: invert(1); }
-
-#searchInput:focus, 
-#searchInput:not(:placeholder-shown) {
-    grid-column: 2/-2; 
+nav .background { 
+    grid-column: 1 / -1; 
+    transform: translate3d(0,0,0);
+    transition: 0.5s background-color var(--cryptee-cb), 0.5s transform var(--cryptee-cb); 
 }
 
-#searchInput:focus ~ .progress { opacity: 1; }
+nav .top.background { grid-row: 1 / 2;    background-color : var(--cryptee-4); }
+nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
+
+.dm nav .top.background { grid-row: 1 / 2;    background-color : var(--oled-safe-black); }
+.dm nav .bottom.background { grid-row: 2 / 3; background-color : var(--oled-safe-black); }
+
 
 nav .buttons        { display: flex; }
-nav .top.buttons    { grid-row: 1/2; }
-nav .bottom.buttons { grid-row: 2/3; }
-nav .left-side      { grid-column: 2/3; }
-nav .right-side     { grid-column: -3/-2; }
 
 nav button {
     line-height: 4rem;
@@ -178,87 +172,126 @@ label[for="upload-input"] {
     height: 100%;
 }
 
-
-
-
-/* -----------------------------
--------------------------------- 
- 
-STARTUP / LOADING  
- 
---------------------------------
------------------------------ */
-
-body.searching #main-progress,
-body.starting #main-progress,
-body.loading #main-progress { 
-    opacity: 1; 
+.progress {
+    grid-row: 2/3;
+    grid-column: 1/-1;
+    opacity: 0.2;
+    transition: 0.5s opacity var(--cryptee-cb);
+    z-index: 2;
 }
 
-body.offline .buttons button,
-body.searching .buttons button,
-body.starting .buttons button,
-body.loading .buttons button { 
-    opacity: 0; pointer-events: none; 
+.dm .progress { filter: invert(1); }
+
+#searchInput {
+    grid-column: 3/4;
+    grid-row: 1/2;
+    width: 100%;
 }
 
-body.offline #searchInput,
-body.starting:not(.searching) #searchInput, 
-body.loading:not(.searching) #searchInput { 
-    opacity: 0; pointer-events: none; 
+#gallery-button {
+    grid-column: 2/4;
+    grid-row: 1/2;
+
+    display: grid;
+    width: 7rem;
+    grid-template-columns: 2rem 5rem;   
 }
 
-body.offline #timeline small,
-body.searching #timeline small, 
-body.starting #timeline small, 
-body.loading #timeline small { 
-    transform: translateX(4rem) !important; 
-    pointer-events: none !important;
+#gallery-button i {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 2rem;
+    line-height: 2rem;
+    color: #FFF;
+    text-align: center;
+    background-color: #000;
+    font-size: 1.25rem;
+    margin-top: 1rem;
+
+    transform: scale(1);
+    transition: 0.5s transform var(--cryptee-cb);
 }
 
-body.offline #sorter,
-body.searching #sorter,
-body.starting #sorter,
-body.loading #sorter {
-    transform: translate3d(0, var(--sorter-margin), 0) !important;
-    pointer-events: none !important;
-}
-
-
-body.offline::before {
-    content: "";
-    display: block;
-    position: fixed;
-    z-index : 997;
-    top: 4rem;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: var(--cryptee-4);
-}
-
-body.offline::after {
-    content : "looks like you are offline. \a\ayou can only use cryptee photos with an internet connection. \a\aif you are connected to the internet, but having issues only with cryptee, an ad-blocker / vpn / company firewall or another network filter may be mistakenly blocking cryptee. try disabling it & reload cryptee.";
-    white-space: break-spaces;
-    position: fixed;
-    z-index : 998;
-    top: 4rem;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    margin: auto;
-
-    width: 12rem;
-    height: 22rem;
+.dm #gallery-button i {
     background-color: #FFF;
-    color: var(--cryptee-0);
-    
-    padding: 4rem;
-
-    font-weight: 350;
-    line-height: 1.5rem;
-    text-align: justify;
+    color: #000;
 }
+
+#gallery-button span {
+    margin-left: 1rem;
+}
+
+#sort-button {
+    grid-column: -3/-4;
+    grid-row: 1/2;
+    margin-left: auto;
+    text-align: right;
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(1rem,1fr) 2rem;
+}
+
+#sort-button i {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    margin-left: auto;
+    grid-column: -1 / -2;
+    box-sizing: border-box;
+    border-radius: 3rem;
+}
+
+#sort-button span {
+    margin-right: 1rem;
+}
+
+#action-button {
+    grid-column: -3/-2;
+    grid-row: 1/2;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 1rem;
+    line-height: 2rem;
+    border-radius: 2rem;
+    background-color: #000;
+    transition: 0.3s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb), 0.5s border-radius var(--cryptee-cb), 0.5s background-color var(--cryptee-cb);
+}
+
+.dm #action-button {
+    background-color: #FFF;
+}
+
+#action-button i {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    color: #FFF;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 0;
+    vertical-align: baseline;
+    transform: rotate(0) scale(1);
+    transition: 0.5s transform var(--cryptee-cb);
+}
+
+.dm #action-button i {
+    color: #000;
+}
+
+#searchInput:focus, 
+#searchInput:not(:placeholder-shown) {
+    grid-column: 3/-3; 
+}
+
+#searchInput:focus ~ .progress { opacity: 1; }
+
+
+
+
+/* #endregion NAV */
 
 
 
@@ -285,7 +318,7 @@ SORT POPUP / SORTER
     gap: 0.5rem;
     height: 18rem;
     width: 17rem;
-    margin: 4rem 4rem 0 auto;
+    margin: 4rem 3rem 0 auto;
     padding: 0.5rem 0.5rem 0.5rem 1.5rem;
     box-sizing: border-box;
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
@@ -340,6 +373,7 @@ SORT POPUP / SORTER
     border-radius: 4rem;
 }
 
+body.nav-favorites #sorter i[type='fav-only'].filter-button::before,
 #sorter i.filter-button.selected::before {
     content: "\ed22";
 }
@@ -348,10 +382,131 @@ body[filter-fav-only] #sort-button,
 body[filter-video-only] #sort-button,
 body[filter-raw-only] #sort-button { opacity: 1; }
 
-body[filter-fav-only] #sort-button,
-body[filter-video-only] #sort-button,
-body[filter-raw-only] #sort-button { text-decoration: wavy underline;}
+body.nav-favorites #sorter-fav,
+body.nav-favorites #sorter-name,
+body.nav-favorites .filter-button[type='fav-only'],
+body.nav-favorites .sort-button[type^='az'],
+body.nav-favorites .sort-button[type^='fav'] {
+    opacity: 0.25 !important;
+    pointer-events: none !important;
+}
 
+body[filter-fav-only] #sort-button span,
+body[filter-video-only] #sort-button span,
+body[filter-raw-only] #sort-button span { text-decoration: wavy underline;}
+
+body[filter-fav-only] #sort-button i,
+body[filter-video-only] #sort-button i,
+body[filter-raw-only] #sort-button i { 
+    background-color: #000;
+    color: #fff;
+}
+
+.dm body[filter-fav-only] #sort-button i,
+.dm body[filter-video-only] #sort-button i,
+.dm body[filter-raw-only] #sort-button i { 
+    background-color: #fff;
+    color: #000;
+}
+
+body:has(#sorter.shown) #sort-button i:before {
+    content: "\eb99";
+}
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+ACTION BUTTON POPUP 
+ 
+--------------------------------
+----------------------------- */
+/* #region ACTION BUTTON POPUP */
+
+#actions {
+    background: black;
+    color: white;
+
+    grid-row: 1/3;
+    grid-column: 1/-1;
+    z-index: 3;
+
+    width: 18rem;
+    height: 17rem;
+    margin: -0.5rem -0.5rem 0 auto;
+    padding: 1rem 1rem 1rem 1.5rem;
+    box-sizing: border-box;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+    transform: translate3d(19rem,0,0);
+    transition: 0.5s transform var(--cryptee-cb);
+    pointer-events: none;
+
+    border-radius: 0 0 0 1rem;
+    overflow: hidden;
+}
+
+#actions label {
+    display: grid;
+    grid-template-columns: 1fr 3rem;
+    column-gap: calc(0.5rem + 1px);
+    height: 3rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+#actions label p {
+    line-height: 3rem;
+    margin-top: 0;
+    text-align: right;
+    opacity: 1;
+    transition: 0.75s opacity ease;
+}
+
+#actions label i {
+    line-height: 3rem;
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.5rem;
+    background-color: var(--cryptee-1);
+    border-radius: 3rem;
+    transition: 0.15s color ease, 0.3s background-color ease;
+}
+
+.dm #actions {
+    background-color: var(--cryptee-0);
+}
+
+#actions.shown {
+    transform: translate3d(0,0,0);
+    pointer-events: all;
+}
+
+.dm body:has(#actions.shown) #action-button i { 
+    color: #FFF;
+}
+
+body:has(#actions.shown) #action-button {
+    opacity: 1;
+    z-index: 4;
+    transform: scale(1.5);
+    background-color: var(--cryptee-1);
+}
+
+body:has(#actions.shown) #action-button i {
+    transform: rotate(-45deg) scale(0.75);
+}
+
+body:has(#actions.shown) #sort-button {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+#actions:not(.shown) label p {
+    opacity: 0;
+}
+
+
+/* #endregion ACTION BUTTON POPUP */
 
 
 /* -----------------------------
@@ -462,6 +617,125 @@ DOWNLOAD SIZE PICKER POPUP
 /* #endregion DOWNLOAD SIZE PICKER POPUP */
 
 
+
+/* -----------------------------
+-------------------------------- 
+ 
+SELECTOR POPUP 
+ 
+--------------------------------
+----------------------------- */
+/* #region SELECTOR POPUP */
+
+
+#photos-selector {
+    position: fixed;
+    z-index: 10;
+    bottom: 1rem;
+    left: 1rem;
+    height: 12rem;
+    background-color: var(--cryptee-folder);
+    border-radius: 1rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+
+    transform: translateX(0);
+    opacity: 1;
+
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+
+    transition-property: transform, opacity;
+    transition-duration: 0.6s;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#photos-selector small {
+    text-align: center;
+    width: 100%;
+}
+
+#photos-selector .select-unselect {
+    display: flex;
+    gap: 1rem;
+}
+
+#photos-selector .select-unselect button {
+    flex-grow: 1;
+    width: 50%;
+    text-align: center;
+    border-radius: 0.5rem;
+}
+
+#photos-selector button {
+    background-color: var(--cryptee-1);
+    color: #FFF;
+    height: 3rem;
+    line-height: 3rem;
+}
+
+#photos-selector .selection-actions div {
+    opacity: 1;
+    min-width: 3.25rem;
+    max-width: 4rem;
+    height: 4.875rem;
+    overflow: visible;
+    display: inline-block;
+    margin: 1rem 0.125rem 0 0;
+    transition-property: min-width, max-width, margin, opacity;
+    transition-duration: 0.5s;
+    transition-timing-function: var(--cryptee-cb);
+    overflow: hidden;
+}
+
+#photos-selector .selection-actions div:last-child {
+    margin-right: 0;
+}
+
+#photos-selector .selection-actions button {
+    margin: 0 auto;
+    display: block;
+    width: 3rem;
+    text-align: center;
+    border-radius: 3rem;
+}
+
+#photos-selector .selection-actions button i {
+    font-size: 1.5rem;
+    width: 3rem;
+    text-align: center;
+}
+
+#photos-selector .selection-actions small {
+    color: #FFF;
+}
+
+#photos-selector .selection-actions .delete button {
+    background-color: var(--cryptee-red);
+}
+
+/* selector states */
+
+#photos-selector:not(.multiple) .selection-actions .cover,
+#photos-selector:not(.multiple) .selection-actions .delete {
+    min-width: 4rem;
+}
+
+#photos-selector .selection-actions .cover small {
+    min-width: 4rem;
+}
+
+#photos-selector.multiple .selection-actions .cover {
+    min-width: 0;
+    max-width: 0;
+    margin: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+
+/* #endregion SELECTOR POPUP */
+
+
 /* -----------------------------
 -------------------------------- 
  
@@ -470,38 +744,24 @@ SEARCH & SEARCH ANIMATIONS
 --------------------------------
 ----------------------------- */
 
-/* SEARCH IS IN FOCUS */
-#searchInput:focus ~ .top.buttons button              { opacity: 0 !important; pointer-events: none; }
-#searchInput:focus ~ .top.buttons button:nth-child(1) { transform: translate3d(0.5rem,0,0); }
-#searchInput:focus ~ .top.buttons button:nth-child(2) { transform: translate3d(0.75rem,0,0); }
-#searchInput:focus ~ .top.buttons button:nth-child(3) { transform: translate3d(1rem,0,0); }
-
-/* USER TYPED SOMETHING INTO SEARCH */
-#searchInput:not(:placeholder-shown) ~ .buttons button { opacity: 0 !important; pointer-events: none; }
-#searchInput:not(:placeholder-shown) ~ .buttons button:nth-child(1) { transform: translate3d(0.5rem,0,0); }
-#searchInput:not(:placeholder-shown) ~ .buttons button:nth-child(2) { transform: translate3d(0.75rem,0,0); }
-
-#searchInput:not(:placeholder-shown) ~ .bottom.buttons.left-side button:nth-child(1) { transform: translate3d(0.5rem,0,0); }
-#searchInput:not(:placeholder-shown) ~ .bottom.buttons.left-side button:nth-child(2) { transform: translate3d(0.75rem,0,0); }
-
-#searchInput:not(:placeholder-shown) ~ .bottom.buttons.right-side button:nth-child(1) { transform: translate3d(1rem,0,0); }
-#searchInput:not(:placeholder-shown) ~ .bottom.buttons.right-side button:nth-child(2) { transform: translate3d(1.25rem,0,0); }
-
-#searchInput:not(:placeholder-shown) ~ .bottom.background { background-color: transparent; }
-
-#searchInput:not(:placeholder-shown) ~ .bottom.buttons button { 
-    transform: translate3d(0,-0.25rem,0) !important; 
+/* SEARCH IS IN FOCUS & USER TYPED SOMETHING INTO SEARCH */
+#searchInput:focus ~ button { 
+    opacity: 0 !important; pointer-events: none; 
 }
 
-#searchInput:not(:placeholder-shown) ~ .bottom.background { 
-    background-color: transparent !important;
-    transform: translate3d(0,-0.5rem,0) !important; 
-}
+#searchInput:not(:placeholder-shown) ~ #sort-button,
+#searchInput:focus ~ #sort-button { transform: translate3d(0.5rem,0,0); }
+
+#searchInput:not(:placeholder-shown) ~ #action-button,
+#searchInput:focus ~ #action-button { transform: translate3d(0.75rem,0,0); }
+
+#searchInput:not(:placeholder-shown) ~ button { opacity: 0 !important; pointer-events: none; }
 
 #searchInput:not(:placeholder-shown) ~ #sorter {
     transform: translate3d(0, var(--sorter-margin), 0) !important;
     pointer-events: none !important;
 }
+
 
 /* ------------------------------
 ---------------------------------
@@ -511,49 +771,60 @@ NAV BUTTONS & STATES & SELECTIONS
 ---------------------------------
 ------------------------------ */
 
-.upload-button {
-    opacity: 1;
-    color: var(--cryptee-green);
-}
 
 #delete-button { color: var(--cryptee-red); }
 
 /* default gallery state */
 /* body.nav-gallery */
 
-
-/* album */
-body:not(.nav-album) .albums.buttons button {
-    transform: translate3d(0,1rem,0);
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-body:not(.loading):not(.starting).nav-album .gallery.buttons button {
+body:not(.nav-gallery) #searchInput {
     transform: translate3d(0,-1rem,0);
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-/* gallery or album without photos */
-body:not(.loading):not(.starting).nav-nophotos #selectall-button {
+body.nav-selection #gallery-button,
+body:not(.nav-album):not(.nav-favorites) #gallery-button { 
     transform: translate3d(0,1rem,0);
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-/* favorites */
-body:not(.loading):not(.starting).nav-favorites .bottom.buttons button,
-body:not(.loading):not(.starting).nav-favorites .top.buttons button {
-    transform: translate3d(0,1rem,0);
+body:not(.nav-gallery) #logo {
+    transform: translate3d(0,-1rem,0);
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-body:not(.loading):not(.starting).nav-favorites #gallery-button {
-    transform: translate3d(0,0,0);
-    opacity: 0.4 !important;
-    pointer-events: initial !important;
+body.starting #action-button,
+body.loading #action-button,
+body.offline #action-button,
+body.searching #action-button {
+    opacity: 0 !important; 
+    pointer-events: none; 
+}
+
+body:not(.loading):not(.starting):not(.offline):not(.searching) #action-button {
+    opacity : 0.7;
+}
+
+body.nav-selection #action-button,
+body.nav-favorites #action-button {
+    opacity: 0 !important; 
+    pointer-events: none; 
+    transform: translate3d(0.75rem,0,0);
+}
+
+body.nav-selection #sort-button {
+    transform: translate3d(0.5rem,0,0);
+    opacity: 0 !important; 
+    pointer-events: none; 
+}
+
+body:not(.nav-selection) #photos-selector {
+    transform: translateX(-26rem);
+    opacity: 0;
+    pointer-events: none !important;
 }
 
 
@@ -568,39 +839,6 @@ body:not(.loading):not(.starting).nav-selection #searchInput {
     opacity: 0 !important;
     pointer-events: none !important;
 }
-
-body:not(.loading):not(.starting).nav-selection .unselected.buttons button {
-    transform: translate3d(0,1rem,0);
-    opacity: 0 !important;
-    pointer-events: none !important;
-} 
-
-.selected.buttons button {
-    transform: translate3d(0,-1rem,0);
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-body:not(.loading):not(.starting).nav-selection .top.buttons button {
-    transform: translate3d(0,1rem,0);
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-body:not(.loading):not(.starting).nav-selection .selected.buttons button {
-    transform: translate3d(0,0,0);
-    opacity: 0.4 !important;
-    pointer-events: initial !important;
-}
-
-body.nav-gallery #make-cover-button,
-#make-cover-button.hidden {
-    transform: translate3d(0,1rem,0);
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-#make-cover-button { word-spacing: -2px; }
 
 /* tagging */
 
@@ -617,6 +855,87 @@ body.tagging #tag-button {
     opacity: 0 !important;
     pointer-events: none !important;
 }
+
+
+/* -----------------------------
+-------------------------------- 
+ 
+STARTUP / LOADING  
+ 
+--------------------------------
+----------------------------- */
+
+body.searching #main-progress,
+body.starting #main-progress,
+body.loading #main-progress { 
+    opacity: 1; 
+}
+
+body.offline nav button,
+body.searching nav button,
+body.starting nav button,
+body.loading nav button { 
+    opacity: 0; pointer-events: none; 
+}
+
+body.offline #searchInput,
+body.starting:not(.searching) #searchInput, 
+body.loading:not(.searching) #searchInput { 
+    opacity: 0; pointer-events: none; 
+}
+
+body.offline #timeline small,
+body.searching #timeline small, 
+body.starting #timeline small, 
+body.loading #timeline small { 
+    transform: translateX(4rem) !important; 
+    pointer-events: none !important;
+}
+
+body.offline #sorter,
+body.searching #sorter,
+body.starting #sorter,
+body.loading #sorter {
+    transform: translate3d(0, var(--sorter-margin), 0) !important;
+    pointer-events: none !important;
+}
+
+
+body.offline::before {
+    content: "";
+    display: block;
+    position: fixed;
+    z-index : 997;
+    top: 4rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--cryptee-4);
+}
+
+body.offline::after {
+    content : "looks like you are offline. \a\ayou can only use cryptee photos with an internet connection. \a\aif you are connected to the internet, but having issues only with cryptee, an ad-blocker / vpn / company firewall or another network filter may be mistakenly blocking cryptee. try disabling it & reload cryptee.";
+    white-space: break-spaces;
+    position: fixed;
+    z-index : 998;
+    top: 4rem;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+
+    width: 12rem;
+    height: 22rem;
+    background-color: #FFF;
+    color: var(--cryptee-0);
+    
+    padding: 4rem;
+
+    font-weight: 350;
+    line-height: 1.5rem;
+    text-align: justify;
+}
+
 
 /* -----------------------------
 -------------------------------- 
@@ -734,14 +1053,7 @@ body:not(.searching) #searchContents {
 }
 
 main:not(.scrolling):not(.browsing) .content.loading {
-    background: linear-gradient(90deg, var(--bg), color-mix(in srgb, #fff 20%, var(--bg)), var(--bg));
-    animation: loadingBGWipeHorizontal 0.75s linear infinite;
-    background-size: 200% 200%;
-}
-
-main:not(.scrolling):not(.browsing) .content.loading[bgloadingpref='monochrome'] { 
-    background: linear-gradient(90deg, var(--bg), color-mix(in srgb, #FFF 10%, var(--bg)), var(--bg));
-    background-size: 200% 200%;
+    animation: loadingBlink 0.75s linear infinite;
 }
 
 .content.loading:nth-child(2n)  { animation-delay: 0.03s !important; }
@@ -1200,7 +1512,7 @@ ALBUM
     height: 20rem;
     margin: 0 0 4rem 4rem;
 
-    background-color: var(--bg);
+    background-color: #141414;
     position: relative;
     cursor: pointer;
     user-select: none;
@@ -1208,13 +1520,28 @@ ALBUM
     overflow: hidden;
 
     border-radius: 1.125rem;
-    
+
 }
 
+#favorites { 
+    width: 76rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+}
 
 .album img {
     width: 36rem;
-    height: 16rem;
+    height: 20rem;
+}
+
+#favorites img { 
+    min-width: 4rem;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    transition: 1s flex-grow ease;
 }
 
 /* album name */
@@ -1227,12 +1554,11 @@ ALBUM
     bottom: 0rem;
     left: 0rem;
 
-    width: 30rem;
-    height: 4rem;
-    padding: 0 1.5rem;
+    width: 100%;
+    height: 6rem;
+    padding: 2rem 7.5rem 0 1.5rem;
 
-    background-color: transparent;
-    color: var(--c);
+    color: #fff;
     
     /* EQUIVALENT OF BOLD P */
     font-weight: 700;
@@ -1246,6 +1572,7 @@ ALBUM
     overflow-wrap: normal;
     white-space: nowrap;
 
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 100%);
     transition: 0.5s width var(--cryptee-cb);
 }
 
@@ -1254,11 +1581,12 @@ ALBUM
     content: attr(date);
     user-select: none;
 
+    z-index: 2;
     position: absolute;
     bottom: 0rem;
     right: 0rem;
     
-    width: 36rem;
+    width: 100%;
     height: 4rem;
     padding: 0 1.5rem; 
     
@@ -1269,7 +1597,7 @@ ALBUM
     
     box-sizing: border-box;
     text-align: right;
-    color: var(--c);
+    color: #fff;
 
     transition: 0.5s padding var(--cryptee-cb), 0.15s color var(--cryptee-cb);
 }
@@ -1296,12 +1624,27 @@ ALBUM
     -moz-osx-font-smoothing: grayscale;
 
     opacity: 0;
-    color: var(--c);
+    color: #FFF;
 }
 
 .album i::before {
     content: "\EF76";
 }
+
+#favorites i {
+    pointer-events: none !important;
+    right: unset;
+    left: 0;
+}
+
+#favorites i::before {
+    content: '\ee0e';
+}
+
+#favorites::after {
+    padding-left: 4rem;
+}
+
 
 /* -----------------------------
 -------------------------------- 
@@ -1363,26 +1706,44 @@ ALBUM CONTENTS VIEW
     user-select: none;
 }
 
-#albumheader .date {
-    color: var(--cryptee-3);
+#albumheader .name { color: #000; }
+.dm #albumheader .name { color: #FFF; }
 
-    margin-top: 1rem;
-    padding-top: 1.5rem;
+#albumheader hr {
+    border: none;
     border-top: 0.125rem solid var(--bg);
     min-width: 16rem;
     max-width: 36rem;
+    margin-top: 1rem;
     width: 100%;
-    text-transform: uppercase;
 }
 
-
-.dm #albumheader .date {
+.dm #albumheader hr {
     border-top: 0.125rem solid var(--bg);
 }
 
+#albumheader .date {
+    background-color: #000;
+    color: #fff;
+    /* width: 7rem; */
+    width: 11.25rem;
+    height: 3rem;
+    line-height: 3rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    display: inline-block;
+    padding: 0;
+    margin: 2rem 1rem 0 0;
+}
+
 #albumheader .date[exif="0000:00:00"] {
-    color: transparent !important;
-    user-select: none;
+    display: none !important;
+}
+
+.dm #albumheader .date {
+    background-color: #fff;
+    color: #000;
 }
 
 #albumheader .name, 
@@ -1405,7 +1766,29 @@ ALBUM CONTENTS VIEW
     margin-left: auto;
 }
 
-/* DISABLE THE EDIT ALBUM FEATURES FOR FAVORITES */
+#albumheader button {
+    background-color: #000;
+    color: #FFF;
+    height: 3rem;
+    width: 3rem;
+    line-height: 3rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    margin: 2rem 1rem 0 0;
+}
+
+#albumheader button i {
+    margin-top: 0;
+    font-size: 1.25rem;
+    width: 3rem;
+}
+
+.dm #albumheader button {
+    background-color: #FFF;
+    color: #000;
+}
+
+/* SHOW A HEART FOR FAVORITES */
 .nav-favorites #albumheader h2::after {
     
     opacity: 1;
@@ -1427,10 +1810,18 @@ ALBUM CONTENTS VIEW
     opacity: 0.5;
 }
 
-.nav-favorites .date { 
+.nav-favorites #albumheader hr { 
     max-width: 100% !important; 
     border-top: 0.125rem solid var(--cryptee-red) !important;
     opacity: 0.5 !important;
+}
+
+.nav-favorites #albumheader button {
+    display: none !important;
+}
+
+.nav-favorites #albumheader .date {
+    display: none !important;
 }
 
 /* -----------------------------
@@ -1471,6 +1862,10 @@ SEARCH
     content: attr(photos);
     color: var(--cryptee-3);
     padding: 0 1rem;
+}
+
+#searchContents .album::after {
+    padding: 2rem 1.5rem 0 1.5rem
 }
 
 #searchContents .album i {
@@ -2489,13 +2884,31 @@ ENABLE HOVERS
 
 @media (-moz-touch-enabled: 0), (pointer:fine) { 
 
-    #logo:hover img, 
+    #logo:hover, 
     #help:hover,
     nav button:hover,
     nav .top.buttons button:hover,
     nav .bottom.buttons:not(.selected) button:hover,
     .album .dropdown button:hover {
         opacity: 1 !important;
+    }
+
+    #action-button:hover {
+        transform: scale(1.125);
+    }
+
+    #gallery-button i:hover {
+        transform: scale(1.125);
+    }
+
+    body:has(#actions.shown) #action-button:hover,
+    #actions label:hover i {
+        background-color: #FFF;
+        color: #000;
+    }
+
+    body:has(#actions.shown) #action-button:hover i {
+        color: #000;
     }
 
     #searchInput:not(:focus):hover ~ .progress { opacity: 0.4; }
@@ -2511,6 +2924,15 @@ ENABLE HOVERS
     main:not(.scrolling):not(.browsing) .album:hover i                                { 
         opacity:1; 
         transform: translate3d(0,0,0);
+    }
+
+    #favorites i {
+        opacity: 1;
+        transform: translate3d(0,0,0);
+    }
+
+    #favorites img:hover {
+        flex-grow: 1.5;
     }
 
     main:not(.scrolling):not(.browsing) .album:hover::before                          { 
@@ -2546,6 +2968,8 @@ ENABLE HOVERS
     #photos-downloader.done #button-save-multiple-downloads:hover {
         transform: scale(1.1);
     }
+
+    #albumheader .date { width: 10.75rem; }
 }
 
 @media (-moz-touch-enabled : 1), (pointer:coarse) {
@@ -2577,10 +3001,16 @@ ENABLE HOVERS
     }
 
     .album::before {
-        color: var(--cryptee-2);
         padding: 0 4rem 0 1rem;
     }
 
+    .album::after {
+        padding: 2rem 9rem 0 1.5rem
+    }
+
+    #favorites::after {
+        padding: 2rem 1.5rem 0 4rem
+    }
     .album .dropdown.show ~ i {
         transform: rotate(135deg);
     }
@@ -2597,17 +3027,24 @@ MEDIA QUERIES
 ----------------------------- */
 @media (min-width:1024px) and (max-width : 1343px) {
     .album, .album img { width: 26rem; }
-    .album::after { width: 19rem; }
+    .album::after { 
+        padding: 2rem 8.5rem 0 1.5rem;
+    }
+
+    #favorites { width: 56rem; }
 }
 
 @media (max-width : 1023px) {
     .swiper-zoom-container::after { padding: 0 4rem 4rem 4rem; }
+    #favorites { width: 36rem; }
 }
 
 @media (max-width : 703px) { 
-    main, nav {
+    main {
         grid-template-columns: minmax(4rem, 1fr) minmax(4rem, 1fr) minmax(4rem, 1fr) minmax(4rem, 1fr);
         column-gap: 0;
+        padding-top: 4.125rem;
+        height: calc(100% - 4.125rem);
     }
 
     .nav-gallery main #albumContents { max-width: calc(100% - 4rem);}
@@ -2622,17 +3059,7 @@ MEDIA QUERIES
         margin: 1rem 1rem 0 1rem;
     }
 
-    .album::before, .album::after {
-        padding: 0 1rem;
-        line-height: 3.25rem;
-        height: 3rem;
-    }
-    
-    .album i {
-        height: 3rem;
-        width: 3rem;
-        line-height: 3rem;
-    }
+    #favorites { width: calc(100% - 2rem); }
 
     .media { 
         width: calc(25vw - 1.25rem); 
@@ -2644,22 +3071,9 @@ MEDIA QUERIES
     nav .left-side { grid-column: 1/3; }
     nav .right-side { grid-column: 3/-1; }
 
-
-    #new-album-button, #move-button, #gallery-button {
-        order: -1;
-        padding-left: 1rem; 
-        width: calc(100% - 1rem);
-    }
-
-    .album img { width: 100%; height: 17rem; }
+    .album img { width: 100%; height: 20rem; }
     
-    .album::before {
-        padding: 0 3rem 0 1rem
-    }
-
-    .album::after {
-        width: calc(100% - 7rem);
-    }
+    .album::after { width: 100%; }
 
     .album .dropdown {
         height: 10.5rem;
@@ -2685,11 +3099,14 @@ MEDIA QUERIES
         line-height: 1.75rem;
     }
 
-    #albumheader .date, .searchheader .title {
+    #albumheader .date, 
+    .searchheader .title {
         margin-left: 1rem;
-        padding-top: 1rem;
-        min-width: calc(100% - 2rem);
-        width: calc(100% - 2rem);
+    }
+
+    #albumheader hr {
+        width: 100%;
+        max-width: 100%;
     }
 
     .searchheader .title {
@@ -2737,8 +3154,13 @@ MEDIA QUERIES
 @media (max-width : 544px) {
 
     .album { height: 16rem; }
-    .album img {height: 13rem; }
+    .album img {height: 16rem; }
     .album::after, .album::before { font-size: 0.85rem; }
+
+    #albumheader .date { 
+        width: calc(50vw - 1.5rem); 
+        margin-right: 0.75rem;
+    }
 
     .media { 
         width: calc(50vw - 1.5rem); 
@@ -2762,8 +3184,8 @@ MEDIA QUERIES
 
     #lightbox-close      { grid-column: 1/2; }
     
-    #lightbox-favorite   { grid-column: -4/-3; }
-    #lightbox-info       { grid-column: -3/-2; }
+    #lightbox-favorite   { grid-column: -3/-2; }
+    #lightbox-info       { grid-column: -4/-3; }
     #lightbox-download,
     #lightbox-open-in    { grid-column: -2/-1; }
 

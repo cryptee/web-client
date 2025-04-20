@@ -48,6 +48,8 @@ let lastLoadedAlbum;
  */
 async function loadAlbum(aid) {
     
+    if (aid === "favorites") { return loadFavorites(); }
+
     if (activeAlbumID === aid) { 
         breadcrumb('[LOAD ALBUMS] Already in this album ('+aid+').');
         clearSearch();
@@ -104,6 +106,9 @@ async function loadAlbum(aid) {
     if (aid !== "home") {
         var albumHeaderHTML = renderAlbumHeader(aid);
         albumContentsHTML.push(albumHeaderHTML);
+    } else {
+        var favoritesAlbum = renderFavoritesAlbum();
+        albumContentsHTML.push(favoritesAlbum);
     }
 
     sortedAlbumContents.forEach(item => {
@@ -717,19 +722,21 @@ function sortThings(sorttype) {
     sorttype = sorttype || "date-desc";
     $(`.sort-button[type='${sorttype}']`).addClass("selected");
 
+    const userLocale = navigator.language || navigator.userLanguage;
+
     var sortFunction;
     
     if (sorttype === "az-asc") {
         sortFunction = function(a,b) {
             var at = ($(a).attr("name") || "").toUpperCase();
             var bt = ($(b).attr("name") || "").toUpperCase();
-            if (at > bt) { return -1; } else { return 1; }
+            return bt.localeCompare(at, userLocale);
         };
     } else if (sorttype === "az-desc") {
         sortFunction = function(a,b) {
             var at = ($(a).attr("name") || "").toUpperCase();
             var bt = ($(b).attr("name") || "").toUpperCase();
-            if (at < bt) { return -1; } else { return 1; }
+            return at.localeCompare(bt, userLocale);
         };
     } else if (sorttype === "fav-asc"){
         sortFunction = function(a,b) {
@@ -784,6 +791,8 @@ function sortThings(sorttype) {
     }
 
     $(".content").sort(sortFunction).appendTo("#albumContents");
+
+    $("#favorites").prependTo("#albumContents");
 
     updateLightboxSort(sorttype);
 
@@ -1204,6 +1213,7 @@ function clearSelections() {
     $(".media.selected").removeClass("selected");
     updateSelections();
     hideActiveModal();
+    hideDownloadSizePicker();
 }
 
 
@@ -1239,8 +1249,17 @@ function updateSelections() {
     var noSelectedPhotos = $(".media.selected").length;
     if (noSelectedPhotos >= 1) {
         navbarForSelectionModeOn();
+        $("#selector-no-selected").text(noSelectedPhotos + " item selected");
     } else {
         navbarForSelectionModeOff();
+        $("#selector-no-selected").text("nothing selected");
+    }
+
+    if (noSelectedPhotos >= 2) {
+        $("#photos-selector").addClass("multiple");
+        $("#selector-no-selected").text(noSelectedPhotos + " items selected");
+    } else {
+        $("#photos-selector").removeClass("multiple");
     }
 
     if (activeAlbumID !== "home" && activeAlbumID !== "favorites") {
@@ -1899,7 +1918,7 @@ async function newAlbum(name) {
 
     
 
-    scrollTop();
+    await scrollTop();
     var albumHTML = renderAlbum(aid);
     $("#albumContents").prepend(albumHTML);
     stopMainProgress();

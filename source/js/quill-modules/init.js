@@ -35,7 +35,7 @@ Quill.register(WordAttribute, true);
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-fontSizeStyle.whitelist = ['8px', '10px', '13px', '16px', '18px', '20px', '24px', '30px', '36px', '40px', '48px'];
+fontSizeStyle.whitelist = ['8px', '10px', '13px', '16px', '18px', '20px', '22px', '24px', '30px', '36px', '40px', '48px'];
 Quill.register(fontSizeStyle, true);
 
 Bold.tagName = 'b';
@@ -45,7 +45,7 @@ Italic.tagName = 'i';
 Quill.register(Italic, true);
 
 
-var fonts = ['Arimo', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Inter', 'Josefin Sans', 'Markazi', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
+var fonts = ['Arimo', 'Arial', 'Comic Sans MS', 'Courier', 'Georgia', 'Helvetica', 'Inconsolata', 'Inter', 'Josefin Sans', 'Markazi', 'Palatino', 'Tahoma', 'Times New Roman', 'Verdana'];
 var fontNames = [];
 
 fonts.forEach(function(font) { fontNames.push(font.toLowerCase().replace(/\s/g, "-")); });

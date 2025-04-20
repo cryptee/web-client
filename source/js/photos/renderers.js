@@ -29,37 +29,70 @@ function renderAlbum(aid, photos) {
     var prettyDate      = fancyDate(exifDate);                      // "NOV '20"
     var thumbToken      = album.ttoken || "";
     var thumbID         = album.thumb || "";                        // "t-12345"
-
-    // var isDarkMode      = $("html").hasClass("dm");
-    // var loadMonochromeBg = appPreference.photos["cover-bg-dominant-color"] === "monochrome";
     
-    var bgLoadingPreference;
-
-    // if (loadMonochromeBg || isMobile) {
-        var avgColor     = "20,20,20";
-        var nameColor    = "245,245,245";
-        bgLoadingPreference = "monochrome";
-    // } else {
-        // var avgColor     = album.pinky || "20,20,20";               // "17,24,33"
-
-        // var nameContrast = calculateContrast([20,20,20], avgColor.split(",")).toFixed(3);
-    
-        // var nameColor = "20,20,20";
-        // if (nameContrast < 3.0) { nameColor = "255,255,255"; }
-        // bgLoadingPreference = "color";
-    // }
-
     if (useHighResThumbnails && album.ltoken) {
         thumbID         = convertID(thumbID, "l") || "";            // "l-12345"
         thumbToken      = album.ltoken || "";
     }
 
     return `
-    <div class="content album" id="${aid}" name="${name}" date="${prettyDate}" datesort="${sortableDate}" exifDate="${exifDate}" photos="${photos}" thumb="${thumbID}" thumbToken="${thumbToken}"  style="--bg:rgb(${avgColor}); --c:rgb(${nameColor});" bgloadingpref="${bgLoadingPreference}">
+    <div class="content album" id="${aid}" name="${name}" date="${prettyDate}" datesort="${sortableDate}" exifDate="${exifDate}" photos="${photos}" thumb="${thumbID}" thumbToken="${thumbToken}">
         <i></i>
         <img src="" alt thumb="${thumbID}">
     </div>`;
     
+}
+
+/**
+ * Renders the favorites album and returns its HTML
+ * @returns {string} albumHTML Favorites album's HTML
+ */
+function renderFavoritesAlbum() {
+    
+    let favIDs = Object.keys(favorites);
+    let noFavorites = favIDs.length || 0;
+    if (!noFavorites) { 
+        // user has no favorites, return empty, so that we can hide the favorites album
+        return ""; 
+    }
+
+    let maxFavorites = 3;
+    if ($("body").width() >= 768) { maxFavorites = 5; }
+
+    // get [up to] 5 random favorites
+    if (favIDs.length > maxFavorites) {
+        const tempFavIDs = [...favIDs];
+        favIDs = [];
+        for (let i = 0; i < maxFavorites; i++) {
+            const randomIndex = Math.floor(Math.random() * tempFavIDs.length);
+            favIDs.push(tempFavIDs[randomIndex]);
+            tempFavIDs.splice(randomIndex, 1);
+        }
+    }
+    // if <= 5 favorites, we'll use all of them
+
+    let favImages = [];
+    for (const pid of favIDs) {
+        let photo = favorites[pid];
+        
+        let thumbID = convertID(pid, 't') || "";
+        let thumbToken = photo.ttoken || "";
+        
+        if (useHighResThumbnails && photo.ltoken) {
+            thumbID = convertID(pid, 'l') || "";
+            thumbToken = photo.ltoken || "";
+        }
+
+        favImages.push(`<img src="" alt thumb="${thumbID}" thumbToken="${thumbToken}">`);
+    }
+
+    let favImagesHTML = favImages.join("");
+
+    return `
+    <div class="content album" id="favorites" name="Favorites" date="" datesort="" exifDate="" photos="${noFavorites}" thumb="" thumbToken="">
+        <i></i>
+        ${favImagesHTML}
+    </div>`;
 }
 
 /**
@@ -123,7 +156,9 @@ function renderAlbumHeader(aid) {
     return `
     <div id="albumheader" style="--bg:rgb(${avgColor})">
         <h2 class="name">${name}</h2>
-        <h3 class="date" exif="${exifDate}">${prettyDate}</h3>
+        <hr>
+        <p class="date" exif="${exifDate}" onclick='showEditAlbumPopup();'>${prettyDate}</p>
+        <button onclick='showEditAlbumPopup();'><i class="ri-more-2-fill"></i></button>
     </div>`;
 }
 

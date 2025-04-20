@@ -55,7 +55,7 @@ if (!isFileAPIAvailable) {
  * Disables upload buttons / inputs if necessary
  */
 function disableUploads() {
-    $(".upload-button").remove();
+    $("#action-button").remove();
     $("#upload-input").remove();
 }
 
@@ -202,7 +202,8 @@ function addFileToUploadQueue(file) {
     }
     
     if (formatSupport === "supported-image-native") { id = "p-" + newUUID() + "-v4"; }
-    if (formatSupport === "supported-image-libraw")  { id = "p-" + newUUID() + "-v4"; }
+    if (formatSupport === "supported-image-libraw") { id = "p-" + newUUID() + "-v4"; }
+    if (formatSupport === "supported-image-heic")   { id = "p-" + newUUID() + "-v4"; }
     if (formatSupport === "supported-video-native") { id = "v-" + newUUID() + "-v4"; }
     if (formatSupport === "unsupported-format")     { id = "unsupported-" + newUUID() + "-v4"; }
 
@@ -227,6 +228,11 @@ function checkFormatSupport(extension) {
     // images we support and can view & convert in browsers natively
     if (extension.match(/^(jpg|jpeg|png|gif|webp)$/i)) {
         return "supported-image-native";
+    }
+
+    // HEIC/HEIF formats
+    else if (extension.match(/^(heic|heif)$/i)) {
+        return "supported-image-heic";
     }
 
     // images we could try supporting, but need to convert for thumbnail first, and upload original alongside
@@ -281,12 +287,14 @@ async function runUploadQueue() {
     // if there are files with issues / video files etc, they'll be added with a status message. 
     // if there isn't a status message, file is good to upload. 
     var numberOfRAWItemsInQueue = 0;
+    var numberOfHEICItemsInQueue = 0;
     var numberOfUploadableItemsInQueue = 0;
     var numberOfVideoItemsInQueue = 0;
     for (let id in uploadQueue) {
         let item = uploadQueue[id];
         if (item.support === "supported-image-libraw") { numberOfRAWItemsInQueue++; }
         if (item.support === "supported-video-native") { numberOfVideoItemsInQueue++; }
+        if (item.support === "supported-image-heic")   { numberOfHEICItemsInQueue++; }
         if (!item.status) { numberOfUploadableItemsInQueue++; }
     }
 
@@ -326,6 +334,8 @@ async function runUploadQueue() {
 
     if ((isAndroid || isios || isipados) && numberOfRAWItemsInQueue) { maxMemorySafeNumberOfParallelUploads = 1; }
     if ((isAndroid || isios || isipados)) { maxMemorySafeNumberOfParallelUploads = 3; } 
+    if (numberOfHEICItemsInQueue) { maxMemorySafeNumberOfParallelUploads = 3; } 
+    if ((isAndroid || isios || isipados) && numberOfHEICItemsInQueue) { maxMemorySafeNumberOfParallelUploads = 2; } 
 
     var promiseToUploadEverythingInQueue = new PromisePool(promiseToUploadNextInQueue, maxMemorySafeNumberOfParallelUploads);
     await promiseToUploadEverythingInQueue.start();
@@ -370,6 +380,10 @@ function promiseToUploadNextInQueue() {
         return processEncryptAndUploadPhoto(nextUploadID);
     }
     
+    if (uploadQueue[nextUploadID].support === "supported-image-heic") {
+        return processEncryptAndUploadPhoto(nextUploadID);
+    }
+
     if (uploadQueue[nextUploadID].support === "supported-video-native") {
         return processEncryptAndUploadVideo(nextUploadID);
     }
@@ -413,7 +427,11 @@ async function uploadQueueFinished(aid) {
     
     }
 
-    Object.keys(uploadQueue).forEach(k => delete uploadQueue[k]);
+    Object.keys(uploadQueue).forEach(k => { 
+        uploadQueue[uploadID].plaintextFile = null;
+        delete uploadQueue[k]
+    });
+
     uploadQueueOrder.length = 0;
 
     if (aid && aid !== "home" && !albums[aid].thumb) {
@@ -543,6 +561,13 @@ async function processEncryptAndUploadPhoto(uploadID) {
     // generate thumbnails, generate dominant color and get date from exif using the original file (originalFile = upload.plaintextFile)
     var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo, upload.support);
 
+    // Add a check here:
+    if (isEmpty(thumbsAndMeta)) {
+        // Explicitly release canvas and nullify file reference if thumb generation failed
+        doneWithCanvas(canvasNo);
+        return err("Failed to generate thumbnails / read meta.", { uploadID: uploadID }); // Use the local err function
+    }
+    
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo);
 
     function err(msg, error) {
@@ -551,6 +576,7 @@ async function processEncryptAndUploadPhoto(uploadID) {
         error.uploadID = uploadID;
         handleError(msg, error);
         uploadQueue[uploadID].status = "error";
+        uploadQueue[uploadID].plaintextFile = null; // Prevent holding onto the large file and release memory
 
         if (msg === "exceeded") {
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
@@ -558,6 +584,8 @@ async function processEncryptAndUploadPhoto(uploadID) {
         } else {
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg));
         }
+
+        doneWithCanvas(canvasNo);
         
         if (remainingStorage <= 0) { 
             updateRemainingStorage(remainingStorage); 
@@ -591,6 +619,7 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
     var uploadObject = { "lightbox" : {}, "thumbnail" : {}, "date" : "", "dominant" : "" };
     
     let isRAW = supportType === "supported-image-libraw";
+    let isHEIC = supportType === "supported-image-heic";
 
     // read exif from original file (should take about 30ms, even for a 30mb file)
     var exif = await readEXIF(originalFile);
@@ -599,12 +628,27 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
 
     try {
         breadcrumb("[UPLOAD] Converting image file to image bitmap");
+        
         if (supportType === "supported-image-libraw") {
+            
             ({imgBitmap, exif} = await rawImgFileToImgBitmapWithLIBRAW(originalFile));
+        
+        } else if (supportType === "supported-image-heic") {
+            
+            if (isSafari) {
+                // safari supports heic files natively on both iOS and MacOS, so we can safely use this instead. 
+                // there should be no need for external libraries, and it should perform 100x faster. 
+                imgBitmap = await imgFileToImgBitmap(originalFile, exif);
+            } else {
+                imgBitmap = await heicImgFileToImgBitmapWithHEICTO(originalFile, exif);
+            }
+
         } else {
+            
             imgBitmap = await imgFileToImgBitmap(originalFile, exif);
+
         }
-        breadcrumb("[UPLOAD] Converted image file to image bitmap");
+
     } catch (error) {
         handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
         return {};
@@ -614,7 +658,9 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
         handleError("[UPLOAD] Failed to read image");
         return {};
     }
-
+    
+    breadcrumb("[UPLOAD] Converted image file to image bitmap");
+    
     var exifDate = extractExifDateTime(exif);
     if (exifDate) { uploadObject.date = exifDate; }
 
@@ -629,8 +675,9 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
             "exif-whitebal"    : exif.whitebal,
             "exif-iso"         : exif.iso,
         };
-
     }
+
+    if (isHEIC) { uploadObject.heic = true; }
 
     var width = imgBitmap.width;
     var height = imgBitmap.height;
@@ -726,6 +773,14 @@ async function processEncryptAndUploadVideo(uploadID) {
 
     var thumbsAndMeta = await generateThumbnailsAndMetaOfVideoFile(upload.plaintextFile, upload.type, canvasNo, playerNo);
 
+    // Add a check here:
+    if (isEmpty(thumbsAndMeta)) {
+        // Explicitly release canvas/player and nullify file reference if thumb generation failed
+        doneWithCanvas(canvasNo);
+        doneWithPlayer(playerNo);
+        return err("Failed to generate video thumbnails / read meta.", { uploadID: uploadID }); // Use the local err function
+    }
+
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, playerNo);
 
     function err(msg, error) {
@@ -733,6 +788,7 @@ async function processEncryptAndUploadVideo(uploadID) {
         error.uploadID = uploadID;
         handleError(msg, error);
         uploadQueue[uploadID].status = "error";
+        uploadQueue[uploadID].plaintextFile = null; // Prevent holding onto the large file and release memory early
 
         if (msg === "exceeded") {
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, "not enough storage space"));
@@ -740,6 +796,9 @@ async function processEncryptAndUploadVideo(uploadID) {
         } else {
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg));
         }
+        
+        doneWithCanvas(canvasNo);
+        doneWithPlayer(playerNo);
         
         if (remainingStorage <= 0) { 
             updateRemainingStorage(remainingStorage); 
@@ -797,6 +856,7 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
         blobURL = URL.createObjectURL(originalFile);
         source.setAttribute("src", blobURL);
     } catch (error) {
+        revokeObjectURL(blobURL);
         handleError("[UPLOAD] Failed to get video object url", error);
         return {};
     }
@@ -903,6 +963,10 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
     
     try {
         originalEncryptedFile = await streamingEncrypt(upload.plaintextFile, fileKeys);
+        
+        // clean up the plaintextFile from the uploadQueue to clear up memory
+        uploadQueue[uploadID].plaintextFile = null;
+
     } catch (error) {
         return err("[UPLOAD] Couldn't encrypt original media", error);
     }
@@ -1042,7 +1106,8 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
 
     // done, update album titles
     await updateAlbumTitles(aid);
-        
+    
+    // clean the item from queue entirely
     delete uploadQueue[uploadID];
 
     // unlock canvas / player for the next upload
@@ -1057,6 +1122,11 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
         error.uploadID = uploadID;
         handleError(msg, error);
         uploadQueue[uploadID].status = "error";
+        uploadQueue[uploadID].plaintextFile = null;
+
+        originalEncryptedFile = null;
+        thumbnailEncryptedBlob = null;
+        lightboxEncryptedBlob = null;
 
         if (msg === "exceeded") {
             
@@ -1083,12 +1153,11 @@ async function encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, 
 }
 
 /**
- * This takes in a raw image (cr2, cr3, arw etc buffer) and converts it to a data url we can use to generate thumbnails using LIBRAW.
+ * This takes in a raw image (cr2, cr3, arw etc buffer) and converts it to an imgBitmap we can use to generate thumbnails using LIBRAW.
  * For more info on TIFF tags, follow this:
  * https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
  * Good luck! It's pure chaos out there.
  * @param {FileOrBlob} originalFile
- * @param {*} exif
  * @returns {Promise<ImageBitmap>} imgBitmap
  */
 async function rawImgFileToImgBitmapWithLIBRAW(originalFile) {
@@ -1199,3 +1268,60 @@ function readRAWIParamString(ptr, maxLength) {
     const nullIndex = bytes.indexOf(0);
     return new TextDecoder().decode(bytes.slice(0, nullIndex >= 0 ? nullIndex : maxLength)).trim();
 }
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//#region HEIC / HEIF CONVERSIONS
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+/**
+ * This takes in a heic image (heic/heif) and converts it to a imgBitmap we can use to generate thumbnails
+ * @param {FileOrBlob} originalFile
+ * @param {*} exif
+ * @returns {Promise<ImageBitmap>} imgBitmap
+ */
+async function heicImgFileToImgBitmapWithHEICTO(originalFile, exif) {
+
+    breadcrumb("[UPLOAD] preprocessing & converting HEIC to ImageBitmap");
+
+    // Verify if the file is actually a HEIC file or return null
+    if (!await HeicTo.isHeic(originalFile)) {
+        
+        handleError("[UPLOAD] The file is not a valid HEIC/HEIF image, failed to create ImageBitmap");
+        return null;
+
+    }
+
+    let jpegBlob = null;
+
+    try {
+        
+        // Convert HEIC to JPEG with high-enough quality for thumbnails
+        jpegBlob = await HeicTo({ blob: originalFile, type: "image/jpeg", quality: 0.8 });
+
+        // Create an ImageBitmap from the converted JPEG
+        const imgBitmap = await imgFileToImgBitmap(jpegBlob, exif);
+        
+        // Clean up the jpegBlob to free memory
+        jpegBlob = null;
+
+        return imgBitmap;
+
+    } catch (error) {
+        
+        handleError("[UPLOAD] Failed to process HEIC image", error);
+        return null;
+
+    } finally {
+        // Ensure jpegBlob is cleared even if an error occurs
+        jpegBlob = null;
+    }
+
+}
+
+
+//#endregion HEIC / HEIF CONVERSIONS

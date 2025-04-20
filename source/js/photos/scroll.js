@@ -30,9 +30,15 @@ $("main").on('scroll', throttleScroll(function(event) {
     
 }, scrollThrottleTime));
 
-function scrollTop() {
+/**
+ * Scroll to top of main, and return a promise that resolves once scroll is complete. 
+ * We optionally use this promise to do stuff AFTER the scroll is complete. e.g. show edit album name popup
+ * @returns Promise that resolves when the scroll has stopped.
+ */
+async function scrollTop() {
     $("main")[0].scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     activityHappened();
+    return new Promise(resolve => { $("main")[0].addEventListener('scrollend', () => { resolve(); }, { once: true }); });
 }
 
 
@@ -48,16 +54,20 @@ function scrollToItem(id) {
     var elemToScrollTo = $("#" + id)[0];
     if (!elemToScrollTo) { return; }
 
-    // only scroll to element if it's not already fully scrolled into & visible
-    if (isScrolledIntoView(elemToScrollTo)) { return; }
+    requestAnimationFrame(() => {
+        
+        if (isScrolledIntoView(elemToScrollTo)) { return; }
 
-    var offset = $(elemToScrollTo).offset().top;
-    var albumOffset = $("#albumContents").offset().top;
+        var offset = $(elemToScrollTo).offset().top;
+        var albumOffset = $("#albumContents").offset().top;
+        var mainScrollTop = $("main").scrollTop(); 
 
-    $("main")[0].scrollTo({
-        top: (0 - albumOffset) + offset,
-        left: 0
+        var targetScrollTop = mainScrollTop + offset - albumOffset;
+
+        $("main")[0].scrollTo({ top: targetScrollTop, left: 0 });
+
     });
+    
 }
 
 function setupIntersectionObserver (el) {
@@ -102,12 +112,14 @@ function onEntryAndExit(changes) {
         var onScreenTimer;
         var wrapperElem = change.target;
         var itemClasses = wrapperElem.classList;
-        var thumbImgID  = wrapperElem.getAttribute("thumb");
-        var imgElem     = wrapperElem.querySelector("img");
-        var thumbToken  = wrapperElem.getAttribute("thumbToken");
-
+        
         if (itemClasses.contains("content")) {
 
+            var thumbImgID  = wrapperElem.getAttribute("thumb");
+            var imgElem     = wrapperElem.querySelector("img");
+            var thumbToken  = wrapperElem.getAttribute("thumbToken");
+            var isFavAlbum  = wrapperElem.getAttribute("id") === "favorites";
+            
             // if (change.intersectionRatio > 0.25) {
             if (change.isIntersecting) {
     
@@ -123,7 +135,16 @@ function onEntryAndExit(changes) {
                     // 750 gives a great performance so far.
                 
                     onScreenTimer = setTimeout(function () {
-                        getThumbnail(thumbImgID, thumbToken, wrapperElem, imgElem);
+                        if (!isFavAlbum) {
+                            getThumbnail(thumbImgID, thumbToken, wrapperElem, imgElem);
+                        } else {
+                            const favImages = wrapperElem.querySelectorAll('img');
+                            for (const img of favImages) {
+                                const favThumbID = img.getAttribute('thumb');
+                                const favThumbToken = img.getAttribute('thumbToken');
+                                getThumbnail(favThumbID, favThumbToken, wrapperElem, img);
+                            }
+                        }
                     }, 750);
             
                 }

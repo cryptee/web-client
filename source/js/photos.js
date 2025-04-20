@@ -5,10 +5,14 @@
 ////////////////////////////////////////////////
 
 var sorterShown = false;
-function showSorter() {
+function toggleSorter() {
     if (!sorterShown) {
         $("#sorter").addClass("shown");
+        $("#actions").removeClass("shown");
         sorterShown = true;
+    } else {
+        $("#sorter").removeClass("shown");
+        sorterShown = false;
     }
 }
 
@@ -19,6 +23,18 @@ function hideSorter() {
     if (sorterShown) {
         $("#sorter").removeClass("shown");
         sorterShown = false;
+    }
+}
+
+
+function toggleActions() {
+    if ($('body').hasClass('nav-gallery')) {
+        // in the gallery view, show all possible actions
+        hideSorter();
+        $("#actions").toggleClass("shown");
+    } else {
+        // in the album view, open file picker to upload
+        $("#upload-input").trigger("click");
     }
 }
 
@@ -167,12 +183,6 @@ $("#albumContents").on('contextmenu', '.album', function(event) {
 
 $("#gallery-button").on('click', function(event) {
     loadAlbum("home");
-    hideAllPopups();
-    activityHappened();
-}); 
-
-$("#favorites-button").on('click', function(event) {
-    loadFavorites();
     hideAllPopups();
     activityHappened();
 }); 
@@ -892,6 +902,21 @@ $("#searchInput").on('keydown', function (event) {
 });
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//#region RENAME / ALBUM INFO
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+$("#album-name").on('keydown keypress', function(event) {
+    if (event.key === "Enter") { 
+        event.preventDefault(); 
+        editAlbumInfo();
+    }
+});
+
+
+//#endregion RENAME / ALBUM INFO
 
 
 ////////////////////////////////////////////////
@@ -901,7 +926,7 @@ $("#searchInput").on('keydown', function (event) {
 ////////////////////////////////////////////////
 
 function showChangeCoverPopup() {
-    createPopup("to change an album's cover photo, first open the album and select the photo you'd like to use for the cover by pressing the check-mark over the photo. Once the photo is selected, press 'make album cover' on the top menu.", "info");
+    createPopup("to change an album's cover photo, first open the album and select the photo you'd like to use for the cover by pressing the check-mark over the photo. Once the photo is selected, press 'set as cover' on the top menu.", "info");
 }
 
 

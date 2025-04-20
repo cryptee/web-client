@@ -254,11 +254,12 @@ FONTS / FONT DROPDOWN
 #font-sizes-wrapper button[selected][size="16px"] ~ .selection-highlight { transform: translateY(6rem);  }
 #font-sizes-wrapper button[selected][size="18px"] ~ .selection-highlight { transform: translateY(8rem);  }
 #font-sizes-wrapper button[selected][size="20px"] ~ .selection-highlight { transform: translateY(10rem); }
-#font-sizes-wrapper button[selected][size="24px"] ~ .selection-highlight { transform: translateY(12rem); }
-#font-sizes-wrapper button[selected][size="30px"] ~ .selection-highlight { transform: translateY(14rem); }
-#font-sizes-wrapper button[selected][size="36px"] ~ .selection-highlight { transform: translateY(16rem); }
-#font-sizes-wrapper button[selected][size="40px"] ~ .selection-highlight { transform: translateY(18rem); }
-#font-sizes-wrapper button[selected][size="48px"] ~ .selection-highlight { transform: translateY(20rem); }
+#font-sizes-wrapper button[selected][size="22px"] ~ .selection-highlight { transform: translateY(12rem); }
+#font-sizes-wrapper button[selected][size="24px"] ~ .selection-highlight { transform: translateY(14rem); }
+#font-sizes-wrapper button[selected][size="30px"] ~ .selection-highlight { transform: translateY(16rem); }
+#font-sizes-wrapper button[selected][size="36px"] ~ .selection-highlight { transform: translateY(18rem); }
+#font-sizes-wrapper button[selected][size="40px"] ~ .selection-highlight { transform: translateY(20rem); }
+#font-sizes-wrapper button[selected][size="48px"] ~ .selection-highlight { transform: translateY(22rem); }
 
 /* paragraph styles */
 #font-sizes-wrapper button[selected]:not([value]):not([size]) ~ .selection-highlight  { transform: translateY(0);      }
@@ -389,6 +390,7 @@ FONTS / FONT DROPDOWN
 .ql-editor[font="arimo"]            { font-family: 'Arimo', sans-serif; }
 .ql-editor[font="inter"]            { font-family: 'Inter', sans-serif; }
 .ql-editor[font="markazi"]          { font-family: 'Markazi', sans-serif; }
+.ql-editor[font="inconsolata"]      { font-family: 'Inconsolata', sans-serif; }
 
 /* USER-SELECTED OVERRIDES & DROPDOWNS */
 
@@ -466,11 +468,20 @@ FONTS / FONT DROPDOWN
     font-family: 'Inter', sans-serif !important;
 }
 
-.ql-font-markazi,
 #font-families-wrapper .fonts-list .font[font="markazi"] .name,
 #font-families-wrapper .fonts-list .font[font="markazi"] .examples {
     font-size: 20px;
     font-family: 'Markazi', sans-serif !important;
+}
+
+.ql-font-markazi {
+    font-family: 'Markazi', sans-serif !important;
+}
+
+.ql-font-inconsolata,
+#font-families-wrapper .fonts-list .font[font="inconsolata"] .name,
+#font-families-wrapper .fonts-list .font[font="inconsolata"] .examples {
+    font-family: 'Inconsolata', sans-serif !important;
 }
 
 /* FONT EXAMPLES */

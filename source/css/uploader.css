@@ -87,6 +87,10 @@ UPLOADER
     transition: 0.3s opacity ease;
 }
 
+#uploader #uploader-status-detail span {
+    display: block;
+}
+
 
 #uploader #uploader-action-button {
     background-color: #FFF;

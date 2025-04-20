@@ -1,5 +1,14 @@
 <b class="fader"></b>
 
+<!-- 
+this is a sad new addition to our left-panel to combat overly-eager browser autocomplete autofills.
+some browsers and bad pass manager extensions try to autofill the search input with emails, usernames, passwords etc
+which results in the search activating and hiding the left panel. 
+
+to solve this, we're adding in a hidden trap input which captures autocompleted stuff, and hopefully should prevent issues like this from happening.
+-->
+<input type="text" id="email-autocomplete-trap" autocomplete="off" spellcheck="false" placeholder="username or email" tabindex="-1" inputmode="email" class="darkback">
+
 <!-- <button id="searchIcon"><i class="ri-search-line"></i></button> -->
 <input id="searchInput" name="cryptee-search" type="search" placeholder="search" autocomplete="off" spellcheck="false" data-form-type="other" data-lpignore="true" claas="darkback">
 
