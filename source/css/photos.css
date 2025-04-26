@@ -630,7 +630,7 @@ SELECTOR POPUP
 
 #photos-selector {
     position: fixed;
-    z-index: 10;
+    z-index: 8;
     bottom: 1rem;
     left: 1rem;
     height: 12rem;
@@ -639,7 +639,7 @@ SELECTOR POPUP
     padding: 0 1rem;
     box-sizing: border-box;
 
-    transform: translateX(0);
+    transform: translateX(0) translateY(0);
     opacity: 1;
 
     box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
@@ -730,6 +730,13 @@ SELECTOR POPUP
     margin: 0;
     opacity: 0;
     overflow: hidden;
+}
+
+body:has(.modal.show) #photos-selector,
+body:has(.panel.show) #photos-selector,
+body:has(.popup.show) #photos-selector {
+    pointer-events: none !important;
+    transform: translateY(10.75rem);
 }
 
 

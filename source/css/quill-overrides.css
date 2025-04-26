@@ -940,6 +940,28 @@ pre, .ql-syntax {
 
 
 
+/* -----------------------------
+-------------------------------- 
+ 
+BULLETS 
+ 
+--------------------------------
+----------------------------- */
+/* #region BULLETS */
+
+.ql-editor[font="inter"] ul li::before {
+    margin-top: 0;
+}
+
+.ql-editor[font="inter"] ul li.ql-indent-2::before {
+    font-size: 0.75rem;
+}
+
+
+
+/* #endregion BULLETS */
+
+
 
 
 

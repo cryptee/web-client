@@ -158,7 +158,7 @@ BULLETS
     height: 2rem;
     width: 2rem;
     font-size: 1.25rem;
-    margin-top: -0.125rem;
+    /* margin-top: -0.125rem; */
     vertical-align: middle;
     
     /*to center bullet to checkboxes*/
@@ -234,6 +234,10 @@ CHECKBOXES
 .ql-editor ul[data-checked] li.ql-direction-rtl::before {
     float: right;
     margin-right: -2rem;
+}
+
+.ql-editor[font='josefin-sans'] ul[data-checked] li::before {
+    margin-top: -0.125rem;
 }
 
 /* -----------------------------
