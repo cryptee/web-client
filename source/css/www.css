@@ -1021,6 +1021,12 @@ PRICING SECTION / FLEX
  
 --------------------------------
 ----------------------------- */
+
+#pricing {
+    scroll-margin-top: 8rem; 
+    padding: 8rem 0;
+}
+
 .index-pricing {
     text-align: right;
 }
@@ -1703,7 +1709,7 @@ MEDIA QUERIES
     .feature-visual picture, .feature-visual img, .feature-visual source {
         height: auto;
         width: 100%;
-        aspect-ratio: unset;
+        aspect-ratio: 11/5;
     }
 
     .feature-visual     { grid-template-rows: auto 4rem; }
@@ -1954,6 +1960,11 @@ MEDIA QUERIES
     }
 
     .media-logos a     { text-align: center; }
+
+    /* #pricing {
+        padding: 8rem 0;
+        margin-top: 0;
+    } */
 
     #pricing .grid-third { 
         grid-template-columns: 12rem 1fr; 

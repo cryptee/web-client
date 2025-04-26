@@ -953,7 +953,8 @@ BULLETS
     margin-top: 0;
 }
 
-.ql-editor[font="inter"] ul li.ql-indent-2::before {
+.ql-editor[font="inter"] ul:not([data-checked]) li.ql-indent-2::before,
+.ql-editor[font="inter"] ul:not([data-checked]) li.ql-indent-3::before {
     font-size: 0.75rem;
 }
 

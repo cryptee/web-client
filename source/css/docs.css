@@ -3419,6 +3419,10 @@ body:not(.no-doc) #progress:not(.green) ~ #upload-cloud {
     transform: scale(1);
 }
 
+.dm body:not(.no-doc) #progress:not(.green) ~ #upload-cloud {
+    fill: #FFF;
+}
+
 body:not(.no-doc) #progress:not(.green) ~ #upload-cloud #arrow {
     animation: uploadCloudArrow 1s linear infinite;
     transform: scale(1);
