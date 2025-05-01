@@ -36,9 +36,22 @@ $("main").on('scroll', throttleScroll(function(event) {
  * @returns Promise that resolves when the scroll has stopped.
  */
 async function scrollTop() {
-    $("main")[0].scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    const mainElement = $("main")[0];
+    
+    // If already at top, resolve immediately
+    if (mainElement.scrollTop < 128) {
+        activityHappened();
+        return Promise.resolve();
+    }
+    
+    // Otherwise scroll to top
+    mainElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    
     activityHappened();
-    return new Promise(resolve => { $("main")[0].addEventListener('scrollend', () => { resolve(); }, { once: true }); });
+
+    return new Promise(resolve => { 
+        mainElement.addEventListener('scrollend', () => { resolve(); }, { once: true });
+    });
 }
 
 

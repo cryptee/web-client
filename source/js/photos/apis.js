@@ -213,7 +213,7 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
         const totalImages = allImages.length;
         let loadedImages = 0;
         
-        for (const img of allImages) { if (img.complete) { loadedImages++; } }
+        for (const img of allImages) { if (img.src !== "") { loadedImages++; } }
         
         if (loadedImages === totalImages) { doneLoading(); }
     }

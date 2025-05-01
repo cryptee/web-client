@@ -1578,7 +1578,7 @@ async function tapToShareMultipleFiles() {
 
     } catch (error) {
         let errormsg = error.message.toLowerCase();
-        if (errormsg.includes("abort") || errormsg.includes("allowed")) {
+        if (errormsg.includes("abort") || errormsg.includes("allowed") || errormsg.includes("cancelled")) {
             breadcrumb(`[DOWNLOAD/SHARE MULTIPLE MEDIA] User aborted share`);
         } else {
             error.pids = selectedPhotos();
@@ -1601,6 +1601,7 @@ async function closePhotosDownloader() {
     
     breadcrumb(`[DOWNLOAD/SHARE MULTIPLE MEDIA] Closing downloader...`);
     downloadsCancelled = true;
+    downloadingPhotos = false;
     
     $('#photos-downloader').removeClass("show");
     $("body").removeClass("downloading");
@@ -1915,8 +1916,6 @@ async function newAlbum(name) {
 
         return false;
     }
-
-    
 
     await scrollTop();
     var albumHTML = renderAlbum(aid);
