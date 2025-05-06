@@ -606,7 +606,7 @@ VISUAL FEATURES / GRID
     display: grid;
     width: 100%;
     height: 100%;
-    border-radius: 0.5rem;
+    border-radius: 1.25rem;
     background-color: #222;
     grid-template-rows: 7rem 4rem;
     color: var(--cryptee-4);
@@ -1064,6 +1064,28 @@ PRICING SECTION / FLEX
 .dm #pricing  b.bar.small     { background-color: #585858; }
 .dm #pricing  b.bar.medium    { background-color: #aaaaaa; }
 .dm #pricing  b.bar.large     { background-color: #ffffff; }
+
+#pricing ul li { list-style-type: disc; }
+
+#button-pricing-signup {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 4rem;
+    line-height: 4rem;
+    background: linear-gradient(45deg, #242424 0%, #179644 100%);
+    font-weight: 700;
+    color: #FFF;
+    padding: 0 1.75rem;
+    margin-top: 2rem;
+    border-radius: 1rem;
+    text-align: right;
+    grid-column: 2/-1;
+}
+
+#button-pricing-signup i {
+    margin-left: 1.25rem;
+}
 
 /* -----------------------------
 -------------------------------- 
@@ -1970,6 +1992,13 @@ MEDIA QUERIES
         grid-template-columns: 12rem 1fr; 
     }
 
+    #button-pricing-signup {
+        grid-column: 1/-1;
+    }
+    #button-pricing-signup i {
+        display: none !important;
+    }
+
     .index-use-cases-section { grid-template-columns: 1fr; }
     
     .index-use-cases-section > a, 
@@ -2021,6 +2050,11 @@ MEDIA QUERIES
     #pricing b.bar.small  { width: calc(30% + 4rem); }
     #pricing b.bar.medium { width: calc(60% + 4rem); }
     #pricing b.bar.large  { width: calc(100% + 4rem); }
+
+    #pricing-note { grid-column: span 2; }
+    #button-pricing-signup {
+        text-align: center;
+    }
 
     .use-cases-body .grid-half h2.right,
     .use-cases-signup-section h2 { 
@@ -2107,6 +2141,8 @@ MEDIA QUERIES
     #pricing b.bar.small  { width: calc(25% - 1rem); }
     #pricing b.bar.medium { width: calc(50% - 2rem); }
     #pricing b.bar.large  { width: 100%; }
+
+    #pricing-note { grid-column: span 1; }
 
     #about-grid { grid-template-columns: 1fr minmax(16rem, 20rem) 1fr; }
     #about-grid div { grid-column: 2/3;}
