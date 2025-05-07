@@ -2827,7 +2827,10 @@ async function askPersistentStoragePermission() {
             breadcrumb('[PERSISTENT STORAGE] User granted permission.');
         } else {
             breadcrumb('[PERSISTENT STORAGE] User denied permission.');
-            if (!deniedPersistentStorage) {
+            // Only on Firefox users are prompted to give permission. On all other browsers this is handled automatically based on shitty heuristics where the browser decides if you are important or not. 
+            // https://web.dev/articles/persistent-storage
+            // https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria#does_browser-stored_data_persist:~:text=Safari%20and%20most%20Chromium%2Dbased%20browsers%2C%20such%20as%20Chrome%20or%20Edge%2C%20automatically%20approve%20or%20deny%20the%20request%20based%20on%20the%20user%27s%20history%20of%20interaction%20with%20the%20site%20and%20do%20not%20show%20any%20prompts%20to%20the%20user%2E
+            if (!deniedPersistentStorage && isFirefox) { 
                 deniedPersistentStorage = true;
                 setTimeout(function () {
                     breadcrumb('[PERSISTENT STORAGE] Showing a popup explanation for once.');

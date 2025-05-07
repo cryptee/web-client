@@ -13,7 +13,7 @@
 async function getAlbums() {
     breadcrumb("[ALBUMS] Getting albums");
     var startedRequest = (new Date()).getTime();
-    
+
     var albumsResponse;
     try {
         albumsResponse = await api("photos-albums");
@@ -22,7 +22,7 @@ async function getAlbums() {
         return false;
     }
 
-    if (!albumsResponse) {  
+    if (!albumsResponse) {
         err("Didn't get albums response");
         return false;
     }
@@ -36,10 +36,10 @@ async function getAlbums() {
     }
 
     var gotResponse = (new Date()).getTime();
-    
+
     breadcrumb("[ALBUMS] Got albums in " + (gotResponse - startedRequest) + "ms");
-    
-    // if we haven't started up, that means we don't have the key, so don't decrypt album titles yet. 
+
+    // if we haven't started up, that means we don't have the key, so don't decrypt album titles yet.
 
     if (!startedUp) { return true; }
 
@@ -63,7 +63,7 @@ async function getAlbums() {
 
 
 /**
- * Downloads an album with given ID (its photos & their titles) and sets it all to albums{aid}, albums{aid}.photos and photos{pid}
+ * Downloads an album with given ID (its photos, their titles and if the album is shared the share data) and sets it all to albums{aid}, albums{aid}.photos and photos{pid}
  * @param {string} aid Album ID to download
  */
 async function getAlbumPhotos(aid) {
@@ -73,9 +73,9 @@ async function getAlbumPhotos(aid) {
     }
 
     breadcrumb("[ALBUM PHOTOS] Getting album photos " + aid);
-    
+
     var startedRequest = (new Date()).getTime();
-    
+
     var albumResponse;
 
     try {
@@ -89,25 +89,25 @@ async function getAlbumPhotos(aid) {
         return false;
     }
 
-    if (!albumResponse) {  
+    if (!albumResponse) {
         err("Didn't get album photos response");
         return false;
     }
 
-    if (!albumResponse.data) {  
+    if (!albumResponse.data) {
         err("Album photos response doesn't have any data");
         return false;
     }
 
     if (aid === "favorites") {
         favorites = albumResponse.data || {};
-    } else { 
+    } else {
         albums[aid] = albums[aid] || {};
-        albums[aid].titles = albumResponse.data.titles || ""; 
-        
+        albums[aid].titles = albumResponse.data.titles || "";
+
         var albumPhotos = albumResponse.data.photos || {};
         albums[aid].photos = Object.keys(albumPhotos);
-        
+
         for (var pid in albumPhotos) {
             var photo = albumPhotos[pid];
 
@@ -120,7 +120,7 @@ async function getAlbumPhotos(aid) {
             photos[pid].aid = aid;
         }
     }
-    
+
     var gotResponse = (new Date()).getTime();
 
     breadcrumb("[ALBUM PHOTOS] Got album photos in " + (gotResponse - startedRequest) + "ms");
@@ -141,20 +141,20 @@ async function getAlbumPhotos(aid) {
  * @param {string} thumbToken the download token of the image.
  */
 async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
- 
+
     imgElem = $(imgElem) || $(`img[thumb="${thumbImgID}"]`);
     var isFavAlbum  = wrapperElem.getAttribute("id") === "favorites";
     wrapperElem = $(wrapperElem) || imgElem.parent();
 
     if (!thumbImgID) {
-        if (wrapperElem.hasClass("album")) { 
-            return true; 
+        if (wrapperElem.hasClass("album")) {
+            return true;
         } else {
             handleError("[GET THUMBNAIL] Can't get thumbnail. No imgID.");
             return false;
         }
     }
-    
+
     thumbToken = thumbToken || "";
     if (!thumbToken) {
         breadcrumb("[GET THUMBNAIL] No token provided. Will request one.");
@@ -173,16 +173,16 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
     }
 
     if (wrapperElem.hasClass("video")) {
-        // still images from the first second of the video. 
-        // in the past "t" used to be a GIF, but it is now a still, because fuck encoding gifs in a browser 
+        // still images from the first second of the video.
+        // in the past "t" used to be a GIF, but it is now a still, because fuck encoding gifs in a browser
         // it made uploads really really slow, required us to use regular canvas vs offscreen canvas due to outdated gif encoding libs
         // and we can now fully rely on offscreen canvas + createimagebitmap etc to make things more efficient.
-        thumbSizePreference = "l"; 
+        thumbSizePreference = "l";
     }
 
     // DOWNLOAD ENCRYPTED THUMBNAIL
     var decryptedThumbnailURL = await getMedia(thumbImgID, thumbSizePreference, "url");
-    
+
     if (!wrapperElem.hasClass("onscreen")) { doneLoading(); return false; }
     if (!decryptedThumbnailURL) { doneLoading(); return false; }
 
@@ -201,7 +201,7 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
     }
 
     imgElem.replaceWith(img);
-    
+
     if (!isFavAlbum) {
         doneLoading();
     } else {
@@ -212,9 +212,9 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
         const allImages = wrapperElem[0].querySelectorAll('img');
         const totalImages = allImages.length;
         let loadedImages = 0;
-        
+
         for (const img of allImages) { if (img.src !== "") { loadedImages++; } }
-        
+
         if (loadedImages === totalImages) { doneLoading(); }
     }
 
@@ -230,8 +230,8 @@ async function getThumbnail (thumbImgID, thumbToken, wrapperElem, imgElem) {
 
 /**
  * Downloads, decrypts and returns a decrypted Base64 or blob photo
- * @param {string} photoID The ID of the photo. could be pid, tid, lid etc 
- * @param {('p'|'t'|'l'|'v'|'r')} size The size of the photo 
+ * @param {string} photoID The ID of the photo. could be pid, tid, lid etc
+ * @param {('p'|'t'|'l'|'v'|'r')} size The size of the photo
  * @param {('url'|'blob')} outputFormat The output format of the photo (i.e. blob url or blob). Defaults to "url", as that's what we use the most.
  * @param {string} token The token of the photo, IF WE KNOW IT, otherwise you can skip this, we'll get it from server. slower but still works.
  * @returns {*} img if the image is V1 or V2 upload, this is b66. If it's a v3 upload, thumb & lightbox sizes are b64, and original is a blob
@@ -240,36 +240,36 @@ async function getMedia(photoID, size, outputFormat, token) {
     outputFormat = outputFormat || "url";
     token = token || "";
     size = size || "l";
-    
+
     if (!photoID) {
         handleError("[GET PHOTO] Can't get photo. No photoID");
         return false;
     }
-    
+
     var pid;
 
     var id = convertID(photoID, size);
-    
+
     if (photoID.startsWith("v-") || size === "v") {
         pid = convertID(photoID, "size");
     } else {
         pid = convertID(photoID, "p");
     }
-    
-    // technically we only need this for the token, and we can still download the photo without a token, by requesting a new token. 
-    // it'll be slow, but it'd work. on the server side if we catch a moment like this, we'll generate fresh new tokens for these photos
-    // so it's technically a one-time speed issue. 
 
-    var localPhoto = photos[pid] || favorites[pid] || {}; 
+    // technically we only need this for the token, and we can still download the photo without a token, by requesting a new token.
+    // it'll be slow, but it'd work. on the server side if we catch a moment like this, we'll generate fresh new tokens for these photos
+    // so it's technically a one-time speed issue.
+
+    var localPhoto = photos[pid] || favorites[pid] || {};
 
     if (!token) {
         if (size === "p" || size === "v") { token = localPhoto.otoken || ""; }
         if (size === "l")                 { token = localPhoto.ltoken || ""; }
         if (size === "t")                 { token = localPhoto.ttoken || ""; }
     }
-    
+
     var decryptedPhoto;
-    
+
     try {
         decryptedPhoto = await downloadAndDecryptFile(id, token, outputFormat);
     } catch (error) {
@@ -279,19 +279,19 @@ async function getMedia(photoID, size, outputFormat, token) {
         handleError("[GET PHOTO] Couldn't download / decrypt / get photo", error);
         return false;
     }
-    
+
     if (decryptedPhoto === "aborted") { return false; }
 
     // couldn't find thumbnail size, auto-fallback to lightbox size
-    if (size === "t" && !decryptedPhoto) { 
+    if (size === "t" && !decryptedPhoto) {
         handleError("[GET PHOTO] Couldn't download / decrypt / get thumbnail photo. Falling back to lightbox size.", { photoID : photoID, pid : pid, size : size });
-        return getMedia(photoID, "l", outputFormat); 
+        return getMedia(photoID, "l", outputFormat);
     }
 
     // couldn't find lightbox size, auto-fallback to original size
-    if (size === "l" && !decryptedPhoto) { 
+    if (size === "l" && !decryptedPhoto) {
         handleError("[GET PHOTO] Couldn't download / decrypt / get lightbox photo. Falling back to original size.", { photoID : photoID, pid : pid, size : size });
-        return getMedia(photoID, "p", outputFormat); 
+        return getMedia(photoID, "p", outputFormat);
     }
 
     if (size === "p" && !decryptedPhoto) {
@@ -300,7 +300,7 @@ async function getMedia(photoID, size, outputFormat, token) {
     }
 
     return decryptedPhoto;
-    
+
 }
 
 
@@ -311,7 +311,7 @@ async function getMedia(photoID, size, outputFormat, token) {
 async function getTitles() {
     breadcrumb("[TITLES] Getting all titles");
     var startedRequest = (new Date()).getTime();
-    
+
     var titlesResponse;
     try {
         titlesResponse = await api("photos-titles");
@@ -320,17 +320,17 @@ async function getTitles() {
         return false;
     }
 
-    if (!titlesResponse) {  
+    if (!titlesResponse) {
         err("Didn't get titles response");
         return false;
     }
-    
+
     var gotResponse = (new Date()).getTime();
     breadcrumb("[TITLES] Got all titles in " + (gotResponse - startedRequest) + "ms");
-    
+
     var startedDecrypting = (new Date()).getTime();
     breadcrumb("[TITLES] Decrypting all titles");
-    
+
     // decrypt album titles one by one
     var albumIDs = Object.keys(titlesResponse.data);
     for (var aid of albumIDs) {
@@ -360,12 +360,12 @@ async function getTitles() {
 
 async function getSummonAlbum(hashedTitleToSummon){
 
-    if (!hashedTitleToSummon) { 
+    if (!hashedTitleToSummon) {
         handleError("[SUMMON ALBUM] Can't summon without a title.");
         return false;
     }
 
-    var apiResponse; 
+    var apiResponse;
 
     try {
         apiResponse = await api("photos-summon", {}, { hash : hashedTitleToSummon }, "POST");
@@ -392,18 +392,18 @@ async function getSummonAlbum(hashedTitleToSummon){
 
 /**
  * Searches for albums & photos based on references we pass, and returns an array of search results. The search functionality is in photos-search.js.
- * @param {*} references a synctactic search references array.   
+ * @param {*} references a synctactic search references array.
  */
 async function getSyntacticSearchResults(references) {
     references = references || [];
 
-    if (Array.isArray(references) && !references.length) { 
+    if (Array.isArray(references) && !references.length) {
         breadcrumb("[SEARCH] No references found, won't query");
-        return []; 
+        return [];
     }
 
-    var apiResponse; 
-    
+    var apiResponse;
+
     try {
         apiResponse = await api("photos-search", {}, {references : references}, "POST");
     } catch (error) {
@@ -426,7 +426,7 @@ async function getSyntacticSearchResults(references) {
 
         var pid = photo.id;
         var aid = photo.aid;
-        
+
         // add photo to photos in memory
         photos[pid] = photos[pid] || {};
         Object.keys(photo).forEach(photoKey => {
@@ -440,7 +440,7 @@ async function getSyntacticSearchResults(references) {
         if (!albums[aid].photos.includes(pid)) { albums[aid].photos.push(pid); }
 
     });
-    
+
     return apiResponse.data;
 }
 
@@ -448,13 +448,13 @@ async function getSyntacticSearchResults(references) {
 async function getTagsSearchResults(hmacs) {
     hmacs = hmacs || [];
 
-    if (Array.isArray(hmacs) && !hmacs.length) { 
+    if (Array.isArray(hmacs) && !hmacs.length) {
         breadcrumb("[SEARCH] No hmacs found, won't query");
-        return []; 
+        return [];
     }
 
-    var apiResponse; 
-    
+    var apiResponse;
+
     try {
         apiResponse = await api("photos-tagged", {}, { hmacs : hmacs }, "POST");
     } catch (error) {
@@ -477,7 +477,7 @@ async function getTagsSearchResults(hmacs) {
 
         var pid = photo.id;
         var aid = photo.aid;
-        
+
         // add photo to photos in memory
         photos[pid] = photos[pid] || {};
         Object.keys(photo).forEach(photoKey => {
@@ -491,7 +491,7 @@ async function getTagsSearchResults(hmacs) {
         if (!albums[aid].photos.includes(pid)) { albums[aid].photos.push(pid); }
 
     });
-    
+
     return apiResponse.data;
 
 }
@@ -499,11 +499,11 @@ async function getTagsSearchResults(hmacs) {
 
 /**
  * Get Tags with given HMACs and decrypt them
- * @param {array} tagHMACs An Array of Tag HMACs 
+ * @param {array} tagHMACs An Array of Tag HMACs
  */
 async function getTags(tagHMACs) {
-    
-    if (!tagHMACs) { 
+
+    if (!tagHMACs) {
         handleError("[GET TAGS] Can't get tags, no tag hmacs provided.");
         return [];
     }
@@ -513,7 +513,7 @@ async function getTags(tagHMACs) {
         return [];
     }
 
-    var apiResponse; 
+    var apiResponse;
 
     try {
         apiResponse = await api("photos-tags", {}, { tags : tagHMACs }, "POST");
@@ -535,7 +535,7 @@ async function getTags(tagHMACs) {
     var encryptedTags = apiResponse.data;
     var decryptedTags = await decryptTags(encryptedTags);
     var arrayOfDecryptedTags = Object.values(decryptedTags) || [];
-    
+
     return arrayOfDecryptedTags;
 
 }
@@ -560,7 +560,7 @@ async function getTags(tagHMACs) {
 /**
  * Set album metadata (i.e. thumbnail, pinky, tokens, date, rename etc all happen here)
  * @param {string} aid AlbumID (i.e. f-12345)
- * @param {Object} meta The meta object with properties to add to album. This will be upsert/merged with existing data. so it will update data if it exists, or will be set from scratch if it doesn't exist  
+ * @param {Object} meta The meta object with properties to add to album. This will be upsert/merged with existing data. so it will update data if it exists, or will be set from scratch if it doesn't exist
  */
 async function setAlbumMeta(aid, meta) {
     if (!aid) {
@@ -591,7 +591,7 @@ async function setAlbumMeta(aid, meta) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         err("Didn't get set album meta response", {aid:aid});
         return false;
     }
@@ -646,27 +646,27 @@ async function setAlbumCover(aid, pid) {
         "ltoken" : (photos[pid].ltoken || ""),
         "ttoken" : (photos[pid].ttoken || ""),
         "pinky"  : (photos[pid].pinky || ""),
-        "date"   : dateFromEXIF((photos[pid].date || ""))
+        "date"   : dateFromEXIF((photos[pid]?.date || "")) || albums[aid]?.date || ""
     };
 
     // only set the album's date if the cover photo has a date, otherwise, leave album's own date as it is.
     if (meta.date === "") { delete meta.date; }
 
     var setThumbnail;
-    
+
     try {
         setThumbnail = await setAlbumMeta(aid, meta);
     } catch (error) {
         handleError("[ALBUM COVER] Failed to set album cover.", error);
         return false;
     }
-    
+
     if (setThumbnail) {
         albums[aid].thumb  = tid;
         albums[aid].ltoken = (photos[pid].ltoken || "");
         albums[aid].ttoken = (photos[pid].ttoken || "");
         albums[aid].pinky  = (photos[pid].pinky || "");
-        albums[aid].date   = dateFromEXIF((photos[pid].date || ""));
+        albums[aid].date   = dateFromEXIF((photos[pid]?.date || "")) || albums[aid]?.date || "";
     }
 
     // popup is visible, update the contents (i.e. once an upload completes, this might be visible in the background)
@@ -696,7 +696,7 @@ async function updateAlbumTitles(aid) {
         albums : {},
         photos : {}
     };
-    
+
     albums[aid].photos = albums[aid].photos || [];
 
     albums[aid].photos.forEach(pid => {
@@ -711,19 +711,19 @@ async function updateAlbumTitles(aid) {
             }
         }
     });
-    
+
     if (aid === "home") {
         for (var albumID in albums) {
             try {
-                
-                var albumTitle; 
-                
+
+                var albumTitle;
+
                 if (albumID === "home") {
                     albumTitle = "Home";
                 } else {
                     albumTitle = (albums[albumID].decryptedTitle || "Untitled Album").toUpperCase();
                 }
-                
+
                 titlesObject.albums[albumID] = JSON.stringify(albumTitle);
 
             } catch (error) {
@@ -794,7 +794,7 @@ async function updateAlbumTitles(aid) {
  * Set photo metadata (i.e. date, pinky, tokens, etc all happen here)
  * @param {string} aid AlbumID (i.e. f-12345)
  * @param {string} pid PhotoID (i.e. p-12345)
- * @param {Object} meta The meta object with properties to add to photo. This will be upsert/merged with existing data. so it will update data if it exists, or will be set from scratch if it doesn't exist  
+ * @param {Object} meta The meta object with properties to add to photo. This will be upsert/merged with existing data. so it will update data if it exists, or will be set from scratch if it doesn't exist
  */
 async function setPhotoMeta(aid, pid, meta) {
     if (!aid) {
@@ -818,11 +818,11 @@ async function setPhotoMeta(aid, pid, meta) {
     }
 
     if (meta.date) {
-        // 2020:09:27 15:33:40 -> year:2020, month:09 etc etc. 
-        try { meta.year  = meta.date.split(":")[0] || "";               } catch (error) {} 
-        try { meta.month = meta.date.split(":")[1] || "";               } catch (error) {} 
-        try { meta.day   = meta.date.split(":")[2].split(" ")[0] || ""; } catch (error) {} 
-        try { meta.time  = meta.date.split(' ')[1] || "";               } catch (error) {} 
+        // 2020:09:27 15:33:40 -> year:2020, month:09 etc etc.
+        try { meta.year  = meta.date.split(":")[0] || "";               } catch (error) {}
+        try { meta.month = meta.date.split(":")[1] || "";               } catch (error) {}
+        try { meta.day   = meta.date.split(":")[2].split(" ")[0] || ""; } catch (error) {}
+        try { meta.time  = meta.date.split(' ')[1] || "";               } catch (error) {}
     }
 
     breadcrumb("[PHOTO META] Setting photo meta " + aid + "/" + pid);
@@ -838,7 +838,7 @@ async function setPhotoMeta(aid, pid, meta) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         err("Didn't get set photo meta response", {aid:aid, pid:pid});
         return false;
     }
@@ -883,7 +883,7 @@ async function setFavoritePhoto(pid) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         err("Didn't get fav photo response", {aid:aid, pid:pid});
         return false;
     }
@@ -923,7 +923,7 @@ async function setUnfavoritePhoto(pid) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         err("Didn't get un-fav photo response", {pid:pid});
         return false;
     }
@@ -948,12 +948,12 @@ async function setUnfavoritePhoto(pid) {
 
 async function setGhostAlbum(aid, hashedTitleToGhost) {
 
-    if (!hashedTitleToGhost) { 
+    if (!hashedTitleToGhost) {
         handleError("[GHOST ALBUM] Can't ghost without a title.");
         return false;
     }
 
-    var apiResponse; 
+    var apiResponse;
 
     try {
         apiResponse = await api("photos-ghost", { a:aid }, { hash : hashedTitleToGhost }, "POST");
@@ -979,7 +979,7 @@ async function setGhostAlbum(aid, hashedTitleToGhost) {
 /**
  * Tags photos of an album with the given tags
  * @param {string} aid Album ID
- * @param {array} photosToTag Array of Photo IDs 
+ * @param {array} photosToTag Array of Photo IDs
  * @param {array} tags Array of Tag Objects
  */
 async function tagPhotos(aid, photosToTag, tags) {
@@ -1017,7 +1017,7 @@ async function tagPhotos(aid, photosToTag, tags) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         handleError("Didn't get tag photos response", { aid:aid, photos:photosToTag });
         return false;
     }
@@ -1038,7 +1038,7 @@ async function tagPhotos(aid, photosToTag, tags) {
 
 
 async function setPhotoDescription(aid, pid, plaintextDescription) {
-    
+
     if (!aid) { return false; }
     if (!pid) { return false; }
 
@@ -1065,11 +1065,11 @@ async function setPhotoDescription(aid, pid, plaintextDescription) {
     }
 
     var encryptedDescriptionString = null;
-    // if there's a description, encrypt it, 
-    // if there's no description, we'll save null 
+    // if there's a description, encrypt it,
+    // if there's no description, we'll save null
     if (plaintextDescription.length >= 1) {
-        var encryptedDescription; 
-    
+        var encryptedDescription;
+
         try {
             breadcrumb('[SET PHOTOS DESC] Encrypting description of photo: ' + pid);
             encryptedDescription = await encrypt(plaintextDescription, [theKey]);
@@ -1079,13 +1079,13 @@ async function setPhotoDescription(aid, pid, plaintextDescription) {
             createPopup("Couldn't set the description of this photo. Chances are this is a network problem or this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
             return false;
         }
-    
+
         if (!encryptedDescription || isEmpty(encryptedDescription)) {
             handleError("[SET PHOTOS DESC] Failed to encrypt description of photo: " + pid);
             createPopup("Couldn't set the description of this photo. Chances are this is a network problem or this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
             return false;
         }
-    
+
         encryptedDescriptionString = encryptedDescription.data || "";
     }
 
@@ -1130,7 +1130,7 @@ async function movePhotos(fromAID, toAID, photosToMove) {
         handleError("[MOVE PHOTOS] Can't move photos. No toAID!");
         return false;
     }
-    
+
     if (fromAID === "favorites" || toAID === "favorites") {
         handleError("[MOVE PHOTOS] Can't move photos to/from favorites.");
         return false;
@@ -1160,7 +1160,7 @@ async function movePhotos(fromAID, toAID, photosToMove) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         err("Didn't get move photos response", {from:fromAID, to:toAID, photos:photosToMove});
         return false;
     }
@@ -1222,7 +1222,7 @@ async function deletePhotosOfAlbum(aid, photosToDelete) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         err("Didn't get delete photos response", {aid:aid, photos:photosToDelete});
         return false;
     }
@@ -1255,9 +1255,9 @@ async function deleteAlbum(aid) {
         return false;
     }
 
-    if (aid === "home" || aid === "favorites") { 
+    if (aid === "home" || aid === "favorites") {
         handleError('[DELETE ALBUM] User tried deleting home or favorites. Aborting', {aid:aid});
-        return false; 
+        return false;
     }
 
     breadcrumb('[DELETE ALBUM] Starting deletion');
@@ -1272,7 +1272,7 @@ async function deleteAlbum(aid) {
         return false;
     }
 
-    if (!response) {  
+    if (!response) {
         err("Didn't get delete album response", {aid:aid});
         return false;
     }
@@ -1292,5 +1292,3 @@ async function deleteAlbum(aid) {
         handleError(msg, error);
     }
 }
-
-

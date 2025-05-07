@@ -1,0 +1,51 @@
+<div style="--r:8"></div>
+
+<!-- @import "./footer-links.kit" -->
+
+<!-- WE NEED THIS FOR THE PWA INSTALL BANNER -->
+<script src="../js/register-worker.js"></script>
+
+<script>
+
+    function scale(number, inMin, inMax, outMin, outMax) {
+        return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
+    // a super basic lazy loader
+    window.addEventListener('load', function(){
+        [].forEach.call(document.querySelectorAll('img[lazysrc]'), function(img) {
+            img.setAttribute('src', img.getAttribute('lazysrc'));
+            img.onload = function() { img.removeAttribute('lazysrc'); };
+        });
+
+        calcFloatingNav();
+    }, false);
+
+    // floating nav
+    window.addEventListener('scroll', calcFloatingNav);
+
+    function calcFloatingNav () {
+        var nav = document.querySelectorAll("nav")[0];
+        var st  = document.documentElement.scrollTop;
+
+        if (st <= 320) {
+
+            nav.style.setProperty("--y", (0 - st) + "px");
+            nav.style.setProperty("--o", scale(st, 0, 64, 1, 0));
+            nav.style.setProperty("--h", scale(st, 320, 0, 4, 8) + "rem");
+            nav.style.setProperty("--yo", scale(st, 320, 0, 16, 64) + "px");
+            nav.classList.remove("sticky");
+
+        } else {
+
+            nav.style.setProperty("--yo", "16px");
+            nav.style.setProperty("--y", "-320px");
+            nav.style.setProperty("--o", "1");
+            nav.style.setProperty("--h", "4rem");
+            nav.classList.add("sticky");
+
+        }
+
+    }
+
+</script>

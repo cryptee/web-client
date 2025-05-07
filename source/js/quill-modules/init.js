@@ -62,8 +62,8 @@ Quill.import('formats/link').PROTOCOL_WHITELIST = ['http', 'https', 'mailto', 't
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-//	VENDOR SPECIFIC FIXES 
-//  
+//	VENDOR SPECIFIC FIXES
+//
 //  uuggghhhhhhh
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -71,7 +71,7 @@ Quill.import('formats/link').PROTOCOL_WHITELIST = ['http', 'https', 'mailto', 't
 // https://github.com/cryptee/web-client/issues/48
 function firefoxJustifiedTextFixHandler(range, context) {
     if (context.format.align === "justify" && context.prefix.length >= context.offset) {
-        // this is the end of the paragraph / line, and user pressed space, quill will ignore this / delete this, so insert an extra space here. 
+        // this is the end of the paragraph / line, and user pressed space, quill will ignore this / delete this, so insert an extra space here.
         // uuugghhh
         quill.insertText(range.index, ' ', 'user');
         return true;
@@ -81,7 +81,7 @@ function firefoxJustifiedTextFixHandler(range, context) {
 }
 
 if (isFirefox) {
-    // Yep. that's right. On firefox,  with justified text, at the end of the paragraph / line, spacebar doesn't work. 
+    // Yep. that's right. On firefox,  with justified text, at the end of the paragraph / line, spacebar doesn't work.
     quillkeyboardbindings.justifiedTextSpacebarFixForFirefox = {
         key: ' ',
         handler: firefoxJustifiedTextFixHandler
@@ -92,9 +92,9 @@ if (isFirefox) {
 // https://github.com/cryptee/web-client/issues/129
 function androidPredictiveKeyboardNewlineFix(delta, oldDelta, source) {
     if (!isAndroid) { return; }
-    
+
     // if some text is selected, we replace the selected text with newline.
-    // this doesn't cause a bug, so you can continue as expected. 
+    // this doesn't cause a bug, so you can continue as expected.
     var oldSelection = quill.getSelection();
     if (!oldSelection || isEmpty(oldSelection)) { return; }
     if (oldSelection.length > 0) { return; }
@@ -106,11 +106,11 @@ function androidPredictiveKeyboardNewlineFix(delta, oldDelta, source) {
     if (delta.ops[1].insert !== "\n") { return; }
 
     setTimeout(function () {
-        var newSelection = quill.getSelection(); 
+        var newSelection = quill.getSelection();
 
-        // what happened is, we know we added a newline, but the selection index didn't change. 
+        // what happened is, we know we added a newline, but the selection index didn't change.
         // so now we'll need to move the cursor, to make sure things continue to work without breaking.
-        // fucking hell. 
+        // fucking hell.
         if (!newSelection || newSelection.index === oldSelection.index) {
             quill.setSelection(oldSelection.index + 1, 0);
         }
@@ -120,18 +120,18 @@ function androidPredictiveKeyboardNewlineFix(delta, oldDelta, source) {
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-//	FORMATTING / SCROLL FIXES 
+//	FORMATTING / SCROLL FIXES
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-// These functions are here to safely get format by running quill.getFormat() / quill.format() etc without causing any scroll-jumping. 
-// Looks like Quill trying to get the last selection causes editor to jump. 
+// These functions are here to safely get format by running quill.getFormat() / quill.format() etc without causing any scroll-jumping.
+// Looks like Quill trying to get the last selection causes editor to jump.
 // These functions prevent that by using Cryptee's getLastSelectionRange() function instead.
 // See https://github.com/cryptee/web-client/issues/150 for more details.
 
 /**
- * Safely gets format by running quill.getFormat() without causing any scroll-jumping. 
- * Looks like Quill trying to get the last selection causes editor to jump. 
+ * Safely gets format by running quill.getFormat() without causing any scroll-jumping.
+ * Looks like Quill trying to get the last selection causes editor to jump.
  * This function prevents that by using Cryptee's getLastSelectionRange() function instead.
  * @returns {*} whatever quill.format() or quill.formatText() would return
  */
@@ -140,11 +140,11 @@ function quillSafelyGetFormat() {
 }
 
 /**
- * Safely applies quill.format() or quill.formatText() without causing any scroll-jumping. 
- * Looks like Quill trying to get the last selection causes editor to jump. 
+ * Safely applies quill.format() or quill.formatText() without causing any scroll-jumping.
+ * Looks like Quill trying to get the last selection causes editor to jump.
  * This function prevents that by using Cryptee's getLastSelectionRange() function instead.
- * @param {*} key 
- * @param {*} value 
+ * @param {*} key
+ * @param {*} value
  * @returns {*} whatever quill.format() or quill.formatText() would return
  */
 function quillSafelyFormat(key, value) {
@@ -159,11 +159,11 @@ function quillSafelyFormat(key, value) {
 }
 
 /**
- * Safely applies quill.formatLine() without causing any scroll-jumping. 
- * Looks like Quill trying to get the last selection causes editor to jump. 
+ * Safely applies quill.formatLine() without causing any scroll-jumping.
+ * Looks like Quill trying to get the last selection causes editor to jump.
  * This function prevents that by using Cryptee's getLastSelectionRange() function instead.
- * @param {*} key 
- * @param {*} value 
+ * @param {*} key
+ * @param {*} value
  * @returns {*} whatever quill.formatLine() would return
  */
 function quillSafelyFormatLine(key, value) {
@@ -177,7 +177,7 @@ function quillSafelyFormatLine(key, value) {
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-// 	 EMBED / INSERT / ATTACHMENT HANDLERS 
+// 	 EMBED / INSERT / ATTACHMENT HANDLERS
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
@@ -280,7 +280,7 @@ if (isMobile) {
 } else {
     toolbarOptions.container = '#desktopToolbar';
     quillBaseConfig.theme = 'snow';
-    
+
     if (!isipados) {
         quillBaseConfig.modules.imageResize = {};
     }
@@ -289,6 +289,8 @@ if (isMobile) {
 quillBaseConfig.modules.toolbar = toolbarOptions;
 quill = new Quill('#editorWrapper', quillBaseConfig);
 setSentryTag("quill-config", quillBaseConfig.theme);
+
+try { initCodeBlockFeatures(); } catch (e) {}
 
 
 
@@ -313,19 +315,19 @@ quill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
     }
 });
 
-// 
+//
 // TODO – v3.2 – KEEP TESTING AND ENABLE PASTING TABLES WHEN READY
 // Pasting tables from the open web is a tough one, and there are still many issues with it.
-// Keep testing, and once you're confident it works, enable it. 
-// 
-// i.e. a page that still fails : 
+// Keep testing, and once you're confident it works, enable it.
+//
+// i.e. a page that still fails :
 // https://en.wikipedia.org/wiki/Jelly_bean
-// 
+//
 // Select the heading / left contents table & right image & infobox, but not history, and it somehow fails.
 //
 //
 
-// quill.clipboard.addMatcher('table', (node, delta) => { 
+// quill.clipboard.addMatcher('table', (node, delta) => {
 //     var convertedPurifiedTablesDelta = convertHTMLToDeltas(node.outerHTML);
 //     console.log(delta);
 //     console.log(convertedPurifiedTablesDelta);
@@ -356,7 +358,19 @@ quill.clipboard.addMatcher('img', (node, delta) =>              { return handleE
 quill.clipboard.addMatcher('mark[comment]', (node, delta) =>    {  return handlePastingComments(node, delta); });
 
 
-  
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	COPY / CUT FIX
+//	Fixes double-newline issue when copying
+//	from Quill to plain text targets.
+//	https://github.com/cryptee/web-client/issues/87
+//	https://github.com/slab/quill/issues/745
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+quill.root.addEventListener('copy', quill.clipboard.onCopy.bind(quill.clipboard));
+quill.root.addEventListener('cut', quill.clipboard.onCopy.bind(quill.clipboard));
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -406,7 +420,7 @@ function checkOrAddTag(tag, callback) {
 ////////////////////////////////////////////////
 
 function initMobileToolbar() {
-    
+
     // switch body state to bubble mode
     $("body").addClass("bubble");
 
@@ -439,28 +453,28 @@ function initMobileToolbar() {
  * This calculates and shows/hides the on-keyboard mobile toolbar only in mobile (bubble theme) and shrinks/expands the editor so that it's not behind the keyboard
  */
 function updateVisibleViewport(range) {
-    // only for mobile. 
-    if (!isMobile) { return; } 
-    
+    // only for mobile.
+    if (!isMobile) { return; }
+
 
     // on android keyboard used to trigger window resize events,
     // but now it triggers visualviewport resize instead as of chrome 108, released in October 2022
     // https://developer.chrome.com/blog/viewport-resize-behavior/
     // so with the exception of Firefox Android, all browsers use visualViewport now
     // on firefox this causes an extra tiny bit of animation but it's okay.
-    // leaving this if/else clause here in case if you ever need to re-enable it 
-    // if (isios || isipados || (isAndroid && !isFirefox)) { 
-        
-        // STEP 1 – Move the Toolbar on iOS    
+    // leaving this if/else clause here in case if you ever need to re-enable it
+    // if (isios || isipados || (isAndroid && !isFirefox)) {
+
+        // STEP 1 – Move the Toolbar on iOS
         var viewport = window.visualViewport || { height : window.innerHeight };
         var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation
 
         // Subtract the viewport offset to correct the positioning
-        // If you're scrolled down and tap onto an area that would otherwise be under the keyboard, 
-        // it used to make toolbar fly up on android. 
+        // If you're scrolled down and tap onto an area that would otherwise be under the keyboard,
+        // it used to make toolbar fly up on android.
         // this line fixes that. BUT, it breaks on iOS, and makes the toolbar hide behind the keyboard.
         // So we'll need to make this Android only, and test it out, and see how it is on firefox and chrome etc.
-        if (isAndroid) { 
+        if (isAndroid) {
             keyboardHeight += viewport.offsetTop || 0;
         }
 
@@ -469,7 +483,7 @@ function updateVisibleViewport(range) {
 
         // STEP 2 – Determine if keyboard is opening / closing, so you can crop the editor, and fire keyboard opened / closed events
         cropEditorAccordingtoVisibleViewport();
-        
+
     // }
 
     // STEP 3 – SCROLL THE EDITOR TO THE CURSOR (EVEN IF IT'S BEHIND THE TOOLBAR / KEYBOARD)
@@ -494,11 +508,11 @@ function cropEditorAccordingtoVisibleViewport() {
     keyboardVisibilityTimeout = setTimeout(function () {
 
         var viewport = window.visualViewport || { height : window.innerHeight };
-        var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation    
+        var keyboardHeight = 0 - (window.innerHeight - viewport.height) + 16; // intentionally adding +1rem to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation
 
         // Subtract the viewport offset to correct the positioning
-        // If you're scrolled down and tap onto an area that would otherwise be under the keyboard, 
-        // it used to make toolbar fly up on android. 
+        // If you're scrolled down and tap onto an area that would otherwise be under the keyboard,
+        // it used to make toolbar fly up on android.
         // this line fixes that. BUT, it breaks on iOS, and makes the toolbar hide behind the keyboard.
         // So we'll need to make this Android only, and test it out, and see how it is on firefox and chrome etc.
         if (isAndroid) {
@@ -506,7 +520,7 @@ function cropEditorAccordingtoVisibleViewport() {
         }
 
         if (keyboardHeight > 0) {
-            // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.   
+            // keyboard hidden, so resize editor right away to prevent a 200ms cropped jumpy look.
             $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
             $(".ql-tooltip").removeClass("keyboard-visible");
         } else {
@@ -516,7 +530,7 @@ function cropEditorAccordingtoVisibleViewport() {
                 $(".ql-editor").attr("style", `height: calc(100% - 5rem + ${keyboardHeight}px )`);
             }, 200);
         }
-        
+
     }, 20);
 }
 
@@ -527,12 +541,12 @@ if (window.visualViewport) {
 
 
 /**
- * Soft keyboards don't send selection change while typing unless user moves the cursor. 
+ * Soft keyboards don't send selection change while typing unless user moves the cursor.
  * Meaning that we have to manually track the text-changes, look at the cursor position, and scroll editor accordingly
  * We can't just look at the selected paragraph, and see if it's offsetTop + height falls behind the keyboard :
- * Because user could be typing in the middle of the paragraph as well. So instead we need to get Quill cursor bounds and calculate a scroll based on that. 
- * @param {*} selectedNode 
- * @returns         
+ * Because user could be typing in the middle of the paragraph as well. So instead we need to get Quill cursor bounds and calculate a scroll based on that.
+ * @param {*} selectedNode
+ * @returns
  */
 function autoScrollWhileTyping(range) {
 
@@ -543,34 +557,34 @@ function autoScrollWhileTyping(range) {
     if (isPaperMode()) { return; }
 
     setTimeout(function () {
-        
+
         // first get quill's bounds
         range = range || getLastSelectionRange();
         if (!range || isEmpty(range)) { return; }
-        
+
         // only while typing but not selecting text.
         // so if the range is > 0, stop.
         if (range.length > 0) { return; }
 
-        var bounds; 
+        var bounds;
         try { bounds = quill.getBounds(range.index, range.length); } catch (e) {}
         bounds = bounds || { top : 0 };
-        
+
         // now get keyboard toolbar's top offset
         var keyboardTopOffset = $("#mobileToolbar").offset().top;
-        
+
         // now get editor's scrollTop offset
         var editorOffset = $(".ql-editor").scrollTop();
 
         // our cursor is at : editorOffset + bounds.top
         var cursorScrollOffset = editorOffset + bounds.top;
 
-        // if we scroll the editor to cursorScrollOffset, 
+        // if we scroll the editor to cursorScrollOffset,
         // selection / cursor will be at the very top of the screen.
-        // and selection will be hidden behind the top toolbar. 
-        // So we'll instead scroll to the (cursor - keyboard + 96), 
+        // and selection will be hidden behind the top toolbar.
+        // So we'll instead scroll to the (cursor - keyboard + 96),
         // to keep the text 96px above the keyboard and scroll as the user types
-        
+
         $('.ql-editor')[0].scrollTo({ top: cursorScrollOffset - keyboardTopOffset + 96, left: 0, behavior: 'smooth' });
 
     }, 300);
@@ -608,7 +622,7 @@ function checkIfURLSelectedOnMobile() {
 
     try {
         var lastSelRange = getLastSelectionRange();
-        var selectedFormat = quill.getFormat(lastSelRange);    
+        var selectedFormat = quill.getFormat(lastSelRange);
         if (selectedFormat.link) {
             showURLBox(selectedFormat.link);
         } else {
@@ -621,17 +635,17 @@ function checkIfURLSelectedOnMobile() {
 function showURLBox(href) {
     $("#urlbox").find("a").attr("href", href);
     $("#urlbox").find("a").text(href.replace("https://", ""));
-    if (isMobile) { 
-        $("#urlbox").addClass("show"); 
+    if (isMobile) {
+        $("#urlbox").addClass("show");
         if (href.startsWith("http://") || href.startsWith("ftp://")) {
-            $("#urlbox").addClass("insecure"); 
+            $("#urlbox").addClass("insecure");
         }
     }
 }
 
 function hideURLBox() {
-    if (isMobile) { 
-        $("#urlbox").removeClass("show"); 
+    if (isMobile) {
+        $("#urlbox").removeClass("show");
         $("#urlbox").removeClass("insecure");
     }
     $("#urlbox").find("a").attr("href", "");
@@ -657,9 +671,9 @@ function copyURLFromURLBoxToClipboard() {
 
 function getSelectedNode() {
     var nativeRange = quill.selection.getNativeRange();
-    
+
     if (!nativeRange || isEmpty(nativeRange)) { return null; }
-    
+
     if (!nativeRange.native || isEmpty(nativeRange.native)) { return null; }
 
     return nativeRange.native.commonAncestorContainer;
@@ -681,12 +695,12 @@ function getLastSelectionRange() {
 
 /**
  * Returns the quill-child of the given node, so you can easily calculate only what's after it
- * @param {*} node 
+ * @param {*} node
  */
  function findDOMNodesParentInQuill(node) {
-    
+
     var parentOfNodeThatIsQuillsChild = node;
-    
+
     // looks like if we select all with cmd + a / ctrl + a
     // sometimes quill can return the "ql-editor" element itself.
     // in these cases we want the first child, so we can iterate from 0
@@ -724,7 +738,7 @@ function getSelectedCustomElementsInRange(range) {
         pagebreaks : [],
         // etc
     };
-    
+
     var opsAtIndex = selectedContents.ops;
     opsAtIndex.forEach(function(op) {
         if (op.attributes) {
@@ -733,7 +747,7 @@ function getSelectedCustomElementsInRange(range) {
             if (op.attributes.crypteetable) {
                 selectedElements.tables.push(op.attributes.crypteetable);
             }
-            
+
             if (op.attributes.crypteetabledata) {
                 selectedElements.tables.push(op.attributes.crypteetabledata.tableid);
             }
@@ -772,10 +786,10 @@ function checkIfQuillDeltaHasAttributeWithKey(delta, key) {
 
 function checkIfQuillDeltaHasAnAPINewlineInsert(delta, source) {
     var hasAnAPINewlineInsert = false;
-    
+
     delta = delta || { ops : [] };
     source = source || "user";
-    
+
     if (source !== "api") { return false; }
 
     delta.ops.forEach(function(op) {
@@ -828,17 +842,17 @@ $('.ql-editor').on('click', function (event) {
 
     //////////////////
     //
-    // removing this seems to fix the image resize bug (https://github.com/cryptee/web-client/issues/23) 
+    // removing this seems to fix the image resize bug (https://github.com/cryptee/web-client/issues/23)
     // where the image handles won't show up if the image is taller than the viewport height.
     //
     // I think this force focus was here to fix a bug where quill won't receive focus if it's empty, (height = 0) way back in the Docs V1 days.
-    // It seems okay now with the V2 layout, but leaving this note here just in case. 
+    // It seems okay now with the V2 layout, but leaving this note here just in case.
 
     // quill.focus();
 
     //////////////////
 
-    activityHappened(); 
+    activityHappened();
 
     hideRightClickDropdowns();
     hidePanels();
@@ -846,7 +860,7 @@ $('.ql-editor').on('click', function (event) {
 
 $('.ql-editor').on('click', 'crypteefile', function (event) {
     var theFile = $(this);
-    
+
     if (theFile.hasClass("error")) {
         theFile.remove();
         return;
@@ -855,7 +869,7 @@ $('.ql-editor').on('click', 'crypteefile', function (event) {
     event.preventDefault();
     var did = theFile.attr("did");
     var filename = theFile.attr("filetitle");
-    
+
     // blur editor to hide soft keyboards
     quill.blur();
 
@@ -864,27 +878,27 @@ $('.ql-editor').on('click', 'crypteefile', function (event) {
 
     getDocFromCatalog(did).then((doc) => {
         if (!doc || isEmpty(doc)) {
-            // doc doesn't exist in catalog. chances are it was an attachment, and it's ghosted with a folder or deleted etc. remove it.   
+            // doc doesn't exist in catalog. chances are it was an attachment, and it's ghosted with a folder or deleted etc. remove it.
             theFile.removeClass("loading").addClass("error");
             createPopup("looks like this attachment doesn't exist anymore. Chances are it was deleted or ghosted in a folder. since your documents are encrypted, cryptee is mathematically unable to automatically remove these attachment-links once the original linked file is gone.", "error");
             return;
         }
-        
+
         if (!isOnline() && !doc.offline) {
             showDocNotAvailableOfflinePopup();
             stopDocOrFileProgress(did);
-            return;  
+            return;
         }
 
         prepareToLoadDoc(did,filename);
-    }); 
+    });
 
 });
 
 
 $('.ql-editor').on('click', 'crypteefolder', function (event) {
     var theFolder = $(this);
-    
+
     if (theFolder.hasClass("error")) {
         theFolder.remove();
         return;
@@ -892,19 +906,19 @@ $('.ql-editor').on('click', 'crypteefolder', function (event) {
 
     event.preventDefault();
     var fid = theFolder.attr("fid");
-    
+
     // blur editor to hide soft keyboards
     quill.blur();
     disableFocusMode();
 
     getFolderFromCatalog(fid).then((folder) => {
         if (!folder || isEmpty(folder)) {
-            // folder doesn't exist in catalog. chances are it was an attachment, and it's ghosted or deleted etc. remove it.   
+            // folder doesn't exist in catalog. chances are it was an attachment, and it's ghosted or deleted etc. remove it.
             theFolder.removeClass("loading").addClass("error");
             createPopup("looks like this folder doesn't exist anymore. Chances are it was deleted or ghosted. since your documents are encrypted, cryptee is mathematically unable to automatically remove these attachment-links once the original linked folder is gone.", "error");
             return;
         }
-        
+
         clearSearchOnlyIfNecessary();
         loadFolder(fid);
 
@@ -914,7 +928,7 @@ $('.ql-editor').on('click', 'crypteefolder', function (event) {
             hideRightClickDropdowns();
             hidePanels();
         }, 10);
-    }); 
+    });
 
 });
 
@@ -940,11 +954,11 @@ $(".ql-editor").on('scroll', throttleScroll(function (event) {
     checkIfPageChanged();
 }, 100));
 
-// background-attachment:local is broken in Safari..... and apple hasn't fixed for 2+ years. 
-// https://bugs.webkit.org/show_bug.cgi?id=219324 
+// background-attachment:local is broken in Safari..... and apple hasn't fixed for 2+ years.
+// https://bugs.webkit.org/show_bug.cgi?id=219324
 // it seems like a hacky way to make it work is to disable/re-enable the background quickly
 // and set it to a color super close to the original, forcing the engine to re-render the bg
-// so that's what we do here. by triggering a fuck ton of scroll css update events. 
+// so that's what we do here. by triggering a fuck ton of scroll css update events.
 // fuck you apple for underfunding the safari team.
 
 if (isSafari) {
@@ -953,9 +967,9 @@ if (isSafari) {
     $(".ql-editor").on('scroll', function() {
         if (isPaperMode()) {
             $(".ql-editor").addClass("safari-bg-hack");
-            // this should be good even for 120fps = <8.333ms/frame devices with promotion etc like ipad pros / iphone 13s etc 
+            // this should be good even for 120fps = <8.333ms/frame devices with promotion etc like ipad pros / iphone 13s etc
             setTimeout(function () { $(".ql-editor").removeClass("safari-bg-hack"); }, 5);
-        }    
+        }
     });
 }
 
@@ -963,8 +977,8 @@ if (isSafari) {
 // on Chromium / WebKit etc, we solve this by adding margin-bottom to the last element,
 // on Firefox, we need this hack to solve the same problem.
 
-// thanks Violet for this hack 
-// https://stackoverflow.com/questions/51344754/giving-right-padding-to-overflowing-css-multi-column-layouts 
+// thanks Violet for this hack
+// https://stackoverflow.com/questions/51344754/giving-right-padding-to-overflowing-css-multi-column-layouts
 if (isFirefox) {
     breadcrumb("[PAPER MODE] Using Firefox last-page override with pseudo-after element");
     $(".ql-editor").addClass('firefox');
@@ -984,24 +998,25 @@ var zeroSelectionRange = {index: 0, length : 0};
 
 
 quill.on('text-change', function (delta, oldDelta, source) {
-    
+
     if (loadingDoc) { return; }
-    
+
     somethingChanged();
-    
+
     lastSelectionRange = quill.getSelection() || zeroSelectionRange;
-    
+
     preventTableFromBreaking(delta, oldDelta, source);
     checkIfTableHasFocus();
     checkIfDocumentHasRemoteImages();
-    
+    cleanupOrphanedSyntaxHighlightingIfNecessary(delta);
+
     androidPredictiveKeyboardNewlineFix(delta, oldDelta, source);
 
     if (isMobile) { autoScrollWhileTyping(); }
-    
+
     // Everything after this point is for paper mode
     if (!isPaperMode()) { return; }
-    
+
     setTimeout(function () {
         var selectedNode = getSelectedNode();
         calculatePaperOverflow(selectedNode);
@@ -1018,7 +1033,7 @@ quill.on('text-change', function (delta, oldDelta, source) {
 quill.on('selection-change', function (range, oldRange, source) {
     if (!range) {
         // CURSOR LEFT EDITOR
-        
+
         // try catch, because when we're starting up, we're lazy loading editor and its features, and this doesn't exist yet.
         try { hideTableContextualButton(); } catch (error) {}
         $(".hascursor").removeClass("hascursor");
@@ -1029,13 +1044,14 @@ quill.on('selection-change', function (range, oldRange, source) {
         checkIfTableHasFocus();
         checkIfURLSelectedOnMobile();
         checkIfACommentIsSelected();
-        
+        try { checkIfCodeBlockHasFocus(); } catch (e) {}
+
         selectPageBreaksIfAnyInRange(range, oldRange, source);
         selectFoldersIfAnyInRange(range, oldRange, source);
         selectTablesIfAnyInRange(range, oldRange, source);
         selectFilesIfAnyInRange(range, oldRange, source);
-        
-        // this helps us add all sorts of interesting interactions to the editor using CSS based on where the cursor currently is 
+
+        // this helps us add all sorts of interesting interactions to the editor using CSS based on where the cursor currently is
         $(".hascursor").removeClass("hascursor");
         let nodeThatHasTheCursor = getSelectedNode();
         nodeThatHasTheCursor.parentNode.classList.add("hascursor");
@@ -1052,7 +1068,3 @@ quill.on('selection-change', function (range, oldRange, source) {
 
     updateVisibleViewport(range); // this will also call autoScrollWhileTyping
 });
-
-
-
-

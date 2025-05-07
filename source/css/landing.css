@@ -1,0 +1,730 @@
+
+/* -----------------------------
+--------------------------------
+
+GENERAL
+
+--------------------------------
+----------------------------- */
+/* #region GENERAL */
+
+article {
+    grid-template-columns: minmax(4rem, 1fr) minmax(0, 56rem) minmax(4rem, 1fr);
+}
+
+
+
+/* #endregion GENERAL */
+
+/* -----------------------------
+--------------------------------
+
+NAV
+
+--------------------------------
+----------------------------- */
+/* #region NAV */
+
+nav {
+    grid-template-columns: minmax(1rem, 1fr) 2rem minmax(0,22rem) 8rem 8rem 8rem 8rem minmax(1rem, 1fr);
+    background-color: transparent;
+    border-bottom: none;
+    color: #fff;
+}
+
+nav aside {
+    grid-column: 2/3;
+    margin-top: 4rem;
+}
+
+nav p {
+    line-height: calc(var(--h) / 2);
+}
+
+nav h1 {
+    margin: 1.25rem 0 0 auto;
+}
+
+nav aside {
+    grid-template-rows: 4rem 1fr;
+    background-color: transparent;
+    transform: none;
+    transition: none;
+}
+
+nav #logo {
+    transform: translateY(calc(var(--h) - 8rem));
+}
+
+nav #logo img {
+    filter: none;
+}
+
+nav #logotype {
+    transform: translateY(var(--y));
+    opacity: var(--o);
+}
+
+.nav-signup::after {
+    bottom: calc(2.75rem - var(--h) / 4); /* 0.75rem -> 1.75rem */
+}
+
+nav #logo {
+    width: 2rem;
+}
+
+nav #logo img {
+    padding: 1rem 0 0 0;
+}
+
+nav.sticky {
+    border-bottom: none;
+    background-color: #000;
+}
+
+/* #endregion NAV */
+
+/* -----------------------------
+--------------------------------
+
+HERO
+
+--------------------------------
+----------------------------- */
+/* #region HERO */
+
+#hero {
+    background-color: #000;
+    grid-template-columns: minmax(0, 1fr) 64rem minmax(0, 1fr);
+    grid-template-rows: 4rem 4rem 56rem 12rem 8rem;
+    color: #fff;
+}
+
+#hero picture {
+    width: 100%;
+    max-height: 64rem;
+    grid-column: 2/3;
+    grid-row: 1/-2;
+    object-position: bottom;
+    transform: unset;
+    background-color: #000;
+}
+
+#hero img,
+#hero source {
+    max-height: 64rem;
+    object-position: bottom;
+}
+
+#hero aside {
+    grid-row: 1/-1;
+    background-color: #000;
+}
+
+#hero h2 {
+    font-size: 2.5rem;
+    grid-row: 1/2;
+    grid-column: 3/4;
+    grid-template-rows: max-content max-content;
+}
+
+#hero-tagline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 16rem minmax(0, 40rem) minmax(0, 1fr);
+    grid-column: 1/-1;
+    grid-row: 4/5;
+}
+
+#hero-tagline p {
+    grid-column: 3/4;
+    grid-row: 2/3;
+}
+
+/* #endregion HERO */
+
+/* -----------------------------
+--------------------------------
+
+DOCS & PHOTOS GRIDS
+
+--------------------------------
+----------------------------- */
+/* #region DOCS & PHOTOS GRIDS */
+
+.index-intro-grid {
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    column-gap: 4rem;
+}
+
+.index-intro-grid div {
+    grid-column: span 3;
+}
+
+#index-photos-intro {
+    background-color: #111;
+    color: #fff;
+
+    background-image: url("../imgs/2026/hero_photos-576w.jpg");
+
+    /* webkit prefix for older Safari/Chrome */
+    background-image: -webkit-image-set(
+        url("../imgs/2026/hero_photos-576w.webp") 1x,
+        url("../imgs/2026/hero_photos-1152w.webp") 2x,
+        url("../imgs/2026/hero_photos-1728w.webp") 3x,
+        url("../imgs/2026/hero_photos-2304w.webp") 4x
+    );
+
+    /* standard */
+    background-image: image-set(
+        url("../imgs/2026/hero_photos-576w.webp") 1x,
+        url("../imgs/2026/hero_photos-1152w.webp") 2x,
+        url("../imgs/2026/hero_photos-1728w.webp") 3x,
+        url("../imgs/2026/hero_photos-2304w.webp") 4x
+    );
+
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: auto 100%;
+}
+
+#index-photos-intro h2 {
+    font-size: 2rem;
+    letter-spacing: 0rem;
+}
+
+#index-photos-intro picture {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+    transform: translateX(calc(-100% - 4.5rem));
+}
+
+#index-photos-intro picture img,
+#index-photos-intro picture source {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+}
+
+#index-photos-intro section {
+    padding: 8rem 0 7.5rem 0;
+}
+
+.index-grid-features {
+    grid-auto-rows: 6rem;
+    row-gap: 0rem;
+}
+
+.index-grid-features picture {
+    width: 100%;
+    height: 18rem;
+    object-fit: cover;
+    grid-row: span 3;
+}
+
+.index-grid-features picture img,
+.index-grid-features picture source {
+    width: 100%;
+    height: 18rem;
+    object-fit: cover;
+}
+
+.index-grid-features .feature p {
+    line-height: 2rem;
+    margin-top: 0;
+}
+
+.index-grid-features .feature p:first-of-type {
+    margin-top: 1rem;
+}
+
+#index-docs-features picture {
+    height: 24rem;
+    grid-row: span 4;
+}
+
+#index-docs-features picture img,
+#index-docs-features picture source {
+    height: 24rem;
+}
+
+#index-docs-intro {
+    background-color: #131316;
+    color: #fff;
+
+    background-image: url("../imgs/2026/hero_docs-576w.jpg");
+
+    /* webkit prefix for older Safari/Chrome */
+    background-image: -webkit-image-set(
+        url("../imgs/2026/hero_docs-576w.webp") 1x,
+        url("../imgs/2026/hero_docs-1152w.webp") 2x,
+        url("../imgs/2026/hero_docs-1728w.webp") 3x,
+        url("../imgs/2026/hero_docs-2304w.webp") 4x
+    );
+
+    /* standard */
+    background-image: image-set(
+        url("../imgs/2026/hero_docs-576w.webp") 1x,
+        url("../imgs/2026/hero_docs-1152w.webp") 2x,
+        url("../imgs/2026/hero_docs-1728w.webp") 3x,
+        url("../imgs/2026/hero_docs-2304w.webp") 4x
+    );
+
+    background-repeat: no-repeat;
+    background-position: left;
+    background-size: auto 100%;
+}
+
+#index-docs-intro h2 {
+    font-size: 2rem;
+    letter-spacing: 0rem;
+}
+
+#index-docs-intro picture {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+    transform: translateX(calc(-100% - 4.5rem));
+}
+
+#index-docs-intro picture img,
+#index-docs-intro picture source {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+}
+
+#index-docs-intro section {
+    padding: 8rem 0 7.5rem 0;
+}
+
+/* #endregion DOCS & PHOTOS GRIDS */
+
+/* -----------------------------
+--------------------------------
+
+EUROPE / MEDIA
+
+--------------------------------
+----------------------------- */
+/* #region EUROPE / MEDIA */
+
+#europe-section {
+    margin: 0;
+    background-color: #fff;
+    color: #000;
+}
+
+#europe-section img {
+    filter: invert(1);
+}
+
+#media-section {
+    padding-top: 4rem;
+}
+
+/* #endregion EUROPE / MEDIA */
+
+@media (max-width: 1280px) {
+    #hero {
+        grid-template-columns: minmax(0, 1fr) 64rem minmax(0, 1fr);
+        grid-template-rows: 4rem 4rem 56rem 12rem 8rem;
+    }
+}
+
+@media (max-width: 1023px) {
+
+    #hero {
+        grid-template-columns: 0 1fr 0;
+    }
+
+    nav {
+        height: 4rem;
+        grid-template-columns: 2rem 2rem 1fr repeat(4, minmax(4rem,8rem)) 2rem;
+    }
+
+    nav p {
+        transform: translateY(1rem) translateX(calc(1rem - var(--h) / 8)) !important;
+    }
+
+    nav aside {
+        transform: none !important;
+        filter: none !important;
+        background-color: transparent !important;
+    }
+
+    nav #logo {
+        transform: translateY(calc(var(--h) / 4 - 4rem)) translateX(calc(var(--h) / 4 - 2rem));
+    }
+
+    nav #logotype {
+        transform: translateY(calc(var(--y) - 4rem));
+        opacity: var(--o);
+    }
+
+    nav #logo img {
+        padding: 0;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    #hero-tagline {
+        grid-template-columns: 1fr 16rem 40rem 1fr;
+    }
+
+    .index-intro-grid div p {
+        max-width: 30rem;
+    }
+
+    #index-photos-intro section {
+        padding: 4rem 0 3.5rem 0;
+    }
+
+    #index-docs-features,
+    #index-photos-features {
+        padding: 4.5rem 0 4rem 0 !important;
+    }
+
+    .index-grid-features {
+        column-gap: 4rem;
+    }
+
+    #index-photos-intro h2 {
+        font-size: 1.95rem;
+    }
+
+    #index-docs-intro section {
+        padding: 4rem 0 3.5rem 0;
+        column-gap: 4rem;
+    }
+
+    .index-download-section {
+        margin-top: 4rem;
+        /*padding: 4rem 0;*/
+    }
+
+    /* only until the next breakpoint */
+    .index-download-button {
+        margin-left: auto;
+    }
+
+    .index-download-os {
+        grid-template-columns: 8rem;
+    }
+
+    .index-why-section, .index-advocacy-section {
+        margin: 4rem 0 3rem 0;
+    }
+
+    #pricing .grid-third, .index-use-cases-section {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #pricing b.bar {
+        grid-column: span 1;
+    }
+
+    #pricing h2 + b {
+        display: none;
+    }
+
+    #pricing-note {
+        grid-column: span 1;
+        margin-top: 0;
+    }
+
+    #pricing {
+        padding-top: 5rem;
+        padding-bottom: 4rem;
+    }
+
+    #button-pricing-signup {
+        color: var(--cryptee-4);
+    }
+
+    #index-security {
+        padding: 4rem 0;
+    }
+
+    #index-security-items {
+        grid-column: span 1;
+    }
+
+    .index-use-cases-section {
+        padding-top: 4rem;
+    }
+}
+
+
+@media (max-width: 927px) {
+
+    #hero {
+        display: block;
+        overflow: hidden;
+        padding-bottom: 8rem;
+    }
+
+    #hero picture {
+        width: 100%;
+        transform: none;
+        margin: -4rem 0 0 0;
+    }
+
+    #hero h2 {
+        margin-top: 0;
+        text-align: left;
+        max-width: 24rem;
+    }
+
+    #hero-tagline {
+        grid-template-columns: 1rem 16rem minmax(16rem, 40rem) 1rem;
+    }
+
+    .index-intro-grid {
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+        padding: 4rem 0 !important;
+    }
+
+    .index-intro-grid h2 {
+        margin-top: 0;
+        font-size: 1.125rem !important;
+        line-height: 2rem !important;
+    }
+
+    .index-intro-grid div {
+        grid-column: span 1;
+    }
+
+    .index-download-os {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .index-download-button {
+        /*margin-left: unset;*/
+        margin-right: auto;
+    }
+
+    #index-photos-intro {
+        background-position: bottom right -2rem;
+    }
+
+    #index-docs-intro section {
+        padding: 4rem 0 3.5rem 0;
+    }
+
+    #button-pricing-signup {
+        grid-column: span 2;
+    }
+
+}
+
+@media (max-width : 752px) {
+    article {
+        grid-template-columns: minmax(2rem, 1fr) minmax(0, 56rem) minmax(2rem, 1fr);
+    }
+}
+
+@media (max-width : 703px) {
+
+    #hero-tagline {
+        grid-template-columns: 1rem 1fr 1rem;
+    }
+
+    #hero-tagline h2,
+    #hero-tagline p {
+        text-align: center;
+        grid-column: 2/3;
+        margin: auto;
+    }
+
+    #index-photos-intro {
+        background-image: none;
+        background-color: #FFF;
+        color: #000;
+    }
+
+    #index-docs-intro  {
+        background-image: none;
+        background-color: var(--cryptee-4);
+        color: #000;
+    }
+
+    #index-docs-intro section b {
+        display: none;
+    }
+
+    #index-photos-features {
+        background-color: #FFF;
+    }
+
+    #index-docs-intro section div,
+    .index-intro-grid div {
+        grid-column: span 2;
+    }
+
+    .index-intro-grid h2 {
+        margin-top: 0;
+        font-size: 2rem !important;
+        line-height: 3rem !important;
+    }
+
+    #index-docs-intro section {
+        padding: 4rem 0 0 0 !important;
+    }
+
+    .index-intro-grid {
+        padding: 8rem 0 0 0 !important;
+    }
+
+    #index-photos-features picture:nth-child(2) {
+        order:-1;
+    }
+
+    #index-photos-features .feature:nth-child(1) {
+        box-shadow: none;
+    }
+
+    #index-docs-features picture:nth-child(2) {
+        order:-1;
+    }
+
+    #index-docs-features .feature:nth-child(1) {
+        box-shadow: none;
+    }
+
+    #index-docs-features {
+        padding-bottom: 6rem !important;
+    }
+
+    .index-download-section {
+        margin-top: 0 !important;
+    }
+
+    #pricing-note {
+        grid-column: span 2;
+    }
+
+    .index-use-cases-section {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width : 639px) {
+    #index-docs-intro section {
+        padding: 6rem 0 0 0 !important;
+    }
+
+    .index-why-section details, .index-advocacy-section > p.twothird {
+        grid-column: span 1;
+    }
+
+    .index-why-section > div, .index-advocacy-section > div {
+        margin-bottom: 6rem;
+    }
+
+    .index-why-section h2, .index-advocacy-section h2 {
+        text-align: center;
+    }
+
+    .index-advocacy-section h2 br {
+        display: none;
+    }
+}
+
+@media (max-width : 544px) {
+    #hero picture {
+        margin: 0 0 4rem 0;
+        transform: scale(1.175);
+    }
+
+    nav {
+        height: 4rem;
+        grid-template-columns: 2rem 2rem 1fr repeat(4, auto) 2rem;
+    }
+
+    nav p {
+        min-width: unset !important;
+        max-width: unset !important;
+        padding: 0 0.5rem;
+        transform: translateY(1rem) translateX(calc(1.25rem - var(--h) / 8)) !important;
+    }
+
+    nav p a {
+        text-transform: lowercase !important;
+    }
+
+    .nav-signup::after {
+        right: 0.5rem;
+        width: 3.5rem;
+    }
+
+    #index-docs-intro section div,
+    #index-photos-intro section div {
+        grid-column: span 1;
+    }
+
+    #index-photos-intro h2,
+    #index-docs-intro h2 {
+        font-size: 1.35rem !important;
+        line-height: 2.2rem !important;
+    }
+
+    #pricing-note,
+    #button-pricing-signup {
+        grid-column: span 1;
+    }
+
+    #pricing .grid-third {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width : 399px) {
+    #hero picture {
+        transform: scale(1.35);
+    }
+
+    #hero-tagline h2 {
+        font-size: 1.75rem;
+        line-height: 2.5rem;
+    }
+
+    #hero-tagline p br {
+        display: none;
+    }
+
+    #hero {
+        padding-bottom: 5rem;
+    }
+
+    #europe-section {
+        padding: 5rem 0 1rem 0;
+    }
+
+    #media-section {
+        padding-top: 0;
+    }
+
+    .media-split h2 {
+        margin-bottom: 3rem;
+    }
+
+    #index-photos-intro h2,
+    #index-docs-intro h2 {
+        font-size: 1.25rem !important;
+        line-height: 2rem !important;
+    }
+
+    #pricing h2,
+    .index-use-cases-section h2,
+    .index-use-cases-section > div p {
+        text-align: center !important;
+    }
+
+    #index-security h2 {
+        font-size: 1.35rem;
+        line-height: 2rem;
+    }
+}

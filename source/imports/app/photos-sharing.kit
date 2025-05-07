@@ -1,0 +1,155 @@
+<div id="sharing-wrapper">
+    <button class="close" onclick="hideShareAlbumPopup();"><img src="../assets/cross.svg" alt="close" title="close popup"></button>
+
+    <h3>SHARE ALBUM</h3>
+    <div id="sharing-tabs">
+        <details id="sharing-link-settings" name="sharing-tabs" open>
+            <summary>
+                <i class="ri-settings-3-fill"></i>
+                <small>link<br>settings</small>
+            </summary>
+        </details>
+        <details id="sharing-access-control" name="sharing-tabs">
+            <summary>
+                <i class="ri-lock-password-fill"></i>
+                <small>access<br>control</small>
+            </summary>
+        </details>
+        <details id="sharing-status" name="sharing-tabs">
+            <summary>
+                <i class="ri-group-2-fill"></i>
+                <small>sharing<br>status</small>
+            </summary>
+        </details>
+    </div>
+
+    <section id="sharing-link-settings-section">
+        <input id="input-sharing-name" type="text" placeholder="your name">
+        <small>then name recipients will see</small>
+
+        <button class="green wipe" id="button-share-album" onclick="createOrUpdateSharedAlbum();">
+            <span></span>
+            <i class="ri-arrow-right-line"></i>
+        </button>
+
+        <details id="sharing-settings-summary">
+
+            <summary>
+                <p id="sharing-settings-summary-text">sharing: all photos in large size</p>
+                <i class="ri-settings-3-fill"></i>
+            </summary>
+
+            <p class="center">quality</p>
+
+            <details id="sharing-settings-quality-large" name="quality" open>
+                <summary>
+                    <p>large size</p>
+                    <small class="green right">without exif metadata<br>faster &amp; easiest</small>
+                </summary>
+            </details>
+
+            <details id="sharing-settings-quality-originals" name="quality">
+                <summary>
+                    <p>originals</p>
+                    <small class="yellow right">with all exif metadata<br>slower &amp; less compatible</small>
+                </summary>
+            </details>
+
+            <p class="center">share filters</p>
+
+            <details id="sharing-settings-filters-all" name="filters" open>
+                <summary><p>all items</p></summary>
+            </details>
+
+            <details id="sharing-settings-filters-favorites" name="filters">
+                <summary><p>favorites only</p></summary>
+            </details>
+
+        </details>
+    </section>
+
+    <section id="sharing-access-control-section">
+        <input type="url" name="link" id="share-link" value="" onclick="navigator.clipboard.writeText(this.value); this.nextElementSibling.classList.add('copied'); setTimeout(() => this.nextElementSibling.classList.remove('copied'), 3000)" readonly placeholder="https://cryptee.photos/...">
+        <button id="button-copy-link"><i class="ri-checkbox-multiple-blank-line"></i></button>
+
+        <button class="red wipe" onclick="promptRevokeSharedAlbumConfirmation();" id="button-revoke-link">
+            <span>revoke link for all recipients</span>
+            <i class="ri-link-unlink"></i>
+        </button>
+
+        <button class="yellow half-left" onclick="cancelRevokeSharedAlbum();" id="button-cancel-revoke">
+            <span>no, cancel</span>
+            <i class="ri-close-fill"></i>
+        </button>
+
+        <button class="red wipe half-right" onclick="revokeSharedAlbum();" id="button-confirm-revoke">
+            <span>yes, revoke</span>
+            <i class="ri-link-unlink"></i>
+        </button>
+
+        <ul id="sharing-instructions">
+            <li>
+                <i class="ri-key-fill"></i>
+                <p>encrypted link contains the key</p>
+            </li>
+            <li>
+                <i class="ri-user-fill"></i>
+                <p>maximum <span id="user-allowed-share-seats"></span> recipients</p>
+            </li>
+            <li>
+                <i class="ri-time-fill"></i>
+                <p>48 hours to accept invitation</p>
+            </li>
+            <li>
+                <i class="ri-calendar-2-line"></i>
+                <p>once accepted, accessible forever</p>
+            </li>
+            <li>
+                <i class="ri-question-fill"></i>
+                <p onclick="showPopup('popup-sharing-more-info')" class="clickable">learn more...</p>
+            </li>
+        </ul>
+    </section>
+
+    <section id="sharing-status-section">
+        <p class="center">activity logs</p>
+        <ul id="access-log">
+            <li>
+                <p>test-long-email@test-long-email.com</p>
+                <time>APR 10, 2025</time>
+                <small>ACCESSED</small>
+                <time>12:34:56 CEST</time>
+            </li>
+            <li>
+                <p>test-long-email@test-long-email.com</p>
+                <time>APR 10, 2025</time>
+                <small>ACCESSED</small>
+                <time>12:34:56 CEST</time>
+            </li>
+            <li>
+                <p>test-long-email@test-long-email.com</p>
+                <time>APR 10, 2025</time>
+                <small>ACCESSED</small>
+                <time>12:34:56 CEST</time>
+            </li>
+            <li>
+                <p>test-long-email@test-long-email.com</p>
+                <time>APR 10, 2025</time>
+                <small>ACCESSED</small>
+                <time>12:34:56 CEST</time>
+            </li>
+            <li>
+                <p>test-long-email@test-long-email.com</p>
+                <time>APR 10, 2025</time>
+                <small>ACCESSED</small>
+                <time>12:34:56 CEST</time>
+            </li>
+            <li>
+                <p>test-long-email@test-long-email.com</p>
+                <time>APR 10, 2025</time>
+                <small>ACCESSED</small>
+                <time>12:34:56 CEST</time>
+            </li>
+        </ul>
+    </section>
+</div>

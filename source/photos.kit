@@ -115,7 +115,7 @@
             <button id="button-download-lgsize" onclick="startDownloads('lg');">
                 <b></b>
                 large size 
-                <small class="monospace">2048px</small>
+                <small class="monospace">2400px</small>
             </button>
 
             <button id="button-download-smsize" onclick="startDownloads('sm');">
@@ -124,9 +124,6 @@
                 <small class="monospace">768px</small>
             </button>
         </div>
-
-        <b class="top background"></b>
-        <b class="bottom background"></b>
 
         <progress id="main-progress" class="progress"></progress>
         
@@ -148,7 +145,7 @@
         <i class="ri-question-mark"></i>
     </button>
 
-    <p id="upgrade" onclick="showView('view-upgrade');">
+    <p id="upgrade" onclick="showView('photos-view-upgrade');">
         <span id="storageLeft" class="remainingStorage">40mb</span> left. 
         <span class="green">get more storage</span><br>
         <!-- <span>store more photos securely &amp; privately</span> -->
@@ -159,13 +156,16 @@
     <!-- @import "imports/app/photos-downloader.kit" -->
     <!-- @import "imports/app/photos-selector.kit" -->
     <!-- @import "imports/app/uploader.kit" -->
+    <!-- @import "imports/app/photos-sharing.kit" -->
 
     <!-- @import "imports/app/dropzone.kit" -->
     
-    <!-- @import "imports/app/view-upgrade" -->
+    <!-- @import "imports/app/photos-view-upgrade" -->
     
     <!-- @import "imports/app/photos-popup-photo-info.kit" -->
     <!-- @import "imports/app/photos-popup-album-info.kit" -->
+    <!-- @import "imports/app/photos-popup-sharing-more-info.kit" -->
+    
     <div id="create-popups-before-placeholder" style="display: none !important;"></div>
     
     
@@ -219,7 +219,7 @@
     <script src="../js/photos/scroll.js"></script> <!-- all scroll / dom virtualization --> 
     
     <script src="../js/photos/search.js"></script>
-
+    <script src="../js/photos/sharing.js"></script>
 
 
     <!-- ++ add more photos modules here ++ -->

@@ -208,8 +208,6 @@ async function saveDoc(did, inBackground, plaintextContents, additionalDocMetaTo
         return false;
     }
 
-    savingActiveDocMetricStartedTime[did] = Date.now();
-
     // saving active doc in foreground, and it's open in the editor, get contents from editor.
     if (did === activeDocID && !inBackground && !$("body").hasClass("no-doc")) {
         plaintextContents = quill.getContents();
@@ -460,8 +458,6 @@ async function saveDoc(did, inBackground, plaintextContents, additionalDocMetaTo
 
     // move document to the top of the recents list, since it's updated now
     $(`#recents > .doc[did="${did}"]`).prependTo("#recents");
-
-    savedDocMetrics(did, docUpload, inBackground, connection);
 
     // if the user tried saving again during this save, there will be another save in the queue. 
     // (this will always be the last time user pressed save, since object will be overwritten)
@@ -1180,37 +1176,5 @@ async function confirmNewDocFromTemplate() {
     breadcrumb('[CONFIRM NEW DOC FROM TEMPLATE] Created new doc from template successfully');
 
     return true;
-
-}
-
-
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-// SAVE DOC METRICS
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-
-let savingActiveDocMetricStartedTime = {};
-function savedDocMetrics(did, docUpload, inBackground, connection) {
-    let startedTime = savingActiveDocMetricStartedTime[did];
-    let stoppedtime = Date.now();
-    
-    let docSize = (docUpload || { size : 0 }).size || 0;
-    let tookMS = stoppedtime - startedTime;
-
-    if (!docSize) { return; }
-    if (tookMS <= 0) { return; }
-    if (inBackground) { return; }
-    if (!connection) { return; }
-
-    let sizeCategory = "";
-    if (docSize <= 100000) { sizeCategory = "<100kb"; }
-    if (docSize > 100000 && docSize <= 500000)  { sizeCategory = "100kb-500kb"; }
-    if (docSize > 500000 && docSize <= 2000000) { sizeCategory = "500kb-2mb"; }
-    if (docSize > 2000000 && docSize <= 10000000) { sizeCategory = "2mb-10mb"; }
-    if (docSize > 10000000 && docSize <= 50000000) { sizeCategory = "10mb-50mb"; }
-    if (docSize > 50000000) { sizeCategory = ">50mb"; }
-
-    metricsGauge("docSave/" + sizeCategory, tookMS);
 
 }

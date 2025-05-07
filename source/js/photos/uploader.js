@@ -405,7 +405,7 @@ async function uploadQueueFinished(aid) {
 
     var issues = false;
     if (Object.keys(uploadQueue).length >= 1) { issues = true; }
-
+     
     $("#uploader-wrapper").addClass("done");
 
     if (!issues) {
@@ -417,7 +417,7 @@ async function uploadQueueFinished(aid) {
             updateAlbumNavbar();
         }
 
-        setTimeout(function () { hideUploader(); }, 500);
+        setTimeout(function () { hideUploader(); }, 1000);
     } else {
         breadcrumb('[UPLOAD] Uploads completed with issues.');
         $("#uploader-status-detail").html("<span onclick='toggleSkippedUploads();'>some file(s) were not uploaded. click here for more info.</span>");
@@ -428,7 +428,7 @@ async function uploadQueueFinished(aid) {
     }
 
     Object.keys(uploadQueue).forEach(k => { 
-        uploadQueue[uploadID].plaintextFile = null;
+        uploadQueue[k].plaintextFile = null;
         delete uploadQueue[k]
     });
 
@@ -439,6 +439,8 @@ async function uploadQueueFinished(aid) {
         await setAlbumCover(aid, firstPhotoInAlbum);
         refreshAlbumInDOM(aid);
     }
+
+    await ifSharedAlbumChangedShowPopupAndUpdate(aid);
 
 }
 
@@ -553,19 +555,19 @@ async function processEncryptAndUploadPhoto(uploadID) {
     var waitXMSBeforeDecodingImage = (canvasNo - 1) * 1000;
     if (waitXMSBeforeDecodingImage) { await promiseToWait(waitXMSBeforeDecodingImage); }
 
-    // generate an additional fileKey for this photo (and its thumbnails etc)
-    // var fileKeys = [theKey];
-    // var { fileKey, wrappedKey } = await generateFileKey();
-    // if (fileKey && wrappedKey) { fileKeys.push(fileKey); }
+    try {
+        
+        // generate thumbnails, generate dominant color and get date from exif using the original file (originalFile = upload.plaintextFile)
+        var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo, upload.support);
+    
+        if (isEmpty(thumbsAndMeta)) {
+            return err("Failed to generate thumbnails / read meta.", { uploadID: uploadID }); // Use the local err function
+        }
 
-    // generate thumbnails, generate dominant color and get date from exif using the original file (originalFile = upload.plaintextFile)
-    var thumbsAndMeta = await generateThumbnailsAndMetaOfImageFile(upload.plaintextFile, upload.type, canvasNo, upload.support);
+    } catch (error) {
+        
+        return err("Photo processing failed unexpectedly.", error);
 
-    // Add a check here:
-    if (isEmpty(thumbsAndMeta)) {
-        // Explicitly release canvas and nullify file reference if thumb generation failed
-        doneWithCanvas(canvasNo);
-        return err("Failed to generate thumbnails / read meta.", { uploadID: uploadID }); // Use the local err function
     }
     
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo);
@@ -585,6 +587,7 @@ async function processEncryptAndUploadPhoto(uploadID) {
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg));
         }
 
+        // Explicitly release canvas and nullify file reference if something goes wrong
         doneWithCanvas(canvasNo);
         
         if (remainingStorage <= 0) { 
@@ -614,121 +617,134 @@ async function generateThumbnailsAndMetaOfImageFile(originalFile, mimeType, canv
     
     breadcrumb("[UPLOAD] Generating Thumbnails. Will use canvas no: " + canvasNo);
     
-    var sizes = { "lightbox" : 2048, "thumbnail" : 768 };
+    var sizes = { "lightbox" : 2400, "thumbnail" : 768 };
     var qualities = { "lightbox": 0.9, "thumbnail": 0.5 };
     var uploadObject = { "lightbox" : {}, "thumbnail" : {}, "date" : "", "dominant" : "" };
     
     let isRAW = supportType === "supported-image-libraw";
     let isHEIC = supportType === "supported-image-heic";
+    let extension = extensionFromFilename(originalFile.name || "");
 
     // read exif from original file (should take about 30ms, even for a 30mb file)
     var exif = await readEXIF(originalFile);
     
     let imgBitmap;
+    let thumbnailBitmap;
 
     try {
-        breadcrumb("[UPLOAD] Converting image file to image bitmap");
-        
-        if (supportType === "supported-image-libraw") {
+
+        try {
+            breadcrumb("[UPLOAD] Converting image file to image bitmap");
             
-            ({imgBitmap, exif} = await rawImgFileToImgBitmapWithLIBRAW(originalFile));
-        
-        } else if (supportType === "supported-image-heic") {
+            if (supportType === "supported-image-libraw") {
+                
+                ({imgBitmap, exif} = await rawImgFileToImgBitmapWithLIBRAW(originalFile));
             
-            if (isSafari) {
-                // safari supports heic files natively on both iOS and MacOS, so we can safely use this instead. 
-                // there should be no need for external libraries, and it should perform 100x faster. 
-                imgBitmap = await imgFileToImgBitmap(originalFile, exif);
+            } else if (supportType === "supported-image-heic") {
+                
+                if (isSafari) {
+                    // safari supports heic files natively on both iOS and MacOS, so we can safely use this instead. 
+                    // there should be no need for external libraries, and it should perform 100x faster. 
+                    imgBitmap = await imgFileToImgBitmap(originalFile, exif);
+                } else {
+                    imgBitmap = await heicImgFileToImgBitmapWithHEICTO(originalFile, exif);
+                }
+    
             } else {
-                imgBitmap = await heicImgFileToImgBitmapWithHEICTO(originalFile, exif);
+                
+                if (isGIF(extension)) {
+                    // For GIFs, create bitmap without resizing to get true dimensions and avoid memory errors.
+                    imgBitmap = await createImageBitmap(originalFile);
+                } else {
+                    imgBitmap = await imgFileToImgBitmap(originalFile, exif);
+                }
+    
             }
-
-        } else {
-            
-            imgBitmap = await imgFileToImgBitmap(originalFile, exif);
-
+    
+        } catch (error) {
+            handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
+            return {};
         }
-
-    } catch (error) {
-        handleError("[UPLOAD] Failed to convert image file to image bitmap", error);
-        return {};
-    }
-    
-    if (!imgBitmap) {
-        handleError("[UPLOAD] Failed to read image");
-        return {};
-    }
-    
-    breadcrumb("[UPLOAD] Converted image file to image bitmap");
-    
-    var exifDate = extractExifDateTime(exif);
-    if (exifDate) { uploadObject.date = exifDate; }
-
-    if (isRAW) {
-        uploadObject.raw = true;
-        uploadObject.exif = {
-            "exif-make"        : exif.make,
-            "exif-model"       : exif.model,
-            "exif-lens"        : exif.lens,
-            "exif-aperture"    : exif.aperture,
-            "exif-exposure"    : exif.exposure,
-            "exif-whitebal"    : exif.whitebal,
-            "exif-iso"         : exif.iso,
-        };
-    }
-
-    if (isHEIC) { uploadObject.heic = true; }
-
-    var width = imgBitmap.width;
-    var height = imgBitmap.height;
-
-    let thumbnailBitmap;
-    for (var size in sizes) { 
-
-        let resizedImage;
-
-        // cycle through all sizes, and generate thumbnails (if the image is a gif, skip lightbox, since we'll play the original instead)
-        if (size === "thumbnail" || (size === "lightbox" && mimeType.toLowerCase() !== "image/gif")) {
-            var maxWidthOrHeight = sizes[size]; // lightbox, thumbnail etc. 
-            resizedImage = await imgFileToImgBitmap(imgBitmap, { width, height }, maxWidthOrHeight);
-            uploadObject[size] = await imageBitmapToBlob(resizedImage, qualities[size], "image/jpeg"); 
+        
+        if (!imgBitmap) {
+            handleError("[UPLOAD] Failed to read image");
+            return {};
         }
-
-        if (size === "thumbnail") { 
-            thumbnailBitmap = resizedImage; 
-        } else {
-            resizedImage.close();
-            resizedImage = null;
+        
+        breadcrumb("[UPLOAD] Converted image file to image bitmap");
+        
+        var exifDate = extractExifDateTime(exif);
+        if (exifDate) { uploadObject.date = exifDate; }
+    
+        if (isRAW) {
+            uploadObject.raw = true;
+            uploadObject.exif = {
+                "exif-make"        : exif.make,
+                "exif-model"       : exif.model,
+                "exif-lens"        : exif.lens,
+                "exif-aperture"    : exif.aperture,
+                "exif-exposure"    : exif.exposure,
+                "exif-whitebal"    : exif.whitebal,
+                "exif-iso"         : exif.iso,
+            };
         }
+    
+        if (isHEIC) { uploadObject.heic = true; }
+    
+        var width = imgBitmap.width;
+        var height = imgBitmap.height;
+    
+        for (var size in sizes) { 
+        
+            // cycle through all sizes, and generate thumbnails (if the image is a gif, skip lightbox, since we'll play the original instead)
+            if (size === "thumbnail" || (size === "lightbox" && !isGIF(extension))) {
+
+                var maxWidthOrHeight = sizes[size]; // lightbox, thumbnail etc. 
+                
+                let resizedImage = await imgFileToImgBitmap(imgBitmap, { width, height }, maxWidthOrHeight);
+                uploadObject[size] = await imageBitmapToBlob(resizedImage, qualities[size], "image/jpeg"); 
+                
+                if (size === "thumbnail") { 
+                    thumbnailBitmap = resizedImage; 
+                } else {
+                    resizedImage.close();
+                }
+
+            }
+    
+    
+        }
+    
+        breadcrumb("[UPLOAD] Generated Thumbnails");
+        
+        // create off screen canvas for color thief
+        const colorThiefCanvas = new OffscreenCanvas(thumbnailBitmap.width, thumbnailBitmap.height);
+        const colorThiefCtx = colorThiefCanvas.getContext('2d');
+        colorThiefCtx.drawImage(thumbnailBitmap, 0, 0);
+    
+        // get image dominant color using color thief
+        var colorThief = new ColorThief();
+        var dominantColor = colorThief.getColor(colorThiefCanvas, colorThiefCtx);
+        uploadObject.dominant = dominantColor.toString();
+        
+        // clean up colorthief offscreen canvas 
+        colorThiefCtx.clearRect(0, 0, colorThiefCanvas.width, colorThiefCanvas.height);
+        colorThiefCanvas.width = colorThiefCanvas.height = 0;
+    
+        breadcrumb("[UPLOAD] Generated Dominant");
+        
+        return uploadObject;
+
+    } finally {
+        
+        // clean up image bitmaps
+        if (imgBitmap) { imgBitmap.close(); }
+        imgBitmap = null;
+    
+        if (thumbnailBitmap) { thumbnailBitmap.close(); }
+        thumbnailBitmap = null;
 
     }
-
-    breadcrumb("[UPLOAD] Generated Thumbnails");
-    
-    // create off screen canvas for color thief
-    const colorThiefCanvas = new OffscreenCanvas(thumbnailBitmap.width, thumbnailBitmap.height);
-    const colorThiefCtx = colorThiefCanvas.getContext('2d');
-    colorThiefCtx.drawImage(thumbnailBitmap, 0, 0);
-
-    // get image dominant color using color thief
-    var colorThief = new ColorThief();
-    var dominantColor = colorThief.getColor(colorThiefCanvas, colorThiefCtx);
-    uploadObject.dominant = dominantColor.toString();
-    
-    // clean up colorthief offscreen canvas 
-    colorThiefCtx.clearRect(0, 0, colorThiefCanvas.width, colorThiefCanvas.height);
-    colorThiefCanvas.width = colorThiefCanvas.height = 0;
-
-    breadcrumb("[UPLOAD] Generated Dominant");
-    
-    // clean up image bitmaps
-    imgBitmap.close();
-    imgBitmap = null;
-
-    thumbnailBitmap.close();
-    thumbnailBitmap = null;
-    
-    return uploadObject;
 
 }
 
@@ -771,14 +787,17 @@ async function processEncryptAndUploadVideo(uploadID) {
     var waitXMSBeforeDecodingImage = (canvasNo - 1) * 250;
     if (waitXMSBeforeDecodingImage) { await promiseToWait(waitXMSBeforeDecodingImage); }
 
-    var thumbsAndMeta = await generateThumbnailsAndMetaOfVideoFile(upload.plaintextFile, upload.type, canvasNo, playerNo);
-
-    // Add a check here:
-    if (isEmpty(thumbsAndMeta)) {
-        // Explicitly release canvas/player and nullify file reference if thumb generation failed
-        doneWithCanvas(canvasNo);
-        doneWithPlayer(playerNo);
-        return err("Failed to generate video thumbnails / read meta.", { uploadID: uploadID }); // Use the local err function
+    try {
+        
+        var thumbsAndMeta = await generateThumbnailsAndMetaOfVideoFile(upload.plaintextFile, upload.type, canvasNo, playerNo);
+    
+        // Add a check here:
+        if (isEmpty(thumbsAndMeta)) {
+            return err("Failed to generate video thumbnails / read meta.", { uploadID: uploadID }); // Use the local err function
+        }
+        
+    } catch (error) {
+        return err("Video processing failed unexpectedly.", error);
     }
 
     return encryptAndUploadMedia(uploadID, upload, thumbsAndMeta, canvasNo, playerNo);
@@ -797,6 +816,7 @@ async function processEncryptAndUploadVideo(uploadID) {
             $("#uploader-skipped-list").append(renderSkippedUpload(uploadQueue[uploadID].plaintextName, msg));
         }
         
+        // Explicitly release canvas/player and nullify file reference if something goes wrong
         doneWithCanvas(canvasNo);
         doneWithPlayer(playerNo);
         
@@ -824,105 +844,132 @@ async function generateThumbnailsAndMetaOfVideoFile(originalFile, mimeType, canv
     uploadObject.date = exifDate;
 
     breadcrumb('[UPLOAD] Preparing video player');
-
-    // choose / create player
-    if (!players[playerNo].video) {
-        players[playerNo].video = document.createElement("video")
-        players[playerNo].video.setAttribute("preload", "metadata")
-    }
-
-    // choose / create source
-    if (!players[playerNo].source) { 
-        players[playerNo].source = document.createElement("source");
-        players[playerNo].video.appendChild(players[playerNo].source);
-    }
-
-    var video = players[playerNo].video;
-    var source = players[playerNo].source;
-
-    // We don't want it to start playing yet, we also don't need it to be visible to user
-    video.style.display = "none";
-    video.autoplay = false;
-    video.muted = true;
-    video.loop = false;
-    video.currentTime = 1; // get frame at 1 second
     
-    // on ios video needs to be set to autoplay for the uploads to work. 
-    if (isios || isipados) { video.autoplay = true; }
-    
-    var blobURL;
+    // These resources must be cleaned up
+    let video, source, blobURL, frameBitmap, thumbnailBitmap;
 
     try {
-        blobURL = URL.createObjectURL(originalFile);
-        source.setAttribute("src", blobURL);
-    } catch (error) {
-        revokeObjectURL(blobURL);
-        handleError("[UPLOAD] Failed to get video object url", error);
-        return {};
-    }
 
-    video.load();
-    
-    breadcrumb("[UPLOAD] Decoding video");
-
-    // Wait for video metadata and frame to load
-    await new Promise(resolve => video.addEventListener('loadedmetadata', resolve));
-    await new Promise(resolve => video.addEventListener('loadeddata', resolve));
-
-    // Create a single offscreen canvas for the frame capture
-    const frameCanvas = new OffscreenCanvas(video.videoWidth, video.videoHeight);
-    const frameCtx = frameCanvas.getContext('2d');
-    frameCtx.drawImage(video, 0, 0);
-
-    // Get ImageBitmap directly from the canvas
-    const frameBitmap = await createImageBitmap(frameCanvas);
-    
-    // We can now dispose of the canvas
-    frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
-    frameCanvas.width = frameCanvas.height = 0;
-    
-    let thumbnailBitmap;
-    for (var size in sizes) {
-        try {
-            const maxWidthOrHeight = sizes[size];
-            const resizedBitmap = await imgFileToImgBitmap(frameBitmap, { width: frameBitmap.width, height: frameBitmap.height }, maxWidthOrHeight);
-            uploadObject[size] = await imageBitmapToBlob(resizedBitmap, qualities[size], "image/jpeg");
-            
-            if (size === "thumbnail") {
-                thumbnailBitmap = resizedBitmap;
-            } else {
-                resizedBitmap.close();
-            }
-        } catch (error) {
-            handleError("[UPLOAD] Failed to generate video variant size: " + size, error);
+        // choose / create player
+        if (!players[playerNo].video) {
+            players[playerNo].video = document.createElement("video")
+            players[playerNo].video.setAttribute("preload", "metadata")
         }
-    }
-
-    try {        
-       
-        // Get dominant color from thumbnail
-        const colorCanvas = new OffscreenCanvas(thumbnailBitmap.width, thumbnailBitmap.height);
-        const colorCtx = colorCanvas.getContext('2d');
-        colorCtx.drawImage(thumbnailBitmap, 0, 0);
-        
-        const colorThief = new ColorThief();
-        uploadObject.dominant = colorThief.getColor(colorCanvas, colorCtx).toString();
-
-        // Cleanup
-        colorCtx.clearRect(0, 0, colorCanvas.width, colorCanvas.height);
-        colorCanvas.width = colorCanvas.height = 0;
-        
-        breadcrumb("[UPLOAD] Generated Video Dominant");
-        
-    } catch (error) {
-        handleError("[UPLOAD] Failed to generate video dominant color", error);
-    }
     
-    revokeObjectURL(blobURL);
-    thumbnailBitmap.close();
-    frameBitmap.close();
-    video = null;
-    source = null;
+        // choose / create source
+        if (!players[playerNo].source) { 
+            players[playerNo].source = document.createElement("source");
+            players[playerNo].video.appendChild(players[playerNo].source);
+        }
+    
+        video = players[playerNo].video;
+        source = players[playerNo].source;
+    
+        // We don't want it to start playing yet, we also don't need it to be visible to user
+        video.style.display = "none";
+        video.autoplay = false;
+        video.muted = true;
+        video.loop = false;
+        // video.currentTime = 1; // get frame at 1 second
+        
+        // on ios video needs to be set to autoplay for the uploads to work. 
+        if (isios || isipados) { video.autoplay = true; }
+        
+        try {
+            blobURL = URL.createObjectURL(originalFile);
+            source.setAttribute("src", blobURL);
+        } catch (error) {
+            revokeObjectURL(blobURL);
+            handleError("[UPLOAD] Failed to get video object url", error);
+            return {};
+        }
+    
+        video.load();
+        
+        breadcrumb("[UPLOAD] Decoding video");
+    
+        try {
+            // Wait for video metadata to load
+            await new Promise((resolve, reject) => {
+                video.addEventListener('loadedmetadata', resolve, { once: true });
+                video.addEventListener('error', e => reject(e), { once: true });
+            });
+    
+            if (!video.videoWidth || !video.videoHeight) {
+                throw new Error("Video has invalid dimensions.");
+            }
+    
+            // Seek to a point near the start, but not frame 0 which can be black.
+            video.currentTime = Math.min(1, video.duration / 2);
+    
+            // Wait for the seek operation to complete
+            await new Promise((resolve, reject) => {
+                video.addEventListener('seeked', resolve, { once: true });
+                video.addEventListener('error', e => reject(e), { once: true });
+            });
+        } catch (error) {
+            revokeObjectURL(blobURL);
+            handleError("[UPLOAD] Failed to decode video for thumbnailing", error);
+            return {};
+        }
+    
+        // Create a single offscreen canvas for the frame capture
+        const frameCanvas = new OffscreenCanvas(video.videoWidth, video.videoHeight);
+        const frameCtx = frameCanvas.getContext('2d');
+        frameCtx.drawImage(video, 0, 0);
+    
+        // Get ImageBitmap directly from the canvas
+        frameBitmap = await createImageBitmap(frameCanvas);
+        
+        // We can now dispose of the canvas
+        frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
+        frameCanvas.width = frameCanvas.height = 0;
+        
+        for (var size in sizes) {
+            try {
+                const maxWidthOrHeight = sizes[size];
+                const resizedBitmap = await imgFileToImgBitmap(frameBitmap, { width: frameBitmap.width, height: frameBitmap.height }, maxWidthOrHeight);
+                uploadObject[size] = await imageBitmapToBlob(resizedBitmap, qualities[size], "image/jpeg");
+                
+                if (size === "thumbnail") {
+                    thumbnailBitmap = resizedBitmap;
+                } else {
+                    resizedBitmap.close();
+                }
+            } catch (error) {
+                handleError("[UPLOAD] Failed to generate video variant size: " + size, error);
+            }
+        }
+    
+        try {        
+           
+            // Get dominant color from thumbnail
+            const colorCanvas = new OffscreenCanvas(thumbnailBitmap.width, thumbnailBitmap.height);
+            const colorCtx = colorCanvas.getContext('2d');
+            colorCtx.drawImage(thumbnailBitmap, 0, 0);
+            
+            const colorThief = new ColorThief();
+            uploadObject.dominant = colorThief.getColor(colorCanvas, colorCtx).toString();
+    
+            // Cleanup
+            colorCtx.clearRect(0, 0, colorCanvas.width, colorCanvas.height);
+            colorCanvas.width = colorCanvas.height = 0;
+            
+            breadcrumb("[UPLOAD] Generated Video Dominant");
+            
+        } catch (error) {
+            handleError("[UPLOAD] Failed to generate video dominant color", error);
+        }
+        
+    } finally {
+
+        if (blobURL) { revokeObjectURL(blobURL); }
+        if (thumbnailBitmap) { thumbnailBitmap.close(); }
+        if (frameBitmap) { frameBitmap.close(); }
+        video = null;
+        source = null;
+
+    }
     
     return uploadObject;
 

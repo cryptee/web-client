@@ -79,8 +79,6 @@ async function api(path, params, data, method, timeout) {
     if (method) {
         axiosConfig.method = method;
     }
-
-    var apiCallStarted = (new Date()).getTime();
     
     try {
         breadcrumb("[API] Requesting " + path);
@@ -96,10 +94,6 @@ async function api(path, params, data, method, timeout) {
         
         return false;
     }
-
-    var apiCallEnded = (new Date()).getTime();
-    var apiCallTime = apiCallEnded - apiCallStarted;
-    metricsGauge("api/"+path, apiCallTime, "millisecond")
 
     return apiResponse;
 }

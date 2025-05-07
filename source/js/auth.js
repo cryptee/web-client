@@ -54,7 +54,7 @@ function hideKeyModal() {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUserPlan, thePaymentProcessor, theUserCreatedAt, lastReadNews, loginMethod, keycheck;
+var theUser, theUserJSON, theUserID, theUsername, theEmail, emailVerified, theUserPlan, theUserAllowedShareSeats, thePaymentProcessor, theUserCreatedAt, lastReadNews, loginMethod, keycheck;
 var usedStorage, allowedStorage, remainingStorage;
 var paddleCancelURL, paddleUpdateURL;
 
@@ -121,7 +121,6 @@ function authenticate(authenticatedCallback, unauthenticatedCallback, errorCallb
                 breadcrumb("[AUTH] Got server auth in " + timeToAuth); 
             }
             
-            metricsGauge("time-to-auth", (authEndTime - authStartTime), "millisecond");
             setSentryTag("time-to-auth", timeToAuth);
 
             createUserDBReferences(user, isSessionUser);
@@ -753,6 +752,8 @@ function gotUserMeta(meta, stripe) {
     if (meta.lastReadNews) {
         lastReadNews = meta.lastReadNews || "";
     }
+
+    theUserAllowedShareSeats = meta.allowedShareSeats || 5;
     
     updateUserInLS();
 }
@@ -816,6 +817,9 @@ function updateUserInLS() {
             localStorage.setItem("user-createdat", theUserCreatedAt);
         }
         
+        if (theUserAllowedShareSeats) {
+            localStorage.setItem("user-allowed-share-seats", theUserAllowedShareSeats);
+        }
 
         plansUpdated();
         gotPaymentProcessor();
@@ -868,6 +872,9 @@ function restoreUserFromLS() {
 
         thePaymentProcessor = localStorage.getItem("paymentProcessor"); 
         gotPaymentProcessor();
+
+        theUserAllowedShareSeats = localStorage.getItem("user-allowed-share-seats");
+        $("#user-allowed-share-seats").text(theUserAllowedShareSeats || 5);
 
         checkForSpecialOffersAndPrepareUpgradeMessaging();
 

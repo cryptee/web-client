@@ -41,9 +41,10 @@ If you comply with this policy during your security research, your work will be 
 Security issues in any : 
 
 - live (https://crypt.ee)
-- beta (https://beta.crypt.ee) 
+- beta (https://beta.crypt.ee)
+- photos (https://cryptee.photos) 
 
-release of Cryptee are the two most important products you should keep an eye out for. This includes our web app and/or APIs facilitating the apps. Whichever is applicable.
+releases of Cryptee are the three most important products you should keep an eye out for. This includes our web app and/or APIs facilitating the apps. Whichever is applicable.
 
 You can check out the source code for our web app here on github. It is updated in realtime —as a part of our build process— as soon as there's a new release. Inside each web app (current/beta), on the [Account Settings](https://crypt.ee/account?s=overview) page (while logged in), in the top right corner you can find a github commit hash like [4b0144e](https://github.com/cryptee/web-client/commit/4b0144e3ca5da9c9dc18d4d329434d5e08bab7ec). You can utilize this hash to check out the exact current/beta commit and code that is in use for the version of the app you're using.
 

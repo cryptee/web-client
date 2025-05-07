@@ -15,7 +15,7 @@ $(document).on('ready', function () {
         virtual: true,
         wrapperClass: "lightbox-wrapper",
         keyboard: {
-            enabled: true
+            enabled: false
         },
         preloadImages: false,
         lazy: false,
@@ -60,7 +60,7 @@ function showLightbox(pid) {
     // if the user clicks, and it's active slide, we call prep photo manually here.
     var currentSlidePID = $(".swiper-slide-active").find("img").attr("pid");
     if (pid === currentSlidePID) { prepareThumbnailBehindLightbox(pid); }
-
+    lightbox.keyboard.enable();
     $("#lightbox").addClass("show");
     $("#lightbox")[0].addEventListener('swiped-down', function() {  closeLightbox(); }); 
     $("#lightbox")[0].addEventListener('swiped-up', function() {  closeLightbox(); }); 
@@ -70,7 +70,7 @@ function showLightbox(pid) {
 function hideLightbox() {
     $("#lightbox")[0].removeEventListener('swiped-down', function() {  closeLightbox(); }); 
     $("#lightbox")[0].removeEventListener('swiped-up', function() {  closeLightbox(); }); 
-
+    lightbox.keyboard.disable();
     $("#lightbox").removeClass("show video raw");
     $(".in-lightbox").removeClass("in-lightbox");
     hidePopup("popup-photo-info");

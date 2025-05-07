@@ -105,10 +105,6 @@ function loadArticle(slug) {
         }
     });
 
-    let metricsMeta = {};
-    if (searchValue) { metricsMeta.helpSearchInputValue = searchValue; }
-
-    metricsIncrement("help/loadArticle/"+slug, metricsMeta);
 }
 
 function articleLoaded(slug) {
@@ -154,8 +150,6 @@ function loadTopic(topicID) {
             
         }  
     });
-
-    metricsIncrement("help/loadTopic/"+topicID);
 
     $("#results").append(articlesToAppend.join(""));
     

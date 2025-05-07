@@ -34,10 +34,20 @@ function renderAlbum(aid, photos) {
         thumbID         = convertID(thumbID, "l") || "";            // "l-12345"
         thumbToken      = album.ltoken || "";
     }
+    
+    var shareID = (album.share || {}).id || "";
+    var sharedOrDropdownButton = '';
+    if (shareID) {
+        sharedOrDropdownButton = `<mark></mark>`;
+    } else {
+        sharedOrDropdownButton = `<i></i>`;
+    }
+
+    var isShared = shareID ? 'shared' : '';
 
     return `
-    <div class="content album" id="${aid}" name="${name}" date="${prettyDate}" datesort="${sortableDate}" exifDate="${exifDate}" photos="${photos}" thumb="${thumbID}" thumbToken="${thumbToken}">
-        <i></i>
+    <div class="content album ${isShared}" id="${aid}" name="${name}" date="${prettyDate}" datesort="${sortableDate}" exifDate="${exifDate}" photos="${photos}" thumb="${thumbID}" thumbToken="${thumbToken}">
+        ${sharedOrDropdownButton}
         <img src="" alt thumb="${thumbID}">
     </div>`;
     
@@ -106,17 +116,20 @@ function renderAlbumForMoveModal(album, index) {
     // we do this so that large libraries load quickly as well.
     index = index % 16; 
     
+    let shareID     = (album.share || {}).id || "";
+    let shared      = shareID ? "shared" : "";
     let active      = album.id === activeAlbumID;
-    let disabled    = active? "disabled" : "";
+    let disabled    = (active || shareID) ? "disabled" : "";
     let current     = active? "CURRENT ALBUM" : "";
+    let sharedAlbum = shareID ? "SHARED ALBUM" : "";
     let name        = album.decryptedTitle;
     let exifDate    = album.date  || "0000:00:00";  
     let date        = fancyDate(exifDate);
     var thumbID     = album.thumb || "";
 
-    return `<button class="radio" group="move" val="${album.id}" ${disabled} style='--i:${index}'>
+    return `<button class="radio ${shared}" group="move" val="${album.id}" ${disabled} style='--i:${index}'>
         <strong>${name}</strong>
-        <time>${current || date}</time>
+        <time>${current || sharedAlbum || date}</time>
         <img src="" alt thumb="${thumbID}">
     </button>`
 
@@ -152,13 +165,16 @@ function renderAlbumHeader(aid) {
     var exifDate        = album.date  || "0000:00:00";              // "2019:07:03"
     var prettyDate      = fancyDate(exifDate);                      // "NOV '20"
     var avgColor        = album.pinky || "54,54,54";                // rgb
-
+    var shareID         = (album.share || {}).id || "";
+    var shared          = "";
+    if (shareID) { shared = "shared"; }
     return `
-    <div id="albumheader" style="--bg:rgb(${avgColor})">
+    <div id="albumheader" class='${shared}' style="--bg:rgb(${avgColor})">
         <h2 class="name">${name}</h2>
         <hr>
         <p class="date" exif="${exifDate}" onclick='showEditAlbumPopup();'>${prettyDate}</p>
         <button onclick='showEditAlbumPopup();'><i class="ri-more-2-fill"></i></button>
+        <button onclick='showShareAlbumPopup();' class="header-button-share-album"><i class="ri-share-fill"></i></button>
     </div>`;
 }
 

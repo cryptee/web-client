@@ -57,12 +57,14 @@ function inIframe () {
 
 var isIniFrame = inIframe();
 setSentryTag("in-iframe", inIframe());
-$("body").toggleClass("iframe", isIniFrame); 
+$("body").toggleClass("iframe", isIniFrame);
 
 function isRetina() { return window.devicePixelRatio > 1; }
 setSentryTag("retina", isRetina());
 
-
+// Yep, that's what we're calling it instead of Liquid Glass.
+const isLiquidAss = (isios || isipados) && +navigator.userAgent.match(/Version\/(\d+)/)?.[1] >= 26;
+$("body").toggleClass("liquidass", isLiquidAss);
 
 function isTouchDevice() {
   const prefixes = ["", "-webkit-", "-moz-", "-o-", "-ms-"];
@@ -72,7 +74,7 @@ function isTouchDevice() {
 
 
 function checkFileAPIs() {
-  // Check for the various File API support. thx blockers.. 
+  // Check for the various File API support. thx blockers..
   if (window.File && window.FileReader && window.FileList && window.Blob) {
     // Great success! All the File APIs are supported.
     return true;
@@ -103,7 +105,7 @@ setSentryTag("can-upload-folders", canUploadFolders);
 
 // if (isAndroid && isFirefox) {
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1456557
-  // seriously. yeah. seriously firefox. WTF. 
+  // seriously. yeah. seriously firefox. WTF.
 //   $('input[type="file"]').removeAttr("multiple");
 //   breadcrumb('Detected Firefox on Android. Multiple file selections for input elements will be disabled.');
 //   setSentryTag("input-multiple-upload", "disabled");
@@ -153,13 +155,13 @@ function readFileAs(file, as) {
     if (as === "arrayBuffer") {
       breadcrumb("[READ FILE] Reading as array buffer ...");
       reader.readAsArrayBuffer(file);
-    } 
-    
+    }
+
     if (as === "dataURL") {
       breadcrumb("[READ FILE] Reading as data url ...");
       reader.readAsDataURL(file);
     }
-    
+
     if (as === "text") {
       breadcrumb("[READ FILE] Reading as text ...");
       reader.readAsText(file);
@@ -206,8 +208,8 @@ function exitFullscreen() {
 
 /**
  * A way to throttle on-scroll events so that they don't happen too often.
- * @param {*} func 
- * @param {*} wait 
+ * @param {*} func
+ * @param {*} wait
  */
 function throttleScroll (func, wait) {
   var context, args, timeout, throttling, more, result;
@@ -229,7 +231,7 @@ function throttleScroll (func, wait) {
 }
 
 /**
- * 
+ *
  * @param {String} urlParameter get given url parameter
  */
 function getUrlParameter(urlParameter) {
@@ -251,11 +253,11 @@ function getUrlParameter(urlParameter) {
 
 /**
  * Extracts hashtags from a given string. (i.e. "we went to #paris for a #business-trip" etc...)
- * @param {string} string 
+ * @param {string} string
  * @returns {array} array of hashtags
  */
 function extractHashtags(string) {
-  // sort tags based on tag-length. here's why. 
+  // sort tags based on tag-length. here's why.
   // if you write "#paris #paris2019", paris will replace the tag with <i>paris</i> <i>paris</i>2019, making "2019" get ignored in the highlighter
   // if you start from the longest tag, this won't be a problem
   string = string.toLowerCase();
@@ -264,7 +266,7 @@ function extractHashtags(string) {
 
 
 /**
- * 
+ *
  * @param {String} email check if given string is an email address matching with regex.
  */
 function isEmail(email) {
@@ -273,7 +275,7 @@ function isEmail(email) {
 }
 
 /**
- * 
+ *
  * @param {string} date check if date format is valid (YYYY-MM-DD)
  */
 function isValidDate(date) {
@@ -282,7 +284,7 @@ function isValidDate(date) {
 
 
 /**
- * 
+ *
  * @param {number|string} bytes format a given amount of bytes i.e. 1000 = 1 KB or "1000000" = 1 MB etc
  */
 function formatBytes (bytes) {
@@ -299,7 +301,7 @@ function formatBytes (bytes) {
 
 /**
  * OBJECT BYTESIZE CALCULATOR (SAY FOR EXAMPLE HOW MANY BYTES IS A STRING ETC. OR A DOCUMENT / OR A PHOTO B64 ETC.)
- * @param {*} object 
+ * @param {*} object
  */
 function bytesize( object ) {
 
@@ -336,14 +338,14 @@ function bytesize( object ) {
 
 /**
  * Pads a given number to given noDigits (i.e. num = 5, digits = 2 = 05)
- * @param {Number} num 
- * @param {Number} digits 
+ * @param {Number} num
+ * @param {Number} digits
  * @returns paddedString
  */
 function padZeroes(num, digits){ return String(num).padStart(digits, '0'); }
 
 /**
- * 
+ *
  * @param {number} unixtime amount of time that has passed since given unix time. returns string like : 2 years or 5 days etc.
  */
 function timeSince(unixtime) {
@@ -395,8 +397,8 @@ function timeSince(unixtime) {
 
 /**
  * converts a dataURI to a File object by using fetch and a blob
- * @param {string} dataURI 
- * @param {string} filename 
+ * @param {string} dataURI
+ * @param {string} filename
  * @returns {Promise <File>}
  */
 async function dataURIToFile(dataURI, filename) {
@@ -407,18 +409,18 @@ async function dataURIToFile(dataURI, filename) {
 
 /**
  * Converts a dataURI to a Blob
- * @param {String} dataURI 
+ * @param {String} dataURI
  * @returns {Promise <Blob>}
  */
 async function dataURIToBlob(dataURI) {
   var spacelessDataURI = dataURI.replace(/\n/g, "").replace(/\s/g, ''); // ios doesn't accept spaces and crashes browser. like wtf apple. What. THE. FUCCK!!! (also adding newlines just in case)
-  return (await fetch(spacelessDataURI)).blob(); 
+  return (await fetch(spacelessDataURI)).blob();
 }
 
 /**
  * converts a blob to a File object
- * @param {*} blob 
- * @param {string} filename 
+ * @param {*} blob
+ * @param {string} filename
  */
 function blobToFile(blob, filename) {
   // a blob is almost a File()... we just need two more properties
@@ -428,7 +430,7 @@ function blobToFile(blob, filename) {
 
 /**
  * Takes in a blob, and converts it to a stream we can use as plaintext source which we can later encrypt
- * @param {*} blob 
+ * @param {*} blob
  * @returns {*} stream
  */
  function blobToStream(blob) {
@@ -438,7 +440,7 @@ function blobToFile(blob, filename) {
 
 /**
  * Creates a blob using a uInt8Array & mimetype
- * @param {*} uInt8Array 
+ * @param {*} uInt8Array
  * @param {*} mimetype
  */
 function uInt8ArrayToBlob(uInt8Array, mimetype) {
@@ -449,7 +451,7 @@ function uInt8ArrayToBlob(uInt8Array, mimetype) {
 
 /**
  * Converts a JSON Object to a Blob
- * @param {Object} jsonObject 
+ * @param {Object} jsonObject
  * @returns {Blob} A Blob containing the JSON Object in UTF-8 with application/json mimetype
  */
 function jsonToBlob(jsonObject) {
@@ -460,7 +462,7 @@ function jsonToBlob(jsonObject) {
 
 /**
  * Gets the array buffer of a Blob. For performance, it uses blob.arrayBuffer() which is async, therefore this returns a promise.
- * @param {Blob} blob 
+ * @param {Blob} blob
  * @returns {Promise <ArrayBuffer>}
  */
 async function blobToArrayBuffer(blob) {
@@ -469,13 +471,13 @@ async function blobToArrayBuffer(blob) {
 
 /**
  * Gets the raw textual contents of a Blob. For performance, it uses blob.text() which is async, therefore this returns a promise.
- * @param {Blob} blob 
+ * @param {Blob} blob
  * @returns {Promise <String>} Extracted Raw Text
  */
-async function blobToText(blob) { 
+async function blobToText(blob) {
 
   var textContents;
-  
+
   try {
     textContents = await blob.text();
   } catch (error) {
@@ -483,21 +485,21 @@ async function blobToText(blob) {
     textContents = await readFileAs(blob, "text");
   }
 
-  return textContents; 
-  
+  return textContents;
+
 }
 
 /**
  * Gets the JSON contents of a Blob. For performance, it uses blob.text() which is async, therefore this returns a promise.
- * @param {Blob} blob 
+ * @param {Blob} blob
  * @returns {Promise <Object>} Extracted JSON Object
  */
-async function blobToJSON(blob) { 
-  
+async function blobToJSON(blob) {
+
   var textContents;
   var jsonContents;
   var blobToTextFailed = false;
-  
+
   try {
     textContents = await blob.text();
     jsonContents = JSON.parse(textContents);
@@ -506,7 +508,7 @@ async function blobToJSON(blob) {
     blobToTextFailed = true;
     jsonContents = {};
   }
-  
+
   if (blobToTextFailed) {
     try {
       textContents = await readFileAs(blob, "text");
@@ -518,15 +520,15 @@ async function blobToJSON(blob) {
   }
 
   return jsonContents;
-  
+
 }
 
 
 /**
  * Revokes an object's URL once we're done with it (i.e. after image is loaded on the page), with error handling built in to save repetition in codebase.
- * @param {String} url 
+ * @param {String} url
  */
-function revokeObjectURL(url) { 
+function revokeObjectURL(url) {
   try { URL.revokeObjectURL(url); } catch (e) {}
 }
 
@@ -568,14 +570,14 @@ function getImageMimetypeFromUint8Array(uInt8Array) {
 }
 
 /**
- * Creates an image blob from the canvas using the provided parameters. 
+ * Creates an image blob from the canvas using the provided parameters.
  * @param {*} canvas Canvas Element to Use
  * @param {number} quality (0 - 1)
- * @param {('image/jpeg'|'image/png'|'image/webp')} [format] defaults to image/jpeg  
+ * @param {('image/jpeg'|'image/png'|'image/webp')} [format] defaults to image/jpeg
  * @returns {Promise <Blob>} imageBlob
  */
 async function canvasToBlob(canvas, quality, format) {
-  
+
   format = format || "image/jpeg";
 
   breadcrumb('[CANVAS TO BLOB] Converting canvas to blob ...');
@@ -597,25 +599,25 @@ async function canvasToBlob(canvas, quality, format) {
 
 /**
  * Convert ImageBitmap to Blob with quality control
- * @param {ImageBitmap} imgBitmap 
+ * @param {ImageBitmap} imgBitmap
  * @param {Number} quality - 0 to 1
- * @param {String} format - 'image/jpeg' or 'image/png', falls back to image/jpeg 
+ * @param {String} format - 'image/jpeg' or 'image/png', falls back to image/jpeg
  * @returns {Promise<Blob>}
  */
 async function imageBitmapToBlob(imgBitmap, quality, format) {
     format = format || "image/jpeg";
-    
+
     const canvas = new OffscreenCanvas(imgBitmap.width, imgBitmap.height);
     const ctx = canvas.getContext('2d', { willReadFrequently: false });
-    
+
     ctx.drawImage(imgBitmap, 0, 0);
-    
+
     const blob = await canvas.convertToBlob({ type: format, quality });
-    
+
     // Clean up
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.width = canvas.height = 0;
-    
+
     return blob;
 }
 
@@ -623,10 +625,10 @@ async function imageBitmapToBlob(imgBitmap, quality, format) {
 /**
  * Helps us calculate the maximum allowed canvas size, and creates an aspect ratio accurate max canvas size we can use.
  * We need this because iOS Safari limits max total canvas size to 16777216px (w*h), this is so that we can generate
- * thumbnails etc without any issues however large photos may be. 
+ * thumbnails etc without any issues however large photos may be.
  * We use the term "canvas" here because iOS still keeps in mind the max allowed canvas size when doing imageBitmap resizing.
- * @param {Number} width 
- * @param {Number} height 
+ * @param {Number} width
+ * @param {Number} height
  * @param {Number} maxWidthOrHeight
  * @returns {Object} sizes
  * @returns {Object} sizes.width
@@ -637,7 +639,7 @@ function limitImageSize(width, height, maxWidthOrHeight) {
   width = parseInt((width || 0));
   height = parseInt((height || 0));
 
-  // For now limiting the default to 2048 x 2048 (iOS max size is 4096x4096, but since we don't need more, we'll stick with this. prob better for mem use), 
+  // For now limiting the default to 2048 x 2048 (iOS max size is 4096x4096, but since we don't need more, we'll stick with this. prob better for mem use),
   let maximumPixels = 4194304;
 
   if (maxWidthOrHeight) { maximumPixels = maxWidthOrHeight * maxWidthOrHeight; }
@@ -656,7 +658,7 @@ function limitImageSize(width, height, maxWidthOrHeight) {
 
 /**
  * Helps us convert a file or blob to an image object by means of using an image bitmap, and makes sure that we don't exceed the canvas size.
- * Requires inputting exif data from the readEXIF function for the width/height parameters 
+ * Requires inputting exif data from the readEXIF function for the width/height parameters
  * We use the term "canvas" here because iOS still keeps in mind the max allowed canvas size when doing imageBitmap resizing.
  * @param {(File|Blob|ImageBitmap)} img
  * @param {Object} exif (from readEXIF)
@@ -666,7 +668,7 @@ function limitImageSize(width, height, maxWidthOrHeight) {
 async function imgFileToImgBitmap(img, exif, resizedWidthOrHeight) {
 
   let limMaxImageSize = limitImageSize(exif.width, exif.height, resizedWidthOrHeight);
-  
+
   if (exif.width !== limMaxImageSize.width || img.height !== limMaxImageSize.height) {
     breadcrumb("Limited max image size. Image was too large.");
   }
@@ -675,11 +677,11 @@ async function imgFileToImgBitmap(img, exif, resizedWidthOrHeight) {
   if (!browserWillHandleEXIFOrientation && exif.Orientation) { orientation = exif.Orientation; }
 
   let imgBitmapOptions = { resizeWidth: limMaxImageSize.width, resizeHeight: limMaxImageSize.height, resizeQuality : "high" };
-  
+
   if (orientation > 4) {
     imgBitmapOptions = { resizeWidth: limMaxImageSize.height, resizeHeight: limMaxImageSize.width, resizeQuality : "high" };
   }
-  
+
   let imgBitmap;
   try {
     imgBitmap = await createImageBitmap(img, imgBitmapOptions);
@@ -698,29 +700,31 @@ async function imgFileToImgBitmap(img, exif, resizedWidthOrHeight) {
  * Escapes HTML Characters in a given string. i.e. things like (> < & etc etc)
  * @param {String} string html string to escape characters
  */
-function escapeHTML(string) { 
+function escapeHTML(string) {
   return String(string)
   .replace(/&/g, "&amp;")
   .replace(/</g, "&lt;")
   .replace(/>/g, "&gt;")
-  .replace(/'/g, "&#039;")
-  .replace(/"/g, "&quot;"); 
+  .replace(/'/g, "&#39;")
+  .replace(/'/g, "&apos;")
+  .replace(/"/g, "&quot;")
+  .replace(/"/g, "&#34;");
 }
 
 /**
  * UNESCAPE HTML Characters in a given string. i.e. things like (&amp; -> & etc etc)
  * @param {String} string html string to escape characters
  */
-function unescapeHTML(string) { 
+function unescapeHTML(string) {
   return String(string)
   .replace(/&amp;/g, "&")
-  .replace(/&#38;/g, "&") 
+  .replace(/&#38;/g, "&")
   .replace(/&lt;/g, "<")
   .replace(/&#60;/g, "<")
   .replace(/&gt;/g, ">")
   .replace(/&#62;/g, ">")
-  .replace(/&apos;/g, "'") 
-  .replace(/&#39;/g, "'") 
+  .replace(/&apos;/g, "'")
+  .replace(/&#39;/g, "'")
   .replace(/&quot;/g, '"')
   .replace(/&34;/g, '"');
 }
@@ -730,8 +734,8 @@ function unescapeHTML(string) {
  * WONT WORK IF TEMPLATE STRING HAS INLINE FUNCTIONS LIKE ONCLICK ETC IN THEM
  * from https://developers.google.com/web/updates/2015/01/ES6-Template-Strings
  * Thanks to Andrea Giammarchi
- * @param {*} pieces 
- * @returns 
+ * @param {*} pieces
+ * @returns
  */
  function escapeTemplateHTML(pieces) {
   var util = (function () {
@@ -761,12 +765,12 @@ function unescapeHTML(string) {
     var replace = String.prototype.replace;
 
     return (Object.freeze || Object)({
-      escape: function escape(s) { 
-        if (!s) { return ""; } 
-        return replace.call(s, reEscape, fnEscape); 
+      escape: function escape(s) {
+        if (!s) { return ""; }
+        return replace.call(s, reEscape, fnEscape);
       },
-      unescape: function unescape(s) { 
-        if (!s) { return ""; } 
+      unescape: function unescape(s) {
+        if (!s) { return ""; }
         return replace.call(s, reUnescape, fnUnescape);
       }
     });
@@ -798,8 +802,8 @@ function dec2hex (dec) {
 
 /**
  * Deletes an item from the array using splice
- * @param {Array} array 
- * @param {*} itemToRemove 
+ * @param {Array} array
+ * @param {*} itemToRemove
  */
 function deleteFromArray(array, itemToRemove) {
   var index = array.indexOf(itemToRemove);
@@ -846,14 +850,14 @@ function isScrolledIntoView(el) {
     } catch (error) {
       return false;
     }
-    
+
     if (rect) {
       var elemTop = rect.top;
       var elemBottom = rect.bottom;
-      
+
       // Only completely visible elements return true:
       var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
-      
+
       // Partially visible elements return true:
       // var isVisible = elemTop < window.innerHeight && elemBottom >= 0;
       return isVisible;
@@ -870,13 +874,13 @@ function isScrolledIntoView(el) {
 
 /**
  * Clamps a number between the given values (i.e. -50, 0, 100 = 0)
- * @param {*} num 
- * @param {*} min 
- * @param {*} max 
- * @returns 
+ * @param {*} num
+ * @param {*} min
+ * @param {*} max
+ * @returns
  */
-function clamp(num, min, max) { 
-  return Math.min(Math.max(num, min), max); 
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
 }
 
 
@@ -884,8 +888,8 @@ function clamp(num, min, max) {
 
 
 /**
- * We don't like cookies. Nobody likes cookies. 
- * So we delete them all. On all page loads. 
+ * We don't like cookies. Nobody likes cookies.
+ * So we delete them all. On all page loads.
  * Even if a partner, like Paddle or Stripe or their JS files leave a cookie, it'll be deleted on each pageload.
  */
 function deleteAllCookies() {
@@ -918,7 +922,7 @@ function renderIcon(iconName) {
 
 /**
  * Checks if an object is empty, returns true if empty
- * @param {Object} obj the object to check 
+ * @param {Object} obj the object to check
  */
 function isEmpty(obj) {
   if (!obj) { return true; }
@@ -975,18 +979,18 @@ function isOnline() {
 
 
 /**
- * Converts a filename and tries to extract mimetype from server using extension, locally or worst case from the server. 
+ * Converts a filename and tries to extract mimetype from server using extension, locally or worst case from the server.
  * Security and privacy of this heavily depends on the quality of "extensionFromFilename" if it can't determine an extension from filename
  * and instead passes a portion of the filename as the extension, we would be sending that to server.
- * there is no solution to this problem, and we have to assume that the portion of a filename after the last dot is the extension. 
- * so if a user has a filename like : "A.Long.Weird.Document", we'll send "Document" to server. 
- * Though in Cryptee Docs, we store and use the actual mimetype of the file, so this is less of a concern for that. 
+ * there is no solution to this problem, and we have to assume that the portion of a filename after the last dot is the extension.
+ * so if a user has a filename like : "A.Long.Weird.Document", we'll send "Document" to server.
+ * Though in Cryptee Docs, we store and use the actual mimetype of the file, so this is less of a concern for that.
  * Writing this only for future reference, as we don't have anything to worry about at the moment.
  * @param {String} filename (i.e. voice memo.mp3 )
  * @returns {Promise <String>} mimetype
  */
 async function mimetypeFromFilename(filename) {
-  
+
     var mimetype;
 
     if (!filename) { return null; };
@@ -1005,7 +1009,7 @@ async function mimetypeFromFilename(filename) {
         'cr2': 'image/x-canon-cr2',
         'cr3': 'image/x-canon-cr3',
         'crw': 'image/x-canon-crw',
-        // Nikon  
+        // Nikon
         'nef': 'image/x-nikon-nef',
         'nrw': 'image/x-nikon-nrw',
         // Sony
@@ -1054,19 +1058,19 @@ async function mimetypeFromFilename(filename) {
         'png': 'image/png',
         'jpg': 'image/jpeg',
         'jpeg': 'image/jpeg',
-        
+
         //////////
         // AUDIO
         //////////
         'mp3' : 'audio/mpeg',
         'wav' : 'audio/x-wav',
-        
+
         //////////
         // VIDEO
         //////////
         'mp4' : 'video/mp4',
         'mov' : 'video/mp4',
-        
+
         //////////
         // OTHER
         //////////
@@ -1075,7 +1079,7 @@ async function mimetypeFromFilename(filename) {
     };
 
     mimetype = knownMimetypes[ext];
-    
+
     if (!mimetype) {
         mimetype = await requestMIMEforExtension(ext);
     }
@@ -1098,9 +1102,9 @@ var browserWillHandleEXIFOrientation = false;
 // https://github.com/blueimp/JavaScript-Load-Image/commit/1e4df707821a0afcc11ea0720ee403b8759f3881
 // Check if browser supports automatic image orientation
 async function determineBrowserEXIFOrientationTreatment() {
-    
+
     var img = new Image();
-    
+
     // black 2x1 JPEG, with the following meta information set - EXIF Orientation: 6 (Rotated 90° CCW)
     img.src = 'data:image/jpeg;base64,/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAAAAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/xABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAAAAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q==';
 
@@ -1120,7 +1124,7 @@ async function determineBrowserEXIFOrientationTreatment() {
     try {
       browserWillHandleEXIFOrientation = !(imgBitmap.width === 1 && imgBitmap.height === 2);
     } catch (e) {}
-    
+
     if (browserWillHandleEXIFOrientation) {
       // true == browser supports = don't rotate in js
       breadcrumb('[EXIF Orientation] Will be handled by Browser');
@@ -1147,8 +1151,8 @@ async function determineBrowserEXIFOrientationTreatment() {
  * @returns {Promise <Object>} exif
  */
 async function readEXIF(fileOrFileBuffer) {
-    
-  var tags = {}; 
+
+  var tags = {};
   var exif = {};
 
   if (!fileOrFileBuffer) { return exif; }
@@ -1168,7 +1172,7 @@ async function readEXIF(fileOrFileBuffer) {
   }
 
   if (isEmpty(tags)) { return exif; }
-  
+
   if (tags.DateTime)          { exif.DateTime             = tags.DateTime.value[0] || "";                              }
   if (tags.DateTimeDigitized) { exif.DateTimeDigitized    = tags.DateTimeDigitized.value[0] || "";                     }
   if (tags.DateTimeOriginal)  { exif.DateTimeOriginal     = tags.DateTimeOriginal.value[0] || "";                      }
@@ -1177,12 +1181,12 @@ async function readEXIF(fileOrFileBuffer) {
   let make     = ((tags.Make || {}).value || [])[0] || (tags.Make || {}).description || "Unknown";
   let model    = ((tags.Model || {}).value || [])[0] || (tags.Model || {}).description || "Unknown";
   let lens     = (tags.FocalLength || {}).description || "Unknown";
-  
+
   let aperture = (tags.FNumber || {}).description || (tags.ApertureValue || {}).description || "Unknown";
   let exposure = (tags.ExposureTime || {}).description || "Unknown";
   let whitebal = (tags.WhiteBalance || {}).description || "Unknown";
   let iso      = (tags.ISOSpeed || {}).description || (tags.ISOSpeedRatings || {}).description || "Unknown";
-  
+
   exif.make = make;
   exif.model = model;
   exif.lens = lens;
@@ -1193,12 +1197,12 @@ async function readEXIF(fileOrFileBuffer) {
 
   let width = ((tags["Image Width"] || tags["Exif Image Width"] || tags["PixelXDimension"] || tags["Width"]) || {}).value || 2048;
   let height  = ((tags["Image Height"] || tags["Exif Image Height"] || tags["PixelYDimension"] || tags["Height"]) || {}).value || 2048;
-  
+
   exif.width  = width || "";
   exif.height = height || "";
 
   breadcrumb('[EXIF READER] Read!');
-  
+
   return exif;
 
 }
@@ -1207,7 +1211,7 @@ async function readEXIF(fileOrFileBuffer) {
 ////////////////////////////////////////////////
 // CALCULATE LUMINANCE AND CONTRAST
 ////////////////////////////////////////////////
-////////////////////////////////////////////////  
+////////////////////////////////////////////////
 
 function calculateLuminance(r, g, b) {
   var a = [r, g, b].map((v) => {
@@ -1309,19 +1313,19 @@ function inactivityTimeout () {
 
 /**
  * a quick timeout implementation for promises, so that we can continue flow even if a promise is left unresolved
- * @param {*} promise 
- * @param {*} ms 
+ * @param {*} promise
+ * @param {*} ms
  */
 function promiseAbortWithTimeout(promise, ms){
 
   return Promise.race([promise, promiseToWait(ms) ]);
-  
+
 }
 
 
 
 /**
- * setTimeout, but with a promise. 
+ * setTimeout, but with a promise.
  * so you can use it like await helpers.promiseToWait(1000);
  * and the code in the next line will be executed 1s later.
  * @param {Number} ms
@@ -1349,8 +1353,8 @@ function promiseToWait(ms, callbackPromiseParamPassthrough) {
 
 /**
  * Underlines search results returned by fuse
- * @param {*} indices 
- * @param {*} string 
+ * @param {*} indices
+ * @param {*} string
  */
 function underlineSearchResult(indices,string) {
   var pair = indices.shift();
@@ -1394,14 +1398,14 @@ function underlineSearchResult(indices,string) {
       $.fn['outer' + Dimension] = function (margin) {
           var elem = this;
           if (!elem) { return null; }
-          
+
           var size = elem[dimension]();
           var sides = { 'width': ['left', 'right'], 'height': ['top', 'bottom'] };
           sides[dimension].forEach(function (side) {
               if (margin) size += parseFloat(elem.css('margin-' + side), 10);
           });
           return size;
-          
+
       };
   });
 })(Zepto);
@@ -1442,9 +1446,9 @@ function getScrollbarWidth() {
 ////////////////////////////////////////////////
 
 /**
- * Saves a file, or opens the share dialog for user to conveniently save / share it depending on OS. 
- * On iOS and Android PWAs shows share dialog. On desktop PWA, this will download regularly. 
- * @param {*} blob 
+ * Saves a file, or opens the share dialog for user to conveniently save / share it depending on OS.
+ * On iOS and Android PWAs shows share dialog. On desktop PWA, this will download regularly.
+ * @param {*} blob
  * @param {String} filename (full filename with extension i.e. : "file.pdf")
  * @param {Boolean} [forceSaveAs] forces save as and disables sharing if passed (i.e. with multiple / bulk downloads)
  * @param {Boolean} [shareText] passes on additional text to the share modal
@@ -1453,66 +1457,66 @@ async function saveAsOrShare(blob, filename, forceSaveAs, shareText) {
   var willShare = false;
   forceSaveAs = forceSaveAs || false;
   var shareObject = {};
-  
-  if (!blob || !filename) { 
+
+  if (!blob || !filename) {
     handleError("[SAVE OR SHARE] Can't save or share without a blob or filename. aborting.");
-    return false; 
+    return false;
   }
   // if we're not forcing a saveAs
   // if device has web share API enabled,
   // if it's iOS PWA or Android PWA (if we're in the browser, it'll download to the default download folder anyhow so this is only for the PWA.)
 
-  if (!forceSaveAs && navigator.share && navigator.canShare && (isAndroid || isios || isipados) && isInstalled) { 
-    
+  if (!forceSaveAs && navigator.share && navigator.canShare && (isAndroid || isios || isipados) && isInstalled) {
+
     try {
 
-      // convert the blob to file, then put it in the files array. 
-      // we'll always share one file at a time for better compat. 
-      
+      // convert the blob to file, then put it in the files array.
+      // we'll always share one file at a time for better compat.
+
       var fileType = await mimetypeFromFilename(filename) || "text/plain";
 
       shareObject = { title: filename, files: [ new File([blob], filename, { type: fileType }) ] };
-      
+
       if (shareText) { shareObject.text = shareText; }
-      
+
     } catch (e) {
       console.error(e);
       handleError("[SAVE OR SHARE] Failed to load file into files array, will use saveAs as fallback", e, "warning");
     }
 
     try {
-      
-      // if this device and browser's APIs allow sharing this filetype, 
+
+      // if this device and browser's APIs allow sharing this filetype,
       // we'll use share dialog instead of download
-      if (navigator.canShare(shareObject)) { 
-        willShare = true; 
+      if (navigator.canShare(shareObject)) {
+        willShare = true;
         breadcrumb("[SAVE OR SHARE] Supported system and filetype, will use native share modal");
       }
-      
+
     } catch (error) {
       console.error(error);
       handleError("[SAVE OR SHARE] Failed to check if filetype can be shared, will use saveAs as fallback", error, "warning");
     }
 
   }
-  
+
   if (!willShare) {
 
     breadcrumb("[SAVE OR SHARE] Saving as...");
     saveAs(blob, filename);
 
   } else {
-    
+
     try {
-    
+
       breadcrumb("[SAVE OR SHARE] Displaying native share modal.");
       await navigator.share(shareObject);
-    
+
     } catch (error) {
 
       error.filetype = blob.type;
       error.extension = extensionFromFilename(filename);
-      
+
       // if user didn't abort the share modal themselves, and we had some other error, use saveAs fallback instead.
       if (error.name !== "AbortError") {
         console.error(error);
@@ -1523,13 +1527,13 @@ async function saveAsOrShare(blob, filename, forceSaveAs, shareText) {
     }
 
   }
-  
+
 }
 
 
 /**
- * Opens the share dialog for user to conveniently save / share multiple files. 
- * We only use this on iOS and Android PWAs to show the share dialog.  
+ * Opens the share dialog for user to conveniently save / share multiple files.
+ * We only use this on iOS and Android PWAs to show the share dialog.
  * @param {Array} files
  */
 async function shareMultiple(files) {
@@ -1544,10 +1548,10 @@ async function shareMultiple(files) {
 
 /**
  * Sets the native media controller UI properties for audio/video playback
- * @param {String} title 
- * @param {String} artworkURL 
+ * @param {String} title
+ * @param {String} artworkURL
  * @param {String} artworkMimetype (i.e. image/jpg)
- * @param {String} [artist] 
+ * @param {String} [artist]
  * @param {String} [album]
  */
 function setMediaSessionAPIMetadata(title, artworkURL, artworkMimetype, artist, album) {
@@ -1582,7 +1586,7 @@ function setMediaSessionAPIMetadata(title, artworkURL, artworkMimetype, artist, 
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-//	LAZY LOAD / PRELOAD ALL EDITOR ASSETS LIKS CSS, JS ETC 
+//	LAZY LOAD / PRELOAD ALL EDITOR ASSETS LIKS CSS, JS ETC
 //  AFTER THE REST OF THE APP HAS LOADED
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1608,7 +1612,7 @@ function lazyLoadUncriticalAssets() {
 
   if (script) {
     let src = $(script).attr("lazysrc");
-    
+
     // if the script shouldn't be loaded for safari at all, remove the loadafter, and next time we call lazyLoadUncriticalAssets it won't be counted, so won't be loaded
     if (isSafari && $(script).attr("exceptsafari")) {
         $(script).remove();
@@ -1627,7 +1631,7 @@ function lazyLoadUncriticalAssets() {
     breadcrumb('[LAZY LOADER] LOADED ALL ASSETS. TOOK ' + lazyLoadTook + "MS");
     setSentryTag("assets-lazy-loaded-time-ms", lazyLoadTook);
   }
-    
+
 }
 
 
@@ -1637,15 +1641,15 @@ function waitForBodyAttribute(attributeName) {
         if (document.body.hasAttribute(attributeName)) {
             return resolve();
         }
-        
+
         const observer = new MutationObserver(mutations => {
             if (document.body.hasAttribute(attributeName)) {
                 observer.disconnect();
                 resolve();
             }
         });
-        
-        observer.observe(document.body, { 
+
+        observer.observe(document.body, {
             attributes: true,
             attributeFilter: [attributeName]
         });
@@ -1682,7 +1686,7 @@ $("a").on('touchstart mousedown', function (event) {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 // EU COUNTRY CODES LIST
-// p.s. FUCK YOU APPLE. 
+// p.s. FUCK YOU APPLE.
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 

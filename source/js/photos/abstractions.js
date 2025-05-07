@@ -156,6 +156,10 @@ async function loadAlbum(aid) {
         updateTimelineWithItemsOnScreen(); 
     }, 1000);
     
+    resetShareAlbumPopup();
+    
+    // Check if album is a shared album, and fill out the inputs with the correct info
+    if (albums[activeAlbumID].share && !isEmpty(albums[activeAlbumID].share)) { await populateShareAlbumPopup(); }
 
     
 
@@ -1323,6 +1327,11 @@ async function startDownloads(pickedDownloadSize) {
     $("body").addClass("downloading");
     $('#photos-downloader').addClass("show");
     $('#photos-downloader').removeClass("done");
+    
+    $('#photos-downloader circle').each(function(){
+        $(this).removeClass('done');
+    });
+
     $("#photos-downloader > small").text(`0/${selections.length}`);
     
     if (isios || isipados || isAndroid) {
@@ -1726,6 +1735,9 @@ function showEditAlbumPopup(aid) {
         return false;
     }
 
+    let isShared = (albums[aid].share || {}).id ? true : false;
+    $("#popup-album-info").toggleClass("shared", isShared);
+
     // add a mini UX change to make it clear one album's popup closed, and another opened.
     if ($("#popup-album-info").hasClass("show")) { 
         hideAllPopups(); 
@@ -1817,7 +1829,6 @@ async function editAlbumInfo(aid, name, date) {
     
     }
 
-
     if (name && name !== oldName) {
         var nameBeforeUpdate = (albums[aid].decryptedTitle || "Untitled Album").toUpperCase();
         
@@ -1843,6 +1854,11 @@ async function editAlbumInfo(aid, name, date) {
         }
     }
 
+    var isShared = (albums[aid].share || {}).id ? true : false;
+    if (aid === activeAlbumID && isShared) {
+        await createOrUpdateSharedAlbum();
+    }
+
     stopProgressWithID("progress-album-info");
     $("#save-album-info-button").removeClass("loading");
 
@@ -1858,6 +1874,13 @@ function deleteAlbumFromInfoPopup() {
 
 function ghostAlbumFromInfoPopup() {
     var albumID = $("#popup-album-info").attr("aid");
+    var isShared = (albums[albumID].share || {}).id ? true : false;
+    if (isShared) {
+        createPopup("Unfortunately it's not possible to ghost shared albums.", "info");
+        handleError("[GHOST ALBUM POPUP] Can't show ghost modal, album is shared!");
+        return;
+    }
+
     hidePopup("popup-album-info");
     showGhostAlbumModal(albumID);
 }
@@ -2001,6 +2024,9 @@ async function deleteSelectedPhotos() {
         error.photos = photosToDelete;
         handleError("[DELETE PHOTOS] Failed to update album titles after deleting photos", error);
     }
+
+    var isShared = (albums[activeAlbumID].share || {}).id ? true : false;
+    if (isShared) { await createOrUpdateSharedAlbum(); }
 
     stopMainProgress();
     hideActiveModal();
@@ -2177,6 +2203,8 @@ async function favoritePhoto(pid) {
     favorites[pid] = photo;
     animateMediaFavoritesWhenLightboxClosed[pid] = "fav";
 
+    await favoritesChangedCheckAndUpdateSharedAlbumIfNecessary();
+
 }
 
 
@@ -2213,6 +2241,8 @@ async function unfavoritePhoto(pid) {
             }
         }
     }
+
+    await favoritesChangedCheckAndUpdateSharedAlbumIfNecessary();
     
 }
 
@@ -2243,6 +2273,13 @@ async function makeGhostAlbum() {
     if (isEmpty(album)) {
         handleError("[GHOST ALBUM] Can't ghost an album that doesn't seem to exist. (or is empty)");
         createPopup("There seems to be an issue and we can't seem to be able to ghost this album. Please try renaming the album name, if it has any special characters, or reach out to our support via our helpdesk for more help.", "error");
+        return false;
+    }
+
+    var isShared = (albums[aid].share || {}).id ? true : false;
+    if (isShared) {
+        handleError("[GHOST ALBUM] Can't ghost, album is shared!");
+        createPopup("Unfortunately it's not possible to ghost shared albums.", "info");
         return false;
     }
 
@@ -2431,6 +2468,13 @@ function showGhostAlbumModal(aid) {
         return false; 
     }
 
+    var isShared = (albums[aid].share || {}).id ? true : false;
+    if (isShared) {
+        handleError("[GHOST ALBUM MODAL] Can't show ghost modal, album is shared!");
+        createPopup("Unfortunately it's not possible to ghost shared albums.", "info");
+        return;
+    }
+
     $("#modal-ghost").attr("aid", aid);
 
     showModal("modal-ghost");
@@ -2479,10 +2523,12 @@ async function showMoveModal() {
 
     showModal("modal-move");
 
-    Object.keys(albums).forEach((aid, index) => {
-        if (aid === "favorites" || aid === "home") { return; }
-        downloadMoveModalThumbnail(albums[aid]);
-    });
+    // Download thumbnails in batches following the sorted order
+    for (let i = 0; i < albumsArray.length; i += 12) {
+        const batch = albumsArray.slice(i, i + 12);
+        await Promise.all(batch.map(album => downloadMoveModalThumbnail(album)));
+    }
+
 }
 
 /**
@@ -2548,6 +2594,9 @@ async function moveSelectedPhotos() {
     startMainProgress();
     startModalProgress("modal-move");
 
+    var targetAlbumShared = false;
+    if ((albums[toAID].share || {}).id) { targetAlbumShared = true; }
+
     var targetAlbumReady = false;
     
     try {
@@ -2557,6 +2606,13 @@ async function moveSelectedPhotos() {
         error.to   = toAID;
         error.photos = photosToMove;
         handleError("[MOVE PHOTOS] Failed to get target album to move photos to", error);
+    }
+
+    if (targetAlbumShared) {
+        createPopup("At the moment it's not possible to move photos into shared albums, but we're working around the clock to introduce this feature in the near future.", "info");
+        stopModalProgress("modal-move");
+        stopMainProgress();
+        return false;
     }
 
     if (!targetAlbumReady) { 

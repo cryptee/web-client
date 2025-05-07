@@ -404,7 +404,7 @@ if (isFirefox) { placeholderColor = "#aaa"; }
 
 var stripe;
 try {
-    stripe = Stripe('pk_live_D9FkoKTyS1dPXaHhGrMZM8be00VxCQFFx5', { apiVersion: '2020-08-27;tax_product_beta=v1', betas: ["tax_product_beta_1"] });
+    stripe = Stripe('pk_live_D9FkoKTyS1dPXaHhGrMZM8be00VxCQFFx5', { apiVersion: '2020-08-27' });
 } catch (e) {
     stripeNotLoaded(e);
 }

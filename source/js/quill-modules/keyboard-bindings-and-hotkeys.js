@@ -247,6 +247,18 @@ var quillkeyboardbindings = {
                 default:
                     value = 'ordered';
             }
+            // capture inline formats before we modify anything,
+            // so we can re-apply them after the delta strips the prefix text.
+            // without this, formats like font size revert to default. (issue #217)
+            var inlineFormatKeys = ['size', 'font', 'color', 'background', 'bold', 'italic', 'underline', 'strike'];
+            var currentFormat = quill.getFormat(range.index);
+            var inlineFormats = {};
+            for (var fk in currentFormat) {
+                if (inlineFormatKeys.indexOf(fk) !== -1) {
+                    inlineFormats[fk] = currentFormat[fk];
+                }
+            }
+
             quill.insertText(range.index, ' ', Quill.sources.USER);
             quill.history.cutoff();
             var delta = new Delta().retain(range.index - offset)
@@ -256,6 +268,11 @@ var quillkeyboardbindings = {
             quill.updateContents(delta, Quill.sources.USER);
             quill.history.cutoff();
             quill.setSelection(range.index - length, Quill.sources.SILENT);
+
+            // re-apply inline formats that were lost when the prefix text was deleted
+            for (var fk in inlineFormats) {
+                quill.format(fk, inlineFormats[fk], Quill.sources.SILENT);
+            }
         }
     },
     'indent code-block': null,

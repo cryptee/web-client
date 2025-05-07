@@ -24,9 +24,6 @@ Otherwise, feel free to throw in your bug reports and issues here on github! The
 
 Needless to say, this doesn't mean Cryptee isn't a serious product or company, it just means you can relax, smile and take things easy. We're all humans.
 
-![humans](https://media.giphy.com/media/OCh6NOK0nkEJG/giphy-downsized.gif)
-
-
 &nbsp;
 
 ---
@@ -66,4 +63,3 @@ So yeah Cryptee uses Codekit and JQuery syntax. ~~zepto ... if we're being speci
     2b) This is also the reason why all the encryption happens on the front-end. So that you don't have to trust black-box servers running unverifiable code. Once you read the front-end source code, you can verify that your data never leaves your device unencrypted.
 
 3. Every now and then we get requests to open source our backend code so that some users can run it on their own servers. Cryptee is a project built for everyone to have a secure home for their files. And the largest majority of the internet users aren't tech-savvy, they can't (and shouldn't have to) set up their own servers, and perhaps don't even know the meaning of the word "backend" (and shouldn't have to). But they need a secure and private place for their files and digital belongings. Spending time towards open sourcing our backend and doing so in a way that it can work on any given server is a massive undertaking, and with the very limited resources Cryptee has at the moment, this is an unsustainable approach for business, growth and development.
-

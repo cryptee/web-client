@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 //	SETUP LEGACY OPENPGP V4.5.3
-// 
+//
 //  FOR ALL NON-STREAMING CRYPTOGRAPHIC OPS
 //  APPLICABLE TO CRYPTEE -V1,-V2,-V3 FILES
 //  USES WORKERS & MULTI-THREADS AS WELL
@@ -56,16 +56,16 @@ if (!openpgp) {
 
 /////////////////////////////////////////
 // ENCRYPT PLAINTEXT USING KEYS
-//                               
-// A DROP-IN, SHORTHAND REPLACEMENT FOR    
+//
+// A DROP-IN, SHORTHAND REPLACEMENT FOR
 // OPENPGPJS's .encrypt
 // WORKS STARTING WITH OPENPGPJS V4.4.1
 //////////////////////////////////////////
 
 /**
  * Encrypts given plaintext string with the given keys, returns a promise with ciphertext
- * @param {string} plaintext 
- * @param {array} keys 
+ * @param {string} plaintext
+ * @param {array} keys
  * @returns {promise} promise with ciphertext
  */
 async function encrypt(plaintext, keys) {
@@ -82,20 +82,20 @@ async function encrypt(plaintext, keys) {
 
 /////////////////////////////////////////
 // DECRYPT CIPHERTEXT USING KEYS
-//                               
-// A DROP-IN, SHORTHAND REPLACEMENT FOR    
+//
+// A DROP-IN, SHORTHAND REPLACEMENT FOR
 // OPENPGPJS's .decrypt
 // WORKS STARTING WITH OPENPGPJS V4.4.1
 //////////////////////////////////////////
 
 /**
  * Decrypts given ciphertext string with the given keys, returns a promise with plaintext
- * @param {string} ciphertext 
- * @param {array} keys 
+ * @param {string} ciphertext
+ * @param {array} keys
  * @returns {promise} promise with plaintext
  */
 async function decrypt(ciphertext, keys) {
-  
+
   try {
 
     var options = {
@@ -103,7 +103,7 @@ async function decrypt(ciphertext, keys) {
       passwords: keys,
       format: 'utf8'
     };
-  
+
     return openpgp.decrypt(options);
 
   } catch (error) { throw error; }
@@ -114,8 +114,8 @@ async function decrypt(ciphertext, keys) {
 /**
  * Attempts to decrypt a corrupted/incomplete ciphertext by bypassing integrity checks
  * WARNING: This is unsafe and should only be used as last resort for recovery
- * @param {string} ciphertext 
- * @param {array} keys 
+ * @param {string} ciphertext
+ * @param {array} keys
  * @returns {promise} promise with plaintext
  */
 async function insecurelyDecrypt(ciphertext, keys) {
@@ -147,13 +147,13 @@ async function insecurelyDecrypt(ciphertext, keys) {
 /////////////////////////////////////////////////////////////
 
 /**
- * Encrypts the plaintext Uint8Array with the given keys, returns a promise with ciphertext Uint8Array 
+ * Encrypts the plaintext Uint8Array with the given keys, returns a promise with ciphertext Uint8Array
  * @param {Uint8Array} plaintext
- * @param {array} keys 
+ * @param {array} keys
  * @returns {promise} promise with ciphertext uint8array
  */
 async function encryptUint8Array(plaintext, keys) {
-  
+
   var options = {
     message: openpgp.message.fromBinary(plaintext),
     passwords: keys,
@@ -161,26 +161,26 @@ async function encryptUint8Array(plaintext, keys) {
   };
 
   return openpgp.encrypt(options);
-  
+
 }
 
 
 
 /////////////////////////////////////////
 // DECRYPT CIPHERTEXT TO UINT8ARRAY USING KEYS
-//                               
-// TAKES IN A CIPHERTEXT    
+//
+// TAKES IN A CIPHERTEXT
 // AND RETURNS A UINT8ARRAY
 //////////////////////////////////////////
 
 /**
  * Decrypts given ciphertext string with the given keys, returns a promise with ciphertext Uint8Array
- * @param {string} ciphertext 
- * @param {array} keys 
+ * @param {string} ciphertext
+ * @param {array} keys
  * @returns {promise} promise with plaintext
  */
 async function decryptToBinary(ciphertext, keys) {
-  
+
   try {
 
     var options = {
@@ -188,7 +188,7 @@ async function decryptToBinary(ciphertext, keys) {
       passwords: keys,
       format: 'binary'
     };
-  
+
     return openpgp.decrypt(options);
 
   } catch (error) { throw error; }
@@ -200,29 +200,29 @@ async function decryptToBinary(ciphertext, keys) {
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-// 
-//	STREAMING CRYPTOGRAPHIC OPERATIONS 
+//
+//	STREAMING CRYPTOGRAPHIC OPERATIONS
 //  FOR CRYPTEE-V4 FILES
-// 
+//
 //  COMPATIBLE STARTING WITH OPENPGP V5.2.1
-// 
+//
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
 
 /**
  * Takes in a file and streaming encrypts it
- * @param {(File|Blob)} fileOrBlob 
+ * @param {(File|Blob)} fileOrBlob
  * @param {array} keys
  * @returns {Promise <Blob>} encryptedBlob
  */
 async function streamingEncrypt(fileOrBlob, keys) {
-    
+
     openpgpV5.config.aeadProtect = true;
     openpgpV5.config.preferredAEADAlgorithm = openpgpV5.enums.aead.experimentalGCM;
 
-    var fileStream; 
-    
+    var fileStream;
+
     if (!isFirefox) {
       fileStream = blobToStream(fileOrBlob);
     } else {
@@ -234,24 +234,24 @@ async function streamingEncrypt(fileOrBlob, keys) {
         passwords: keys,
         format : 'binary'
     });
-    
+
     return new Response(encryptedStream, { headers: { 'Content-Type': 'application/octet-stream' } }).blob();
-  
+
 }
-  
+
 
 
 /**
  * Decrypts given ciphertext stream with the given keys, returns a promise with ciphertext blob
- * @param {*} encryptedStream 
- * @param {array} keys 
+ * @param {*} encryptedStream
+ * @param {array} keys
  * @param {String} plaintextMimetype (required so we can output the blob)
  * @returns {Promise <Blob>} decryptedBlob
  */
 async function streamingDecrypt(encryptedStream, keys, plaintextMimetype) {
-    
+
     try {
-        
+
       // refer to polyfilledReadableStream for more info on why we need this polyfill, and maybe remove in the future
       if (isFirefox) { encryptedStream = polyfilledReadableStream(encryptedStream); }
 
@@ -264,15 +264,15 @@ async function streamingDecrypt(encryptedStream, keys, plaintextMimetype) {
       return new Response(decryptedStream.data, { headers: { 'Content-Type': plaintextMimetype } }).blob();
 
     } catch (error) { throw error; }
-  
+
 }
-  
+
 
 /**
  * Attempts to decrypt a corrupted/incomplete stream by bypassing integrity checks
  * WARNING: This is unsafe and should only be used as last resort for recovery
- * @param {*} encryptedStream 
- * @param {array} keys 
+ * @param {*} encryptedStream
+ * @param {array} keys
  * @param {String} plaintextMimetype
  * @returns {Promise <Blob>} decryptedBlob
  */
@@ -302,21 +302,21 @@ async function insecurelyStreamingDecrypt(encryptedStream, keys, plaintextMimety
     } catch (error) { throw error; }
 }
 
-  
+
 /**
- * This generates an additional fileKey for an upload. For photos we use the same fileKey for all sizes (original, lightbox, thumbnail etc). 
+ * This generates an additional fileKey for an upload. For photos we use the same fileKey for all sizes (original, lightbox, thumbnail etc).
  * fileKeys are encrypted similarly to doc titles / tags etc
  * If for some reason this operation fails, we will gracefully fall back to using the default data encryption key of the user in code.
  * This is only for things like future sharing features etc.
  */
 async function generateFileKey() {
 
-  var fileKey; 
+  var fileKey;
   var encryptedFileKey;
   var encryptedStringifiedFileKey;
 
   try {
-      
+
     // generate a strong fileKey
     fileKey = generateStrongKey(32);
 
@@ -331,7 +331,7 @@ async function generateFileKey() {
     return false;
   }
 
-  if (encryptedStringifiedFileKey) { 
+  if (encryptedStringifiedFileKey) {
     breadcrumb('[FILEKEY] Generated filekey!');
     return { fileKey : fileKey, wrappedKey : encryptedStringifiedFileKey };
   } else {
@@ -343,7 +343,7 @@ async function generateFileKey() {
 
 
 /**
- * This decrypts a wrappedKey, and returns the strongKey (fileKey) 
+ * This decrypts a wrappedKey, and returns the strongKey (fileKey)
  * fileKeys are encrypted similarly to doc titles / tags etc
  * This is only for things like future sharing features etc.
  * @returns {Promise <String>} fileKey (strongKey)
@@ -355,14 +355,14 @@ async function unwrapFileKey(wrappedKey) {
     return false;
   }
 
-  var fileKey; 
+  var fileKey;
 
   try {
-    
+
     var parsedEncryptedFileKey = JSON.parse(wrappedKey);
 
     // decrypt / unwrap the fileKey with user's key
-    decryptedFileKey = await decrypt(parsedEncryptedFileKey.data, [theKey]);
+    let decryptedFileKey = await decrypt(parsedEncryptedFileKey.data, [theKey]);
 
     fileKey = JSON.parse(decryptedFileKey.data);
 
@@ -371,7 +371,7 @@ async function unwrapFileKey(wrappedKey) {
     return false;
   }
 
-  if (fileKey) { 
+  if (fileKey) {
     breadcrumb('[FILEKEY] Unwrapped / Decrypted filekey!');
     return fileKey;
   } else {
@@ -379,7 +379,7 @@ async function unwrapFileKey(wrappedKey) {
   }
 
 }
-  
+
 
 
 
@@ -403,8 +403,8 @@ function hashString (str, strength) {
     var uinta = openpgp.util.str_to_Uint8Array(str);
     var algo = openpgp.crypto.hash.sha256(uinta);
     strength = strength || "256";
-    if (strength === "512") { 
-      algo = openpgp.crypto.hash.sha512(uinta); 
+    if (strength === "512") {
+      algo = openpgp.crypto.hash.sha512(uinta);
     }
     algo.then(function (hashedUintA) {
       var hashedStr = openpgp.util.Uint8Array_to_str(hashedUintA);
@@ -430,38 +430,59 @@ function generateStrongKey(length) {
 }
 
 
-/** 
+/**
+* Creates a random string using crypto.getRandomValues().
+* The string will contain characters in the a-zA-Z0-9 range.
+* Each character has 64 possible values.
+* @param length The length of the string. (Default 12)
+*/
+function generateStrongURLToken(length) {
+
+    length = length || 12;
+
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    const charactersLength = characters.length;
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+
+    let str = "";
+    for (let i = 0; i < length; i++) { str += characters[bytes[i] % charactersLength]; }
+    return str;
+
+}
+
+/**
  * Computes and returns and HMAC signature of a string, with the given key. (Uses SHA-256 and native WebCrypto).
- * @param {String} string 
- * @param {String} keyToUse 
+ * @param {String} string
+ * @param {String} keyToUse
  * @returns {Promise<String>} signature HMAC Signature
  */
 async function hmacString(string, keyToUse) {
 
   try {
-  
+
     var enc = new TextEncoder("utf-8");
-  
-    var hmacKey = await window.crypto.subtle.importKey( 
+
+    var hmacKey = await window.crypto.subtle.importKey(
       "raw", // format of the key = raw, (should be Uint8Array)
-      enc.encode(keyToUse), 
+      enc.encode(keyToUse),
       { name: "HMAC", hash: { name: "SHA-256" } },
       false, // not going to export, so false
       ["sign", "verify"] // what key should be able to do
     );
-  
-    var signature = await window.crypto.subtle.sign( 
-      "HMAC", 
-      hmacKey, 
+
+    var signature = await window.crypto.subtle.sign(
+      "HMAC",
+      hmacKey,
       enc.encode(string)
     );
-  
+
     return Array.prototype.map.call(new Uint8Array(signature), x => ('00' + x.toString(16)).slice(-2)).join("");
-  
+
   } catch (error) {
 
     throw new Error(error);
-  
+
   }
 
 }

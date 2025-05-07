@@ -1,163 +1,42 @@
 <div style="--r:16"></div>
 
-<footer>
-    <aside></aside>  <!-- spacing -->
-
-    <div class="grid-footer">
-
-        <div class="column">
-            <div>
-                <a href="/" id="footer-logo">
-                    <img src="../assets/logo-w.svg" alt="CRYPTEE">
-                </a>
-                <div>
-                    <p class="company-name"><a href="/">CRYPTEE</a></p>
-                    <small>info @ crypt &bull; ee</small>
-                </div>
-            </div>
-
-            <br><br>
-
-            <div>
-                <p id="eu-flag">
-                    <img src="../imgs/other-logos/eu.svg" alt="EU Flag">
-                </p>
-                <div>
-                    <small aria-disabled="true">
-                        made
-                        <br>
-                        in
-                        <br>
-                        europe
-                    </small>
-                </div>
-            </div>
-            
-            <br><br>
-
-            <div>
-
-            </div>
-            
-        </div>
-
-        <div class="column">
-            <p><strong>more</strong></p>
-            
-            <p>
-                <a href="/about">about</a>
-            </p>
-
-            <p>
-                <a href="/security">security</a>
-            </p>
-            
-            <p>
-                <a href="/download">download</a>
-            </p>
-            
-            <p>
-                <a href="https://github.com/cryptee" target="_blank" rel="noopener" class="external">source code</a>
-            </p>
-
-            <p>
-                <a href="/threat-model">threat model</a>
-            </p>
-        </div>
-
-        <div class="column">
-            <p><strong>other</strong></p>
-            
-            <p>
-                <a href="/press-kit">press kit</a>
-            </p>
-
-            <p>
-                <a href="https://blog.crypt.ee" target="_blank" rel="noopener" class="external">blog &amp; news</a>
-            </p>
-            
-            <p>
-                <a href="/acknowledgements">acknowledgements</a>
-            </p>
-            
-            <p>
-                <a href="/help">help &amp; support center</a>
-            </p>
-
-            <p>
-                <a href="/faq">frequently asked questions</a>
-            </p>
-        </div>
-
-        <div class="column">
-            <p><strong>legal</strong></p>
-
-            <p>
-                <a href="/imprint">imprint</a>
-            </p>
-
-            <p>
-                <a href="/privacy">privacy policy</a>
-            </p>
-
-            <p>
-                <a href="/terms">terms &amp; conditions</a>
-            </p>
-
-            <p>
-                <a href="/transparency">transparency report</a>
-            </p>
-        </div>
-
-        <div class="column wide">
-            <p>
-                <i>keeping you safe since 2017.</i>
-                <span class="right">
-                    <span>&copy; CRYPTEE&nbsp;</span>
-                    <span id="footer-year">2023></span>
-                </span>
-            </p>
-            <script>
-                let d = new Date();
-                let y = d.getFullYear();
-                let m = d.toLocaleString('en-US', { month: "short" }).toUpperCase();
-                document.getElementById("footer-year").textContent = y + " " + m;
-            </script>
-        </div>
-    </div>
-
-    <aside></aside>  <!-- spacing -->
-</footer>
+<!-- @import "./footer-links.kit" -->
 
 <!-- WE NEED THIS FOR THE PWA INSTALL BANNER -->
 <script src="../js/register-worker.js"></script>
 <script>
-    
+
     function scale(number, inMin, inMax, outMin, outMax) {
         return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
-    
+
     // a super basic lazy loader
     window.addEventListener('load', function(){
+
         [].forEach.call(document.querySelectorAll('img[lazysrc]'), function(img) {
             img.setAttribute('src', img.getAttribute('lazysrc'));
             img.onload = function() { img.removeAttribute('lazysrc'); };
         });
-        
+
         [].forEach.call(document.querySelectorAll('.hero-img-carousel'), function(carousel) {
             carousel.setAttribute('loaded', 'true');
         });
+
+        calcFloatingNav();
+
     }, false);
-    
+
     // floating nav
-    window.addEventListener('scroll', function(){
-        
+    window.addEventListener('scroll', calcFloatingNav);
+
+    function calcFloatingNav () {
+
         var nav = document.querySelectorAll("nav")[0];
         var qe  = document.querySelectorAll("#quick-exit")[0];
         var st  = document.documentElement.scrollTop;
-        
+
         if (st <= 320) {
-            
+
             nav.style.setProperty("--y", (0 - st) + "px");
             nav.style.setProperty("--o", scale(st, 0, 320, 0, 1));
             nav.style.setProperty("--h", scale(st, 320, 0, 4, 8) + "rem");
@@ -165,30 +44,30 @@
             nav.classList.remove("sticky");
             nav.classList.remove("whitebg");
 
-            if (qe) { 
-                qe.style.setProperty("--y", (0 - st) + "px"); 
+            if (qe) {
+                qe.style.setProperty("--y", (0 - st) + "px");
             }
 
         } else {
-            
+
             nav.style.setProperty("--yo", "16px");
             nav.style.setProperty("--y", "-320px");
             nav.style.setProperty("--o", "1");
             nav.style.setProperty("--h", "4rem");
             nav.classList.add("sticky");
 
-            if (qe) { 
-                qe.style.setProperty("--y", "-64px"); 
+            if (qe) {
+                qe.style.setProperty("--y", "-64px");
             }
 
-            if (st >= 512) { 
+            if (st >= 512) {
                 nav.classList.add("whitebg");
             } else {
                 nav.classList.remove("whitebg");
             }
-            
+
         }
 
-    });
+    }
 
 </script>

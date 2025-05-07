@@ -302,17 +302,6 @@ function resetNavbar() {
     resetAlbumFilters();
 }
 
-if (!isTouch && !isipados) {
-    $("#delete-button").on('mouseenter', function(event) {
-        $("body").addClass("highlight-deletions");
-    }); 
-    
-    $("#delete-button").on('mouseleave', function(event) {
-        $("body").removeClass("highlight-deletions");
-    });
-}
-
-
 
 
 

@@ -1,10 +1,10 @@
 
 
 /* -----------------------------
--------------------------------- 
- 
-THE GRID 
- 
+--------------------------------
+
+THE GRID
+
 --------------------------------
 ----------------------------- */
 
@@ -41,7 +41,7 @@ section {
     grid-auto-flow: row;
 }
 
-article.autorow, 
+article.autorow,
 section.autorow,
 main.autorow {
     row-gap: 0;
@@ -51,12 +51,12 @@ main.autorow {
 article + div,
 article + div + div,
 main + div,
-main + div + div {     
+main + div + div {
     display: block;
     margin-top: calc(var(--r) * 0.5rem);
 }
 
-article > img, 
+article > img,
 section > img,
 section > p > img {
     width: 100%;
@@ -97,7 +97,7 @@ img[lazysrc] {
     left: 0;
     right: 0;
     bottom: 0;
-    
+
     width: 100%;
     height: 100%;
     min-height: 100%;
@@ -141,7 +141,7 @@ h1,h2,h3,h4 { word-break: break-word; }
 .grid-quarter {
     grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
     column-gap: 8rem;
-    row-gap: 8rem; 
+    row-gap: 8rem;
 }
 
 .grid-quarter > * {
@@ -153,13 +153,13 @@ h1,h2,h3,h4 { word-break: break-word; }
 
 /* GRID FOR THIRDS */
 
-.grid-third, 
-.grid-half { 
+.grid-third,
+.grid-half {
     grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
 }
 
 .grid-third {
-    column-gap: 4rem; 
+    column-gap: 4rem;
 }
 
 .grid-third > * {
@@ -171,8 +171,8 @@ h1,h2,h3,h4 { word-break: break-word; }
 
 /* GRID FOR HALFS */
 
-.grid-half { 
-    column-gap: 8rem; 
+.grid-half {
+    column-gap: 8rem;
 }
 
 .grid-half > * {
@@ -191,9 +191,9 @@ h1,h2,h3,h4 { word-break: break-word; }
 .spacer     { grid-row:    span 8;  }
 
 .grid-half  > .full,
-.grid-third > .full, 
-.grid-quarter > .full { 
-    grid-column: 1 / -1; 
+.grid-third > .full,
+.grid-quarter > .full {
+    grid-column: 1 / -1;
 }
 
 .grid-third > .twothird { grid-column: span 2; }
@@ -201,7 +201,7 @@ h1,h2,h3,h4 { word-break: break-word; }
 
 
 
-article > *, 
+article > *,
 section > *,
 main > * {
     grid-column:    span var(--c, unset); /* -c : no. of columns element should occupy */
@@ -210,10 +210,10 @@ main > * {
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 NAVBAR & FOOTER
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -266,7 +266,7 @@ nav #logo img {
 
 nav h1 {
     width: auto;
-    color: white; 
+    color: white;
     font-size: 1.325rem;        /* 16px for josefine sans, to maintain vertical rhythm on grid */
     line-height: 2rem;          /* 36px */
     letter-spacing: 0.125rem;   /*  2px */
@@ -288,7 +288,7 @@ nav p {
     transform: translateY(var(--yo, 4rem));
 }
 
-nav b { 
+nav b {
     grid-row: 1/-1;
 }
 
@@ -322,10 +322,10 @@ nav + article { padding-top: 21.5rem; }
 nav + article:not(#hero) h2:first-child { text-align: center; }
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 HERO / GRID DECORATIONS
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -366,7 +366,7 @@ HERO / GRID DECORATIONS
     grid-template-rows: 4rem 6rem 1fr 10.5rem 1fr 4rem;
 }
 
-.use-cases-body #hero img { 
+.use-cases-body #hero img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -421,10 +421,10 @@ HERO / GRID DECORATIONS
 }
 
 /* -----------------------------
--------------------------------- 
- 
-FOOTER 
- 
+--------------------------------
+
+FOOTER
+
 --------------------------------
 ----------------------------- */
 
@@ -450,7 +450,7 @@ footer > * {
     grid-template-columns: 12rem 8rem 12rem 12rem;
     grid-auto-rows: 12rem;
     grid-auto-flow: row;
-    column-gap: 4rem; 
+    column-gap: 4rem;
     row-gap: 4rem;
 }
 
@@ -478,7 +478,7 @@ footer .column.wide {
 
 
 
-footer #footer-logo, 
+footer #footer-logo,
 footer #eu-flag {
     float: left;
     margin: 0 1rem 0 0;
@@ -496,7 +496,7 @@ footer #eu-flag + div {
     margin: 0.625rem 0 0 0;
 }
 
-footer .company-name, 
+footer .company-name,
 footer small {
     color: white;
 }
@@ -519,8 +519,8 @@ footer small {
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 LINED FEATURES / GRID
 
 — THESE HAVE A THICK LINE ON TOP
@@ -535,7 +535,7 @@ AND THEY ARE TEXT ONLY —
 }
 
 .feature p:first-of-type {
-    margin-top: 1rem; 
+    margin-top: 1rem;
     color: var(--cryptee-0);
 }
 
@@ -553,7 +553,7 @@ AND THEY ARE TEXT ONLY —
     margin-top: 0.5rem;
 }
 
-.feature.heavy p:first-of-type { 
+.feature.heavy p:first-of-type {
     color: var(--cryptee-0);
 }
 
@@ -571,7 +571,7 @@ AND THEY ARE TEXT ONLY —
     box-shadow: inset 0px 2px 0px white;
 }
 
-.dm .feature.heavy p:first-of-type { 
+.dm .feature.heavy p:first-of-type {
     color: var(--cryptee-4);
 }
 
@@ -587,8 +587,8 @@ AND THEY ARE TEXT ONLY —
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 VISUAL FEATURES / GRID
 
 — THESE HAVE A BOX AND IMAGES IN THEM —
@@ -635,18 +635,18 @@ VISUAL FEATURES / GRID
     grid-template-rows: 22rem 4rem;
 }
 
-.feature-visual.lg picture, 
-.feature-visual.lg img, 
+.feature-visual.lg picture,
+.feature-visual.lg img,
 .feature-visual.lg source {
     height: 100%;
     aspect-ratio: initial;
 }
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 MEDIA MENTIONS / GRID
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -661,7 +661,7 @@ MEDIA MENTIONS / GRID
     object-position: left;
 }
 
-.media-logo.short { 
+.media-logo.short {
     height : 1.5rem;
 }
 
@@ -711,10 +711,10 @@ MEDIA MENTIONS / GRID
 }
 
 /* -----------------------------
--------------------------------- 
- 
-DOWNLOAD BUTTONS / GRID 
- 
+--------------------------------
+
+DOWNLOAD BUTTONS / GRID
+
 --------------------------------
 ----------------------------- */
 
@@ -743,7 +743,7 @@ DOWNLOAD BUTTONS / GRID
 }
 
 .index-download-section {
-    background-color: #121212; 
+    background-color: #121212;
     color: #F5F5F5;
     padding: 8rem 0;
     margin: 8rem 0 0 0;
@@ -755,7 +755,7 @@ DOWNLOAD BUTTONS / GRID
     height: 3rem;
 }
 
-.index-download-os a { 
+.index-download-os a {
     color: var(--cryptee-3);
 }
 
@@ -813,10 +813,10 @@ DOWNLOAD BUTTONS / GRID
 
 
 /* -----------------------------
--------------------------------- 
- 
-DOWNLOAD / SIGNUP BUTTONS 
- 
+--------------------------------
+
+DOWNLOAD / SIGNUP BUTTONS
+
 --------------------------------
 ----------------------------- */
 
@@ -861,10 +861,10 @@ DOWNLOAD / SIGNUP BUTTONS
 
 
 /* -----------------------------
--------------------------------- 
- 
-USE-CASES MORE 
- 
+--------------------------------
+
+USE-CASES MORE
+
 --------------------------------
 ----------------------------- */
 
@@ -895,10 +895,10 @@ USE-CASES MORE
 
 
 /* -----------------------------
--------------------------------- 
- 
-QUICK EXIT 
- 
+--------------------------------
+
+QUICK EXIT
+
 --------------------------------
 ----------------------------- */
 
@@ -920,7 +920,7 @@ QUICK EXIT
     transform: translateY(var(--y));
 }
 
-#quick-exit > span { 
+#quick-exit > span {
     font-size: 1rem;
     line-height: 3.75rem;
     float: right;
@@ -933,10 +933,10 @@ nav.sticky + #quick-exit {
 }
 
 /* -----------------------------
--------------------------------- 
- 
-DISCLOSURE / SUMMARY ELEMENTS 
- 
+--------------------------------
+
+DISCLOSURE / SUMMARY ELEMENTS
+
 --------------------------------
 ----------------------------- */
 
@@ -1015,15 +1015,15 @@ a.detail-list, p.detail-list {
 
 
 /* -----------------------------
--------------------------------- 
- 
-PRICING SECTION / FLEX 
- 
+--------------------------------
+
+PRICING SECTION / FLEX
+
 --------------------------------
 ----------------------------- */
 
 #pricing {
-    scroll-margin-top: 8rem; 
+    scroll-margin-top: 8rem;
     padding: 8rem 0;
 }
 
@@ -1088,16 +1088,16 @@ PRICING SECTION / FLEX
 }
 
 /* -----------------------------
--------------------------------- 
- 
-INDEX SECURITY / WHY 
- 
+--------------------------------
+
+INDEX SECURITY / WHY
+
 --------------------------------
 ----------------------------- */
 
 
 #index-security {
-    background-color: #000; 
+    background-color: #000;
     color: #FFF;
     padding: 8rem 0;
 }
@@ -1105,10 +1105,10 @@ INDEX SECURITY / WHY
 #index-security p  { margin-top: -0.5rem; }
 
 /* -----------------------------
--------------------------------- 
- 
-TYPOGRAPHIC GRID DETAILS  
- 
+--------------------------------
+
+TYPOGRAPHIC GRID DETAILS
+
 --------------------------------
 ----------------------------- */
 
@@ -1118,7 +1118,7 @@ TYPOGRAPHIC GRID DETAILS
     row-gap: 4rem;
 }
 
-/* 
+/*
 .two-thirds-split {
     grid-template-columns: 16rem 1fr;
     column-gap: 4rem;
@@ -1139,7 +1139,7 @@ TYPOGRAPHIC GRID DETAILS
     margin-bottom: -1rem;
 }
 
-.index-why-section {
+.index-why-section, .index-advocacy-section {
     row-gap: 0;
     padding: 4rem 0;
     margin: 8rem 0;
@@ -1150,11 +1150,11 @@ TYPOGRAPHIC GRID DETAILS
     padding: 8rem 0 0 0;
 }
 
-.index-why-section details, .index-use-cases-section details {
+.index-why-section details, .index-use-cases-section details, .index-advocacy-section > p.twothird {
     grid-column: 2/-1;
 }
 
-.index-why-section > div {
+.index-why-section > div, .index-advocacy-section > div {
     margin-bottom: -6rem;
 }
 
@@ -1176,10 +1176,10 @@ TYPOGRAPHIC GRID DETAILS
 }
 
 /* -----------------------------
--------------------------------- 
- 
-ABOUT  
- 
+--------------------------------
+
+ABOUT
+
 --------------------------------
 ----------------------------- */
 #about-article { padding-top: 20rem; }
@@ -1189,8 +1189,8 @@ ABOUT
     grid-template-columns: minmax(4rem, 12rem) 4rem 4rem 24rem 1fr;
 }
 
-#about-grid h2 { 
-    writing-mode: vertical-lr; 
+#about-grid h2 {
+    writing-mode: vertical-lr;
     padding-top: 1.25rem;
 }
 
@@ -1208,7 +1208,7 @@ ABOUT
     row-gap: 0;
 }
 
-#who-grid h2 { 
+#who-grid h2 {
     grid-column: span 4;
 }
 
@@ -1226,7 +1226,7 @@ ABOUT
 .bio-photo      { grid-column: span 3; height: 20rem; width: 100%; object-fit: cover; }
 .bio-photo.wide { grid-column: span 6; height: 16rem; }
 
-#john-name { 
+#john-name {
     padding-top: 4rem;
     position: relative;
 }
@@ -1236,7 +1236,7 @@ ABOUT
     text-align: justify;
 }
 
-#john-j { 
+#john-j {
     display: block;
     margin-left: auto;
     margin-right: -4rem;
@@ -1264,8 +1264,8 @@ ABOUT
 .bio-letter.lg  { grid-column: 4/6; }
 .bio-letter.you { margin-top: 8rem; }
 
-.bio-name { 
-    writing-mode: vertical-lr; 
+.bio-name {
+    writing-mode: vertical-lr;
     grid-column: 6/7;
     grid-row: 1/-1;
 }
@@ -1302,7 +1302,7 @@ ABOUT
     height: 20rem;
     background-image: url(../imgs/other-logos/eu.svg);
     background-size: 20rem 20rem;
-    
+
     position: absolute;
     top: -4rem;
     left: 4rem;
@@ -1377,16 +1377,16 @@ ABOUT
 
 
 /* -----------------------------
--------------------------------- 
- 
-FREQUENTLY ASKED QUESTIONS (FAQ) 
- 
+--------------------------------
+
+FREQUENTLY ASKED QUESTIONS (FAQ)
+
 --------------------------------
 ----------------------------- */
 
 #faq-grid {
-    grid-template-columns: 1fr; 
-    row-gap: 0;  
+    grid-template-columns: 1fr;
+    row-gap: 0;
 }
 
 #faq-grid > * {
@@ -1395,8 +1395,8 @@ FREQUENTLY ASKED QUESTIONS (FAQ)
     margin: auto;
 }
 
-#faq-grid h2 { 
-    margin-bottom: 4rem; 
+#faq-grid h2 {
+    margin-bottom: 4rem;
     text-align: left !important;
     color: #646464 !important;
 }
@@ -1432,19 +1432,19 @@ FREQUENTLY ASKED QUESTIONS (FAQ)
 
 
 /* -----------------------------
--------------------------------- 
- 
-ACTIVISM, ADVOCACY & RESEARCH PAGE 
- 
+--------------------------------
+
+ACTIVISM, ADVOCACY & RESEARCH PAGE
+
 --------------------------------
 ----------------------------- */
 /* #region ACTIVISM, ADVOCACY & RESEARCH PAGE */
 
 #aar-article { padding-top: 20rem; }
 
-#aar-article #about-grid div > h2 { 
-    margin-bottom: 2rem; 
-    writing-mode: lr; 
+#aar-article #about-grid div > h2 {
+    margin-bottom: 2rem;
+    writing-mode: lr;
     text-align: left;
 }
 
@@ -1473,10 +1473,10 @@ ACTIVISM, ADVOCACY & RESEARCH PAGE
     margin-bottom: 4rem !important;
 }
 
-.aar-grid img.aar-hero { 
-    grid-column: span 9; 
+.aar-grid img.aar-hero {
+    grid-column: span 9;
     height: 16rem;
-    object-fit: cover; 
+    object-fit: cover;
     margin-bottom: 4rem
 }
 
@@ -1494,9 +1494,9 @@ img.aar-inline + small {
     margin: 0 -4rem 2rem 0;
 }
 
-.aar-grid b.gap { 
-    grid-column: 1/-1; 
-    height: 8rem; 
+.aar-grid b.gap {
+    grid-column: 1/-1;
+    height: 8rem;
 }
 
 /* #endregion ACTIVISM, ADVOCACY & RESEARCH PAGE */
@@ -1504,10 +1504,10 @@ img.aar-inline + small {
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 404 & OTHER ERRORS
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -1553,10 +1553,10 @@ img.aar-inline + small {
 }
 
 /* -----------------------------
--------------------------------- 
- 
-ACKNOWLEDGEMENTS 
- 
+--------------------------------
+
+ACKNOWLEDGEMENTS
+
 --------------------------------
 ----------------------------- */
 
@@ -1568,10 +1568,10 @@ ACKNOWLEDGEMENTS
 
 
 /* -----------------------------
--------------------------------- 
- 
-PRIVACY POLICY 
- 
+--------------------------------
+
+PRIVACY POLICY
+
 --------------------------------
 ----------------------------- */
 
@@ -1585,7 +1585,7 @@ PRIVACY POLICY
 
 .tags li {
     padding: 4px 8px;
-    margin-top: 4px;       /* 14px spacing to match vertical rhythm on grid*/ 
+    margin-top: 4px;       /* 14px spacing to match vertical rhythm on grid*/
     display: inline-block;
     font-size: 0.75rem;         /* 12px */
     line-height: 1rem;          /* 16px */
@@ -1595,10 +1595,10 @@ PRIVACY POLICY
 
 
 /* -----------------------------
--------------------------------- 
- 
-PRESS KIT 
- 
+--------------------------------
+
+PRESS KIT
+
 --------------------------------
 ----------------------------- */
 
@@ -1617,13 +1617,14 @@ PRESS KIT
 }
 
 .brand-card {
-    padding: 2rem;
+    padding: 1.5rem 2rem;
 }
 
 .brand-card img {
-    width: 30%;
+    height : 3rem;
     margin: auto;
     display: block;
+    margin-bottom: 2rem;
 }
 
 
@@ -1633,10 +1634,10 @@ PRESS KIT
 
 
 /* -----------------------------
--------------------------------- 
- 
-MEDIA QUERIES 
- 
+--------------------------------
+
+MEDIA QUERIES
+
 --------------------------------
 ----------------------------- */
 
@@ -1657,7 +1658,7 @@ MEDIA QUERIES
 
 @media (max-width : 1152px) {
     #estonia-photos { margin: 0; }
-    
+
     #hero {
         grid-template-rows: 4rem 4rem 11rem 14.5rem 11rem 4rem
     }
@@ -1669,7 +1670,7 @@ MEDIA QUERIES
     }
 }
 
-@media (max-width : 960px) { 
+@media (max-width : 960px) {
 
     .grid-quarter {
         grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
@@ -1715,15 +1716,15 @@ MEDIA QUERIES
 }
 
 
-@media (max-width : 927px) { 
-    
+@media (max-width : 927px) {
+
     .grid-third, .grid-half {
-        column-gap: 4rem; 
+        column-gap: 4rem;
     }
-    
+
     .grid-quarter > .half,
-    .grid-third > .twothird  { 
-        grid-column: span 1; 
+    .grid-third > .twothird  {
+        grid-column: span 1;
         margin-top: 0;
     }
 
@@ -1737,9 +1738,9 @@ MEDIA QUERIES
     .feature-visual     { grid-template-rows: auto 4rem; }
     .feature-visual.lg  { grid-template-rows: 22rem 4rem; }
 
-    .index-download-os { 
+    .index-download-os {
         grid-column-start: 1;
-        height: 9rem; 
+        height: 9rem;
         text-align: right;
     }
 
@@ -1747,17 +1748,17 @@ MEDIA QUERIES
 
     .download-description { grid-column: 1/-1 !important;}
 
-    #pricing .grid-third, 
-    .index-use-cases-section { 
-        grid-template-columns: 14rem 1fr; 
+    #pricing .grid-third,
+    .index-use-cases-section {
+        grid-template-columns: 14rem 1fr;
     }
 
     #pricing h2 + b { display: none; }
     #pricing b.bar { grid-column: span 1; }
-    
+
     #about-grid { grid-template-columns: 1fr 4rem 2rem 20rem 1fr;}
-    #bio-grid { 
-        grid-template-columns: 1fr; 
+    #bio-grid {
+        grid-template-columns: 1fr;
         max-width: 24rem;
         margin: auto;
         row-gap: 4rem;
@@ -1766,11 +1767,11 @@ MEDIA QUERIES
     }
 
 
-    #who-grid { 
-        grid-template-columns: 8rem 1fr; 
+    #who-grid {
+        grid-template-columns: 8rem 1fr;
         margin: auto;
     }
-    
+
     #aside-who { border: none; }
 
     #john-bio       { margin: 4rem 0 0 0; }
@@ -1787,7 +1788,7 @@ MEDIA QUERIES
     .use-cases-body #hero {
         padding-top: 8rem;
     }
-    
+
     #hero picture {
         display: block;
         width: calc(100% + 16rem);
@@ -1798,7 +1799,7 @@ MEDIA QUERIES
         margin: 8rem 4rem 0 0;
     }
 
-    #hero img, #hero source { 
+    #hero img, #hero source {
         max-height: 72rem;
     }
 
@@ -1812,9 +1813,9 @@ MEDIA QUERIES
     }
 
     .aside-aar { border: none; }
-    
-    .aar-grid { 
-        grid-template-columns: 8rem 1fr; 
+
+    .aar-grid {
+        grid-template-columns: 8rem 1fr;
         margin: auto;
     }
 
@@ -1855,15 +1856,15 @@ MEDIA QUERIES
     #about-faq {
         grid-template-columns: minmax(1rem, 1fr) minmax(0, 32rem) minmax(1rem, 1fr);
     }
-    
+
     #about-questions li {
-        grid-template-columns: 4rem 2rem 1fr; 
+        grid-template-columns: 4rem 2rem 1fr;
         padding: 1rem 0 3rem 0;
-        row-gap: 1rem; 
+        row-gap: 1rem;
     }
 
-    #about-questions li:not(.multilingual-question) p { 
-        grid-column: 2/-1; 
+    #about-questions li:not(.multilingual-question) p {
+        grid-column: 2/-1;
     }
 
     #about-questions li:not(.multilingual-question) b:first-child {
@@ -1875,9 +1876,9 @@ MEDIA QUERIES
     .multilingual-question p { grid-column: 2/-1;}
 }
 
-@media (max-width : 703px) { 
-    
-    nav { 
+@media (max-width : 703px) {
+
+    nav {
         height: 4rem;
         border-bottom: 2px solid #000;
         background-color: #FFF;
@@ -1885,17 +1886,17 @@ MEDIA QUERIES
     }
 
     nav p { transform: translateY(1rem) !important;}
-    
-    nav aside { 
-        transform: translateY(-20rem) !important; 
+
+    nav aside {
+        transform: translateY(-20rem) !important;
         filter: invert(1);
         background-color: #000;
     }
 
     nav #logo { width: 3rem; }
-    nav #logo img { 
-        width: 1.5rem; 
-        height: 1.5rem; 
+    nav #logo img {
+        width: 1.5rem;
+        height: 1.5rem;
         padding: 1.25rem 0;
     }
 
@@ -1928,8 +1929,8 @@ MEDIA QUERIES
     .product-no { display: none; }
 
     #europe-section img { margin: auto; }
-    #europe-section p { 
-        text-align: justify; 
+    #europe-section p {
+        text-align: justify;
         margin: auto;
     }
 
@@ -1954,8 +1955,8 @@ MEDIA QUERIES
     }
 
     .feature-visual-grid { gap: 1rem !important; }
-    .feature-visual-grid h2 { 
-        grid-column: span 2 !important; 
+    .feature-visual-grid h2 {
+        grid-column: span 2 !important;
         text-align: center !important;
         margin-bottom: 3rem !important;
     }
@@ -1988,8 +1989,8 @@ MEDIA QUERIES
         margin-top: 0;
     } */
 
-    #pricing .grid-third { 
-        grid-template-columns: 12rem 1fr; 
+    #pricing .grid-third {
+        grid-template-columns: 12rem 1fr;
     }
 
     #button-pricing-signup {
@@ -2000,17 +2001,17 @@ MEDIA QUERIES
     }
 
     .index-use-cases-section { grid-template-columns: 1fr; }
-    
-    .index-use-cases-section > a, 
+
+    .index-use-cases-section > a,
     .index-use-cases-section > p { grid-column: span 1; }
-    
-    .index-use-cases-section p, 
-    .index-use-cases-section h2 { 
-        text-align: left; 
+
+    .index-use-cases-section p,
+    .index-use-cases-section h2 {
+        text-align: left;
     }
 
     .index-use-cases-section > div { margin-bottom: 4rem; }
-    
+
     #estonia-photos { grid-template-columns: 1fr 1fr 1fr; }
     /* #estonia-photos img:nth-child(2) { display: none; } */
     #estonia-photos img { height: 28rem; }
@@ -2027,18 +2028,18 @@ MEDIA QUERIES
         text-align: center !important;
     }
 
-    .index-download-os { 
-        height: 9rem; 
+    .index-download-os {
+        height: 9rem;
         text-align: center;
     }
 
     .index-download-os i { display: none; }
     .index-download-button { margin: auto; }
 
-    .index-why-section, .index-use-cases-section { grid-template-columns: 1fr; }
-    .index-why-section > div, .index-use-cases-section > div { margin-bottom: 3rem; }
+    .index-why-section, .index-use-cases-section, .index-advocacy-section { grid-template-columns: 1fr; }
+    .index-why-section > div, .index-use-cases-section > div, .index-advocacy-section > div { margin-bottom: 3rem; }
     .index-why-section details, .index-use-cases-section details { grid-column: span 1; }
-    .index-use-cases-section > div p.right { text-align: left; }
+    .index-use-cases-section > div p.right, .index-advocacy-section > div p.right { text-align: left; }
     #pricing .grid-third { grid-template-columns: 12rem 1fr; }
     #pricing section > h2 { grid-column: span 2; }
     #pricing b:not(.bar) { display: none; }
@@ -2057,23 +2058,23 @@ MEDIA QUERIES
     }
 
     .use-cases-body .grid-half h2.right,
-    .use-cases-signup-section h2 { 
-        text-align: left; 
+    .use-cases-signup-section h2 {
+        text-align: left;
     }
 
 }
 
 @media (max-width : 544px) {
-    
+
     #hero picture {
         width: calc(100% + 8rem);
         transform: translateX(-4rem);
     }
 
-    .grid-half { 
+    .grid-half {
         grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-    } 
-    
+    }
+
     .grid-quarter {
         column-gap: 2rem;
         row-gap: 2rem;
@@ -2083,13 +2084,13 @@ MEDIA QUERIES
         border-radius: 0 !important;
     }
 
-    .feature-visual-grid { 
+    .feature-visual-grid {
         grid-template-columns: 1fr;
-        gap: 1rem !important; 
+        gap: 1rem !important;
     }
-    
-    .feature-visual { 
-        grid-template-rows: auto 4rem !important; 
+
+    .feature-visual {
+        grid-template-rows: auto 4rem !important;
     }
 
     .feature-visual.lg,
@@ -2116,24 +2117,24 @@ MEDIA QUERIES
         grid-column: 1 / -1;
     }
 
-    #pricing .grid-third  { 
-        grid-template-columns: 1fr; 
+    #pricing .grid-third  {
+        grid-template-columns: 1fr;
         row-gap: 0;
     }
 
-    #pricing section > h2 { 
-        grid-column: span 1; 
+    #pricing section > h2 {
+        grid-column: span 1;
         margin-bottom: 3rem;
     }
 
-    #pricing .index-pricing p { 
-        float: right; 
-        text-align: right; 
+    #pricing .index-pricing p {
+        float: right;
+        text-align: right;
         margin-top: 0.5rem;
     }
 
-    #pricing b.bar { 
-        transform: translateX(0); 
+    #pricing b.bar {
+        transform: translateX(0);
         margin-top: 0rem !important;
         margin-bottom: 4rem !important;
     }
@@ -2179,7 +2180,7 @@ MEDIA QUERIES
     }
 
     #about-questions li {
-        grid-template-columns: 2rem 2rem 1fr; 
+        grid-template-columns: 2rem 2rem 1fr;
     }
 
     #about-faq #about-questions p {
@@ -2195,11 +2196,11 @@ MEDIA QUERIES
     img.aar-inline {
         width: 100%;
     }
-    
+
     img.aar-inline + small {
         margin: 0 0 2rem 0;
     }
-    
+
 
 }
 
@@ -2236,14 +2237,15 @@ MEDIA QUERIES
     #estonia-photos img:nth-child(2) { display:block; height: 18rem; object-position: 0 -8rem; }
     #estonia-photos img:nth-child(3) { height: 18rem; object-position: 0 -6rem; }
 
-    #europe-section, 
-    .index-why-section
+    #europe-section,
+    .index-why-section,
+    .index-advocacy-section
     {
         margin: 4rem 0;
     }
 
     .hero-img-carousel { margin-top: 0rem; }
-    
+
     #pricing { padding-bottom: 4rem !important; }
 }
 
@@ -2255,7 +2257,7 @@ MEDIA QUERIES
     #john-bio { margin-top: 2rem; }
 
     #about-estonia section { grid-template-columns: 100% 1fr; }
-    
+
     #about-estonia #estonia-hero,
     #about-estonia #estonia-story,
     #estonia-photos { max-width: 100%;}
@@ -2272,20 +2274,20 @@ MEDIA QUERIES
     }
 
     #about-faq section { grid-template-columns: 1rem 1fr 1rem; }
-    #about-faq h2 { margin-left: -1rem; } 
+    #about-faq h2 { margin-left: -1rem; }
 }
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 IT'S A POINTER DEVICE,
-ENABLE HOVERS 
- 
+ENABLE HOVERS
+
 --------------------------------
 ----------------------------- */
 
-@media (-moz-touch-enabled: 0), (pointer:fine) { 
+@media (-moz-touch-enabled: 0), (pointer:fine) {
 
     .feature:hover small,
     .media-mention:hover small,
@@ -2303,7 +2305,7 @@ ENABLE HOVERS
         padding-left: 0.75rem !important;
         transform: translateX(-2rem);
     }
-    
+
     .index-download-button:active i {
         padding-left: 0rem !important;
         transition-duration: 0.3s;
@@ -2315,7 +2317,7 @@ ENABLE HOVERS
     }
 }
 
-@media (-moz-touch-enabled: 1), (pointer:coarse) { 
+@media (-moz-touch-enabled: 1), (pointer:coarse) {
     .grid-footer {
         /* 10 */
         /* 18 */
@@ -2330,7 +2332,7 @@ ENABLE HOVERS
         display: block;
     }
 
-    footer .column { 
+    footer .column {
         height: 22rem;
     }
 }
@@ -2342,10 +2344,10 @@ ENABLE HOVERS
     footer .column:not(:first-child) { margin-top: 4rem;}
 }
 /* -----------------------------
--------------------------------- 
- 
-dark mode 
- 
+--------------------------------
+
+dark mode
+
 --------------------------------
 ----------------------------- */
 

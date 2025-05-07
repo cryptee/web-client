@@ -83,6 +83,11 @@
         </svg>
     </button>
 
+    <div id="code-block-floater" contenteditable="false">
+        <button id="code-block-floater-copy-btn" title="Copy code"><i class="ri-file-copy-line"></i></button>
+        <button id="code-block-floater-fold-btn" title="Fold / unfold code"><i class="ri-arrow-up-s-line"></i></button>
+    </div>
+
 
 
 
@@ -91,7 +96,7 @@
     
     
     <!-- @import "imports/app/docs-view-template-gallery" -->
-    <!-- @import "imports/app/view-upgrade" -->
+    <!-- @import "imports/app/docs-view-upgrade" -->
     
     <!-- @import "imports/app/docs-modal-make-selections-online.kit" -->
     <!-- @import "imports/app/docs-modal-delete-selections.kit" -->
@@ -195,6 +200,7 @@
     <script lazysrc="../js/quill-modules/katex-0.12.0/katex.min.js"         loadafter="windowload"></script>
     <script lazysrc="../js/quill-modules/tribute-5.1.3/tribute.min.js"      loadafter="windowload"></script>
     <script lazysrc="../js/quill-modules/comments.js"                       loadafter="windowload"></script>
+    <script lazysrc="../js/quill-modules/code-block-features.js"            loadafter="windowload"></script>
 
     <!-- ++ add more quill modules here ++ -->
 

@@ -1,10 +1,10 @@
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 ARTICLE TYPOGRAPHY
 
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -29,10 +29,10 @@ article > *:last-child {
 
 
 /* -----------------------------
--------------------------------- 
- 
-SELF-SERVICE HELP 
- 
+--------------------------------
+
+SELF-SERVICE HELP
+
 --------------------------------
 ----------------------------- */
 
@@ -73,7 +73,7 @@ html.dm, .dm body {
     display: block;
     width: 2rem;
     height: 2rem;
-    user-drag: none; 
+    user-drag: none;
     user-select: none;
     outline: none;
     z-index: 2;
@@ -88,7 +88,7 @@ html.dm, .dm body {
     object-fit: contain;
     opacity: 0.3;
     transition: 0.3s opacity linear;
-    user-drag: none; 
+    user-drag: none;
     user-select: none;
 }
 
@@ -185,7 +185,7 @@ body > section h3 + hr {
     border-bottom: 2px solid #000;
 }
 
-body > section > p, 
+body > section > p,
 body > section > button {
     grid-column: span 2;
 }
@@ -195,7 +195,7 @@ body > section > p > span {
 }
 
 body > section > b {
-    grid-column: 1/-1;    
+    grid-column: 1/-1;
 }
 
 body > section .import-from-app {
@@ -240,7 +240,7 @@ nav input:not(:placeholder-shown) ~ button {
     pointer-events: all;
 }
 
-nav:focus-within ~ section, 
+nav:focus-within ~ section,
 #results:not(:empty) ~ section {
     opacity: 0.15;
     pointer-events: none;
@@ -248,10 +248,10 @@ nav:focus-within ~ section,
 
 
 /* -----------------------------
--------------------------------- 
- 
-RESULTS 
- 
+--------------------------------
+
+RESULTS
+
 --------------------------------
 ----------------------------- */
 
@@ -268,7 +268,7 @@ RESULTS
     margin-left: calc(50% - 30rem);
     box-shadow: 0 1rem 1.5rem rgba(0,0,0,0.3);
     border-radius: 0.5rem;
-    
+
     padding: 4rem;
 
     overflow-y: scroll;
@@ -310,7 +310,7 @@ body:not(.article) #results:not(:empty) {
 #close-results {
     position: fixed;
     z-index: 2;
-    
+
     height: 2rem;
     bottom: calc(240px + 9rem);
     right: 5rem;
@@ -331,10 +331,10 @@ body:not(.article) #results.floating:not(:empty) ~ #close-results {
 
 
 /* -----------------------------
--------------------------------- 
- 
-ARTICLE 
- 
+--------------------------------
+
+ARTICLE
+
 --------------------------------
 ----------------------------- */
 
@@ -342,7 +342,7 @@ body.article {
     overflow: hidden;
 }
 
-body.article #logo { 
+body.article #logo {
     transform: translateY(-6rem);
     position: fixed;
 }
@@ -377,7 +377,7 @@ article {
     transition-duration: 1s;
     transition-timing-function: var(--cryptee-cb);
     pointer-events:none;
-    
+
     padding: 4rem;
     overflow-y: scroll;
     scroll-behavior: smooth;
@@ -397,14 +397,14 @@ article {
     pointer-events:none;
 }
 
-body.article section, 
+body.article section,
 body.article nav,
 body.article #head {
     opacity: 0;
     pointer-events: none;
 }
 
-body.article article, 
+body.article article,
 body.article #back {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -455,22 +455,36 @@ article > .loaded {
     line-height: 1.125rem;
 }
 
-article * {
+article *:not(code a) {
     color : #000 !important;
     background-color: #FFF !important;
 }
 
-.dm article * {
+article code a {
+    color: #FFF !important;
+    text-decoration: none !important;
+    user-select: none !important;
+    pointer-events: none !important;
+}
+
+.dm article *:not(code) {
     color : #FFF !important;
     background-color: var(--cryptee-1) !important;
 }
 
+article td {
+    width: 50%;
+    max-width: 50%;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+}
+
 
 /* -----------------------------
--------------------------------- 
+--------------------------------
 
-ERROR REPORT / CONTACT 
- 
+ERROR REPORT / CONTACT
+
 --------------------------------
 ----------------------------- */
 
@@ -531,7 +545,7 @@ ERROR REPORT / CONTACT
     pointer-events: none !important;
 }
 
-.panel-help input, 
+.panel-help input,
 .panel-help textarea {
     min-width: 100%;
     max-width: 100%;
@@ -541,11 +555,11 @@ ERROR REPORT / CONTACT
     background-color: #FFF;
     color: #000;
     font-weight: 350;
-    
+
     border-top: 1px solid #888;
     border-left: 1px solid #888;
     border-right: 1px solid #888;
-    
+
     border-radius: 0.25rem;
     min-height: 2rem;
     margin-bottom: 0.5rem;
@@ -580,10 +594,10 @@ ERROR REPORT / CONTACT
 
 
 /* -----------------------------
--------------------------------- 
- 
-HOVERS 
- 
+--------------------------------
+
+HOVERS
+
 --------------------------------
 ----------------------------- */
 
@@ -591,7 +605,7 @@ HOVERS
     cursor: pointer;
 }
 
-@media (-moz-touch-enabled: 0), (pointer:fine) { 
+@media (-moz-touch-enabled: 0), (pointer:fine) {
     section .import-from-app:hover {
         box-shadow: 0 1rem 1.5rem rgba(0,0,0,0.3);
     }
@@ -610,23 +624,23 @@ HOVERS
 
 
 /* -----------------------------
--------------------------------- 
- 
-MEDIA 
- 
+--------------------------------
+
+MEDIA
+
 --------------------------------
 ----------------------------- */
 
 
 
-@media (max-width : 960px) { 
+@media (max-width : 960px) {
 
     body {
         position: initial !important;
         margin: auto;
         width: 28rem;
     }
-    
+
     section { grid-template-columns: repeat(2, 12rem); }
 
     #results {
@@ -636,28 +650,28 @@ MEDIA
 
 }
 
-@media (max-width : 544px) { 
+@media (max-width : 544px) {
 
-    body { 
+    body {
         position: initial !important;
-        width: calc(100% - 2rem); 
+        width: calc(100% - 2rem);
         padding-top: 10rem;
     }
 
-    body > section > p, 
+    body > section > p,
     body > section > button,
     hr {
         grid-column: 1 / -1 !important;
     }
 
-    
-    #logo { top: 4rem; }   
+
+    #logo { top: 4rem; }
     #head { margin-bottom: 3rem; }
 
     nav {
         width: calc(100% - 4rem);
     }
-    
+
     section {
         grid-template-columns: 1fr 1fr !important;
         column-gap: 1rem !important;
@@ -681,7 +695,7 @@ MEDIA
         bottom: 2rem;
         right: 1rem;
     }
-    
+
 
     #close-results {
         bottom: calc(240px + 8rem);
@@ -698,7 +712,7 @@ MEDIA
         height: calc(100% - 1rem);
     }
 
-    body.article #logo { 
+    body.article #logo {
         transform: translateY(-3rem);
     }
 
@@ -722,7 +736,7 @@ MEDIA
         grid-template-rows: auto auto 1rem 1fr 4rem;
     }
 
-    #modal-bug textarea, 
+    #modal-bug textarea,
     #modal-contact textarea {
         min-width: 100% !important;
         max-width: 100% !important;

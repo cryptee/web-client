@@ -12,22 +12,22 @@
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 
-// WE'LL START USING DEXIE INSTEAD OF LOCALFORAGE AS THE MAIN STORAGE DRIVER FOR ALL LOCAL OPERATIONS. 
+// WE'LL START USING DEXIE INSTEAD OF LOCALFORAGE AS THE MAIN STORAGE DRIVER FOR ALL LOCAL OPERATIONS.
 // INSTEAD OF MAINTAINING AN IN-MEMORY CATALOG & WRITING THE CATALOG TO DEXIE, WE'LL NOW FULLY RELY ON DEXIE
 
-// MAIN ADVANTAGE HERE IS THAT THE CATALOG WILL BE 100% CACHED AND READY. 
+// MAIN ADVANTAGE HERE IS THAT THE CATALOG WILL BE 100% CACHED AND READY.
 
 // NO MORE LOADING INTO MEMORY ETC. NO MORE OF THAT OLD encrypted indexed catalog BS.
 // we work straight from indexeddb / localstorage now. it'll be a few ms slower, but way more reliable.
 
-// this also allows us to have the very last snapshot / cache of the catalog always fully available when the device is offline. 
+// this also allows us to have the very last snapshot / cache of the catalog always fully available when the device is offline.
 // so now we can start the whole app offline, but simply say docs are not available (or not in cache etc)
 
 // advantage of this is that we don't have to worry about having a separate offline docs tab in the menu anymore
-// we can simply mark online-docs as semi-transparent / unavailable etc. while we're offline, and make them available when online. 
+// we can simply mark online-docs as semi-transparent / unavailable etc. while we're offline, and make them available when online.
 
 
-// TREAT CATALOG LIKE THE SERVER, BUT LOCAL. 
+// TREAT CATALOG LIKE THE SERVER, BUT LOCAL.
 // I.E. if you're saving an offlineDoc, write its generation into catalog.offline[doc] but NOT to catalog.docs
 // on startup, you'll get the most recent info from the server, and update catalog.docs
 // then during sync, you'll compare generations between catalog.offline and catalog.docs
@@ -38,7 +38,7 @@ var catalog                 = new Dexie("catalog");
 // this has docs, folders, offline, errors
 
 var offlineStorage          = new Dexie("offlineStorage");
-// this is for backwards compatibility to read the old table 
+// this is for backwards compatibility to read the old table
 
 catalog.version(2).stores({
     docs: 'docid, title, decryptedTitle, tags, decryptedTags, generation, fid',
@@ -88,9 +88,9 @@ async function getFolderFromCatalog(fid) {
         handleError("[CATALOG] Can't get folder without an ID");
         return "";
     }
-    
+
     var folder;
-    
+
     try {
         folder = await catalog.folders.get(fid);
     } catch (error) {
@@ -105,7 +105,7 @@ async function getFolderFromCatalog(fid) {
 
 /**
  * Gets the template from catalog
- * @param {string} tfid template file id 
+ * @param {string} tfid template file id
  */
 async function getTemplateFromCatalog(tfid) {
     if (!tfid) {
@@ -143,7 +143,7 @@ async function getAllFoldersFromCatalog() {
     }
 
     foldersArray.forEach(folder => { folders[folder.folderid] = folder; });
-    
+
     return folders;
 
 }
@@ -166,7 +166,7 @@ async function getAllDocsFromCatalog() {
     }
 
     docsArray.forEach(doc => { docs[doc.docid] = doc; });
-    
+
     return docs;
 
 }
@@ -240,7 +240,7 @@ async function getDocsWithEncryptedTagsFromCatalog() {
  * @returns {Promise<Array>} foldersNeedTitlesDecryption
  */
 async function getFoldersWithEncryptedTitlesFromCatalog() {
-    var foldersWithEncryptedTitles; 
+    var foldersWithEncryptedTitles;
     var foldersNeedTitlesDecryption = [];
 
     try {
@@ -260,7 +260,7 @@ async function getFoldersWithEncryptedTitlesFromCatalog() {
  * @returns {Promise<Array>} recentDocs
  */
 async function getRecentDocsFromCatalog() {
-    
+
     // TODO – v3.1 get recent months from preferences and change the month parameter from 3 to something else
     var recentMonths = 3;
     var milisecondsAgo = recentMonthsAgo(recentMonths);
@@ -273,9 +273,9 @@ async function getRecentDocsFromCatalog() {
     }
 
     // backwards compatibility. V1 & V2 users had something called a "home document" (now d-home)
-    // it was a special un-deletable document. 
+    // it was a special un-deletable document.
     // it was a dumb idea.
-    // v3 treats it like any other doc. 
+    // v3 treats it like any other doc.
     // it's a doc without a folder, so it has to show up under recents no matter how old it is.
 
     var homeDoc;
@@ -362,10 +362,10 @@ async function getDocNameFromCatalog (did) {
     }
 
     var doc = await getDocFromCatalog(did);
-    if (!doc) { 
-        return ""; 
+    if (!doc) {
+        return "";
     }
-    
+
     return docName(doc);
 }
 
@@ -381,7 +381,7 @@ async function getFolderNameFromCatalog(fid) {
         handleError("[CATALOG] Can't get folder name without an ID");
         return "";
     }
-        
+
     var folder = await getFolderFromCatalog(fid);
     if (!folder) { return ""; }
 
@@ -401,10 +401,10 @@ async function getFolderNameFromCatalog(fid) {
     }
 
     var doc = await getDocFromCatalog(did);
-    if (!doc) { 
-        return ""; 
+    if (!doc) {
+        return "";
     }
-    
+
     return doc.wrappedKey || "";
 }
 
@@ -420,7 +420,7 @@ async function parentOfFolder(fid) {
         handleError("[CATALOG] Can't get folder parent without an ID");
         return "";
     }
-        
+
     var folder = await getFolderFromCatalog(fid);
     if (!folder) { return ""; }
 
@@ -442,10 +442,10 @@ async function getDocGenFromCatalog (did) {
     }
 
     var doc = await getDocFromCatalog(did);
-    if (!doc) { 
-        return ""; 
+    if (!doc) {
+        return "";
     }
-    
+
     if (!doc.generation) { return 0; }
     return parseInt(doc.generation);
 }
@@ -464,12 +464,12 @@ async function getDocGenFromCatalog (did) {
     }
 
     var doc = await getDocFromCatalog(did);
-    if (!doc) { 
-        return ""; 
+    if (!doc) {
+        return "";
     }
-    
+
     if (!doc.size) { return null; }
-    
+
     return parseInt(doc.size);
 }
 
@@ -477,7 +477,7 @@ async function getDocGenFromCatalog (did) {
 
 /**
  * Gets sizes of multiple documents from catalog
- * @param {Array} docIDs Array of dids 
+ * @param {Array} docIDs Array of dids
  * @returns {Promise<Object>} sizesObject object[did] = size
  */
  async function getDocSizesFromCatalog (docIDs) {
@@ -489,7 +489,7 @@ async function getDocGenFromCatalog (did) {
 
     var sizesObject = {};
     var promisesToGetSizesFromCatalog = [];
-    
+
     docIDs.forEach(did => {
         promisesToGetSizesFromCatalog.push(
             new Promise( async (resolve, reject) => { sizesObject[did] = await getDocSizeFromCatalog(did); resolve(); })
@@ -537,7 +537,7 @@ async function getAllTemplatesFromCatalog() {
   * @param {Object} meta Document Meta
   */
 async function setDocMetaInCatalog(did, meta) {
-    
+
     if (!did) {
         handleError("[CATALOG] Can't set doc meta. No DID!");
         return false;
@@ -557,7 +557,7 @@ async function setDocMetaInCatalog(did, meta) {
         handleError("[CATALOG] couldn't set doc meta in catalog", error);
         return false;
     }
-    
+
     return true;
 
 }
@@ -567,7 +567,7 @@ async function setDocMetaInCatalog(did, meta) {
  * @param {Object} doc Document Object
  */
 async function newDocInCatalog(doc) {
-     
+
     if (isEmpty(doc)) {
         handleError("[CATALOG] Can't create doc in catalog. No Meta!");
         return false;
@@ -587,7 +587,7 @@ async function newDocInCatalog(doc) {
         handleError("[CATALOG] couldn't create new doc in catalog", error);
         return false;
     }
-    
+
     return true;
 
 }
@@ -621,7 +621,7 @@ async function setFolderMetaInCatalog(fid, meta) {
         handleError("[CATALOG] couldn't set folder meta in catalog", error);
         return false;
     }
-    
+
     return true;
 
 }
@@ -651,15 +651,15 @@ async function newFolderInCatalog(folder) {
         handleError("[CATALOG] couldn't create new folder in catalog", error);
         return false;
     }
-    
+
     return true;
 
 }
 
 /**
- * Creates a new template in catalog. 
- * @param {Object} template 
- * @returns 
+ * Creates a new template in catalog.
+ * @param {Object} template
+ * @returns
  */
 async function newTemplateInCatalog(template) {
 
@@ -678,7 +678,7 @@ async function newTemplateInCatalog(template) {
         return false;
     }
 
-    return true; 
+    return true;
 
 }
 
@@ -689,7 +689,7 @@ async function newTemplateInCatalog(template) {
  * @param {string} targetFID FolderID of the destination we'll move the folder to
  */
 async function moveFolderInCatalog(fidToMove, targetFID) {
-    
+
     if (!fidToMove) {
         handleError("[CATALOG] Can't move folder. No FolderID!");
         return false;
@@ -698,10 +698,10 @@ async function moveFolderInCatalog(fidToMove, targetFID) {
     breadcrumb("[CATALOG] Moving " + fidToMove + " to " + targetFID);
 
     var parentOfFolderBeforeMove = await parentOfFolder(fidToMove);
-    
+
     var moved = await setFolderMetaInCatalog(fidToMove, { parent : targetFID });
-    
-    if (!parentOfFolderBeforeMove && fidToMove) { 
+
+    if (!parentOfFolderBeforeMove && fidToMove) {
         // moved folder from root to non-root, remove it from root folders list, because refresh dom can't.
         $(`#folders > .folder[fid="${fidToMove}"]`).remove();
     }
@@ -724,7 +724,7 @@ async function moveFolderInCatalog(fidToMove, targetFID) {
  * @param {string} targetFID FolderID of the destination we'll move the docs to
  */
 async function moveDocsInCatalog(arrayOfItemsToMove, targetFID) {
-    
+
     if (!Array.isArray(arrayOfItemsToMove) || arrayOfItemsToMove.length === 0) {
         breadcrumb("[CATALOG] No docs to move, skipping.");
         return false;
@@ -773,15 +773,15 @@ async function deleteFolderAndItsContentsFromCatalog(fid) {
     breadcrumb("[CATALOG] Deleting folder and all its contents: " + fid);
 
     // first get & delete all subfolders of folder
-    
+
     var subfolders = await getSubfoldersOfFolderFromCatalog(fid);
-    
+
     for (var subfolder of subfolders) {
 
         // delete subfolders of folder using the same function in a chain loop
-        await deleteFolderAndItsContentsFromCatalog(subfolder.folderid);        
+        await deleteFolderAndItsContentsFromCatalog(subfolder.folderid);
     }
-    
+
     // get all docs of folder
     var docs = await getDocsOfFolderFromCatalog(fid);
 
@@ -814,11 +814,11 @@ async function deleteFolderAndItsContentsFromCatalog(fid) {
 
 
 /**
- * Takes an array of Document IDs, and deletes them in bulk from the catalog. 
+ * Takes an array of Document IDs, and deletes them in bulk from the catalog.
  * @param {Array} arrayOfDIDsToDelete Array of Document IDs to delete
  */
 async function deleteDocsFromCatalog(arrayOfDIDsToDelete) {
-    
+
     if (!Array.isArray(arrayOfDIDsToDelete) || arrayOfDIDsToDelete.length === 0) {
         // No docs to delete, skipping.
         return false;
@@ -839,7 +839,7 @@ async function deleteDocsFromCatalog(arrayOfDIDsToDelete) {
     } catch (error) {
         handleError("[CATALOG] Failed to delete offline docs from catalog", error);
     }
-    
+
     breadcrumb('[CATALOG] Deleted '+arrayOfDIDsToDelete.length+' docs in bulk');
 
     // now let's clear it all from DOM
@@ -854,7 +854,7 @@ async function deleteDocsFromCatalog(arrayOfDIDsToDelete) {
     }
 
     await refreshDOM();
-    
+
     return true;
 
 }
@@ -863,11 +863,11 @@ async function deleteDocsFromCatalog(arrayOfDIDsToDelete) {
 
 
 /**
- * Takes an array of Folder IDs, and deletes them in bulk from the catalog. 
+ * Takes an array of Folder IDs, and deletes them in bulk from the catalog.
  * @param {Array} arrayOfFIDsToDelete Array of Folder IDs to delete
  */
 async function deleteFoldersFromCatalog(arrayOfFIDsToDelete) {
-    
+
     if (!Array.isArray(arrayOfFIDsToDelete) || arrayOfFIDsToDelete.length === 0) {
         // No folders to delete, skipping.
         return false;
@@ -885,23 +885,23 @@ async function deleteFoldersFromCatalog(arrayOfFIDsToDelete) {
     breadcrumb('[CATALOG] Deleted '+arrayOfFIDsToDelete.length+' folders in bulk');
 
     // now let's clear it all from DOM
-    arrayOfFIDsToDelete.forEach(fid => { 
+    arrayOfFIDsToDelete.forEach(fid => {
         $(`.folder[fid="${fid}"]`).remove();
         $(`.subfolder[fid="${fid}"]`).remove();
     });
 
     await refreshDOM();
-    
+
     return true;
 
 }
 
 /**
  * Bulk delete templates from catalog using their IDs.
- * @param {Array} templateFileIDs 
- * @returns 
+ * @param {Array} templateFileIDs
+ * @returns
  */
-async function deleteTemplatesFromCatalog(templateFileIDs) { 
+async function deleteTemplatesFromCatalog(templateFileIDs) {
 
     if (!templateFileIDs.length) {
         // No templates to delete, skipping.
@@ -912,7 +912,7 @@ async function deleteTemplatesFromCatalog(templateFileIDs) {
 
     try {
         await catalog.templates.bulkDelete(templateFileIDs);
-    } catch (error) { 
+    } catch (error) {
         handleCatalogError("[CATALOG] Failed to delete template from catalog", error);
     }
 
@@ -938,13 +938,13 @@ async function deleteTemplatesFromCatalog(templateFileIDs) {
 
 
 /**
- * Takes an array of docs and folders from server, and checks catalog with these to see if anything changed. Used in getRecentDocsAndFolders 
+ * Takes an array of docs and folders from server, and checks catalog with these to see if anything changed. Used in getRecentDocsAndFolders
  * @param {*} serverDocs Array of docs from server
  * @param {*} serverFolders Array of folders from server
  * @param {string} [parentFID] A parent Folder ID. If provided, we'll only check for deletions in the given folder, and not the entire catalog.
  * @returns {Object} changes An object with two arrays of changes.
  * @returns {Object} changes.docsToUpdateInCatalog
- * @returns {Object} changes.foldersToUpdateInCatalog 
+ * @returns {Object} changes.foldersToUpdateInCatalog
  */
 async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
 
@@ -967,16 +967,16 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
 
     // NOW GO THROUGH THE DOCS & FOLDERS WE GOT FROM SERVER
     // AND COMPARE THEM TO THE ONES WE HAVE IN CATALOG
-    // IF ANYTHING CHANGED, ADD TO CATALOG FOR UPDATE. 
+    // IF ANYTHING CHANGED, ADD TO CATALOG FOR UPDATE.
 
     var docsToUpdateInCatalog = [];
     var foldersToUpdateInCatalog = [];
 
     serverDocs.forEach(serverDoc => {
         var did = serverDoc.docid;
-        
+
         // for some reason if there's no doc id, since this is the key we need for storing things, skip to avoid headaches
-        if (!did) { return; } 
+        if (!did) { return; }
 
         var catalogDoc = catalogDocs[did] || {};
         var updateInCatalog = false;
@@ -994,7 +994,7 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
             // breadcrumb('[CHECK CATALOG] Doc has no title, will update ' + did);
             updateInCatalog = true;
         }
-        
+
         var propertiesToCheck = [
             "title",        // if we got titles from server, and it's not the same one we have in the catalog
             "tags",         // if we got tags from server, and it's not the same one we have in the catalog
@@ -1005,17 +1005,17 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
             "page",         // if we got the last epub page from server, and it's not the same one we have in the catalog
             "size",         // if we got the size from server, and it's not the same one we have in the catalog
         ];
-        
+
         propertiesToCheck.forEach(key => {
             if (updateInCatalog) { return; } // we already know we'll update it, move on.
-            if (serverDoc[key] && serverDoc[key] !== catalogDoc[key]) { 
+            if (serverDoc[key] && serverDoc[key] !== catalogDoc[key]) {
                 breadcrumb('[CHECK CATALOG] Doc has a different ' + key + ', will update ' + did);
-                updateInCatalog = true; 
+                updateInCatalog = true;
             }
         });
 
-        // if we'll replace the doc in catalog, and if the doc is available offline, 
-        // this means its offline generation in catalog will be gone once it's replaced. 
+        // if we'll replace the doc in catalog, and if the doc is available offline,
+        // this means its offline generation in catalog will be gone once it's replaced.
         // to avoid this, if a document is offline, set the catalogDoc.offline to serverDoc.offline here,
         // so that once serverDoc is "bulkPUT" into the catalog, the catalog doc's offline generation won't be erased.
         if (updateInCatalog && catalogDoc.offline) {
@@ -1031,8 +1031,8 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
         var fid = folder.folderid;
 
         // for some reason if there's no folderid, since this is the key we need for storing things, skip to avoid headaches
-        if (!fid) { return; } 
-        
+        if (!fid) { return; }
+
         var catalogFolder = catalogFolders[fid] || {};
 
         if (
@@ -1049,7 +1049,7 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
     // now we have two arrays at hand. (docsToUpdateInCatalog and foldersToUpdateInCatalog)
     // one for all docs that have changed, and one for all folders that have changed.
 
-    // we'll put these docs to the catalog in bulk. 
+    // we'll put these docs to the catalog in bulk.
 
     // by putting to catalog, we'll delete the old "decrypted title" & "decrypted tag" etc in the local catalog, and overwrite it with our server one.
     // which means, its titles will be re-decrypted.
@@ -1060,24 +1060,24 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
 
 
     if (numberOfUpdates > 0) {
-        
+
         var startedWritingToCatalog = (new Date()).getTime();
         breadcrumb("[RECENTS] Writing " + numberOfUpdates + " updates to local catalog");
-        
+
         await Promise.all([
-            catalog.docs.bulkPut(docsToUpdateInCatalog), 
+            catalog.docs.bulkPut(docsToUpdateInCatalog),
             catalog.folders.bulkPut(foldersToUpdateInCatalog)
         ].map(p => p.catch(() => undefined)));
-    
+
         var wroteToCatalog = (new Date()).getTime();
         breadcrumb("[RECENTS] Wrote " + numberOfUpdates + " updates to local catalog in " + (wroteToCatalog - startedWritingToCatalog) + "ms.");
-    
+
     }
-    
-    
-    // NOW THAT WE'VE COMPLETED WRITING ALL CHANGES/UPDATES USING bulkPut, 
-    // LET'S CHECK THE CATALOG, AND SERVER RESPONSES TO SEE WHAT'S DELETED ON THE SERVER 
-    
+
+
+    // NOW THAT WE'VE COMPLETED WRITING ALL CHANGES/UPDATES USING bulkPut,
+    // LET'S CHECK THE CATALOG, AND SERVER RESPONSES TO SEE WHAT'S DELETED ON THE SERVER
+
     // go through all docs in catalog (optionally filter by parentFID), see if any of them are missing in serverDocs.
     // if yes, that means the doc is deleted on server, remove it from catalog
 
@@ -1087,15 +1087,15 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
     for (var did in catalogDocs) {
 
         // there's a parent folderID filter, if doc isn't in this parent folder, won't delete it, so skip
-        if (parentFID && catalogDocs[did].fid !== parentFID) { continue; } 
-        
+        if (parentFID && catalogDocs[did].fid !== parentFID) { continue; }
+
         // we got docs from server,
         // but doc doesn't exist on server
         // if it has an offline tag, and no generation, it means it's created offline, and we'll upload it in sync
         // if it doesn't have an offline tag, it means it's deleted (or ghosted) on server, so we'll delete it from catalog now.
-        if (!isEmpty(serverDocsObj) && isEmpty(serverDocsObj[did]) && !catalogDocs[did].offline) { 
+        if (!isEmpty(serverDocsObj) && isEmpty(serverDocsObj[did]) && !catalogDocs[did].offline) {
             breadcrumb('[CHECK CATALOG] Doc no longer exists on server, and not offline, will remove from local catalog: ' + did);
-            arrayOfDIDsToDelete.push(did); 
+            arrayOfDIDsToDelete.push(did);
         }
 
     }
@@ -1104,26 +1104,26 @@ async function updateCatalogWithChanges(serverDocs, serverFolders, parentFID) {
     // if yes, that means folder is deleted or ghosted on server so delete folder from catalog.
 
     for (var fid in catalogFolders) {
-        
-        // there's a parent folderID filter, if folder isn't in this parent folder, won't delete it, so skip
-        if (parentFID && catalogFolders[fid].parent !== parentFID) { continue; } 
 
-        // TODO – THIS MAY DELETE A FOLDER FULL OF OFFLINE DOCS. DOUBLE CHECK. 
+        // there's a parent folderID filter, if folder isn't in this parent folder, won't delete it, so skip
+        if (parentFID && catalogFolders[fid].parent !== parentFID) { continue; }
+
+        // TODO – THIS MAY DELETE A FOLDER FULL OF OFFLINE DOCS. DOUBLE CHECK.
         // WE SHOULD ALSO CHECK TO SEE IF THIS FOLDER OR ITS SUBFOLDERS HAVE ANY OFFLINE DOCS IN IT BEFORE DELETING IT
 
         // EXAMPLE, USER IS OFFLINE, CREATES NEW DOCS, ALL OF THEM GO TO INBOX
-        // INBOX DOESN'T EXIST ON SERVER, 
-        // ALL OFFLINE DOCS IN FOLDER WOULD GET DELETED. 
+        // INBOX DOESN'T EXIST ON SERVER,
+        // ALL OFFLINE DOCS IN FOLDER WOULD GET DELETED.
 
         // we got folders from server, but folder doesn't exist on server
-        if (!isEmpty(serverFoldersObj) && isEmpty(serverFoldersObj[fid])) { 
+        if (!isEmpty(serverFoldersObj) && isEmpty(serverFoldersObj[fid])) {
             breadcrumb('[CHECK CATALOG] Folder no longer exists on server, will remove from local catalog: ' + did);
-            arrayOfFIDsToDelete.push(fid); 
+            arrayOfFIDsToDelete.push(fid);
         }
     }
 
     breadcrumb(`[CHECK CATALOG] Will delete ${arrayOfDIDsToDelete.length} docs and ${arrayOfFIDsToDelete.length} folders from catalog.`);
-    
+
     var numberOfDeletions = (arrayOfDIDsToDelete.length  || 0) + (arrayOfFIDsToDelete.length || 0);
 
     await deleteDocsFromCatalog(arrayOfDIDsToDelete);
@@ -1157,7 +1157,7 @@ if (cryptoThreadsCount > 4) {
 }
 
 /**
- * This waits until recents are downloaded to start decrypting the catalog. 
+ * This waits until recents are downloaded to start decrypting the catalog.
  */
 function decryptCatalogWhenRecentsAreReady() {
     if (gotRecents) {
@@ -1176,7 +1176,7 @@ function decryptCatalogWhenRecentsAreReady() {
  * Decrypts all catalog items that require decryption. (i.e. a doc that has encrypted titles (doc.title) but doesn't have decryptedTitle (doc.decryptedTitle) )
  */
 async function decryptCatalog() {
-    
+
     breadcrumb("[DECRYPT CATALOG] Checking what needs decryption");
 
     // Gets all docs with encrypted titles, that also doesn't have decrypted titles.
@@ -1189,7 +1189,7 @@ async function decryptCatalog() {
     var foldersNeedTitlesDecryption = await getFoldersWithEncryptedTitlesFromCatalog();
 
     var totalItemsNeedDecryption = docsNeedTitlesDecryption.length + docsNeedTagsDecryption.length + foldersNeedTitlesDecryption.length;
-    var totalItemsDecrypted = 0;    
+    var totalItemsDecrypted = 0;
 
 
     // DECRYPT DOC TITLES
@@ -1200,18 +1200,18 @@ async function decryptCatalog() {
         var decryptDocTitles = new PromisePool(promisesToDecryptDocTitles, decryptionThreadCount);
         await decryptDocTitles.start();
     }
-    
+
     // DECRYPT DOC TAGS
-    
+
     var docIndexForTagsDecryption = -1;
     if (docsNeedTagsDecryption.length >= 1) {
         breadcrumb("[DECRYPT CATALOG] Decrypting " + docsNeedTagsDecryption.length + " doc tags");
         var decryptDocTags = new PromisePool(promisesToDecryptDocTags, decryptionThreadCount);
         await decryptDocTags.start();
     }
-    
+
     // DECRYPT FOLDER TITLES
-    
+
     var folderIndex = -1;
     if (foldersNeedTitlesDecryption.length >= 1) {
         breadcrumb("[DECRYPT CATALOG] Decrypting " + foldersNeedTitlesDecryption.length + " folder titles");
@@ -1224,8 +1224,8 @@ async function decryptCatalog() {
     breadcrumb("[DECRYPT CATALOG] Done.");
 
     await refreshDOM();
-    
-    return true; 
+
+    return true;
 
 
 
@@ -1282,19 +1282,19 @@ async function decryptCatalog() {
             return null;
         }
     }
-    
+
 
     // UPDATE THE BODY'S PROGRESS TO SHOW THE DECRYPTION PROGRESS
     function updateDecryptionProgress() {
         totalItemsDecrypted++;
-        
+
         if ($("body").hasClass("starting")) {
             var percentage = ((100 * totalItemsDecrypted) / totalItemsNeedDecryption).toFixed(2);
             showBodyProgress("starting", `decrypting files & folders... ${percentage}%`);
         } else {
             updateLeftProgress(totalItemsDecrypted, totalItemsNeedDecryption);
         }
-        
+
     }
 }
 
@@ -1320,7 +1320,7 @@ async function decryptTitle(id) {
         whatToDecrypt = await getDocFromCatalog(id);
         if (!whatToDecrypt) { whatToDecrypt = {}; handleError("[DECRYPT TITLE] Couldn't get doc from catalog", {id:id}); }
     }
-    
+
     if (id.startsWith("f-")) {
         whatToDecrypt = await getFolderFromCatalog(id);
         if (!whatToDecrypt) { whatToDecrypt = {}; handleError("[DECRYPT TITLE] Couldn't get folder from catalog", {id:id}); }
@@ -1337,16 +1337,16 @@ async function decryptTitle(id) {
 
     if (encryptedTitle) {
         try {
-            plaintextTitle = await decrypt(encryptedTitle, [theKey]);    
+            plaintextTitle = await decrypt(encryptedTitle, [theKey]);
         } catch (error) {
             error.docOrFolderID = id;
             handleError("[DECRYPT TITLE] Failed to decrypt title.", error);
         }
-        
+
         if (isEmpty(plaintextTitle)) {
             handleError("[DECRYPT TITLE] Decrypted title object is empty.", {id:id});
         }
-        
+
         if (plaintextTitle) {
             if (!plaintextTitle.data) {
                 handleError("[DECRYPT TITLE] Decrypted title data is empty.", {id:id});
@@ -1407,7 +1407,7 @@ async function decryptTagsOfDocument(id) {
 
     var docToDecrypt = await getDocFromCatalog(id);
     if (!docToDecrypt) { handleError("[DECRYPT TAGS] Couldn't get doc from catalog", {id:id}); }
-    
+
     breadcrumb('[DECRYPT TAGS] Decrypting tags of ' + id);
 
     var encryptedTags = docToDecrypt.tags || "";
@@ -1415,16 +1415,16 @@ async function decryptTagsOfDocument(id) {
 
     if (encryptedTags) {
         try {
-            plaintextTags = await decrypt(encryptedTags, [theKey]);    
+            plaintextTags = await decrypt(encryptedTags, [theKey]);
         } catch (error) {
             error.did = id;
             handleError("[DECRYPT TAGS] Failed to decrypt tags.", error);
         }
-        
+
         if (isEmpty(plaintextTags)) {
             handleError("[DECRYPT TAGS] Decrypted tags object is empty.", {id:id});
         }
-        
+
         if (!plaintextTags.data) {
             handleError("[DECRYPT TAGS] Decrypted tags data is empty.", {id:id});
         }
@@ -1463,7 +1463,7 @@ async function decryptTagsOfDocument(id) {
 /**
  * Encrypts & saves a document to offline catalog.
  * @param {*} docToSave a document object from catalog
- * @param {*} plaintextContents contents you get from quill.getContents(), plaintext, because for Offline Storage we'll encrypt them using keyToRemember instead of theKey 
+ * @param {*} plaintextContents contents you get from quill.getContents(), plaintext, because for Offline Storage we'll encrypt them using keyToRemember instead of theKey
  */
 async function saveDocToOfflineCatalog(docToSave, plaintextContents){
 
@@ -1471,7 +1471,7 @@ async function saveDocToOfflineCatalog(docToSave, plaintextContents){
         handleError("[CATALOG] Can't save offline doc without contents.");
         return false;
     }
-    
+
     if (!docToSave || isEmpty(docToSave)) {
         handleError("[CATALOG] Can't save offline doc without the doc to save.");
         return false;
@@ -1486,7 +1486,7 @@ async function saveDocToOfflineCatalog(docToSave, plaintextContents){
         var stringifiedPlaintextContents = JSON.stringify(plaintextContents);
         let offlineKeys = [keyToRemember];
         if (theKey) { offlineKeys.push(theKey); }
-        var encryptedContents = await encrypt(stringifiedPlaintextContents, [keyToRemember, theKey]);
+        var encryptedContents = await encrypt(stringifiedPlaintextContents, offlineKeys);
         encryptedStringifiedContents = JSON.stringify(encryptedContents);
     } catch (error) {
         error.did = did;
@@ -1495,7 +1495,7 @@ async function saveDocToOfflineCatalog(docToSave, plaintextContents){
     }
 
     breadcrumb('[CATALOG] Saving document offline ', did);
-    
+
     try {
         await catalog.offline.put({
             docid : did,
@@ -1508,9 +1508,9 @@ async function saveDocToOfflineCatalog(docToSave, plaintextContents){
         return false;
     }
 
-    // INSTEAD OF SETTING A BOOLEAN VALUE (i.e. : doc.offline = true), 
+    // INSTEAD OF SETTING A BOOLEAN VALUE (i.e. : doc.offline = true),
     // WE SET THE OFFLINE GENERATION OF A DOC TO ".offline" IN CATALOG. (i.e. : doc.offline = generation)
-    // THIS WAY, TO UPDATE THE CATALOG DURING SYNC, WE ONLY HAVE TO READ DOC FROM CATALOG, AND NO NEED TO READ FROM OFFLINE CATALOG 
+    // THIS WAY, TO UPDATE THE CATALOG DURING SYNC, WE ONLY HAVE TO READ DOC FROM CATALOG, AND NO NEED TO READ FROM OFFLINE CATALOG
     // AND WHEN WE REFRESH THE DOM, WE DON'T NEED TO READ THE OFFLINE DOC FROM OFFLINE CATALOG, WE CAN GET THE CORRECT GEN FROM ONLINE CATALOG
     var generation = parseInt(docToSave.generation);
     var setOfflineFlag = await setDocMetaInCatalog(did, {offline:generation});
@@ -1612,7 +1612,7 @@ async function getAllDocsFromOfflineCatalog() {
     }
 
     docsArray.forEach(doc => { docs[doc.docid] = doc; });
-    
+
     return docs;
 
 }
@@ -1621,7 +1621,7 @@ async function getAllDocsFromOfflineCatalog() {
 var keyWasChangedButOfflineDocWasNotSynced = {};
 
 /**
- * Loads & Decrypts an offline document (either from catalog, or directly if doc provided in params) 
+ * Loads & Decrypts an offline document (either from catalog, or directly if doc provided in params)
  * @param {string} did document ID
  * @param {Object} [offlineDoc] An optional offline document Object
  * @returns {Promise<Object>} docContents document contents to set into the editor
@@ -1655,14 +1655,14 @@ async function loadDocFromOfflineCatalog(did, offlineDoc) {
     var oldKey;
     let offlineKeys = [keyToRemember];
     if (theKey) { offlineKeys.push(theKey); }
-    
+
     try {
-        stringifiedPlaintextContents = await decrypt(encryptedContents, [keyToRemember, theKey]);
+        stringifiedPlaintextContents = await decrypt(encryptedContents, offlineKeys);
     } catch (error) {
         handleError('[CATALOG] Failed to decrypt offline doc contents. Key is different/changed Showing prompt!!', {did:did});
         await promiseToWait(500);
         oldKey = prompt("By any chance did you change your encryption key recently? It seems that this offline document was encrypted using another key before it was possible to sync while your key changed. Don't worry, your document is safe, and you can keep trying keys as many times as you need. Please enter your old encryption key to decrypt it:");
-        
+
         try {
             let hashedOldKey = await hashString(oldKey);
             offlineKeys.push(hashedOldKey);
@@ -1696,4 +1696,3 @@ async function loadDocFromOfflineCatalog(did, offlineDoc) {
 
     return plaintextContents;
 }
-

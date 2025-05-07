@@ -1,8 +1,8 @@
 /* -----------------------------
--------------------------------- 
- 
-TOOLBAR OVERRIDES 
- 
+--------------------------------
+
+TOOLBAR OVERRIDES
+
 --------------------------------
 ----------------------------- */
 
@@ -39,14 +39,14 @@ TOOLBAR OVERRIDES
     margin-right: 0!important;
 }
 
-.ql-picker:not(.ql-background):not(.ql-align):not(.ql-line-height):not(.ql-color):not(.ql-font), 
+.ql-picker:not(.ql-background):not(.ql-align):not(.ql-line-height):not(.ql-color):not(.ql-font),
 .ql-picker:not(.ql-background):not(.ql-align):not(.ql-line-height):not(.ql-color):not(.ql-font) .ql-picker-label {
     width: 2.125rem !important;
     margin-right: 0.5rem !important;
-    text-align: left; 
+    text-align: left;
 }
 
-.ql-picker, 
+.ql-picker,
 .ql-picker-label{
     box-shadow: none;
     outline: none;
@@ -84,13 +84,13 @@ TOOLBAR OVERRIDES
     fill: #aaa !important;
 }
 
-.ql-formats * { 
-    color: var(--cryptee-0); 
+.ql-formats * {
+    color: var(--cryptee-0);
     fill: var(--cryptee-0);
 }
 
-.dm .ql-formats * { 
-    color: var(--cryptee-4); 
+.dm .ql-formats * {
+    color: var(--cryptee-4);
     fill: var(--cryptee-4);
 }
 
@@ -98,18 +98,18 @@ TOOLBAR OVERRIDES
 .ql-toolbar button.ql-active,
 .ql-toolbar .ql-picker-label.ql-active,
 .ql-toolbar .ql-picker-item.ql-selected,
-.ql-toolbar .ql-picker-label:focus .ql-stroke, 
+.ql-toolbar .ql-picker-label:focus .ql-stroke,
 .ql-toolbar .ql-picker-label.ql-active .ql-stroke,
-.ql-toolbar .ql-picker-label:focus .ql-stroke-miter, 
+.ql-toolbar .ql-picker-label:focus .ql-stroke-miter,
 .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter,
 .ql-toolbar .ql-picker-label.ql-selected .ql-stroke-miter,
 .ql-toolbar .ql-active .ql-fill,
 .ql-toolbar button.ql-active i,
 .ql-toolbar .ql-picker-label.ql-active i,
 .ql-toolbar .ql-picker-item.ql-selected i,
-.ql-toolbar .ql-picker-label:focus .ql-stroke i, 
+.ql-toolbar .ql-picker-label:focus .ql-stroke i,
 .ql-toolbar .ql-picker-label.ql-active .ql-stroke i,
-.ql-toolbar .ql-picker-label:focus .ql-stroke-miter i, 
+.ql-toolbar .ql-picker-label:focus .ql-stroke-miter i,
 .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter i,
 .ql-toolbar .ql-picker-label.ql-selected .ql-stroke-miter i,
 .ql-toolbar .ql-active .ql-fill i {
@@ -124,10 +124,10 @@ TOOLBAR OVERRIDES
 
 
 /* -----------------------------
--------------------------------- 
- 
-FONTS / FONT DROPDOWN 
- 
+--------------------------------
+
+FONTS / FONT DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -140,7 +140,7 @@ FONTS / FONT DROPDOWN
     width: 20rem;
     min-height: 31.5rem;
     border-radius: 1rem;
-    
+
     background-color: #404040;
     display: grid;
     grid-template-columns: 1fr 3rem;
@@ -154,7 +154,7 @@ FONTS / FONT DROPDOWN
     transform: translate3d(0, 0, 0);
 }
 
-#panel-fonts > div { 
+#panel-fonts > div {
     height: 100%;
 }
 
@@ -313,7 +313,7 @@ FONTS / FONT DROPDOWN
 
     background-color: transparent;
     transition: 0.3s background-color ease;
-    
+
     cursor: pointer;
 }
 
@@ -371,9 +371,9 @@ FONTS / FONT DROPDOWN
 /* FONT PREVIEWS & OVERRIDES */
 
 
-.ql-editor, 
+.ql-editor,
 .ql-tooltip {
-    font-family: "Josefin Sans"; 
+    font-family: "Josefin Sans";
 }
 
 /* DEFAULT / DOCUMENT FONTS  */
@@ -498,7 +498,7 @@ FONTS / FONT DROPDOWN
     content: "Aä " var(--arabic-script-ex) !important;
 }
 
-#font-families-wrapper .font[default='true'] .examples { 
+#font-families-wrapper .font[default='true'] .examples {
     display : none !important;
 }
 
@@ -533,15 +533,15 @@ body.bubble #panel-fonts .fonts-list.system {
 }
 
 body.bubble #panel-fonts .fonts-list.system .font[selected] {
-   order: -1; 
+   order: -1;
 } */
 
 
 /* -----------------------------
--------------------------------- 
- 
-SIZE DROPDOWN 
- 
+--------------------------------
+
+SIZE DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -571,10 +571,10 @@ SIZE DROPDOWN
 }
 
 /* -----------------------------
--------------------------------- 
- 
-HEADER DROPDOWN 
- 
+--------------------------------
+
+HEADER DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -583,7 +583,7 @@ HEADER DROPDOWN
     display: inline-block;
     line-height: 2rem;
     height: 2rem;
-    
+
     font-size: 1rem;
     font-family: 'remixicon' !important;
     font-style: normal;
@@ -620,10 +620,10 @@ HEADER DROPDOWN
 
 
 /* -----------------------------
--------------------------------- 
- 
-DIRECTION DROPDOWN 
- 
+--------------------------------
+
+DIRECTION DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -634,10 +634,10 @@ DIRECTION DROPDOWN
 
 
 /* -----------------------------
--------------------------------- 
- 
-COLOR PICKER DROPDOWN  
- 
+--------------------------------
+
+COLOR PICKER DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -757,15 +757,15 @@ COLOR PICKER DROPDOWN
 }
 
 /* -----------------------------
--------------------------------- 
- 
-ALIGN DROPDOWN 
- 
+--------------------------------
+
+ALIGN DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
 .ql-align .ql-picker-options {
-    padding: 0.5rem !important;    
+    padding: 0.5rem !important;
     margin-left: -0.25rem !important;
 }
 
@@ -777,10 +777,10 @@ ALIGN DROPDOWN
 
 
 /* -----------------------------
--------------------------------- 
- 
-LINE HEIGHT DROPDOWN 
- 
+--------------------------------
+
+LINE HEIGHT DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -791,7 +791,7 @@ LINE HEIGHT DROPDOWN
     display: inline-block;
     line-height: 2rem;
     height: 2rem;
-    
+
     font-size: 1rem;
     font-family: 'remixicon' !important;
     font-style: normal;
@@ -819,15 +819,15 @@ LINE HEIGHT DROPDOWN
 .ql-picker-label[data-value="2.25rem" ] + .ql-picker-options > .ql-picker-item[data-value="2.25rem" ]::before,
 .ql-picker-label[data-value="2.625rem"] + .ql-picker-options > .ql-picker-item[data-value="2.625rem"]::before,
 .ql-picker-label[data-value="3rem"    ] + .ql-picker-options > .ql-picker-item[data-value="3rem"    ]::before,
-.ql-picker-label[data-value="4.5rem"  ] + .ql-picker-options > .ql-picker-item[data-value="4.5rem"  ]::before { 
-    font-weight: 700; 
+.ql-picker-label[data-value="4.5rem"  ] + .ql-picker-options > .ql-picker-item[data-value="4.5rem"  ]::before {
+    font-weight: 700;
 }
 
 /* -----------------------------
--------------------------------- 
- 
-ALL DROPDOWNS  
- 
+--------------------------------
+
+ALL DROPDOWNS
+
 --------------------------------
 ----------------------------- */
 
@@ -868,10 +868,10 @@ ALL DROPDOWNS
 
 
 /* -----------------------------
--------------------------------- 
- 
-EDITOR OVERRIDES 
- 
+--------------------------------
+
+EDITOR OVERRIDES
+
 --------------------------------
 ----------------------------- */
 .ql-container {
@@ -881,14 +881,14 @@ EDITOR OVERRIDES
 .ql-editor {
 
     background-color: white;
-    
+
     padding: 4rem 4rem 0rem 4rem;
 
     height: 100%;
     width: 100%;
     max-width: 62rem;
     margin: auto;
-    
+
     transform: scale(1);
 
     -webkit-overflow-scrolling: touch;
@@ -904,7 +904,7 @@ EDITOR OVERRIDES
 .ql-editor > * { overflow: visible; }
 
 .dm body:not([paper-stock]) .ql-editor {
-    color: white;    
+    color: white;
     background-color: var(--cryptee-0);
 }
 
@@ -925,10 +925,10 @@ EDITOR OVERRIDES
 }
 
 /* -----------------------------
--------------------------------- 
- 
-PRE / SYNTAX / CODE  
- 
+--------------------------------
+
+PRE / SYNTAX / CODE
+
 --------------------------------
 ----------------------------- */
 
@@ -937,14 +937,85 @@ pre, .ql-syntax {
     font-family: monospace !important;
 }
 
+/* CODE BLOCK FLOATER (copy + fold buttons) */
 
+#code-block-floater {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(calc(var(--x, -9999px) - 100% - 0.5rem), calc(var(--y, -9999px) + 0.5rem));
+    transition: 0.15s opacity ease;
+}
+
+#code-block-floater.shown {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#code-block-floater button {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2.1rem;
+    text-align: center;
+    padding: 0;
+    margin: 0 0.125rem;
+    border: none;
+    border-radius: 0.25rem;
+    background-color: var(--cryptee-0);
+    color: var(--cryptee-4);
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: top;
+    font-size: 1rem;
+    transition: 0.15s background-color ease;
+}
+
+#code-block-floater button.copied {
+    background-color: var(--cryptee-green);
+    color: white;
+}
+
+#code-block-floater-copy-btn.copied i::before {
+    content: "\eb7b"; /* ri-check-line */
+}
+
+#code-block-floater-fold-btn.folded i::before {
+    content: "\ea4e"; /* ri-arrow-down-s-line */
+}
+
+#code-block-floater button i {
+    font-size: 1rem;
+    line-height: 2rem;
+}
+
+/* FOLDED CODE BLOCKS */
+
+pre.ql-syntax.folded {
+    max-height: 3rem;
+    overflow: hidden !important;
+    position: relative;
+}
+
+pre.ql-syntax.folded::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3rem;
+    background: linear-gradient(to bottom, transparent, var(--cryptee-0));
+    pointer-events: none;
+}
 
 
 /* -----------------------------
--------------------------------- 
- 
-BULLETS 
- 
+--------------------------------
+
+BULLETS
+
 --------------------------------
 ----------------------------- */
 /* #region BULLETS */
@@ -967,17 +1038,17 @@ BULLETS
 
 
 /* -----------------------------
--------------------------------- 
- 
-HOVERS 
- 
+--------------------------------
+
+HOVERS
+
 --------------------------------
 ----------------------------- */
 
 
 
 
-@media (-moz-touch-enabled: 0), (pointer:fine) { 
+@media (-moz-touch-enabled: 0), (pointer:fine) {
     .ql-toolbar button:hover,
     .ql-toolbar button:focus,
     .ql-toolbar .ql-picker-label:hover,
@@ -985,12 +1056,12 @@ HOVERS
         color: var(--cryptee-green) !important;
     }
 
-    .ql-toolbar .ql-picker-label:hover .ql-stroke, 
+    .ql-toolbar .ql-picker-label:hover .ql-stroke,
     .ql-toolbar .ql-picker-label:hover .ql-stroke-miter,
     .ql-toolbar .ql-formats *:hover .ql-fill {
         stroke: var(--cryptee-green) !important;
         fill: var(--cryptee-green) !important;
-    } 
+    }
 
     .ql-color-picker .ql-picker-options span:hover {
         transform: scale(1.25);
@@ -1014,10 +1085,10 @@ HOVERS
 
 
 /* -----------------------------
--------------------------------- 
- 
-TABLES 
- 
+--------------------------------
+
+TABLES
+
 --------------------------------
 ----------------------------- */
 
@@ -1100,10 +1171,10 @@ crypteetablecell * {
 
 
 /* -----------------------------
--------------------------------- 
- 
-TABLE META 
- 
+--------------------------------
+
+TABLE META
+
 --------------------------------
 ----------------------------- */
 
@@ -1139,10 +1210,10 @@ crypteetable[columns="20"][tablemeta~='appearance-rounded-borders'] crypteetable
 
 
 /* -----------------------------
--------------------------------- 
- 
-TABLE DROPDOWN 
- 
+--------------------------------
+
+TABLE DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -1165,15 +1236,15 @@ TABLE DROPDOWN
     display: flex;
 }
 
-#table-picker-header h2 { flex-grow: 1; } 
+#table-picker-header h2 { flex-grow: 1; }
 
-#table-picker-header > p { 
+#table-picker-header > p {
     margin-top: 0;
     width: 4.5rem;
     height: 4.5rem;
     line-height: 4.5rem;
     background-color:  var(--cryptee-0);
-    
+
     border-radius: 0.5rem;
     border: 1px solid var(--cryptee-1);
     text-align: center;
@@ -1190,13 +1261,13 @@ TABLE DROPDOWN
     position: absolute;
     top: 0;
     left: 0;
-    
+
     font-size:      1.25rem;
     border-radius:  1.5rem;
     line-height:    1.5rem;
     height:         1.5rem;
     width:          1.5rem;
-    
+
     z-index: 9;
     text-align: center;
 
@@ -1227,7 +1298,7 @@ TABLE DROPDOWN
 
 .dm body:not([paper-stock]) #table-contextual-button {
     background-color: var(--cryptee-1);
-    
+
 }
 
 
@@ -1276,10 +1347,10 @@ TABLE DROPDOWN
 
 
 /* -----------------------------
--------------------------------- 
- 
-FILES 
- 
+--------------------------------
+
+FILES
+
 --------------------------------
 ----------------------------- */
 
@@ -1294,7 +1365,7 @@ crypteefile, crypteefolder {
     padding: 1rem 1rem 0.75rem 1rem;
     cursor: pointer;
     margin: 1rem 0;
-    
+
     transition: 0.5s opacity ease, 0.15s background-color ease, 0.15s color ease;
     border-left: 1px solid #000;
     opacity: 1;
@@ -1316,12 +1387,12 @@ crypteefile::after, crypteefolder::after {
 }
 
 crypteefile::before, crypteefolder::before {
-    
+
     font-family: 'remixicon' !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-        
+
     display: block;
     margin-top: 0.125rem;
 
@@ -1342,13 +1413,13 @@ crypteefile.selected, crypteefolder.selected {
     color: #FFF !important;
 }
 
-.dm body:not([paper-stock]) crypteefile.selected, 
+.dm body:not([paper-stock]) crypteefile.selected,
 .dm body:not([paper-stock]) crypteefolder.selected {
     background-color: var(--cryptee-4) !important;
     color: #000 !important;
 }
 
-.dm body:not([paper-stock]) crypteefile, 
+.dm body:not([paper-stock]) crypteefile,
 .dm body:not([paper-stock]) crypteefolder {
     background-color: var(--cryptee-1) !important;
     color: #FFF !important;
@@ -1446,9 +1517,9 @@ crypteefile.loading, crypteefolder.loading {
     opacity: 0.5 !important;
 }
 
-crypteefile.loading::before, crypteefolder.loading::before { 
-    content: "\EEC6" !important; 
-    animation: spin 0.4s linear infinite !important; 
+crypteefile.loading::before, crypteefolder.loading::before {
+    content: "\EEC6" !important;
+    animation: spin 0.4s linear infinite !important;
 }
 
 crypteefile.error, crypteefolder.error {
@@ -1459,16 +1530,16 @@ crypteefile.error, crypteefolder.error {
 
 
 
-crypteefile.error::before { 
-    content: "\ED19"; 
+crypteefile.error::before {
+    content: "\ED19";
 }
 
-crypteefolder.error::before { 
-    content: "\ED86"; 
+crypteefolder.error::before {
+    content: "\ED86";
 }
 
-crypteefile.error::after, crypteefolder.error::after { 
-    content: "Failed to open " attr(filetitle) attr(foldertitle); 
+crypteefile.error::after, crypteefolder.error::after {
+    content: "Failed to open " attr(filetitle) attr(foldertitle);
 }
 
 
@@ -1476,10 +1547,10 @@ crypteefile.error::after, crypteefolder.error::after {
 
 
 /* -----------------------------
--------------------------------- 
- 
-tags 
- 
+--------------------------------
+
+tags
+
 --------------------------------
 ----------------------------- */
 
@@ -1491,9 +1562,9 @@ crypteetag::before {
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
+
     content: "\F023";
-    
+
     display: inline-block;
     font-size: 0.75rem;
     line-height: 1rem;
@@ -1570,14 +1641,14 @@ crypteetag {
 
 
 /* -----------------------------
--------------------------------- 
- 
-toc 
- 
+--------------------------------
+
+toc
+
 --------------------------------
 ----------------------------- */
 
-.ql-editor .highlighted, 
+.ql-editor .highlighted,
 .ql-editor .highlighted * {
     color: var(--cryptee-green);
 }
@@ -1595,10 +1666,10 @@ toc
 
 
 /* -----------------------------
--------------------------------- 
- 
-TOOLTIP (urls etc) 
- 
+--------------------------------
+
+TOOLTIP (urls etc)
+
 --------------------------------
 ----------------------------- */
 
@@ -1611,7 +1682,7 @@ TOOLTIP (urls etc)
     font-weight: 350;
     white-space: nowrap;
     padding: 0.5rem 1rem 0.25rem 1rem;
-    
+
     border-radius: 0.25rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.25);
 }
@@ -1642,7 +1713,7 @@ TOOLTIP (urls etc)
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
+
     content: "\EC85";
     font-size: 1rem;
     line-height: 1.5rem;
@@ -1656,15 +1727,15 @@ TOOLTIP (urls etc)
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
+
     content: "\EC19";
     font-size: 1rem;
     line-height: 1.5rem;
-    
+
     margin-left: 1rem;
 }
 
-.ql-snow .ql-tooltip.ql-editing a.ql-action::after {    
+.ql-snow .ql-tooltip.ql-editing a.ql-action::after {
     content: "\EB7B";
     padding-right: 0;
 }
@@ -1706,10 +1777,10 @@ TOOLTIP (urls etc)
 
 
 /* -----------------------------
--------------------------------- 
- 
-MOBILE TOOLBAR 
- 
+--------------------------------
+
+MOBILE TOOLBAR
+
 --------------------------------
 ----------------------------- */
 
@@ -1724,7 +1795,7 @@ MOBILE TOOLBAR
     right: 0 !important;
     border-radius: 0;
     transform: translateY(16px); /* intentionally adding +16px to the bottom more to pad for the cubic bezier not matching the ios keyboard spring animation*/
-    
+
     transition-duration: 0.5s;
     transition-property: transform;
     transition-timing-function: var(--ios-keyboard-cb);
@@ -1757,6 +1828,11 @@ MOBILE TOOLBAR
     display: grid;
 }
 
+body.liquidass .ql-tooltip.ql-hidden.keyboard-visible {
+    bottom: -100vh;
+    padding-bottom: calc(100vh + 1rem);
+}
+
 .ql-tooltip #mobileToolbar {
     padding: 0 0 0 0.75rem;
     display: flex;
@@ -1785,13 +1861,13 @@ MOBILE TOOLBAR
 .ql-tooltip #mobileToolbar button i,
 .ql-tooltip #mobileToolbar span i,
 .ql-tooltip #mobileToolbar .ql-picker i,
-.ql-tooltip #mobileToolbar select i { 
-    color: #aaa; 
+.ql-tooltip #mobileToolbar select i {
+    color: #aaa;
     font-size: 1.25rem;
 }
 
 .ql-tooltip #mobileToolbar button.ql-active i,
-.ql-tooltip #mobileToolbar .ql-picker.ql-expanded i { 
+.ql-tooltip #mobileToolbar .ql-picker.ql-expanded i {
     color: #FFF;
 }
 
@@ -1819,10 +1895,10 @@ MOBILE TOOLBAR
 }
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 IMAGE OVERLAY & IMAGES
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -1883,14 +1959,14 @@ IMAGE OVERLAY & IMAGES
 
 
 /* -----------------------------
--------------------------------- 
- 
-IMAGES 
- 
+--------------------------------
+
+IMAGES
+
 --------------------------------
 ----------------------------- */
 
-.ql-editor img { 
+.ql-editor img {
     height: auto;
     min-width: 50px;
 }
@@ -1912,13 +1988,13 @@ IMAGES
     cursor: pointer;
     transition: 0.3s background-color ease;
     pointer-events: none;
-} 
+}
 
 .ql-editor img[src="//:0"]::after {
     pointer-events: all;
-    
+
     content: "insecure remote image";
-    position: absolute;    
+    position: absolute;
     left: 0rem;
     top: 0rem;
     padding: 1rem 2rem 1rem 4rem;
@@ -1929,7 +2005,7 @@ IMAGES
     text-decoration:none !important;
     text-indent: 0rem;
     font-weight: 350;
-    
+
 }
 
 .ql-editor img[src="//:0"]::before {
@@ -1960,10 +2036,10 @@ IMAGES
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 HR
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -1983,10 +2059,10 @@ HR
 
 
 /* -----------------------------
--------------------------------- 
- 
-COMMENTS 
- 
+--------------------------------
+
+COMMENTS
+
 --------------------------------
 ----------------------------- */
 /* #region COMMENTS */
@@ -2069,15 +2145,15 @@ body.comments-hidden .ql-editor mark[comment] {
 
 
 /* -----------------------------
--------------------------------- 
- 
-HOVERS 
- 
+--------------------------------
+
+HOVERS
+
 --------------------------------
 ----------------------------- */
 
 
-@media (-moz-touch-enabled: 0), (pointer:fine) { 
+@media (-moz-touch-enabled: 0), (pointer:fine) {
     .ql-tooltip input:hover {
         -webkit-appearance: none;
         box-shadow: inset 0px -1px 0px var(--cryptee-3);
@@ -2113,9 +2189,17 @@ HOVERS
         color: #FFF;
     }
 
+    #code-block-floater button:hover {
+        background-color: var(--cryptee-1);
+    }
+
+    #code-block-floater button.copied:hover {
+        background-color: var(--cryptee-green);
+    }
+
 }
 
-@media (-moz-touch-enabled: 1), (pointer:coarse) {  
+@media (-moz-touch-enabled: 1), (pointer:coarse) {
     #table-picker-header > p { display: none !important; }
 }
 
@@ -2130,10 +2214,10 @@ HOVERS
 
 
 /* -----------------------------
--------------------------------- 
- 
-MEDIA QUERIES 
- 
+--------------------------------
+
+MEDIA QUERIES
+
 --------------------------------
 ----------------------------- */
 
@@ -2146,8 +2230,8 @@ MEDIA QUERIES
 
 /* 1008px (editor + left slider) */
 @media (max-width : 63rem) {
-    body:not([paper-stock]) .ql-editor { 
-        max-width: 100%; 
+    body:not([paper-stock]) .ql-editor {
+        max-width: 100%;
         position: absolute;
     }
 }
@@ -2155,5 +2239,5 @@ MEDIA QUERIES
 @media (max-width : 703px) {
     .ql-formats {
         margin-right: 0 !important;
-    }   
+    }
 }

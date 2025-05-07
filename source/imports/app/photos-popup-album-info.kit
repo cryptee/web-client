@@ -12,16 +12,19 @@
             <span>change cover</span>
         </button>
 
-        <button onclick="ghostAlbumFromInfoPopup();">
+        <button onclick="ghostAlbumFromInfoPopup();" class="button-ghost-album-from-info-popup">
             <i class="ri-eye-off-fill"></i>
             <span>make ghost album</span>
+            <small class="shared-album-cant-ghost-notice">shared albums<br>can't be ghosted</small>
         </button>
 
         <button id="save-album-info-button" class="green show-on-change" onclick="editAlbumInfo();">
             <i class="ri-check-fill"></i>
             <span>save changes</span>
         </button>
-        
+    
+        <small class="show-on-change-for-shared">it will take a minute for others to see changes to this shared album</small>
+
         <button onclick="deleteAlbumFromInfoPopup();" class="red hide-on-change">
             <i class="ri-delete-bin-fill"></i>
             <span>delete album</span>

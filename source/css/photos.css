@@ -5,10 +5,10 @@
 
 
 /* -----------------------------
--------------------------------- 
- 
-LAYOUT 
- 
+--------------------------------
+
+LAYOUT
+
 --------------------------------
 ----------------------------- */
 
@@ -28,7 +28,7 @@ main {
     display: grid;
     grid-template-columns: minmax(0, 1fr) repeat(auto-fit, 16rem) minmax(0, 1fr);
     column-gap: 4rem;
-    
+
     width: 100%;
     height: calc(100% - 8rem);
     padding-top: 8rem;
@@ -64,7 +64,7 @@ main::-webkit-scrollbar { display: none; }
     height: 2rem;
     margin-top: 1rem;
     margin-left: 1rem;
-    user-drag: none; 
+    user-drag: none;
     user-select: none;
     outline: none;
     z-index: 2;
@@ -79,7 +79,7 @@ main::-webkit-scrollbar { display: none; }
     height: 100%;
     width: 100%;
     object-fit: contain;
-    user-drag: none; 
+    user-drag: none;
     user-select: none;
 }
 
@@ -111,17 +111,17 @@ main::-webkit-scrollbar { display: none; }
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 NAV LAYOUT
- 
+
 --------------------------------
 ----------------------------- */
 /* #region NAV */
 
 
 nav {
-    background-color: transparent;
+    background-color: var(--cryptee-4);
     position: fixed;
     top: 0;
     left: 0;
@@ -132,19 +132,14 @@ nav {
     column-gap: 1rem;
     z-index: 9;
 }
-
-nav .background { 
-    grid-column: 1 / -1; 
-    transform: translate3d(0,0,0);
-    transition: 0.5s background-color var(--cryptee-cb), 0.5s transform var(--cryptee-cb); 
+.dm nav {
+    background-color:var(--oled-safe-black);
 }
-
-nav .top.background { grid-row: 1 / 2;    background-color : var(--cryptee-4); }
-nav .bottom.background { grid-row: 2 / 3; background-color : var(--cryptee-4); }
-
-.dm nav .top.background { grid-row: 1 / 2;    background-color : var(--oled-safe-black); }
-.dm nav .bottom.background { grid-row: 2 / 3; background-color : var(--oled-safe-black); }
-
+nav .background {
+    grid-column: 1 / -1;
+    transform: translate3d(0,0,0);
+    transition: 0.5s background-color var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
+}
 
 nav .buttons        { display: flex; }
 
@@ -161,10 +156,7 @@ nav button {
     z-index: 2;
 }
 
-.top.buttons button:nth-child(2) { transition-delay: 0.05s; }
-
 .dm nav button, .dm #help { color: white; }
-.dm #delete-button { opacity: 0.6; }
 
 label[for="upload-input"] {
     cursor: pointer;
@@ -194,7 +186,7 @@ label[for="upload-input"] {
 
     display: grid;
     width: 7rem;
-    grid-template-columns: 2rem 5rem;   
+    grid-template-columns: 2rem 5rem;
 }
 
 #gallery-button i {
@@ -281,9 +273,9 @@ label[for="upload-input"] {
     color: #000;
 }
 
-#searchInput:focus, 
+#searchInput:focus,
 #searchInput:not(:placeholder-shown) {
-    grid-column: 3/-3; 
+    grid-column: 3/-3;
 }
 
 #searchInput:focus ~ .progress { opacity: 1; }
@@ -297,10 +289,10 @@ label[for="upload-input"] {
 
 
 /* -----------------------------
--------------------------------- 
- 
-SORT POPUP / SORTER 
- 
+--------------------------------
+
+SORT POPUP / SORTER
+
 --------------------------------
 ----------------------------- */
 
@@ -344,10 +336,10 @@ SORT POPUP / SORTER
 
     min-width: 4rem;
     max-width: 4rem;
-    
+
     height: 3rem;
     line-height: 3rem;
-    
+
     user-select: none;
     text-align: left;
 }
@@ -355,10 +347,10 @@ SORT POPUP / SORTER
 #sorter i {
     min-width: 3rem;
     max-width: 3rem;
-    
-    height: 3rem;    
+
+    height: 3rem;
     line-height: 3rem;
-    
+
     text-align: center;
     cursor: pointer;
 
@@ -397,14 +389,14 @@ body[filter-raw-only] #sort-button span { text-decoration: wavy underline;}
 
 body[filter-fav-only] #sort-button i,
 body[filter-video-only] #sort-button i,
-body[filter-raw-only] #sort-button i { 
+body[filter-raw-only] #sort-button i {
     background-color: #000;
     color: #fff;
 }
 
 .dm body[filter-fav-only] #sort-button i,
 .dm body[filter-video-only] #sort-button i,
-.dm body[filter-raw-only] #sort-button i { 
+.dm body[filter-raw-only] #sort-button i {
     background-color: #fff;
     color: #000;
 }
@@ -415,10 +407,10 @@ body:has(#sorter.shown) #sort-button i:before {
 
 
 /* -----------------------------
--------------------------------- 
- 
-ACTION BUTTON POPUP 
- 
+--------------------------------
+
+ACTION BUTTON POPUP
+
 --------------------------------
 ----------------------------- */
 /* #region ACTION BUTTON POPUP */
@@ -481,7 +473,7 @@ ACTION BUTTON POPUP
     pointer-events: all;
 }
 
-.dm body:has(#actions.shown) #action-button i { 
+.dm body:has(#actions.shown) #action-button i {
     color: #FFF;
 }
 
@@ -510,10 +502,10 @@ body:has(#actions.shown) #sort-button {
 
 
 /* -----------------------------
--------------------------------- 
- 
-DOWNLOAD SIZE PICKER POPUP 
- 
+--------------------------------
+
+DOWNLOAD SIZE PICKER POPUP
+
 --------------------------------
 ----------------------------- */
 /* #region DOWNLOAD SIZE PICKER POPUP */
@@ -619,10 +611,10 @@ DOWNLOAD SIZE PICKER POPUP
 
 
 /* -----------------------------
--------------------------------- 
- 
-SELECTOR POPUP 
- 
+--------------------------------
+
+SELECTOR POPUP
+
 --------------------------------
 ----------------------------- */
 /* #region SELECTOR POPUP */
@@ -744,16 +736,16 @@ body:has(.popup.show) #photos-selector {
 
 
 /* -----------------------------
--------------------------------- 
- 
-SEARCH & SEARCH ANIMATIONS 
- 
+--------------------------------
+
+SEARCH & SEARCH ANIMATIONS
+
 --------------------------------
 ----------------------------- */
 
 /* SEARCH IS IN FOCUS & USER TYPED SOMETHING INTO SEARCH */
-#searchInput:focus ~ button { 
-    opacity: 0 !important; pointer-events: none; 
+#searchInput:focus ~ button {
+    opacity: 0 !important; pointer-events: none;
 }
 
 #searchInput:not(:placeholder-shown) ~ #sort-button,
@@ -772,14 +764,11 @@ SEARCH & SEARCH ANIMATIONS
 
 /* ------------------------------
 ---------------------------------
- 
-NAV BUTTONS & STATES & SELECTIONS 
- 
+
+NAV BUTTONS & STATES & SELECTIONS
+
 ---------------------------------
 ------------------------------ */
-
-
-#delete-button { color: var(--cryptee-red); }
 
 /* default gallery state */
 /* body.nav-gallery */
@@ -791,7 +780,8 @@ body:not(.nav-gallery) #searchInput {
 }
 
 body.nav-selection #gallery-button,
-body:not(.nav-album):not(.nav-favorites) #gallery-button { 
+body:has(#sharing-wrapper.show) #gallery-button,
+body:not(.nav-album):not(.nav-favorites) #gallery-button {
     transform: translate3d(0,1rem,0);
     opacity: 0 !important;
     pointer-events: none !important;
@@ -807,25 +797,27 @@ body.starting #action-button,
 body.loading #action-button,
 body.offline #action-button,
 body.searching #action-button {
-    opacity: 0 !important; 
-    pointer-events: none; 
+    opacity: 0 !important;
+    pointer-events: none;
 }
 
 body:not(.loading):not(.starting):not(.offline):not(.searching) #action-button {
     opacity : 0.7;
 }
 
+body:has(#sharing-wrapper.show) #action-button,
 body.nav-selection #action-button,
 body.nav-favorites #action-button {
-    opacity: 0 !important; 
-    pointer-events: none; 
+    opacity: 0 !important;
+    pointer-events: none;
     transform: translate3d(0.75rem,0,0);
 }
 
+body:has(#sharing-wrapper.show) #sort-button,
 body.nav-selection #sort-button {
     transform: translate3d(0.5rem,0,0);
-    opacity: 0 !important; 
-    pointer-events: none; 
+    opacity: 0 !important;
+    pointer-events: none;
 }
 
 body:not(.nav-selection) #photos-selector {
@@ -864,38 +856,47 @@ body.tagging #tag-button {
 }
 
 
+body:has(.view.show) main .contents,
+body:has(.view.show) #timeline small,
+body:has(#sharing-wrapper.show) main .contents:not(#searchContents),
+body:has(#sharing-wrapper.show) #timeline small {
+    opacity: 0.125 !important;
+    pointer-events: none !important;
+}
+
+
 /* -----------------------------
--------------------------------- 
- 
-STARTUP / LOADING  
- 
+--------------------------------
+
+STARTUP / LOADING
+
 --------------------------------
 ----------------------------- */
 
 body.searching #main-progress,
 body.starting #main-progress,
-body.loading #main-progress { 
-    opacity: 1; 
+body.loading #main-progress {
+    opacity: 1;
 }
 
 body.offline nav button,
 body.searching nav button,
 body.starting nav button,
-body.loading nav button { 
-    opacity: 0; pointer-events: none; 
+body.loading nav button {
+    opacity: 0; pointer-events: none;
 }
 
 body.offline #searchInput,
-body.starting:not(.searching) #searchInput, 
-body.loading:not(.searching) #searchInput { 
-    opacity: 0; pointer-events: none; 
+body.starting:not(.searching) #searchInput,
+body.loading:not(.searching) #searchInput {
+    opacity: 0; pointer-events: none;
 }
 
 body.offline #timeline small,
-body.searching #timeline small, 
-body.starting #timeline small, 
-body.loading #timeline small { 
-    transform: translateX(4rem) !important; 
+body.searching #timeline small,
+body.starting #timeline small,
+body.loading #timeline small {
+    transform: translateX(4rem) !important;
     pointer-events: none !important;
 }
 
@@ -935,7 +936,7 @@ body.offline::after {
     height: 22rem;
     background-color: #FFF;
     color: var(--cryptee-0);
-    
+
     padding: 4rem;
 
     font-weight: 350;
@@ -945,10 +946,10 @@ body.offline::after {
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
 TIMELINE
- 
+
 --------------------------------
 ----------------------------- */
 
@@ -1030,10 +1031,10 @@ body.searching #timeline small,
 }
 
 /* -----------------------------
--------------------------------- 
- 
-GALLERY / ALBUM CONTENTS 
- 
+--------------------------------
+
+GALLERY / ALBUM CONTENTS
+
 --------------------------------
 ----------------------------- */
 
@@ -1120,16 +1121,16 @@ body:not(.loading) #albumContents:empty:not(.loading)::before {
 }
 
 /* -----------------------------
--------------------------------- 
- 
-PHOTO / MEDIA ITEM 
- 
+--------------------------------
+
+PHOTO / MEDIA ITEM
+
 --------------------------------
 ----------------------------- */
 
 .media {
 
-    float: left;    
+    float: left;
     width: 16rem;
     height: 16rem;
     margin: 0 0 4rem 4rem;
@@ -1165,12 +1166,12 @@ PHOTO / MEDIA ITEM
     opacity: 0;
     transform: scale(1);
     /* transition: 0.15s opacity ease, 0.15s transform ease, 0.15s background-color ease; */
-    
+
     font-family: 'remixicon' !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
+
     color: white;
     background-color: var(--cryptee-0);
 }
@@ -1191,16 +1192,6 @@ PHOTO / MEDIA ITEM
     pointer-events: none;
 }
 
-
-body.highlight-deletions .media.selected i,
-body.highlight-deletions .media.selected u {
-    background-color: var(--cryptee-red);
-}
-
-body.highlight-deletions .media.selected i::before {
-    content: "\ec27";
-}
-
 .media.onscreen {
     transform: translateX(0) translateY(0) scale(1);
     transform-origin: center;
@@ -1216,7 +1207,7 @@ body.highlight-deletions .media.selected i::before {
     opacity: 0;
 }
 
-.media.in-lightbox i, 
+.media.in-lightbox i,
 .media.in-lightbox u {
     opacity: 0 !important;
 }
@@ -1237,7 +1228,7 @@ body.highlight-deletions .media.selected i::before {
 
     transform: scale(0.9);
     transition: 0.15s opacity linear, 0.3s transform var(--cryptee-cb);
-    
+
     font-family: 'remixicon' !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
@@ -1249,6 +1240,9 @@ body.highlight-deletions .media.selected i::before {
     content: "\F00A";
 
     background-color: #FFF;
+
+    box-sizing: border-box;
+    padding-left: 3px;
 }
 
 .media.video.selected::after {
@@ -1462,7 +1456,7 @@ body.highlight-deletions .media.selected i::before {
     filter: saturate(1);
 }
 
-body:not(.nav-favorites) .media b { 
+body:not(.nav-favorites) .media b {
 
     text-decoration: none;
     position: absolute;
@@ -1472,7 +1466,7 @@ body:not(.nav-favorites) .media b {
 
     font-size: 1.5rem;
     text-align: center;
-    
+
     font-family: 'remixicon' !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
@@ -1485,7 +1479,7 @@ body:not(.nav-favorites) .media b {
 
     font-size: 0.75rem;
     line-height: 1.175rem;
-    
+
     transform: scale(0);
     transition: 0.3s color ease 1s, 0.3s transform var(--cryptee-cb) 1s;
 
@@ -1505,16 +1499,16 @@ body[filter-video-only] .media:not(.video) { display: none !important; }
 
 
 /* -----------------------------
--------------------------------- 
- 
-ALBUM 
- 
+--------------------------------
+
+ALBUM
+
 --------------------------------
 ----------------------------- */
 
 .album {
-    
-    float: left;    
+
+    float: left;
     width: 36rem;
     height: 20rem;
     margin: 0 0 4rem 4rem;
@@ -1530,7 +1524,7 @@ ALBUM
 
 }
 
-#favorites { 
+#favorites {
     width: 76rem;
     display: flex;
     flex-direction: row;
@@ -1543,7 +1537,7 @@ ALBUM
     height: 20rem;
 }
 
-#favorites img { 
+#favorites img {
     min-width: 4rem;
     flex-grow: 1;
     flex-shrink: 1;
@@ -1566,12 +1560,12 @@ ALBUM
     padding: 2rem 7.5rem 0 1.5rem;
 
     color: #fff;
-    
+
     /* EQUIVALENT OF BOLD P */
     font-weight: 700;
     font-size: 0.85rem;
     line-height: 4.25rem;
-    
+
     box-sizing: border-box;
 
     overflow: hidden;
@@ -1592,16 +1586,16 @@ ALBUM
     position: absolute;
     bottom: 0rem;
     right: 0rem;
-    
+
     width: 100%;
     height: 4rem;
-    padding: 0 1.5rem; 
-    
+    padding: 0 1.5rem;
+
     line-height: 4.25rem;
     font-weight: 350;
     font-size: 0.85rem;
     letter-spacing: 0.1rem;
-    
+
     box-sizing: border-box;
     text-align: right;
     color: #fff;
@@ -1624,7 +1618,7 @@ ALBUM
 
     transform: translate3d(3rem,0,0);
     transition: 0.15s opacity var(--cryptee-cb), 0.5s transform var(--cryptee-cb);
-    
+
     font-family: 'remixicon' !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
@@ -1654,10 +1648,10 @@ ALBUM
 
 
 /* -----------------------------
--------------------------------- 
- 
-ALBUM DROPDOWN 
- 
+--------------------------------
+
+ALBUM DROPDOWN
+
 --------------------------------
 ----------------------------- */
 
@@ -1689,19 +1683,68 @@ ALBUM DROPDOWN
     opacity: 0;
 }
 
-
-
-
 /* .album .dropdown button:nth-child(4) { transition-delay: 0.s; } */
 .album .dropdown button:nth-child(1) { transition-delay: 0s; }
 .album .dropdown button:nth-child(2) { transition-delay: 0.05s; }
 .album .dropdown button:nth-child(3) { transition-delay: 0.10s; }
 
+
 /* -----------------------------
--------------------------------- 
- 
-ALBUM CONTENTS VIEW 
- 
+--------------------------------
+
+SHARED ALBUM MARKER
+
+--------------------------------
+----------------------------- */
+/* #region SHARED ALBUM MARKER */
+
+.album mark {
+    background-color: #202020;
+    height: 4rem;
+    width: 12rem;
+    line-height: 4rem;
+    text-align: left;
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: 0rem;
+    right: 0rem;
+    border-bottom-left-radius: 1.125rem;
+
+    transform: translateX(7.75rem);
+    transition: 1s transform var(--cryptee-cb);
+
+    cursor: default;
+}
+
+.album mark::before {
+    font-family: remixicon !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    content: "\F0F7";
+    color: #FFF;
+    font-size: 1.25rem;
+    padding: 0 1.5rem;
+}
+
+.album mark::after {
+    content: "shared album";
+    color: #FFF;
+    display: inline-block;
+    transform: translateY(-0.125rem);
+    opacity: 0;
+    transition: 1s opacity var(--cryptee-cb);
+}
+
+
+/* #endregion SHARED ALBUM MARKER */
+
+/* -----------------------------
+--------------------------------
+
+ALBUM CONTENTS VIEW
+
 --------------------------------
 ----------------------------- */
 
@@ -1732,8 +1775,7 @@ ALBUM CONTENTS VIEW
 #albumheader .date {
     background-color: #000;
     color: #fff;
-    /* width: 7rem; */
-    width: 11.25rem;
+    width: 7.325rem;
     height: 3rem;
     line-height: 3rem;
     border-radius: 1.5rem;
@@ -1753,19 +1795,19 @@ ALBUM CONTENTS VIEW
     color: #000;
 }
 
-#albumheader .name, 
+#albumheader .name,
 .searchheader .title {
     text-transform: uppercase;
 }
 
 #albumheader .name::after {
     opacity: 0;
-    
+
     transition: 0.3s opacity ease;
     font-size: 1rem;
-    
+
     content: "\EFE0";
-    
+
     font-family: 'remixicon' !important;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
@@ -1788,6 +1830,12 @@ ALBUM CONTENTS VIEW
     margin-top: 0;
     font-size: 1.25rem;
     width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+}
+
+#albumheader .ri-share-fill {
+    line-height: 2.9rem;
 }
 
 .dm #albumheader button {
@@ -1795,9 +1843,13 @@ ALBUM CONTENTS VIEW
     color: #000;
 }
 
+#albumheader.shared .header-button-share-album {
+    background-color: var(--cryptee-green);
+}
+
 /* SHOW A HEART FOR FAVORITES */
 .nav-favorites #albumheader h2::after {
-    
+
     opacity: 1;
 
     display:  inline;
@@ -1806,8 +1858,8 @@ ALBUM CONTENTS VIEW
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-       
-    content : "\ee0e"; 
+
+    content : "\ee0e";
 
     font-size: 1.65rem;
     line-height: 3rem;
@@ -1817,8 +1869,8 @@ ALBUM CONTENTS VIEW
     opacity: 0.5;
 }
 
-.nav-favorites #albumheader hr { 
-    max-width: 100% !important; 
+.nav-favorites #albumheader hr {
+    max-width: 100% !important;
     border-top: 0.125rem solid var(--cryptee-red) !important;
     opacity: 0.5 !important;
 }
@@ -1832,10 +1884,10 @@ ALBUM CONTENTS VIEW
 }
 
 /* -----------------------------
--------------------------------- 
- 
-SEARCH 
- 
+--------------------------------
+
+SEARCH
+
 --------------------------------
 ----------------------------- */
 
@@ -1892,7 +1944,7 @@ SEARCH
 
     opacity: 0;
     transition: 0.5s opacity ease;
-    
+
 }
 
 body:not(.loading) #searchContents:not(.loading)::after {
@@ -1911,10 +1963,10 @@ body.searching:not(.loading) #albumContents {
 }
 
 /* -----------------------------
--------------------------------- 
- 
-LIGHTBOX 
- 
+--------------------------------
+
+LIGHTBOX
+
 --------------------------------
 ----------------------------- */
 
@@ -1927,7 +1979,7 @@ LIGHTBOX
     background-color: var(--cryptee-0);
     z-index: 9;
     transition: 0.5s opacity var(--cryptee-cb);
-    
+
     opacity: 0;
     pointer-events: none;
 
@@ -1970,13 +2022,13 @@ LIGHTBOX
 
     background-color: var(--cryptee-0);
     grid-column: 1/-1;
-    grid-row: -2/-1; 
+    grid-row: -2/-1;
     z-index: 12;
 }
 
 #lightbox-player-progress {
     grid-column: 3/-1;
-    grid-row: 1/2; 
+    grid-row: 1/2;
     padding: 0.5rem 1.5rem 0.5rem 1rem;
     z-index: 12;
     display: flex;
@@ -1987,7 +2039,7 @@ LIGHTBOX
 }
 
 #lightbox-playpause.playing i::before { content: "\EFD7"; }
-#lightbox-volume.muted i::before { 
+#lightbox-volume.muted i::before {
     content: "\F29D";
     color: var(--cryptee-yellow);
 }
@@ -2070,16 +2122,16 @@ LIGHTBOX
     width: 100%;
     height: 16rem;
     z-index: 2;
-    
+
     opacity: 0;
     pointer-events: none !important;
     transition: 1s opacity ease;
-    
+
     color: #FFF;
     text-align: left;
     padding: 0 50% 4rem 4rem;
     box-sizing: border-box;
-    
+
     display: flex;
     align-self: flex-end;
     align-content: flex-end;
@@ -2140,7 +2192,7 @@ LIGHTBOX
 }
 
 
-#lightbox-progress { 
+#lightbox-progress {
     z-index: 13;
     opacity: 0.4;
 }
@@ -2151,7 +2203,7 @@ LIGHTBOX
     width: 100%;
 }
 
-#popup-photo-info input::-webkit-calendar-picker-indicator, 
+#popup-photo-info input::-webkit-calendar-picker-indicator,
 #popup-album-info input::-webkit-calendar-picker-indicator {
     filter: invert(1);
 }
@@ -2161,7 +2213,7 @@ LIGHTBOX
     opacity: 1;
 }
 
-#popup-photo-info input, 
+#popup-photo-info input,
 #popup-photo-info textarea {
     color: white;
     text-transform: lowercase;
@@ -2181,7 +2233,29 @@ LIGHTBOX
     font-size: 14px;
     font-weight: 300;
     overflow-wrap: break-word;
-} 
+}
+
+#popup-album-info.shared .button-ghost-album-from-info-popup {
+    position: relative;
+}
+
+#popup-album-info.shared .button-ghost-album-from-info-popup {
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+}
+
+#popup-album-info.shared .shared-album-cant-ghost-notice {
+    display: block;
+    position: absolute;
+    text-align: left;
+    left: 2.75rem;
+    bottom: 0.25rem;
+}
+
+#popup-album-info:not(.shared) .shared-album-cant-ghost-notice,
+#popup-album-info.shared .button-ghost-album-from-info-popup span {
+    display: none !important;
+}
 
 body[env] #popup-photo-info .photoid,
 body[env] #popup-album-info .albumid {
@@ -2197,6 +2271,20 @@ body[env] #popup-album-info .albumid {
 #popup-photo-info[pid^="v-"] b.h3::before { content: "VIDEO INFO"; }
 #popup-photo-info[pid^="p-"] b.h3::before { content: "PHOTO INFO"; }
 
+#popup-album-info .show-on-change-for-shared {
+    position: absolute;
+    bottom: 4rem;
+    left: 4rem;
+    width: 12rem;
+    text-align: center;
+    pointer-events: none !important;
+    opacity: 0;
+    transition: 0.3s opacity ease;
+}
+
+#popup-album-info.changed.shared .show-on-change-for-shared {
+    opacity: 1;
+}
 
 #lightbox-exif-container {
     grid-row: 2 / 3;
@@ -2208,7 +2296,7 @@ body[env] #popup-album-info .albumid {
 
 #lightbox-exif-container u {
     text-decoration: none;
-    
+
     margin: 0.5rem 0 0 0.5rem;
     width: auto;
     height: 1rem;
@@ -2273,9 +2361,9 @@ body[env] #popup-album-info .albumid {
 #lightbox-exif-maker-logo:not([maker]) { display: none !important; }
 
 /* -----------------------------
--------------------------------- 
+--------------------------------
 
-LIGHTBOX STATES 
+LIGHTBOX STATES
 
 --------------------------------
 ----------------------------- */
@@ -2295,10 +2383,10 @@ LIGHTBOX STATES
 
 
 /* -----------------------------
--------------------------------- 
- 
-UPGRADE TEXT 
- 
+--------------------------------
+
+UPGRADE TEXT
+
 --------------------------------
 ----------------------------- */
 
@@ -2320,17 +2408,17 @@ body[plan='gift'] #upgrade { display: none !important; }
 
 
 /* -----------------------------
--------------------------------- 
- 
-DOWNLOADS 
- 
+--------------------------------
+
+DOWNLOADS
+
 --------------------------------
 ----------------------------- */
 
 body.downloading #download-button {
     text-decoration: underline;
     opacity: 0.1 !important;
-    pointer-events: none !important;    
+    pointer-events: none !important;
 }
 
 #start-downloads-button {
@@ -2373,7 +2461,7 @@ body.downloading #download-button {
     text-transform: uppercase;
     color: var(--cryptee-4);
     font-weight: 650;
-    
+
     position: absolute;
     top: 1.75rem;
     left: 1.75rem;
@@ -2455,7 +2543,7 @@ body.downloading #download-button {
     cursor: pointer;
     margin: 0;
     z-index: 2;
-    
+
     transform: scale(0.5);
     opacity: 0;
 
@@ -2471,16 +2559,16 @@ body.downloading #download-button {
 
 
 #button-save-multiple-downloads {
-    
+
     background-color: #fff;
     opacity: 0;
-    
+
     width: 5.5rem;
     height: 5.5rem;
     border-radius: 6rem;
     text-align: center;
     line-height: 5.75rem;
-    
+
     position: absolute;
     bottom: -0.5rem;
     right: -0.5rem;
@@ -2564,7 +2652,7 @@ body.downloading #download-button {
 #photos-downloader circle:nth-child(18) { animation-delay: calc(var(--delay-increment) * 1); }
 #photos-downloader circle:nth-child(19) { animation-delay: calc(var(--delay-increment) * 0); }
 
-#photos-downloader circle.done { 
+#photos-downloader circle.done {
     animation: none;
     animation-iteration-count: 1;
 }
@@ -2576,15 +2664,15 @@ body.downloading #download-button {
 
 
 /* -----------------------------
--------------------------------- 
- 
-MOVE MODAL OVERRIDES 
- 
+--------------------------------
+
+MOVE MODAL OVERRIDES
+
 --------------------------------
 ----------------------------- */
 /* #region MOVE MODAL OVERRIDES */
 
-#modal-move { 
+#modal-move {
     grid-template-rows: auto auto 1.5rem 1fr 4rem;
 }
 
@@ -2597,13 +2685,17 @@ MOVE MODAL OVERRIDES
 
 #albums-for-moving button {
     height: 4rem;
-    background-color: var(--cryptee-folder);
+    background: linear-gradient(to right, #181818, #242424);
     border-radius: 4rem;
     width: 100%;
     margin-top: 1.5rem;
     display: grid;
     grid-template-columns: 1fr 4rem;
     grid-template-rows: 2rem 2rem;
+}
+
+#albums-for-moving button[disabled] {
+    background: linear-gradient(to right, #222, #363636);
 }
 
 #albums-for-moving button:first-child {
@@ -2618,9 +2710,13 @@ MOVE MODAL OVERRIDES
     border-radius: 4rem;
     opacity: 1;
     object-fit: cover;
-    
+
     transition: 1s opacity ease;
     transition-delay: calc(var(--i) * 0.05s);
+}
+
+#albums-for-moving button.loading img {
+    animation: none !important;
 }
 
 #albums-for-moving button:not(.loaded) img {
@@ -2646,6 +2742,10 @@ MOVE MODAL OVERRIDES
     color: var(--cryptee-2);
 }
 
+#albums-for-moving button.shared time {
+    color: var(--cryptee-green);
+}
+
 #albums-for-moving button.selected {
     background-color: #FFF;
     color: #000;
@@ -2658,12 +2758,13 @@ MOVE MODAL OVERRIDES
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
+
     color: #000;
 
     grid-column: -2/-1;
     grid-row: 1/2;
     text-align: center;
+    height: 4rem;
     line-height: 4rem;
     font-size: 1.5rem;
     background-color: rgba(255,255,255,0.75);
@@ -2673,10 +2774,10 @@ MOVE MODAL OVERRIDES
 
 /* #endregion MOVE MODAL OVERRIDES */
 /* -----------------------------
--------------------------------- 
- 
-PANELS / TAGS 
- 
+--------------------------------
+
+PANELS / TAGS
+
 --------------------------------
 ----------------------------- */
 
@@ -2689,12 +2790,12 @@ PANELS / TAGS
     right: 0;
     left: 0;
     bottom: 0;
-    
+
     height: 26rem;
     width: 100%;
     max-width: 20rem;
     min-width: calc(320px - 5rem);
-    
+
     overflow: hidden;
     border-radius: 0.5rem;
     background-color: #121212;
@@ -2709,7 +2810,7 @@ PANELS / TAGS
 
     transform: translate3d(0, 0, 0);
     opacity: 1;
-    
+
     transition-duration: 0.3s;
     transition-property: opacity, transform;
     transition-timing-function: var(--cryptee-cb);
@@ -2774,10 +2875,10 @@ PANELS / TAGS
     font-weight: 350;
     line-height: 1.5rem;
     padding: 2rem;
-    
+
     text-transform: lowercase;
     white-space: pre-wrap;
-    
+
     color: var(--cryptee-yellow);
     pointer-events: none !important;
 
@@ -2786,8 +2887,8 @@ PANELS / TAGS
 
 #tags-highlighter i { color: white; font-style: normal; }
 
-#progress-tagging-photos { 
-    opacity: 1; 
+#progress-tagging-photos {
+    opacity: 1;
     margin-top: -0.25rem;
 }
 
@@ -2802,8 +2903,8 @@ PANELS / TAGS
     transition: 0.3s background-color ease, 0.3s color ease;
 }
 
-.panel button:last-child { 
-    text-align: right; 
+.panel button:last-child {
+    text-align: right;
 }
 
 #photos-tags-input[disabled] {
@@ -2820,10 +2921,10 @@ PANELS / TAGS
 }
 
 /* -----------------------------
--------------------------------- 
- 
-MOVE 
- 
+--------------------------------
+
+MOVE
+
 --------------------------------
 ----------------------------- */
 
@@ -2839,10 +2940,10 @@ button.radio[disabled] {
 
 
 /* -----------------------------
--------------------------------- 
- 
-VIDEO PLAYER PROGRESS 
- 
+--------------------------------
+
+VIDEO PLAYER PROGRESS
+
 --------------------------------
 ----------------------------- */
 
@@ -2867,9 +2968,9 @@ VIDEO PLAYER PROGRESS
 #lightbox-player-progress[time] b.played + b:not(.played) { background-color: #444; }
 
 /* -----------------------------
--------------------------------- 
- 
-ENVIRONMENT SPECIFIC RULES 
+--------------------------------
+
+ENVIRONMENT SPECIFIC RULES
 .. i.e. in beta, we show more info in doc panels
 
 --------------------------------
@@ -2881,21 +2982,461 @@ body:not([env]) .is-hidden-on-live-env { display: none !important; }
 
 
 /* -----------------------------
--------------------------------- 
- 
+--------------------------------
+
+SHARING
+
+--------------------------------
+----------------------------- */
+/* #region SHARING */
+
+#sharing-wrapper {
+    position: fixed;
+    margin: auto;
+    z-index: 9;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    height: auto;
+    min-height: 21rem;
+    max-height: 41rem;
+
+    width: 21rem;
+    padding: 1rem 1rem 0 1rem;
+    box-sizing: border-box;
+
+    overflow: hidden;
+    border-radius: 1rem;
+    background-color: #121212;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+
+    color: white;
+
+    opacity: 1;
+
+    transition-duration: 0.3s;
+    transition-property: opacity, transform;
+    transition-timing-function: var(--cryptee-cb);
+}
+
+#sharing-wrapper:not(.show) {
+    pointer-events: none !important;
+    transform: translate(-50%, -40%) !important;
+    opacity: 0 !important;
+}
+
+#sharing-wrapper button.close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+}
+
+#sharing-wrapper button.close.loading {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#sharing-wrapper button.close img {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+#sharing-wrapper h3 {
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+}
+
+#sharing-wrapper button {
+    width: 100%;
+    color: #FFF;
+    height: 4rem;
+    padding: 0 1rem;
+    border-radius: 0.5rem;
+    margin-top: 0;
+}
+
+#sharing-wrapper button.green { background-color: var(--cryptee-green); }
+#sharing-wrapper button.yellow { background-color: var(--cryptee-yellow); color: #000; }
+#sharing-wrapper button.red { background-color: var(--cryptee-red); }
+
+#sharing-wrapper button i {
+    font-size: 1.5rem;
+    float: right;
+    line-height: 1.825rem;
+    padding-right: 0.75rem;
+}
+
+#sharing-wrapper button.loading i { opacity: 0; }
+
+#sharing-wrapper button.half-left { width: calc(50% - 0.5rem); }
+#sharing-wrapper button.half-right {
+    width: calc(50% - 0.5rem);
+    float: right;
+}
+
+#sharing-wrapper button:not(.close) {
+    line-height: 4rem;
+    position: relative;
+}
+
+#sharing-wrapper button:not(.close) i {
+    position: absolute;
+    right: 1rem;
+    top: 1.25rem;
+}
+
+#sharing-tabs {
+    width: 100%;
+    height: 6.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+#sharing-tabs summary,
+#sharing-tabs details {
+    width: 100%;
+    height: 100%;
+    background-color: #292929;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+#sharing-wrapper summary {
+    list-style: none;
+}
+
+#sharing-wrapper summary::marker,
+#sharing-wrapper summary::-webkit-details-marker {
+    display: none;
+}
+
+#sharing-tabs summary {
+    box-sizing: border-box;
+    padding-top: 1rem;
+    outline: 1px solid transparent;
+}
+
+/* disable already open ones to prevent double clicking */
+#sharing-tabs details[open] {
+    pointer-events: none !important;
+}
+
+#sharing-tabs details[open] summary {
+    outline: 1px solid #fff;
+}
+
+
+#sharing-wrapper:has(#sharing-link-settings[open]) section:not(#sharing-link-settings-section),
+#sharing-wrapper:has(#sharing-access-control[open]) section:not(#sharing-access-control-section),
+#sharing-wrapper:has(#sharing-status[open]) section:not(#sharing-status-section) {
+    display: none !important;
+}
+
+/* #sharing-tabs details[disabled] {
+    opacity: 0.35 !important;
+    pointer-events: none !important;
+} */
+
+#sharing-tabs summary i {
+    width: 2rem;
+    height: 2rem;
+    margin: auto;
+    font-size: 2rem;
+    display: block;
+}
+
+#sharing-tabs details.loading summary {
+    background: linear-gradient(90deg, var(--cryptee-1), color-mix(in srgb, #fff 20%, var(--cryptee-2)), var(--cryptee-1));
+    animation: loadingBGWipeHorizontal 0.5s linear infinite;
+    background-size: 200% 200%;
+}
+
+#sharing-tabs summary small {
+    margin-top: 0.5rem;
+}
+
+#sharing-wrapper input {
+    display: block;
+    height: 4rem;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    line-height: 4rem;
+    color: #FFF;
+    background-color: #292929;
+    border-radius: 0.5rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    box-shadow: none;
+    outline: 1px solid transparent;
+}
+
+#sharing-wrapper input + small {
+    display: block;
+    text-align: right;
+    width: 6rem;
+    margin: -4rem 1rem 0 0;
+    float: right;
+    opacity: 1;
+    user-select: none !important;
+}
+
+#sharing-wrapper input:not(:placeholder-shown) + small {
+    opacity: 0;
+}
+
+#sharing-wrapper section p {
+    margin-top: 0;
+    padding: 1rem;
+}
+
+#sharing-settings-summary {
+    height: 3rem;
+}
+
+#sharing-settings-summary summary p {
+    display: block;
+    float: left;
+    line-height: 1.5rem;
+}
+
+#sharing-settings-summary summary i {
+    display: block;
+    font-size: 1.25rem;
+    float: right;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    cursor: pointer;
+    padding: 1rem 0;
+    margin-right: 1.25rem;
+}
+
+#sharing-settings-summary[open] > summary {
+    display: none !important;
+}
+
+#sharing-settings-summary details {
+    margin-bottom: 1rem;
+}
+
+#sharing-settings-summary details + details {
+    margin-bottom: 0;
+}
+
+#sharing-settings-summary details[open] summary {
+    outline: 1px solid #FFF;
+}
+
+#sharing-settings-summary details[name="quality"] summary {
+    width: 100%;
+    height: 4rem;
+    background-color: #292929;
+    border-radius: 0.5rem;
+}
+
+#sharing-settings-summary details[open] {
+    user-select: none;
+    pointer-events: none !important;
+}
+
+#sharing-settings-summary details summary p {
+    width: 45%;
+    float: left;
+    margin: 0;
+    line-height: 4.25rem;
+    box-sizing: border-box;
+    padding: 0 1rem;
+}
+
+#sharing-settings-summary details[name="quality"] summary small {
+    width: 45%;
+    float: right;
+    margin: 1rem 1rem 0 0;
+}
+
+#sharing-settings-summary details[name="filters"] {
+    width: calc(50% - 0.5rem);
+}
+
+#sharing-settings-summary details[name="filters"] summary {
+    background-color: #292929;
+    height: 4rem;
+    border-radius: 0.5rem;
+}
+
+#sharing-settings-summary details[name="filters"] summary p {
+    width: 100%;
+    text-align: center;
+}
+
+#sharing-settings-filters-all { float: left; }
+#sharing-settings-filters-favorites { float: right; }
+
+#sharing-wrapper #share-link {
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+#sharing-wrapper #button-copy-link {
+    position: relative;
+    z-index: 2;
+    display: block;
+    margin: -5rem 0 1rem auto;
+    width: 6rem;
+    height: 4rem;
+    background : linear-gradient(90deg,rgba(41, 41, 41, 0) 0%, rgba(41, 41, 41, 1) 65%);
+    pointer-events: none !important;
+}
+
+#button-copy-link.copied i::before {
+    color: #1ae361;
+    content: "\EB88";
+}
+
+#sharing-instructions {
+    margin-bottom: 1rem;
+}
+
+#sharing-instructions i {
+    float: left;
+    height: 2rem;
+    width: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    margin: 0 0.5rem 0 0;
+}
+
+#sharing-instructions p {
+    padding: 0 !important;
+    line-height: 2rem !important;
+}
+
+#popup-sharing-more-info {
+    width: 22rem;
+}
+
+#sharing-status-section p {
+    padding: 0 !important;
+}
+
+#access-log {
+    margin: 1rem -1rem -0.5rem -1rem;
+    padding: 0.25rem 1rem 0.25rem 1rem;
+    background-color: #292929;
+    border-radius: 1rem;
+    min-height: 7rem;
+    max-height: 20.75rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#access-log:empty::before {
+    content: "no activity so far...";
+    width: 100%;
+    display: block;
+    padding-top: 1rem;
+    text-align: center;
+}
+
+#access-log li {
+    display: grid;
+    grid-template-columns: 1fr 6rem;
+    grid-template-rows: 1.5rem 1.5rem;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid #FFF;
+}
+
+#access-log li:last-child {
+    border-bottom: none;
+    margin-bottom: 0.5rem;
+}
+
+#access-log li time {
+    font-size: 0.75rem;
+    text-align: right;
+}
+
+#access-log li p {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+}
+
+#access-log li * {
+    line-height: 1.5rem;
+    margin-top: 0;
+}
+
+#access-log li p + time,
+#access-log li small {
+    color: var(--cryptee-2);
+}
+
+#sharing-wrapper:has(#access-log:empty) #sharing-status {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+}
+
+#sharing-wrapper:has(#share-link:placeholder-shown) #sharing-access-control {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+}
+
+#photos-view-upgrade-sharing button:last-child {
+    width: 100%;
+}
+
+#sharing-wrapper #button-share-album span::before {
+    content: "update shared album";
+}
+
+#sharing-wrapper:has(#share-link:placeholder-shown) #button-share-album span::before {
+    content: "share this album with a link";
+}
+
+#sharing-wrapper:has(button.loading) input,
+#sharing-wrapper:has(button.loading) details {
+    pointer-events: none !important;
+    opacity: 0.5;
+}
+
+#sharing-wrapper input:-webkit-autofill,
+#sharing-wrapper input:-webkit-autofill:hover,
+#sharing-wrapper input:-webkit-autofill:focus,
+#sharing-wrapper input:-webkit-autofill:active {
+    -webkit-text-fill-color: #FFF;
+}
+
+#sharing-wrapper.revoke-confirm #button-revoke-link,
+#sharing-wrapper:not(.revoke-confirm) #button-cancel-revoke,
+#sharing-wrapper:not(.revoke-confirm) #button-confirm-revoke {
+    display: none !important;
+}
+
+/* #endregion SHARING */
+
+/* -----------------------------
+--------------------------------
+
 IT'S A POINTER DEVICE,
-ENABLE HOVERS 
- 
+ENABLE HOVERS
+
 --------------------------------
 ----------------------------- */
 
-@media (-moz-touch-enabled: 0), (pointer:fine) { 
+@media (-moz-touch-enabled: 0), (pointer:fine) {
 
-    #logo:hover, 
+    #logo:hover,
     #help:hover,
     nav button:hover,
-    nav .top.buttons button:hover,
-    nav .bottom.buttons:not(.selected) button:hover,
     .album .dropdown button:hover {
         opacity: 1 !important;
     }
@@ -2924,13 +3465,21 @@ ENABLE HOVERS
     #timeline small.sub:hover       { transform: translateX(1.5rem); }
     #timeline small:not(.sub):hover { transform: translateX(0.5rem); }
 
-    main:not(.scrolling):not(.browsing) .media:not(.selected):not(.loading):hover i   { 
-        opacity:1; 
+    main:not(.scrolling):not(.browsing) .media:not(.selected):not(.loading):hover i   {
+        opacity:1;
     }
-    
-    main:not(.scrolling):not(.browsing) .album:hover i                                { 
-        opacity:1; 
+
+    main:not(.scrolling):not(.browsing) .album:not(.shared):hover i                                {
+        opacity:1;
         transform: translate3d(0,0,0);
+    }
+
+    main:not(.scrolling):not(.browsing) .album:hover mark                             {
+        transform: translateX(0);
+    }
+
+    main:not(.scrolling):not(.browsing) .album:hover mark::after                             {
+        opacity: 1;
     }
 
     #favorites i {
@@ -2942,14 +3491,14 @@ ENABLE HOVERS
         flex-grow: 1.5;
     }
 
-    main:not(.scrolling):not(.browsing) .album:hover::before                          { 
+    main:not(.scrolling):not(.browsing) .album:not(.shared):hover::before                          {
         padding: 0 3rem 0 1rem;
         color: transparent;
     }
 
     #sorter i:hover { opacity:1; }
     #lightbox button:hover { opacity:1; }
-    
+
     .panel button:hover { background-color: var(--cryptee-green); }
     .panel button:last-child:hover { background-color: var(--cryptee-yellow); color: #000; }
     #add-tags-button.loading + button:hover {
@@ -2976,21 +3525,20 @@ ENABLE HOVERS
         transform: scale(1.1);
     }
 
-    #albumheader .date { width: 10.75rem; }
 }
 
 @media (-moz-touch-enabled : 1), (pointer:coarse) {
     #timeline small:not(.sub)        { transform: translateX(0rem); }
     #timeline small.sub              { transform: translateX(2rem); }
-    
+
     #timeline small.sub.active       { transform: translateX(0.5rem); }
     #timeline small:not(.sub).active { transform: translateX(0rem); }
 
     #timeline.compact small:not(.sub) { transform: translateX(0.5rem); }
 
-    .media i { 
-        opacity:1 !important; 
-        transform: scale(0.75) !important; 
+    .media i {
+        opacity:1 !important;
+        transform: scale(0.75) !important;
         top: 0.5rem;
         right: 0.5rem;
     }
@@ -3002,7 +3550,7 @@ ENABLE HOVERS
         line-height: 3.5rem;
         transform: translate3d(0,0,0);
     }
-    
+
     .album i::before {
         content: "\EF76";
     }
@@ -3026,15 +3574,15 @@ ENABLE HOVERS
 
 
 /* -----------------------------
--------------------------------- 
- 
-MEDIA QUERIES 
- 
+--------------------------------
+
+MEDIA QUERIES
+
 --------------------------------
 ----------------------------- */
 @media (min-width:1024px) and (max-width : 1343px) {
     .album, .album img { width: 26rem; }
-    .album::after { 
+    .album::after {
         padding: 2rem 8.5rem 0 1.5rem;
     }
 
@@ -3046,7 +3594,7 @@ MEDIA QUERIES
     #favorites { width: 36rem; }
 }
 
-@media (max-width : 703px) { 
+@media (max-width : 703px) {
     main {
         grid-template-columns: minmax(4rem, 1fr) minmax(4rem, 1fr) minmax(4rem, 1fr) minmax(4rem, 1fr);
         column-gap: 0;
@@ -3056,21 +3604,21 @@ MEDIA QUERIES
 
     .nav-gallery main #albumContents { max-width: calc(100% - 4rem);}
 
-    .contents { 
+    .contents {
         margin-left: 0;
         grid-column: 1/-1;
     }
 
-    .album { 
-        width: calc(100% - 2rem); 
+    .album {
+        width: calc(100% - 2rem);
         margin: 1rem 1rem 0 1rem;
     }
 
     #favorites { width: calc(100% - 2rem); }
 
-    .media { 
-        width: calc(25vw - 1.25rem); 
-        height: calc(25vw - 1.25rem); 
+    .media {
+        width: calc(25vw - 1.25rem);
+        height: calc(25vw - 1.25rem);
         margin: 1rem 0 0 1rem;
     }
 
@@ -3079,7 +3627,7 @@ MEDIA QUERIES
     nav .right-side { grid-column: 3/-1; }
 
     .album img { width: 100%; height: 20rem; }
-    
+
     .album::after { width: 100%; }
 
     .album .dropdown {
@@ -3095,18 +3643,22 @@ MEDIA QUERIES
     #albumheader h2, .searchheader h2 {
         /* h3 equivalent */
         font-size: 1.325rem;
-        line-height: 2rem;          
+        line-height: 2rem;
         letter-spacing: 0.125rem;
-        padding: 0 1rem;  
-        width: calc(100% - 2rem); 
+        padding: 0 1rem;
+        width: calc(100% - 2rem);
     }
 
-    .nav-favorites #albumheader h2::after { 
+    .nav-favorites #albumheader h2::after {
         font-size: 1.325rem;
         line-height: 1.75rem;
     }
 
-    #albumheader .date, 
+    #albumheader .date {
+        width: calc(25vw - 1.25rem);
+        margin-left: 1rem;
+    }
+
     .searchheader .title {
         margin-left: 1rem;
     }
@@ -3131,10 +3683,10 @@ MEDIA QUERIES
         padding-top: 2rem;
         margin-bottom: 0;
     }
-    
+
     #help,
     .nav-album #timeline { display: none !important; }
-    
+
     #upgrade {
         background-color: var(--cryptee-4);
         bottom: 0;
@@ -3164,14 +3716,14 @@ MEDIA QUERIES
     .album img {height: 16rem; }
     .album::after, .album::before { font-size: 0.85rem; }
 
-    #albumheader .date { 
-        width: calc(50vw - 1.5rem); 
+    #albumheader .date {
+        width: calc(50vw - 1.5rem);
         margin-right: 0.75rem;
     }
 
-    .media { 
-        width: calc(50vw - 1.5rem); 
-        height: calc(50vw - 1.5rem); 
+    .media {
+        width: calc(50vw - 1.5rem);
+        height: calc(50vw - 1.5rem);
     }
 
     .searchheader {
@@ -3180,7 +3732,7 @@ MEDIA QUERIES
     }
 
     .album { grid-column: span 2; grid-row: span 1; }
-    
+
     .album .dropdown {
         height: 6.5rem;
     }
@@ -3190,7 +3742,7 @@ MEDIA QUERIES
     }
 
     #lightbox-close      { grid-column: 1/2; }
-    
+
     #lightbox-favorite   { grid-column: -3/-2; }
     #lightbox-info       { grid-column: -4/-3; }
     #lightbox-download,
@@ -3200,17 +3752,17 @@ MEDIA QUERIES
     #sorter { padding-left: 1.5rem; }
 
     .swiper-video-container::before,
-    .swiper-zoom-container::before { 
+    .swiper-zoom-container::before {
         height: 12rem;
     }
 
-    .swiper-zoom-container::after { 
+    .swiper-zoom-container::after {
         height: 8rem;
         font-size: 1rem;
-        padding: 0 1.75rem 2rem 1.75rem; 
+        padding: 0 1.75rem 2rem 1.75rem;
     }
 
-    .swiper-video-container::after { 
+    .swiper-video-container::after {
         height: 8rem;
         font-size: 1rem;
         padding: 0 1.75rem 5rem 1.75rem;
@@ -3227,10 +3779,10 @@ MEDIA QUERIES
 
 
 /* -----------------------------
--------------------------------- 
- 
-VIEW TRANSITIONS 
- 
+--------------------------------
+
+VIEW TRANSITIONS
+
 --------------------------------
 ----------------------------- */
 /* #region VIEW TRANSITIONS */
@@ -3244,7 +3796,7 @@ VIEW TRANSITIONS
         animation-timing-function: ease-out;
         animation-direction: normal;
     }
-    
+
 }
 
 /* #endregion VIEW TRANSITIONS */
