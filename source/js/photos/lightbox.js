@@ -549,7 +549,7 @@ async function videoEnteredLightbox(id) {
     // don't download / decrypt video if it's already in lightbox cache
     // instead play it if it's already cached. 
     
-    if (!isVideoInLightboxCache(id)) {
+    if (!isVideoInLightboxCache(id) || !loadedVideos[id]) {
         
         startLightboxProgress();
         
@@ -575,9 +575,11 @@ async function videoEnteredLightbox(id) {
         
     }
     
-    await new Promise(resolve => loadedVideos[id].video.addEventListener('loadedmetadata', resolve));
-    await new Promise(resolve => loadedVideos[id].video.addEventListener('loadeddata', resolve));
-    calculateVideoProgress();
+    if (loadedVideos[id] && loadedVideos[id].video) {
+        await new Promise(resolve => loadedVideos[id].video.addEventListener('loadedmetadata', resolve));
+        await new Promise(resolve => loadedVideos[id].video.addEventListener('loadeddata', resolve));
+        calculateVideoProgress();
+    }
 
     useActiveVideoInMediaSession();
 

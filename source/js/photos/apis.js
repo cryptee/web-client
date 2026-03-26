@@ -661,7 +661,7 @@ async function setAlbumCover(aid, pid) {
         return false;
     }
 
-    if (setThumbnail) {
+    if (setThumbnail && albums[aid]) {
         albums[aid].thumb  = tid;
         albums[aid].ltoken = (photos[pid].ltoken || "");
         albums[aid].ttoken = (photos[pid].ttoken || "");

@@ -434,8 +434,8 @@ async function uploadQueueFinished(aid) {
 
     uploadQueueOrder.length = 0;
 
-    if (aid && aid !== "home" && !albums[aid].thumb) {
-        var firstPhotoInAlbum = albums[aid].photos[0];
+    if (aid && aid !== "home" && albums[aid] && !albums[aid].thumb) {
+        var firstPhotoInAlbum = (albums[aid].photos || [])[0];
         await setAlbumCover(aid, firstPhotoInAlbum);
         refreshAlbumInDOM(aid);
     }

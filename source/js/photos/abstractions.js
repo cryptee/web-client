@@ -29,13 +29,13 @@ function prepBeforeLoadingAlbumOrFavorites() {
     $("#albumContents").empty();
 
     // remove all lightbox events to stop thousands of slideChange events from triggering.
-    // and remove all slides from lightbox 
+    // and remove all slides from lightbox
     try { lightbox.off('slideChange'); } catch (e) {}
-    lbox.removeAllSlides(); 
+    lbox.removeAllSlides();
 
     // clear timeline
     clearTimeline(true);
-    
+
     // scroll to top
     scrollTop();
 }
@@ -47,14 +47,14 @@ let lastLoadedAlbum;
  * @param {string} aid Album ID
  */
 async function loadAlbum(aid) {
-    
+
     if (aid === "favorites") { return loadFavorites(); }
 
-    if (activeAlbumID === aid) { 
+    if (activeAlbumID === aid) {
         breadcrumb('[LOAD ALBUMS] Already in this album ('+aid+').');
         clearSearch();
         stopMainProgress();
-        return; 
+        return;
     }
 
     prepBeforeLoadingAlbumOrFavorites();
@@ -63,10 +63,10 @@ async function loadAlbum(aid) {
     // we'll set "startedUp" to true once loadAlbum is complete for the first time.
     if (startedUp) {
 
-        if (aid === "home") { 
-            // if we did start up, and if we're just navigating back to gallery, get a fresh set of all albums. 
-            await getAlbums(); 
-        } 
+        if (aid === "home") {
+            // if we did start up, and if we're just navigating back to gallery, get a fresh set of all albums.
+            await getAlbums();
+        }
 
         // if we did start up, get a fresh set of the album's photos. (or if 'home', get all photos without albums)
         await getAlbumPhotos(aid);
@@ -75,14 +75,14 @@ async function loadAlbum(aid) {
 
     // decrypt the album's titles, and add them to the albums object
 
-    // – if we haven't started up, this means we have encrypted titles in memory, and we should decrypt them now. 
-    // – if we did start up, get a fresh set of titles & decrypt (if we're not loading home) 
+    // – if we haven't started up, this means we have encrypted titles in memory, and we should decrypt them now.
+    // – if we did start up, get a fresh set of titles & decrypt (if we're not loading home)
     // – getAlbums will already decrypt home's titles. So do this only when we're not loading home.
     if (!startedUp || aid !== "home") {
         await decryptAlbumTitles(aid);
     }
-    
-    // we haven't started up, and the url has an album's ID = we're loading in straight to the album. 
+
+    // we haven't started up, and the url has an album's ID = we're loading in straight to the album.
     // this means we'll need this album's name to display in the header, and the only way to get it is if we decrypt home's titles.
     // this won't be decrypted in getAlbums if we haven't started up (because getAlbums is called in pre-startup, without the keys.)
 
@@ -122,9 +122,9 @@ async function loadAlbum(aid) {
         if (id.startsWith("p-") || id.startsWith("v-") || id.startsWith("r-")) {
             var photoHTML = renderMedia(id);
             albumContentsHTML.push(photoHTML);
-            
+
             addToTimeline(item);
-            
+
             lightboxContentsHTML.push(renderLightboxMedia(id));
         }
     });
@@ -137,36 +137,36 @@ async function loadAlbum(aid) {
     // now that all slides are in the lightbox, start listening for slideChange again.
     lightbox.on('slideChange', lightboxMediaChanged);
 
-    // PREPARE NAVBAR 
+    // PREPARE NAVBAR
     updateAlbumNavbar();
 
     /// Once everything's added to DOM, add their intersection observers. and draw timeline
     setTimeout(function () {
         drawTimeline(albumSort);
     }, 10);
-    
-    setTimeout(function () { 
+
+    setTimeout(function () {
         $("#albumContents").children().each(function () {
             setupIntersectionObserver (this);
         });
     }, 500);
-    
-    setTimeout(function () { 
+
+    setTimeout(function () {
         $("#albumContents").removeClass("loading");
-        updateTimelineWithItemsOnScreen(); 
+        updateTimelineWithItemsOnScreen();
     }, 1000);
-    
+
     resetShareAlbumPopup();
-    
+
     // Check if album is a shared album, and fill out the inputs with the correct info
     if (albums[activeAlbumID].share && !isEmpty(albums[activeAlbumID].share)) { await populateShareAlbumPopup(); }
 
-    
 
 
-    
-    
-    
+
+
+
+
 
     // STOP PROGRESS
     stopMainProgress();
@@ -185,14 +185,14 @@ async function loadAlbum(aid) {
         }
     }
 
-    if (activeAlbumID !== "home") { 
-        lastLoadedAlbum = activeAlbumID; 
+    if (activeAlbumID !== "home") {
+        lastLoadedAlbum = activeAlbumID;
     } else {
         // scroll to album
         scrollToItem(lastLoadedAlbum);
         lastLoadedAlbum = null;
     }
-    
+
 }
 
 
@@ -208,7 +208,7 @@ function updateAlbumNavbar() {
         navbarForAlbum();
     }
 
-    var numberOfPhotosInAlbum = (albums[activeAlbumID].photos || []).length || 0;
+    var numberOfPhotosInAlbum = ((albums[activeAlbumID] || {}).photos || []).length || 0;
     if (numberOfPhotosInAlbum <= 0) {
         navbarForNoPhotos();
     }
@@ -222,9 +222,9 @@ function updateAlbumNavbar() {
  */
 async function loadFavorites() {
 
-    if (activeAlbumID === "favorites") { 
+    if (activeAlbumID === "favorites") {
         breadcrumb('[LOAD FAVORITES] Already in favorites');
-        return; 
+        return;
     }
 
     prepBeforeLoadingAlbumOrFavorites();
@@ -250,7 +250,7 @@ async function loadFavorites() {
     for (const pid in favorites) {
         let extendedFav = favorites[pid] || {};
         extendedFav.id = pid;
-        sortedFavorites.push(extendedFav);       
+        sortedFavorites.push(extendedFav);
     }
 
     sortedFavorites.sort(function (a, b) {
@@ -284,9 +284,9 @@ async function loadFavorites() {
         navbarForNoPhotos();
     }
 
-    // Once everything's added to DOM, add their intersection observers. 
-    
-    setTimeout(function () { 
+    // Once everything's added to DOM, add their intersection observers.
+
+    setTimeout(function () {
         $("#albumContents").children().each(function () {
             setupIntersectionObserver (this);
         });
@@ -315,10 +315,10 @@ async function loadFavorites() {
  * @param {string} pid Photo ID
  */
 async function loadMedia(pid) {
-    
+
     if (!pid) {
         handleError('[LOAD MEDIA] Failed to load. No PID.');
-        return false; 
+        return false;
     }
 
     var thumbID = convertID(pid, "t");
@@ -327,22 +327,22 @@ async function loadMedia(pid) {
     hideSorter();
     hideAllPopups();
     clearSearch(true);
-    
+
     var mediaDataURL;
-    
+
     // don't download / decrypt if it's already in lightbox cache
     if (!isMediaInLightboxCache(pid)) {
-        try {    
+        try {
             if (extensionOfPhoto(pid) === "gif") {
                 // if it's a GIF, load original, since we don't have a lightbox image
                 mediaDataURL = await getMedia(pid, "p", "url");
             } else {
-                // if it's not a gif  
+                // if it's not a gif
                 // – OR WE DON'T KNOW WHETHER IF IT'S A GIF OR NOT
                 // – THIS CAN HAPPEN IF SOMEONE FAVORITES A GIF. FAVORITES DON'T HAVE NAMES
-                // – SO WE WON'T KNOW THE PHOTO'S EXTENSION. 
+                // – SO WE WON'T KNOW THE PHOTO'S EXTENSION.
 
-                // even for videos, first load the lightbox poster. 
+                // even for videos, first load the lightbox poster.
                 // we'll start loading video AFTER the lightbox is shown
                 // try loading lightbox size, if it fails, get photo will auto-try and use original size.
                 mediaDataURL = await getMedia(pid, "l", "url");
@@ -350,7 +350,7 @@ async function loadMedia(pid) {
         } catch (error) {
             error.pid = pid;
             handleError('[LOAD MEDIA] Failed to download/decrypt photo.', error);
-            return false; 
+            return false;
         }
 
         // if for some reason we fail to get the large size let's use the thumb size, better this than nothing
@@ -360,18 +360,18 @@ async function loadMedia(pid) {
     var photoIndex = getVisibleMediaIndex(pid);
 
     // this will make sure the div is now in DOM (and not just in virtual slider DOM) so that you can add the image into it
-    lightbox.slideTo(photoIndex, null, false);   
-    
+    lightbox.slideTo(photoIndex, null, false);
+
     // not sure why but the first photo doesn't trigger slide-change, presumably because we're already on that slide on launch
     if (photoIndex === 0) {
-        lightboxMediaChanged(); 
+        lightboxMediaChanged();
     }
 
-    // if photo is in cache, and in fact in the swiper, there's no need to add it again. 
+    // if photo is in cache, and in fact in the swiper, there's no need to add it again.
     addMediaToLightboxDOMIfNotAlreadyInCache(pid, mediaDataURL);
 
     setTimeout(function () {
-        // wait for the DOM to update on slow devices. we're injecting b664 inline here. ugh. sorry. 
+        // wait for the DOM to update on slow devices. we're injecting b664 inline here. ugh. sorry.
         showLightbox(pid);
         stopMainProgress();
     }, 20);
@@ -379,40 +379,40 @@ async function loadMedia(pid) {
 }
 
 /**
- * Loads a photo from search result by first loading the album, then loading the photo. 
- * @param {string} pid 
+ * Loads a photo from search result by first loading the album, then loading the photo.
+ * @param {string} pid
  */
 async function loadSearchResult(pid) {
     if (!pid) {
         handleError('[LOAD SEARCH RESULT] Failed to load. No PID.');
-        return false; 
+        return false;
     }
 
     var photo = photos[pid];
     if (isEmpty(photo)) {
         handleError('[LOAD SEARCH RESULT] Failed to load. Photo not found in memory.', { pid:pid });
-        return false; 
+        return false;
     }
 
-    var aid = photo.aid;  
+    var aid = photo.aid;
     if (!aid) {
         handleError('[LOAD SEARCH RESULT] Failed to load. Album of photo not found.', { pid:pid, aid:aid });
-        return false; 
+        return false;
     }
 
     hideAllPopups();
-    
+
     breadcrumb('[LOAD SEARCH RESULT] Loading Album');
-    
+
     // first load the album if we're not already in it
-    if (activeAlbumID !== aid) { 
+    if (activeAlbumID !== aid) {
         await loadAlbum(aid);
     }
-    
+
     breadcrumb('[LOAD SEARCH RESULT] Loading Photo');
     // then load the photo from the album
     await loadMedia(pid);
-    
+
     breadcrumb('[LOAD SEARCH RESULT] Loaded Photo');
     return true;
 }
@@ -435,9 +435,9 @@ async function loadSearchResult(pid) {
  * @param {string} aid AlbumID
  */
 async function decryptAlbumTitles(aid) {
-    if (!aid) { 
+    if (!aid) {
         handleError("[DECRYPT ALBUM TITLES] Can't decrypt. No AlbumID");
-        return false; 
+        return false;
     }
 
     var album = albums[aid];
@@ -445,7 +445,7 @@ async function decryptAlbumTitles(aid) {
         handleError("[DECRYPT ALBUM TITLES] Can't decrypt. Album doesn't exist.", {aid : aid});
         return false;
     }
-    
+
     var encryptedTitles = album.titles;
     if (!encryptedTitles) {
         breadcrumb("[DECRYPT ALBUM TITLES] Nothing to decrypt. Album has no titles", {aid : aid});
@@ -487,7 +487,7 @@ async function decryptAlbumTitles(aid) {
 
     var decryptedPhotoTitles = decryptedTitles.photos;
     for (var photoID in decryptedPhotoTitles) {
-        if (decryptedPhotoTitles.hasOwnProperty(photoID)) {            
+        if (decryptedPhotoTitles.hasOwnProperty(photoID)) {
             photos[photoID] = photos[photoID] || {};
             var parsedPhotoTitle = "Untitled.jpg";
             try {
@@ -512,28 +512,28 @@ async function decryptAlbumTitles(aid) {
 
 /**
  * Decrypts a given encrypted tags object, and returns a decrypted tags object.
- * @param {Object} encryptedTags (hmac : encryptedTag) 
+ * @param {Object} encryptedTags (hmac : encryptedTag)
  */
 async function decryptTags(encryptedTags) {
-    
+
     var decryptedTags = {};
 
-    if (isEmpty(encryptedTags)) { 
+    if (isEmpty(encryptedTags)) {
         handleError("[DECRYPT TAGS] Can't decrypt tags, empty encryptedTags object");
-        return decryptedTags; 
+        return decryptedTags;
     }
 
     breadcrumb('[DECRYPT TAGS] Decrypting tags');
-    
+
     for (var hmac in encryptedTags) {
-        
+
         await decrypt(encryptedTags[hmac], [theKey]).then((decryptedTag)=>{
             breadcrumb('[DECRYPT TAGS] Decrypted: ' + hmac);
             decryptedTags[hmac] = decryptedTag.data;
         });
-        
+
     }
-        
+
     if (isEmpty(decryptedTags)) {
         handleError("[DECRYPT TAGS] Failed to decrypt all tags, returning empty decryptedTags object");
         return decryptedTags;
@@ -550,11 +550,11 @@ async function decryptTags(encryptedTags) {
  * @returns {Promise <String>} plaintextDescription Decrypted Photo Description String
  */
 async function decryptPhotoDescription(pid) {
-    
+
     if (!pid) { return false; }
     if (isEmpty(photos[pid])) { return false; }
 
-    var encryptedDescription = photos[pid].desc; 
+    var encryptedDescription = photos[pid].desc;
     if (!encryptedDescription) { return false; }
 
     var plaintextDescription;
@@ -588,7 +588,7 @@ function getSortedActiveAlbumContents(sorttype) {
     $(".sort-button").removeClass("selected");
 
     var titlesArray = [];
-    
+
     // if the active album is home, add album titles to the list of things to sort
     if (activeAlbumID === "home") {
         for (var albumID in albums) {
@@ -602,7 +602,7 @@ function getSortedActiveAlbumContents(sorttype) {
     }
 
     // otherwise, add photos to the mix of things to sort
-    // if for some reason the API request to "photos-album" fails, this object could be undefined, 
+    // if for some reason the API request to "photos-album" fails, this object could be undefined,
     // and we won't be able to access photos.
     if (!isEmpty(albums[activeAlbumID])) {
         if (albums[activeAlbumID].photos) {
@@ -720,7 +720,7 @@ function getSortedActiveAlbumContents(sorttype) {
 
 /**
  * Sorts all visible items (i.e. photos / albums etc) and updates the lightbox & timeline
- * @param {('az-desc'|'az-asc'|'date-desc'|'date-asc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc'|'video-asc'|'video-desc')} sorttype The sort order / type 
+ * @param {('az-desc'|'az-asc'|'date-desc'|'date-asc'|'fav-asc'|'fav-desc'|'raw-asc'|'raw-desc'|'video-asc'|'video-desc')} sorttype The sort order / type
  */
 function sortThings(sorttype) {
     sorttype = sorttype || "date-desc";
@@ -729,7 +729,7 @@ function sortThings(sorttype) {
     const userLocale = navigator.language || navigator.userLanguage;
 
     var sortFunction;
-    
+
     if (sorttype === "az-asc") {
         sortFunction = function(a,b) {
             var at = ($(a).attr("name") || "").toUpperCase();
@@ -786,7 +786,7 @@ function sortThings(sorttype) {
         };
     } else if (sorttype === "date-asc") {
         sortFunction = function(a,b) {
-            if ($(a).attr("datesort") < $(b).attr("datesort")) { return -1; } else { return 1; }  
+            if ($(a).attr("datesort") < $(b).attr("datesort")) { return -1; } else { return 1; }
         };
     } else { // date-desc
         sortFunction = function (a,b) {
@@ -803,7 +803,7 @@ function sortThings(sorttype) {
     setAlbumMeta(activeAlbumID, {"sort" : sorttype});
 
     clearTimeline();
-    
+
     setTimeout(function () {
         drawTimeline(sorttype);
     }, 300);
@@ -875,7 +875,7 @@ function addToTimeline(item) {
     timelineObject.years = timelineObject.years || {};
     timelineObject.months = timelineObject.months || {};
     timelineObject.days = timelineObject.days || {};
-    
+
     timelineObject.yearsAndMonths = timelineObject.yearsAndMonths || {};
     timelineObject.monthsAndDays = timelineObject.monthsAndDays || {};
 
@@ -896,7 +896,7 @@ function addToTimeline(item) {
 function drawTimeline(sort) {
 
     sort = sort || "date-desc";
-    
+
     var sortOrder = "asc";
     if (sort.endsWith("desc")) { sortOrder = "desc"; }
 
@@ -927,14 +927,14 @@ function drawTimeline(sort) {
         }
     }
 
-    
+
 }
 
 
 /**
  * Analyzes the timeline object, and pics the optimum timeline - type to display
- * @param {('az-desc'|'az-asc'|'date-desc'|'date-asc')} sort a sorttype  
- */  
+ * @param {('az-desc'|'az-asc'|'date-desc'|'date-asc')} sort a sorttype
+ */
 function analyzeTimelineObject(sort) {
     var whatToUse;
     if (sort.startsWith("date")) {
@@ -966,7 +966,7 @@ function analyzeTimelineObject(sort) {
         }
 
     } else {
-        //  use az 
+        //  use az
         whatToUse = "az";
     }
     return whatToUse;
@@ -983,13 +983,13 @@ function renderTimeline(labels, whatToUse) {
         setTimeout(function () { renderTimeline(labels, whatToUse); }, 10);
         return;
     }
-    
+
     $("#timeline").attr("type", whatToUse);
 
     labels.forEach(function (label, index) {
         $("#timeline").append(renderTimelineLabel(label, whatToUse));
     });
-    
+
     setTimeout(function () {
         var childrenHeight = $("#timeline").children().length * 17; // 16px + 1px border;
         var timelineHeight = $("#timeline").height();
@@ -1003,9 +1003,9 @@ function renderTimeline(labels, whatToUse) {
             setTimeout(function () { elem.removeClass("loading"); }, i * 25);
         });
     }, 10);
-    
+
 }
-  
+
 
 /**
  * Renders timeline labels
@@ -1017,7 +1017,7 @@ function renderTimelineLabel(label, whatToUse) {
     var year, month, monthName, day;
 
     // normalize a few characters in dates I think some cameras might be using this in exif. [facepalm].
-    label = label.split("/").join(":"); 
+    label = label.split("/").join(":");
     label = label.split("-").join(":");
     label = label.split(".").join(":");
 
@@ -1040,7 +1040,7 @@ function renderTimelineLabel(label, whatToUse) {
 
     } else if (whatToUse === "monthsAndDays") {
 
-        year = Object.keys((timelineObject.years || {}))[0]; // all months have same year. 
+        year = Object.keys((timelineObject.years || {}))[0]; // all months have same year.
         month = label.split(":")[0];
         day = label.split(":")[1];
         monthName = monthsShort[parseInt(month)];
@@ -1059,7 +1059,7 @@ function renderTimelineLabel(label, whatToUse) {
 
     } else if (whatToUse === "months") {
 
-        year = Object.keys((timelineObject.years || {}))[0]; // all months have same year. 
+        year = Object.keys((timelineObject.years || {}))[0]; // all months have same year.
         monthName = monthsShort[parseInt(label)];
         labelElement = `<small class='loading' goto='${year}${label}' id='tl-label-${year}${label}'>${monthName}</small>`;
 
@@ -1082,10 +1082,10 @@ function renderTimelineLabel(label, whatToUse) {
  * Updates the timeline with items that are in viewport. (i.e. when user scrolls etc)
  */
 function updateTimelineWithItemsOnScreen() {
-    
+
     var using = $("#timeline").attr("type");
     var itemsOnScreen = $(".onscreen");
-    
+
     $("small[goto]").removeClass("active");
 
     itemsOnScreen.forEach(item => {
@@ -1093,24 +1093,24 @@ function updateTimelineWithItemsOnScreen() {
         var firstLetter = name.slice(0,1).toUpperCase();
 
         var date        = item.getAttribute("exifdate") || "";
-        var year        = (date.split(":")[0] || "").trim().split(" ")[0]; 
-        var month       = (date.split(":")[1] || "").trim().split(" ")[0]; 
+        var year        = (date.split(":")[0] || "").trim().split(" ")[0];
+        var month       = (date.split(":")[1] || "").trim().split(" ")[0];
         var day         = (date.split(":")[2] || "").trim().split(" ")[0];
 
         if (using === "years") {
             $(`#tl-label-${year}`).addClass("active");
         }
 
-        if (using === "yearsAndMonths") { 
+        if (using === "yearsAndMonths") {
             $(`#tl-date-${year}`).addClass("active");
             $(`#tl-date-${year}${month}`).addClass("active");
         }
-        
+
         if (using === "monthsAndDays") {
             $(`#tl-date-${year}${month}`).addClass("active");
             $(`#tl-date-${year}${month}${day}`).addClass("active");
         }
-        
+
         if (using === "months") {
             $(`#tl-label-${year}${month}`).addClass("active");
         }
@@ -1132,18 +1132,18 @@ function updateTimelineWithItemsOnScreen() {
 
 /**
  * When user clicks / taps / swipes on a timeline label, scrolls the page with timeline
- * @param {*} timelineLabel 
- * @param {string} smooth (option to scroll smoothly or not. use this for clicks, and not for swipes) 
+ * @param {*} timelineLabel
+ * @param {string} smooth (option to scroll smoothly or not. use this for clicks, and not for swipes)
  */
 function scrollWithTimeline(timelineLabel, smooth) {
     smooth = smooth || false;
-    
+
     if(!timelineLabel) { return false; }
 
     var goto = (timelineLabel.getAttribute("goto") || "").toLowerCase();
-    
+
     if (!goto) { return false; }
-    
+
     var firstElem;
 
     if (goto.startsWith("day")) {
@@ -1188,8 +1188,8 @@ function togglePhotoSelection(pid) {
 
 /**
  * Selects multiple visible photos (i.e. of the filtered ones etc)
- * @param {*} startIndex 
- * @param {*} endIndex 
+ * @param {*} startIndex
+ * @param {*} endIndex
  */
 function selectPhotos(startIndex, endIndex) {
     const visibleMedia = Array.from($(".media")).filter(el => window.getComputedStyle(el).display !== 'none');
@@ -1225,12 +1225,12 @@ function clearSelections() {
 
 /**
  * Shift selects a visible photo
- * @param {string} photoID 
+ * @param {string} photoID
  */
 function shiftSelectedPhoto(photoID) {
     const visibleMedia = Array.from($(".media")).filter(el => window.getComputedStyle(el).display !== 'none');
     const targetIndex = visibleMedia.findIndex(el => el.id === photoID);
-    
+
     let lastSelectedIndex = -1;
     for (let i = 0; i < visibleMedia.length; i++) {
         if (visibleMedia[i].classList.contains("selected")) {
@@ -1271,7 +1271,7 @@ function updateSelections() {
         var moreThanOneSelected = (noSelectedPhotos > 1);
         $("#make-cover-button").toggleClass("hidden", moreThanOneSelected);
     }
-    
+
     hideActiveModal();
     activityHappened();
 }
@@ -1305,42 +1305,42 @@ var downloadingPhotos = false;
 
 /**
  * Starts bulk downloads using the picked download size. If none picked, then it's og.
- * @param {('og'|'lg'|'sm')} pickedDownloadSize 
- * @returns 
+ * @param {('og'|'lg'|'sm')} pickedDownloadSize
+ * @returns
  */
 async function startDownloads(pickedDownloadSize) {
-    
-    // download in a batch of 2 for now, since parallel decrypting more stuff could mess things up. 
-    // i.e. if a photo is 500mb, 2 of these would take ~1000mb memory. 
-    if (downloadingPhotos) { 
+
+    // download in a batch of 2 for now, since parallel decrypting more stuff could mess things up.
+    // i.e. if a photo is 500mb, 2 of these would take ~1000mb memory.
+    if (downloadingPhotos) {
         breadcrumb("[DOWNLOAD PHOTOS] Already downloading");
-        return; 
+        return;
     }
 
     downloadingPhotos = true;
     downloadsCancelled = false;
-    
+
     var selections = selectedPhotos();
     breadcrumb(`[DOWNLOAD PHOTOS] Starting to download a total of ${selections.length} photo(s) in batches of 2`);
-    
+
     hideDownloadSizePicker();
     $("body").addClass("downloading");
     $('#photos-downloader').addClass("show");
     $('#photos-downloader').removeClass("done");
-    
+
     $('#photos-downloader circle').each(function(){
         $(this).removeClass('done');
     });
 
     $("#photos-downloader > small").text(`0/${selections.length}`);
-    
+
     if (isios || isipados || isAndroid) {
-        
+
         breadcrumb("[DOWNLOAD PHOTOS] iOS/Android, so using bulk downloader with native share dialog.");
         await downloadAndSaveMultipleMedia(pickedDownloadSize);
 
     } else {
-        
+
         breadcrumb("[DOWNLOAD PHOTOS] non-iOS/Android, so using old school downloader without share dialog.");
 
         $("#start-downloads-button").addClass("downloading");
@@ -1366,7 +1366,7 @@ async function startDownloads(pickedDownloadSize) {
 
     downloadingPhotos = false;
     downloadsCancelled = false;
-    
+
     // DOWNLOAD COMPLETE
 
     return true;
@@ -1376,8 +1376,8 @@ async function startDownloads(pickedDownloadSize) {
 /**
  * Downloads and saves a media to disk
  * @param {string} pid Media ID
- * @param {('og'|'lg'|'sm')} pickedDownloadSize 
- * @param {*} isDownloadingMultipleItems (this will be passed = true, if we're downloading this photo/video as a part of a batch, which will force "save as", instead of showing the native share dialog in ios and android pwa) 
+ * @param {('og'|'lg'|'sm')} pickedDownloadSize
+ * @param {*} isDownloadingMultipleItems (this will be passed = true, if we're downloading this photo/video as a part of a batch, which will force "save as", instead of showing the native share dialog in ios and android pwa)
  */
 async function downloadAndSaveMedia(pid, isDownloadingMultipleItems, pickedDownloadSize) {
     if (!pid) { return false; } // likely the last in batch (an odd number)
@@ -1389,10 +1389,10 @@ async function downloadAndSaveMedia(pid, isDownloadingMultipleItems, pickedDownl
     if (pickedDownloadSize === "lg") { downloadSize = "l"; }
     if (pickedDownloadSize === "sm") { downloadSize = "t"; }
 
-    // if we're downloading / saving multiple photos, 
-    // we'll need to force saveAs instead of showing the user the native share popup on ios/android PWA. 
+    // if we're downloading / saving multiple photos,
+    // we'll need to force saveAs instead of showing the user the native share popup on ios/android PWA.
     isDownloadingMultipleItems = isDownloadingMultipleItems || false;
-    
+
     var isVideo = pid.startsWith("v-");
 
     breadcrumb(`[DOWNLOAD MEDIA] Downloading ${pid}`);
@@ -1416,7 +1416,7 @@ async function downloadAndSaveMedia(pid, isDownloadingMultipleItems, pickedDownl
         title = "Untitled.mp4";
         if (!isEmpty(photos[pid])) { title = photos[pid].decryptedTitle || "Untitled.mp4"; }
     } else {
-        title = "Untitled.jpg"; 
+        title = "Untitled.jpg";
         if (!isEmpty(photos[pid])) { title = photos[pid].decryptedTitle || "Untitled.jpg"; }
     }
 
@@ -1440,14 +1440,14 @@ async function downloadAndSaveMedia(pid, isDownloadingMultipleItems, pickedDownl
 let downloadedFilesCacheFallback = [];
 let usingCacheAPIFallbackForDownloads = false;
 /**
- * Downloads and buffers media in memory to be shared by the user once they click "save". 
- * Used on mobile devices. On desktop we just go ahead and download. 
+ * Downloads and buffers media in memory to be shared by the user once they click "save".
+ * Used on mobile devices. On desktop we just go ahead and download.
  * On mobile we need to show the share popup, hence the buffering.
- * @param {('og'|'lg'|'sm')} pickedDownloadSize 
- * @returns 
+ * @param {('og'|'lg'|'sm')} pickedDownloadSize
+ * @returns
  */
 async function downloadAndSaveMultipleMedia(pickedDownloadSize) {
-    
+
     pickedDownloadSize = pickedDownloadSize || 'og';
     let downloadSize = "p";
     if (pickedDownloadSize === 'og') { downloadSize = "p"; }
@@ -1455,12 +1455,12 @@ async function downloadAndSaveMultipleMedia(pickedDownloadSize) {
     if (pickedDownloadSize === "sm") { downloadSize = "t"; }
 
     let pids = selectedPhotos();
-    
+
     let cache;
     try {
         cache = await caches.open('downloads-cache-v1');
         // first clear the cache
-        await cache.keys().then(keys => Promise.all(keys.map(key => cache.delete(key)))); 
+        await cache.keys().then(keys => Promise.all(keys.map(key => cache.delete(key))));
     } catch (error) {
         handleError("[DOWNLOAD MULTIPLE MEDIA] Failed to open cache. Will use array in memory.", pids, "fatal");
         downloadedFilesCacheFallback.length = 0;
@@ -1474,7 +1474,7 @@ async function downloadAndSaveMultipleMedia(pickedDownloadSize) {
     for (const pid of pids) {
 
         if (downloadsCancelled) { return false; } // download canceled;
-        
+
         var isVideo = pid.startsWith("v-");
 
         breadcrumb(`[DOWNLOAD/SHARE MULTIPLE MEDIA] Downloading ${pid}`);
@@ -1498,7 +1498,7 @@ async function downloadAndSaveMultipleMedia(pickedDownloadSize) {
             title = "Untitled.mp4";
             if (!isEmpty(photos[pid])) { title = photos[pid].decryptedTitle || "Untitled.mp4"; }
         } else {
-            title = "Untitled.jpg"; 
+            title = "Untitled.jpg";
             if (!isEmpty(photos[pid])) { title = photos[pid].decryptedTitle || "Untitled.jpg"; }
         }
 
@@ -1509,7 +1509,7 @@ async function downloadAndSaveMultipleMedia(pickedDownloadSize) {
         var fileType = await mimetypeFromFilename(title) || "text/plain";
 
         const file = new File([mediaBlob], title, { type: fileType });
-        
+
         if (usingCacheAPIFallbackForDownloads) {
             downloadedFilesCacheFallback.push(file);
         } else {
@@ -1519,7 +1519,7 @@ async function downloadAndSaveMultipleMedia(pickedDownloadSize) {
                 handleError("[DOWNLOAD MULTIPLE MEDIA] Failed to add file to cache. Will use array in memory.", pids, "fatal");
                 downloadedFilesCacheFallback.push(file);
                 usingCacheAPIFallbackForDownloads = true;
-            } 
+            }
         }
 
         breadcrumb(`[DOWNLOAD/SHARE MULTIPLE MEDIA] Downloaded ${pid}`);
@@ -1529,7 +1529,7 @@ async function downloadAndSaveMultipleMedia(pickedDownloadSize) {
     }
 
     $('#photos-downloader circle').each(function(){
-        this.addEventListener('animationiteration', () => { 
+        this.addEventListener('animationiteration', () => {
             $(this).addClass('done');
         }, {once: true});
     });
@@ -1552,20 +1552,20 @@ async function tapToShareMultipleFiles() {
         if (usingCacheAPIFallbackForDownloads) {
             await navigator.share({ files : downloadedFilesCacheFallback });
         } else {
-            
+
             try {
-                
+
                 const cache = await caches.open('downloads-cache-v1');
                 const keys = await cache.keys();
-    
+
                 const files = await Promise.all(keys.map(async key => {
                     const resp = await cache.match(key);
                     const blob = await resp.blob();
                     return new File([blob], key.url.split('/').pop(), { type: blob.type });
                 }));
-    
+
                 await navigator.share({ files: files });
-    
+
             } catch (error) {
                 handleError("[TAP TO SHARE MULTIPLE FILES] Failed to get files from cache.");
                 await navigator.share({ files : downloadedFilesCacheFallback });
@@ -1577,12 +1577,12 @@ async function tapToShareMultipleFiles() {
 
         $('#photos-downloader').removeClass("show");
         $("body").removeClass("downloading");
-        
+
         try {
-            await cache.keys().then(keys => Promise.all(keys.map(key => cache.delete(key))));             
+            await cache.keys().then(keys => Promise.all(keys.map(key => cache.delete(key))));
         } catch (e) {}
         downloadedFilesCacheFallback.length = 0;
-        
+
         return true;
 
     } catch (error) {
@@ -1607,19 +1607,19 @@ var downloadsCancelled = false;
  * Cancels downloads
  */
 async function closePhotosDownloader() {
-    
+
     breadcrumb(`[DOWNLOAD/SHARE MULTIPLE MEDIA] Closing downloader...`);
     downloadsCancelled = true;
     downloadingPhotos = false;
-    
+
     $('#photos-downloader').removeClass("show");
     $("body").removeClass("downloading");
-    
+
     try {
         const cache = await caches.open('downloads-cache-v1');
-        await cache.keys().then(keys => Promise.all(keys.map(key => cache.delete(key)))); 
+        await cache.keys().then(keys => Promise.all(keys.map(key => cache.delete(key))));
     } catch (error) {}
-    
+
     downloadedFilesCacheFallback.length = 0;
 
 }
@@ -1639,8 +1639,8 @@ async function selectAndDownloadActiveMedia() {
  * Displays the native navigator.share modal for the active photo
  */
 async function openActiveMediaInAnotherApp() {
-    // active photo source can be a blob: url or a data: url. 
-    // first let's check which one. 
+    // active photo source can be a blob: url or a data: url.
+    // first let's check which one.
     var isVideo = (activePhotoID() || "").startsWith(("v-"));
 
     var activeMediaSrc = $(".swiper-slide-active.swiper-slide-visible").find("img").attr("src") || $(".swiper-slide-active.swiper-slide-visible").find("source[type='video/mp4']").attr("src");
@@ -1653,14 +1653,14 @@ async function openActiveMediaInAnotherApp() {
         handleError("[OPEN MEDIA IN ANOTHER APP] Failed to get active media blob from source.", error);
         return;
     }
-    
+
     if (!mediaBlob) {
         handleError("[OPEN MEDIA IN ANOTHER APP] Media source isn't data or blob. wtf? aborting.");
         return;
     }
 
     var mediaTitle;
-    
+
     if (isVideo) {
         try {
             mediaTitle = photos[activePhotoID()].decryptedTitle || "Video.mp4";
@@ -1699,9 +1699,9 @@ async function makeSelectedPhotoAlbumCover() {
     }
 
     var selectedPID = selectedPhotos()[0];
-    
+
     await setAlbumCover(activeAlbumID, selectedPID);
-    
+
     clearSelections();
 
     stopMainProgress();
@@ -1722,7 +1722,7 @@ async function makeSelectedPhotoAlbumCover() {
  */
 function showEditAlbumPopup(aid) {
     if (activeAlbumID !== "home" || activeAlbumID !== "favorites") {
-        aid = aid || activeAlbumID;    
+        aid = aid || activeAlbumID;
     }
 
     if (!aid) {
@@ -1739,8 +1739,8 @@ function showEditAlbumPopup(aid) {
     $("#popup-album-info").toggleClass("shared", isShared);
 
     // add a mini UX change to make it clear one album's popup closed, and another opened.
-    if ($("#popup-album-info").hasClass("show")) { 
-        hideAllPopups(); 
+    if ($("#popup-album-info").hasClass("show")) {
+        hideAllPopups();
         setTimeout(function () { showEditAlbumPopup(aid); }, 1050);
         return false;
     }
@@ -1749,11 +1749,11 @@ function showEditAlbumPopup(aid) {
     $("#popup-album-info").find(".albumid").text(albumIDToShow);
 
     updateEditAlbumPopupContents(aid);
-    
+
     showPopup("popup-album-info");
 
     if (!isMobile) { $("#album-name")[0].select(); }
-    
+
 }
 
 /**
@@ -1779,7 +1779,7 @@ function updateEditAlbumPopupContents(aid) {
  * @param {string} [date] album date in format YYYY-MM-DD
  */
 async function editAlbumInfo(aid, name, date) {
-    
+
     aid = aid || $("#popup-album-info").attr("aid");
     name = (name || $("#popup-album-info").find("#album-name").val().trim()).toUpperCase();
     date = date || $("#popup-album-info").find("#album-date").val().trim();
@@ -1796,7 +1796,7 @@ async function editAlbumInfo(aid, name, date) {
         handleError("[EDIT ALBUM] Can't edit album. Album doesn't exist.", {aid:aid});
         return false;
     }
-    
+
     startProgressWithID("progress-album-info");
     $("#save-album-info-button").addClass("loading");
 
@@ -1812,7 +1812,7 @@ async function editAlbumInfo(aid, name, date) {
 
         var exifDate = replaceAll(date, "-", ":");
         var successfullySetAlbumMeta = await setAlbumMeta(aid, { date:exifDate });
-            
+
         if (successfullySetAlbumMeta) {
             albums[aid].date = exifDate;
             refreshAlbumInDOM(aid);
@@ -1820,36 +1820,36 @@ async function editAlbumInfo(aid, name, date) {
             error.aid = aid;
             handleError("[EDIT ALBUM] Couldn't set album date", error);
             createPopup("Couldn't save your album's date. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
-            
+
             stopProgressWithID("progress-album-info");
             $("#save-album-info-button").removeClass("loading");
-            
+
             return false;
         }
-    
+
     }
 
     if (name && name !== oldName) {
         var nameBeforeUpdate = (albums[aid].decryptedTitle || "Untitled Album").toUpperCase();
-        
+
         // update decryptedTitles in local albums object
         // update home titles (because that's where all albums' titles are stored)
         albums[aid].decryptedTitle = name;
         var successfullySetAlbumTitles = await updateAlbumTitles("home");
-        
+
         if (successfullySetAlbumTitles) {
             refreshAlbumInDOM(aid);
         } else {
             error.aid = aid;
             handleError("[EDIT ALBUM] Couldn't set album name", error);
             createPopup("Couldn't save your album's new name. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
-            
-            // revert to the old name in the local cache to prevent confusion 
+
+            // revert to the old name in the local cache to prevent confusion
             albums[aid].decryptedTitle = nameBeforeUpdate;
 
             stopProgressWithID("progress-album-info");
             $("#save-album-info-button").removeClass("loading");
-            
+
             return false;
         }
     }
@@ -1874,6 +1874,10 @@ function deleteAlbumFromInfoPopup() {
 
 function ghostAlbumFromInfoPopup() {
     var albumID = $("#popup-album-info").attr("aid");
+    if (!albums[albumID]) {
+        createPopup("Something went wrong while ghosting this album. This is often caused by browser extensions, ad-blockers, or DNS filters. Please try disabling them for Cryptee, refresh the page, and try again.", "error");
+        return;
+    }
     var isShared = (albums[albumID].share || {}).id ? true : false;
     if (isShared) {
         createPopup("Unfortunately it's not possible to ghost shared albums.", "info");
@@ -1910,15 +1914,15 @@ async function newAlbum(name) {
         id : aid
     };
 
-    try {        
+    try {
         await setAlbumMeta(aid, albumMeta);
     } catch (error) {
         error.aid = aid;
         handleError("[NEW ALBUM] Couldn't create new album", error);
         createPopup("Couldn't create the new album. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
-        
+
         stopMainProgress();
-        
+
         return false;
     }
 
@@ -1968,7 +1972,7 @@ async function deleteSelectedPhotos() {
     var photosToDelete = selectedPhotos();
     startMainProgress();
     startModalProgress("modal-delete-selections");
-    
+
     var deleted = false;
     try {
         deleted = await deletePhotosOfAlbum(activeAlbumID, photosToDelete);
@@ -1977,46 +1981,49 @@ async function deleteSelectedPhotos() {
         error.photos = photosToDelete;
         handleError("[DELETE PHOTOS] Failed to delete photos", error);
     }
-    
-    if (!deleted) { 
+
+    if (!deleted) {
         createPopup("Couldn't delete the selected photos. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
         stopModalProgress("modal-delete-selections");
         stopMainProgress();
         hideActiveModal();
         return false;
     }
-    
+
     // delete them from lightbox (otherwise they'll appear as blank in lightbox)
-    // separate loop from the one below, because we need photos' DOM indexes, 
+    // separate loop from the one below, because we need photos' DOM indexes,
     // and in the loop below we'll remove them from DOM.
     photosToDelete.forEach(pid => {
         var slideIndex = getVisibleMediaIndex(pid);
         lbox.removeSlide(slideIndex);
     });
-    
+
     lbox.update();
 
     var albumThumbDeleted = false;
+    var activeAlbum = albums[activeAlbumID];
+    if (!activeAlbum) { activeAlbum = {}; albums[activeAlbumID] = activeAlbum; }
+
     photosToDelete.forEach(pid => {
-        deleteFromArray(albums[activeAlbumID].photos, pid);
+        deleteFromArray((activeAlbum.photos || []), pid);
         delete photos[pid];
         delete favorites[pid];
         $("#" + pid).remove();
 
         if (activeAlbumID !== "home") {
             var tid = convertID(pid,"t");
-            if (albums[activeAlbumID].thumb === tid) { albumThumbDeleted = true; }
+            if (activeAlbum.thumb === tid) { albumThumbDeleted = true; }
         }
     });
-    
+
     if (albumThumbDeleted) {
-        albums[activeAlbumID].thumb = "";
-        albums[activeAlbumID].date = "";
-        albums[activeAlbumID].ltoken = "";
-        albums[activeAlbumID].ttoken = "";
-        albums[activeAlbumID].pinky = "54,54,54";
+        activeAlbum.thumb = "";
+        activeAlbum.date = "";
+        activeAlbum.ltoken = "";
+        activeAlbum.ttoken = "";
+        activeAlbum.pinky = "54,54,54";
     }
-    
+
     try {
         await updateAlbumTitles(activeAlbumID);
     } catch (error) {
@@ -2025,7 +2032,7 @@ async function deleteSelectedPhotos() {
         handleError("[DELETE PHOTOS] Failed to update album titles after deleting photos", error);
     }
 
-    var isShared = (albums[activeAlbumID].share || {}).id ? true : false;
+    var isShared = ((albums[activeAlbumID] || {}).share || {}).id ? true : false;
     if (isShared) { await createOrUpdateSharedAlbum(); }
 
     stopMainProgress();
@@ -2033,7 +2040,7 @@ async function deleteSelectedPhotos() {
     stopModalProgress("modal-delete-selections");
     clearSelections();
     updateAlbumNavbar();
-    
+
     getUpdatedRemainingStorage();
     return true;
 
@@ -2074,7 +2081,7 @@ async function deleteSelectedAlbum() {
         handleError("[DELETE ALBUM] Failed to delete album", error);
     }
 
-    if (!deleted) { 
+    if (!deleted) {
         createPopup("Couldn't delete the selected album. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
         stopModalProgress("modal-delete-album");
         stopMainProgress();
@@ -2108,7 +2115,7 @@ async function deleteSelectedAlbum() {
     stopModalProgress("modal-delete-album");
 
     getUpdatedRemainingStorage();
-    
+
     return true;
 }
 
@@ -2123,15 +2130,15 @@ function showDeleteAlbumModal(aid) {
         return false;
     }
 
-    if (isEmpty(albums[aid])) { 
-        return false; 
+    if (isEmpty(albums[aid])) {
+        return false;
     }
-    
+
     var albumName = "UNTITLED ALBUM";
     if (albums[aid]) {
         albumName = albums[aid].decryptedTitle || "UNTITLED ALBUM";
     }
-    
+
     $("#modal-delete-album").attr("aid", aid);
     $("#deleting-albumname").text(albumName);
 
@@ -2145,14 +2152,14 @@ function showDeleteAlbumModal(aid) {
  */
 function showDeleteSelectionsModal() {
     if (selectedPhotos().length === 0) { return; }
-    
+
     $('#deleting-filenames').empty();
 
     selectedPhotos().forEach(pid => {
         var name = "";
-        
-        if (!isEmpty(photos[pid])) { 
-            name = photos[pid].decryptedTitle || ""; 
+
+        if (!isEmpty(photos[pid])) {
+            name = photos[pid].decryptedTitle || "";
         }
 
         if (name && name !== "Untitled.jpg") {
@@ -2188,7 +2195,7 @@ async function favoritePhoto(pid) {
         handleError("[FAVORITE PHOTO] Can't fav photo. No PhotoID!");
         return false;
     }
-    
+
     try {
         await setFavoritePhoto(pid);
     } catch (error) {
@@ -2213,7 +2220,7 @@ async function favoritePhoto(pid) {
  * @param {string} pid photo id
  */
 async function unfavoritePhoto(pid) {
-    
+
     if (!pid) {
         handleError("[UNFAVORITE PHOTO] Can't un-fav photo. No PhotoID!");
         return false;
@@ -2243,7 +2250,7 @@ async function unfavoritePhoto(pid) {
     }
 
     await favoritesChangedCheckAndUpdateSharedAlbumIfNecessary();
-    
+
 }
 
 
@@ -2258,7 +2265,7 @@ async function unfavoritePhoto(pid) {
 
 
 /**
- * Ghosts the chosen album in the ghost-modal 
+ * Ghosts the chosen album in the ghost-modal
  */
 async function makeGhostAlbum() {
 
@@ -2284,24 +2291,24 @@ async function makeGhostAlbum() {
     }
 
     var decryptedTitle = (album.decryptedTitle || "").toUpperCase();
-    if (decryptedTitle.length === 0) { 
+    if (decryptedTitle.length === 0) {
         handleError("[GHOST ALBUM] Can't ghost, album title is empty");
         createPopup("Please give this album a valid and memorable name before ghosting it. You'll need to use this name to summon (retrieve) this album later.", "error");
-        return false; 
+        return false;
     }
 
     var typedTitle = $("#ghost-input").val().toUpperCase();
     if (typedTitle !== decryptedTitle) {
         $("#ghost-input").trigger("focus");
         createPopup("Please type this album's name exactly as it is to confirm you can remember it before ghosting it. You'll need to use this name to summon (retrieve) this album later.", "error");
-        return false; 
+        return false;
     }
-    
+
     if (aid === activeAlbumID) { startMainProgress(); }
 
     startModalProgress("modal-ghost");
 
-    // #1 HASH THE TITLE 
+    // #1 HASH THE TITLE
 
     var hashedTitleToGhost;
 
@@ -2320,11 +2327,11 @@ async function makeGhostAlbum() {
     activityHappened();
 
     // GOT THE HASHED TITLE
-    // #2 SEND THE HASH TO API TO GHOST THE ALBUM WITH THIS HASHED TITLE. 
+    // #2 SEND THE HASH TO API TO GHOST THE ALBUM WITH THIS HASHED TITLE.
     // ONCE THE GHOSTING IS COMPLETE, API WILL RETURN CONFIRMATION, AND YOU CAN REMOVE IT FROM DOM
-    
+
     var apiResponse;
-    
+
     try {
         apiResponse = await setGhostAlbum(aid, hashedTitleToGhost);
     } catch (error) {
@@ -2366,7 +2373,7 @@ async function makeGhostAlbum() {
     hideActiveModal();
     stopModalProgress("modal-ghost");
     $("#ghost-input").val("");
-    
+
     return true;
 }
 
@@ -2375,21 +2382,21 @@ async function makeGhostAlbum() {
  * Summons an album using the name typed into the summon album modal
  */
 async function summonGhostAlbum() {
-    
+
     activityHappened();
 
     var decryptedTitleToSummon = $("#summon-input").val().toUpperCase() || "";
 
-    if (decryptedTitleToSummon.length === 0) { 
+    if (decryptedTitleToSummon.length === 0) {
         $("#summon-input").trigger("focus");
-        return false; 
+        return false;
     }
 
     startModalProgress("modal-summon");
 
     // #1 HASH THE TITLE
 
-    var hashedTitleToSummon; 
+    var hashedTitleToSummon;
 
     try {
         hashedTitleToSummon = await hashString(decryptedTitleToSummon);
@@ -2397,7 +2404,7 @@ async function summonGhostAlbum() {
         handleError("[SUMMON GHOST] Couldn't hash entered title.", error);
     }
 
-    if (!hashedTitleToSummon) { 
+    if (!hashedTitleToSummon) {
         createPopup("There seems to be an issue with the album name you've entered. Please check the album name to see if it has any special characters, or reach out to our support via our helpdesk for more help.", "error");
         stopModalProgress("modal-summon");
         return false;
@@ -2405,7 +2412,7 @@ async function summonGhostAlbum() {
 
     activityHappened();
 
-    // GOT THE HASHED TITLE. 
+    // GOT THE HASHED TITLE.
     // #2 SEND THE HASH TO API TO SEE IF THERE'S A GHOST WITH THIS TITLE.
     // IF THERE IS, THIS WILL RETURN THE GHOST FOLDER TO ADD TO albums[]
     var album;
@@ -2416,7 +2423,7 @@ async function summonGhostAlbum() {
         stopModalProgress("modal-summon");
         return false;
     }
-    
+
     if (isEmpty(album)) {
         stopModalProgress("modal-summon");
         return false;
@@ -2428,8 +2435,8 @@ async function summonGhostAlbum() {
 
     $("#albumContents").prepend(renderAlbum(aid));
 
-    setTimeout(function () { 
-        setupIntersectionObserver($("#" + aid)[0]); 
+    setTimeout(function () {
+        setupIntersectionObserver($("#" + aid)[0]);
         scrollTop();
     }, 50);
 
@@ -2446,7 +2453,7 @@ async function summonGhostAlbum() {
     stopModalProgress("modal-summon");
     hideActiveModal();
     $("#summon-input").val("");
-    
+
     return true;
 }
 
@@ -2459,13 +2466,13 @@ async function summonGhostAlbum() {
  * @param {string} aid album id
  */
 function showGhostAlbumModal(aid) {
-    if (!aid) { 
+    if (!aid) {
         handleError("[GHOST ALBUM MODAL] Can't show. No AlbumID!");
         return false;
     }
 
-    if (isEmpty(albums[aid])) { 
-        return false; 
+    if (isEmpty(albums[aid])) {
+        return false;
     }
 
     var isShared = (albums[aid].share || {}).id ? true : false;
@@ -2499,11 +2506,11 @@ async function showMoveModal() {
     var albumsArray = [];
     Object.keys(albums).forEach(aid => {
         if (aid === "favorites" || aid === "home") { return; }
-        
+
         var album = albums[aid];
         album.id = aid;
         albumsArray.push(album);
-        
+
     });
 
     albumsArray.sort(function(a,b) {
@@ -2533,38 +2540,38 @@ async function showMoveModal() {
 
 /**
  * Downloads thumbnails for the move modal. We're cutting some corners for speed here, hence the new function
- * @param {*} album 
- * @param {*} index 
- * @returns 
+ * @param {*} album
+ * @param {*} index
+ * @returns
  */
 async function downloadMoveModalThumbnail(album, index){
-    
+
     let thumbImgID = album.thumb || "";
     let thumbToken = album.ttoken || "";
     if (!thumbImgID) { return false; }
 
     let thumbURL = album.thumbSizeURL;
     if (!thumbURL) {
-        
+
         // this allows us to wait just a little bit to offset downloading images in the correct order (and we make sure they appear correctly in CSS too)
         await promiseToWait(50 * index);
         thumbURL = await getMedia(thumbImgID, "t", "url", thumbToken);
 
     }
-    
+
     var img = new Image();
     img.src = thumbURL;
     img.setAttribute("draggable", false);
     img.setAttribute("thumb", thumbImgID);
 
     // if we already had the thumb url, no need to decode again
-    if (!album.thumbSizeURL) { 
+    if (!album.thumbSizeURL) {
 
         try {
-            await img.decode(); 
+            await img.decode();
         } catch (error) {
             error.imgID = thumbImgID;
-            error.token = thumbToken;        
+            error.token = thumbToken;
             handleError("[GET THUMBNAIL] Couldn't decode thumbnail", error);
             return false;
         }
@@ -2573,11 +2580,11 @@ async function downloadMoveModalThumbnail(album, index){
         albums[album.id].thumbSizeURL = thumbURL;
 
     }
-    
+
     $(`img[thumb="${thumbImgID}"]`).replaceWith(img);
-    
+
     await promiseToWait(50);
-    
+
     $(`img[thumb="${thumbImgID}"]`).parent().addClass("loaded");
 }
 
@@ -2595,10 +2602,10 @@ async function moveSelectedPhotos() {
     startModalProgress("modal-move");
 
     var targetAlbumShared = false;
-    if ((albums[toAID].share || {}).id) { targetAlbumShared = true; }
+    if (((albums[toAID] || {}).share || {}).id) { targetAlbumShared = true; }
 
     var targetAlbumReady = false;
-    
+
     try {
         targetAlbumReady = await getAlbumPhotos(toAID);
     } catch (error) {
@@ -2615,7 +2622,7 @@ async function moveSelectedPhotos() {
         return false;
     }
 
-    if (!targetAlbumReady) { 
+    if (!targetAlbumReady) {
         createPopup("Couldn't move the selected photos. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
         stopModalProgress("modal-move");
         stopMainProgress();
@@ -2634,7 +2641,7 @@ async function moveSelectedPhotos() {
         handleError("[MOVE PHOTOS] Failed to decrypt target album to move photos to", error);
     }
 
-    if (!targetAlbumDecrypted) { 
+    if (!targetAlbumDecrypted) {
         createPopup("Couldn't move the selected photos. Chances are this has to do with an ad-blocker / content-blocker extension. Please try disabling your extensions and try again.", "error");
         stopModalProgress("modal-move");
         stopMainProgress();
@@ -2653,7 +2660,7 @@ async function moveSelectedPhotos() {
         handleError("[MOVE PHOTOS] Failed to move photos", error);
     }
 
-    if (!moved) { 
+    if (!moved) {
         createPopup("Couldn't move the selected photos. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
         stopModalProgress("modal-move");
         stopMainProgress();
@@ -2661,17 +2668,21 @@ async function moveSelectedPhotos() {
         return false;
     }
 
-    var albumThumbMoved = false; 
+    var albumThumbMoved = false;
+    var targetAlbum = albums[toAID] || {};
+    var sourceAlbum = albums[fromAID] || {};
+
     photosToMove.forEach(pid => {
 
         // add photo to target album
-        albums[toAID].photos.push(pid);
+        targetAlbum.photos = targetAlbum.photos || [];
+        targetAlbum.photos.push(pid);
 
         // update the album id of photo
-        photos[pid].aid = toAID;
+        if (photos[pid]) { photos[pid].aid = toAID; }
 
         // delete photos from source album
-        deleteFromArray(albums[fromAID].photos, pid);
+        deleteFromArray((sourceAlbum.photos || []), pid);
 
         // delete photos from dom
         $("#" + pid).remove();
@@ -2679,16 +2690,16 @@ async function moveSelectedPhotos() {
         // if we're not in home, check if the thumbnail moved.
         if (fromAID !== "home") {
             var tid = convertID(pid,"t");
-            if (albums[fromAID].thumb === tid) { albumThumbMoved = true; }
+            if (sourceAlbum.thumb === tid) { albumThumbMoved = true; }
         }
     });
 
     if (albumThumbMoved) {
-        albums[fromAID].thumb = "";
-        albums[fromAID].date = "";
-        albums[fromAID].ltoken = "";
-        albums[fromAID].ttoken = "";
-        albums[fromAID].pinky = "54,54,54";
+        sourceAlbum.thumb = "";
+        sourceAlbum.date = "";
+        sourceAlbum.ltoken = "";
+        sourceAlbum.ttoken = "";
+        sourceAlbum.pinky = "54,54,54";
     }
 
     try {
@@ -2733,7 +2744,7 @@ async function tagSelectedPhotos() {
     var photosToTag = selectedPhotos();
     var aid         = activeAlbumID;
 
-    if (hashtags.length < 1) { 
+    if (hashtags.length < 1) {
         breadcrumb("[TAG PHOTOS] No hashtags found, aborting.");
         $("#photos-tags-input").trigger("focus");
         return;
@@ -2756,7 +2767,7 @@ async function tagSelectedPhotos() {
     var tags = {};
     try {
         for (const hashtag of hashtags) {
-            
+
             var plaintextTag = hashtag.replace("#", "") || "";
 
             // this is to de-duplicate tags, in case if the user typed it twice. skip to save encryption & hmac processing time.
@@ -2766,7 +2777,7 @@ async function tagSelectedPhotos() {
             var encryptedTag = await encrypt(plaintextTag, [theKey]);
             var hmacOfTag    = await hmacString(plaintextTag, theKey);
 
-            tags[plaintextTag] = { 
+            tags[plaintextTag] = {
                 encryptedTag : encryptedTag.data || "",
                 hmacOfTag    : hmacOfTag    || ""
             };
@@ -2779,9 +2790,9 @@ async function tagSelectedPhotos() {
         stopTaggingPhotosProgress();
         return;
     }
-    
+
     var tagged;
-    
+
     try {
         tagged = await tagPhotos(aid, photosToTag, Object.values(tags));
     } catch (error) {
@@ -2790,30 +2801,30 @@ async function tagSelectedPhotos() {
         handleError("[TAG PHOTOS] Failed to tag photos", error);
     }
 
-    if (!tagged) { 
+    if (!tagged) {
         createPopup("Couldn't tag the selected photos. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
         stopTaggingPhotosProgress();
         return false;
     }
-    
-    // saved on server, now update the local object: 
+
+    // saved on server, now update the local object:
 
     var hmacs = [];
     Object.values(tags).forEach(tag => { hmacs.push(tag.hmacOfTag); });
 
     if (photosToTag.length === 1) {
-        // only one photo = rewrite the whole tags list, that's what server will do. 
+        // only one photo = rewrite the whole tags list, that's what server will do.
         var pid = photosToTag[0];
         if (photos[pid]) { photos[pid].tags = hmacs; }
     } else {
         // multiple photos
-        photosToTag.forEach(pid => { 
-            if (photos[pid]) { 
+        photosToTag.forEach(pid => {
+            if (photos[pid]) {
                 var existingTags = photos[pid].tags || [];
                 var newTags = hmacs;
                 // union new tags & existing tags
                 photos[pid].tags = Array.from(new Set(existingTags.concat(newTags)));
-            } 
+            }
         });
     }
 
@@ -2824,10 +2835,10 @@ async function tagSelectedPhotos() {
 
 /**
  * Loads the tags of a photo with given id from server, decrypts them, and puts them into the editor
- * @param {string} pid 
+ * @param {string} pid
  */
 async function loadTagsOfPhoto(pid) {
-    
+
     // photo doesn't exist!?
     if (isEmpty(photos[pid])) {
         createPopup("Couldn't load the tags of this photo. Chances are this is a network problem. Please check your connection and reach out to our support via our helpdesk if this issue continues.", "error");
@@ -2845,7 +2856,7 @@ async function loadTagsOfPhoto(pid) {
         setTimeout(function () { $("#photos-tags-input").trigger("focus"); }, 100);
         return true;
     }
-    
+
     startTaggingPhotosLoadingProgress();
 
     var arrayOfDecryptedTags = await getTags(tagHMACs);
@@ -2853,7 +2864,7 @@ async function loadTagsOfPhoto(pid) {
     var tags = [];
     arrayOfDecryptedTags.forEach(decryptedTag => { tags.push("#" + decryptedTag); });
 
-    // sort tags based on tag-length. here's why. 
+    // sort tags based on tag-length. here's why.
     // if you write "#paris #paris2019", paris will replace the tag with <i>paris</i> <i>paris</i>2019, making "2019" get ignored in the highlighter
     // if you start from the longest tag, this won't be a problem
     tags.sort(function(a, b){ return b.length - a.length; });
@@ -2881,7 +2892,7 @@ async function loadTagsOfPhoto(pid) {
 
 
 async function savePhotoInfo() {
-    
+
     var desc = desc || $("#photo-desc").val().trim();
     var date = date || $("#photo-date").val().trim();
 
@@ -2890,11 +2901,11 @@ async function savePhotoInfo() {
 
     var oldDesc = ($("#photo-desc").attr("placeholder").trim() || "");
     var oldDate = $("#photo-date").attr("placeholder").trim();
-    
+
     var pid;
     try { pid = $("#popup-photo-info").attr("pid") || ""; } catch (e) {}
 
-    var aid; 
+    var aid;
     try { aid = $("#popup-photo-info").attr("aid") || ""; } catch (e) {}
 
     if (!pid) { return err(); }
@@ -2904,7 +2915,7 @@ async function savePhotoInfo() {
     if (isEmpty(photos[pid])) { return err(); }
 
     startProgressWithID("progress-photo-info");
-   
+
     // if the description changed somehow, save it
     if (desc !== oldDesc) {
 
@@ -2913,18 +2924,18 @@ async function savePhotoInfo() {
         try {
             setDescription = await setPhotoDescription(aid, pid, desc);
         } catch (error) { return err(); }
-        
+
         if (!setDescription) { return err(); }
-        
+
         $("#photo-desc").attr("placeholder", desc);
         $(`.swiper-zoom-container[pid='${pid}']`).attr("description", desc);
         $(`.swiper-video-container[pid='${pid}']`).attr("description", desc);
 
     }
 
-    // if the date changed, save it. 
+    // if the date changed, save it.
     if (date !== oldDate) {
-        
+
         var exifDate = replaceAll(date, "-", ":") + " " + replaceAll(time, "-", ":");
 
         var successfullySetPhotoMeta;
@@ -2937,7 +2948,7 @@ async function savePhotoInfo() {
         $("#photo-date").attr("placeholder", date);
 
     }
-    
+
     stopProgressWithID("progress-photo-info");
 
     return true;
@@ -2966,18 +2977,18 @@ async function showEditPhotoPopup() {
     var pid = activePhotoID();
 
     // photo doesn't exist or lightbox isn't open.
-    if (!pid) { 
+    if (!pid) {
         handleError("[EDIT PHOTO POPUP] Can't edit photo info without Photo ID.");
-        return false; 
+        return false;
     }
 
-    if (isEmpty(photos[pid])) { 
+    if (isEmpty(photos[pid])) {
         handleError("[EDIT PHOTO POPUP] Can't edit photo info. Photo doesn't exist in catalog.");
-        return false; 
+        return false;
     }
 
     var photoCurrentDesc = photos[pid].decryptedDesc || "";
-    
+
     // currently you can't edit time in the date picker. so we remove that part. Plus it's perhaps for the better.
     var photoCurrentDate = (replaceAll((photos[pid].date || "0000:00:00"), ":", "-") || "").split(" ")[0];
 
@@ -3008,8 +3019,8 @@ async function showEditPhotoPopup() {
     // get doc id, display in dropdown for debugging in non-live environments
     var photoIDToShow = (pid || "").replace("p-", "").replace("v-", "");
     $("#popup-photo-info").find(".photoid").text(photoIDToShow);
-    
-    
+
+
     showPopup("popup-photo-info");
 
 }

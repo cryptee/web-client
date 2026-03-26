@@ -131,6 +131,11 @@ async function showShareAlbumPopup() {
         return;
     }
 
+    if (!albums[activeAlbumID]) {
+        createPopup("Something went wrong while loading this album's sharing settings. This is often caused by browser extensions, ad-blockers, or DNS filters. Please try disabling them for Cryptee, refresh the page, and try again.", "error");
+        return;
+    }
+
     let isSharedAlbum = (albums[activeAlbumID].share || {}).id ? true : false;
 
     $("details[name='sharing-tabs']").removeAttr("open");
@@ -289,7 +294,7 @@ async function createOrUpdateSharedAlbum() {
     breadcrumb('[SHARE ALBUM] Preparing album title...');
 
     try {
-        albumTitle = (albums[activeAlbumID].decryptedTitle || "").substring(0, 100);
+        albumTitle = ((albums[activeAlbumID] || {}).decryptedTitle || "").substring(0, 100);
         albumTitle = DOMPurify.sanitize(albumTitle);
     } catch (error) {
         handleError("[SHARE ALBUM] Failed to sanitize album title", error);
@@ -300,7 +305,7 @@ async function createOrUpdateSharedAlbum() {
     breadcrumb('[SHARE ALBUM] Preparing album date...');
 
     try {
-        albumDate = (albums[activeAlbumID].date || "0000:00:00").substring(0, 10);
+        albumDate = ((albums[activeAlbumID] || {}).date || "0000:00:00").substring(0, 10);
         albumDate = DOMPurify.sanitize(albumDate);
     } catch (error) {
         handleError("[SHARE ALBUM] Failed to sanitize album date", error);
@@ -314,7 +319,7 @@ async function createOrUpdateSharedAlbum() {
     }
 
     let shareKey;
-    if (albums[activeAlbumID].share && !isEmpty(albums[activeAlbumID].share) && albums[activeAlbumID].share.keyWrapped) {
+    if ((albums[activeAlbumID] || {}).share && !isEmpty(albums[activeAlbumID].share) && albums[activeAlbumID].share.keyWrapped) {
         breadcrumb('[SHARE ALBUM] Unwrapping share key...');
         try {
             let shareKeyObject = await decrypt(albums[activeAlbumID].share.keyWrapped, [theKey]);
@@ -485,7 +490,7 @@ async function revokeSharedAlbum() {
  */
 async function ifSharedAlbumChangedShowPopupAndUpdate(aid) {
     if (aid === activeAlbumID) {
-        let isSharedAlbum = (albums[aid].share || {}).id ? true : false;
+        let isSharedAlbum = ((albums[aid] || {}).share || {}).id ? true : false;
         if (isSharedAlbum) {
             createPopup("one moment please...<br><br>please do not close this window or quit the app.<br><br>updating the shared album and syncing changes...<br><br>recipients will see the updates to this album in a minute", "info", "shared-album-updating", true);
             await createOrUpdateSharedAlbum();
@@ -500,7 +505,7 @@ async function ifSharedAlbumChangedShowPopupAndUpdate(aid) {
  */
 async function favoritesChangedCheckAndUpdateSharedAlbumIfNecessary() {
 
-    let isSharedAlbumFavOnly = (albums[activeAlbumID].share || {}).favonly || false;
+    let isSharedAlbumFavOnly = ((albums[activeAlbumID] || {}).share || {}).favonly || false;
 
     if (isSharedAlbumFavOnly) {
         createPopup("one moment please...<br><br>updating your favorites in this shared album and syncing changes...<br><br>please do not close this window or quit the app.<br><br>recipients will see the updates to this album in a minute", "info", "shared-album-updating", true);

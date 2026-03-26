@@ -579,7 +579,11 @@ function renderTemplateForGallery(template, by) {
         id = template.tfid;
         name = template.title;
         templateBy = "you";
-        templateImageURL = URL.createObjectURL(template.thumb);
+        if (template.thumb instanceof Blob) {
+            templateImageURL = URL.createObjectURL(template.thumb);
+        } else {
+            templateImageURL = "/assets/template-placeholder.webp";
+        }
         generation = template.generation;
     }
 
