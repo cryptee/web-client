@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////
 
 
-var importerSupportedExtensions = ["htm", "html", "docx", "enex", "txt", "md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "markdn", "mdtxt", "mdtext", "crypteedoc", "ecd", "uecd"];
+var importerSupportedExtensions = ["htm", "html", "docx", "odt", "enex", "txt", "md", "mkd", "mkdn", "mdwn", "mdown", "markdown", "markdn", "mdtxt", "mdtext", "crypteedoc", "ecd", "uecd"];
 
 
 // FOR IMPORTS, WE'LL ALWAYS FIRST CREATE A NEW COPY OF THE FILE, AND NAME IT "Original"
@@ -106,6 +106,16 @@ async function importFile(doc, filename) {
             if (!docxBlob) { return err(doc.docid, "failed"); }
             if (docxBlob === "aborted") { return err(doc.docid, "aborted"); }
             await importDOCXFile(doc, docxBlob);
+        } catch (error) { err(doc.docid, error); }
+    }
+
+    // ODT FILES
+    if (["odt"].includes(ext)) {
+        try {
+            var odtBlob = await downloadAndDecryptFile(doc.docid, null, "blob", filename, "application/vnd.oasis.opendocument.text", null, doc, true);
+            if (!odtBlob) { return err(doc.docid, "failed"); }
+            if (odtBlob === "aborted") { return err(doc.docid, "aborted"); }
+            await importODTFile(doc, odtBlob);
         } catch (error) { err(doc.docid, error); }
     }
 
@@ -1062,9 +1072,10 @@ function convertHTMLToDeltas(purifiedCrypteeHTML) {
  */
 function purifyHTML(rawHTML) {
     breadcrumb('[PURIFY HTML] Purifying HTML');
-    var allowedHTMLTags = ["A", "B", "BLOCKQUOTE", "BR", "CODE", "DEL", "DIV", "EM", "H1", "H2", "H3", "H4", "H5", "H6", "HR", "I", "IMG", "LI", "META", "OL", "P", "PRE", "Q", "S", "SPAN", "STRIKE", "STRONG", "SUB", "SUP", "TABLE", "TBODY", "TFOOT", "THEAD", "TD", "TH", "TR", "U", "UL"];
+    var allowedHTMLTags = ["A", "B", "BLOCKQUOTE", "BR", "CODE", "DEL", "DIV", "EM", "H1", "H2", "H3", "H4", "H5", "H6", "HR", "I", "IMG", "LI", "MARK", "META", "OL", "P", "PRE", "Q", "S", "SPAN", "STRIKE", "STRONG", "SUB", "SUP", "TABLE", "TBODY", "TFOOT", "THEAD", "TD", "TH", "TR", "U", "UL"];
     var allowedCustomTags = ["CRYPTEETABLEDATA", "CRYPTEETABLE", "CRYPTEETABLECELL", "CRYPTEEFILE", "CRYPTEEFOLDER", "CRYPTEETAG", "CRYPTEEPAGEBREAK"];
-    var allowedCrypteeAttributes = ["tableid", "tablemeta", "rows", "columns", "fid", "did", "filetitle", "filename", "extsrc", "extalt", "type", "hash", "checked", "data-checked", "time", "contents"];
+    // 'comment' added so the ODT importer can round-trip <mark class="comment" comment="ID" time contents>
+    var allowedCrypteeAttributes = ["tableid", "tablemeta", "rows", "columns", "fid", "did", "filetitle", "filename", "extsrc", "extalt", "type", "hash", "checked", "data-checked", "time", "contents", "comment"];
     var cleanHTML = DOMPurify.sanitize(rawHTML, {
         ALLOWED_TAGS: allowedHTMLTags,
         ADD_TAGS: allowedCustomTags ,
@@ -1484,6 +1495,103 @@ async function convertDOCXToDeltas(arrayBuffer, did) {
 
     if (!rawHTML) { return false; }
 
+    return convertAndPurifyHTMLToDeltas(rawHTML);
+
+}
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//
+//  ODT IMPORTER
+//
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+/**
+ * Imports / Converts an ODT file to a Cryptee Doc through HTML.
+ * Mirrors importDOCXFile, except the heavy lifting is in odt.js.
+ * @param {*} doc Document Object
+ * @param {*} odtBlob Blob of ODT File
+ */
+async function importODTFile(doc, odtBlob) {
+
+    var did = doc.docid;
+
+    breadcrumb('[ODT IMPORTER] Decoding File ' + did);
+
+    // odt engine wants an arraybuffer (jszip reads it directly)
+    var fileArrayBuffer = await blobToArrayBuffer(odtBlob);
+
+    breadcrumb('[ODT IMPORTER] Converting ' + did);
+
+    var docContents;
+    try {
+        docContents = await convertODTToDeltas(fileArrayBuffer, did);
+    } catch (error) {
+        error.did = did;
+        handleError("[ODT IMPORTER] Failed to convert to quill deltas", error);
+    }
+
+    if (isEmpty(docContents)) {
+        createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        return false;
+    }
+
+    breadcrumb('[ODT IMPORTER] Making a backup of original of: ' + did);
+
+    // make a copy first so users can recover the original if conversion isn't perfect
+    await copyDocument(did, true);
+
+    var savedConvertedDoc = await saveAndConvertFileToDocForImport(did, doc, docContents);
+    if (isEmpty(savedConvertedDoc)) {
+        handleError("[ODT IMPORTER] Failed to save file/doc after conversion", { did: did });
+        createPopup(`Failed to load/import your file <b>${docName(doc)}</b>. Chances are this is a network / connectivity problem, or your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, check your connection, try again and reach out to our support via our helpdesk if this issue continues.`, "error");
+        return false;
+    }
+
+    // load the converted doc
+    await loadDoc(savedConvertedDoc);
+
+    createPopup(`<i>odt</i> is the OpenDocument Text format used by LibreOffice and other office suites. Although Cryptee converts &amp; opens <i>odt</i> files as accurately as possible, you may still experience compatibility issues like misformatted tables, missing colors, or unusual styling. To prevent data-loss, Cryptee generated a copy of your original file before converting this <i>odt</i> file.`, "info");
+
+    return true;
+
+}
+
+
+
+/**
+ * Converts a raw ODT arrayBuffer to html via odt.js, then to quill deltas.
+ * @param {ArrayBuffer} arrayBuffer raw odt file bytes
+ * @param {string} did doc id for error logging
+ * @returns {*} delta quill delta
+ */
+async function convertODTToDeltas(arrayBuffer, did) {
+
+    var rawHTML = "";
+
+    try {
+        rawHTML = await odtToHtml(arrayBuffer);
+    } catch (error) {
+        error.did = did;
+        handleError("[ODT IMPORTER] Failed to convert ODT to HTML", error);
+    }
+
+    if (!rawHTML) { return false; }
+
+    // convertAndPurifyHTMLToDeltas runs DOMPurify twice internally,
+    // so the html we just produced gets re-sanitized for good measure
     return convertAndPurifyHTMLToDeltas(rawHTML);
 
 }

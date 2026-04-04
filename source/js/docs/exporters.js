@@ -194,6 +194,70 @@ async function exportAsDOCX() {
 
 
 
+
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//
+//  EXPORT AS ODT
+//
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+/**
+ * Exports the active document as an ODT (OpenDocument Text) file.
+ * Pipeline mirrors exportAsDOCX, except we DO NOT call convertCommentsToHTMLText
+ * since the ODT engine maps <mark class="comment"> directly to ODT annotations.
+ */
+async function exportAsODT() {
+
+    var documentName = await getDocNameFromCatalog(activeDocID);
+
+    var documentHTML = $(".ql-editor").html();
+
+    var processedHTML = documentHTML;
+
+    // this processes & nests lists for correct HTML syntax
+    processedHTML = preprocessListsForExport(processedHTML);
+
+    // this processes & nests tables for correct HTML syntax
+    processedHTML = convertCrypteeTablesToHTMLTables(processedHTML);
+
+    // NOTE: comments stay as <mark class="comment" ...> here. odt.js maps
+    // them to <office:annotation> on its own.
+
+    var odtBlob;
+
+    try {
+        odtBlob = await htmlToOdt(processedHTML, documentName);
+    } catch (error) {
+        handleError("[EXPORT ODT] Failed to convert html to odt", error);
+        createPopup("Failed to export your document as ODT. Chances are your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, try again and reach out to our support via our helpdesk if this issue continues.", "error");
+        return false;
+    }
+
+    if (!odtBlob) {
+        handleError("[EXPORT ODT] htmlToOdt returned no blob", { did : activeDocID });
+        createPopup("Failed to export your document as ODT. Chances are your browser is configured to block access to localStorage / indexedDB. Please disable your content-blockers, try again and reach out to our support via our helpdesk if this issue continues.", "error");
+        return false;
+    }
+
+    saveAsOrShare(odtBlob, documentName + ".odt");
+
+    hidePanels();
+
+}
+
+
+
+
+
+
+
+
+
 /**
  * Starts a download from the previewer's unsupported popup
  * @param {*} did Doc ID

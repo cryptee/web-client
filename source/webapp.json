@@ -10,7 +10,7 @@
             "purpose": "any"
         },
         {
-            "src": "../assets/maskable-logo-192.png",
+            "src": "../assets/maskable-logo-w-192.png",
             "type": "image/png",
             "sizes": "192x192",
             "purpose": "maskable"
@@ -22,7 +22,7 @@
             "purpose": "any"
         },
         {
-            "src": "../assets/maskable-logo-512.png",
+            "src": "../assets/maskable-logo-w-512.png",
             "type": "image/png",
             "sizes": "512x512",
             "purpose": "maskable"
@@ -34,7 +34,7 @@
             "purpose": "any"
         },
         {
-            "src": "../assets/maskable-logo.png",
+            "src": "../assets/maskable-logo-w.png",
             "type": "image/png",
             "sizes": "2000x2000",
             "purpose": "maskable"
@@ -42,8 +42,8 @@
     ],
     "start_url": "/home",
     "display": "standalone",
-    "background_color": "rgb(255,255,255)",
-    "theme_color": "rgb(255,255,255)",
+    "background_color": "rgb(0,0,0)",
+    "theme_color": "rgb(0,0,0)",
     "screenshots": [
         {
             "src": "../imgs/hero/docs-photos-hero@3x.jpg",

@@ -22,7 +22,7 @@ function scrollTop(containerID) {
  */
 function showBodyProgress(type, msg) {
     $("body").removeClass("other starting");
-    $("body").addClass(type);   
+    $("body").addClass(type);
     $("body").attr("msg", msg);
 }
 
@@ -41,21 +41,21 @@ var rightProgressSeconds = 0;
 var secondsBeforeWeShowProgress = 5;
 /**
  * Updates / displays the progress bar on the right side
- * @param {number} value 
- * @param {number} max 
+ * @param {number} value
+ * @param {number} max
  * @param {('green'|'red'|'yellow'|'blue')} [color] color for the progress bar
  */
 function updateRightProgress(value, max, color) {
     $("#progress").removeClass("green red yellow blue");
-    
+
     if (color) { $("#progress").addClass(color); }
-    
+
     max = max || 100;
     value = value || 0;
 
     // if five seconds passed, and we still haven't uploaded more than 50%, then we see the progress bar.
     // otherwise only change color.
-    
+
     if (value === 0) {
         rightProgressSeconds = 0;
         clearInterval(rightProgressTimer);
@@ -68,7 +68,7 @@ function updateRightProgress(value, max, color) {
         $("#progress").attr("value", value);
         $("#progress").attr("max", max);
     }
-    
+
     if (value === max) {
         clearInterval(rightProgressTimer);
         rightProgressSeconds = 0;
@@ -110,11 +110,11 @@ function stopRightProgress(color) {
 
 /**
  * Updates the editor state to no document, loading doc or nothing
- * @param {('no-doc'|'loading-doc'|'')} state the editor state (no document, loading doc or nothing) 
+ * @param {('no-doc'|'loading-doc'|'')} state the editor state (no document, loading doc or nothing)
  * @param {Boolean} forNewDoc
  */
 function updateEditorState(state, forNewDoc) {
-    
+
     forNewDoc = forNewDoc || false;
 
     if (state) {
@@ -125,7 +125,7 @@ function updateEditorState(state, forNewDoc) {
         if (isMobile) {
             // so that this happens right away once we set the editor's contents
             $("body").removeClass("loading-doc no-doc");
-            setTimeout(function () { swiper.update(); }, 100);            
+            setTimeout(function () { swiper.update(); }, 100);
         } else {
 
             if (!forNewDoc) {
@@ -144,8 +144,8 @@ function updateEditorState(state, forNewDoc) {
 
 /**
  * Updates / displays the progress bar on the left side
- * @param {number} value 
- * @param {number} max 
+ * @param {number} value
+ * @param {number} max
  */
 function updateLeftProgress(value, max) {
     $("#searchProgress").attr("value", value);
@@ -193,7 +193,7 @@ function stopMoveProgress() {
  * @param {string} msg Message to display in the float
  */
 function showFloater(id) {
-    $("#" + id).addClass("show");    
+    $("#" + id).addClass("show");
 }
 
 /**
@@ -201,7 +201,7 @@ function showFloater(id) {
  * @param {string} id FloaterID (i.e. "moveFloat", or "selectionsFloat")
  */
 function hideFloater(id) {
-    $("#" + id).removeClass("show");    
+    $("#" + id).removeClass("show");
     $("#" + id).attr("items", "");
     $("#" + id).attr("what", "");
 }
@@ -210,15 +210,15 @@ function hideFloater(id) {
  * Hides all floaters in the left slide
  */
 function hideFloaters() {
-    $(".actionFloater").removeClass("show");   
+    $(".actionFloater").removeClass("show");
     $(".actionFloater").attr("items", "");
-    $(".actionFloater").attr("what", ""); 
+    $(".actionFloater").attr("what", "");
 }
 
 
 $("#moveFloat")[0].addEventListener('swiped-down', function(event) {
     hideFloater("moveFloat");
-}); 
+});
 
 /**
  * starts the doc or file progress in the left sidebar
@@ -279,8 +279,8 @@ var activeDocID;
 
 /**
  * Extracts useful information from the filename. (i.e. "icon" can return "ri-file-text-line", or "unicodeIcon" can return "\ED0F", or "filetype" can return "image photo foto" etc )
- * @param {string} filename 
- * @param {('icon'|'filetype'|'unicodeIcon')} whatToExtract 
+ * @param {string} filename
+ * @param {('icon'|'filetype'|'unicodeIcon')} whatToExtract
  */
 function extractFromFilename(filename, whatToExtract) {
     var extension = extensionFromFilename(filename);
@@ -292,13 +292,13 @@ function extractFromFilename(filename, whatToExtract) {
     if (extension.match(/^(006|007|3DMF|3DX|3FR|8PBS|ABM|ABR|ADI|AEX|AI|AIS|ALBM|AMU|ARD|ART|ARW|ASAT|B16|BAY|BIL|BLEND|BLKRT|BLZ|BMC|BMC|BMP|BOB|BR4|BR5|C4|CADRG|CAP|CATPART|CCX|CDR|CDT|CDX|CGM|CHT|CM2|CMX|CMZ|COMICDOC|CPL|CPS|CPT|CR2|CR3|CRW|CSF|CV5|CVG|CVI|CVI|CVX|DAE|DCIM|DCM|DCR|DCS|DDS|DESIGN|DIB|DJV|DJVU|DNG|DRG|DRW|DRWDOT|DT2|DVL|DWB|DWF|DXB|EASM|EC3|EDP|EIP|EDRW|EDW|EMF|EPRT|EPS|EPSF|EPSI|ERF|EXR|FAC|FACE|FBM|FBX|FC2|FCZ|FD2|FH11|FHD|FIT|FFF|FLIC|FLM|FM|FPF|FS|FXG|GIF|GRAFFLE|GTX|HEIC|HEIF|HD2|HDZ|HPD|HPI|HR2|HTZ4|ICL|ICS|IDW|IEF|IIQ|IGES|IGR|ILBM|ILM|IMA|IME|IMI|IMS|INDD|INDT|IPJ|IRF|ITC2|ITHMB|J2K|JIFF|JNG|JPEG|JPF|JPG|JPG2|JPS|JPW|JT|JWL|JXR|K25|KDC|KODAK|KPG|LDA|LDM|LET|LT2|LTZ|LVA|LVF|LXF|MAC|MACP|MCS|MCZ|MDC|MDI|MEF|MGS|MGX|MIC|MIP|MNG|MOS|MPF|MPO|MTZ|MUR|MUR|NAV|NCR|NEU|NEF|NFF|NJB|NTC|NTH|NRW|ODI|ODIF|OLA|OPD|ORA|ORF|OTA|OTB|OTC|OTG|OTI|OVW|P21|P2Z|PAT|PC6|PC7|PCD|PCT|PCX|PDN|PEF|PI2|PIC|PIC|PICNC|PICTCLIPPING|PL0|PL2|PLN|PMB|PNG|POL|PP2|PPSX|PRW|PS|PS|PSB|PSD|PSF|PSG|PSP|PSPIMAGE|PSQ|PVL|PWD|PWS|PX|PXR|PZ2|PZ3|QTIF|QTZ|QXD|RAW|RAW|RIC|RLC|RLE|RW2|RWL|SDK|SDR|SEC|SFW|SIG|SKP|SLDASM|SLDDRW|SLDPRT|SNX|SR2|SRF|SRW|SST|SUN|SVG|SVGZ|TARGA|TCW|TCX|TEX|TGA|TIF|TIFF|TJP|TN|TPF|TPX|TRIF|TRX|U3D|UPX|URT|UTX|V00|V3D|VFS|VGA|VHD|VIS|VRL|VTX|WB1|WBC|WBD|WBZ|WEBP|WGS|WI|WMF|WNK|X3F|XDW|XIP|XSI|X_B|X_T|ZDL|ZIF|ZNO|ZPRF|ZT)$/i)) {
         filetype = "image photo foto";
         // icon = "ri-image-fill";
-        icon = "ri-file-image-line"; 
+        icon = "ri-file-image-line";
         unicodeIcon = "\EE4A";
     }
     if (extension.match(/^(pdf)$/i)) {
         filetype = "pdf adobe document";
         // icon = "ri-file-ppt-line";
-        icon = "ri-file-pdf-2-line"; 
+        icon = "ri-file-pdf-2-line";
         unicodeIcon = "\ED01";
     }
     if (extension.match(/^(epub)$/i)) {
@@ -339,6 +339,11 @@ function extractFromFilename(filename, whatToExtract) {
     if (extension.match(/^(doc|dot|wbk|docx|docm|dotx|dotm|docb|apxl|pages)$/i)) {
         filetype = "office word microsoft document";
         icon = "ri-file-word-2-line";
+        unicodeIcon = "\ED1B";
+    }
+    if (extension.match(/^(txt|odt)$/i)) {
+        filetype = "opendocument text";
+        icon = "ri-file-text-line";
         unicodeIcon = "\ED1B";
     }
     if (extension.match(/^(xls|xlt|xlm|xlsx|xlsm|xltx|xltm|xlsb|xla|xlam|xll|xlw|numbers)$/i)) {
@@ -388,7 +393,7 @@ function gensort(a, b) {
     var bGeneration = b.generation || 0;
     var bOfflineGen = b.offline    || 0;
     if (bOfflineGen > bGeneration) { bGeneration = bOfflineGen; }
-    
+
     if (aGeneration < bGeneration) { return 1; }
     if (aGeneration > bGeneration) { return -1; }
     return 0;
@@ -504,11 +509,11 @@ function startOnline() {
     breadcrumb('[STARTUP] Starting in online mode.');
 
     startedOffline = false;
-    
+
     authenticate(function(user){
         // LOGGED IN
 
-        // no need to pre-start up twice. this function may get called twice due to auth firing twice 
+        // no need to pre-start up twice. this function may get called twice due to auth firing twice
         // (i.e. once for sessionUser, and once for server auth user)
         // resulting in double, unnecessary calls
         if (preStartupInitiated) { return; }
@@ -516,7 +521,7 @@ function startOnline() {
 
         preStartup();
         checkKey(null, startedOffline); // rightKey will call startup();
-    
+
     }, function(){
         // NOT LOGGED IN
         location.href = "/login";
@@ -525,9 +530,9 @@ function startOnline() {
         if (error.code === "auth/network-request-failed") {
             handleError("[HOME] Error Authenticating", error);
         }
-        
+
         location.href = "/login";
-    });    
+    });
 }
 
 function startOffline() {
@@ -546,7 +551,7 @@ function startOffline() {
         hideBodyProgress();
         setTimeout(function () { if (isTouch) {  $("html, body").addClass("overflowBG");  }  }, 500);
     // }, 500);
-    
+
     //
     //
     //
@@ -565,8 +570,8 @@ function startOffline() {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-// THIS RUNS EVEN BEFORE USER TYPES THE KEY. 
-// THAT WAY WE CAN LOAD A FEW THINGS AHEAD OF TIME. 
+// THIS RUNS EVEN BEFORE USER TYPES THE KEY.
+// THAT WAY WE CAN LOAD A FEW THINGS AHEAD OF TIME.
 
 var startedUp = false;
 var gotRecents = false;
@@ -578,12 +583,12 @@ async function preStartup() {
 
         var docs = await getAllDocsFromCatalog();
         var folders = await getAllFoldersFromCatalog();
-        
+
         await prepareCrypteeTemplates();
         // CHECK TO SEE IF CATALOG HAS ANYTHING IN THERE.
         // IF THERE ARE NO DOCS OR FOLDERS, SHOW BODY MESSAGE FOR DECRYPTION
         // SINCE THE LEFT PANE WILL BE EMPTY FOR TOO LONG
-        
+
         if (isEmpty(docs) || isEmpty(folders)) {
             showBodyProgress("starting", "decrypting files & folders...");
         } else {
@@ -597,7 +602,7 @@ async function preStartup() {
     } catch (error) {}
 
     await getRecentDocsAndFolders();
-    
+
 }
 
 
@@ -610,20 +615,20 @@ async function startup() {
     startedUp = true;
     breadcrumb('[STARTED UP]');
 
-    // GOT THE KEY. 
+    // GOT THE KEY.
 
-    // START WITH WHAT'S ALREADY IN THE CATALOG. 
+    // START WITH WHAT'S ALREADY IN THE CATALOG.
     refreshDOM();
 
     activityHappened();
 
     if (startedOffline) { return; }
-    
+
     // CONTINUE TO WAIT UNTIL WE GET RECENT DOCS IF WE'RE ONLINE
 
     if (gotRecents) {
         // DECRYPT CATALOG, UPDATE CATALOG.
-        
+
         decryptCatalog().then(function() {
             hideBodyProgress();
             sync();
@@ -632,11 +637,11 @@ async function startup() {
         });
 
     } else {
-        
+
         decryptCatalogWhenRecentsAreReady(); // this waits until we get recents, and triggers decrypt catalog.
-    
+
     }
-    
+
     syncTemplates();
 
     activityHappened();
@@ -691,9 +696,9 @@ $(document).on("ready", function () {
         watchSlidesProgress : true,
         // use css mode if it's a touch device, it's way smoother
         cssMode : isTouch
-    });    
+    });
 
-    swiper.on('slideChange', function(evt) { 
+    swiper.on('slideChange', function(evt) {
         if (evt.realIndex) {
             sidebarClosed();
         } else {
@@ -702,13 +707,13 @@ $(document).on("ready", function () {
     });
 
     determineBrowserEXIFOrientationTreatment();
-    
+
     //	init getting tips swipers
     initializeTips();
 
     if (isMobile) {
         $("body").addClass("bubble");
-        
+
         // this makes it instant without waiting for the closeSidebar to animate
         $(".swiper-wrapper").scrollLeft(320);
         closeSidebarMenu();
@@ -728,7 +733,7 @@ $(document).on("ready", function () {
     } else {
         unPinSidebar();
         // this makes it instant without waiting for the closeSidebar to animate
-        $(".swiper-wrapper").scrollLeft(320); 
+        $(".swiper-wrapper").scrollLeft(320);
         closeSidebarMenu();
     }
 
@@ -778,16 +783,16 @@ function closeSidebarMenu() {
  * Fired when sidebar opens up
  */
 function sidebarOpened() {
-    
+
     // SIDEBAR OPENED – Don't  forget to account for pinned sidebar
-    
+
     sidebarOpen = true;
-    
+
     // try catch, because when we're starting up, we're lazy loading editor and its features, and this doesn't exist yet.
     try { hideTableContextualButton(); } catch (error) {}
     hidePanels();
 
-    // on mobile / touch, if you blur when sidebar is opened, it'll hide the keyboard causing lag while swiping. so fire this only on desktop on mobile we're fine anyway. 
+    // on mobile / touch, if you blur when sidebar is opened, it'll hide the keyboard causing lag while swiping. so fire this only on desktop on mobile we're fine anyway.
     try {
         if (!isTouch) { quill.blur(); }
     } catch (error) {}
@@ -800,28 +805,28 @@ function sidebarOpened() {
  * Fired when the sidebar is closed, and editor is open.
  */
 function sidebarClosed() {
-    
+
     //  SIDEBAR CLOSED – Don't forget to account for pinned sidebar
-    
+
     sidebarOpen = false;
-    
+
     // try catch, because when we're starting up, we're lazy loading editor and its features, and this doesn't exist yet.
     try { hideTableContextualButton(); } catch (error) {}
 
     hideRightClickDropdowns();
-    
+
     hidePanels();
 
     sidebarOpenedClosedRecalcPaperOverflow();
 }
 
-// DOCUMENTS ARE LOADED WHILE THE SIDEBAR IS OPEN. 
-// THIS MEANS, THEIR SCREEN POSITION / SIZING ETC ARE ALL CALCULATED WHILE SIDEBAR IS OPEN. 
-// ON MOBILE, THIS MEANS PAPER-MODE DOCS WILL BE TINY FOR EXAMPLE. 
+// DOCUMENTS ARE LOADED WHILE THE SIDEBAR IS OPEN.
+// THIS MEANS, THEIR SCREEN POSITION / SIZING ETC ARE ALL CALCULATED WHILE SIDEBAR IS OPEN.
+// ON MOBILE, THIS MEANS PAPER-MODE DOCS WILL BE TINY FOR EXAMPLE.
 // SO WE NEED TO RECALCULATE THE PAPER OVERFLOW AFTER SIDEBAR IS OPENED / CLOSED.
 
 function sidebarOpenedClosedRecalcPaperOverflow() {
-    if (isPaperMode()) { 
+    if (isPaperMode()) {
         setTimeout(function () {
             breadcrumb('[PAPER] Sidebar opened/closed, viewing area changed. Recalculating.');
             paperZoom("fit");
@@ -836,8 +841,8 @@ function sidebarOpenedClosedRecalcPaperOverflow() {
 function toggleSidebarPin() {
     $("body").toggleClass("pinned");
     swiper.update();
-    
-    // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+
+    // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet.
     try { windowResizedRecalculatePaper(); } catch (e) {}
 
     if (isPinned()) {
@@ -854,8 +859,8 @@ function toggleSidebarPin() {
 function unPinSidebar() {
     $("body").removeClass("pinned");
     swiper.update();
-    
-    // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+
+    // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet.
     try { windowResizedRecalculatePaper(); } catch (e) {}
 
     try { localStorage.removeItem("docs-pinned"); } catch (e) {}
@@ -869,8 +874,8 @@ function pinSidebar() {
     if ($(window).width() > 896) {
         $("body").addClass("pinned");
         swiper.update();
-        
-        // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+
+        // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet.
         try { windowResizedRecalculatePaper(); } catch (e) {}
 
         try { localStorage.setItem("docs-pinned", true); } catch (e) {}
@@ -880,31 +885,31 @@ function pinSidebar() {
 }
 
 $(window).on('resize', function(event) {
-    var width = $(window).width(); 
+    var width = $(window).width();
 
     if (isPaperMode() && width < 934) {
         // unpin if pinned, screen too small
-        if (isPinned()) { 
-            toggleSidebarPin(); 
+        if (isPinned()) {
+            toggleSidebarPin();
             closeSidebarMenu();
         }
     }
 
     if (width < 928) {
         // unpin if pinned, screen too small
-        if (isPinned()) { 
-            toggleSidebarPin(); 
+        if (isPinned()) {
+            toggleSidebarPin();
             closeSidebarMenu();
         }
     }
 
-    if (isPaperMode()) { 
-        // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet. 
+    if (isPaperMode()) {
+        // try catch, because when the app is starting, we're lazy loading the editor functions, and this hasn't been parsed yet.
         try { windowResizedRecalculatePaper(); } catch (e) {}
     }
 
     try { updateCommentButtonPosition(); } catch (e) {}
-}); 
+});
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -932,27 +937,27 @@ $("#activeDocFolderButton").on('click', function(event) {
     var fid = $(this).attr("fid");
     clearSearchOnlyIfNecessary();
     loadFolder(fid);
-    
+
     $("#leftListWrapper").attr("show", "folder");
     setTimeout(function () {
         openSidebarMenu();
         hideRightClickDropdowns();
         hidePanels();
     }, 10);
-}); 
+});
 
 $("#loadParentOfDocButton").on('click', function(event) {
     var fid = $("#dropdown-doc").attr("parent");
     clearSearchOnlyIfNecessary();
     loadFolder(fid);
-    
+
     $("#leftListWrapper").attr("show", "folder");
     setTimeout(function () {
         openSidebarMenu();
         hideRightClickDropdowns();
         hidePanels();
     }, 10);
-}); 
+});
 
 
 $("body").on('click', '.goback', function(event) {
@@ -963,26 +968,26 @@ $("body").on('click', '.goback', function(event) {
 $("#activeFolder")[0].addEventListener('swiped-right', function(event) {
     loadParentFolder();
     hidePanels();
-}); 
+});
 
 
 
 
 $("#foldersButton").on('click', function(event) {
-    
+
     // if sidebar is open, pressing folders button will load root folder.
-    // if sidebar is closed, if we have an active folder, we'll first show the active folder, 
+    // if sidebar is closed, if we have an active folder, we'll first show the active folder,
     // then if user presses again, since sidebar is open, we load root folder
     if (sidebarOpen || !sidebarOpen && !activeFolderID) {
         loadRootFolder();
     }
-     
+
     setTimeout(function () {
         openSidebarMenu();
         hideRightClickDropdowns();
         hidePanels();
     }, 10);
-}); 
+});
 
 
 $("#recentsButton").on('click', function(event) {
@@ -998,13 +1003,13 @@ $("#folders")[0].addEventListener('swiped-right', function(event) {
     loadRecents();
     hideRightClickDropdowns();
     hidePanels();
-}); 
+});
 
 $("#explorerButtons").on('click', function(event) {
     if ($(event.target).is("button") || $(event.target).parents("button").length > 0) { return; }
     if (sidebarOpen) { return; }
     openSidebarMenu();
-}); 
+});
 
 
 
@@ -1049,7 +1054,7 @@ $("body").on('click', '.doc > .icon', function(event) {
 ////////////////////////////////////////////////
 
 
-// DOCS RIGHT CLICKS & DROPDOWNS 
+// DOCS RIGHT CLICKS & DROPDOWNS
 $("body").on('contextmenu', '.doc', function(event) {
     var did = $(this).attr("did");
     var isQuickRecent = $(this).parents("section").hasClass("quick-recent-docs") || false;
@@ -1065,7 +1070,7 @@ $("body").on('contextmenu', '.doc', function(event) {
     }
 
     event.preventDefault();
-}); 
+});
 
 $("body").on('click', '.doc > .more', function(event) {
     var did = $(this).parents(".doc").attr("did");
@@ -1077,7 +1082,7 @@ $("body").on('click', '.doc > .more', function(event) {
     }
 
     event.preventDefault();
-}); 
+});
 
 $("body").on('click', '#fileViewerOptionsButton', function(event) {
     var did = activeFileID;
@@ -1086,7 +1091,7 @@ $("body").on('click', '#fileViewerOptionsButton', function(event) {
     showDocRightClickDropdown(did, event.y, event.x);
 
     event.preventDefault();
-}); 
+});
 
 
 
@@ -1098,19 +1103,19 @@ $("body").on('contextmenu', '.folder, .subfolder', function(event) {
     var fid = $(this).attr("fid");
     showFolderRightClickDropdown(fid, event.x, event.y);
     event.preventDefault();
-}); 
+});
 
 $("body").on('click', '.folder > .ri-more-2-fill', function(event) {
     var fid = $(this).parents(".folder").attr("fid");
     showFolderRightClickDropdown(fid, event.x, event.y);
     event.preventDefault();
-}); 
+});
 
 $("body").on('click', '.subfolder > .more', function(event) {
     var fid = $(this).parents(".subfolder").attr("fid");
     showFolderRightClickDropdown(fid, event.x, event.y);
     event.preventDefault();
-}); 
+});
 
 
 // SELECTIONS RIGHT CLICKS & DROPDOWNS
@@ -1119,16 +1124,16 @@ $("body").on('click', '.subfolder > .more', function(event) {
 $("#selectionsFloat").on('click contextmenu', function(event) {
     showSelectionsRightClickDropdown(event.y);
     event.preventDefault();
-}); 
+});
 
 
 
 $("body").on('click', function(event) {
-    
+
     // CLOSE RIGHT CLICKS & DROPDOWNS
 
     if (
-        $(".dropdown").hasClass("show")                         &&     // if the dropdown is visible 
+        $(".dropdown").hasClass("show")                         &&     // if the dropdown is visible
         $(event.target).parents("#file-viewer-nav").length <= 0 &&     // if the click isn't inside file-viewer nav
         $(event.target).parents(".actionFloater").length <= 0   &&     // if the click isn't inside dropdown
         $(event.target).parents(".dropdown").length <= 0        &&     // if the click isn't inside dropdown
@@ -1141,7 +1146,7 @@ $("body").on('click', function(event) {
         event.preventDefault();
     }
 
-}); 
+});
 
 $(".dropdown").each(function () {
     this.addEventListener('swiped-left', function(event) {
@@ -1165,24 +1170,24 @@ $(".dropdown").each(function () {
 function togglePanel(panelID) {
     // toggle panel
     panelID = panelID || "";
-    
+
     if ($("#" + panelID).hasClass("hidden")) {
 
         $("#" + panelID).removeClass("hidden");
 
         setTimeout(function () {
-            
+
             $("#" + panelID).addClass("show");
-            
+
             // make panel button active
             $("#panel-button-" + panelID.replace("panel-","")).addClass("active");
-             
+
         }, 10);
 
     } else {
-        
+
         $("#" + panelID).removeClass("show");
-            
+
         // make panel button active
         $("#panel-button-" + panelID.replace("panel-","")).removeClass("active");
 
@@ -1191,7 +1196,7 @@ function togglePanel(panelID) {
 
     }
 
-    
+
     // hide all panels but this one
     hidePanels(panelID);
     hideTips();
@@ -1215,13 +1220,13 @@ function hidePanels(exceptID) {
     panelsToHide = panelsToHide.not("#table-dropdown");
 
     if (exceptID) {
-        
+
         // custom exceptions + except persistent stuff
         panelsToHide = panelsToHide.not("#" + exceptID);
         $("button[id^='panel-button']").not("#panel-button-" + exceptID.replace("panel-","")).removeClass("active");
 
     } else {
-        
+
         $("button[id^='panel-button']").removeClass("active");
 
         // try catch, because when we're starting up, we're lazy loading editor features, and this function doesn't exist yet
@@ -1231,8 +1236,8 @@ function hidePanels(exceptID) {
     }
 
     panelsToHide.removeClass("show");
- 
-    // animation is 300ms, you can hide it afterwards 
+
+    // animation is 300ms, you can hide it afterwards
     setTimeout(function () { panelsToHide.addClass("hidden"); }, 310);
 
 }
@@ -1245,7 +1250,7 @@ $("#rightSlide").on('click', function(event) {
         hideRightClickDropdowns();
         hidePanels();
     }
-}); 
+});
 
 
 ////////////////////////////////////////////////
@@ -1260,7 +1265,7 @@ var fontsPanelTimeout;
  * Prepares and toggles the fonts panel (i.e. gets the font button location, active font etc)
  */
 function toggleFontsPanel() {
-    
+
     var defaultFontSize = "16px";
 
     // STEP 1) GET THE FONT BUTTON POSITION
@@ -1281,16 +1286,16 @@ function toggleFontsPanel() {
     // STEP 4) GET THE SELECTED FONT SIZE & PARAGRAPH (HEADER) STYLE
     var header = (quillSafelyGetFormat() || {}).header || "p";
     var size   = (quillSafelyGetFormat() || {}).size || defaultFontSize; // default is 16px
-    
+
     // STEP 5) SET THE SIZE & PARAGRAPH STYLE IN THE PANEL
     $("#font-sizes-wrapper").find("button").removeAttr("selected");
     $("#font-sizes-wrapper").find(`button[size='${size}']`).attr("selected", true);
     $("#font-sizes-wrapper").find(`button[value='${header}']`).attr("selected", true);
-    
+
     // STEP 6) FOR BUBBLE/MOBILE, BLUR EDITOR SO TEXT SELECTION IS REMOVED WHEN POPUP IS DISPLAYED
-    
-    if (isMobile) { 
-        quill.blur(); 
+
+    if (isMobile) {
+        quill.blur();
         // you need a 500ms timeout because blurring quill closes all panels
         clearTimeout(fontsPanelTimeout);
         fontsPanelTimeout = setTimeout(function () {
@@ -1311,8 +1316,8 @@ $("#font-sizes-wrapper").on('click', "button", function(event) {
     $(this).attr("selected", true);
 
     if (size) { quillSafelyFormat("size", size); }
-    
-    if (header) { 
+
+    if (header) {
         if (header !== "p") {
             quillSafelyFormatLine("header", header);
             quillSafelyFormat("size", false);
@@ -1320,8 +1325,8 @@ $("#font-sizes-wrapper").on('click', "button", function(event) {
             quillSafelyFormatLine("header", false);
         }
     }
-    
-}); 
+
+});
 
 $("#font-families-wrapper").on('click', ".font", function(event) {
     var font = $(this).attr("font");
@@ -1335,30 +1340,30 @@ $("#font-families-wrapper").on('click', ".font", function(event) {
     } else {
         $(".ql-editor").attr("font", font);
     }
-    
-}); 
+
+});
 
 $("#font-families-wrapper").on('click', ".font > button", function(event) {
     var font = $(this).parents(".font").attr("font");
     setDeviceDefaultFont(font);
-}); 
+});
 
 function setDeviceDefaultFont(font) {
-    
+
     font = font || "josefin-sans";
-    
+
     try {
-    
+
         localStorage.setItem("defaultFont", font);
-        
+
         defaultFont = font;
 
         $(".fonts-list").find(".font").removeAttr("default");
         $(".fonts-list").find(`.font[font='${font}']`).attr("default", true);
-        $(".ql-editor").attr("font", font);        
-        
+        $(".ql-editor").attr("font", font);
+
         breadcrumb('[DEFAULT FONT] Successfully set device default font.');
-        
+
         createPopup("successfully changed the default font. cryptee will remember your default font choice on this device from now on. your current document and all newly created documents will now use this default font.");
 
     } catch (e) {
@@ -1375,7 +1380,7 @@ function setDeviceDefaultFont(font) {
 ////////////////////////////////////////////////
 
 $("#spellCheckerButton").on('click', function(event) {
-    
+
     var on = $(this).hasClass("on");
 
     if (on) {
@@ -1386,7 +1391,7 @@ $("#spellCheckerButton").on('click', function(event) {
         $("#spellCheckerButton").addClass("on");
     }
 
-}); 
+});
 
 
 
@@ -1408,19 +1413,19 @@ $("#lockEditsButton").on('click', function(event) {
         lockEditor();
         toggleDocumentEditLock(activeDocID, true);
     }
-}); 
+});
 
 
 $("#desktopToolbar").on('click', function(event) {
     var locked = $("body").hasClass("locked-doc");
-    // on mobile the desktop toolbar has all document action buttons, 
-    // and it causes all buttons to unclock the editor. 
+    // on mobile the desktop toolbar has all document action buttons,
+    // and it causes all buttons to unclock the editor.
     if (locked && !isMobile) {
         unlockEditor();
         toggleDocumentEditLock(activeDocID, false);
         event.preventDefault();
     }
-}); 
+});
 
 
 
@@ -1432,7 +1437,7 @@ $("#desktopToolbar").on('click', function(event) {
 
 
 $("#viewingModeButton").on('click', function(event) {
-    
+
     var on = $(this).hasClass("on");
 
     if (on) {
@@ -1441,7 +1446,7 @@ $("#viewingModeButton").on('click', function(event) {
         enableViewingMode();
     }
 
-}); 
+});
 
 
 ////////////////////////////////////////////////
@@ -1451,7 +1456,7 @@ $("#viewingModeButton").on('click', function(event) {
 ////////////////////////////////////////////////
 
 $("#focusModeButton").on('click', function(event) {
-    
+
     var on = $(this).hasClass("on");
 
     if (on) {
@@ -1460,7 +1465,7 @@ $("#focusModeButton").on('click', function(event) {
         enableFocusMode();
     }
 
-}); 
+});
 
 
 
@@ -1492,7 +1497,7 @@ $("#hyperlink-input").on('keyup', function(event) {
     if (event.key === "Enter") {
         confirmEmbed("link");
     }
-}); 
+});
 
 
 ////////////////////////////////////////////////
@@ -1501,13 +1506,13 @@ $("#hyperlink-input").on('keyup', function(event) {
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-    
+
 $("#tableofcontents").on('click', '.doctoc', function () {
     var targetIndex = $(this).attr("index");
     var targetHeading = tocArray[targetIndex];
     var targetOffset = targetHeading[0].offsetTop;
     $(targetHeading[0]).addClass("highlighted");
-    
+
     if (!isPaperMode()) {
         $('.ql-editor')[0].scrollTo({
             top: targetOffset - 75,
@@ -1568,8 +1573,8 @@ function showDownloadPopup() {
 
 function showInboxPopup() {
     createPopup(
-        `<b>Inbox</b> is a special type of folder, where all documents without folders go to. 
-        When you quickly create new documents, they will be created in inbox. 
+        `<b>Inbox</b> is a special type of folder, where all documents without folders go to.
+        When you quickly create new documents, they will be created in inbox.
         You can of course move these docs to other folders later if you wish.
         <i>You cannot rename, move, archive or ghost the inbox folder.</i>
         You can delete it like any other folder, but it will be re-created when necessary, if a new doc needs a home to live.`, "info");
@@ -1579,7 +1584,7 @@ function showInboxPopup() {
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
-// NEW DOC & FOLDER RECOS	
+// NEW DOC & FOLDER RECOS
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
@@ -1588,7 +1593,7 @@ function docNameTimeRecommendations() {
     var todayLocaleISODate = todaysDate.toLocaleString('sv').split(" ")[0].split("-").join("/");
     var todayLocaleWeekday = " " + todaysDate.toLocaleString(undefined, { weekday : "short" }) + " ";
     var todayLocaleTime = todaysDate.toLocaleString(undefined, {hour : "2-digit", minute : "2-digit" });
-    
+
     var todayLocale = todayLocaleISODate + todayLocaleWeekday + todayLocaleTime;
     var compactLocale = todayLocaleISODate + " " + todayLocaleTime;
     var shortLocale = todayLocaleISODate;
@@ -1666,7 +1671,7 @@ $("#new-doc-input, #copy-doc-input").on('keyup', function(event) {
     if (event.key === "ArrowUp") {
         docNameRecoUp();
     }
-}); 
+});
 
 $("#new-doc-recos, #copy-doc-recos").on('click', "time", function(event) {
     var recommendation = $(this).text();
@@ -1674,8 +1679,8 @@ $("#new-doc-recos, #copy-doc-recos").on('click', "time", function(event) {
     input.val(recommendation);
 });
 
-$("#panel-new-doc")[0].addEventListener('swiped-down', function() { hidePanels(); }); 
-$("#panel-copy-doc")[0].addEventListener('swiped-down', function() { hidePanels(); }); 
+$("#panel-new-doc")[0].addEventListener('swiped-down', function() { hidePanels(); });
+$("#panel-copy-doc")[0].addEventListener('swiped-down', function() { hidePanels(); });
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -1706,13 +1711,13 @@ $("#new-folder-input").on('keyup', function(event) {
         hidePanels();
         $("#new-folder-input").val("");
     }
-}); 
+});
 
-$("#panel-new-folder")[0].addEventListener('swiped-down', function() {  hidePanels(); }); 
+$("#panel-new-folder")[0].addEventListener('swiped-down', function() {  hidePanels(); });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 //
 //  SEARCH
 //
@@ -1726,22 +1731,22 @@ $("#searchInput").on('keyup paste', function(event) {
     activityHappened();
 
     setTimeout(function () {
-        
+
         var searchTerm = $("#searchInput").val().trim();
-        
+
         if (event.key === "Escape" || searchTerm === "") {
-            
+
             event.preventDefault();
-            stopLeftProgress();            
+            stopLeftProgress();
             clearSearch(event.key === "Escape"); // if it's escape, we'll blur the search
 
         } else if ( event.key === "Enter" && event.shiftKey && searchHighlightIndex >= 0 && activeDocID ){
 
-            // user pressed shift + enter 
+            // user pressed shift + enter
             // attach / link document highlighted in search, then close search
-            
+
             var didToAttach = $("#results > .highlight").not(".active, .loading, .decrypting").attr("did");
-            
+
             if (didToAttach) {
                 // if highlighted item is a doc, attach / link it
                 attachSelectedFileInline(didToAttach).then(()=>{
@@ -1753,12 +1758,12 @@ $("#searchInput").on('keyup paste', function(event) {
                 // if hihglighted item is a folder, then just load it
                 loadHighlightedResult();
             }
-            
+
         } else if (event.key === "Enter") {
-            
+
             event.preventDefault();
             loadHighlightedResult();
-            
+
         } else if (event.key === "Meta" || event.key === "Shift") {
             event.preventDefault();
         } else if (event.key === "Alt" || event.key === "Control") {
@@ -1775,33 +1780,33 @@ $("#searchInput").on('keyup paste', function(event) {
             highlightPreviousSearchResult();
 
         } else if (event.key === "ArrowDown") {
-            
+
             event.preventDefault();
             highlightNextSearchResult();
 
         } else {
-            
-            if (searchTerm.length < 2) { return; } 
+
+            if (searchTerm.length < 2) { return; }
 
             startLeftProgress();
 
             clearTimeout(searchTimer);
             clearTimeout(searchKeydownTimer);
             clearTimeout(clearSearchTimeout);
-            searchKeydownTimer = setTimeout(function () { 
-                search(searchTerm); 
+            searchKeydownTimer = setTimeout(function () {
+                search(searchTerm);
             }, 700);
         }
 
     }, 50);
-}); 
+});
 
 $("#searchInput").on('change', function(event) {
     var searchTerm = $("#searchInput").val().trim();
-        
+
     if (searchTerm === "") {
         event.preventDefault();
-        stopLeftProgress();            
+        stopLeftProgress();
         clearSearch(true);
     }
 });
@@ -1816,8 +1821,8 @@ $("#blankEditor").on("click", "details", function(event) {
     $("#blankEditor").find("details").not(this).removeAttr("open");
 });
 
-// DON'T USE THIS. 
-// IT BREAKS DROPDOWNS / PANELS LIKE ADD TABLE ETC 
+// DON'T USE THIS.
+// IT BREAKS DROPDOWNS / PANELS LIKE ADD TABLE ETC
 // $("#editorWrapper").on('click', function(event) {
 //     hideRightClickDropdowns();
 //     hidePanels();
@@ -1845,7 +1850,7 @@ $("#leftListWrapper").on("click", function(event) {
  * @param {String} buttonID (i.e. "panel-button-pagesetup")
  */
  function grabAttentionTo(buttonID) {
-     
+
     try {
         var alreadyPaidAttention = localStorage.getItem("attention-" + buttonID);
         if (!alreadyPaidAttention) {
@@ -1857,7 +1862,7 @@ $("#leftListWrapper").on("click", function(event) {
 
 
 /**
- * Disables attention grabber after user paid attention to a button by clicking on it etc. 
+ * Disables attention grabber after user paid attention to a button by clicking on it etc.
  * It's automatic, we do this by listening to all attention grabber buttons from window
  * @param {String} buttonID (i.e. "panel-button-pagesetup")
  */
@@ -1877,7 +1882,7 @@ function cleanOldAttentionGrabbers() {
                 $("#" + id).removeClass("grab-attention");
             }
         } catch (e) {}
-        
+
     });
 }
 
@@ -1889,7 +1894,7 @@ $(window).on('click', ".grab-attention" ,function(event) {
 
 /**
  * Goes through an array of button ids, and sets up attention grabbers, only on desktop!
- * @param {Array} buttons 
+ * @param {Array} buttons
  */
 function setupAttentionGrabbers(buttons) {
     buttons = buttons || [];
@@ -1898,8 +1903,8 @@ function setupAttentionGrabbers(buttons) {
     buttons.forEach(buttonID => { grabAttentionTo(buttonID); });
 }
 
-// This will set up all attention grabbers. 
-// If user already paid attention they will be removed in document ready 
+// This will set up all attention grabbers.
+// If user already paid attention they will be removed in document ready
 setupAttentionGrabbers([]);
 
 
@@ -1920,12 +1925,12 @@ $("input[type='radio'][name='template-mode']").on('click', function(event) {
     $("input[type='radio'][name='template-mode']").not(this).removeAttr("checked");
     let templatePaper = $(this).attr("mode");
     try { localStorage.setItem("template-paper", templatePaper); } catch (e) {}
-}); 
+});
 
 function recallLastTemplatePaperChoice() {
     let lastChoice;
-    try { 
-        lastChoice = localStorage.getItem("template-paper") || "continuous"; 
+    try {
+        lastChoice = localStorage.getItem("template-paper") || "continuous";
     } catch (e) {
         lastChoice = "continuous";
     }
@@ -1937,10 +1942,10 @@ function recallLastTemplatePaperChoice() {
 recallLastTemplatePaperChoice();
 
 async function prepareCrypteeTemplates() {
-    
+
     let templatesResponse = await fetch(apiROOT + "/api/static/cryptee-docs-templates/templates.json");
     let templates         = await templatesResponse.json();
-    
+
     let templateHTMLs = [];
     templates.forEach(template => { templateHTMLs.push(renderTemplateForGallery(template, "cryptee")); });
 
@@ -1953,7 +1958,7 @@ async function prepareUserTemplates() {
 
     let templates = Object.values(templatesObject);
     templates.sort((a, b) => b.generation - a.generation);
-    
+
     let templateHTMLs = [];
     templates.forEach(template => { templateHTMLs.push(renderTemplateForGallery(template, "user")); });
 
@@ -1969,19 +1974,19 @@ $("#view-template-gallery").on('click', 'input.preview-and-back', function(event
 $("#view-template-gallery").on('click', '.button-use-template', function(event) {
     let templateID = $(this).parents(".template").attr("id").replace("template-", "");
     resolveNewDocFromTemplatePromise(templateID);
-}); 
+});
 
 $("#view-template-gallery").on('click', '.button-delete-template', function(event) {
     $(this).parents(".template").addClass("marked-for-deletion");
     // let tfid = $(this).parents(".template").attr("id").replace("template-", "");
     // deleteTemplate(tfid);
-}); 
+});
 
 $("#view-template-gallery").on('click', '.button-cancel-delete-template', function(event) {
     $(this).parents(".template").removeClass("marked-for-deletion");
     // let tfid = $(this).parents(".template").attr("id").replace("template-", "");
     // deleteTemplate(tfid);
-}); 
+});
 
 $("#view-template-gallery").on('click', '.button-confirm-delete-template', function(event) {
     let tfid = $(this).parents(".template").attr("id").replace("template-", "");

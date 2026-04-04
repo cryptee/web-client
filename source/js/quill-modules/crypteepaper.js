@@ -151,12 +151,12 @@ function overflowLineOfPageInMM(pageNo) {
     if (pageNo <= 0) { pageNo = 1; }
 
     // for the first page, the overflow line is the paper's height - bottom margin
-    var overflowLineMM = (paper("height") - paper("margins"));
+    var overflowLineMM = (paper.height - paper.margins);
 
                                   // page 1                    + page 2
     // for all other pages, this is (paperHeight + opticalSep) + (paperHeight - bottomMar)
     if (pageNo > 1) {  
-        overflowLineMM = overflowLineMM + ((paper("height") + paper("opticalSeparator")) * (pageNo - 1)); 
+        overflowLineMM = overflowLineMM + ((paper.height + paper.opticalSeparator) * (pageNo - 1)); 
     }
     
     return overflowLineMM;
@@ -309,6 +309,10 @@ async function disablePaperMode(forDocLoad) {
     }
 
     paperZoom("100");
+
+    // cancel any pending debounced recalc so a stale calculatePaperOverflow can't fire after we've left paper mode.
+    // calculatePaperOverflow itself bails on !isPaperMode(), so this is hygiene more than necessity.
+    clearTimeout(paperOverflowDebounceTimeout);
 
     if (isMobile) {
         // check if doc was locked or not, and enable editor if it wasn't locked;
@@ -539,6 +543,34 @@ function calculateAndDisplayPageNavigationDots() {
     }
 
     checkIfPageChanged();
+}
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+//	DEBOUNCED RECALC FOR TEXT-CHANGE
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+var paperOverflowDebounceTimeout = null;
+
+/**
+ * Debounced wrapper for calculatePaperOverflow, used by quill's text-change handler.
+ * Coalesces rapid keystrokes so we only run paper layout calculations once after typing
+ * pauses, instead of queuing many overlapping calls during fast typing.
+ *
+ * Runs two passes: the first writes CSS vars based on current layout. The second runs
+ * one frame later (via rAF), after the browser has applied those writes, to catch any
+ * cascading shifts (e.g. table N+1's position changing because table N just moved to
+ * the next page). Using rAF instead of a fixed 250ms timer is both faster and tied to
+ * actual paint cycles instead of a guess.
+ */
+function scheduleCalculatePaperOverflow() {
+    clearTimeout(paperOverflowDebounceTimeout);
+    paperOverflowDebounceTimeout = setTimeout(function () {
+        var selectedNode = getSelectedNode();
+        calculatePaperOverflow(selectedNode);
+        requestAnimationFrame(function () { calculatePaperOverflow(selectedNode); });
+    }, 250);
 }
 
 /**
@@ -1295,8 +1327,10 @@ function splitWordsForPDFExport() {
 }
 
 /**
- * Takes a text, and splits its words into <span w>word</span> elements
- * @param {*} textNode 
+ * Takes a text node, splits its text into <span w>word</span> elements (plus whitespace runs) for PDF export pagination.
+ * Builds the replacement as DOM nodes via a DocumentFragment, so user content like '<', '>', '&'
+ * is preserved as plain text and can't corrupt the export by being re-parsed as HTML.
+ * @param {Text} textNode 
  */
 function splitWordsOfText(textNode) {
     if (textNode.parentNode.hasAttribute("w")) { return; } // failsafe juuuust in case.
@@ -1312,10 +1346,37 @@ function splitWordsOfText(textNode) {
     }
 
     var text = textNode.textContent;
-    // $(textNode).replaceWith("<span w>" + text.split(" ").join("</span> <span w>") + "</span>");
-    
-    var spanContent = text.replace(/\S+|\s+\s/g, '<span w>$&</span>');
-    $(textNode).replaceWith(spanContent);
+    if (!text) { return; }
+
+    // wrap each word (run of non-whitespace) and each multi-whitespace run in its own <span w>.
+    // single whitespaces fall through as plain text nodes between spans, which is intentional.
+    // we build nodes directly via textContent (no innerHTML) so user content can't be re-parsed as HTML,
+    // which previously could happen if the text contained '<', '>', or '&' and corrupt the PDF export.
+    var fragment = document.createDocumentFragment();
+    var wordRegex = /\S+|\s+\s/g;
+    var lastIndex = 0;
+    var match;
+
+    while ((match = wordRegex.exec(text)) !== null) {
+        // any plain text between the previous match and this one (i.e. single spaces)
+        if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+        }
+
+        var span = document.createElement("span");
+        span.setAttribute("w", "");
+        span.textContent = match[0];
+        fragment.appendChild(span);
+
+        lastIndex = wordRegex.lastIndex;
+    }
+
+    // any trailing text after the last match
+    if (lastIndex < text.length) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+
+    textNode.parentNode.replaceChild(fragment, textNode);
 }
 
 

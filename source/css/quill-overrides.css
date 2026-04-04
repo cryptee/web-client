@@ -1449,6 +1449,7 @@ crypteefile[filetitle$=".rar"]::before {
 
 
 crypteefile[filetitle$=".doc"]::before,
+crypteefile[filetitle$=".odt"]::before,
 crypteefile[filetitle$=".docx"]::before,
 crypteefile[filetitle$=".docm"]::before,
 crypteefile[filetitle$=".pages"]::before {

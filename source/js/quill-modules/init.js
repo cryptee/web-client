@@ -1017,11 +1017,7 @@ quill.on('text-change', function (delta, oldDelta, source) {
     // Everything after this point is for paper mode
     if (!isPaperMode()) { return; }
 
-    setTimeout(function () {
-        var selectedNode = getSelectedNode();
-        calculatePaperOverflow(selectedNode);
-        setTimeout(function () { calculatePaperOverflow(selectedNode); }, 250);
-    }, 250);
+    scheduleCalculatePaperOverflow();
 
 });
 
